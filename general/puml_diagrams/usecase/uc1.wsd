@@ -20,15 +20,15 @@ actor "User" as User
 usecase "Sign In" as SignIn
 usecase "Sign Up" as SignUp
 
-usecase "View profile" as ViewProfile
-usecase "Edit profile" as EditProfile
+usecase "View my profile" as ViewMyProfile
+usecase "Edit my profile" as EditMyProfile
 
 usecase "View mates" as ViewMates
-usecase "Chat with mate" as ChatWithMate
+usecase "Chat with a mate" as ChatWithMate
 usecase "View mates' requests" as ViewMatesReqs
-usecase "Accept/Cancel\nmate's request" as AccCanMateReq
+usecase "Accept/Cancel\na mate's request" as AccCanMateReq
 
-usecase "View user profile" as ViewUserProfile
+usecase "View an expanded\nuser's profile" as ViewExpandedUserProfile
 
 ' see uc2.wsd diagram...
 usecase "Go geo chat" as GoGeoChat
@@ -40,14 +40,14 @@ left to right direction
 User --> SignIn
 User --> SignUp
 
-User --> ViewProfile
-ViewProfile <-u- EditProfile : <<extend>>
+User --> ViewMyProfile
+ViewMyProfile <-u- EditMyProfile : <<extend>>
 
 User -u-> ViewMates
 ViewMates <-- ChatWithMate : <<extend>>
 ViewMates <-- ViewMatesReqs : <<extend>>
 ViewMatesReqs <-- AccCanMateReq : <<extend>>
-ViewMatesReqs <-- ViewUserProfile : <<extend>>
+ViewMatesReqs <-- ViewExpandedUserProfile : <<extend>>
 
 User -u-> GoGeoChat
 
