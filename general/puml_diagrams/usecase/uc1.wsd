@@ -1,0 +1,54 @@
+@startuml uc1
+
+skinparam ArrowThickness 1.25
+
+skinparam ActorBorderThickness 1.5
+skinparam ActorBackgroundColor #FEFECE
+skinparam ActorBorderColor #B20842
+
+skinparam UsecaseBorderColor #B20842
+skinparam UsecaseBorderThickness 1.25
+skinparam UsecaseBackgroundColor #FEFECE
+
+skinparam Shadowing true
+skinparam dpi 200
+
+' -----------------------------------------------
+
+actor "User" as User
+
+usecase "Sign In" as SignIn
+usecase "Sign Up" as SignUp
+
+usecase "View profile" as ViewProfile
+usecase "Edit profile" as EditProfile
+
+usecase "View mates" as ViewMates
+usecase "Chat with mate" as ChatWithMate
+usecase "View mates' requests" as ViewMatesReqs
+usecase "Accept/Cancel\nmate's request" as AccCanMateReq
+
+usecase "View user profile" as ViewUserProfile
+
+' see uc2.wsd diagram...
+usecase "Go geo chat" as GoGeoChat
+
+' -----------------------------------------------
+
+left to right direction
+
+User --> SignIn
+User --> SignUp
+
+User --> ViewProfile
+ViewProfile <-u- EditProfile : <<extend>>
+
+User -u-> ViewMates
+ViewMates <-- ChatWithMate : <<extend>>
+ViewMates <-- ViewMatesReqs : <<extend>>
+ViewMatesReqs <-- AccCanMateReq : <<extend>>
+ViewMatesReqs <-- ViewUserProfile : <<extend>>
+
+User -u-> GoGeoChat
+
+@enduml

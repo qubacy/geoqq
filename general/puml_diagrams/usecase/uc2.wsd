@@ -1,0 +1,52 @@
+@startuml uc1
+
+skinparam ArrowThickness 1.25
+
+skinparam ActorBorderThickness 1.5
+skinparam ActorBackgroundColor #FEFECE
+skinparam ActorBorderColor #B20842
+
+skinparam UsecaseBorderColor #B20842
+skinparam UsecaseBorderThickness 1.25
+skinparam UsecaseBackgroundColor #FEFECE
+
+skinparam Shadowing true
+skinparam dpi 200
+
+' -----------------------------------------------
+
+actor "User" as User
+
+usecase "Join geo chat" as JoinGeoChat
+usecase "Set radius" as SetRadius
+
+usecase "View geo chat" as ViewGeoChat
+usecase "Prepare a message" as PrepareMsg
+usecase "Add a document" as AddDocument 
+usecase "Enter text" as EnterText
+usecase "Send a message" as SendMsg
+
+usecase "View a shorted\nuser's profile" as ViewShortedUserProfile
+usecase "Send\na mate's request" as SendMateReq
+usecase "View an expanded\nuser's profile" as ViewExpandedUserProfile
+
+' -----------------------------------------------
+
+left to right direction
+
+User -u-> JoinGeoChat
+JoinGeoChat <-d- SetRadius : <<extend>>
+
+User -u-> ViewGeoChat
+ViewGeoChat <-d- PrepareMsg : <<extend>>
+ViewGeoChat <-u- SendMsg : <<extend>>
+ViewGeoChat <-u- ViewShortedUserProfile : <<extend>>
+
+ViewShortedUserProfile <-- ViewExpandedUserProfile : <<extend>>
+ViewExpandedUserProfile <-- SendMateReq : <<extend>>
+ViewShortedUserProfile <-- SendMateReq : <<extend>>
+
+PrepareMsg <-u- AddDocument : <<extend>>
+PrepareMsg <-u- EnterText : <<extend>>
+
+@enduml
