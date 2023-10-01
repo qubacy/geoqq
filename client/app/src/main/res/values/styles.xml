@@ -32,7 +32,7 @@
     </style>
 
     <style name="MaterialTextAppearanceBodyMedium" parent="@style/TextAppearance.Material3.BodyMedium">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="MaterialTextAppearanceButton" parent="@style/TextAppearance.MaterialComponents.Button">

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.component.bottomsheet
+package com.qubacy.geoqq.ui.common.bottomsheet
 
 import android.content.Context
 import android.text.TextUtils.TruncateAt

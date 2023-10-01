@@ -67,10 +67,12 @@
                         android:text="@string/app_logo_name"/>
 
                     <include
+                        android:id="@+id/login_input"
                         layout="@layout/component_medium_text_input"
                         app:inputHint="@{@string/login_hint}"/>
 
                     <include
+                        android:id="@+id/password_input"
                         layout="@layout/component_medium_password_input"
                         app:inputHint="@{@string/password_hint}" />
 
@@ -90,7 +92,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/sign_up"
+            android:id="@+id/sign_up_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,6 +1,9 @@
 <resources
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
+
+<!-- TODO: provide a night version of the app's appearance -->
+
     <style name="Base.Theme.Geoqq" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
 

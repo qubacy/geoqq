@@ -13,10 +13,11 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(mBinding.root)
+
+
     }
 
     fun changeStatusBarColor(@ColorRes colorResId: Int) {
         window.statusBarColor = resources.getColor(colorResId)
     }
-
 }
