@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Typography: -->
+
+    <style name="MaterialTextAppearanceDisplayMedium" parent="@style/TextAppearance.Material3.DisplayMedium">
+        <item name="android:textSize">32sp</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="MaterialTextAppearanceHeadlineLarge" parent="@style/TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceHeadlineMedium" parent="@style/TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceTitleLarge" parent="@style/TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceTitleMedium" parent="@style/TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceTitleSmall" parent="@style/TextAppearance.Material3.TitleSmall">
+
+    </style>
+
+    <style name="MaterialTextAppearanceBodyLarge" parent="@style/TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceBodyMedium" parent="@style/TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceButton" parent="@style/TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceLabelLarge" parent="@style/TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <!-- Shapes: -->
+
+    <style name="CircularMaterialShapeAppearanceOverlay">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="EasyRoundedMaterialShapeAppearanceOverlay">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <!-- Styles: -->
+
+    <style name="MaterialCardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="strokeWidth">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+    <style name="MaterialCardView.Circular" parent="MaterialCardView">
+        <item name="shapeAppearanceOverlay">@style/CircularMaterialShapeAppearanceOverlay</item>
+    </style>
+
+    <style name="MaterialCardView.EasyRounded" parent="MaterialCardView">
+        <item name="cardCornerRadius">16dp</item>
+    </style>
+
+    <style name="ScreenHeaderMaterialTextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadlineLarge</item>
+        <item name="android:textColor">?attr/colorSurfaceContainer</item>
+    </style>
+
+    <style name="ScreenHeaderMaterialTextView.AppLabel" parent="ScreenHeaderMaterialTextView">
+        <!--        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>-->
+        <item name="android:textAppearance">?attr/textAppearanceDisplayMedium</item>
+        <item name="android:fontFamily">@font/michroma</item>
+    </style>
+
+    <style name="MaterialTextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="errorIconDrawable">@null</item>
+        <item name="errorIconTint">@null</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxBackgroundMode">filled</item>
+        <item name="shapeAppearanceOverlay">@style/EasyRoundedMaterialShapeAppearanceOverlay</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+    </style>
+
+    <style name="MaterialDropdownTextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <item name="errorIconDrawable">@null</item>
+        <item name="errorIconTint">@null</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxBackgroundMode">filled</item>
+        <item name="shapeAppearanceOverlay">@style/EasyRoundedMaterialShapeAppearanceOverlay</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+    </style>
+
+    <style name="MaterialTextInputEditText" parent="ThemeOverlay.Material3.TextInputEditText">
+        <item name="android:minHeight">40dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:inputType">text</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="MaterialTextInputEditText.High" parent="MaterialTextInputEditText">
+        <item name="android:minHeight">48dp</item>
+        <!--        <item name="android:textSize">20sp</item>-->
+    </style>
+
+    <style name="ExtendedMaterialActionButton" parent="Widget.MaterialComponents.ExtendedFloatingActionButton">
+        <item name="height">48dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="iconGravity">end</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">32dp</item>
+        <item name="iconTint">?attr/colorOnPrimaryContainer</item>
+        <!--        <item name="rippleColor">?attr/colorOnPrimary</item>-->
+        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+        <item name="shapeAppearanceOverlay">@style/CircularMaterialShapeAppearanceOverlay</item>
+    </style>
+
+    <style name="MaterialActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="height">48dp</item>
+        <!--        <item name="rippleColor">?attr/colorOnPrimary</item>-->
+        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <!--        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>-->
+        <!--        <item name="android:textSize">20sp</item>-->
+        <!--        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>-->
+        <item name="tint">?attr/colorOnPrimaryContainer</item>
+    </style>
+
+    <style name="MaterialImageView" parent="">
+        <item name="elevation">4dp</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="roundPercent">1</item>
+    </style>
+
+    <style name="MaterialRecyclerView" parent="">
+        <item name="android:padding">8dp</item>
+        <item name="layoutManager">androidx.recyclerview.widget.LinearLayoutManager</item>
+    </style>
+
+    <style name="MenuOptionConstraintLayout" parent="">
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="MenuOptionMaterialTextView" parent="Widget.MaterialComponents.TextView">
+        <!--        <item name="android:textColor">@color/white</item>-->
+        <item name="android:textColor">?attr/colorSurfaceContainer</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="MenuOptionMaterialTextView.Title" parent="MenuOptionMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
+        <!--        <item name="android:textSize">40sp</item>-->
+    </style>
+
+    <style name="MenuOptionMaterialTextView.Description" parent="MenuOptionMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <!--        <item name="android:textSize">24sp</item>-->
+    </style>
+
+    <style name="ProfileCardMaterialTextView" parent="Widget.MaterialComponents.TextView">
+        <!--        <item name="android:textSize">24sp</item>-->
+        <item name="android:textColor">?attr/colorOnPrimarySurface</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+    </style>
+
+    <style name="ProfileCardMaterialTextView.Title" parent="ProfileCardMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
+    <style name="ChatMessageMaterialTextView" parent="Widget.MaterialComponents.TextView">
+
+    </style>
+
+    <style name="ChatMessageMaterialTextView.Title" parent="ChatMessageMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
+    <style name="ChatMessageMaterialTextView.Body" parent="ChatMessageMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="ChatMessageMaterialTextView.Detail" parent="ChatMessageMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="ChatSendingMaterialCardShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">32dp</item>
+        <item name="cornerSizeTopRight">32dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+    </style>
+
+</resources>

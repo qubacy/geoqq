@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="menuOptionBackground"
+            type="android.graphics.drawable.Drawable" />
+        <variable
+            name="menuOptionRipple"
+            type="android.graphics.drawable.Drawable" />
+        <variable
+            name="menuOptionTitle"
+            type="String" />
+        <variable
+            name="menuOptionDescription"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/MenuOptionConstraintLayout">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_horizontal_50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:menuOptionBackground="@{menuOptionBackground}"
+            android:clickable="true"
+            android:focusable="true"
+            tools:src="@drawable/geo_chat_mate_menu_option_background"/>
+
+<!--  app:menuOptionBackground="@{menuOptionBackground}"-->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/guideline_horizontal_50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="4dp"
+            style="@style/MenuOptionMaterialTextView.Title"
+            android:text="@{menuOptionTitle}"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            style="@style/MenuOptionMaterialTextView.Description"
+            android:text="@{menuOptionDescription}"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/go_menu_option_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:menuOptionRipple="@{menuOptionRipple}"
+            tools:background="@android:color/transparent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

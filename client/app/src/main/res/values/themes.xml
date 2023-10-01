@@ -1,9 +1,109 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Geoqq" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="android:shadowColor">#7F000000</item>
+
+        <item name="scrimColor">?android:shadowColor</item>
+
+        <!-- Inputs' background: -->
+        <item name="colorSurfaceContainerHighest">@color/white</item>
+        <!-- TextInput text color etc: -->
+        <item name="colorOnSurface">@color/black</item>
+        <!-- TextInput hint color etc: -->
+        <item name="colorOnSurfaceVariant">#FF615D5D</item>
+
+        <item name="materialCardViewStyle">@style/MaterialCardView</item>
+        <item name="extendedFloatingActionButtonStyle">@style/ExtendedMaterialActionButton</item>
+        <item name="floatingActionButtonStyle">@style/MaterialActionButton</item>
+        <item name="recyclerViewStyle">@style/MaterialRecyclerView</item>
+
+        <!-- M3 Typography: -->
+
+        <!-- For GEOqq logo only: -->
+        <item name="textAppearanceDisplayMedium">@style/MaterialTextAppearanceDisplayMedium</item>
+        <!-- For a title on SignUp screen: -->
+        <item name="textAppearanceHeadlineLarge">@style/MaterialTextAppearanceHeadlineLarge</item>
+        <!-- For a username text in UserProfileBottomSheet: -->
+        <item name="textAppearanceHeadlineMedium">@style/MaterialTextAppearanceHeadlineMedium</item>
+        <!-- For options' titles in MainMenu: -->
+        <item name="textAppearanceTitleLarge">@style/MaterialTextAppearanceTitleLarge</item>
+        <!-- For MyProfile's setting sections:?? -->
+        <item name="textAppearanceTitleMedium">@style/MaterialTextAppearanceTitleMedium</item>
+        <!-- For descriptions: -->
+        <item name="textAppearanceBodyLarge">@style/MaterialTextAppearanceBodyLarge</item>
+        <!-- For TextFields' input & hint texts: -->
+        <item name="textAppearanceBodyMedium">@style/MaterialTextAppearanceBodyMedium</item>
+        <!-- For MaterialButtons & TextFields' labels: -->
+        <item name="textAppearanceLabelLarge">@style/MaterialTextAppearanceLabelLarge</item>
+        <!-- For Extended FABs: -->
+        <item name="textAppearanceButton">@style/MaterialTextAppearanceButton</item>
+
     </style>
 
-    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
+    <style name="Base.Theme.Geoqq.GeoChat">
+        <!-- Loading indication: -->
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Following m3 guidelines: -->
+
+        <item name="colorPrimaryContainer">@color/green_primary</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <item name="colorSurface">@color/green_dark</item>
+        <item name="colorSurfaceContainerLow">@color/green_dark</item>
+        <item name="colorSurfaceContainer">@color/white</item>
+
+        <item name="statusBarBackground">@color/green_dark</item>
+
+        <item name="android:windowBackground">@drawable/geo_chat_background</item>
+    </style>
+
+    <style name="Base.Theme.Geoqq.MyProfile">
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Following m3 guidelines: -->
+
+        <item name="colorPrimaryContainer">@color/orange_primary</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <item name="colorSurface">@color/orange_dark</item>
+        <item name="colorSurfaceContainerLow">@color/orange_dark</item>
+        <item name="colorSurfaceContainer">@color/orange_light</item>
+
+        <item name="statusBarBackground">@color/orange_dark</item>
+
+        <item name="android:windowBackground">@drawable/my_profile_background</item>
+    </style>
+
+    <style name="Base.Theme.Geoqq.Mates">
+        <item name="colorPrimary">@color/yellow_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Following m3 guidelines: -->
+
+        <item name="colorPrimaryContainer">@color/yellow_primary</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <item name="colorSurface">@color/yellow_dark</item>
+        <item name="colorSurfaceContainerLow">@color/yellow_dark</item>
+        <item name="colorSurfaceContainer">@color/white</item>
+
+        <item name="statusBarBackground">@color/yellow_dark</item>
+
+        <item name="android:windowBackground">@drawable/mate_background</item>
+    </style>
+
+    <style name="Theme.Geoqq" parent="Base.Theme.Geoqq" />
+
+    <style name="Theme.Geoqq.GeoChat" parent="Base.Theme.Geoqq.GeoChat" />
+
+    <style name="Theme.Geoqq.MyProfile" parent="Base.Theme.Geoqq.MyProfile" />
+
+    <style name="Theme.Geoqq.Mates" parent="Base.Theme.Geoqq.Mates" />
+
 </resources>

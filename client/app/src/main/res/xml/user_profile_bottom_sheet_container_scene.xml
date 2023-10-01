@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!--    <Transition-->
+<!--        android:id="@+id/transition_A_B"-->
+<!--        app:constraintSetStart="@id/closed_state"-->
+<!--        app:constraintSetEnd="@id/preview_open_state"-->
+<!--        app:duration="400"-->
+<!--        app:motionInterpolator="easeInOut">-->
+
+<!--        <OnSwipe-->
+<!--            app:touchAnchorId="@id/user_profile_bottom_sheet"-->
+<!--            app:dragDirection="dragUp" />-->
+
+<!--    </Transition>-->
+
+<!--    <Transition-->
+<!--        android:id="@+id/transition_B_C"-->
+<!--        app:constraintSetStart="@id/preview_open_state"-->
+<!--        app:constraintSetEnd="@id/open_state"-->
+<!--        app:duration="400"-->
+<!--        app:motionInterpolator="easeInOut">-->
+
+<!--        <OnSwipe-->
+<!--            app:touchAnchorId="@id/user_profile_bottom_sheet"-->
+<!--            app:dragDirection="dragUp" />-->
+
+<!--    </Transition>-->
+
+<!--    <ConstraintSet-->
+<!--        android:id="@+id/closed_state">-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/user_profile_bottom_sheet"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toBottomOf="parent"/>-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/bottom_sheet_scrim"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            android:alpha="0"/>-->
+
+<!--    </ConstraintSet>-->
+
+<!--    <ConstraintSet-->
+<!--        android:id="@+id/preview_open_state">-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/user_profile_bottom_sheet"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_width="match_parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@null"/>-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/bottom_sheet_scrim"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            android:alpha="1"/>-->
+
+<!--    </ConstraintSet>-->
+
+<!--    <ConstraintSet-->
+<!--        android:id="@+id/open_state">-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/user_profile_bottom_sheet"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            android:layout_marginTop="120dp"/>-->
+
+<!--        <Constraint-->
+<!--            android:id="@id/bottom_sheet_scrim"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            android:alpha="1"/>-->
+
+<!--    </ConstraintSet>-->
+
+</MotionScene>

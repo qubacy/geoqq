@@ -1,3 +1,54 @@
 <resources>
     <string name="app_name">Geoqq</string>
+
+    <string name="login_hint">Your login..</string>
+    <string name="app_logo_name">GEOqq</string>
+    <string name="sign_in_button_caption">Sign In</string>
+
+    <string name="sign_up_button_caption">Sign Up</string>
+    <string name="password_hint">Your password..</string>
+    <string name="sign_up_screen_header">Sign Up</string>
+    <string name="sign_up_confirm_button_caption">Confirm</string>
+    <string name="password_confirmation_hint">Password again..</string>
+
+    <string name="go_menu_option">GO</string>
+    <string name="go_menu_option_description">Chatting within the radius</string>
+    <string name="profile_menu_option">Profile</string>
+    <string name="profile_menu_option_description">View your data</string>
+    <string name="mates_menu_option">Mates</string>
+    <string name="mates_menu_option_description">Met people</string>
+
+    <string name="radius_setting_label_250m">250m</string>
+    <string name="radius_setting_label_500m">500m</string>
+    <string name="radius_setting_label_1km">1km</string>
+    <string name="radius_setting_label_3km">3km</string>
+    <string name="radius_setting_label_10km">10km</string>
+
+    <string name="sending_message_hint">Type your text..</string>
+
+    <string name="user_action_add_friend">Add friend</string>
+    <string name="user_action_remove_friend">Remove Friend</string>
+    <string name="user_action_user_added_message">The user has been requested for friendship!</string>
+
+    <string name="profile_confirm_button">Confirm</string>
+    <string name="profile_avatar_upload">Upload</string>
+    <string name="profile_personal_data_section_title">Personal Data</string>
+    <string name="profile_personal_data_section_username">Username</string>
+    <string name="profile_personal_data_section_about_me">About Me</string>
+    <string name="profile_security_section_title">Security</string>
+    <string name="profile_security_section_password">Password</string>
+    <string name="profile_security_section_password_hint">New password..</string>
+    <string name="profile_security_section_confirm_password">Repeat Password</string>
+    <string name="profile_security_section_confirm_password_hint">Confirm new password..</string>
+    <string name="profile_privacy_section_title">Privacy</string>
+    <string name="profile_privacy_section_hit_up">Can anybody hit me up?</string>
+    <string name="go_button_caption">GO</string>
+    <string name="sending_button_description">Send Button</string>
+    <string name="friend_request_card_button_caption">Check</string>
+    <string name="new_mates_requests">You have some new friends requests!</string>
+
+    <string-array name="hit_up_variants">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
 </resources>

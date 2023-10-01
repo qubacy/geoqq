@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="radiusSettingOptionText"
+            type="String" />
+        <variable
+            name="radiusSettingOptionIsChecked"
+            type="Boolean" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:button="@android:color/transparent"
+            android:drawableTop="@drawable/geo_chat_settings_radius_radio_button"
+            android:textAlignment="center"
+            android:textSize="0sp"
+            android:checked="@{radiusSettingOptionIsChecked}"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:rotation="-30"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:text="@{radiusSettingOptionText}"
+            tools:text="@string/radius_setting_label_10km"/>
+
+    </LinearLayout>
+
+</layout>
