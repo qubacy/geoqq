@@ -56,7 +56,8 @@ class SignInFragment : WaitingFragment() {
             return
         }
 
-        handleWaitingStart()
+//        handleWaitingStart() // there's no reason to do it manually. the model should change isWaiting
+                               // value that has to lead to calling the method;
 
         // todo: passing the data to the model..
     }

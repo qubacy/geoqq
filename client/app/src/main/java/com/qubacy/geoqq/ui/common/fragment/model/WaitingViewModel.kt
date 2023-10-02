@@ -1,5 +1,9 @@
 package com.qubacy.geoqq.ui.common.fragment.model
 
+import androidx.lifecycle.MutableLiveData
+
 abstract class WaitingViewModel() : BaseViewModel() {
-    public var mIsWaiting = false
+    protected val mIsWaiting = MutableLiveData<Boolean>(false)
+    val isWaiting = mIsWaiting
+
 }

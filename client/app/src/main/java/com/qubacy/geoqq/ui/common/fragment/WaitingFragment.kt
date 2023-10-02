@@ -26,11 +26,20 @@ abstract class WaitingFragment(
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        mModel.isWaiting.observe(viewLifecycleOwner) {
+            if (it) handleWaitingStart()
+            else handleWaitingStop()
+        }
+    }
+
     private fun onBackPressed(
         dispatcher: OnBackPressedDispatcher,
         callback: OnBackPressedCallback)
     {
-        if (!mModel.mIsWaiting) {
+        if (!mModel.isWaiting.value!!) {
             callback.remove()
             dispatcher.onBackPressed()
 
@@ -41,9 +50,9 @@ abstract class WaitingFragment(
     }
 
     protected open fun handleWaitingStart() {
-        if (mModel.mIsWaiting) return
-
-        mModel.mIsWaiting = true
+//        if (mModel.isWaiting.value!!) return
+//
+//        mModel.isWaiting.value = true
 
         if (mLoadingView == null) initLoadingView()
 
@@ -68,9 +77,9 @@ abstract class WaitingFragment(
     }
 
     protected open fun handleWaitingStop() {
-        if (!mModel.mIsWaiting) return
+//        if (!mModel.isWaiting.value!!) return
 
-        mModel.mIsWaiting = false
+//        mModel.isWaiting.value = false
 
         if (mLoadingView == null) {
             // todo: what to do?
