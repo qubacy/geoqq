@@ -4,12 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
+import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
+import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModelFactory
 
-class SignUpFragment : Fragment() {
+class SignUpFragment : WaitingFragment() {
+    override val mModel: SignUpViewModel by viewModels {
+        SignUpViewModelFactory()
+    }
+
     private lateinit var mBinding: FragmentSignUpBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +49,8 @@ class SignUpFragment : Fragment() {
 
             return
         }
+
+        handleWaitingStart()
 
         // todo: conveying data to the model..
     }

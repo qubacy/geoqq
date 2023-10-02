@@ -6,12 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
+import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
+import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModel
+import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModelFactory
 
-class SignInFragment : Fragment() {
+class SignInFragment : WaitingFragment() {
+    override val mModel: SignInViewModel by viewModels {
+        SignInViewModelFactory()
+    }
+
     private lateinit var mBinding: FragmentSignInBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +55,8 @@ class SignInFragment : Fragment() {
 
             return
         }
+
+        handleWaitingStart()
 
         // todo: passing the data to the model..
     }

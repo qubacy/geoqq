@@ -314,5 +314,68 @@ class SignUpFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withText(R.string.error_sign_up_data_not_full))
             .check(ViewAssertions.doesNotExist())
+        Espresso.onView(ViewMatchers.isRoot())
+            .check(ViewAssertions.matches(
+                ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
+    }
+
+    @Test
+    fun loginAndPasswordAndRepeatedPasswordProvidedAndSignInClickedThenAbortedByBackButtonClickTest() {
+        val login = "login"
+        val password = "pass"
+
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(login))
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(password))
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_confirmation_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(ViewActions.pressBack())
+        Espresso.onView(ViewMatchers.withId(R.id.loading_screen))
+            .check(ViewAssertions.doesNotExist())
+    }
+    @Test
+    fun loginAndPasswordAndRepeatedPasswordProvidedAndSignInClickedThenAbortedByLoadingScreenClickTest() {
+        val login = "login"
+        val password = "pass"
+
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(login))
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(password))
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_confirmation_input)),
+                ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
+            ))
+            .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.loading_screen))
+            .perform(ViewActions.click())
+            .check(ViewAssertions.doesNotExist())
     }
 }

@@ -8,7 +8,7 @@
 
     </data>
 
-    <com.qubacy.geoqq.ui.common.bottomsheet.BottomSheetLayout
+    <com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:theme="@style/Theme.Geoqq.GeoChat">
@@ -46,6 +46,6 @@
             android:id="@+id/user_profile_bottom_sheet"
             layout="@layout/component_user_profile_bottom_sheet" />
 
-    </com.qubacy.geoqq.ui.common.bottomsheet.BottomSheetLayout>
+    </com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetLayout>
 
 </layout>

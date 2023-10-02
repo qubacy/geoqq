@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.qubacy.geoqq.ui.common.bottomsheet.BottomSheetContent
+<com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContent
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -95,4 +95,4 @@
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 
-</com.qubacy.geoqq.ui.common.bottomsheet.BottomSheetContent>
+</com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContent>
