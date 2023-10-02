@@ -61,7 +61,7 @@
             android:text="@{menuOptionDescription}"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/go_menu_option_button"
+            android:id="@+id/menu_option_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:menuOptionRipple="@{menuOptionRipple}"
