@@ -26,12 +26,11 @@ class SignInFragmentTest {
     fun setup() {
         mSignInFragmentScenarioRule =
             launchFragmentInContainer<SignInFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
+        mSignInFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
     }
 
     @Test
     fun allElementsAreInPlaceTest() {
-        mSignInFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
-
         Espresso.onView(ViewMatchers.withId(R.id.login_input))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))

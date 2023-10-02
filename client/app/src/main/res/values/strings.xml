@@ -54,5 +54,6 @@
 
 <!--  Errors:  -->
     <string name="error_sign_in_data_not_full">Please, provide Login and Password!</string>
+    <string name="error_sign_up_data_not_full">Please, provide Login, Password and the Password again!</string>
 
 </resources>
