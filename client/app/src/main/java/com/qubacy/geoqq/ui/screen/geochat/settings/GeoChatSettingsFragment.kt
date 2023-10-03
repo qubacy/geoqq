@@ -1,34 +1,52 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.IdRes
-import androidx.core.view.children
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import com.qubacy.geoqq.R
+import com.google.android.gms.location.CurrentLocationRequest
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
 import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
+import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Circle
+import com.yandex.mapkit.geometry.Geometry
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CircleMapObject
 
 class GeoChatSettingsFragment : WaitingFragment() {
+    companion object {
+        const val TAG = "SETTINGS_FRAGMENT"
+
+        const val LOCATION_CIRCLE_STROKE_WIDTH = 2f
+        const val CAMERA_MOVING_ANIMATION_DURATION = 1f
+        const val VIEW_CIRCLE_COEFFICIENT = 1.2f
+    }
+
     override val mModel: GeoChatSettingsViewModel by viewModels {
         GeoChatSettingsViewModelFactory()
     }
 
     private lateinit var mBinding: FragmentGeoChatSettingsBinding
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+
+    private var mCurLocationPoint: Point = Point(0.0, 0.0)
+    private var mCurLocationCircle: CircleMapObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         MapKitFactory.initialize(requireContext())
-
-        // todo: WORK WITH RUNTIME PERMISSIONS TO OBTAIN A LOCATION!
     }
 
     override fun onStart() {
@@ -58,36 +76,44 @@ class GeoChatSettingsFragment : WaitingFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
+            changeRadiusChoice(it)
+            drawCurLocationCircle()
+            setCameraPositionForCurCircle()
+        }
+
         mBinding.radiusSetting250m.radioButton.setOnClickListener {
-            changeRadiusChoice(R.id.radius_setting_250m)
+            mModel.changeCurRadiusOptionIndex(0)
         }
         mBinding.radiusSetting500m.radioButton.setOnClickListener {
-            changeRadiusChoice(R.id.radius_setting_500m)
+            mModel.changeCurRadiusOptionIndex(1)
         }
         mBinding.radiusSetting1km.radioButton.setOnClickListener {
-            changeRadiusChoice(R.id.radius_setting_1km)
+            mModel.changeCurRadiusOptionIndex(2)
         }
         mBinding.radiusSetting3km.radioButton.setOnClickListener {
-            changeRadiusChoice(R.id.radius_setting_3km)
+            mModel.changeCurRadiusOptionIndex(3)
         }
         mBinding.radiusSetting10km.radioButton.setOnClickListener {
-            changeRadiusChoice(R.id.radius_setting_10km)
+            mModel.changeCurRadiusOptionIndex(4)
         }
         mBinding.goButton.setOnClickListener { onGoClicked() }
     }
 
-    private fun changeRadiusChoice(@IdRes radiusChoiceId: Int) {
-        for (radiusVariantView in mBinding.radiusSettings.children) {
+    private fun changeRadiusChoice(radiusOptionIndex: Int) {
+        for (curRadiusOptionIndex in 0 until mBinding.radiusSettings.childCount) {
+            val curRadiusVariantView = mBinding.radiusSettings.getChildAt(curRadiusOptionIndex)
+
             val curRadiusVariantBinding =
-                DataBindingUtil.getBinding<ComponentRadiusSettingOptionBinding>(radiusVariantView)
+                DataBindingUtil.getBinding<ComponentRadiusSettingOptionBinding>(curRadiusVariantView)
 
             if (curRadiusVariantBinding == null) return
 
             if (curRadiusVariantBinding.radiusSettingOptionIsChecked == true) {
-                if (radiusChoiceId == radiusVariantView.id) return
+                if (radiusOptionIndex == curRadiusOptionIndex) return
                 else curRadiusVariantBinding.radiusSettingOptionIsChecked = false
 
-            } else if (radiusChoiceId == radiusVariantView.id) {
+            } else if (radiusOptionIndex == curRadiusOptionIndex) {
                 curRadiusVariantBinding.radiusSettingOptionIsChecked =  true
             }
         }
@@ -100,5 +126,73 @@ class GeoChatSettingsFragment : WaitingFragment() {
         // todo: conveying a signal to the model..
 
 
+    }
+
+    override fun getPermissionsToRequest(): Array<String>? {
+        return arrayOf(
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onRequestedPermissionsGranted() {
+        super.onRequestedPermissionsGranted()
+
+        mFusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        mFusedLocationClient.getCurrentLocation(
+            CurrentLocationRequest.Builder().build(),
+            null
+        ).addOnCompleteListener {
+            mCurLocationPoint = Point(it.result.latitude, it.result.longitude)
+
+            drawCurLocationCircle()
+            setCameraPositionForCurCircle(false)
+        }
+    }
+
+    override fun onRequestedPermissionsDenied(deniedPermissions: List<String>) {
+        super.onRequestedPermissionsDenied(deniedPermissions)
+
+        // todo: handling a denying case..
+
+        Log.d(TAG, "Denied permissions: ${deniedPermissions.joinToString()}")
+    }
+
+    private fun drawCurLocationCircle() {
+        val locationCircle = Circle(mCurLocationPoint, mModel.getCurRadiusOptionMeters())
+
+        if (mCurLocationCircle != null)
+            mBinding.map.mapWindow.map.mapObjects.remove(mCurLocationCircle!!)
+
+        mCurLocationCircle = mBinding.map.mapWindow.map.mapObjects.addCircle(locationCircle)
+            .apply {
+                strokeColor = ContextCompat.getColor(
+                    requireContext(), com.qubacy.geoqq.R.color.red_primary)
+                strokeWidth = LOCATION_CIRCLE_STROKE_WIDTH
+                fillColor = ContextCompat.getColor(
+                    requireContext(), com.qubacy.geoqq.R.color.red_primary_alpha)
+            }
+    }
+
+    private fun setCameraPositionForCurCircle(
+        isAnimated: Boolean = true
+    ) {
+        val viewCircle = Circle(
+            mCurLocationCircle!!.geometry.center,
+            mCurLocationCircle!!.geometry.radius * VIEW_CIRCLE_COEFFICIENT
+        )
+        val newCameraPosition = mBinding.map.mapWindow.map.cameraPosition(
+            Geometry.fromCircle(viewCircle))
+
+        if (isAnimated)
+            mBinding.map.mapWindow.map.move(
+                newCameraPosition,
+                Animation(Animation.Type.SMOOTH, CAMERA_MOVING_ANIMATION_DURATION),
+                null
+            )
+        else
+            mBinding.map.mapWindow.map.move(newCameraPosition)
     }
 }

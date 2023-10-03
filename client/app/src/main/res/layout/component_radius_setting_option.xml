@@ -37,7 +37,7 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:rotation="-30"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
             android:text="@{radiusSettingOptionText}"
             tools:text="@string/radius_setting_label_10km"/>
 

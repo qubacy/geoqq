@@ -19,4 +19,7 @@
     <color name="yellow_primary">#D5E428</color>
     <color name="yellow_ultra_light">#DDE399</color>
     <color name="yellow_dark">#BDCA2B</color>
+
+    <color name="red_primary">#F4070F</color>
+    <color name="red_primary_alpha">#8DF4070F</color>
 </resources>

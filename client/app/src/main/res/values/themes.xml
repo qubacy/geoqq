@@ -38,6 +38,8 @@
         <item name="textAppearanceBodyMedium">@style/MaterialTextAppearanceBodyMedium</item>
         <!-- For MaterialButtons & TextFields' labels: -->
         <item name="textAppearanceLabelLarge">@style/MaterialTextAppearanceLabelLarge</item>
+        <!-- For RadiusOption's label: -->
+        <item name="textAppearanceLabelMedium">@style/MaterialTextAppearanceLabelMedium</item>
         <!-- For Extended FABs: -->
         <item name="textAppearanceButton">@style/MaterialTextAppearanceButton</item>
 
