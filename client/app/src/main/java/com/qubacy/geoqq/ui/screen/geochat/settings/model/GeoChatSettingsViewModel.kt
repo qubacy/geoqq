@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.ui.common.fragment.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 
-class GeoChatSettingsViewModel : WaitingViewModel() {
+class GeoChatSettingsViewModel : LocationViewModel() {
     companion object {
         const val TAG = "SETTINGS_VIEW_MODEL"
 

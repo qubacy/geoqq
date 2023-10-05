@@ -9,8 +9,9 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
-import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModelFactory
 
@@ -43,6 +44,12 @@ class SignInFragment : WaitingFragment() {
         mBinding.signInButton.setOnClickListener { onSignInButtonClicked() }
 
         setStartAnimation() // todo: think of this! it isn't working OK all the time.
+    }
+
+    override fun onErrorOccurred(error: Error) {
+        TODO("Not yet implemented")
+
+
     }
 
     private fun onSignInButtonClicked() {

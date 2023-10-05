@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.common.fragment
+package com.qubacy.geoqq.ui.common.fragment.waiting
 
 import android.os.Bundle
 import android.view.View
@@ -8,13 +8,14 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.annotation.LayoutRes
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.ui.common.fragment.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.fragment.BaseFragment
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 
 abstract class WaitingFragment(
     @LayoutRes val loadingViewLayoutResId: Int = R.layout.component_loading_screen)
     : BaseFragment()
 {
-    protected abstract val mModel: WaitingViewModel
+    abstract override val mModel: WaitingViewModel
 
     private var mLoadingView: View? = null
 

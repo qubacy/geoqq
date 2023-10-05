@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.qubacy.geoqq.databinding.FragmentMainMenuBinding
 import com.qubacy.geoqq.ui.common.fragment.BaseFragment
 
-class MainMenuFragment() : BaseFragment() {
+class MainMenuFragment() : Fragment() {
     private lateinit var mBinding: FragmentMainMenuBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

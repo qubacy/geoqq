@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,12 +8,11 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import com.google.android.gms.location.CurrentLocationRequest
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
-import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
+import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
+import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
 import com.yandex.mapkit.Animation
@@ -24,7 +22,7 @@ import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CircleMapObject
 
-class GeoChatSettingsFragment : WaitingFragment() {
+class GeoChatSettingsFragment() : LocationFragment() {
     companion object {
         const val TAG = "SETTINGS_FRAGMENT"
 
@@ -38,15 +36,18 @@ class GeoChatSettingsFragment : WaitingFragment() {
     }
 
     private lateinit var mBinding: FragmentGeoChatSettingsBinding
-    private lateinit var mFusedLocationClient: FusedLocationProviderClient
 
-    private var mCurLocationPoint: Point = Point(0.0, 0.0)
     private var mCurLocationCircle: CircleMapObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         MapKitFactory.initialize(requireContext())
+    }
+
+    override fun onDestroy() {
+
+        super.onDestroy()
     }
 
     override fun onStart() {
@@ -68,7 +69,8 @@ class GeoChatSettingsFragment : WaitingFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        mBinding = FragmentGeoChatSettingsBinding.inflate(inflater, container, false)
+        mBinding = FragmentGeoChatSettingsBinding.inflate(
+            inflater, container, false)
 
         return mBinding.root
     }
@@ -78,7 +80,8 @@ class GeoChatSettingsFragment : WaitingFragment() {
 
         mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
             changeRadiusChoice(it)
-            drawCurLocationCircle()
+
+            drawCurLocationCircle(mModel.lastLocationPoint.value)
             setCameraPositionForCurCircle()
         }
 
@@ -98,6 +101,11 @@ class GeoChatSettingsFragment : WaitingFragment() {
             mModel.changeCurRadiusOptionIndex(4)
         }
         mBinding.goButton.setOnClickListener { onGoClicked() }
+    }
+
+    override fun onLocationPointChanged(newLocationPoint: Point?) {
+        drawCurLocationCircle(newLocationPoint)
+        setCameraPositionForCurCircle(false)
     }
 
     private fun changeRadiusChoice(radiusOptionIndex: Int) {
@@ -128,40 +136,27 @@ class GeoChatSettingsFragment : WaitingFragment() {
 
     }
 
-    override fun getPermissionsToRequest(): Array<String>? {
-        return arrayOf(
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION)
+    override fun onErrorOccurred(error: Error) {
+        ErrorDialog.Builder(
+            getString(
+                error.messageResId),
+                requireContext()) { handleError(error) }
+            .create()
+            .show()
     }
 
-    @SuppressLint("MissingPermission")
-    override fun onRequestedPermissionsGranted() {
-        super.onRequestedPermissionsGranted()
+    private fun handleError(error: Error) {
+        // todo: handling the error..
 
-        mFusedLocationClient =
-            LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        mFusedLocationClient.getCurrentLocation(
-            CurrentLocationRequest.Builder().build(),
-            null
-        ).addOnCompleteListener {
-            mCurLocationPoint = Point(it.result.latitude, it.result.longitude)
-
-            drawCurLocationCircle()
-            setCameraPositionForCurCircle(false)
-        }
     }
 
-    override fun onRequestedPermissionsDenied(deniedPermissions: List<String>) {
-        super.onRequestedPermissionsDenied(deniedPermissions)
+    private fun drawCurLocationCircle(locationPoint: Point?) {
+        Log.d(TAG, "drawCurLocationCircle(): locationPoint: ${locationPoint?.latitude}:${locationPoint?.longitude}")
 
-        // todo: handling a denying case..
+        if (locationPoint == null) return
 
-        Log.d(TAG, "Denied permissions: ${deniedPermissions.joinToString()}")
-    }
-
-    private fun drawCurLocationCircle() {
-        val locationCircle = Circle(mCurLocationPoint, mModel.getCurRadiusOptionMeters())
+        val locationCircle = Circle(locationPoint, mModel.getCurRadiusOptionMeters())
 
         if (mCurLocationCircle != null)
             mBinding.map.mapWindow.map.mapObjects.remove(mCurLocationCircle!!)
@@ -179,6 +174,8 @@ class GeoChatSettingsFragment : WaitingFragment() {
     private fun setCameraPositionForCurCircle(
         isAnimated: Boolean = true
     ) {
+        if (mCurLocationCircle == null) return
+
         val viewCircle = Circle(
             mCurLocationCircle!!.geometry.center,
             mCurLocationCircle!!.geometry.radius * VIEW_CIRCLE_COEFFICIENT

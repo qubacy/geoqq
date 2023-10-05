@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.screen.geochat.signin.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.ui.common.fragment.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 
 class SignInViewModel : WaitingViewModel() {
 }

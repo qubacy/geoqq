@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
-import com.qubacy.geoqq.ui.common.fragment.WaitingFragment
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModelFactory
 
@@ -37,6 +38,12 @@ class SignUpFragment : WaitingFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
+    }
+
+    override fun onErrorOccurred(error: Error) {
+        TODO("Not yet implemented")
+
+
     }
 
     private fun onSignUpButtonClicked() {

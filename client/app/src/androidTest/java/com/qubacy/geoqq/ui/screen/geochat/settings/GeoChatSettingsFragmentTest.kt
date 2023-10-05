@@ -1,9 +1,11 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
+import android.location.Location
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -33,12 +35,22 @@ import java.lang.reflect.Field
 @RunWith(AndroidJUnit4::class)
 class GeoChatSettingsFragmentTest {
     class LocationTestData(
-        private val mCurLocationPointFieldReflection: Field,
         private val mCurLocationCircleFieldReflection: Field,
-        private val mFragment: GeoChatSettingsFragment)
+        private val mFragment: GeoChatSettingsFragment,
+        private val mModel: GeoChatSettingsViewModel)
     {
-        fun getCurLocationPoint(): Point {
-            return mCurLocationPointFieldReflection.get(mFragment) as Point
+
+        fun getCurLocationPoint(): Point? {
+            return mModel.lastLocationPoint.value
+        }
+
+        fun setLocation(
+            location: Location,
+            fragmentScenario: FragmentScenario<GeoChatSettingsFragment>)
+        {
+            fragmentScenario.onFragment {
+                mModel.changeLastLocation(location)
+            }
         }
 
         fun getCurLocationCircle(): CircleMapObject {
@@ -58,23 +70,23 @@ class GeoChatSettingsFragmentTest {
         mSettingsFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
 
         var fragment: GeoChatSettingsFragment? = null
+        var model: GeoChatSettingsViewModel? = null
 
         mSettingsFragmentScenarioRule.onFragment {
             fragment = it
+            model = ViewModelProvider(it)[GeoChatSettingsViewModel::class.java]
+
             mSettingsBinding = DataBindingUtil.getBinding<FragmentGeoChatSettingsBinding>(it.view!!)!!
         }
 
-        val curLocationPointFieldReflection =
-            GeoChatSettingsFragment::class.java.getDeclaredField("mCurLocationPoint")
-                .apply { isAccessible = true }
         val curLocationCircleFieldReflection =
             GeoChatSettingsFragment::class.java.getDeclaredField("mCurLocationCircle")
                 .apply { isAccessible = true }
 
         mLocationTestData = LocationTestData(
-            curLocationPointFieldReflection,
             curLocationCircleFieldReflection,
-            fragment!!
+            fragment!!,
+            model!!
         )
     }
 
@@ -301,5 +313,29 @@ class GeoChatSettingsFragmentTest {
         assertEquals(
             GeoChatSettingsViewModel.RADIUS_OPTION_INDEX_TO_METERS_ARRAY.last(),
             curLocationCircleRadius)
+    }
+
+    @Test
+    fun changingLocationLeadsToLocationCircleChangingTest() {
+        val newLatitude = 47.581
+        val newLongitude = 56.346
+
+        Espresso.onView(Matchers.allOf(
+            ViewMatchers.withId(R.id.radio_button),
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            .perform(ViewActions.click())
+            .check(ViewAssertions.matches(ViewMatchers.isChecked()))
+
+        val prevLocationCircle = mLocationTestData.getCurLocationCircle()
+        val newLocation = Location("").apply {
+            latitude = newLatitude
+            longitude = newLongitude
+        }
+
+        mLocationTestData.setLocation(newLocation, mSettingsFragmentScenarioRule)
+
+        val newLocationCircle = mLocationTestData.getCurLocationCircle()
+
+        assertNotEquals(prevLocationCircle, newLocationCircle)
     }
 }
