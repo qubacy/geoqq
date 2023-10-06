@@ -221,4 +221,8 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <style name="MaterialAlertDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+
+    </style>
+
 </resources>

@@ -133,7 +133,7 @@ class GeoChatSettingsFragment() : LocationFragment() {
 
         // todo: conveying a signal to the model..
 
-
+        
     }
 
     override fun onErrorOccurred(error: Error) {

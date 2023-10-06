@@ -55,6 +55,9 @@
     <string name="component_dialog_error_neutral_button_caption">Got it</string>
 
     <!--  Errors:  -->
+
+    <string name="error_dialog_title">Error</string>
+
     <string name="error_sign_in_data_not_full">Please, provide Login and Password!</string>
     <string name="error_sign_up_data_not_full">Please, provide Login, Password and the Password again!</string>
 

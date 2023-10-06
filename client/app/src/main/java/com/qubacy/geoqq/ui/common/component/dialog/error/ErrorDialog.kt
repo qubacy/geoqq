@@ -10,9 +10,13 @@ class ErrorDialog(
     class Builder(
         errorMessage: String,
         context: Context,
-        onDismiss: Runnable) : AlertDialog.Builder(context)
-    {
+        onDismiss: Runnable
+    ) : AlertDialog.Builder(
+        context,
+        R.style.MaterialAlertDialog
+    ) {
         init {
+            setTitle(R.string.error_dialog_title)
             setMessage(errorMessage)
             setNeutralButton(R.string.component_dialog_error_neutral_button_caption) {
                 dialog, which -> onDismiss.run()
