@@ -11,6 +11,6 @@
         android:id="@+id/navigation_fragment_host"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.qubacy.geoqq.ui.screen.geochat.settings.GeoChatSettingsFragment"/>
+        android:name="com.qubacy.geoqq.ui.screen.geochat.chat.GeoChatFragment"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

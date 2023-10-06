@@ -1,18 +1,16 @@
 package com.qubacy.geoqq.ui.screen.geochat.signin
 
-import android.view.View
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -67,20 +65,6 @@ class SignInFragmentTest {
             .check(ViewAssertions.matches(ViewMatchers.withText(text)))
     }
 
-    class SingleLineMaterialTextInputViewAssertion() : ViewAssertion {
-        override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
-            if (view == null)
-                throw NoMatchingViewException.Builder().build()
-            if (view !is TextInputEditText)
-                throw NoMatchingViewException.Builder().build()
-
-            val materialTextInput = view as TextInputEditText
-
-            if (materialTextInput.lineCount != 1)
-                throw NoMatchingViewException.Builder().build()
-        }
-    }
-
     @Test
     fun longTextIsSingleLineForTextInputsTest() {
         val longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
@@ -96,7 +80,7 @@ class SignInFragmentTest {
             ))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
             .perform(ViewActions.typeText(longText))
-            .check(SingleLineMaterialTextInputViewAssertion())
+            .check(MaterialTextInputVisualLineCountViewAssertion(1))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
@@ -104,7 +88,7 @@ class SignInFragmentTest {
             ))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
             .perform(ViewActions.typeText(longText))
-            .check(SingleLineMaterialTextInputViewAssertion())
+            .check(MaterialTextInputVisualLineCountViewAssertion(1))
     }
 
     @Test

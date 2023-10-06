@@ -46,7 +46,7 @@ class SignInFragment : WaitingFragment() {
         setStartAnimation() // todo: think of this! it isn't working OK all the time.
     }
 
-    override fun onErrorOccurred(error: Error) {
+    override fun handleError(error: Error) {
         TODO("Not yet implemented")
 
 
@@ -54,11 +54,7 @@ class SignInFragment : WaitingFragment() {
 
     private fun onSignInButtonClicked() {
         if (areInputsEmpty()) {
-            Snackbar.make(
-                requireContext(),
-                requireView(),
-                getString(R.string.error_sign_in_data_not_full),
-                Snackbar.LENGTH_LONG).show()
+            showMessage(R.string.error_sign_in_data_not_full)
 
             return
         }

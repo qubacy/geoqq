@@ -14,11 +14,18 @@ abstract class LocationViewModel : WaitingViewModel() {
     private val mLastLocationPoint: MutableLiveData<Point?> = MutableLiveData(null)
     val lastLocationPoint: LiveData<Point?> = mLastLocationPoint
 
-    fun changeLastLocation(location: Location) {
-        if (location == mLastLocationPoint.value) return
+    // Note: the return Boolean value allows to organize a conveyed checking
+    //       through the whole ViewModel hierarchy. So for inheritants it's
+    //       possible to rely on the return of the parents' method's
+    //       implementation;
+
+    open fun changeLastLocation(location: Location): Boolean {
+        if (location == mLastLocationPoint.value) return false
 
         val locationPoint = Point(location.latitude, location.longitude)
 
         mLastLocationPoint.value = locationPoint
+
+        return true
     }
 }

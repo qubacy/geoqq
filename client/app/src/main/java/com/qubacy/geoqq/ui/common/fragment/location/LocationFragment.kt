@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.common.fragment.location
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
@@ -76,11 +77,13 @@ abstract class LocationFragment() : WaitingFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mModel.lastLocationPoint.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
             onLocationPointChanged(it)
         }
     }
 
-    abstract fun onLocationPointChanged(newLocationPoint: Point?)
+    abstract fun onLocationPointChanged(newLocationPoint: Point)
 
     @SuppressLint("MissingPermission")
     override fun onRequestedPermissionsGranted() {
@@ -129,6 +132,16 @@ abstract class LocationFragment() : WaitingFragment() {
         onErrorOccurred(LocationErrorEnum.GMS_API_NOT_AVAILABLE.error)
     }
 
+    open fun onNewLocationGotten(newLocation: Location?) {
+        if (newLocation == null) {
+            // todo: is it necessary to handle?
+
+            return
+        }
+
+        mModel.changeLastLocation(newLocation)
+    }
+
     open fun getOnLocationChangedCallback(): LocationCallback {
         return object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
@@ -136,9 +149,7 @@ abstract class LocationFragment() : WaitingFragment() {
 
                 Log.d(TAG, "onLocationResult(): ${p0.lastLocation.toString()}")
 
-                if (p0.lastLocation == null) return
-
-                mModel.changeLastLocation(p0.lastLocation!!)
+                onNewLocationGotten(p0.lastLocation)
             }
 
             override fun onLocationAvailability(p0: LocationAvailability) {

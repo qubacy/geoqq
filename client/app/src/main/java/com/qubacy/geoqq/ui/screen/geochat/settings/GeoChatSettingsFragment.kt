@@ -103,7 +103,7 @@ class GeoChatSettingsFragment() : LocationFragment() {
         mBinding.goButton.setOnClickListener { onGoClicked() }
     }
 
-    override fun onLocationPointChanged(newLocationPoint: Point?) {
+    override fun onLocationPointChanged(newLocationPoint: Point) {
         drawCurLocationCircle(newLocationPoint)
         setCameraPositionForCurCircle(false)
     }
@@ -133,19 +133,19 @@ class GeoChatSettingsFragment() : LocationFragment() {
 
         // todo: conveying a signal to the model..
 
-        
+
     }
 
-    override fun onErrorOccurred(error: Error) {
-        ErrorDialog.Builder(
-            getString(
-                error.messageResId),
-                requireContext()) { handleError(error) }
-            .create()
-            .show()
-    }
+//    override fun onErrorOccurred(error: Error) {
+//        ErrorDialog.Builder(
+//            getString(
+//                error.messageResId),
+//                requireContext()) { handleError(error) }
+//            .create()
+//            .show()
+//    }
 
-    private fun handleError(error: Error) {
+     override fun handleError(error: Error) {
         // todo: handling the error..
 
 

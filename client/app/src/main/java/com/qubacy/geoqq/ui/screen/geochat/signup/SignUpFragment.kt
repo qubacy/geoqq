@@ -40,7 +40,7 @@ class SignUpFragment : WaitingFragment() {
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
     }
 
-    override fun onErrorOccurred(error: Error) {
+    override fun handleError(error: Error) {
         TODO("Not yet implemented")
 
 
@@ -48,11 +48,7 @@ class SignUpFragment : WaitingFragment() {
 
     private fun onSignUpButtonClicked() {
         if (areInputsEmpty()) {
-            Snackbar.make(
-                requireContext(),
-                requireView(),
-                getString(R.string.error_sign_up_data_not_full),
-                Snackbar.LENGTH_LONG).show()
+            showMessage(R.string.error_sign_up_data_not_full)
 
             return
         }

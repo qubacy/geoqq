@@ -6,9 +6,14 @@ import android.view.View
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.IntRange
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
 import com.qubacy.geoqq.ui.common.fragment.model.BaseViewModel
 
 abstract class BaseFragment() : Fragment() {
@@ -43,7 +48,16 @@ abstract class BaseFragment() : Fragment() {
         }
     }
 
-    abstract fun onErrorOccurred(error: Error)
+    open fun onErrorOccurred(error: Error) {
+        ErrorDialog.Builder(
+            getString(
+                error.messageResId),
+            requireContext()) { handleError(error) }
+            .create()
+            .show()
+    }
+
+    abstract fun handleError(error: Error)
 
     private fun checkPermissions(): Boolean {
         for (permission in getPermissionsToRequest()!!) {
@@ -93,5 +107,23 @@ abstract class BaseFragment() : Fragment() {
 
     open fun onRequestedPermissionsDenied(deniedPermissions: List<String>) {
 
+    }
+
+    open fun showMessage(
+        @StringRes messageResId: Int,
+        @IntRange(from = -2) displayDuration: Int = Snackbar.LENGTH_LONG
+    ) {
+        val messageSnackbar = Snackbar.make(
+            requireContext(),
+            requireView(),
+            getString(messageResId),
+            displayDuration
+        )
+
+        messageSnackbar.setAction(
+            R.string.fragment_base_show_message_action_dismiss_text
+        ) {
+            messageSnackbar.dismiss()
+        }.setDuration(displayDuration).show()
     }
 }
