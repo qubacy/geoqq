@@ -56,7 +56,7 @@
 
     <style name="EasyRoundedMaterialShapeAppearanceOverlay">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
+        <item name="cornerSize">@dimen/easy_rounding_radius</item>
     </style>
 
     <!-- Styles: -->

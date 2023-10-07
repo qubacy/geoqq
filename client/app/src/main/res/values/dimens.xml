@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="max_elevation">100000dp</dimen>
+    <dimen name="easy_rounding_radius">8dp</dimen>
 </resources>

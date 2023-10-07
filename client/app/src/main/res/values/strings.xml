@@ -69,4 +69,6 @@
 
     <string name="error_geo_chat_message_empty">Please, provide some text for the message!</string>
 
+    <string name="error_my_profile_data_not_full">Please, provide all the profile data!</string>
+
 </resources>
