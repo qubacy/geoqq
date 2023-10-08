@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.ui.common.activity.StyleableActivity
 import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
 import com.qubacy.geoqq.ui.common.fragment.model.BaseViewModel
 
@@ -41,11 +42,27 @@ abstract class BaseFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val activity = requireActivity()
+
+        if (activity is StyleableActivity)
+            setCustomFragmentStyle(view, activity as StyleableActivity)
+
         mModel.error.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onErrorOccurred(it)
         }
+    }
+
+    private fun setCustomFragmentStyle(view: View, styleableActivity: StyleableActivity) {
+        changeStatusBarColor(view, styleableActivity)
+    }
+
+    private fun changeStatusBarColor(view: View, styleableActivity: StyleableActivity) {
+        val attrs = intArrayOf(com.google.android.material.R.attr.statusBarBackground)
+        val attrsTypedValues = view.context.theme.obtainStyledAttributes(attrs)
+
+        styleableActivity.changeStatusBarColor(attrsTypedValues.getColor(0, 0))
     }
 
     open fun onErrorOccurred(error: Error) {

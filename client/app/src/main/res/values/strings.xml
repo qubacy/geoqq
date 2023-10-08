@@ -67,7 +67,7 @@
     <string name="error_location_services_not_enabled">Sorry, but it isn\'t possible to use the app without enabling location services (GPS and Network)!</string>
     <string name="error_gms_api_not_available">Sorry, but it isn\'t possible to use the app without having GMS API available!</string>
 
-    <string name="error_geo_chat_message_empty">Please, provide some text for the message!</string>
+    <string name="error_chat_message_empty">Please, provide some text for the message!</string>
 
     <string name="error_my_profile_data_not_full">Please, provide all the profile data!</string>
 

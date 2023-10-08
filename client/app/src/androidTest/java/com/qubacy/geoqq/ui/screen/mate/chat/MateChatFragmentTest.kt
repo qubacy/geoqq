@@ -1,8 +1,7 @@
-package com.qubacy.geoqq.ui.screen.geochat.chat
+package com.qubacy.geoqq.ui.screen.mate.chat
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -14,35 +13,34 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import org.junit.Test
 
-
 @RunWith(AndroidJUnit4::class)
-class GeoChatFragmentTest {
-    private lateinit var mGeoChatFragmentScenarioRule: FragmentScenario<GeoChatFragment>
+class MateChatFragmentTest {
+    private lateinit var mMateChatFragmentScenarioRule: FragmentScenario<MateChatFragment>
 
     @Before
     fun setup() {
-        mGeoChatFragmentScenarioRule = launchFragmentInContainer(
-            themeResId = R.style.Theme_Geoqq_GeoChat)
-        mGeoChatFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
-
-
+        mMateChatFragmentScenarioRule = launchFragmentInContainer(
+            themeResId = R.style.Theme_Geoqq_Mates)
     }
 
     @Test
-    fun allElementsAreInPlaceTest() {
+    fun allElementsInPlaceTest() {
         Espresso.onView(ViewMatchers.withId(R.id.chat_recycler_view))
-            .check(ViewAssertions.matches(
+            .check(
+                ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(ViewMatchers.withId(R.id.sending_message))
-            .check(ViewAssertions.matches(
+            .check(
+                ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(ViewMatchers.withId(R.id.sending_button))
-            .check(ViewAssertions.matches(
+            .check(
+                ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
     @Test
-    fun allElementsAreEnabledTest() {
+    fun allElementsEnabledTest() {
         Espresso.onView(ViewMatchers.withId(R.id.chat_recycler_view))
             .perform(ViewActions.swipeDown())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))

@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
-import com.qubacy.geoqq.ui.common.fragment.BaseFragment
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModelFactory
 
-class MateChatsFragment() : BaseFragment() {
+class MateChatsFragment() : WaitingFragment() {
     override val mModel: MateChatsViewModel by viewModels {
         MateChatsViewModelFactory()
     }

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.chat
+package com.qubacy.geoqq.ui.screen.mate.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,18 +8,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
-import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
-import com.yandex.mapkit.geometry.Point
+import com.qubacy.geoqq.databinding.FragmentMateChatBinding
+import com.qubacy.geoqq.ui.common.fragment.BaseFragment
+import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
+import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 
-class GeoChatFragment() : LocationFragment() {
-    override val mModel: GeoChatViewModel by viewModels {
-        GeoChatViewModelFactory()
+class MateChatFragment() : BaseFragment() {
+    override val mModel: MateChatViewModel by viewModels {
+        MateChatViewModelFactory()
     }
 
-    private lateinit var mBinding: FragmentGeoChatBinding
+    private lateinit var mBinding: FragmentMateChatBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +31,7 @@ class GeoChatFragment() : LocationFragment() {
     ): View? {
         mBinding = DataBindingUtil.inflate(
             layoutInflater,
-            R.layout.fragment_geo_chat,
+            R.layout.fragment_mate_chat,
             container,
             false)
 
@@ -69,15 +68,7 @@ class GeoChatFragment() : LocationFragment() {
         return (messageText.isEmpty())
     }
 
-    override fun onLocationPointChanged(newLocationPoint: Point) {
-        // todo: mb it'd be nice to use this somehow in the UI??
-
-
-    }
-
     override fun handleError(error: Error) {
-        // todo: handling the error..
-
-
+        TODO("Not yet implemented")
     }
 }
