@@ -17,8 +17,7 @@
             android:id="@+id/geo_chat_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/windowBackground"
-            android:theme="@style/Theme.Geoqq.GeoChat">
+            android:background="?android:attr/windowBackground">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/chat_recycler_view"
