@@ -135,7 +135,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun nothingProvidedAndSignUpClickedTest() {
+    fun nothingProvidedAndConfirmClickedTest() {
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
@@ -147,7 +147,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun onlyLoginProvidedAndSignUpClickedTest() {
+    fun onlyLoginProvidedAndConfirmClickedTest() {
         val login = "login"
 
         Espresso.onView(
@@ -167,7 +167,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun onlyPasswordProvidedAndSignUpClickedTest() {
+    fun onlyPasswordProvidedAndConfirmClickedTest() {
         val password = "pass"
 
         Espresso.onView(
@@ -187,7 +187,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun onlyRepeatedPasswordProvidedAndSignUpClickedTest() {
+    fun onlyRepeatedPasswordProvidedAndConfirmClickedTest() {
         val password = "pass"
 
         Espresso.onView(
@@ -207,7 +207,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun loginAndPasswordProvidedAndSignUpClickedTest() {
+    fun loginAndPasswordProvidedAndConfirmClickedTest() {
         val login = "login"
         val password = "pass"
 
@@ -234,7 +234,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun loginAndRepeatedPasswordProvidedAndSignUpClickedTest() {
+    fun loginAndRepeatedPasswordProvidedAndConfirmClickedTest() {
         val login = "login"
         val password = "pass"
 
@@ -261,7 +261,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun passwordAndRepeatedPasswordProvidedAndSignUpClickedTest() {
+    fun passwordAndRepeatedPasswordProvidedAndConfirmClickedTest() {
         val password = "pass"
 
         Espresso.onView(
@@ -288,7 +288,7 @@ class SignUpFragmentTest {
 
 
     @Test
-    fun loginAndPasswordAndRepeatedPasswordProvidedAndSignUpClickedTest() {
+    fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedTest() {
         val login = "login"
         val password = "pass"
 
@@ -320,7 +320,7 @@ class SignUpFragmentTest {
     }
 
     @Test
-    fun loginAndPasswordAndRepeatedPasswordProvidedAndSignInClickedThenAbortedByBackButtonClickTest() {
+    fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedThenAbortedByBackButtonClickTest() {
         val login = "login"
         val password = "pass"
 
@@ -350,7 +350,7 @@ class SignUpFragmentTest {
             .check(ViewAssertions.doesNotExist())
     }
     @Test
-    fun loginAndPasswordAndRepeatedPasswordProvidedAndSignInClickedThenAbortedByLoadingScreenClickTest() {
+    fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedThenAbortedByLoadingScreenClickTest() {
         val login = "login"
         val password = "pass"
 

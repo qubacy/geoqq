@@ -10,14 +10,21 @@ import androidx.annotation.IntRange
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.ui.common.activity.StyleableActivity
 import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
+import com.qubacy.geoqq.ui.common.fragment.model.BaseUiState
 import com.qubacy.geoqq.ui.common.fragment.model.BaseViewModel
+import com.qubacy.geoqq.ui.model.MainViewModel
+import com.qubacy.geoqq.ui.model.MainViewModelFactory
 
 abstract class BaseFragment() : Fragment() {
+    protected val mMainModel: MainViewModel by activityViewModels {
+        MainViewModelFactory()
+    }
     protected abstract val mModel: BaseViewModel
 
     private lateinit var mPermissionRequestLauncher: ActivityResultLauncher<Array<String>>
@@ -47,11 +54,11 @@ abstract class BaseFragment() : Fragment() {
         if (activity is StyleableActivity)
             setCustomFragmentStyle(view, activity as StyleableActivity)
 
-        mModel.error.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-
-            onErrorOccurred(it)
-        }
+//        mModel.error.observe(viewLifecycleOwner) {
+//            if (it == null) return@observe
+//
+//            onErrorOccurred(it)
+//        }
     }
 
     private fun setCustomFragmentStyle(view: View, styleableActivity: StyleableActivity) {
@@ -63,6 +70,14 @@ abstract class BaseFragment() : Fragment() {
         val attrsTypedValues = view.context.theme.obtainStyledAttributes(attrs)
 
         styleableActivity.changeStatusBarColor(attrsTypedValues.getColor(0, 0))
+    }
+
+    protected fun checkUiStateForErrors(uiState: BaseUiState): Boolean {
+        if (uiState.error == null) return false
+
+        onErrorOccurred(uiState.error)
+
+        return true
     }
 
     open fun onErrorOccurred(error: Error) {

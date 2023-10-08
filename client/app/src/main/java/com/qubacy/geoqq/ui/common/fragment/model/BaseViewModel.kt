@@ -6,6 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.common.error.Error
 
 abstract class BaseViewModel : ViewModel() {
-    protected val mError = MutableLiveData<Error>(null)
-    val error: LiveData<Error> = mError
+//    protected val mError = MutableLiveData<Error>(null)
+//    val error: LiveData<Error> = mError
 }
