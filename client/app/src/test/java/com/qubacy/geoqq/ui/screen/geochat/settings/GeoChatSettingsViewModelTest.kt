@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.screen.geochat.auth
+package com.qubacy.geoqq.ui.screen.geochat.settings
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel

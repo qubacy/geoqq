@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.screen.geochat.auth.signin
+package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import org.junit.Assert

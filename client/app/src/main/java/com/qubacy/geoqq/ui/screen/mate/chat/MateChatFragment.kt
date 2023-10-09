@@ -48,7 +48,7 @@ class MateChatFragment() : BaseFragment() {
 
     private fun onSendingMessageButtonClicked() {
         if (isCurrentMessageNull()) {
-            showMessage(R.string.error_chat_message_empty, 400)
+            showMessage(R.string.error_chat_message_incorrect, 400)
 
             return
         }

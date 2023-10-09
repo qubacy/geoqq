@@ -60,7 +60,7 @@ class GeoChatFragmentTest {
             .perform(ViewActions.clearText())
         Espresso.onView(ViewMatchers.withId(R.id.sending_button))
             .perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withText(R.string.error_chat_message_empty))
+        Espresso.onView(ViewMatchers.withText(R.string.error_chat_message_incorrect))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -86,7 +86,7 @@ class GeoChatFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.sending_message))
             .check(ViewAssertions.matches(ViewMatchers.withText(String())))
-        Espresso.onView(ViewMatchers.withText(R.string.error_chat_message_empty))
+        Espresso.onView(ViewMatchers.withText(R.string.error_chat_message_incorrect))
             .check(ViewAssertions.doesNotExist())
     }
 
