@@ -60,8 +60,8 @@
 
     <string name="error_dialog_title">Error</string>
 
-    <string name="error_sign_in_data_not_full">Please, provide Login and Password!</string>
-    <string name="error_sign_up_data_not_full">Please, provide Login, Password and the Password again!</string>
+    <string name="error_sign_in_data_incorrect">Incorrect Sign In data!</string>
+    <string name="error_sign_up_data_incorrect">Incorrect Sign Up data!</string>
 
     <string name="error_location_lacking_location_permissions">Sorry, but it isn\'t possible to use the app without providing your location!</string>
     <string name="error_location_services_not_enabled">Sorry, but it isn\'t possible to use the app without enabling location services (GPS and Network)!</string>
@@ -69,6 +69,6 @@
 
     <string name="error_chat_message_empty">Please, provide some text for the message!</string>
 
-    <string name="error_my_profile_data_not_full">Please, provide all the profile data!</string>
+    <string name="error_my_profile_data_incorrect">Please, provide all the profile data!</string>
 
 </resources>

@@ -55,6 +55,9 @@
         <item name="colorPrimaryContainer">@color/green_primary</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
 
+        <item name="colorSecondaryContainer">@color/green_primary_dark</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+
         <item name="colorSurface">@color/green_dark</item>
         <item name="colorSurfaceContainerLow">@color/green_dark</item>
         <item name="colorSurfaceContainer">@color/white</item>
@@ -73,6 +76,9 @@
         <item name="colorPrimaryContainer">@color/orange_primary</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
 
+        <item name="colorSecondaryContainer">@color/orange_dark</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+
         <item name="colorSurface">@color/orange_dark</item>
         <item name="colorSurfaceContainerLow">@color/orange_dark</item>
         <item name="colorSurfaceContainer">@color/orange_light</item>
@@ -90,6 +96,9 @@
 
         <item name="colorPrimaryContainer">@color/yellow_primary</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <item name="colorSecondaryContainer">@color/yellow_dark</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
 
         <item name="colorSurface">@color/yellow_dark</item>
         <item name="colorSurfaceContainerLow">@color/yellow_dark</item>

@@ -7,11 +7,9 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
-import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
-import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInUiState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
@@ -72,7 +70,7 @@ class SignInFragment : AuthFragment() {
         val password = mBinding.passwordInput.input.text.toString()
 
         if (!mModel.isSignInDataCorrect(login, password)) {
-            showMessage(R.string.error_sign_up_data_not_full)
+            showMessage(R.string.error_sign_up_data_incorrect)
 
             return
         }

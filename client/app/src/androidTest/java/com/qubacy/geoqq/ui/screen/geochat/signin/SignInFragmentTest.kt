@@ -108,7 +108,7 @@ class SignInFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_in_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_in_data_incorrect)
             )))
     }
 
@@ -126,7 +126,7 @@ class SignInFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_in_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_in_data_incorrect)
             )))
     }
 
@@ -144,7 +144,7 @@ class SignInFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_in_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_in_data_incorrect)
             )))
     }
 
@@ -167,7 +167,7 @@ class SignInFragmentTest {
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(ViewMatchers.withId(R.id.sign_in_button))
             .perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withText(R.string.error_sign_in_data_not_full))
+        Espresso.onView(ViewMatchers.withText(R.string.error_sign_in_data_incorrect))
             .check(ViewAssertions.doesNotExist())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(

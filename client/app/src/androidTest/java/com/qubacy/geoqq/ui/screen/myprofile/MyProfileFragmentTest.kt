@@ -203,7 +203,7 @@ class MyProfileFragmentTest {
             .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.confirm_button))
             .perform(ViewActions.click())
-        Espresso.onView(withText(R.string.error_my_profile_data_not_full))
+        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
@@ -236,7 +236,7 @@ class MyProfileFragmentTest {
 
         Espresso.onView(withId(R.id.confirm_button))
             .perform(ViewActions.click())
-        Espresso.onView(withText(R.string.error_my_profile_data_not_full))
+        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
             .check(ViewAssertions.doesNotExist())
     }
 }

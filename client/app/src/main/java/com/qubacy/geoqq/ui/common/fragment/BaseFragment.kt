@@ -1,11 +1,13 @@
 package com.qubacy.geoqq.ui.common.fragment
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -28,6 +30,13 @@ abstract class BaseFragment() : Fragment() {
     protected abstract val mModel: BaseViewModel
 
     private lateinit var mPermissionRequestLauncher: ActivityResultLauncher<Array<String>>
+
+    @ColorInt
+    private var mMessageSnackbarBackgroundColor: Int = 0
+    @ColorInt
+    private var mMessageSnackbarActionColor: Int = 0
+    @ColorInt
+    private var mMessageSnackbarTextColor: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,16 +62,24 @@ abstract class BaseFragment() : Fragment() {
 
         if (activity is StyleableActivity)
             setCustomFragmentStyle(view, activity as StyleableActivity)
-
-//        mModel.error.observe(viewLifecycleOwner) {
-//            if (it == null) return@observe
-//
-//            onErrorOccurred(it)
-//        }
     }
 
     private fun setCustomFragmentStyle(view: View, styleableActivity: StyleableActivity) {
         changeStatusBarColor(view, styleableActivity)
+        initSnackbarColors(view)
+    }
+
+    @SuppressLint("ResourceType")
+    private fun initSnackbarColors(view: View) {
+        val attrs = intArrayOf(
+            com.google.android.material.R.attr.colorSecondaryContainer,
+            com.google.android.material.R.attr.colorOnSecondaryContainer,
+        )
+        val attrsTypedValues = view.context.theme.obtainStyledAttributes(attrs)
+
+        mMessageSnackbarBackgroundColor = attrsTypedValues.getColor(0, 0)
+        mMessageSnackbarTextColor = attrsTypedValues.getColor(1, 0)
+        mMessageSnackbarActionColor = attrsTypedValues.getColor(1, 0)
     }
 
     private fun changeStatusBarColor(view: View, styleableActivity: StyleableActivity) {
@@ -150,7 +167,11 @@ abstract class BaseFragment() : Fragment() {
             requireView(),
             getString(messageResId),
             displayDuration
-        )
+        ).apply {
+            setBackgroundTint(mMessageSnackbarBackgroundColor)
+            setTextColor(mMessageSnackbarTextColor)
+            setActionTextColor(mMessageSnackbarActionColor)
+        }
 
         messageSnackbar.setAction(
             R.string.fragment_base_show_message_action_dismiss_text

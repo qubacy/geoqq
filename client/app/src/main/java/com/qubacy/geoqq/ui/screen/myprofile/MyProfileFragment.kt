@@ -132,7 +132,7 @@ class MyProfileFragment() : BaseFragment() {
 
     private fun onConfirmButtonClicked() {
         if (areInputsEmpty()) {
-            showMessage(R.string.error_my_profile_data_not_full)
+            showMessage(R.string.error_my_profile_data_incorrect)
 
             return
         }

@@ -143,7 +143,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
             )))
     }
 
@@ -163,7 +163,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
             )))
     }
 
@@ -183,7 +183,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
             )))
     }
 
@@ -203,7 +203,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                        ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                        ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
                     )))
     }
 
@@ -230,7 +230,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                        ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                        ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
                     )))
     }
 
@@ -257,7 +257,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                        ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                        ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
                     )))
     }
 
@@ -283,7 +283,7 @@ class SignUpFragmentTest {
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.hasDescendant(
-                        ViewMatchers.withText(R.string.error_sign_up_data_not_full)
+                        ViewMatchers.withText(R.string.error_sign_up_data_incorrect)
                     )))
     }
 
@@ -313,7 +313,7 @@ class SignUpFragmentTest {
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
             .perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withText(R.string.error_sign_up_data_not_full))
+        Espresso.onView(ViewMatchers.withText(R.string.error_sign_up_data_incorrect))
             .check(ViewAssertions.doesNotExist())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(
