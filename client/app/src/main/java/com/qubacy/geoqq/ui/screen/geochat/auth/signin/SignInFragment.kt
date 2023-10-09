@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.signin
+package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,10 +12,12 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
-import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModel
-import com.qubacy.geoqq.ui.screen.geochat.signin.model.SignInViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInUiState
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
 
-class SignInFragment : WaitingFragment() {
+class SignInFragment : AuthFragment() {
     override val mModel: SignInViewModel by viewModels {
         SignInViewModelFactory()
     }
@@ -43,7 +45,20 @@ class SignInFragment : WaitingFragment() {
 
         mBinding.signInButton.setOnClickListener { onSignInButtonClicked() }
 
+        mModel.signInUiState.observe(viewLifecycleOwner) {
+            onSignInUiStateChanged(it)
+        }
+
         setStartAnimation() // todo: think of this! it isn't working OK all the time.
+    }
+
+    private fun onSignInUiStateChanged(signInUiState: SignInUiState) {
+        if (checkUiStateForErrors(signInUiState)) return
+
+        if (signInUiState.isSignedIn) {
+            // todo: moving to the MainMenu fragment..
+
+        }
     }
 
     override fun handleError(error: Error) {
@@ -53,23 +68,16 @@ class SignInFragment : WaitingFragment() {
     }
 
     private fun onSignInButtonClicked() {
-        if (areInputsEmpty()) {
-            showMessage(R.string.error_sign_in_data_not_full)
+        val login = mBinding.loginInput.input.text.toString()
+        val password = mBinding.passwordInput.input.text.toString()
+
+        if (!mModel.isSignInDataCorrect(login, password)) {
+            showMessage(R.string.error_sign_up_data_not_full)
 
             return
         }
 
-//        handleWaitingStart() // there's no reason to do it manually. the model should change isWaiting
-                               // value that has to lead to calling the method;
-
-        // todo: passing the data to the model..
-    }
-
-    private fun areInputsEmpty(): Boolean {
-        val login = mBinding.loginInput.input.text.toString()
-        val password = mBinding.passwordInput.input.text.toString()
-
-        return (login.isEmpty() || password.isEmpty())
+        mModel.signIn(login, password)
     }
 
     private fun setStartAnimation() {
@@ -85,5 +93,11 @@ class SignInFragment : WaitingFragment() {
             mBinding.formContent.startAnimation(formContentAnim)
             mBinding.signUpButton.startAnimation(signUpAnim)
         }
+    }
+
+    override fun handleWaitingAbort() {
+        super.handleWaitingAbort()
+
+        mModel.interruptSignIn()
     }
 }

@@ -1,6 +1,6 @@
-package com.qubacy.geoqq.screen.geochat.signup
+package com.qubacy.geoqq.screen.geochat.auth.signup
 
-import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

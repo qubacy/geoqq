@@ -1,20 +1,20 @@
-package com.qubacy.geoqq.ui.screen.geochat.signup
+package com.qubacy.geoqq.ui.screen.geochat.auth.signup
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
-import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
-import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpUiState
-import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModel
-import com.qubacy.geoqq.ui.screen.geochat.signup.model.SignUpViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpUiState
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModelFactory
 
-class SignUpFragment : WaitingFragment() {
+class SignUpFragment : AuthFragment() {
     override val mModel: SignUpViewModel by viewModels {
         SignUpViewModelFactory()
     }
@@ -43,9 +43,6 @@ class SignUpFragment : WaitingFragment() {
         mModel.signUpUiState.observe(viewLifecycleOwner) {
             onSignUpUiStateChanged(it)
         }
-        mModel.accessToken.observe(viewLifecycleOwner) {
-            onAccessTokenGotten(it)
-        }
     }
 
     private fun onSignUpUiStateChanged(signUpUiState: SignUpUiState) {
@@ -55,12 +52,6 @@ class SignUpFragment : WaitingFragment() {
             // todo: moving to the MainMenu fragment..
 
         }
-    }
-
-    private fun onAccessTokenGotten(accessToken: String) {
-        // todo: is there a need to check the token for validity here?
-
-        mMainModel.setAccessToken(accessToken)
     }
 
     override fun handleError(error: Error) {

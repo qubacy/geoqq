@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.signup.model
+package com.qubacy.geoqq.ui.screen.geochat.auth.signup.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,19 +8,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.entity.person.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.validator.username.UsernameValidator
-import com.qubacy.geoqq.data.signup.SignUpState
+import com.qubacy.geoqq.data.auth.signup.SignUpState
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
 import kotlinx.coroutines.launch
 
 // todo: providing a data repository as an argument..
-class SignUpViewModel() : WaitingViewModel(), Observer<SignUpState> {
+class SignUpViewModel() : AuthViewModel(), Observer<SignUpState> {
     private var mSignUpState: LiveData<SignUpState>? = null
 
     private var mSignUpUiState: MutableLiveData<SignUpUiState> = MutableLiveData<SignUpUiState>()
     val signUpUiState: LiveData<SignUpUiState> = mSignUpUiState
-
-    private var mAccessToken: MutableLiveData<String> = MutableLiveData()
-    val accessToken: LiveData<String> = mAccessToken
 
     fun isSignUpDataCorrect(
         username: String,

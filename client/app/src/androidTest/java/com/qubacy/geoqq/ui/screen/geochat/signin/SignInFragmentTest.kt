@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.SignInFragment
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import org.hamcrest.Matchers
 import org.junit.Before
