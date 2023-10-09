@@ -128,22 +128,10 @@ class GeoChatSettingsFragment() : LocationFragment() {
     }
 
     private fun onGoClicked() {
-//        handleWaitingStart() // there's no reason to do it manually. the model should change isWaiting
-                               // value that has to lead to calling the method;
+        // todo: conveying a signal to the model..??
 
-        // todo: conveying a signal to the model..
-
-
+        // todo: going to GeoChatFragment with the RADIUS as an arg.
     }
-
-//    override fun onErrorOccurred(error: Error) {
-//        ErrorDialog.Builder(
-//            getString(
-//                error.messageResId),
-//                requireContext()) { handleError(error) }
-//            .create()
-//            .show()
-//    }
 
      override fun handleError(error: Error) {
         // todo: handling the error..
