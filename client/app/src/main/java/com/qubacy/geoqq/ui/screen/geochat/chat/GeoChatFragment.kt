@@ -13,6 +13,7 @@ import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapter
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapterCallback
+import com.qubacy.geoqq.ui.screen.geochat.chat.animator.ChatMessageAnimator
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatUiState
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
@@ -52,6 +53,7 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
 
         mBinding.chatRecyclerView.apply {
             adapter = mGeoChatAdapter
+            itemAnimator = ChatMessageAnimator(mGeoChatAdapter)
         }
 
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
@@ -64,7 +66,9 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
     }
 
     private fun onGeoChatUiStateChanged(geoChatUiState: GeoChatUiState) {
-        mGeoChatAdapter.submitList(geoChatUiState.messageList)
+        mGeoChatAdapter.submitList(geoChatUiState.messageList) {
+            mBinding.chatRecyclerView.scrollToPosition(geoChatUiState.messageList.size - 1)
+        }
     }
 
     private fun onSendingMessageButtonClicked() {
