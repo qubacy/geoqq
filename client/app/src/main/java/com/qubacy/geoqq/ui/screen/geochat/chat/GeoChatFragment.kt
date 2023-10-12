@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.data.common.entity.person.user.User
@@ -14,9 +15,12 @@ import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapter
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.geochat.chat.animator.ChatMessageAnimator
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatUiState
+import com.qubacy.geoqq.ui.screen.geochat.chat.layoutmanager.GeoChatLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 
 class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
@@ -49,9 +53,13 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mGeoChatAdapter = GeoChatAdapter(this)
+        mGeoChatAdapter = GeoChatAdapter(this).apply {
+            setMessages(mModel.geoChatUiState.value!!.messages)
+        }
 
         mBinding.chatRecyclerView.apply {
+            layoutManager = GeoChatLayoutManager(
+                requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mGeoChatAdapter
             itemAnimator = ChatMessageAnimator(mGeoChatAdapter)
         }
@@ -60,15 +68,28 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
             onSendingMessageButtonClicked()
         }
 
-        mModel.geoChatUiState.observe(viewLifecycleOwner) {
-            onGeoChatUiStateChanged(it)
+        mModel.geoChatUiOperation.observe(viewLifecycleOwner) {
+            onGeoChatUiOperationRequested(it)
         }
     }
 
-    private fun onGeoChatUiStateChanged(geoChatUiState: GeoChatUiState) {
-        mGeoChatAdapter.submitList(geoChatUiState.messageList) {
-            mBinding.chatRecyclerView.scrollToPosition(geoChatUiState.messageList.size - 1)
+    private fun onGeoChatUiOperationRequested(geoChatUiOperation: GeoChatUiOperation) {
+        when (geoChatUiOperation::class) {
+            AddMessageUiOperation::class -> {
+                val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
+
+                mGeoChatAdapter.addMessage(addMessageOperation.message)
+            }
+            SetMessagesUiOperation::class -> {
+                val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation
+
+                mGeoChatAdapter.setMessages(setMessagesOperation.messages)
+            }
         }
+
+//        mGeoChatAdapter.submitList(geoChatUiState.messageList) {
+//            mBinding.chatRecyclerView.scrollToPosition(geoChatUiState.messageList.size - 1)
+//        }
     }
 
     private fun onSendingMessageButtonClicked() {
@@ -98,7 +119,7 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.geoChatUiState.value!!.userList.find {
+        return mModel.geoChatUiState.value!!.users.find {
             it.userId == userId
         }!!
     }

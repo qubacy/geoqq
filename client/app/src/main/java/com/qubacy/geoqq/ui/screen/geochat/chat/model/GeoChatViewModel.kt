@@ -7,16 +7,32 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.chat.geo.GeoChatState
+import com.qubacy.geoqq.data.chat.geo.GeoChatOperation
 import com.qubacy.geoqq.data.common.entity.message.validator.MessageTextValidator
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
-class GeoChatViewModel : LocationViewModel(), Observer<GeoChatState> {
-    private var mGeoChatState: LiveData<GeoChatState>? = null
+// todo: provide a repository as a param..
+class GeoChatViewModel : LocationViewModel() {
+    // todo: assign to the repository's flow:
+    private var mGeoChatOperation: Flow<GeoChatOperation> = flowOf<GeoChatOperation>()
 
-    private var mGeoChatUiState: MutableLiveData<GeoChatUiState> = MutableLiveData()
+    private var mGeoChatUiOperation: MutableLiveData<GeoChatUiOperation> = MutableLiveData()
+    val geoChatUiOperation: LiveData<GeoChatUiOperation> = mGeoChatUiOperation
+
+    private var mGeoChatUiState = MutableLiveData(GeoChatUiState())
     val geoChatUiState: LiveData<GeoChatUiState> = mGeoChatUiState
+
+    init {
+        viewModelScope.launch {
+            mGeoChatOperation.collect { onOperationGotten(it) }
+        }
+    }
 
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
@@ -39,14 +55,29 @@ class GeoChatViewModel : LocationViewModel(), Observer<GeoChatState> {
     fun sendMessage(text: String) {
         viewModelScope.launch {
             // todo: sending a message using DATA layer..
-            // todo: getting a new instance of GeoChatState..
         }
     }
 
-    override fun onChanged(value: GeoChatState) {
-        // todo: converting GeoChatState to GeoChatUiState
+    fun onOperationGotten(operation: GeoChatOperation) {
+        // todo: converting GeoChatOperation to GeoChatUiOperation..
 
-        mGeoChatUiState.value = GeoChatUiState(listOf(), listOf())
+        val geoChatUiOperation = SetMessagesUiOperation(listOf())
+
+        mGeoChatUiOperation.value = geoChatUiOperation
+
+        // todo: processing an operation to make UI state evolve..
+
+        processOperation(operation)
+    }
+
+    private fun processOperation(operation: GeoChatOperation) {
+        // todo: processing an operation according to its type..
+
+//        when (operation::class) {
+//
+//        }
+
+//        mGeoChatUiState = GeoChatUiState()
     }
 }
 

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat
 
+import android.util.Log
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -9,6 +10,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,24 +19,52 @@ import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatUiState
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
-import com.qubacy.geoqq.ui.util.ScrollOccurredViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
+import org.hamcrest.Matchers
 import org.junit.Test
-import java.lang.reflect.Field
 
 
 @RunWith(AndroidJUnit4::class)
 class GeoChatFragmentTest {
+    companion object {
+        const val TAG = "GeoChatTest"
+    }
+
     class GeoChatUiStateTestData(
         private val mModel: GeoChatViewModel,
-        private val mGeoChatUiState: MutableLiveData<GeoChatUiState>
+        private val mGeoChatUiOperation: MutableLiveData<GeoChatUiOperation>,
+        private var mGeoChatUiState: MutableLiveData<GeoChatUiState>
     ) {
-        fun setGeoChatUiState(geoChatUiState: GeoChatUiState) {
-            mGeoChatUiState.value = geoChatUiState
+        fun addMessage(message: Message, user: User) {
+            mGeoChatUiState.value!!.users.add(user)
+            mGeoChatUiState.value!!.messages.add(message)
+
+            Log.d(TAG, "addMessage(): newMessage = ${message.text} from = ${message.userId}")
+
+            mGeoChatUiOperation.value = AddMessageUiOperation(message)
         }
+
+        fun setMessages(messages: List<Message>, users: List<User>) {
+            mGeoChatUiOperation.value = SetMessagesUiOperation(messages)
+
+            val mutableMessages = mutableListOf<Message>()
+            val mutableUsers = mutableListOf<User>()
+
+            for (message in messages) mutableMessages.add(message)
+            for (user in users) mutableUsers.add(user)
+
+            mGeoChatUiState.value = GeoChatUiState(
+                mutableMessages,
+                mutableUsers
+            )
+        }
+
     }
 
     private lateinit var mGeoChatFragmentScenarioRule: FragmentScenario<GeoChatFragment>
@@ -54,13 +84,19 @@ class GeoChatFragmentTest {
             }
         }
 
+        val geoChatUiOperationFieldReflection = GeoChatViewModel::class.java.getDeclaredField("mGeoChatUiOperation")
+            .apply {
+                isAccessible = true
+            }
         val geoChatUiStateFieldReflection = GeoChatViewModel::class.java.getDeclaredField("mGeoChatUiState")
             .apply {
                 isAccessible = true
             }
 
+
         mGeoChatUiStateTestData = GeoChatUiStateTestData(
             model!!,
+            geoChatUiOperationFieldReflection.get(model) as MutableLiveData<GeoChatUiOperation>,
             geoChatUiStateFieldReflection.get(model) as MutableLiveData<GeoChatUiState>
         )
     }
@@ -142,26 +178,22 @@ class GeoChatFragmentTest {
 
     @Test
     fun messageContainsCorrectTextUsernameAndTimestampTest() {
-        val endingUiState = GeoChatUiState(
-            listOf(
-                User(0, "User 1")
-            ),
-            listOf(
-                Message(0, "Hi!", 1696847478000)
-            )
-        )
+        val messages = listOf(Message(0, "Hi", 1696847478000))
+        val users = listOf(User(0, "User 1"))
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setGeoChatUiState(endingUiState)
+            mGeoChatUiStateTestData.setMessages(
+                messages, users
+            )
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
             .perform(WaitingViewAction(1000))
-            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(endingUiState.messageList.size)))
-        Espresso.onView(withText(endingUiState.userList[0].username))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(messages.size)))
+        Espresso.onView(withText(users[0].username))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(withText(endingUiState.messageList[0].text))
+        Espresso.onView(withText(messages[0].text))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(withText("05:31 PM"))
@@ -171,52 +203,52 @@ class GeoChatFragmentTest {
 
     @Test
     fun settingGeoChatUiStateWithThreeMessagesLeadsToThreeMessagesAppearInChatRecyclerViewTest() {
-        val initUiState = GeoChatUiState(listOf(), listOf())
+        val messages = listOf<Message>()
+        val users = listOf<User>()
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setGeoChatUiState(initUiState)
+            mGeoChatUiStateTestData.setMessages(messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
-            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(initUiState.messageList.size)))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(messages.size)))
 
-        val endingUiState = GeoChatUiState(
-            listOf(
-                User(0, "User 1"),
-                User(1, "User 2")
-            ),
-            listOf(
-                Message(0, "Hi!", 1696847478000),
-                Message(1, "qq", 1696847479000),
-                Message(0, "wassup?", 1696847480000),
-            )
+        val endingMessages = listOf(
+            Message(0, "Hi!", 1696847478000),
+            Message(1, "qq", 1696847479000),
+            Message(0, "wassup?", 1696847480000),
+        )
+        val endingUsers = listOf(
+            User(0, "User 1"),
+            User(1, "User 2")
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setGeoChatUiState(endingUiState)
+            mGeoChatUiStateTestData.setMessages(endingMessages, endingUsers)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
             .perform(WaitingViewAction(1000))
-            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(endingUiState.messageList.size)))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(endingMessages.size)))
     }
 
     @Test
     fun messagesScrolledDownOnLackingSpaceTest() {
-        val initUiState = GeoChatUiState(listOf(), listOf())
+        val messages = listOf<Message>()
+        val users = listOf<User>()
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setGeoChatUiState(initUiState)
+            mGeoChatUiStateTestData.setMessages(messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
-            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(initUiState.messageList.size)))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(messages.size)))
 
-        val users = listOf(
+        val endingUsers = listOf(
             User(0, "User 1"),
             User(1, "User 2")
         )
-        val messages = listOf(
+        val endingMessages = listOf(
             Message(0, "Hi!", 1696847478000),
             Message(1, "qq", 1696847479000),
             Message(0, "wassup?", 1696847480000),
@@ -231,26 +263,126 @@ class GeoChatFragmentTest {
             Message(1, "im leaving..", 1696847489000),
         )
 
-        val curMessages = mutableListOf<Message>()
-
-        for (message in messages) {
-            curMessages.add(message)
-
-            val endingUiState = GeoChatUiState(
-                users,
-                curMessages
-            )
-
+        for (endingMessage in endingMessages) {
             mGeoChatFragmentScenarioRule.onFragment {
-                mGeoChatUiStateTestData.setGeoChatUiState(endingUiState)
+                mGeoChatUiStateTestData.addMessage(
+                    endingMessage,
+                    endingUsers.find { user -> user.userId == endingMessage.userId }!!
+                )
             }
 
             Espresso.onView(withId(R.id.chat_recycler_view))
                 .perform(WaitingViewAction(1000))
         }
 
-        Espresso.onView(withText(messages.last().text))
+        Espresso.onView(withText(endingMessages.last().text))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    @Test
+    fun settingMessagesLeadsToAutoScrollingToBottomTest() {
+        val messages = listOf<Message>()
+        val users = listOf<User>()
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(messages, users)
+        }
+
+        Espresso.onView(withId(R.id.chat_recycler_view))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(messages.size)))
+
+        val endingUsers = listOf(
+            User(0, "User 1"),
+            User(1, "User 2")
+        )
+        val endingMessages = listOf(
+            Message(0, "Hi!", 1696847478000),
+            Message(1, "qq", 1696847479000),
+            Message(0, "wassup?", 1696847480000),
+            Message(1, "wassup?", 1696847481000),
+            Message(0, "wassup?", 1696847482000),
+            Message(1, "wassup?", 1696847483000),
+            Message(0, "wassup?", 1696847484000),
+            Message(1, "wassup?", 1696847485000),
+            Message(0, "wassup?", 1696847486000),
+            Message(1, "wassup?", 1696847487000),
+            Message(0, "wassup?", 1696847488000),
+            Message(1, "im leaving..", 1696847489000),
+        )
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(endingMessages, endingUsers)
+        }
+
+        Espresso.onView(isRoot())
+            .perform(WaitingViewAction(1000))
+        Espresso.onView(withText(endingMessages.last().text))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    @Test
+    fun manualScrollingUpPreventsAutoScrollingTest() {
+        val messages = listOf(
+            Message(0, "Hi!", 1696847478000),
+            Message(1, "qq", 1696847479000),
+            Message(0, "wassup?", 1696847480000),
+            Message(1, "wassup?", 1696847481000),
+            Message(0, "wassup?", 1696847482000),
+            Message(1, "wassup?", 1696847483000),
+            Message(0, "wassup?", 1696847484000),
+            Message(1, "wassup?", 1696847485000),
+            Message(0, "wassup?", 1696847486000),
+            Message(1, "wassup?", 1696847487000),
+            Message(0, "wassup?", 1696847488000),
+            Message(1, "im leaving..", 1696847489000),
+        )
+        val users = listOf(
+            User(0, "User 1"),
+            User(1, "User 2")
+        )
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(messages, users)
+        }
+
+        Espresso.onView(withId(R.id.chat_recycler_view))
+            .perform(ViewActions.swipeDown())
+
+        val endingMessages = listOf(
+            Message(0, "Hi!", 1696847478000),
+            Message(1, "qq", 1696847479000),
+        )
+
+        for (endingMessage in endingMessages) {
+            mGeoChatFragmentScenarioRule.onFragment {
+                mGeoChatUiStateTestData.addMessage(
+                    endingMessage,
+                    users.find { user -> user.userId == endingMessage.userId }!!
+                )
+            }
+
+            Espresso.onView(withId(R.id.chat_recycler_view))
+                .perform(WaitingViewAction(1000))
+        }
+
+        Espresso.onView(withText(endingMessages.last().text))
+            .check(ViewAssertions.matches(Matchers.not(ViewMatchers.isCompletelyDisplayed())))
+    }
+
+    @Test
+    fun userInfoBottomSheetDisplayedOnMessageClickTest() {
+
+    }
+
+    @Test
+    fun userInfoBottomSheetExpandsOnDraggingTopTest() {
+
+    }
+
+    @Test
+    fun userInfoBottomSheetDismissesOnDraggingBottomTest() {
+
     }
 }
