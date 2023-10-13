@@ -20,6 +20,7 @@ import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
 import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
+import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 
 class MyProfileFragment() : BaseFragment() {
     companion object {
@@ -105,6 +106,25 @@ class MyProfileFragment() : BaseFragment() {
         if (mPrivacyHitUpPosition == POSITION_NOT_DEFINED) {
             changePrivacyHitUpPosition(0)
         }
+
+        mModel.myProfileUiState.observe(viewLifecycleOwner) {
+            onUiStateChanged(it)
+        }
+    }
+
+    private fun initInputsWithUiState(uiState: MyProfileUiState) {
+        mBinding.userAvatar.setImageURI(uiState.avatar!!)
+        mBinding.usernameInput.input.setText(uiState.username!!)
+        mBinding.aboutMeInput.input.setText(uiState.description!!)
+        mBinding.passwordInput.input.setText(uiState.password!!)
+        mBinding.passwordConfirmationInput.input.setText(uiState.password!!)
+        changePrivacyHitUpPosition(uiState.hitUpOption!!.index)
+    }
+
+    private fun onUiStateChanged(uiState: MyProfileUiState) {
+        if (checkUiStateForErrors(uiState)) return
+
+        initInputsWithUiState(uiState)
     }
 
     private fun changePrivacyHitUpPosition(newPosition: Int) {
@@ -130,7 +150,16 @@ class MyProfileFragment() : BaseFragment() {
     }
 
     private fun onConfirmButtonClicked() {
-        if (areInputsEmpty()) {
+        val usernameText = mBinding.usernameInput.input.text.toString()
+        val aboutMeText = mBinding.aboutMeInput.input.text.toString()
+        val passwordText = mBinding.passwordInput.input.text.toString()
+        val passwordConfirmationText = mBinding.passwordConfirmationInput.input.text.toString()
+        val hitUpOption = mModel.getHitUpOptionByIndex(mPrivacyHitUpPosition)
+
+        if (!mModel.isProfileDataCorrect(
+                usernameText, aboutMeText, passwordText, passwordConfirmationText, hitUpOption
+            )
+        ) {
             showMessage(R.string.error_my_profile_data_incorrect)
 
             return
@@ -139,20 +168,6 @@ class MyProfileFragment() : BaseFragment() {
         // todo: conveying data to the model..
 
 
-    }
-
-    private fun areInputsEmpty(): Boolean {
-        val usernameText = mBinding.usernameInput.input.text.toString()
-        val aboutMeText = mBinding.aboutMeInput.input.text.toString()
-        val passwordText = mBinding.passwordInput.input.text.toString()
-        val passwordConfirmationText = mBinding.passwordConfirmationInput.input.text.toString()
-
-        return (usernameText.isEmpty() || aboutMeText.isEmpty() || passwordText.isEmpty()
-             || passwordConfirmationText.isEmpty() || isPrivacyHitUpEmpty())
-    }
-
-    private fun isPrivacyHitUpEmpty(): Boolean {
-        return (mPrivacyHitUpPosition !in 0 until mPrivacyHitUpAdapter.count)
     }
 
     override fun handleError(error: Error) {

@@ -25,9 +25,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUi
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 class GeoChatFragment(
 
@@ -84,22 +82,28 @@ class GeoChatFragment(
             mModel.geoChatUiOperationFlow.collect {
                 if (it == null) return@collect
 
-                onGeoChatUiOperationRequested(it)
+                onGeoChatUiOperationReceived(it)
             }
         }
     }
 
-    private fun onGeoChatUiOperationRequested(geoChatUiOperation: ChatUiOperation) {
+    private fun onGeoChatUiOperationReceived(geoChatUiOperation: ChatUiOperation) {
+        if (geoChatUiOperation.error != null) {
+            onErrorOccurred(geoChatUiOperation.error)
+
+            return
+        }
+
         when (geoChatUiOperation::class) {
             AddMessageUiOperation::class -> {
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
 
-                mGeoChatAdapter.addMessage(addMessageOperation.message)
+                mGeoChatAdapter.addMessage(addMessageOperation.message!!)
             }
             SetMessagesUiOperation::class -> {
                 val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation
 
-                mGeoChatAdapter.setMessages(setMessagesOperation.messages)
+                mGeoChatAdapter.setMessages(setMessagesOperation.messages!!)
             }
         }
     }
