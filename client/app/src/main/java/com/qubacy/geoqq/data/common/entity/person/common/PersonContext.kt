@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.entity.person
+package com.qubacy.geoqq.data.common.entity.person.common
 
 object PersonContext {
     const val MIN_USERNAME_LENGTH = 8

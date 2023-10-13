@@ -91,6 +91,9 @@ class GeoChatAdapter(
         holder.bind(
             messageAdapterInfo.message,
             mCallback.getUserById(messageAdapterInfo.message.userId))
+        holder.itemView.setOnClickListener {
+            mCallback.onMessageClicked(messageAdapterInfo.message)
+        }
     }
 
     fun addMessage(message: Message) {

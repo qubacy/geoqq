@@ -42,7 +42,7 @@
             layout="@layout/component_bottom_sheet_scrim" />
 
         <include
-            android:id="@+id/user_profile_bottom_sheet"
+            android:id="@+id/bottom_sheet"
             layout="@layout/component_user_profile_bottom_sheet" />
 
     </com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetLayout>

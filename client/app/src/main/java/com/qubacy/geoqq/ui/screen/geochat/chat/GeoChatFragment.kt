@@ -9,8 +9,10 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
+import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapter
 import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapterCallback
@@ -23,7 +25,12 @@ import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOp
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 
-class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
+class GeoChatFragment(
+
+) : LocationFragment(),
+    GeoChatAdapterCallback,
+    UserInfoBottomSheetContentCallback
+{
     override val mModel: GeoChatViewModel by viewModels {
         GeoChatViewModelFactory()
     }
@@ -53,6 +60,7 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mBinding.bottomSheet.bottomSheetContentCard.setCallback(this)
         mGeoChatAdapter = GeoChatAdapter(this).apply {
             setMessages(mModel.geoChatUiState.value!!.messages)
         }
@@ -86,10 +94,6 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
                 mGeoChatAdapter.setMessages(setMessagesOperation.messages)
             }
         }
-
-//        mGeoChatAdapter.submitList(geoChatUiState.messageList) {
-//            mBinding.chatRecyclerView.scrollToPosition(geoChatUiState.messageList.size - 1)
-//        }
     }
 
     private fun onSendingMessageButtonClicked() {
@@ -122,5 +126,16 @@ class GeoChatFragment() : LocationFragment(), GeoChatAdapterCallback {
         return mModel.geoChatUiState.value!!.users.find {
             it.userId == userId
         }!!
+    }
+
+    override fun onMessageClicked(message: Message) {
+        val user = getUserById(message.userId)
+
+        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
+        mBinding.bottomSheet.bottomSheetContentCard.showPreview()
+    }
+
+    override fun addToFriend(user: User) {
+        mModel.addToFriend(user)
     }
 }

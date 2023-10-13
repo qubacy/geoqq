@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.chat.geo.GeoChatOperation
+import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.message.validator.MessageTextValidator
+import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
@@ -78,6 +80,14 @@ class GeoChatViewModel : LocationViewModel() {
 //        }
 
 //        mGeoChatUiState = GeoChatUiState()
+    }
+
+    fun addToFriend(user: User) {
+        viewModelScope.launch {
+            // todo: conveying a request to the DATA layer..
+
+
+        }
     }
 }
 

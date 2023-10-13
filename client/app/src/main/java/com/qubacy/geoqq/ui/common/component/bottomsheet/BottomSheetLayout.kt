@@ -18,7 +18,7 @@ class BottomSheetLayout(context: Context, attributeSet: AttributeSet)
         super.onAttachedToWindow()
 
         scrimView = findViewById(R.id.bottom_sheet_scrim)
-        bottomSheetView = findViewById(R.id.user_profile_bottom_sheet)
+        bottomSheetView = findViewById(R.id.bottom_sheet)
 
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView)
 

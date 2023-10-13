@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.common.fragment.model
+package com.qubacy.geoqq.ui.common.fragment.common.model
 
 import com.qubacy.geoqq.common.error.Error
 

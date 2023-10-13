@@ -14,20 +14,22 @@ import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Before
-import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4::class)
@@ -373,16 +375,76 @@ class GeoChatFragmentTest {
 
     @Test
     fun userInfoBottomSheetDisplayedOnMessageClickTest() {
+        val messages = listOf(
+            Message(0, "Hi!", 1696847478000)
+        )
+        val users = listOf(
+            User(0, "User 1")
+        )
 
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(messages, users)
+        }
+
+        Espresso.onView(withText(users.first().username))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun userInfoBottomSheetHasAllElementsVisibleAndEnabledTest() {
+        val messages = listOf(
+            Message(0, "Hi!", 1696847478000)
+        )
+        val users = listOf(
+            User(0, "User 1", "I'm fond of minecraft", false)
+        )
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(messages, users)
+        }
+
+        Espresso.onView(withText(users.first().username))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.avatar))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(Matchers.allOf(
+            ViewMatchers.withId(R.id.username),
+            ViewMatchers.isDescendantOfA(
+                ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.description))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.add_friend_button))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
 
     @Test
     fun userInfoBottomSheetExpandsOnDraggingTopTest() {
+        val messages = listOf(
+            Message(0, "Hi!", 1696847478000)
+        )
+        val users = listOf(
+            User(0, "User 1", "I'm fond of minecraft", false)
+        )
 
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.setMessages(messages, users)
+        }
+
+        Espresso.onView(withText(users.first().username))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))
+            .perform(DragBottomSheetViewAction()) // todo: DOESNT WORK. WHAT TO DO INSTEAD???
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayingAtLeast(80)))
     }
 
     @Test
     fun userInfoBottomSheetDismissesOnDraggingBottomTest() {
+        // todo: their is no way to check this case without a working Dragging imitation..
+
 
     }
 }

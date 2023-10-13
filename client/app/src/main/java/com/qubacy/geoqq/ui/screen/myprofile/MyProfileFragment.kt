@@ -15,7 +15,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
-import com.qubacy.geoqq.ui.common.fragment.BaseFragment
+import com.qubacy.geoqq.ui.common.fragment.common.BaseFragment
 import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
 import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel

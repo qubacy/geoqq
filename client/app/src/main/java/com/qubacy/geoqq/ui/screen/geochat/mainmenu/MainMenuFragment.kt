@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.qubacy.geoqq.databinding.FragmentMainMenuBinding
-import com.qubacy.geoqq.ui.common.fragment.BaseFragment
 
 class MainMenuFragment() : Fragment() {
     private lateinit var mBinding: FragmentMainMenuBinding

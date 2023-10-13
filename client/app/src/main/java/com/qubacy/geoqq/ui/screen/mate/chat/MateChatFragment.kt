@@ -9,7 +9,7 @@ import androidx.fragment.app.viewModels
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
-import com.qubacy.geoqq.ui.common.fragment.BaseFragment
+import com.qubacy.geoqq.ui.common.fragment.common.BaseFragment
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 

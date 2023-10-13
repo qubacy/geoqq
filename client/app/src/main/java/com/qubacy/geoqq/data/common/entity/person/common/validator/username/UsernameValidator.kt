@@ -1,7 +1,7 @@
-package com.qubacy.geoqq.data.common.entity.person.validator.username
+package com.qubacy.geoqq.data.common.entity.person.common.validator.username
 
 import com.qubacy.geoqq.common.validator.Validator
-import com.qubacy.geoqq.data.common.entity.person.PersonContext
+import com.qubacy.geoqq.data.common.entity.person.common.PersonContext
 
 class UsernameValidator() : Validator {
     override fun getRegularExpression(): Regex {

@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.screen.mate.chat.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.ui.common.fragment.model.BaseViewModel
+import com.qubacy.geoqq.ui.common.fragment.common.model.BaseViewModel
 
 class MateChatViewModel() : BaseViewModel() {
 

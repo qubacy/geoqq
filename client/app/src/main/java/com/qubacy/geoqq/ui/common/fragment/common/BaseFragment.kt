@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.common.fragment
+package com.qubacy.geoqq.ui.common.fragment.common
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -18,8 +18,8 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.ui.common.activity.StyleableActivity
 import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
-import com.qubacy.geoqq.ui.common.fragment.model.BaseUiState
-import com.qubacy.geoqq.ui.common.fragment.model.BaseViewModel
+import com.qubacy.geoqq.ui.common.fragment.common.model.BaseUiState
+import com.qubacy.geoqq.ui.common.fragment.common.model.BaseViewModel
 import com.qubacy.geoqq.ui.model.MainViewModel
 import com.qubacy.geoqq.ui.model.MainViewModelFactory
 

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.common.fragment.model
+package com.qubacy.geoqq.ui.common.fragment.common.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
