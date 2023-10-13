@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
@@ -24,6 +25,9 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUi
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 class GeoChatFragment(
 
@@ -62,7 +66,7 @@ class GeoChatFragment(
 
         mBinding.bottomSheet.bottomSheetContentCard.setCallback(this)
         mGeoChatAdapter = GeoChatAdapter(this).apply {
-            setMessages(mModel.geoChatUiState.value!!.messages)
+            setMessages(mModel.geoChatUiState.messages)
         }
 
         mBinding.chatRecyclerView.apply {
@@ -76,8 +80,12 @@ class GeoChatFragment(
             onSendingMessageButtonClicked()
         }
 
-        mModel.geoChatUiOperation.observe(viewLifecycleOwner) {
-            onGeoChatUiOperationRequested(it)
+        lifecycleScope.launch {
+            mModel.geoChatUiOperationFlow.collect {
+                if (it == null) return@collect
+
+                onGeoChatUiOperationRequested(it)
+            }
         }
     }
 
@@ -123,7 +131,7 @@ class GeoChatFragment(
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.geoChatUiState.value!!.users.find {
+        return mModel.geoChatUiState.users.find {
             it.userId == userId
         }!!
     }

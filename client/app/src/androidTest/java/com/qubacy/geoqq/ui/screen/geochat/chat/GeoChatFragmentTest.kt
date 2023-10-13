@@ -26,10 +26,12 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesU
 import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.reflect.Field
 
 
 @RunWith(AndroidJUnit4::class)
@@ -40,20 +42,24 @@ class GeoChatFragmentTest {
 
     class GeoChatUiStateTestData(
         private val mModel: GeoChatViewModel,
-        private val mGeoChatUiOperation: MutableLiveData<ChatUiOperation>,
-        private var mGeoChatUiState: MutableLiveData<ChatUiState>
+        private val mGeoChatUiOperationFlow: MutableStateFlow<ChatUiOperation?>,
+        private var mGeoChatUiStateFieldReflection: Field
     ) {
         fun addMessage(message: Message, user: User) {
-            mGeoChatUiState.value!!.users.add(user)
-            mGeoChatUiState.value!!.messages.add(message)
+            val prevState = mGeoChatUiStateFieldReflection.get(mModel) as ChatUiState
+
+            prevState.users.add(user)
+            prevState.messages.add(message)
+
+            mGeoChatUiStateFieldReflection.set(mModel, prevState)
 
             Log.d(TAG, "addMessage(): newMessage = ${message.text} from = ${message.userId}")
 
-            mGeoChatUiOperation.value = AddMessageUiOperation(message)
+            mGeoChatUiOperationFlow.value = AddMessageUiOperation(message)
         }
 
         fun setMessages(messages: List<Message>, users: List<User>) {
-            mGeoChatUiOperation.value = SetMessagesUiOperation(messages)
+            mGeoChatUiOperationFlow.value = SetMessagesUiOperation(messages)
 
             val mutableMessages = mutableListOf<Message>()
             val mutableUsers = mutableListOf<User>()
@@ -61,10 +67,10 @@ class GeoChatFragmentTest {
             for (message in messages) mutableMessages.add(message)
             for (user in users) mutableUsers.add(user)
 
-            mGeoChatUiState.value = ChatUiState(
+            mGeoChatUiStateFieldReflection.set(mModel, ChatUiState(
                 mutableMessages,
                 mutableUsers
-            )
+            ))
         }
 
     }
@@ -86,7 +92,7 @@ class GeoChatFragmentTest {
             }
         }
 
-        val geoChatUiOperationFieldReflection = GeoChatViewModel::class.java.getDeclaredField("mGeoChatUiOperation")
+        val geoChatUiOperationFieldReflection = GeoChatViewModel::class.java.getDeclaredField("mGeoChatUiOperationFlow")
             .apply {
                 isAccessible = true
             }
@@ -98,8 +104,8 @@ class GeoChatFragmentTest {
 
         mGeoChatUiStateTestData = GeoChatUiStateTestData(
             model!!,
-            geoChatUiOperationFieldReflection.get(model) as MutableLiveData<ChatUiOperation>,
-            geoChatUiStateFieldReflection.get(model) as MutableLiveData<ChatUiState>
+            geoChatUiOperationFieldReflection.get(model) as MutableStateFlow<ChatUiOperation?>,
+            geoChatUiStateFieldReflection
         )
     }
 

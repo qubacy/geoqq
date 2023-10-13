@@ -50,7 +50,6 @@ class MyProfileFragment() : BaseFragment() {
 
         mBinding.userAvatar.setImageURI(mUserAvatarUri)
         changePrivacyHitUpPosition(privacyHitUpPosition)
-//        mBinding.privacyHitUp.currentItemPosition = mPrivacyHitUpPosition
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
