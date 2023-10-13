@@ -9,7 +9,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpUiState
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModelFactory
 

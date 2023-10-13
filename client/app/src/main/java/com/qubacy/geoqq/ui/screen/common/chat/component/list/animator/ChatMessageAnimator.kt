@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.chat.animator
+package com.qubacy.geoqq.ui.screen.common.chat.component.list.animator
 
 import android.animation.Animator
 import android.view.animation.AccelerateDecelerateInterpolator

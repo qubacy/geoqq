@@ -19,10 +19,10 @@ import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
@@ -40,8 +40,8 @@ class GeoChatFragmentTest {
 
     class GeoChatUiStateTestData(
         private val mModel: GeoChatViewModel,
-        private val mGeoChatUiOperation: MutableLiveData<GeoChatUiOperation>,
-        private var mGeoChatUiState: MutableLiveData<GeoChatUiState>
+        private val mGeoChatUiOperation: MutableLiveData<ChatUiOperation>,
+        private var mGeoChatUiState: MutableLiveData<ChatUiState>
     ) {
         fun addMessage(message: Message, user: User) {
             mGeoChatUiState.value!!.users.add(user)
@@ -61,7 +61,7 @@ class GeoChatFragmentTest {
             for (message in messages) mutableMessages.add(message)
             for (user in users) mutableUsers.add(user)
 
-            mGeoChatUiState.value = GeoChatUiState(
+            mGeoChatUiState.value = ChatUiState(
                 mutableMessages,
                 mutableUsers
             )
@@ -98,8 +98,8 @@ class GeoChatFragmentTest {
 
         mGeoChatUiStateTestData = GeoChatUiStateTestData(
             model!!,
-            geoChatUiOperationFieldReflection.get(model) as MutableLiveData<GeoChatUiOperation>,
-            geoChatUiStateFieldReflection.get(model) as MutableLiveData<GeoChatUiState>
+            geoChatUiOperationFieldReflection.get(model) as MutableLiveData<ChatUiOperation>,
+            geoChatUiStateFieldReflection.get(model) as MutableLiveData<ChatUiState>
         )
     }
 

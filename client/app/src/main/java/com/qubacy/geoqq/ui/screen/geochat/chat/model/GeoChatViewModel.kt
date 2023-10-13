@@ -3,18 +3,16 @@ package com.qubacy.geoqq.ui.screen.geochat.chat.model
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.chat.geo.GeoChatOperation
-import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -24,11 +22,11 @@ class GeoChatViewModel : LocationViewModel() {
     // todo: assign to the repository's flow:
     private var mGeoChatOperation: Flow<GeoChatOperation> = flowOf<GeoChatOperation>()
 
-    private var mGeoChatUiOperation: MutableLiveData<GeoChatUiOperation> = MutableLiveData()
-    val geoChatUiOperation: LiveData<GeoChatUiOperation> = mGeoChatUiOperation
+    private var mGeoChatUiOperation: MutableLiveData<ChatUiOperation> = MutableLiveData()
+    val geoChatUiOperation: LiveData<ChatUiOperation> = mGeoChatUiOperation
 
-    private var mGeoChatUiState = MutableLiveData(GeoChatUiState())
-    val geoChatUiState: LiveData<GeoChatUiState> = mGeoChatUiState
+    private var mGeoChatUiState = MutableLiveData(ChatUiState())
+    val geoChatUiState: LiveData<ChatUiState> = mGeoChatUiState
 
     init {
         viewModelScope.launch {

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.chat.adapter
+package com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,8 +8,8 @@ import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.ComponentChatMessageBinding
 import com.qubacy.geoqq.ui.common.util.TimeUtils
-import com.qubacy.geoqq.ui.screen.geochat.chat.animator.ChatMessageAnimatorCallback
-import com.qubacy.geoqq.ui.screen.geochat.chat.layoutmanager.GeoChatLayoutManager
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.animator.ChatMessageAnimatorCallback
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager.ChatLayoutManager
 import java.util.Locale
 import java.util.TimeZone
 
@@ -19,7 +19,7 @@ data class MessageAdapterInfo(
 )
 
 class GeoChatAdapter(
-    private val mCallback: GeoChatAdapterCallback
+    private val mCallback: ChatAdapterCallback
 ) : RecyclerView.Adapter<GeoChatAdapter.GeoChatViewHolder>(), ChatMessageAnimatorCallback {
     class GeoChatViewHolder(
         private val mBinding: ComponentChatMessageBinding
@@ -40,13 +40,13 @@ class GeoChatAdapter(
     }
 
     private var mRecyclerView: RecyclerView? = null
-    private var mLayoutManager: GeoChatLayoutManager? = null
+    private var mLayoutManager: ChatLayoutManager? = null
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
 
         mRecyclerView = recyclerView
-        mLayoutManager = recyclerView.layoutManager as GeoChatLayoutManager
+        mLayoutManager = recyclerView.layoutManager as ChatLayoutManager
 
         mLayoutManager!!.setOnLayoutCompletedCallback {
             if (mIsAutoScrollingEnabled) {

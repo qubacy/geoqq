@@ -10,6 +10,7 @@ import com.qubacy.geoqq.data.auth.signin.SignInState
 import com.qubacy.geoqq.data.common.entity.person.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 import kotlinx.coroutines.launch
 
 // todo: providing a data repository as an argument..

@@ -14,21 +14,21 @@ import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
-import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapter
-import com.qubacy.geoqq.ui.screen.geochat.chat.adapter.GeoChatAdapterCallback
-import com.qubacy.geoqq.ui.screen.geochat.chat.animator.ChatMessageAnimator
-import com.qubacy.geoqq.ui.screen.geochat.chat.layoutmanager.GeoChatLayoutManager
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.GeoChatAdapter
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.animator.ChatMessageAnimator
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager.ChatLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.GeoChatUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 
 class GeoChatFragment(
 
 ) : LocationFragment(),
-    GeoChatAdapterCallback,
+    ChatAdapterCallback,
     UserInfoBottomSheetContentCallback
 {
     override val mModel: GeoChatViewModel by viewModels {
@@ -66,7 +66,7 @@ class GeoChatFragment(
         }
 
         mBinding.chatRecyclerView.apply {
-            layoutManager = GeoChatLayoutManager(
+            layoutManager = ChatLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mGeoChatAdapter
             itemAnimator = ChatMessageAnimator(mGeoChatAdapter)
@@ -81,7 +81,7 @@ class GeoChatFragment(
         }
     }
 
-    private fun onGeoChatUiOperationRequested(geoChatUiOperation: GeoChatUiOperation) {
+    private fun onGeoChatUiOperationRequested(geoChatUiOperation: ChatUiOperation) {
         when (geoChatUiOperation::class) {
             AddMessageUiOperation::class -> {
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation

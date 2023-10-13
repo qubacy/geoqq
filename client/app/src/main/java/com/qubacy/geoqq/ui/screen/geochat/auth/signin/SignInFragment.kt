@@ -11,7 +11,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInUiState
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
 
