@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.geochat.signin
+package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -15,7 +15,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.SignInFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion

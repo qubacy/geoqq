@@ -1,33 +1,67 @@
-package com.qubacy.geoqq.ui.screen.geochat.signup
+package com.qubacy.geoqq.ui.screen.geochat.auth.signup
 
 import android.view.View
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.SignUpFragment
+import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
 import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
 class SignUpFragmentTest {
+    class SignUpUiStateTestData(
+        private val mModel: SignUpViewModel,
+        private val mSignUpUiState: MutableLiveData<SignUpUiState>
+    ) {
+        fun setSignUpUiState(signUpUiState: SignUpUiState) {
+            mSignUpUiState.value = signUpUiState
+        }
+    }
+
     private lateinit var mSignUpFragmentScenarioRule: FragmentScenario<SignUpFragment>
+    private lateinit var mModel: SignUpViewModel
+
+    private lateinit var mSignUpUiStateTestData: SignUpUiStateTestData
 
     @Before
     fun setup() {
         mSignUpFragmentScenarioRule =
             launchFragmentInContainer<SignUpFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
         mSignUpFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
+
+        mSignUpFragmentScenarioRule.onFragment {
+            mModel = ViewModelProvider(it)[SignUpViewModel::class.java]
+        }
+
+        val signUpUiStateFieldReflection = SignUpViewModel::class.java
+            .getDeclaredField("mSignUpUiState").apply {
+                isAccessible = true
+            }
+
+        mSignUpUiStateTestData = SignUpUiStateTestData(
+            mModel,
+            signUpUiStateFieldReflection.get(mModel) as MutableLiveData<SignUpUiState>
+        )
     }
 
     @Test
@@ -378,5 +412,36 @@ class SignUpFragmentTest {
         Espresso.onView(ViewMatchers.withId(R.id.loading_screen))
             .perform(ViewActions.click())
             .check(ViewAssertions.doesNotExist())
+    }
+
+    @Test
+    fun errorMessageShowsUpOnSettingUiStateWithErrorTest() {
+        val error = Error(R.string.error_sign_up_failed, Error.Level.NORMAL)
+        val errorSignUpUiState = SignUpUiState(false, error)
+
+        mSignUpFragmentScenarioRule.onFragment {
+            mSignUpUiStateTestData.setSignUpUiState(errorSignUpUiState)
+        }
+
+        Espresso.onView(withText(error.messageResId))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun criticalErrorLeadsToClosingAppTest() {
+        val error = Error(R.string.error_sign_up_failed, Error.Level.CRITICAL)
+        val errorSignUpUiState = SignUpUiState(false, error)
+
+        mSignUpFragmentScenarioRule.onFragment {
+            mSignUpUiStateTestData.setSignUpUiState(errorSignUpUiState)
+        }
+
+        try {
+            Espresso.onView(withText(R.string.component_dialog_error_neutral_button_caption))
+                .perform(ViewActions.click())
+
+        } catch (e: Exception) {
+            Assert.assertEquals(NoActivityResumedException::class, e::class)
+        }
     }
 }

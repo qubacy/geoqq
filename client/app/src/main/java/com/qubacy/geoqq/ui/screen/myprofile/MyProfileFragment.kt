@@ -12,17 +12,16 @@ import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
-import com.qubacy.geoqq.ui.common.fragment.common.BaseFragment
 import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
 import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 
-class MyProfileFragment() : BaseFragment() {
+class MyProfileFragment() : WaitingFragment() {
     companion object {
         const val TAG = "MyProfileFragment"
 
@@ -168,5 +167,11 @@ class MyProfileFragment() : BaseFragment() {
         // todo: conveying data to the model..
 
 
+    }
+
+    override fun handleWaitingAbort() {
+        super.handleWaitingAbort()
+
+        mModel.interruptSavingProfileData()
     }
 }

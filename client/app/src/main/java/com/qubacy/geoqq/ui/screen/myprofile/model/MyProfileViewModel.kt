@@ -1,39 +1,32 @@
 package com.qubacy.geoqq.ui.screen.myprofile.model
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.data.common.entity.person.myprofile.validator.password.LoginPasswordValidator
-import com.qubacy.geoqq.data.myprofile.MyProfileOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.BaseViewModel
+import com.qubacy.geoqq.data.myprofile.MyProfileState
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 // todo: provide a repository as a param..
-class MyProfileViewModel : BaseViewModel() {
+class MyProfileViewModel : WaitingViewModel(), Observer<MyProfileState> {
     enum class HitUpOption(
         val index: Int
     ) {
         POSITIVE(0), NEGATIVE(1);
     }
 
-    private var mMyProfileOperationFlow = flowOf(MyProfileOperation())
-
     // todo: assign to the repository's live data:
+    private var mMyProfileState: LiveData<MyProfileState>? = null
+
     private val mMyProfileUiState: MutableLiveData<MyProfileUiState> = MutableLiveData()
     val myProfileUiState: LiveData<MyProfileUiState> = mMyProfileUiState
-
-    init {
-        viewModelScope.launch {
-            mMyProfileOperationFlow.collect {
-                onOperationGotten(it)
-            }
-        }
-    }
 
     fun saveProfileData(
         username: String,
@@ -46,6 +39,14 @@ class MyProfileViewModel : BaseViewModel() {
             // todo: sending data to the DATA layer..
 
         }
+
+        mIsWaiting.value = true
+    }
+
+    fun interruptSavingProfileData() {
+        // todo: handling an interruption process..
+
+
     }
 
     fun isProfileDataCorrect(
@@ -79,10 +80,17 @@ class MyProfileViewModel : BaseViewModel() {
         return HitUpOption.entries[index]
     }
 
-    private fun onOperationGotten(operation: MyProfileOperation) {
-        // todo: processing the operation..
+    override fun onChanged(value: MyProfileState) {
+        mIsWaiting.value = false
+
+        // todo: processing the value..
 
 
+
+        // todo: converting to MyProfileUiState..
+
+        mMyProfileUiState.value = MyProfileUiState(
+            Uri.EMPTY, "smth", "desc", "pass", HitUpOption.POSITIVE)
     }
 }
 
