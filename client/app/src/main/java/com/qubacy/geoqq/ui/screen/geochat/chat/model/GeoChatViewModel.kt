@@ -9,12 +9,11 @@ import com.qubacy.geoqq.data.common.entity.message.validator.MessageTextValidato
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
@@ -23,8 +22,8 @@ class GeoChatViewModel : LocationViewModel() {
     // todo: assign to the repository's flow:
     private var mGeoChatOperation: Flow<GeoChatOperation> = flowOf<GeoChatOperation>()
 
-    private var mGeoChatUiOperationFlow: MutableStateFlow<ChatUiOperation?> = MutableStateFlow(null)
-    val geoChatUiOperationFlow: StateFlow<ChatUiOperation?> = mGeoChatUiOperationFlow
+    private var mGeoChatUiOperationFlow: MutableStateFlow<UiOperation?> = MutableStateFlow(null)
+    val geoChatUiOperationFlow: StateFlow<UiOperation?> = mGeoChatUiOperationFlow
 
     private var mGeoChatUiState = ChatUiState()
     val geoChatUiState: ChatUiState get() { return mGeoChatUiState }

@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -15,24 +15,27 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.Exception
 import java.lang.reflect.Field
-
 
 @RunWith(AndroidJUnit4::class)
 class GeoChatFragmentTest {
@@ -42,7 +45,7 @@ class GeoChatFragmentTest {
 
     class GeoChatUiStateTestData(
         private val mModel: GeoChatViewModel,
-        private val mGeoChatUiOperationFlow: MutableStateFlow<ChatUiOperation?>,
+        private val mGeoChatUiOperationFlow: MutableStateFlow<UiOperation?>,
         private var mGeoChatUiStateFieldReflection: Field
     ) {
         fun addMessage(message: Message, user: User) {
@@ -73,6 +76,9 @@ class GeoChatFragmentTest {
             ))
         }
 
+        fun showError(error: Error) {
+            mGeoChatUiOperationFlow.value = ShowErrorUiOperation(error)
+        }
     }
 
     private lateinit var mGeoChatFragmentScenarioRule: FragmentScenario<GeoChatFragment>
@@ -104,7 +110,7 @@ class GeoChatFragmentTest {
 
         mGeoChatUiStateTestData = GeoChatUiStateTestData(
             model!!,
-            geoChatUiOperationFieldReflection.get(model) as MutableStateFlow<ChatUiOperation?>,
+            geoChatUiOperationFieldReflection.get(model) as MutableStateFlow<UiOperation?>,
             geoChatUiStateFieldReflection
         )
     }
@@ -452,5 +458,34 @@ class GeoChatFragmentTest {
         // todo: their is no way to check this case without a working Dragging imitation..
 
 
+    }
+
+    @Test
+    fun errorMessageAppearsOnShowErrorUiOperationTest() {
+        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.NORMAL)
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.showError(error)
+        }
+
+        Espresso.onView(withText(error.messageResId))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun criticalErrorLeadsToClosingAppTest() {
+        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.NORMAL)
+
+        mGeoChatFragmentScenarioRule.onFragment {
+            mGeoChatUiStateTestData.showError(error)
+        }
+
+        try {
+            Espresso.onView(withText(R.string.component_dialog_error_neutral_button_caption))
+                .perform(ViewActions.click())
+
+        } catch (e: Exception) {
+            Assert.assertEquals(NoActivityResumedException::class, e::class)
+        }
     }
 }

@@ -9,11 +9,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.data.common.entity.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.GeoChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
@@ -22,7 +22,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager.ChatL
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.ChatUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.launch
@@ -87,23 +87,22 @@ class GeoChatFragment(
         }
     }
 
-    private fun onGeoChatUiOperationReceived(geoChatUiOperation: ChatUiOperation) {
-        if (geoChatUiOperation.error != null) {
-            onErrorOccurred(geoChatUiOperation.error)
-
-            return
-        }
-
+    private fun onGeoChatUiOperationReceived(geoChatUiOperation: UiOperation) {
         when (geoChatUiOperation::class) {
             AddMessageUiOperation::class -> {
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
 
-                mGeoChatAdapter.addMessage(addMessageOperation.message!!)
+                mGeoChatAdapter.addMessage(addMessageOperation.message)
             }
             SetMessagesUiOperation::class -> {
                 val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation
 
-                mGeoChatAdapter.setMessages(setMessagesOperation.messages!!)
+                mGeoChatAdapter.setMessages(setMessagesOperation.messages)
+            }
+            ShowErrorUiOperation::class -> {
+                val showErrorOperation = geoChatUiOperation as ShowErrorUiOperation
+
+                onErrorOccurred(showErrorOperation.error)
             }
         }
     }
