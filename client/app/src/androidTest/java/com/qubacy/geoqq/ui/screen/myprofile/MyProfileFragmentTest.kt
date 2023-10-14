@@ -5,7 +5,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -16,11 +19,16 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
+import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
+import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.lang.Exception
 import java.lang.reflect.Field
 
 @RunWith(AndroidJUnit4::class)
@@ -34,15 +42,26 @@ class MyProfileFragmentTest {
         }
     }
 
+    class MyProfileUiStateTestData(
+        private val mModel: MyProfileViewModel,
+        private val mMyProfileUiState: MutableLiveData<MyProfileUiState>
+    ) {
+        fun setMyProfileUiState(uiState: MyProfileUiState) {
+            mMyProfileUiState.value = uiState
+        }
+    }
+
     companion object {
         const val TAG = "MY_PROFILE_FRAGMENT"
     }
 
     private lateinit var mMyProfileFragmentScenarioRule: FragmentScenario<MyProfileFragment>
     private lateinit var mBinding: FragmentMyProfileBinding
+    private lateinit var mModel: MyProfileViewModel
     private lateinit var mContext: Context
 
     private lateinit var mPrivacyHitUpTestData: PrivacyHitUpTestData
+    private lateinit var mMyProfileUiStateTestData: MyProfileUiStateTestData
 
     @Before
     fun setup() {
@@ -57,6 +76,7 @@ class MyProfileFragmentTest {
             onFragment {
                 mBinding = DataBindingUtil.getBinding<FragmentMyProfileBinding>(it.view!!)!!
                 fragment = it
+                mModel = ViewModelProvider(it)[MyProfileViewModel::class.java]
             }
         }
 
@@ -64,9 +84,17 @@ class MyProfileFragmentTest {
             MyProfileFragment::class.java.getDeclaredField("mPrivacyHitUpPosition").apply {
                 isAccessible = true
             }
+        val myProfileUiStateFieldReflection = MyProfileViewModel::class.java
+            .getDeclaredField("mMyProfileUiState").apply {
+                isAccessible = true
+            }
 
         mPrivacyHitUpTestData = PrivacyHitUpTestData(
             curPrivacyHitUpPositionFieldReflection, fragment!!)
+        mMyProfileUiStateTestData = MyProfileUiStateTestData(
+            mModel,
+            myProfileUiStateFieldReflection.get(mModel) as MutableLiveData<MyProfileUiState>
+        )
     }
 
     @Test
@@ -238,5 +266,36 @@ class MyProfileFragmentTest {
             .perform(ViewActions.click())
         Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
             .check(ViewAssertions.doesNotExist())
+    }
+
+    @Test
+    fun errorMessageShownOnUiStateWithErrorTest() {
+        val error = Error(R.string.error_my_profile_changing_failed, Error.Level.NORMAL)
+        val errorMyProfileUiState = MyProfileUiState(error = error)
+
+        mMyProfileFragmentScenarioRule.onFragment {
+            mMyProfileUiStateTestData.setMyProfileUiState(errorMyProfileUiState)
+        }
+
+        Espresso.onView(withText(R.string.error_my_profile_changing_failed))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun criticalErrorLeadsToClosingAppTest() {
+        val error = Error(R.string.error_my_profile_changing_failed, Error.Level.NORMAL)
+        val errorMyProfileUiState = MyProfileUiState(error = error)
+
+        mMyProfileFragmentScenarioRule.onFragment {
+            mMyProfileUiStateTestData.setMyProfileUiState(errorMyProfileUiState)
+        }
+
+        try {
+            Espresso.onView(withText(R.string.component_dialog_error_neutral_button_caption))
+                .perform(ViewActions.click())
+
+        } catch (e: Exception) {
+            Assert.assertEquals(NoActivityResumedException::class, e::class)
+        }
     }
 }
