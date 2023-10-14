@@ -66,8 +66,6 @@ abstract class LocationFragment() : WaitingFragment() {
     }
 
     override fun getPermissionsToRequest(): Array<String>? {
-//        if (!mAreLocationServicesEnabled) return null
-
         return arrayOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION)

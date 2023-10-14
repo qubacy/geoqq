@@ -61,14 +61,23 @@
     <string name="error_dialog_title">Error</string>
 
     <string name="error_sign_in_data_incorrect">Incorrect Sign In data!</string>
+    <!-- TODO: specify it: -->
+    <string name="error_sign_in_failed">Signing In has been failed!</string>
+
     <string name="error_sign_up_data_incorrect">Incorrect Sign Up data!</string>
+    <!-- TODO: specify it: -->
+    <string name="error_sign_up_failed">Signing Up has been failed!</string>
 
     <string name="error_location_lacking_location_permissions">Sorry, but it isn\'t possible to use the app without providing your location!</string>
     <string name="error_location_services_not_enabled">Sorry, but it isn\'t possible to use the app without enabling location services (GPS and Network)!</string>
     <string name="error_gms_api_not_available">Sorry, but it isn\'t possible to use the app without having GMS API available!</string>
 
     <string name="error_chat_message_incorrect">Incorrect message!</string>
+    <!-- TODO: specify it: -->
+    <string name="error_chat_message_sending_failed">Message sending has been failed!</string>
 
     <string name="error_my_profile_data_incorrect">Please, provide all the profile data!</string>
+    <!-- TODO: specify it: -->
+    <string name="error_my_profile_changing_failed">Profile changing has been failed!</string>
 
 </resources>

@@ -133,12 +133,6 @@ class GeoChatSettingsFragment() : LocationFragment() {
         // todo: going to GeoChatFragment with the RADIUS as an arg.
     }
 
-     override fun handleError(error: Error) {
-        // todo: handling the error..
-
-
-    }
-
     private fun drawCurLocationCircle(locationPoint: Point?) {
         Log.d(TAG, "drawCurLocationCircle(): locationPoint: ${locationPoint?.latitude}:${locationPoint?.longitude}")
 

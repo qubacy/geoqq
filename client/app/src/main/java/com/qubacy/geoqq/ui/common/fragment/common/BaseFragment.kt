@@ -106,7 +106,14 @@ abstract class BaseFragment() : Fragment() {
             .show()
     }
 
-    abstract fun handleError(error: Error)
+    open fun handleError(error: Error) {
+        when (error.level) {
+            Error.Level.NORMAL -> {}
+            Error.Level.CRITICAL -> {
+                requireActivity().finishAndRemoveTask()
+            }
+        }
+    }
 
     private fun checkPermissions(): Boolean {
         for (permission in getPermissionsToRequest()!!) {

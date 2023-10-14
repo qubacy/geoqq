@@ -51,10 +51,6 @@ abstract class WaitingFragment(
     }
 
     protected open fun handleWaitingStart() {
-//        if (mModel.isWaiting.value!!) return
-//
-//        mModel.isWaiting.value = true
-
         if (mLoadingView == null) initLoadingView()
 
         // todo: it'd be better to play a provided animation when it's added to the container;

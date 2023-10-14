@@ -169,11 +169,4 @@ class MyProfileFragment() : BaseFragment() {
 
 
     }
-
-    override fun handleError(error: Error) {
-        TODO("Not yet implemented")
-
-
-    }
-
 }

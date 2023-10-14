@@ -53,12 +53,6 @@ class SignUpFragment : AuthFragment() {
         }
     }
 
-    override fun handleError(error: Error) {
-        TODO("Not yet implemented")
-
-
-    }
-
     private fun onSignUpButtonClicked() {
         val login = mBinding.loginInput.input.text.toString()
         val password = mBinding.passwordInput.input.text.toString()

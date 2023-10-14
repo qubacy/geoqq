@@ -45,9 +45,4 @@ class MateChatsFragment() : WaitingFragment() {
 
 
     }
-
-    override fun handleError(error: Error) {
-        TODO("Not yet implemented")
-    }
-
 }

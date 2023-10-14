@@ -128,12 +128,6 @@ class GeoChatFragment(
 
     }
 
-    override fun handleError(error: Error) {
-        // todo: handling the error..
-
-
-    }
-
     override fun getUserById(userId: Long): User {
         return mModel.geoChatUiState.users.find {
             it.userId == userId

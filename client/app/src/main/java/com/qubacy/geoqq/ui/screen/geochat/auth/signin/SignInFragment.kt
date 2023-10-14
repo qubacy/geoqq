@@ -8,7 +8,6 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
@@ -57,12 +56,6 @@ class SignInFragment : AuthFragment() {
             // todo: moving to the MainMenu fragment..
 
         }
-    }
-
-    override fun handleError(error: Error) {
-        TODO("Not yet implemented")
-
-
     }
 
     private fun onSignInButtonClicked() {

@@ -67,8 +67,4 @@ class MateChatFragment() : BaseFragment() {
 
         return (messageText.isEmpty())
     }
-
-    override fun handleError(error: Error) {
-        TODO("Not yet implemented")
-    }
 }

@@ -5,5 +5,4 @@ import com.qubacy.geoqq.common.error.Error
 
 enum class GeoChatSettingsErrorEnum(val error: Error) {
 
-
 }
