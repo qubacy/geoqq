@@ -1,12 +1,12 @@
-package com.qubacy.geoqq.ui.screen.common.chat.component.list.animator
+package com.qubacy.geoqq.ui.common.component.animatedlist.animator
 
 import android.animation.Animator
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatMessageAnimator(
-    private val mCallback: ChatMessageAnimatorCallback
+class AnimatedListItemAnimator(
+    private val mCallback: AnimatedListItemAnimatorCallback
 ) : DefaultItemAnimator() {
     companion object {
         const val TAG = "ChatMessageAnimator"

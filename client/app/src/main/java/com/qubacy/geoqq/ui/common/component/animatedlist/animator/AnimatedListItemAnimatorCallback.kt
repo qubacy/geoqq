@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.ui.screen.common.chat.component.list.animator
+package com.qubacy.geoqq.ui.common.component.animatedlist.animator
 
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-interface ChatMessageAnimatorCallback {
+interface AnimatedListItemAnimatorCallback {
     fun wasViewHolderAnimated(viewHolder: ViewHolder): Boolean
     fun setViewHolderAnimated(viewHolder: ViewHolder)
 }

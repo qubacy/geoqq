@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.entity.message.validator
+package com.qubacy.geoqq.data.common.entity.chat.message.validator
 
 import com.qubacy.geoqq.common.validator.Validator
 

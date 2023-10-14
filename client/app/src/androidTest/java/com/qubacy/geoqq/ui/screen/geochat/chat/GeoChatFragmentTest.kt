@@ -16,7 +16,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.data.common.entity.message.Message
+import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
@@ -422,7 +422,7 @@ class GeoChatFragmentTest {
         Espresso.onView(ViewMatchers.withId(R.id.avatar))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(Matchers.allOf(
-            ViewMatchers.withId(R.id.username),
+            ViewMatchers.withId(R.id.`@+id/name`),
             ViewMatchers.isDescendantOfA(
                 ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))

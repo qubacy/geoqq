@@ -3,24 +3,17 @@ package com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import com.qubacy.geoqq.data.common.entity.message.Message
+import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.ComponentChatMessageBinding
+import com.qubacy.geoqq.ui.common.component.animatedlist.adapter.AnimatedListAdapter
 import com.qubacy.geoqq.ui.common.util.TimeUtils
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.animator.ChatMessageAnimatorCallback
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager.ChatLayoutManager
 import java.util.Locale
 import java.util.TimeZone
 
-data class MessageAdapterInfo(
-    val message: Message,
-    var wasAnimated: Boolean = false
-)
-
-class GeoChatAdapter(
+class ChatAdapter(
     private val mCallback: ChatAdapterCallback
-) : RecyclerView.Adapter<GeoChatAdapter.GeoChatViewHolder>(), ChatMessageAnimatorCallback {
+) : AnimatedListAdapter<ChatAdapter.GeoChatViewHolder, Message>() {
     class GeoChatViewHolder(
         private val mBinding: ComponentChatMessageBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
@@ -32,100 +25,22 @@ class GeoChatAdapter(
         }
     }
 
-    private val mMessageAdapterInfoList = mutableListOf<MessageAdapterInfo>()
-
-    private var _mIsAutoScrollingEnabled: Boolean = true
-    private val mIsAutoScrollingEnabled: Boolean get() {
-        return _mIsAutoScrollingEnabled
-    }
-
-    private var mRecyclerView: RecyclerView? = null
-    private var mLayoutManager: ChatLayoutManager? = null
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-
-        mRecyclerView = recyclerView
-        mLayoutManager = recyclerView.layoutManager as ChatLayoutManager
-
-        mLayoutManager!!.setOnLayoutCompletedCallback {
-            if (mIsAutoScrollingEnabled) {
-                mRecyclerView!!.smoothScrollToPosition(itemCount)
-            }
-        }
-
-        mRecyclerView!!.addOnScrollListener(object : OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (newState != RecyclerView.SCROLL_STATE_IDLE) return
-
-                val lastVisibleItemPosition = mLayoutManager!!.findLastVisibleItemPosition()
-
-                changeAutoScrollingFlag(lastVisibleItemPosition == itemCount - 1)
-            }
-        })
-    }
-
-    private fun changeAutoScrollingFlag(isEnabled: Boolean) {
-        if (mRecyclerView == null || mLayoutManager == null || isEnabled == mIsAutoScrollingEnabled)
-            return
-
-        _mIsAutoScrollingEnabled = isEnabled
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeoChatViewHolder {
         val viewBinding = ComponentChatMessageBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false)
+            LayoutInflater.from(parent.context), parent, false
+        )
 
         return GeoChatViewHolder(viewBinding)
     }
 
-    override fun getItemCount(): Int {
-        return mMessageAdapterInfoList.size
-    }
-
     override fun onBindViewHolder(holder: GeoChatViewHolder, position: Int) {
-        val messageAdapterInfo = mMessageAdapterInfoList[position]
+        val messageAdapterInfo = mItemAdapterInfoList[position]
 
         holder.bind(
-            messageAdapterInfo.message,
-            mCallback.getUserById(messageAdapterInfo.message.userId))
+            messageAdapterInfo.item,
+            mCallback.getUserById(messageAdapterInfo.item.userId))
         holder.itemView.setOnClickListener {
-            mCallback.onMessageClicked(messageAdapterInfo.message)
+            mCallback.onMessageClicked(messageAdapterInfo.item)
         }
-    }
-
-    fun addMessage(message: Message) {
-        mMessageAdapterInfoList.add(MessageAdapterInfo(message))
-
-        notifyItemInserted(itemCount)
-    }
-
-    fun setMessages(messages: List<Message>) {
-        val prevCount = mMessageAdapterInfoList.size
-
-        mMessageAdapterInfoList.clear()
-
-        notifyItemRangeRemoved(0, prevCount)
-
-        for (message in messages) {
-            mMessageAdapterInfoList.add(MessageAdapterInfo(message))
-        }
-
-        changeAutoScrollingFlag(true)
-        notifyItemRangeInserted(0, itemCount)
-    }
-
-    override fun wasViewHolderAnimated(viewHolder: RecyclerView.ViewHolder): Boolean {
-        val messageAdapterInfo = mMessageAdapterInfoList[viewHolder.adapterPosition]
-
-        return messageAdapterInfo.wasAnimated
-    }
-
-    override fun setViewHolderAnimated(viewHolder: RecyclerView.ViewHolder) {
-        val messageAdapterInfo = mMessageAdapterInfoList[viewHolder.adapterPosition]
-
-        messageAdapterInfo.wasAnimated = true
     }
 }

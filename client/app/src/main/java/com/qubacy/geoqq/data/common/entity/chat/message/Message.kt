@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.entity.message
+package com.qubacy.geoqq.data.common.entity.chat.message
 
 data class Message(
     val userId: Long,

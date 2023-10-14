@@ -1,11 +1,11 @@
-package com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager
+package com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager
 
 import android.content.Context
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatLayoutManager(
+class AnimatedListLayoutManager(
     context: Context,
     orientation: Int,
     reverseLayout: Boolean

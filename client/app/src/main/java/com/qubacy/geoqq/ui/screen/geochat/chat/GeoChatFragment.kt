@@ -9,16 +9,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.common.entity.message.Message
+import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.GeoChatAdapter
+import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.animator.ChatMessageAnimator
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.layoutmanager.ChatLayoutManager
+import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
+import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
@@ -39,7 +39,7 @@ class GeoChatFragment(
 
     private lateinit var mBinding: FragmentGeoChatBinding
 
-    private lateinit var mGeoChatAdapter: GeoChatAdapter
+    private lateinit var mGeoChatAdapter: ChatAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,15 +63,15 @@ class GeoChatFragment(
         super.onViewCreated(view, savedInstanceState)
 
         mBinding.bottomSheet.bottomSheetContentCard.setCallback(this)
-        mGeoChatAdapter = GeoChatAdapter(this).apply {
-            setMessages(mModel.geoChatUiState.messages)
+        mGeoChatAdapter = ChatAdapter(this).apply {
+            setItems(mModel.geoChatUiState.messages)
         }
 
         mBinding.chatRecyclerView.apply {
-            layoutManager = ChatLayoutManager(
+            layoutManager = AnimatedListLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mGeoChatAdapter
-            itemAnimator = ChatMessageAnimator(mGeoChatAdapter)
+            itemAnimator = AnimatedListItemAnimator(mGeoChatAdapter)
         }
 
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
@@ -92,12 +92,12 @@ class GeoChatFragment(
             AddMessageUiOperation::class -> {
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
 
-                mGeoChatAdapter.addMessage(addMessageOperation.message)
+                mGeoChatAdapter.addItem(addMessageOperation.message)
             }
             SetMessagesUiOperation::class -> {
                 val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation
 
-                mGeoChatAdapter.setMessages(setMessagesOperation.messages)
+                mGeoChatAdapter.setItems(setMessagesOperation.messages)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorOperation = geoChatUiOperation as ShowErrorUiOperation
