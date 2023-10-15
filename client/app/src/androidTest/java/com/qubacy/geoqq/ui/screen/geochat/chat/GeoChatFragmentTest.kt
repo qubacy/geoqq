@@ -422,7 +422,7 @@ class GeoChatFragmentTest {
         Espresso.onView(ViewMatchers.withId(R.id.avatar))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(Matchers.allOf(
-            ViewMatchers.withId(R.id.`@+id/name`),
+            ViewMatchers.withId(R.id.username),
             ViewMatchers.isDescendantOfA(
                 ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))

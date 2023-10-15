@@ -23,6 +23,7 @@ import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.launch
@@ -63,9 +64,7 @@ class GeoChatFragment(
         super.onViewCreated(view, savedInstanceState)
 
         mBinding.bottomSheet.bottomSheetContentCard.setCallback(this)
-        mGeoChatAdapter = ChatAdapter(this).apply {
-            setItems(mModel.geoChatUiState.messages)
-        }
+        mGeoChatAdapter = ChatAdapter(this)
 
         mBinding.chatRecyclerView.apply {
             layoutManager = AnimatedListLayoutManager(
@@ -85,6 +84,12 @@ class GeoChatFragment(
                 onGeoChatUiOperationReceived(it)
             }
         }
+
+        initWithUiState(mModel.geoChatUiState)
+    }
+
+    private fun initWithUiState(uiState: ChatUiState) {
+        mGeoChatAdapter.setItems(uiState.messages)
     }
 
     private fun onGeoChatUiOperationReceived(geoChatUiOperation: UiOperation) {

@@ -6,10 +6,10 @@ import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListIt
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 
 abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
-
+    private val mIsReversed: Boolean = false
 ) : RecyclerView.Adapter<ViewHolderType>(), AnimatedListItemAnimatorCallback {
     data class ItemAdapterInfo<ItemType>(
-        val item: ItemType,
+        var item: ItemType,
         var wasAnimated: Boolean = false
     )
 
@@ -31,7 +31,7 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
 
         mLayoutManager!!.setOnLayoutCompletedCallback {
             if (mIsAutoScrollingEnabled) {
-                mRecyclerView!!.smoothScrollToPosition(itemCount)
+                mRecyclerView!!.smoothScrollToPosition(if (mIsReversed) 0 else itemCount)
             }
         }
 
@@ -41,9 +41,18 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
 
                 if (newState != RecyclerView.SCROLL_STATE_IDLE) return
 
-                val lastVisibleItemPosition = mLayoutManager!!.findLastVisibleItemPosition()
+                var isScrollEnabled = if (mIsReversed) {
+                    val firstVisiblePosition = mLayoutManager!!.findFirstVisibleItemPosition()
 
-                changeAutoScrollingFlag(lastVisibleItemPosition == itemCount - 1)
+                    firstVisiblePosition == 0
+
+                } else {
+                    val lastVisibleItemPosition = mLayoutManager!!.findLastVisibleItemPosition()
+
+                    lastVisibleItemPosition == itemCount - 1
+                }
+
+                changeAutoScrollingFlag(isScrollEnabled)
             }
         })
     }
@@ -60,9 +69,18 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
     }
 
     fun addItem(item: ItemType) {
-        mItemAdapterInfoList.add(ItemAdapterInfo(item))
+        val insertedItemPos = processAddItem(item)
 
-        notifyItemInserted(itemCount)
+        notifyItemInserted(insertedItemPos)
+    }
+
+    protected open fun processAddItem(item: ItemType): Int {
+        if (mIsReversed)
+            mItemAdapterInfoList.add(0, ItemAdapterInfo(item))
+        else
+            mItemAdapterInfoList.add(ItemAdapterInfo(item))
+
+        return (if (mIsReversed) 0 else itemCount)
     }
 
     fun setItems(items: List<ItemType>) {
@@ -78,6 +96,35 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
 
         changeAutoScrollingFlag(true)
         notifyItemRangeInserted(0, itemCount)
+    }
+
+    fun updateItem(item: ItemType) {
+        val changedItemPos = changeItem(item)
+
+        notifyItemChanged(changedItemPos) // todo: should it be here?
+    }
+
+    protected open fun changeItem(item: ItemType): Int {
+        var defaultItemInfo: ItemAdapterInfo<ItemType>? = null
+        var defaultItemPos: Int = -1
+
+        for (pos in 0 until mItemAdapterInfoList.size) {
+            val curItemInfo = mItemAdapterInfoList[pos]
+
+            if (curItemInfo.item == item) {
+                defaultItemInfo = curItemInfo
+                defaultItemPos = pos
+
+                break
+            }
+        }
+
+        if (defaultItemInfo == null)
+            throw IllegalArgumentException()
+
+        defaultItemInfo.item = item
+
+        return defaultItemPos
     }
 
     override fun wasViewHolderAnimated(viewHolder: RecyclerView.ViewHolder): Boolean {

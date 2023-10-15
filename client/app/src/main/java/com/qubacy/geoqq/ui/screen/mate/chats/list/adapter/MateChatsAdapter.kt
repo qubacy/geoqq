@@ -12,7 +12,7 @@ import java.util.TimeZone
 
 class MateChatsAdapter(
     private val mCallback: MateChatsAdapterCallback
-) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, Chat>() {
+) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, Chat>(mIsReversed = true) {
     class MateChatViewHolder(
         private val mBinding: ComponentMateChatPreviewBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
@@ -40,5 +40,17 @@ class MateChatsAdapter(
         holder.itemView.setOnClickListener {
             mCallback.onChatClicked(chatAdapterInfo.item)
         }
+    }
+
+    override fun changeItem(item: Chat): Int {
+        val changedItemPos = super.changeItem(item)
+        val updatedItemInfo = mItemAdapterInfoList[changedItemPos]
+
+        mItemAdapterInfoList.remove(updatedItemInfo)
+        mItemAdapterInfoList.add(0, updatedItemInfo)
+
+        notifyItemMoved(changedItemPos, 0)
+
+        return 0
     }
 }

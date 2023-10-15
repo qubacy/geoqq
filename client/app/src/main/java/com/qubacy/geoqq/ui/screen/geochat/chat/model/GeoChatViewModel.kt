@@ -59,12 +59,6 @@ class GeoChatViewModel : LocationViewModel() {
     }
 
     private fun onOperationGotten(operation: GeoChatOperation) {
-        // todo: converting GeoChatOperation to GeoChatUiOperation..
-
-        val geoChatUiOperation = SetMessagesUiOperation(listOf())
-
-        mGeoChatUiOperationFlow.value = geoChatUiOperation
-
         // todo: processing an operation to make UI state evolve..
 
         processOperation(operation)
@@ -77,7 +71,13 @@ class GeoChatViewModel : LocationViewModel() {
 //
 //        }
 
-//        mGeoChatUiState = GeoChatUiState()
+        // todo: converting GeoChatOperation to GeoChatUiOperation.. (has to be removed soon)
+
+        val geoChatUiOperation = SetMessagesUiOperation(listOf())
+
+        viewModelScope.launch {
+            mGeoChatUiOperationFlow.emit(geoChatUiOperation)
+        }
     }
 
     fun addToFriend(user: User) {
