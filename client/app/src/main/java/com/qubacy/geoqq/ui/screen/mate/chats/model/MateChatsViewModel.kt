@@ -50,7 +50,7 @@ class MateChatsViewModel() : WaitingViewModel() {
 
         val mateChatsUiOperation = AddChatUiOperation(
             Chat(0, null, "1st chat",
-                Message(0, "hi", 16346363523)))
+                Message(0,0, "hi", 16346363523)))
 
         viewModelScope.launch {
             mMateChatsUiOperationFlow.emit(mateChatsUiOperation)

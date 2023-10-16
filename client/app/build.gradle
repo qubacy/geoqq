@@ -50,6 +50,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:2.7.3"
     implementation "androidx.navigation:navigation-ui-ktx:2.7.3"
     implementation 'com.yandex.android:maps.mobile:4.4.0-lite'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.5.0'
@@ -57,5 +58,6 @@ dependencies {
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
     debugImplementation 'androidx.fragment:fragment-testing:1.6.1'
 }

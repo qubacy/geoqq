@@ -92,12 +92,14 @@ class GeoChatFragment(
         mGeoChatAdapter.setItems(uiState.messages)
     }
 
+    // TODO: REFACTOR THIS!!!
+
     private fun onGeoChatUiOperationReceived(geoChatUiOperation: UiOperation) {
         when (geoChatUiOperation::class) {
             AddMessageUiOperation::class -> {
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
 
-                mGeoChatAdapter.addItem(addMessageOperation.message)
+//                mGeoChatAdapter.addItem(addMessageOperation.message)
             }
             SetMessagesUiOperation::class -> {
                 val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation

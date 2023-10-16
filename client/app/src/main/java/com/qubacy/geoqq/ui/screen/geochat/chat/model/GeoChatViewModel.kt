@@ -4,7 +4,7 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.chat.geo.GeoChatOperation
+import com.qubacy.geoqq.data.geochat.chat.GeoChatOperation
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
@@ -25,7 +25,7 @@ class GeoChatViewModel : LocationViewModel() {
     private var mGeoChatUiOperationFlow: MutableStateFlow<UiOperation?> = MutableStateFlow(null)
     val geoChatUiOperationFlow: StateFlow<UiOperation?> = mGeoChatUiOperationFlow
 
-    private var mGeoChatUiState = ChatUiState()
+    private var mGeoChatUiState = ChatUiState(listOf(), listOf(), listOf())
     val geoChatUiState: ChatUiState get() { return mGeoChatUiState }
 
     init {
