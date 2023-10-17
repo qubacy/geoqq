@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.entity.person.myprofile.validator.password
+package com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password
 
 import com.qubacy.geoqq.common.validator.Validator
 

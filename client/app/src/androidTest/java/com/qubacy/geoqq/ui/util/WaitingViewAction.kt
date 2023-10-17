@@ -6,7 +6,10 @@ import androidx.test.espresso.ViewAction
 import androidx.test.espresso.matcher.ViewMatchers
 import org.hamcrest.Matcher
 
-class WaitingViewAction(private val duration: Long) : ViewAction {
+class WaitingViewAction(
+    private val duration: Long,
+    private val callback: (() -> Unit)? = null
+) : ViewAction {
     override fun getDescription(): String {
         return "Just waiting for a given amount of time."
     }
@@ -25,5 +28,7 @@ class WaitingViewAction(private val duration: Long) : ViewAction {
         while (System.currentTimeMillis() < endTime) {
             uiController.loopMainThreadForAtLeast(100)
         }
+
+        callback?.let { it() }
     }
 }

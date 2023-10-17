@@ -1,6 +1,6 @@
-package com.qubacy.geoqq.data.common.entity.person.myprofile.validator.password
+package com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password
 
-import com.qubacy.geoqq.data.common.entity.person.myprofile.MyProfileContext
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileContext
 
 class LoginPasswordValidator : PasswordValidator() {
     override fun getRegularExpression(): Regex {
