@@ -1,37 +1,35 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat.model
 
 import android.location.Location
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.geochat.chat.GeoChatOperation
+import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
+import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
+import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
-import kotlinx.coroutines.flow.Flow
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 // todo: provide a repository as a param..
 class GeoChatViewModel : LocationViewModel() {
     // todo: assign to the repository's flow:
-    private var mGeoChatOperation: Flow<GeoChatOperation> = flowOf<GeoChatOperation>()
+    private val mGeoChatStateFlow = MutableStateFlow<ChatState?>(null)
 
-    private var mGeoChatUiOperationFlow: MutableStateFlow<UiOperation?> = MutableStateFlow(null)
-    val geoChatUiOperationFlow: StateFlow<UiOperation?> = mGeoChatUiOperationFlow
-
-    private var mGeoChatUiState = ChatUiState(listOf(), listOf(), listOf())
-    val geoChatUiState: ChatUiState get() { return mGeoChatUiState }
-
-    init {
-        viewModelScope.launch {
-            mGeoChatOperation.collect { onOperationGotten(it) }
-        }
-    }
+    private val mGeoChatUiStateFlow = mGeoChatStateFlow.map { chatStateToUiState(it) }
+    val geoChatUiStateFlow: LiveData<ChatUiState?> = mGeoChatUiStateFlow.asLiveData()
 
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
@@ -57,18 +55,49 @@ class GeoChatViewModel : LocationViewModel() {
         }
     }
 
-    private fun onOperationGotten(operation: GeoChatOperation) {
-        // todo: processing an operation to make UI state evolve..
+    private fun chatStateToUiState(chatState: ChatState?): ChatUiState? {
+        if (chatState == null) return null
 
-        processOperation(operation)
+        val uiOperations = mutableListOf<UiOperation>()
+
+        for (operation in chatState.newOperations) {
+            val uiOperation = processOperation(operation)
+
+            if (uiOperation == null) continue
+
+            uiOperations.add(uiOperation)
+        }
+
+        return ChatUiState(chatState.messages, chatState.users, uiOperations)
     }
 
-    private fun processOperation(operation: GeoChatOperation) {
-        // todo: processing an operation according to its type..
+    private fun processOperation(operation: Operation): UiOperation? {
+        return when (operation::class) {
+            AddUserChatOperation::class -> {
+                val addUserChatOperation = operation as AddUserChatOperation
 
-//        when (operation::class) {
-//
-//        }
+                // mb processing the operation..
+
+                AddUserUiOperation(addUserChatOperation.userId)
+            }
+            AddMessageChatOperation::class -> {
+                val addMessageOperation = operation as AddMessageChatOperation
+
+                // mb processing the operation..
+
+                AddMessageUiOperation(addMessageOperation.messageId)
+            }
+            HandleErrorOperation::class -> {
+                val handleErrorOperation = operation as HandleErrorOperation
+
+                // mb processing the operation..
+
+                ShowErrorUiOperation(handleErrorOperation.error)
+            }
+            else -> {
+                throw IllegalStateException()
+            }
+        }
     }
 
     fun addToFriend(user: User) {

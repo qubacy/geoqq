@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
@@ -23,9 +22,9 @@ import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.yandex.mapkit.geometry.Point
-import kotlinx.coroutines.launch
 
 class GeoChatFragment(
 
@@ -76,34 +75,45 @@ class GeoChatFragment(
             onSendingMessageButtonClicked()
         }
 
-        lifecycleScope.launch {
-            mModel.geoChatUiOperationFlow.collect {
-                if (it == null) return@collect
+        mModel.geoChatUiStateFlow.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
 
-                onGeoChatUiOperationReceived(it)
-            }
+            onChatUiStateGotten(it)
         }
-
-        initWithUiState(mModel.geoChatUiState)
+        mModel.geoChatUiStateFlow.value?.let {
+            mGeoChatAdapter.setItems(it.messages)
+        }
     }
 
-    private fun initWithUiState(uiState: ChatUiState) {
-        mGeoChatAdapter.setItems(uiState.messages)
+    private fun onChatUiStateGotten(chatUiState: ChatUiState) {
+        if (chatUiState.newUiOperations.isEmpty()) return
+
+        for (uiOperation in chatUiState.newUiOperations) {
+            processUiOperation(uiOperation)
+        }
     }
 
-    // TODO: REFACTOR THIS!!!
-
-    private fun onGeoChatUiOperationReceived(geoChatUiOperation: UiOperation) {
-        when (geoChatUiOperation::class) {
+    private fun processUiOperation(uiOperation: UiOperation) {
+        when (uiOperation::class) {
             AddMessageUiOperation::class -> {
-                val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
+                val addMessageUiOperation = uiOperation as AddMessageUiOperation
+                val message = mModel.geoChatUiStateFlow.value!!.messages.find {
+                    it.messageId == addMessageUiOperation.messageId
+                }!!
 
-//                mGeoChatAdapter.addItem(addMessageOperation.message)
+                mGeoChatAdapter.addItem(message)
+            }
+            AddUserUiOperation::class -> {
+                val addUserUiOperation = uiOperation as AddUserUiOperation
+
+                // todo: mb some stuff to visualize a new user's entrance..
+
+
             }
             ShowErrorUiOperation::class -> {
-                val showErrorOperation = geoChatUiOperation as ShowErrorUiOperation
+                val showErrorUiOperation = uiOperation as ShowErrorUiOperation
 
-                onErrorOccurred(showErrorOperation.error)
+                onErrorOccurred(showErrorUiOperation.error)
             }
         }
     }
@@ -129,7 +139,7 @@ class GeoChatFragment(
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.geoChatUiState.users.find {
+        return mModel.geoChatUiStateFlow.value!!.users.find {
             it.userId == userId
         }!!
     }

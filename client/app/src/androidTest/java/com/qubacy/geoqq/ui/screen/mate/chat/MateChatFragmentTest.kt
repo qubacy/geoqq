@@ -22,6 +22,7 @@ import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
@@ -33,86 +34,11 @@ import org.junit.Assert
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateChatFragmentTest {
-
-    class MateChatUiStateTestData(
-        private val mModel: MateChatViewModel,
-        private val mAdapter: ChatAdapter,
-        private val mMateChatStateFlow: MutableStateFlow<ChatState?>,
-        private val mMateUiState: LiveData<ChatUiState?>
-    ) {
-        fun setChat(messages: List<Message>, users: List<User>) {
-            val chatState = ChatState(messages, users, listOf())
-
-            runBlocking {
-                mMateChatStateFlow.emit(chatState)
-            }
-
-            mAdapter.setItems(messages)
-        }
-
-        fun addMessage(message: Message) {
-            val newMessages = mutableListOf<Message>()
-
-            if (mMateUiState.value != null)
-                newMessages.addAll(mMateUiState.value!!.messages)
-
-            newMessages.add(message)
-
-            val users = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.users
-
-            val operations = listOf(
-                AddMessageChatOperation(message.messageId)
-            )
-
-            val chatState = ChatState(newMessages, users, operations)
-
-            runBlocking {
-                mMateChatStateFlow.emit(chatState)
-            }
-        }
-
-        fun addUser(user: User) {
-            val newUsers = mutableListOf<User>()
-
-            if (mMateUiState.value != null)
-                newUsers.addAll(mMateUiState.value!!.users)
-
-            newUsers.add(user)
-
-            val messages = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.messages
-
-            val operations = listOf(
-                AddUserChatOperation(user.userId)
-            )
-
-            val chatState = ChatState(messages, newUsers, operations)
-
-            runBlocking {
-                mMateChatStateFlow.emit(chatState)
-            }
-        }
-
-        fun showError(error: Error) {
-            val users = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.users
-            val messages = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.messages
-
-            val operations = listOf(
-                HandleErrorOperation(error)
-            )
-
-            val chatState = ChatState(messages, users, operations)
-
-            runBlocking {
-                mMateChatStateFlow.emit(chatState)
-            }
-        }
-    }
-
+class MateChatFragmentTest : ChatFragmentTest() {
     private lateinit var mMateChatFragmentScenarioRule: FragmentScenario<MateChatFragment>
     private lateinit var mModel: MateChatViewModel
 
-    private lateinit var mMateChatUiStateTestData: MateChatUiStateTestData
+    private lateinit var mMateChatUiStateTestData: ChatUiStateTestData
 
     @Before
     fun setup() {
@@ -139,8 +65,7 @@ class MateChatFragmentTest {
                 isAccessible = true
             }
 
-        mMateChatUiStateTestData = MateChatUiStateTestData(
-            mModel,
+        mMateChatUiStateTestData = ChatUiStateTestData(
             adapter!!,
             mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<ChatState?>,
             mModel.mateChatUiStateFlow
