@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
@@ -17,16 +16,13 @@ import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedL
 import com.qubacy.geoqq.ui.common.fragment.common.BaseFragment
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.state.UiState
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddUserUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
-import kotlinx.coroutines.launch
 
 class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
     override val mModel: MateChatViewModel by viewModels {
@@ -68,14 +64,6 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
             onSendingMessageButtonClicked()
         }
-
-//        lifecycleScope.launch {
-//            mModel.mateChatUiStateFlow.collect {
-//                if (it == null) return@collect
-//
-//                onChatUiStateGotten(it)
-//            }
-//        }
 
         mModel.mateChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe

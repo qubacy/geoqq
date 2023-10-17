@@ -5,10 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.data.common.entity.chat.Chat
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
@@ -20,10 +18,8 @@ import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapterCallba
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModelFactory
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
-import com.qubacy.geoqq.ui.screen.mate.chats.model.state.operation.AddChatUiOperation
-import com.qubacy.geoqq.ui.screen.mate.chats.model.state.operation.ModifyChatUiOperation
-import com.qubacy.geoqq.ui.screen.mate.chats.model.state.operation.SetChatsUiOperation
-import kotlinx.coroutines.launch
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 
 class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     override val mModel: MateChatsViewModel by viewModels {
@@ -63,37 +59,41 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             onFriendRequestsClicked()
         }
 
-        lifecycleScope.launch {
-            mModel.mateChatsUiOperationFlow.collect {
-                if (it == null) return@collect
+        mModel.mateChatsUiStateFlow.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
 
-                onUiOperationGotten(it)
-            }
+            onChatsUiStateGotten(it)
         }
-
-        initWithUiState(mModel.mateChatsUiState)
+        mModel.mateChatsUiStateFlow.value?.let {
+            mAdapter.setItems(it.chats)
+        }
     }
 
-    private fun initWithUiState(uiState: MateChatsUiState) {
-        mAdapter.setItems(uiState.chats)
+    private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
+        if (chatsUiState.newUiOperations.isEmpty()) return
+
+        for (uiOperation in chatsUiState.newUiOperations) {
+            processUiOperation(uiOperation)
+        }
     }
 
-    private fun onUiOperationGotten(uiOperation: UiOperation) {
+    private fun processUiOperation(uiOperation: UiOperation) {
         when (uiOperation::class) {
-            SetChatsUiOperation::class -> {
-                val setChatsUiOperation = uiOperation as SetChatsUiOperation
-
-                mAdapter.setItems(setChatsUiOperation.chats)
-            }
             AddChatUiOperation::class -> {
                 val addChatUiOperation = uiOperation as AddChatUiOperation
+                val chat = mModel.mateChatsUiStateFlow.value!!.chats.find {
+                    it.chatId == addChatUiOperation.chatId
+                }!!
 
-                mAdapter.addItem(addChatUiOperation.chat)
+                mAdapter.addItem(chat)
             }
-            ModifyChatUiOperation::class -> {
-                val modifyChatUiOperation = uiOperation as ModifyChatUiOperation
+            UpdateChatUiOperation::class -> {
+                val updateChatUiOperation = uiOperation as UpdateChatUiOperation
+                val chat = mModel.mateChatsUiStateFlow.value!!.chats.find {
+                    it.chatId == updateChatUiOperation.chatId
+                }!!
 
-                mAdapter.updateItem(modifyChatUiOperation.renewedChat)
+                mAdapter.updateItem(chat)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorOperation = uiOperation as ShowErrorUiOperation

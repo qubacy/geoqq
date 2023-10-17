@@ -1,42 +1,5 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat
 
-import android.util.Log
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoActivityResumedException
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
-import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
-import com.qubacy.geoqq.ui.util.WaitingViewAction
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.hamcrest.Matchers
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.lang.Exception
-import java.lang.reflect.Field
-
 //@RunWith(AndroidJUnit4::class)
 //class GeoChatFragmentTest {
 //    companion object {

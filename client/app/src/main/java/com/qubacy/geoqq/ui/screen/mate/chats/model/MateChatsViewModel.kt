@@ -1,59 +1,73 @@
 package com.qubacy.geoqq.ui.screen.mate.chats.model
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.common.entity.chat.Chat
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.mates.chats.MateChatsOperation
+import androidx.lifecycle.asLiveData
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
+import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
+import com.qubacy.geoqq.data.mates.chats.state.MateChatsState
+import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
-import com.qubacy.geoqq.ui.screen.mate.chats.model.state.operation.AddChatUiOperation
-import kotlinx.coroutines.flow.Flow
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 // todo: provide a repository as a param..
 class MateChatsViewModel() : WaitingViewModel() {
     // todo: assign to the repository's flow:
-    private var mMateChatsOperation: Flow<MateChatsOperation> = flowOf<MateChatsOperation>()
+    private var mMateChatsStateFlow = MutableStateFlow<MateChatsState?>(null)
 
-    private var mMateChatsUiOperationFlow: MutableStateFlow<UiOperation?> = MutableStateFlow(null)
-    val mateChatsUiOperationFlow: StateFlow<UiOperation?> = mMateChatsUiOperationFlow
+    private val mMateChatsUiStateFlow = mMateChatsStateFlow.map { chatsStateToUiState(it) }
+    val mateChatsUiStateFlow: LiveData<MateChatsUiState?> = mMateChatsUiStateFlow.asLiveData()
 
-    private var mMateChatsUiState = MateChatsUiState()
-    val mateChatsUiState: MateChatsUiState get() { return mMateChatsUiState }
+    private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
+        if (mateChatsState == null) return null
 
-    init {
-        viewModelScope.launch {
-            mMateChatsOperation.collect { onOperationGotten(it) }
+        val uiOperations = mutableListOf<UiOperation>()
+
+        for (operation in mateChatsState.newOperations) {
+            val uiOperation = processOperation(operation)
+
+            if (uiOperation == null) continue
+
+            uiOperations.add(uiOperation)
         }
+
+        return MateChatsUiState(mateChatsState.chats, mateChatsState.users, uiOperations)
     }
 
-    private fun onOperationGotten(operation: MateChatsOperation) {
-        // todo: processing the operation..
+    private fun processOperation(operation: Operation): UiOperation? {
+        return when (operation::class) {
+            // todo: should it contain a new user adding case????
 
-        processOperation(operation)
-    }
+            AddChatOperation::class -> {
+                val addChatOperation = operation as AddChatOperation
 
-    private fun processOperation(operation: MateChatsOperation) {
-        // todo: processing an operation according to its type..
+                // mb processing the operation..
 
-//        when (operation::class) {
-//
-//        }
+                AddChatUiOperation(addChatOperation.chatId)
+            }
+            UpdateChatOperation::class -> {
+                val updateChatOperation = operation as UpdateChatOperation
 
-        // todo: converting GeoChatOperation to GeoChatUiOperation.. (has to be removed soon)
+                // mb processing the operation..
 
-        val mateChatsUiOperation = AddChatUiOperation(
-            Chat(0, null, "1st chat",
-                Message(0,0, "hi", 16346363523)))
+                UpdateChatUiOperation(updateChatOperation.chatId)
+            }
+            HandleErrorOperation::class -> {
+                val handleErrorOperation = operation as HandleErrorOperation
 
-        viewModelScope.launch {
-            mMateChatsUiOperationFlow.emit(mateChatsUiOperation)
+                ShowErrorUiOperation(handleErrorOperation.error)
+            }
+            else -> {
+                throw IllegalStateException()
+            }
         }
     }
 

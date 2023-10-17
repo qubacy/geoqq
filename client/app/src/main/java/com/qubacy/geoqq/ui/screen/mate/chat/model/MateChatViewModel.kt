@@ -17,9 +17,8 @@ import com.qubacy.geoqq.ui.common.fragment.common.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddUserUiOperation
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -72,9 +71,7 @@ class MateChatViewModel(
         return ChatUiState(chatState.messages, chatState.users, uiOperations)
     }
 
-    private fun processOperation(operation: Operation?): UiOperation? {
-        if (operation == null) return null
-
+    private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
             AddUserChatOperation::class -> {
                 val addUserChatOperation = operation as AddUserChatOperation

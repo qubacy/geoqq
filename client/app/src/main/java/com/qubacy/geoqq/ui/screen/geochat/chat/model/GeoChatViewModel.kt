@@ -10,7 +10,6 @@ import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,14 +69,6 @@ class GeoChatViewModel : LocationViewModel() {
 //        when (operation::class) {
 //
 //        }
-
-        // todo: converting GeoChatOperation to GeoChatUiOperation.. (has to be removed soon)
-
-        val geoChatUiOperation = SetMessagesUiOperation(listOf())
-
-        viewModelScope.launch {
-            mGeoChatUiOperationFlow.emit(geoChatUiOperation)
-        }
     }
 
     fun addToFriend(user: User) {

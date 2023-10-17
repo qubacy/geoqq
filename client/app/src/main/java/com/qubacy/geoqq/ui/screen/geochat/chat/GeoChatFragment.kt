@@ -21,10 +21,9 @@ import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListIt
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.operation.SetMessagesUiOperation
 import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.launch
 
@@ -100,11 +99,6 @@ class GeoChatFragment(
                 val addMessageOperation = geoChatUiOperation as AddMessageUiOperation
 
 //                mGeoChatAdapter.addItem(addMessageOperation.message)
-            }
-            SetMessagesUiOperation::class -> {
-                val setMessagesOperation = geoChatUiOperation as SetMessagesUiOperation
-
-                mGeoChatAdapter.setItems(setMessagesOperation.messages)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorOperation = geoChatUiOperation as ShowErrorUiOperation
