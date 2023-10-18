@@ -30,33 +30,28 @@
             android:background="@drawable/geo_chat_settings_radius_radio_group_background">
 
             <include
-                android:id="@+id/radius_setting_250m"
+                android:id="@+id/radius_setting_1"
                 layout="@layout/component_radius_setting_option"
-                app:radiusSettingOptionText="@{@string/radius_setting_label_250m}"
                 app:radiusSettingOptionIsChecked="@{true}"/>
 
             <include
-                android:id="@+id/radius_setting_500m"
+                android:id="@+id/radius_setting_2"
                 layout="@layout/component_radius_setting_option"
-                app:radiusSettingOptionText="@{@string/radius_setting_label_500m}"
                 app:radiusSettingOptionIsChecked="@{false}"/>
 
             <include
-                android:id="@+id/radius_setting_1km"
+                android:id="@+id/radius_setting_3"
                 layout="@layout/component_radius_setting_option"
-                app:radiusSettingOptionText="@{@string/radius_setting_label_1km}"
                 app:radiusSettingOptionIsChecked="@{false}"/>
 
             <include
-                android:id="@+id/radius_setting_3km"
+                android:id="@+id/radius_setting_4"
                 layout="@layout/component_radius_setting_option"
-                app:radiusSettingOptionText="@{@string/radius_setting_label_3km}"
                 app:radiusSettingOptionIsChecked="@{false}"/>
 
             <include
-                android:id="@+id/radius_setting_10km"
+                android:id="@+id/radius_setting_5"
                 layout="@layout/component_radius_setting_option"
-                app:radiusSettingOptionText="@{@string/radius_setting_label_10km}"
                 app:radiusSettingOptionIsChecked="@{false}"/>
 
         </RadioGroup>

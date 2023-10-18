@@ -4,29 +4,43 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 
 class GeoChatSettingsViewModel : LocationViewModel() {
     companion object {
         const val TAG = "SETTINGS_VIEW_MODEL"
 
-        val RADIUS_OPTION_INDEX_TO_METERS_ARRAY = floatArrayOf(
-            250f, 500f, 1000f, 3000f, 10000f
-        )
+        const val METERS_IN_KM_COUNT = 1000
+
+        const val METERS_POSTFIX = " m"
+        const val KILOMETERS_POSTFIX = " km"
     }
 
     private val mCurRadiusOptionIndex = MutableLiveData<Int>(0)
     val curRadiusOptionIndex: LiveData<Int> = mCurRadiusOptionIndex
 
     fun changeCurRadiusOptionIndex(index: Int) {
-        if (index >= RADIUS_OPTION_INDEX_TO_METERS_ARRAY.size || index < 0)
+        if (index >= GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY.size || index < 0)
             throw IndexOutOfBoundsException()
 
         mCurRadiusOptionIndex.value = index
     }
 
     fun getCurRadiusOptionMeters(): Float {
-        return RADIUS_OPTION_INDEX_TO_METERS_ARRAY[curRadiusOptionIndex.value!!]
+        return GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY[curRadiusOptionIndex.value!!]
+    }
+
+    fun getLabelForRadiusOption(radiusOption: Int): String {
+        val resultString = StringBuilder("")
+        val radiusInMeters = GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY[radiusOption].toInt()
+
+        if (radiusInMeters > METERS_IN_KM_COUNT)
+            resultString.append(radiusInMeters / METERS_IN_KM_COUNT).append(KILOMETERS_POSTFIX)
+        else
+            resultString.append(radiusInMeters).append(METERS_POSTFIX)
+
+        return resultString.toString()
     }
 }
 

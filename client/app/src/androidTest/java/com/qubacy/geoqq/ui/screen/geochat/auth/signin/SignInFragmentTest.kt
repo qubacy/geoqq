@@ -5,11 +5,15 @@ import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
@@ -39,6 +43,7 @@ class SignInFragmentTest {
     private lateinit var mModel: SignInViewModel
 
     private lateinit var mSignInUiStateTestData: SignInUiStateTestData
+    private lateinit var mNavController: TestNavHostController
 
     @Before
     fun setup() {
@@ -46,7 +51,12 @@ class SignInFragmentTest {
             launchFragmentInContainer<SignInFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
         mSignInFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
 
+        mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
         mSignInFragmentScenarioRule.onFragment {
+            mNavController.setGraph(R.navigation.nav_graph)
+            Navigation.setViewNavController(it.requireView(), mNavController)
+
             mModel = ViewModelProvider(it)[SignInViewModel::class.java]
         }
 
@@ -128,10 +138,8 @@ class SignInFragmentTest {
     @Test
     fun buttonsAreEnabledTest() {
         Espresso.onView(ViewMatchers.withId(R.id.sign_in_button))
-            .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
-            .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
 
@@ -284,5 +292,13 @@ class SignInFragmentTest {
         } catch (e: Throwable) {
             Assert.assertEquals(NoActivityResumedException::class, e::class)
         }
+    }
+
+    @Test
+    fun signUpButtonClickLeadsToTransitionToSignUpFragmentTest() {
+        Espresso.onView(withId(R.id.sign_up_button))
+            .perform(ViewActions.click())
+
+        Assert.assertEquals(R.id.signUpFragment, mNavController.currentDestination?.id)
     }
 }

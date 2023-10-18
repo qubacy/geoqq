@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
@@ -85,21 +86,42 @@ class GeoChatSettingsFragment() : LocationFragment() {
             setCameraPositionForCurCircle()
         }
 
-        mBinding.radiusSetting250m.radioButton.setOnClickListener {
-            mModel.changeCurRadiusOptionIndex(0)
+        mBinding.radiusSetting1.apply {
+            radiusSettingOptionText = mModel.getLabelForRadiusOption(0)
+
+            radioButton.setOnClickListener {
+                mModel.changeCurRadiusOptionIndex(0)
+            }
         }
-        mBinding.radiusSetting500m.radioButton.setOnClickListener {
-            mModel.changeCurRadiusOptionIndex(1)
+        mBinding.radiusSetting2.apply {
+            radiusSettingOptionText = mModel.getLabelForRadiusOption(1)
+
+            radioButton.setOnClickListener {
+                mModel.changeCurRadiusOptionIndex(1)
+            }
         }
-        mBinding.radiusSetting1km.radioButton.setOnClickListener {
-            mModel.changeCurRadiusOptionIndex(2)
+        mBinding.radiusSetting3.apply {
+            radiusSettingOptionText = mModel.getLabelForRadiusOption(2)
+
+            radioButton.setOnClickListener {
+                mModel.changeCurRadiusOptionIndex(2)
+            }
         }
-        mBinding.radiusSetting3km.radioButton.setOnClickListener {
-            mModel.changeCurRadiusOptionIndex(3)
+        mBinding.radiusSetting4.apply {
+            radiusSettingOptionText = mModel.getLabelForRadiusOption(3)
+
+            radioButton.setOnClickListener {
+                mModel.changeCurRadiusOptionIndex(3)
+            }
         }
-        mBinding.radiusSetting10km.radioButton.setOnClickListener {
-            mModel.changeCurRadiusOptionIndex(4)
+        mBinding.radiusSetting5.apply {
+            radiusSettingOptionText = mModel.getLabelForRadiusOption(4)
+
+            radioButton.setOnClickListener {
+                mModel.changeCurRadiusOptionIndex(4)
+            }
         }
+
         mBinding.goButton.setOnClickListener { onGoClicked() }
     }
 
@@ -128,9 +150,10 @@ class GeoChatSettingsFragment() : LocationFragment() {
     }
 
     private fun onGoClicked() {
-        // todo: conveying a signal to the model..??
+        val directions = GeoChatSettingsFragmentDirections
+            .actionGeoChatSettingsFragmentToGeoChatFragment(mModel.getCurRadiusOptionMeters())
 
-        // todo: going to GeoChatFragment with the RADIUS as an arg.
+        findNavController().navigate(directions)
     }
 
     private fun drawCurLocationCircle(locationPoint: Point?) {

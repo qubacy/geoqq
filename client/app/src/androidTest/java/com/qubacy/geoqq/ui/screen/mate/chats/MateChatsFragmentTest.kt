@@ -8,6 +8,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.NoMatchingViewException
@@ -169,6 +172,7 @@ class MateChatsFragmentTest {
     private lateinit var mMateChatsFragmentScenarioRule: FragmentScenario<MateChatsFragment>
 
     private lateinit var mModel: MateChatsViewModel
+    private lateinit var mNavHostController: TestNavHostController
     private lateinit var mMateChatsUiStateTestData: MateChatsUiStateTestData
 
     @Before
@@ -179,7 +183,13 @@ class MateChatsFragmentTest {
 
         var fragment: MateChatsFragment? = null
 
+        mNavHostController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
         mMateChatsFragmentScenarioRule.onFragment {
+            mNavHostController.setGraph(R.navigation.nav_graph)
+            mNavHostController.setCurrentDestination(R.id.mateChatsFragment)
+            Navigation.setViewNavController(it.requireView(), mNavHostController)
+
             mModel = ViewModelProvider(it)[MateChatsViewModel::class.java]
             fragment = it
         }
@@ -215,7 +225,7 @@ class MateChatsFragmentTest {
 //            .check(
 //                ViewAssertions.matches(
 //                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(withId(R.id.mates_recycler_view))
+        Espresso.onView(withId(R.id.chats_recycler_view))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
@@ -226,7 +236,7 @@ class MateChatsFragmentTest {
 //        Espresso.onView(withId(R.id.friend_requests_card_button))
 //            .perform(ViewActions.click())
 //            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(withId(R.id.mates_recycler_view))
+        Espresso.onView(withId(R.id.chats_recycler_view))
             .perform(ViewActions.swipeDown())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
@@ -266,7 +276,7 @@ class MateChatsFragmentTest {
             mMateChatsUiStateTestData.setChats(chats, users)
         }
 
-        Espresso.onView(withId(R.id.mates_recycler_view))
+        Espresso.onView(withId(R.id.chats_recycler_view))
             .check(ViewAssertions.matches(ViewMatchers.hasChildCount(chats.size)))
     }
 
@@ -297,7 +307,7 @@ class MateChatsFragmentTest {
 
         Espresso.onView(
             Matchers.allOf(
-            isDescendantOfA(withId(R.id.mates_recycler_view)),
+            isDescendantOfA(withId(R.id.chats_recycler_view)),
             isAssignableFrom(MaterialCardView::class.java),
             hasDescendant(withText(newChat.chatName))
         )).check(IsChildWithIndexViewAssertion(0))
@@ -376,7 +386,7 @@ class MateChatsFragmentTest {
         }
 
         Espresso.onView(Matchers.allOf(
-            isDescendantOfA(withId(R.id.mates_recycler_view)),
+            isDescendantOfA(withId(R.id.chats_recycler_view)),
             isAssignableFrom(MaterialCardView::class.java),
             hasDescendant(withText(updatedChat.chatName))
         )).check(IsChildWithIndexViewAssertion(0))
@@ -405,7 +415,6 @@ class MateChatsFragmentTest {
             if (view.top.toFloat() != mTop)
                 throw NoMatchingViewException.Builder().build()
         }
-
     }
 
     @Test
@@ -445,7 +454,7 @@ class MateChatsFragmentTest {
         val topBound = binding!!.mateRequestsCard.measuredHeight.toFloat() +
                 binding!!.mateRequestsCard.marginTop.toFloat()
 
-        Espresso.onView(withId(R.id.mates_recycler_view))
+        Espresso.onView(withId(R.id.chats_recycler_view))
             .perform(WaitingViewAction(1000))
             .check(TopBoundViewAssertion(topBound))
     }
@@ -499,5 +508,42 @@ class MateChatsFragmentTest {
         } catch (e: Exception) {
             Assert.assertEquals(NoActivityResumedException::class, e::class)
         }
+    }
+
+    @Test
+    fun chatPreviewClickLeadsToTransitionToMateChatFragmentTest() {
+        val chats = listOf(
+            Chat(0, null, "chat",
+                Message(0, 0, "hi", 1696847478000))
+        )
+        val users = listOf(
+            User(0, "me")
+        )
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setChats(chats, users)
+        }
+
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isAssignableFrom(MaterialCardView::class.java),
+                ViewMatchers.isDescendantOfA(withId(R.id.chats_recycler_view)),
+                ViewMatchers.hasDescendant(withText(chats[0].chatName))
+            )
+        ).perform(ViewActions.click())
+
+        Assert.assertEquals(R.id.mateChatFragment, mNavHostController.currentDestination?.id)
+    }
+
+    @Test
+    fun mateRequestsCheckButtonClickLeadsToTransitionToMateRequestsFragmentTest() {
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setRequestCount(1)
+        }
+
+        Espresso.onView(withId(R.id.mate_requests_card_button))
+            .perform(ViewActions.click())
+
+        Assert.assertEquals(R.id.mateRequestsFragment, mNavHostController.currentDestination?.id)
     }
 }

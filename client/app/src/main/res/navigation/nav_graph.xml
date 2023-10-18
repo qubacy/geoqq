@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/signInFragment">
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.qubacy.geoqq.ui.screen.geochat.auth.signin.SignInFragment"
+        android:label="SignInFragment" >
+        <action
+            android:id="@+id/action_signInFragment_to_mainMenuFragment"
+            app:destination="@id/mainMenuFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.qubacy.geoqq.ui.screen.geochat.auth.signup.SignUpFragment"
+        android:label="SignUpFragment" >
+        <action
+            android:id="@+id/action_signUpFragment_to_mainMenuFragment"
+            app:destination="@id/mainMenuFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainMenuFragment"
+        android:name="com.qubacy.geoqq.ui.screen.geochat.mainmenu.MainMenuFragment"
+        android:label="MainMenuFragment" >
+        <action
+            android:id="@+id/action_mainMenuFragment_to_geoChatSettingsFragment"
+            app:destination="@id/geoChatSettingsFragment" />
+        <action
+            android:id="@+id/action_mainMenuFragment_to_myProfileFragment"
+            app:destination="@id/myProfileFragment" />
+        <action
+            android:id="@+id/action_mainMenuFragment_to_mateChatsFragment"
+            app:destination="@id/mateChatsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/geoChatSettingsFragment"
+        android:name="com.qubacy.geoqq.ui.screen.geochat.settings.GeoChatSettingsFragment"
+        android:label="GeoChatSettingsFragment" >
+        <action
+            android:id="@+id/action_geoChatSettingsFragment_to_geoChatFragment"
+            app:destination="@id/geoChatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/geoChatFragment"
+        android:name="com.qubacy.geoqq.ui.screen.geochat.chat.GeoChatFragment"
+        android:label="GeoChatFragment" >
+        <argument
+            android:name="radius"
+            app:argType="float"
+            android:defaultValue="0" />
+    </fragment>
+    <fragment
+        android:id="@+id/myProfileFragment"
+        android:name="com.qubacy.geoqq.ui.screen.myprofile.MyProfileFragment"
+        android:label="MyProfileFragment" />
+    <fragment
+        android:id="@+id/mateChatsFragment"
+        android:name="com.qubacy.geoqq.ui.screen.mate.chats.MateChatsFragment"
+        android:label="MateChatsFragment" >
+        <action
+            android:id="@+id/action_mateChatsFragment_to_mateChatFragment"
+            app:destination="@id/mateChatFragment" />
+        <action
+            android:id="@+id/action_mateChatsFragment_to_mateRequestsFragment"
+            app:destination="@id/mateRequestsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mateChatFragment"
+        android:name="com.qubacy.geoqq.ui.screen.mate.chat.MateChatFragment"
+        android:label="MateChatFragment" >
+        <argument
+            android:name="chatId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
+    <fragment
+        android:id="@+id/mateRequestsFragment"
+        android:name="com.qubacy.geoqq.ui.screen.mate.request.MateRequestsFragment"
+        android:label="MateRequestsFragment" />
+</navigation>

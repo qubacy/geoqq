@@ -6,14 +6,21 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
+import com.qubacy.geoqq.ui.util.SilentClickViewAction
+import com.qubacy.geoqq.ui.util.WaitingViewAction
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.CircleMapObject
@@ -24,6 +31,7 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.map.PolygonMapObject
 import com.yandex.mapkit.map.PolylineMapObject
 import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -60,6 +68,7 @@ class GeoChatSettingsFragmentTest {
 
     private lateinit var mSettingsFragmentScenarioRule: FragmentScenario<GeoChatSettingsFragment>
     private lateinit var mSettingsBinding: FragmentGeoChatSettingsBinding
+    private lateinit var mNavHostController: TestNavHostController
 
     private lateinit var mLocationTestData: LocationTestData
 
@@ -72,7 +81,13 @@ class GeoChatSettingsFragmentTest {
         var fragment: GeoChatSettingsFragment? = null
         var model: GeoChatSettingsViewModel? = null
 
+        mNavHostController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
         mSettingsFragmentScenarioRule.onFragment {
+            mNavHostController.setGraph(R.navigation.nav_graph)
+            mNavHostController.setCurrentDestination(R.id.geoChatSettingsFragment)
+            Navigation.setViewNavController(it.requireView(), mNavHostController)
+
             fragment = it
             model = ViewModelProvider(it)[GeoChatSettingsViewModel::class.java]
 
@@ -100,23 +115,23 @@ class GeoChatSettingsFragmentTest {
             .check(
                 ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_250m))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_1))
             .check(
                 ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_500m))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_2))
             .check(
                 ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_1km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_3))
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_3km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_4))
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_10km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_5))
             .check(
                 ViewAssertions.matches(
                     ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
@@ -128,19 +143,19 @@ class GeoChatSettingsFragmentTest {
 
     @Test
     fun allButtonsEnabledTest() {
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_250m))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_1))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_500m))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_2))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_1km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_3))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_3km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_4))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_10km))
+        Espresso.onView(ViewMatchers.withId(R.id.radius_setting_5))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(ViewMatchers.withId(R.id.go_button))
@@ -152,25 +167,25 @@ class GeoChatSettingsFragmentTest {
     fun changingChosenRadiusTo500mByClickingRadiusOptionButtonsTest() {
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_500m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_2))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_3))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_3km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_4))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_10km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_5))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
     }
 
@@ -178,25 +193,25 @@ class GeoChatSettingsFragmentTest {
     fun changingChosenRadiusTo10kmByClickingRadiusOptionButtonsTest() {
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_10km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_5))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_500m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_2))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_3))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_3km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_4))))
             .check(ViewAssertions.matches(ViewMatchers.isNotChecked()))
     }
 
@@ -210,7 +225,7 @@ class GeoChatSettingsFragmentTest {
     fun curLocationCircleChangesOnMapOnRadiusOptionChangingTest() {
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_500m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_2))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -218,7 +233,7 @@ class GeoChatSettingsFragmentTest {
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_10km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_5))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -258,7 +273,7 @@ class GeoChatSettingsFragmentTest {
     fun cameraChangesItsBoundsOnLocationCircleChangingTest() {
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -270,7 +285,7 @@ class GeoChatSettingsFragmentTest {
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_10km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_5))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -287,7 +302,7 @@ class GeoChatSettingsFragmentTest {
     fun radiusChangeTo10kmLeadsToLocationCircleRadiusChangingTo10kmTest() {
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -295,7 +310,7 @@ class GeoChatSettingsFragmentTest {
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_10km))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_5))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -311,7 +326,7 @@ class GeoChatSettingsFragmentTest {
         }
 
         assertEquals(
-            GeoChatSettingsViewModel.RADIUS_OPTION_INDEX_TO_METERS_ARRAY.last(),
+            GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY.last(),
             curLocationCircleRadius)
     }
 
@@ -322,7 +337,7 @@ class GeoChatSettingsFragmentTest {
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.withId(R.id.radio_button),
-            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_250m))))
+            ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.radius_setting_1))))
             .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isChecked()))
 
@@ -337,5 +352,13 @@ class GeoChatSettingsFragmentTest {
         val newLocationCircle = mLocationTestData.getCurLocationCircle()
 
         assertNotEquals(prevLocationCircle, newLocationCircle)
+    }
+
+    @Test
+    fun goButtonClickLeadsToTransitionToGeoChatFragmentTest() {
+        Espresso.onView(withId(R.id.go_button))
+            .perform(WaitingViewAction(1000), SilentClickViewAction())
+
+        Assert.assertEquals(R.id.geoChatFragment, mNavHostController.currentDestination?.id)
     }
 }

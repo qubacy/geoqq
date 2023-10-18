@@ -18,12 +18,6 @@
     <string name="mates_menu_option">Mates</string>
     <string name="mates_menu_option_description">Met people</string>
 
-    <string name="radius_setting_label_250m">250m</string>
-    <string name="radius_setting_label_500m">500m</string>
-    <string name="radius_setting_label_1km">1km</string>
-    <string name="radius_setting_label_3km">3km</string>
-    <string name="radius_setting_label_10km">10km</string>
-
     <string name="sending_message_hint">Type your text..</string>
 
     <string name="user_action_add_friend">Add friend</string>

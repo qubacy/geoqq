@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMainMenuBinding
 
 class MainMenuFragment() : Fragment() {
@@ -39,20 +41,14 @@ class MainMenuFragment() : Fragment() {
     }
 
     private fun onGoMenuOptionClicked() {
-        // todo: calling an appropriate method of the model..
-
-
+        findNavController().navigate(R.id.action_mainMenuFragment_to_geoChatSettingsFragment)
     }
 
     private fun onMatesMenuOptionClicked() {
-        // todo: calling an appropriate method of the model..
-
-
+        findNavController().navigate(R.id.action_mainMenuFragment_to_mateChatsFragment)
     }
 
     private fun onMyProfileMenuOptionClicked() {
-        // todo: calling an appropriate method of the model..
-
-
+        findNavController().navigate(R.id.action_mainMenuFragment_to_myProfileFragment)
     }
 }

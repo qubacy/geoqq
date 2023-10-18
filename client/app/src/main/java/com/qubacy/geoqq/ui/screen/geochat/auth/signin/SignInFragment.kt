@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
@@ -41,6 +42,7 @@ class SignInFragment : AuthFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mBinding.signInButton.setOnClickListener { onSignInButtonClicked() }
+        mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
 
         mModel.signInUiState.observe(viewLifecycleOwner) {
             onSignInUiStateChanged(it)
@@ -56,6 +58,10 @@ class SignInFragment : AuthFragment() {
             // todo: moving to the MainMenu fragment..
 
         }
+    }
+
+    private fun onSignUpButtonClicked() {
+        findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
     }
 
     private fun onSignInButtonClicked() {

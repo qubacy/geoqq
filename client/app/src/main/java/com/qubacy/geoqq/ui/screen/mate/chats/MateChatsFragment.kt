@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
@@ -53,13 +55,13 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
         mAdapter = MateChatsAdapter(this)
 
-        mBinding.matesRecyclerView.apply {
+        mBinding.chatsRecyclerView.apply {
             layoutManager = AnimatedListLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mAdapter
             itemAnimator = AnimatedListItemAnimator(mAdapter)
         }
-        mBinding.friendRequestsCardButton.setOnClickListener {
+        mBinding.mateRequestsCardButton.setOnClickListener {
             onFriendRequestsClicked()
         }
 
@@ -155,13 +157,13 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     }
 
     private fun onFriendRequestsClicked() {
-        // todo: moving to the new mates requests screen..
-
-
+        findNavController().navigate(R.id.action_mateChatsFragment_to_mateRequestsFragment)
     }
 
     override fun onChatClicked(chat: Chat) {
-        // todo: moving to the chat..
+        val directions = MateChatsFragmentDirections
+            .actionMateChatsFragmentToMateChatFragment(chat.chatId)
 
+        findNavController().navigate(directions)
     }
 }
