@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.ui.screen.mate.chats
 
+import android.view.View
+import androidx.core.view.marginTop
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -8,6 +10,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -36,6 +40,8 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
+import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
+import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.launch
@@ -51,7 +57,7 @@ class MateChatsFragmentTest {
         private val mMateChatsUiState: LiveData<MateChatsUiState?>
     ) {
         fun setChats(chats: List<Chat>, users: List<User>) {
-            val chatsState = MateChatsState(chats, users, listOf())
+            val chatsState = MateChatsState(chats, users, 0, listOf())
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
@@ -70,12 +76,14 @@ class MateChatsFragmentTest {
 
             val users =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
+            val requestCount =
+                if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
             val operations = listOf(
                 AddChatOperation(chat.chatId)
             )
 
-            val chatsState = MateChatsState(newChats, users, operations)
+            val chatsState = MateChatsState(newChats, users, requestCount, operations)
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
@@ -107,15 +115,34 @@ class MateChatsFragmentTest {
 
             val users =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
+            val requestCount =
+                if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
             val operations = listOf(
                 UpdateChatOperation(chat.chatId)
             )
 
-            val chatState = MateChatsState(modifiedChats, users, operations)
+            val chatState = MateChatsState(modifiedChats, users, requestCount, operations)
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatState)
+            }
+        }
+
+        fun setRequestCount(requestCount: Int) {
+            val users =
+                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
+            val chats =
+                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chats
+
+            val operations = listOf(
+                UpdateRequestCountOperation()
+            )
+
+            val chatsState = MateChatsState(chats, users, requestCount, operations)
+
+            runBlocking {
+                mMateChatsStateFlow.emit(chatsState)
             }
         }
 
@@ -124,12 +151,14 @@ class MateChatsFragmentTest {
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
             val chats =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chats
+            val requestCount =
+                if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
             val operations = listOf(
                 HandleErrorOperation(error)
             )
 
-            val chatsState = MateChatsState(chats, users, operations)
+            val chatsState = MateChatsState(chats, users, requestCount, operations)
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
@@ -181,10 +210,11 @@ class MateChatsFragmentTest {
 
     @Test
     fun allElementsInPlaceTest() {
-        Espresso.onView(withId(R.id.friend_requests_card_button))
-            .check(
-                ViewAssertions.matches(
-                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        // it's hidden by default now:
+//        Espresso.onView(withId(R.id.friend_requests_card_button))
+//            .check(
+//                ViewAssertions.matches(
+//                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(withId(R.id.mates_recycler_view))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
@@ -192,9 +222,10 @@ class MateChatsFragmentTest {
 
     @Test
     fun allElementsEnabled() {
-        Espresso.onView(withId(R.id.friend_requests_card_button))
-            .perform(ViewActions.click())
-            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        // it's hidden by default now:
+//        Espresso.onView(withId(R.id.friend_requests_card_button))
+//            .perform(ViewActions.click())
+//            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(withId(R.id.mates_recycler_view))
             .perform(ViewActions.swipeDown())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
@@ -349,6 +380,95 @@ class MateChatsFragmentTest {
             isAssignableFrom(MaterialCardView::class.java),
             hasDescendant(withText(updatedChat.chatName))
         )).check(IsChildWithIndexViewAssertion(0))
+    }
+
+    @Test
+    fun newRequestsCardAppearsOnRequestCountSetToOneTest() {
+        Espresso.onView(withId(R.id.mate_requests_card))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setRequestCount(1)
+        }
+
+        Espresso.onView(withId(R.id.mate_requests_card))
+            .perform(WaitingViewAction(1000))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    class TopBoundViewAssertion(private val mTop: Float) : ViewAssertion {
+        override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
+            if (view == null)
+                throw IllegalArgumentException()
+            if (view.top.toFloat() != mTop)
+                throw NoMatchingViewException.Builder().build()
+        }
+
+    }
+
+    @Test
+    fun newRequestsCardAppearanceChangesChatsListTopBoundTest() {
+        val chats = listOf(
+            Chat(4, null, "chat 5",
+                Message(0, 0, "hi", 1696847478000)),
+            Chat(3, null, "chat 4",
+                Message(0, 0, "hi", 1696847478000)),
+            Chat(2, null, "chat 3",
+                Message(0, 0, "hi", 1696847478000)),
+            Chat(1, null, "chat 2",
+                Message(0, 0, "hi", 1696847478000)),
+            Chat(0, null, "chat 1",
+                Message(0, 0, "hi", 1696847478000)),
+        )
+        val users = listOf(
+            User(0, "me")
+        )
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setChats(chats, users)
+        }
+
+        Espresso.onView(isRoot())
+            .perform(WaitingViewAction(1000))
+            .check(TopBoundViewAssertion(0f))
+
+        var binding: FragmentMateChatsBinding? = null
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            binding = FragmentMateChatsBinding.bind(it.view!!)
+
+            mMateChatsUiStateTestData.setRequestCount(1)
+        }
+
+        val topBound = binding!!.mateRequestsCard.measuredHeight.toFloat() +
+                binding!!.mateRequestsCard.marginTop.toFloat()
+
+        Espresso.onView(withId(R.id.mates_recycler_view))
+            .perform(WaitingViewAction(1000))
+            .check(TopBoundViewAssertion(topBound))
+    }
+
+    @Test
+    fun mateRequestsCardDisappearsOnRequestCounterSettingToZeroTest() {
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setRequestCount(1)
+        }
+
+        Espresso.onView(withId(R.id.mate_requests_card))
+            .perform(WaitingViewAction(1000))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setRequestCount(0)
+        }
+
+        Espresso.onView(withId(R.id.mate_requests_card))
+            .perform(WaitingViewAction(1000))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.qubacy.geoqq.ui.common.fragment.common.model.state.OperationUiState
 class MateChatsUiState(
     val chats: List<Chat>,
     val users: List<User>,
+    val requestCount: Int,
     uiOperations: List<UiOperation>
 ) : OperationUiState(uiOperations) {
 

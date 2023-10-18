@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
+import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.data.mates.chats.state.MateChatsState
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
@@ -15,6 +16,7 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
@@ -39,7 +41,11 @@ class MateChatsViewModel() : WaitingViewModel() {
             uiOperations.add(uiOperation)
         }
 
-        return MateChatsUiState(mateChatsState.chats, mateChatsState.users, uiOperations)
+        return MateChatsUiState(
+            mateChatsState.chats,
+            mateChatsState.users,
+            mateChatsState.requestCount,
+            uiOperations)
     }
 
     private fun processOperation(operation: Operation): UiOperation? {
@@ -59,6 +65,13 @@ class MateChatsViewModel() : WaitingViewModel() {
                 // mb processing the operation..
 
                 UpdateChatUiOperation(updateChatOperation.chatId)
+            }
+            UpdateRequestCountOperation::class -> {
+                val updateRequestCountOperation = operation as UpdateRequestCountOperation
+
+                // ??
+
+                UpdateRequestCountUiOperation()
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation

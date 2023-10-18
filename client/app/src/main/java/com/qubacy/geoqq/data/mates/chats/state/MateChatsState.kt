@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data.common.state.State
 class MateChatsState(
     val chats: List<Chat> = listOf(),
     val users: List<User> = listOf(),
+    val requestCount: Int = 0,
     newOperations: List<Operation>
 ) : State(newOperations) {
 
