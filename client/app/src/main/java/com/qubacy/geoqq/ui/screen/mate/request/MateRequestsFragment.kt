@@ -1,12 +1,16 @@
 package com.qubacy.geoqq.ui.screen.mate.request
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.fragment.app.viewModels
+import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
@@ -29,6 +33,17 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setTransitionWindowBackgroundDrawableResId(R.drawable.mate_background)
+
+        enterTransition = Slide(Gravity.TOP).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        returnTransition = Slide(Gravity.TOP).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onCreateView(

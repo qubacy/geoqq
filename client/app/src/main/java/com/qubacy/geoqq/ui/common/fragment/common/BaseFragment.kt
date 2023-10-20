@@ -11,9 +11,11 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.snackbar.Snackbar
@@ -65,6 +67,13 @@ abstract class BaseFragment() : Fragment() {
             resources.getColor(colorResId, requireActivity().theme)
 
         requireActivity().window.setBackgroundDrawable(ColorDrawable(color))
+    }
+
+    protected fun setTransitionWindowBackgroundDrawableResId(@DrawableRes drawableResId: Int) {
+        val drawable = ResourcesCompat.getDrawable(
+            resources, drawableResId, requireActivity().theme)
+
+        requireActivity().window.setBackgroundDrawable(drawable)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

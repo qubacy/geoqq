@@ -8,6 +8,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
@@ -36,6 +37,17 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setTransitionWindowBackgroundDrawableResId(R.drawable.mate_background)
+
+        exitTransition = MaterialElevationScale(false).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onCreateView(
@@ -120,11 +132,15 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         val prevVisibility = mBinding.mateRequestsCard.visibility
         val curVisibility = if (requestCount <= 0) { View.GONE } else { View.VISIBLE }
 
-        setMateRequestsCardAnimation(requestCount > 0 && prevVisibility != curVisibility)
+        if (prevVisibility == curVisibility) return
+
+        setMateRequestsCardAnimation(requestCount > 0)
     }
 
     private fun setMateRequestsCardAnimation(isFadingIn: Boolean) {
         mBinding.mateRequestsCard.apply {
+            this.clearAnimation()
+
             var endAlpha = 0f
             var endTranslation = 0f
 
