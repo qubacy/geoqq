@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
@@ -25,7 +27,16 @@ class SignInFragment : AuthFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setTransitionWindowBackgroundColorResId(R.color.green_dark)
 
+        exitTransition = MaterialElevationScale(false).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onCreateView(

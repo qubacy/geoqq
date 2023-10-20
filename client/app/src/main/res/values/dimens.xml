@@ -2,4 +2,6 @@
 <resources>
     <dimen name="max_elevation">100000dp</dimen>
     <dimen name="easy_rounding_radius">8dp</dimen>
+
+    <integer name="default_transition_duration">700</integer>
 </resources>

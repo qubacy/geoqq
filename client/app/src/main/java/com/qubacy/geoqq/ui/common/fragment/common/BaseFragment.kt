@@ -2,12 +2,15 @@ package com.qubacy.geoqq.ui.common.fragment.common
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.IntRange
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -53,6 +56,15 @@ abstract class BaseFragment() : Fragment() {
                 mPermissionRequestLauncher.launch(getPermissionsToRequest())
             }
         }
+    }
+
+    protected fun setTransitionWindowBackgroundColorResId(@ColorRes colorResId: Int) {
+        val color = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            resources.getColor(colorResId)
+        else
+            resources.getColor(colorResId, requireActivity().theme)
+
+        requireActivity().window.setBackgroundDrawable(ColorDrawable(color))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
