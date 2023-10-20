@@ -3,7 +3,6 @@ package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
@@ -19,9 +18,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragmentTest
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
+import com.qubacy.geoqq.ui.util.SilentClickViewAction
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Before
@@ -29,20 +31,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SignInFragmentTest {
-    class SignInUiStateTestData(
-        private val mModel: SignInViewModel,
-        private val mSignInUiState: MutableLiveData<SignInUiState>
-    ) {
-        fun setSignInUiState(uiState: SignInUiState) {
-            mSignInUiState.value = uiState
-        }
-    }
-
+class SignInFragmentTest : AuthFragmentTest() {
     private lateinit var mSignInFragmentScenarioRule: FragmentScenario<SignInFragment>
     private lateinit var mModel: SignInViewModel
 
-    private lateinit var mSignInUiStateTestData: SignInUiStateTestData
+    private lateinit var mSignInUiStateTestData: AuthUiStateTestData
     private lateinit var mNavController: TestNavHostController
 
     @Before
@@ -60,14 +53,14 @@ class SignInFragmentTest {
             mModel = ViewModelProvider(it)[SignInViewModel::class.java]
         }
 
-        val signInUiStateFieldReflection = SignInViewModel::class.java
-            .getDeclaredField("mSignInUiState").apply {
+        val authStateFlowFieldReflection = SignInViewModel::class.java.superclass
+            .getDeclaredField("mAuthStateFlow").apply {
                 isAccessible = true
             }
 
-        mSignInUiStateTestData = SignInUiStateTestData(
+        mSignInUiStateTestData = AuthUiStateTestData(
             mModel,
-            signInUiStateFieldReflection.get(mModel) as MutableLiveData<SignInUiState>
+            authStateFlowFieldReflection.get(mModel) as MutableStateFlow<AuthState>
         )
     }
 
@@ -190,9 +183,9 @@ class SignInFragmentTest {
     }
 
     @Test
-    fun loginAndPasswordProvidedAndSignInClickedTest() {
-        val login = "login"
-        val password = "pass"
+    fun correctLoginAndPasswordProvidedAndSignInClickLeadsToShowingLoadingAndThenMovingToMainMenuTest() {
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -207,18 +200,22 @@ class SignInFragmentTest {
             ))
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(ViewMatchers.withId(R.id.sign_in_button))
-            .perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withText(R.string.error_sign_in_data_incorrect))
-            .check(ViewAssertions.doesNotExist())
+            .perform(SilentClickViewAction())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
+
+        mSignInFragmentScenarioRule.onFragment {
+            mSignInUiStateTestData.setAuthorized("some_access_token")
+        }
+
+        Assert.assertEquals(R.id.mainMenuFragment, mNavController.currentDestination?.id)
     }
 
     @Test
     fun loginAndPasswordProvidedAndSignInClickedThenAbortedByBackButtonClickTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -241,8 +238,8 @@ class SignInFragmentTest {
     }
     @Test
     fun loginAndPasswordProvidedAndSignInClickedThenAbortedByLoadingScreenClickTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -266,10 +263,9 @@ class SignInFragmentTest {
     @Test
     fun errorMessageDisplayedOnErrorOccurredInUiStateTest() {
         val error = Error(R.string.error_sign_in_failed, Error.Level.NORMAL)
-        val errorSignInUiState = SignInUiState(false, error)
 
         mSignInFragmentScenarioRule.onFragment {
-            mSignInUiStateTestData.setSignInUiState(errorSignInUiState)
+            mSignInUiStateTestData.showError(error)
         }
 
         Espresso.onView(withText(error.messageResId))
@@ -279,10 +275,9 @@ class SignInFragmentTest {
     @Test
     fun criticalErrorLeadsToClosingApp() {
         val error = Error(R.string.error_sign_in_failed, Error.Level.CRITICAL)
-        val errorSignInUiState = SignInUiState(false, error)
 
         mSignInFragmentScenarioRule.onFragment {
-            mSignInUiStateTestData.setSignInUiState(errorSignInUiState)
+            mSignInUiStateTestData.showError(error)
         }
 
         try {

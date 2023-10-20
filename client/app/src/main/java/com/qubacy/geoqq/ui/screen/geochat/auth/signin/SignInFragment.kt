@@ -13,7 +13,6 @@ import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
 
@@ -55,20 +54,11 @@ class SignInFragment : AuthFragment() {
         mBinding.signInButton.setOnClickListener { onSignInButtonClicked() }
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
 
-        mModel.signInUiState.observe(viewLifecycleOwner) {
-            onSignInUiStateChanged(it)
-        }
-
         setStartAnimation() // todo: think of this! it isn't working OK all the time.
     }
 
-    private fun onSignInUiStateChanged(signInUiState: SignInUiState) {
-        if (checkUiStateForErrors(signInUiState)) return
-
-        if (signInUiState.isSignedIn) {
-            // todo: moving to the MainMenu fragment..
-
-        }
+    override fun moveToMainMenu() {
+        findNavController().navigate(R.id.action_signInFragment_to_mainMenuFragment)
     }
 
     private fun onSignUpButtonClicked() {
@@ -80,7 +70,7 @@ class SignInFragment : AuthFragment() {
         val password = mBinding.passwordInput.input.text.toString()
 
         if (!mModel.isSignInDataCorrect(login, password)) {
-            showMessage(R.string.error_sign_up_data_incorrect)
+            showMessage(R.string.error_sign_in_data_incorrect)
 
             return
         }

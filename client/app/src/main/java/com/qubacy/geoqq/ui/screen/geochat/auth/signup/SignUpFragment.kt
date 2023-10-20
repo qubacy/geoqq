@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.transition.Slide
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModelFactory
 
@@ -68,23 +68,14 @@ class SignUpFragment : AuthFragment() {
 
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
 
-        mModel.signUpUiState.observe(viewLifecycleOwner) {
-            onSignUpUiStateChanged(it)
-        }
-
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
         }
     }
 
-    private fun onSignUpUiStateChanged(signUpUiState: SignUpUiState) {
-        if (checkUiStateForErrors(signUpUiState)) return
-
-        if (signUpUiState.isSignedUp) {
-            // todo: moving to the MainMenu fragment..
-
-        }
+    override fun moveToMainMenu() {
+        findNavController().navigate(R.id.action_signUpFragment_to_mainMenuFragment)
     }
 
     private fun onSignUpButtonClicked() {

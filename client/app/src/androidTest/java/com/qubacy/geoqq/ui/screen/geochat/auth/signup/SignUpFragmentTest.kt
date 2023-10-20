@@ -4,8 +4,10 @@ import android.view.View
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.NoMatchingViewException
@@ -18,8 +20,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
+import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragmentTest
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Before
@@ -28,20 +33,12 @@ import org.junit.runner.RunWith
 import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
-class SignUpFragmentTest {
-    class SignUpUiStateTestData(
-        private val mModel: SignUpViewModel,
-        private val mSignUpUiState: MutableLiveData<SignUpUiState>
-    ) {
-        fun setSignUpUiState(signUpUiState: SignUpUiState) {
-            mSignUpUiState.value = signUpUiState
-        }
-    }
-
+class SignUpFragmentTest : AuthFragmentTest() {
     private lateinit var mSignUpFragmentScenarioRule: FragmentScenario<SignUpFragment>
     private lateinit var mModel: SignUpViewModel
+    private lateinit var mNavController: TestNavHostController
 
-    private lateinit var mSignUpUiStateTestData: SignUpUiStateTestData
+    private lateinit var mSignUpUiStateTestData: AuthUiStateTestData
 
     @Before
     fun setup() {
@@ -49,18 +46,24 @@ class SignUpFragmentTest {
             launchFragmentInContainer<SignUpFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
         mSignUpFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
 
+        mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
         mSignUpFragmentScenarioRule.onFragment {
+            mNavController.setGraph(R.navigation.nav_graph)
+            mNavController.setCurrentDestination(R.id.signUpFragment)
+            Navigation.setViewNavController(it.requireView(), mNavController)
+
             mModel = ViewModelProvider(it)[SignUpViewModel::class.java]
         }
 
-        val signUpUiStateFieldReflection = SignUpViewModel::class.java
-            .getDeclaredField("mSignUpUiState").apply {
+        val authStateFlowFieldReflection = SignInViewModel::class.java.superclass
+            .getDeclaredField("mAuthStateFlow").apply {
                 isAccessible = true
             }
 
-        mSignUpUiStateTestData = SignUpUiStateTestData(
+        mSignUpUiStateTestData = AuthUiStateTestData(
             mModel,
-            signUpUiStateFieldReflection.get(mModel) as MutableLiveData<SignUpUiState>
+            authStateFlowFieldReflection.get(mModel) as MutableStateFlow<AuthState>
         )
     }
 
@@ -165,7 +168,6 @@ class SignUpFragmentTest {
     @Test
     fun buttonIsEnabledTest() {
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
-            .perform(ViewActions.click())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
 
@@ -183,7 +185,7 @@ class SignUpFragmentTest {
 
     @Test
     fun onlyLoginProvidedAndConfirmClickedTest() {
-        val login = "login"
+        val login = "loginnnn"
 
         Espresso.onView(
             Matchers.allOf(
@@ -203,7 +205,7 @@ class SignUpFragmentTest {
 
     @Test
     fun onlyPasswordProvidedAndConfirmClickedTest() {
-        val password = "pass"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -223,7 +225,7 @@ class SignUpFragmentTest {
 
     @Test
     fun onlyRepeatedPasswordProvidedAndConfirmClickedTest() {
-        val password = "pass"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -243,8 +245,8 @@ class SignUpFragmentTest {
 
     @Test
     fun loginAndPasswordProvidedAndConfirmClickedTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -270,8 +272,8 @@ class SignUpFragmentTest {
 
     @Test
     fun loginAndRepeatedPasswordProvidedAndConfirmClickedTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -297,7 +299,7 @@ class SignUpFragmentTest {
 
     @Test
     fun passwordAndRepeatedPasswordProvidedAndConfirmClickedTest() {
-        val password = "pass"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -323,9 +325,9 @@ class SignUpFragmentTest {
 
 
     @Test
-    fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedTest() {
-        val login = "login"
-        val password = "pass"
+    fun correctLoginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickLeadsToShowingLoadingScreenAndThenMovingToMainMenuTest() {
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -347,17 +349,21 @@ class SignUpFragmentTest {
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
             .perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withText(R.string.error_sign_up_data_incorrect))
-            .check(ViewAssertions.doesNotExist())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
+
+        mSignUpFragmentScenarioRule.onFragment {
+            mSignUpUiStateTestData.setAuthorized("some_access_token")
+        }
+
+        Assert.assertEquals(R.id.mainMenuFragment, mNavController.currentDestination?.id)
     }
 
     @Test
     fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedThenAbortedByBackButtonClickTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -386,8 +392,8 @@ class SignUpFragmentTest {
     }
     @Test
     fun loginAndPasswordAndRepeatedPasswordProvidedAndConfirmClickedThenAbortedByLoadingScreenClickTest() {
-        val login = "login"
-        val password = "pass"
+        val login = "loginnnn"
+        val password = "password"
 
         Espresso.onView(
             Matchers.allOf(
@@ -417,10 +423,9 @@ class SignUpFragmentTest {
     @Test
     fun errorMessageShowsUpOnSettingUiStateWithErrorTest() {
         val error = Error(R.string.error_sign_up_failed, Error.Level.NORMAL)
-        val errorSignUpUiState = SignUpUiState(false, error)
 
         mSignUpFragmentScenarioRule.onFragment {
-            mSignUpUiStateTestData.setSignUpUiState(errorSignUpUiState)
+            mSignUpUiStateTestData.showError(error)
         }
 
         Espresso.onView(withText(error.messageResId))
@@ -430,10 +435,9 @@ class SignUpFragmentTest {
     @Test
     fun criticalErrorLeadsToClosingAppTest() {
         val error = Error(R.string.error_sign_up_failed, Error.Level.CRITICAL)
-        val errorSignUpUiState = SignUpUiState(false, error)
 
         mSignUpFragmentScenarioRule.onFragment {
-            mSignUpUiStateTestData.setSignUpUiState(errorSignUpUiState)
+            mSignUpUiStateTestData.showError(error)
         }
 
         try {

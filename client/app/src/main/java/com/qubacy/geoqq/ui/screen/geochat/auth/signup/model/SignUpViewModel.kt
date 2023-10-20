@@ -1,25 +1,17 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.signup.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
-import com.qubacy.geoqq.data.geochat.auth.signup.SignUpState
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
 import kotlinx.coroutines.launch
 
 // todo: providing a data repository as an argument..
-class SignUpViewModel() : AuthViewModel(), Observer<SignUpState> {
-    private var mSignUpState: LiveData<SignUpState>? = null
+class SignUpViewModel(
 
-    private var mSignUpUiState: MutableLiveData<SignUpUiState> = MutableLiveData<SignUpUiState>()
-    val signUpUiState: LiveData<SignUpUiState> = mSignUpUiState
-
+) : AuthViewModel() {
     fun isSignUpDataCorrect(
         username: String,
         password: String,
@@ -62,16 +54,7 @@ class SignUpViewModel() : AuthViewModel(), Observer<SignUpState> {
     fun interruptSignUp() {
         // todo: handling Sign Up interruption..
 
-        mSignUpState = null
-    }
-
-    override fun onChanged(value: SignUpState) {
         mIsWaiting.value = false
-
-        // todo: converting SignUpState to SignUpUiState
-
-        mAccessToken.value = "gotten_access_token"
-        mSignUpUiState.value = SignUpUiState()
     }
 }
 
