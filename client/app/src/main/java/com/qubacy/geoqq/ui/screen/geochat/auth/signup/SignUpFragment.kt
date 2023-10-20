@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.Slide
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
+import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
@@ -40,6 +41,15 @@ class SignUpFragment : AuthFragment() {
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
 
             addListener(getExitTransitionListener())
+        }
+
+        exitTransition = MaterialElevationScale(false).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
     }
 
