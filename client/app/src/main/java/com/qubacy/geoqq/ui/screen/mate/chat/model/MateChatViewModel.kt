@@ -13,9 +13,9 @@ import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextVal
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.ui.common.fragment.common.model.BaseViewModel
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.BaseViewModel
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation

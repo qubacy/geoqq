@@ -5,17 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Fade
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapterCallback
@@ -39,6 +42,17 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         super.onCreate(savedInstanceState)
 
         setTransitionWindowBackgroundDrawableResId(R.drawable.mate_background)
+
+        enterTransition = Fade().apply {
+            mode = MaterialFade.MODE_IN
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        returnTransition = Fade().apply {
+            mode = MaterialFade.MODE_OUT
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
 
         exitTransition = MaterialElevationScale(false).apply {
             interpolator = AccelerateDecelerateInterpolator()
@@ -85,6 +99,11 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         mModel.mateChatsUiStateFlow.value?.let {
             onMateRequestCountChanged(it.requestCount)
             mAdapter.setItems(it.chats)
+        }
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
         }
     }
 

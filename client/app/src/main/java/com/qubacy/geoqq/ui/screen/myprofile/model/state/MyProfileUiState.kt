@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.screen.myprofile.model.state
 
 import android.net.Uri
 import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.ui.common.fragment.common.model.state.BaseUiState
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.state.BaseUiState
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 
 class MyProfileUiState(

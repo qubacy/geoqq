@@ -14,8 +14,8 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapter
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapterCallback

@@ -6,16 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.transition.Fade
 import androidx.transition.Slide
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMainMenuBinding
+import com.qubacy.geoqq.ui.common.fragment.common.styleable.StyleableFragment
 
-class MainMenuFragment() : Fragment() {
+class MainMenuFragment() : StyleableFragment() {
     private lateinit var mBinding: FragmentMainMenuBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +25,17 @@ class MainMenuFragment() : Fragment() {
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
         returnTransition = Slide(Gravity.END).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+
+        exitTransition = Fade().apply {
+            mode = Fade.MODE_OUT
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        reenterTransition = Fade().apply {
+            mode = Fade.MODE_IN
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
@@ -47,6 +57,8 @@ class MainMenuFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setTransitionWindowBackgroundColorResId(R.color.green_dark)
 
         mBinding.goMenuOption.menuOptionButton.setOnClickListener {
             onGoMenuOptionClicked()

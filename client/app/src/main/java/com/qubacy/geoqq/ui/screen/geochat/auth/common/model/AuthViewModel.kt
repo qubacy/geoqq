@@ -6,8 +6,8 @@ import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.geochat.auth.common.operation.AuthorizeOperation
 import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.operation.AuthorizeUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.state.AuthUiState

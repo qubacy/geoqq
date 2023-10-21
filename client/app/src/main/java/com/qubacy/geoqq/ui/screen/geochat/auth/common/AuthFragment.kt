@@ -2,8 +2,8 @@ package com.qubacy.geoqq.ui.screen.geochat.auth.common
 
 import android.os.Bundle
 import android.view.View
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.operation.AuthorizeUiOperation

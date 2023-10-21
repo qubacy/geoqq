@@ -13,9 +13,9 @@ import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
-import com.qubacy.geoqq.ui.common.fragment.common.BaseFragment
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState

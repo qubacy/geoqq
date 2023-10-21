@@ -6,11 +6,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
 import androidx.core.net.toUri
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.transition.Fade
+import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
@@ -42,6 +46,19 @@ class MyProfileFragment() : WaitingFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setTransitionWindowBackgroundDrawableResId(R.drawable.my_profile_background)
+
+        enterTransition = Fade().apply {
+            mode = MaterialFade.MODE_IN
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        returnTransition = Fade().apply {
+            mode = MaterialFade.MODE_OUT
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {
@@ -108,6 +125,11 @@ class MyProfileFragment() : WaitingFragment() {
 
         mModel.myProfileUiState.observe(viewLifecycleOwner) {
             onUiStateChanged(it)
+        }
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
         }
     }
 

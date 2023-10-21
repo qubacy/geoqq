@@ -9,8 +9,8 @@ import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.data.mates.request.state.MateRequestsState
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import kotlinx.coroutines.flow.MutableStateFlow

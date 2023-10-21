@@ -2,17 +2,20 @@ package com.qubacy.geoqq.ui.screen.geochat.settings
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.qubacy.geoqq.common.error.Error
+import androidx.transition.Slide
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
-import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
@@ -44,6 +47,15 @@ class GeoChatSettingsFragment() : LocationFragment() {
         super.onCreate(savedInstanceState)
 
         MapKitFactory.initialize(requireContext())
+
+        enterTransition = Slide(Gravity.END).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        returnTransition = Slide(Gravity.END).apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onDestroy() {
@@ -123,6 +135,11 @@ class GeoChatSettingsFragment() : LocationFragment() {
         }
 
         mBinding.goButton.setOnClickListener { onGoClicked() }
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     override fun onLocationPointChanged(newLocationPoint: Point) {

@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:theme="@style/Theme.Geoqq.Mates"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
+    android:transitionGroup="true">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mate_requests_card"

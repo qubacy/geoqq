@@ -12,7 +12,8 @@
         android:theme="@style/Theme.Geoqq.MyProfile"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/windowBackground">
+        android:background="?android:attr/windowBackground"
+        android:transitionGroup="true">
 
         <ScrollView
             android:id="@+id/scroll_view"

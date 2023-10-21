@@ -10,8 +10,8 @@ import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.data.mates.chats.state.MateChatsState
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
