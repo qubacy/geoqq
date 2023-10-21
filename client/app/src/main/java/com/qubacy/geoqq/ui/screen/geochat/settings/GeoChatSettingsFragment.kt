@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -12,6 +13,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.transition.Fade
 import androidx.transition.Slide
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
@@ -25,8 +27,16 @@ import com.yandex.mapkit.geometry.Circle
 import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CircleMapObject
+import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
+import com.yandex.mapkit.map.MapLoadStatistics
+import com.yandex.mapkit.map.MapLoadedListener
+import com.yandex.mapkit.map.MapObjectCollection
+import com.yandex.mapkit.map.MapObjectVisitor
+import com.yandex.mapkit.map.PlacemarkMapObject
+import com.yandex.mapkit.map.PolygonMapObject
+import com.yandex.mapkit.map.PolylineMapObject
 
-class GeoChatSettingsFragment() : LocationFragment() {
+class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     companion object {
         const val TAG = "SETTINGS_FRAGMENT"
 
@@ -56,6 +66,17 @@ class GeoChatSettingsFragment() : LocationFragment() {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        exitTransition = Fade().apply {
+            mode = Fade.MODE_OUT
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        reenterTransition = Fade().apply {
+            mode = Fade.MODE_IN
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onDestroy() {
@@ -67,10 +88,18 @@ class GeoChatSettingsFragment() : LocationFragment() {
         super.onStart()
 
         MapKitFactory.getInstance().onStart()
-        mBinding.map.onStart()
+
+        mModel.onMapLoadingStarted()
+
+        mBinding.map.apply {
+            onStart()
+
+            mapWindow.map.setMapLoadedListener(this@GeoChatSettingsFragment)
+        }
     }
 
     override fun onStop() {
+        mModel.onMapLoadingStopped()
         MapKitFactory.getInstance().onStop()
         mBinding.map.onStop()
 
@@ -91,11 +120,10 @@ class GeoChatSettingsFragment() : LocationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
-            changeRadiusChoice(it)
+        setTransitionWindowBackgroundColorResId(R.color.green_dark_soft)
 
-            drawCurLocationCircle(mModel.lastLocationPoint.value)
-            setCameraPositionForCurCircle()
+        mBinding.map.apply {
+            setNoninteractive(true)
         }
 
         mBinding.radiusSetting1.apply {
@@ -134,7 +162,17 @@ class GeoChatSettingsFragment() : LocationFragment() {
             }
         }
 
-        mBinding.goButton.setOnClickListener { onGoClicked() }
+        mBinding.goButton.apply {
+            isEnabled = false
+            setOnClickListener { onGoClicked() }
+        }
+
+        mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
+            changeRadiusChoice(it)
+
+            drawCurLocationCircle(mModel.lastLocationPoint.value)
+            setCameraPositionForCurCircle()
+        }
 
         postponeEnterTransition()
         view.doOnPreDraw {
@@ -180,8 +218,7 @@ class GeoChatSettingsFragment() : LocationFragment() {
 
         val locationCircle = Circle(locationPoint, mModel.getCurRadiusOptionMeters())
 
-        if (mCurLocationCircle != null)
-            mBinding.map.mapWindow.map.mapObjects.remove(mCurLocationCircle!!)
+        if (mCurLocationCircle != null) removeCircleFromMap(mCurLocationCircle!!)
 
         mCurLocationCircle = mBinding.map.mapWindow.map.mapObjects.addCircle(locationCircle)
             .apply {
@@ -191,6 +228,28 @@ class GeoChatSettingsFragment() : LocationFragment() {
                 fillColor = ContextCompat.getColor(
                     requireContext(), com.qubacy.geoqq.R.color.red_primary_alpha)
             }
+    }
+
+    private fun removeCircleFromMap(circle: CircleMapObject) {
+        var isOnMap = false
+
+        mBinding.map.mapWindow.map.mapObjects.traverse(object : MapObjectVisitor {
+            override fun onPlacemarkVisited(p0: PlacemarkMapObject) {}
+            override fun onPolylineVisited(p0: PolylineMapObject) {}
+            override fun onPolygonVisited(p0: PolygonMapObject) {}
+            override fun onCollectionVisitStart(p0: MapObjectCollection): Boolean { return true }
+            override fun onCollectionVisitEnd(p0: MapObjectCollection) {}
+            override fun onClusterizedCollectionVisitStart(p0: ClusterizedPlacemarkCollection): Boolean { return false }
+            override fun onClusterizedCollectionVisitEnd(p0: ClusterizedPlacemarkCollection) {}
+
+            override fun onCircleVisited(p0: CircleMapObject) {
+                if (p0 == circle) isOnMap = true
+            }
+        })
+
+        if (!isOnMap) return
+
+        mBinding.map.mapWindow.map.mapObjects.remove(mCurLocationCircle!!)
     }
 
     private fun setCameraPositionForCurCircle(
@@ -213,5 +272,11 @@ class GeoChatSettingsFragment() : LocationFragment() {
             )
         else
             mBinding.map.mapWindow.map.move(newCameraPosition)
+    }
+
+    override fun onMapLoaded(p0: MapLoadStatistics) {
+        mModel.onMapLoadingStopped()
+
+        mBinding.goButton.isEnabled = true
     }
 }

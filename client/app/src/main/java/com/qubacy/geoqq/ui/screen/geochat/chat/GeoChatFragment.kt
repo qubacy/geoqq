@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Fade
+import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
@@ -42,6 +45,17 @@ class GeoChatFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enterTransition = Fade().apply {
+            mode = MaterialFade.MODE_IN
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+        returnTransition = Fade().apply {
+            mode = MaterialFade.MODE_OUT
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onCreateView(

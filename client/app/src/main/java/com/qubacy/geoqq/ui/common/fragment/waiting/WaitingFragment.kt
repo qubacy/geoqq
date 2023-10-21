@@ -1,6 +1,8 @@
 package com.qubacy.geoqq.ui.common.fragment.waiting
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
@@ -12,9 +14,8 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 
 abstract class WaitingFragment(
-    @LayoutRes val loadingViewLayoutResId: Int = R.layout.component_loading_screen)
-    : BaseFragment()
-{
+    @LayoutRes val loadingViewLayoutResId: Int = R.layout.component_loading_screen
+) : BaseFragment() {
     abstract override val mModel: WaitingViewModel
 
     private var mLoadingView: View? = null
@@ -59,12 +60,13 @@ abstract class WaitingFragment(
     }
 
     private fun initLoadingView() {
-        mLoadingView = layoutInflater.inflate(
-            loadingViewLayoutResId, view as ViewGroup, false)
+        mLoadingView = LayoutInflater.from(requireView().context)
+            .inflate(loadingViewLayoutResId, view as ViewGroup, false)
 
         mLoadingView?.apply {
             isClickable = true
             isFocusable = true
+
             setOnClickListener { handleWaitingAbort() }
         }
     }
@@ -74,10 +76,6 @@ abstract class WaitingFragment(
     }
 
     protected open fun handleWaitingStop() {
-//        if (!mModel.isWaiting.value!!) return
-
-//        mModel.isWaiting.value = false
-
         if (mLoadingView == null) {
             // todo: what to do?
 

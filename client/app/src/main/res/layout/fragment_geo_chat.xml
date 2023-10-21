@@ -11,7 +11,8 @@
     <com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:theme="@style/Theme.Geoqq.GeoChat">
+        android:theme="@style/Theme.Geoqq.GeoChat"
+        android:transitionGroup="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/geo_chat_content"

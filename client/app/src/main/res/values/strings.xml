@@ -17,7 +17,7 @@
     <string name="profile_menu_option_description">View your data</string>
     <string name="mates_menu_option">Mates</string>
     <string name="mates_menu_option_description">Met people</string>
-
+    
     <string name="sending_message_hint">Type your text..</string>
 
     <string name="user_action_add_friend">Add friend</string>
