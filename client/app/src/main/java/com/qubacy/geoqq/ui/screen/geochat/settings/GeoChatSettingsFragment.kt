@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -113,6 +112,9 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     ): View? {
         mBinding = FragmentGeoChatSettingsBinding.inflate(
             inflater, container, false)
+            .apply {
+                lifecycleOwner = this@GeoChatSettingsFragment
+            }
 
         return mBinding.root
     }
@@ -168,6 +170,8 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         }
 
         mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
+            Log.d(TAG, "curRadiusOptionIndex.observe")
+
             changeRadiusChoice(it)
 
             drawCurLocationCircle(mModel.lastLocationPoint.value)
@@ -182,7 +186,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
 
     override fun onLocationPointChanged(newLocationPoint: Point) {
         drawCurLocationCircle(newLocationPoint)
-        setCameraPositionForCurCircle(false)
+        setCameraPositionForCurCircle(true)
     }
 
     private fun changeRadiusChoice(radiusOptionIndex: Int) {
@@ -199,7 +203,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
                 else curRadiusVariantBinding.radiusSettingOptionIsChecked = false
 
             } else if (radiusOptionIndex == curRadiusOptionIndex) {
-                curRadiusVariantBinding.radiusSettingOptionIsChecked =  true
+                curRadiusVariantBinding.radiusSettingOptionIsChecked = true
             }
         }
     }

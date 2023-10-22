@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
-import com.yandex.mapkit.map.MapLoadStatistics
-import com.yandex.mapkit.map.MapLoadedListener
 
 class GeoChatSettingsViewModel : LocationViewModel() {
     companion object {
@@ -37,7 +35,7 @@ class GeoChatSettingsViewModel : LocationViewModel() {
         val resultString = StringBuilder("")
         val radiusInMeters = GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY[radiusOption].toInt()
 
-        if (radiusInMeters > METERS_IN_KM_COUNT)
+        if (radiusInMeters >= METERS_IN_KM_COUNT)
             resultString.append(radiusInMeters / METERS_IN_KM_COUNT).append(KILOMETERS_POSTFIX)
         else
             resultString.append(radiusInMeters).append(METERS_POSTFIX)

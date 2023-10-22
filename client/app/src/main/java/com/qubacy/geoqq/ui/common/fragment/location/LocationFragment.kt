@@ -24,7 +24,7 @@ abstract class LocationFragment() : WaitingFragment() {
     companion object {
         const val TAG = "LOCATION_FRAGMENT"
 
-        const val DEFAULT_LOCATION_UPDATING_INTERVAL = 5000L
+        const val DEFAULT_LOCATION_UPDATING_INTERVAL = 10000L
     }
 
     abstract override val mModel: LocationViewModel
