@@ -27,7 +27,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.card.MaterialCardView
 import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
@@ -42,6 +41,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
@@ -59,55 +59,67 @@ class MateChatsFragmentTest {
         private val mMateChatsStateFlow: MutableStateFlow<MateChatsState?>,
         private val mMateChatsUiState: LiveData<MateChatsUiState?>
     ) {
-        fun setChats(chats: List<Chat>, users: List<User>) {
-            val chatsState = MateChatsState(chats, users, 0, listOf())
+        fun setChats(chatPreviews: List<MateChatPreview>, users: List<User>) {
+            val chatsState = MateChatsState(chatPreviews, users, 0, listOf())
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
             }
 
-            mAdapter.setItems(chats)
+            mAdapter.setItems(chatPreviews)
         }
 
-        fun addChat(chat: Chat) {
-            val newChats = mutableListOf<Chat>()
+        fun addChat(chatPreview: MateChatPreview, users: List<User>) {
+            val newChatPreviews = mutableListOf<MateChatPreview>()
 
             if (mMateChatsUiState.value != null)
-                newChats.addAll(mMateChatsUiState.value!!.chats)
+                newChatPreviews.addAll(mMateChatsUiState.value!!.chatPreviews)
 
-            newChats.add(chat)
+            newChatPreviews.add(chatPreview)
 
-            val users =
-                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
+            val newUsers = mutableListOf<User>()
+
+            if (mMateChatsUiState.value != null)
+                newUsers.addAll(mMateChatsUiState.value!!.users)
+
+            newUsers.addAll(users)
+
             val requestCount =
                 if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
             val operations = listOf(
-                AddChatOperation(chat.chatId)
+                AddChatOperation(chatPreview.chatId)
             )
 
-            val chatsState = MateChatsState(newChats, users, requestCount, operations)
+            val chatsState = MateChatsState(newChatPreviews, newUsers, requestCount, operations)
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
             }
         }
 
-        fun updateChat(chat: Chat) {
-            val chats =
-                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chats
+        fun updateChat(chatPreview: MateChatPreview, users: List<User>) {
+            val chatPreviews =
+                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chatPreviews
 
-            val modifiedChats: MutableList<Chat> = mutableListOf()
+            val modifiedChats: MutableList<MateChatPreview> = mutableListOf()
 
             modifiedChats.apply {
-                addAll(chats)
+                addAll(chatPreviews)
             }
+
+            val newUsers = mutableListOf<User>()
+
+            if (mMateChatsUiState.value != null)
+                newUsers.addAll(mMateChatsUiState.value!!.users)
+
+            newUsers.addAll(users)
 
             var isUpdated = false
 
             for (chatPos in 0 until modifiedChats.size) {
-                if (modifiedChats[chatPos].chatId == chat.chatId) {
-                    modifiedChats[chatPos] = chat
+                if (modifiedChats[chatPos].chatId == chatPreview.chatId) {
+                    modifiedChats[chatPos] = chatPreview
                     isUpdated = true
 
                     break
@@ -116,13 +128,11 @@ class MateChatsFragmentTest {
 
             Assert.assertTrue(isUpdated)
 
-            val users =
-                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
             val requestCount =
                 if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
             val operations = listOf(
-                UpdateChatOperation(chat.chatId)
+                UpdateChatOperation(chatPreview.chatId)
             )
 
             val chatState = MateChatsState(modifiedChats, users, requestCount, operations)
@@ -136,7 +146,7 @@ class MateChatsFragmentTest {
             val users =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
             val chats =
-                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chats
+                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chatPreviews
 
             val operations = listOf(
                 UpdateRequestCountOperation()
@@ -153,7 +163,7 @@ class MateChatsFragmentTest {
             val users =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
             val chats =
-                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chats
+                if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.chatPreviews
             val requestCount =
                 if (mMateChatsUiState.value == null) 0 else mMateChatsUiState.value!!.requestCount
 
@@ -243,16 +253,19 @@ class MateChatsFragmentTest {
 
     @Test
     fun addedChatHasCorrectChatNameLastMessageTextAndTimestampTest() {
-        val chat = Chat(0, null, "chat 1",
+        val chatPreview = MateChatPreview(2, null, "chat 1",
             Message(0, 0, "hi", 1696847478000))
+        val users = listOf(
+            User(0, "me")
+        )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.addChat(chat)
+            mMateChatsUiStateTestData.addChat(chatPreview, users)
         }
 
-        Espresso.onView(withText(chat.chatName))
+        Espresso.onView(withText(chatPreview.chatName))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(withText(chat.lastMessage.text))
+        Espresso.onView(withText(chatPreview.lastMessage.text))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(withText("05:31 PM"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -260,12 +273,12 @@ class MateChatsFragmentTest {
 
     @Test
     fun settingThreeChatsLeadsToShowingThreeChatPreviewsTest() {
-        val chats = listOf(
-            Chat(0, null, "chat 1",
+        val chatPreviews = listOf(
+            MateChatPreview(0, null, "chat 1",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null,  "chat 2",
+            MateChatPreview(0, null,  "chat 2",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null,  "chat 3",
+            MateChatPreview(0, null,  "chat 3",
                 Message(0, 0, "hi", 1696847478000)),
         )
         val users = listOf(
@@ -273,19 +286,19 @@ class MateChatsFragmentTest {
         )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.setChats(chats, users)
+            mMateChatsUiStateTestData.setChats(chatPreviews, users)
         }
 
         Espresso.onView(withId(R.id.chats_recycler_view))
-            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(chats.size)))
+            .check(ViewAssertions.matches(ViewMatchers.hasChildCount(chatPreviews.size)))
     }
 
     @Test
     fun newChatGoesAtTopTest() {
-        val chats = listOf(
-            Chat(1, null, "chat 2",
+        val chatPreviews = listOf(
+            MateChatPreview(1, null, "chat 2",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null, "chat 1",
+            MateChatPreview(0, null, "chat 1",
                 Message(0, 0, "hi", 1696847478000)),
         )
         val users = listOf(
@@ -293,15 +306,15 @@ class MateChatsFragmentTest {
         )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.setChats(chats, users)
+            mMateChatsUiStateTestData.setChats(chatPreviews, users)
         }
 
-        val newChat = Chat(2, null, "new chat",
+        val newChatPreview = MateChatPreview(2, null, "new chat",
             Message(0, 0, "hi", 1696847478000))
 
         mMateChatsFragmentScenarioRule.onFragment {
             it.lifecycleScope.launch {
-                mMateChatsUiStateTestData.addChat(newChat)
+                mMateChatsUiStateTestData.addChat(newChatPreview, listOf())
             }
         }
 
@@ -309,45 +322,48 @@ class MateChatsFragmentTest {
             Matchers.allOf(
             isDescendantOfA(withId(R.id.chats_recycler_view)),
             isAssignableFrom(MaterialCardView::class.java),
-            hasDescendant(withText(newChat.chatName))
+            hasDescendant(withText(newChatPreview.chatName))
         )).check(IsChildWithIndexViewAssertion(0))
     }
 
     @Test
     fun scrollingUpOnNewItemsAddingTest() {
-        val chats = listOf(
-            Chat(11, null, "chat 12",
+        val users = listOf(
+            User(0, "me")
+        )
+        val chatPreviews = listOf(
+            MateChatPreview(11, null, "chat 12",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(10, null, "chat 11",
+            MateChatPreview(10, null, "chat 11",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(9, null, "chat 10",
+            MateChatPreview(9, null, "chat 10",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(8, null, "chat 9",
+            MateChatPreview(8, null, "chat 9",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(7, null, "chat 8",
+            MateChatPreview(7, null, "chat 8",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(6, null, "chat 7",
+            MateChatPreview(6, null, "chat 7",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(5, null, "chat 6",
+            MateChatPreview(5, null, "chat 6",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(4, null, "chat 5",
+            MateChatPreview(4, null, "chat 5",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(3, null, "chat 4",
+            MateChatPreview(3, null, "chat 4",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(2, null, "chat 3",
+            MateChatPreview(2, null, "chat 3",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(1, null, "chat 2",
+            MateChatPreview(1, null, "chat 2",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null, "chat 1",
+            MateChatPreview(0, null, "chat 1",
                 Message(0, 0, "hi", 1696847478000)),
         )
 
-        for (chat in chats) {
+        for (chatPreview in chatPreviews) {
             mMateChatsFragmentScenarioRule.onFragment {
-                mMateChatsUiStateTestData.addChat(chat)
+                mMateChatsUiStateTestData.addChat(chatPreview, users)
             }
 
-            Espresso.onView(withText(chat.chatName))
+            Espresso.onView(withText(chatPreview.chatName))
                 .perform(WaitingViewAction(500))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
@@ -355,16 +371,16 @@ class MateChatsFragmentTest {
 
     @Test
     fun chatPreviewGoesUpOnChatUpdateTest() {
-        val chats = listOf(
-            Chat(4, null, "chat 5",
+        val chatPreviews = listOf(
+            MateChatPreview(4, null, "chat 5",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(3, null, "chat 4",
+            MateChatPreview(3, null, "chat 4",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(2, null, "chat 3",
+            MateChatPreview(2, null, "chat 3",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(1, null, "chat 2",
+            MateChatPreview(1, null, "chat 2",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null, "chat 1",
+            MateChatPreview(0, null, "chat 1",
                 Message(0, 0, "hi", 1696847478000)),
         )
         val users = listOf(
@@ -372,23 +388,23 @@ class MateChatsFragmentTest {
         )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.setChats(chats, users)
+            mMateChatsUiStateTestData.setChats(chatPreviews, users)
         }
 
         Espresso.onView(isRoot())
             .perform(WaitingViewAction(1000))
 
-        val updatedChat = Chat(0, null, "chat 1",
+        val updatedChatPreview = MateChatPreview(0, null, "chat 1",
             Message(0, 0, "qqqqqq", 1696847480000))
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.updateChat(updatedChat)
+            mMateChatsUiStateTestData.updateChat(updatedChatPreview, listOf())
         }
 
         Espresso.onView(Matchers.allOf(
             isDescendantOfA(withId(R.id.chats_recycler_view)),
             isAssignableFrom(MaterialCardView::class.java),
-            hasDescendant(withText(updatedChat.chatName))
+            hasDescendant(withText(updatedChatPreview.chatName))
         )).check(IsChildWithIndexViewAssertion(0))
     }
 
@@ -419,16 +435,16 @@ class MateChatsFragmentTest {
 
     @Test
     fun newRequestsCardAppearanceChangesChatsListTopBoundTest() {
-        val chats = listOf(
-            Chat(4, null, "chat 5",
+        val chatPreviews = listOf(
+            MateChatPreview(4, null, "chat 5",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(3, null, "chat 4",
+            MateChatPreview(3, null, "chat 4",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(2, null, "chat 3",
+            MateChatPreview(2, null, "chat 3",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(1, null, "chat 2",
+            MateChatPreview(1, null, "chat 2",
                 Message(0, 0, "hi", 1696847478000)),
-            Chat(0, null, "chat 1",
+            MateChatPreview(0, null, "chat 1",
                 Message(0, 0, "hi", 1696847478000)),
         )
         val users = listOf(
@@ -436,7 +452,7 @@ class MateChatsFragmentTest {
         )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.setChats(chats, users)
+            mMateChatsUiStateTestData.setChats(chatPreviews, users)
         }
 
         Espresso.onView(isRoot())
@@ -512,8 +528,8 @@ class MateChatsFragmentTest {
 
     @Test
     fun chatPreviewClickLeadsToTransitionToMateChatFragmentTest() {
-        val chats = listOf(
-            Chat(0, null, "chat",
+        val chatPreviews = listOf(
+            MateChatPreview(0, null, "chat",
                 Message(0, 0, "hi", 1696847478000))
         )
         val users = listOf(
@@ -521,14 +537,14 @@ class MateChatsFragmentTest {
         )
 
         mMateChatsFragmentScenarioRule.onFragment {
-            mMateChatsUiStateTestData.setChats(chats, users)
+            mMateChatsUiStateTestData.setChats(chatPreviews, users)
         }
 
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isAssignableFrom(MaterialCardView::class.java),
                 ViewMatchers.isDescendantOfA(withId(R.id.chats_recycler_view)),
-                ViewMatchers.hasDescendant(withText(chats[0].chatName))
+                ViewMatchers.hasDescendant(withText(chatPreviews[0].chatName))
             )
         ).perform(ViewActions.click())
 

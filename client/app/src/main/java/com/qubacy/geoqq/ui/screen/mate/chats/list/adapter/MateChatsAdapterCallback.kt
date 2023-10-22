@@ -1,7 +1,8 @@
 package com.qubacy.geoqq.ui.screen.mate.chats.list.adapter
 
-import com.qubacy.geoqq.data.common.entity.chat.Chat
+import android.view.View
+import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 
 interface MateChatsAdapterCallback {
-    fun onChatClicked(chat: Chat)
+    fun onChatClicked(chatPreview: MateChatPreview, chatView: View)
 }

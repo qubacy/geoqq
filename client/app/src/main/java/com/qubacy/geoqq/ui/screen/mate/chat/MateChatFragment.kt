@@ -4,12 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.transition.MaterialContainerTransform
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
+import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
@@ -21,12 +26,14 @@ import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 
 class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
+    private val mArgs by navArgs<MateChatFragmentArgs>()
     override val mModel: MateChatViewModel by viewModels {
-        MateChatViewModelFactory()
+        MateChatViewModelFactory(mArgs.chatId)
     }
 
     private lateinit var mBinding: FragmentMateChatBinding
@@ -34,6 +41,11 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
     }
 
     override fun onCreateView(
@@ -65,27 +77,45 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
             onSendingMessageButtonClicked()
         }
 
+        mModel.mateChatUiStateFlow.value?.let {
+            initChat(it)
+        }
         mModel.mateChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatUiStateGotten(it)
         }
-        mModel.mateChatUiStateFlow.value?.let {
-            mAdapter.setItems(it.messages)
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
         }
     }
 
     private fun onChatUiStateGotten(chatUiState: ChatUiState) {
+        val isListEmpty = mAdapter.itemCount <= 0
+
+        if (isListEmpty) initChat(chatUiState)
         if (chatUiState.newUiOperations.isEmpty()) return
 
         for (uiOperation in chatUiState.newUiOperations) {
-            processUiOperation(uiOperation)
+            processUiOperation(uiOperation, isListEmpty)
         }
     }
 
-    private fun processUiOperation(uiOperation: UiOperation) {
+    private fun initChat(chatUiState: ChatUiState) {
+        setChatInfo(chatUiState.chat as MateChat)
+
+        mAdapter.setItems(chatUiState.messages)
+
+        // what else?
+    }
+
+    private fun processUiOperation(uiOperation: UiOperation, isListEmpty: Boolean) {
         when (uiOperation::class) {
             AddMessageUiOperation::class -> {
+                if (isListEmpty) return
+
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
                 val message = mModel.mateChatUiStateFlow.value!!.messages.find {
                     it.messageId == addMessageUiOperation.messageId
@@ -100,12 +130,23 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
 
 
             }
+            ChangeChatInfoUiOperation::class -> {
+                val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
+
+                setChatInfo(mModel.mateChatUiStateFlow.value!!.chat as MateChat)
+            }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
 
                 onErrorOccurred(showErrorUiOperation.error)
             }
         }
+    }
+
+    private fun setChatInfo(mateChat: MateChat) {
+        mBinding.chatTitle.text = mateChat.chatName
+
+        // what else??
     }
 
     private fun onSendingMessageButtonClicked() {

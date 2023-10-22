@@ -26,6 +26,7 @@ import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.yandex.mapkit.geometry.Point
 
@@ -89,27 +90,36 @@ class GeoChatFragment(
             onSendingMessageButtonClicked()
         }
 
+        mModel.geoChatUiStateFlow.value?.let {
+            initChat(it)
+        }
         mModel.geoChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatUiStateGotten(it)
         }
-        mModel.geoChatUiStateFlow.value?.let {
-            mGeoChatAdapter.setItems(it.messages)
-        }
+    }
+
+    private fun initChat(chatUiState: ChatUiState) {
+        mGeoChatAdapter.setItems(chatUiState.messages)
     }
 
     private fun onChatUiStateGotten(chatUiState: ChatUiState) {
+        val isListEmpty = mGeoChatAdapter.itemCount <= 0
+
+        if (isListEmpty) initChat(chatUiState)
         if (chatUiState.newUiOperations.isEmpty()) return
 
         for (uiOperation in chatUiState.newUiOperations) {
-            processUiOperation(uiOperation)
+            processUiOperation(uiOperation, isListEmpty)
         }
     }
 
-    private fun processUiOperation(uiOperation: UiOperation) {
+    private fun processUiOperation(uiOperation: UiOperation, isListEmpty: Boolean) {
         when (uiOperation::class) {
             AddMessageUiOperation::class -> {
+                if (isListEmpty) return
+
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
                 val message = mModel.geoChatUiStateFlow.value!!.messages.find {
                     it.messageId == addMessageUiOperation.messageId
@@ -121,6 +131,13 @@ class GeoChatFragment(
                 val addUserUiOperation = uiOperation as AddUserUiOperation
 
                 // todo: mb some stuff to visualize a new user's entrance..
+
+
+            }
+            ChangeChatInfoUiOperation::class -> {
+                val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
+
+                // todo: think of a possible application..
 
 
             }

@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.data.common.chat.state.ChatState
+import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
@@ -23,6 +24,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
+import com.qubacy.geoqq.ui.util.SilentClickViewAction
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.hamcrest.Matchers
@@ -155,7 +157,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         val users = listOf(User(0, "User 1"))
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -178,7 +180,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         val users = listOf<User>()
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -195,7 +197,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(endingMessages, endingUsers)
+            mGeoChatUiStateTestData.setChat(Chat(), endingMessages, endingUsers)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -212,7 +214,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -253,7 +255,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         val users = listOf<User>()
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -279,7 +281,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(endingMessages, endingUsers)
+            mGeoChatUiStateTestData.setChat(Chat(), endingMessages, endingUsers)
         }
 
         Espresso.onView(isRoot())
@@ -311,7 +313,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withId(R.id.chat_recycler_view))
@@ -345,11 +347,11 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withText(users.first().username))
-            .perform(ViewActions.click())
+            .perform(SilentClickViewAction())
         Espresso.onView(ViewMatchers.isAssignableFrom(UserInfoBottomSheetContent::class.java))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
@@ -364,7 +366,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withText(users.first().username))
@@ -393,7 +395,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
         )
 
         mGeoChatFragmentScenarioRule.onFragment {
-            mGeoChatUiStateTestData.setChat(messages, users)
+            mGeoChatUiStateTestData.setChat(Chat(), messages, users)
         }
 
         Espresso.onView(withText(users.first().username))

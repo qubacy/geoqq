@@ -17,7 +17,7 @@
     <string name="profile_menu_option_description">View your data</string>
     <string name="mates_menu_option">Mates</string>
     <string name="mates_menu_option_description">Met people</string>
-    
+
     <string name="sending_message_hint">Type your text..</string>
 
     <string name="user_action_add_friend">Add friend</string>
@@ -49,6 +49,10 @@
     <string name="component_dialog_error_neutral_button_caption">Got it</string>
 
     <string name="fragment_base_show_message_action_dismiss_text">Dismiss</string>
+
+    <!-- Transitions: -->
+
+    <string name="transition_mate_chats_to_mate_chat">mate_chats_to_mate_chat</string>
 
     <!--  Errors:  -->
 

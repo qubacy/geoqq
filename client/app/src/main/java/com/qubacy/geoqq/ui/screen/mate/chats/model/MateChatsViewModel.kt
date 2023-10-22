@@ -4,8 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import com.qubacy.geoqq.data.common.entity.chat.message.Message
+import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
@@ -42,7 +45,7 @@ class MateChatsViewModel() : WaitingViewModel() {
         }
 
         return MateChatsUiState(
-            mateChatsState.chats,
+            mateChatsState.chatPreviews,
             mateChatsState.users,
             mateChatsState.requestCount,
             uiOperations)

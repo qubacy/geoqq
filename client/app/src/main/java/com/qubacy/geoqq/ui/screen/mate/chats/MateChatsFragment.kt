@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.common.entity.chat.Chat
+import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
@@ -91,14 +92,13 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             onFriendRequestsClicked()
         }
 
+        mModel.mateChatsUiStateFlow.value?.let {
+            initChats(it)
+        }
         mModel.mateChatsUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatsUiStateGotten(it)
-        }
-        mModel.mateChatsUiStateFlow.value?.let {
-            onMateRequestCountChanged(it.requestCount)
-            mAdapter.setItems(it.chats)
         }
 
         postponeEnterTransition()
@@ -107,19 +107,29 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         }
     }
 
+    private fun initChats(uiState: MateChatsUiState) {
+        onMateRequestCountChanged(uiState.requestCount)
+        mAdapter.setItems(uiState.chatPreviews)
+    }
+
     private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
+        val isListEmpty = mAdapter.itemCount <= 0
+
+        if (isListEmpty) initChats(chatsUiState)
         if (chatsUiState.newUiOperations.isEmpty()) return
 
         for (uiOperation in chatsUiState.newUiOperations) {
-            processUiOperation(uiOperation)
+            processUiOperation(uiOperation, isListEmpty)
         }
     }
 
-    private fun processUiOperation(uiOperation: UiOperation) {
+    private fun processUiOperation(uiOperation: UiOperation, isListEmpty: Boolean) {
         when (uiOperation::class) {
             AddChatUiOperation::class -> {
+                if (isListEmpty) return
+
                 val addChatUiOperation = uiOperation as AddChatUiOperation
-                val chat = mModel.mateChatsUiStateFlow.value!!.chats.find {
+                val chat = mModel.mateChatsUiStateFlow.value!!.chatPreviews.find {
                     it.chatId == addChatUiOperation.chatId
                 }!!
 
@@ -127,7 +137,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             }
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation
-                val chat = mModel.mateChatsUiStateFlow.value!!.chats.find {
+                val chat = mModel.mateChatsUiStateFlow.value!!.chatPreviews.find {
                     it.chatId == updateChatUiOperation.chatId
                 }!!
 
@@ -195,10 +205,12 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         findNavController().navigate(R.id.action_mateChatsFragment_to_mateRequestsFragment)
     }
 
-    override fun onChatClicked(chat: Chat) {
+    override fun onChatClicked(chatPreview: MateChatPreview, chatView: View) {
+        val transitionName = getString(R.string.transition_mate_chats_to_mate_chat)
+        val extras = FragmentNavigatorExtras(chatView to transitionName)
         val directions = MateChatsFragmentDirections
-            .actionMateChatsFragmentToMateChatFragment(chat.chatId)
+            .actionMateChatsFragmentToMateChatFragment(chatPreview.chatId)
 
-        findNavController().navigate(directions)
+        findNavController().navigate(directions, extras)
     }
 }

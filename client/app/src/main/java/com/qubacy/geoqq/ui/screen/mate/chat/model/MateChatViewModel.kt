@@ -7,25 +7,28 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
+import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 // todo: provide a repository as a param..
 class MateChatViewModel(
-
+    val chatId: Long
 ) : BaseViewModel() {
     // todo: assign to the repository's flow:
     private val mMateChatStateFlow = MutableStateFlow<ChatState?>(null)
@@ -48,6 +51,7 @@ class MateChatViewModel(
             // todo: sending a message using DATA layer..
 
             mMateChatStateFlow.emit(ChatState(
+                MateChat(chatId, null, "test"),
                 listOf(Message(0,0, text, 1697448075990)),
                 listOf(User(0, "me")),
                 listOf(AddMessageChatOperation(0))
@@ -68,7 +72,7 @@ class MateChatViewModel(
             uiOperations.add(uiOperation)
         }
 
-        return ChatUiState(chatState.messages, chatState.users, uiOperations)
+        return ChatUiState(chatState.chat, chatState.messages, chatState.users, uiOperations)
     }
 
     private fun processOperation(operation: Operation): UiOperation? {
@@ -87,6 +91,13 @@ class MateChatViewModel(
 
                 AddMessageUiOperation(addMessageOperation.messageId)
             }
+            ChangeChatInfoOperation::class -> {
+                val changeChatInfoOperation = operation as ChangeChatInfoOperation
+
+                // ...
+
+                ChangeChatInfoUiOperation()
+            }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
@@ -101,11 +112,11 @@ class MateChatViewModel(
     }
 }
 
-class MateChatViewModelFactory() : ViewModelProvider.Factory {
+class MateChatViewModelFactory(val chatId: Long) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(MateChatViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MateChatViewModel() as T
+        return MateChatViewModel(chatId) as T
     }
 }

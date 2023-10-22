@@ -11,6 +11,8 @@
     app:cardCornerRadius="8dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    android:transitionGroup="true"
+    android:transitionName="@string/transition_mate_chats_to_mate_chat"
     tools:theme="@style/Theme.Geoqq.Mates">
 
     <androidx.constraintlayout.widget.ConstraintLayout

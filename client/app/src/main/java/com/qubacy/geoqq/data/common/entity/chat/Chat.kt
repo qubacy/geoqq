@@ -1,18 +1,7 @@
 package com.qubacy.geoqq.data.common.entity.chat
 
-import android.net.Uri
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
+open class Chat(
 
-data class Chat(
-    val chatId: Long,
-    val avatar: Uri? = null,
-    val chatName: String,
-    val lastMessage: Message
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (other !is Chat) return false
-        if (this === other) return true
 
-        return chatId == other.chatId
-    }
 }

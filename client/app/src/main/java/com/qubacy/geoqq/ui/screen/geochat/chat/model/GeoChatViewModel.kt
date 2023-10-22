@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
+import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
@@ -19,6 +20,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -68,7 +70,7 @@ class GeoChatViewModel : LocationViewModel() {
             uiOperations.add(uiOperation)
         }
 
-        return ChatUiState(chatState.messages, chatState.users, uiOperations)
+        return ChatUiState(chatState.chat, chatState.messages, chatState.users, uiOperations)
     }
 
     private fun processOperation(operation: Operation): UiOperation? {
@@ -86,6 +88,13 @@ class GeoChatViewModel : LocationViewModel() {
                 // mb processing the operation..
 
                 AddMessageUiOperation(addMessageOperation.messageId)
+            }
+            ChangeChatInfoOperation::class -> {
+                val changeChatInfoOperation = operation as ChangeChatInfoOperation
+
+                // todo: think of a possible application of this operation:
+                //ChangeChatInfoUiOperation()
+                null
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
