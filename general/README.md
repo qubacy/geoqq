@@ -1,4 +1,4 @@
-# <div style="text-align: center;">General 📃</div>
+# General 📃
 
 ## Diagrams 🎰
 
