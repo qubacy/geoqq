@@ -1,0 +1,132 @@
+@startuml models_p2
+
+skinparam ArrowThickness 1.25
+skinparam ClassBorderThickness 1.5
+skinparam ClassBackgroundColor #FEFECE
+skinparam ClassBorderColor #B20842
+
+skinparam dpi 400
+skinparam Shadowing true
+
+' -----------------------------------------------
+
+hide empty methods
+hide empty members
+
+' models
+' -----------------------------------------------
+' | | |
+' V V V
+
+' User
+' -----------------------------------------------
+
+class UserEntry {
+    Id: Number
+    Username: String
+    HashPassword: String
+    HashUpdToken: String
+    SignUpTime: Datetime
+    SignInTime: Datetime
+}
+
+class UserLocation {
+    UserId: Number
+    Lon: Number
+    Lat: Number
+    Time: Datetime
+}
+
+class UserDetails {
+    UserId: Number
+    Description: String
+    Avatar: String
+}
+
+class UserOptions {
+    UserId: Number
+    Privacy: Number
+}
+
+' Mate
+' -----------------------------------------------
+
+class Mate {
+    Id: Number
+    FirstUserId: Number
+    SecondUserId: Number
+}
+
+class MateRequest {
+    Id: Number
+    FromUserId: Number
+    ToUserId: Number
+    ReqTime: Datetime
+    ResTime: Datetime
+    Result: String
+}
+
+' Mate-chat
+' -----------------------------------------------
+
+class MateChat {
+    Id: Number
+    FirstUserId: Number
+    SecondUserId: Number
+    LastMessageId: Number
+}
+
+class MateMessage {
+    Id: Number
+    MateChatId: Number
+    FromUserId: Number
+    ToUserId: Number
+    Text: String
+    Time: Datetime
+}
+
+class DeletedMateChat {
+    ChatId: Number
+    UserId: Number
+}
+
+' Geo-chat
+' -----------------------------------------------
+
+class GeoMessage {
+    Id: Number
+    FromUserId: Number
+    Text: String
+    Time: Datetime
+    Lon: Number
+    Lat: Number
+}
+
+' edges
+' -----------------------------------------------
+
+UserLocation --> UserEntry
+UserOptions --> UserEntry
+UserDetails --> UserEntry
+
+' ***
+
+GeoMessage -r-> UserEntry
+
+' ***
+
+MateRequest -d-> UserEntry
+Mate -l-> UserEntry
+
+' ***
+ 
+MateChat --> UserEntry
+MateMessage -r-> MateChat
+MateMessage -l-> UserEntry
+
+' ***
+
+DeletedMateChat -l-> MateChat
+DeletedMateChat -u-> UserEntry
+
+@enduml
