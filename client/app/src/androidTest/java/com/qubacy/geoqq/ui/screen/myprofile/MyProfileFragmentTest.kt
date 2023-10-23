@@ -5,13 +5,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,10 +21,16 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.data.myprofile.MyProfileContext
+import com.qubacy.geoqq.data.myprofile.operation.SuccessfulProfileSavingCallbackOperation
+import com.qubacy.geoqq.data.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -43,11 +50,37 @@ class MyProfileFragmentTest {
     }
 
     class MyProfileUiStateTestData(
-        private val mModel: MyProfileViewModel,
-        private val mMyProfileUiState: MutableLiveData<MyProfileUiState>
+        val myProfileStateFlow: MutableStateFlow<MyProfileState?>,
+        val myProfileUiState: LiveData<MyProfileUiState?>
     ) {
-        fun setMyProfileUiState(uiState: MyProfileUiState) {
-            mMyProfileUiState.value = uiState
+        fun setState(state: MyProfileState) {
+            runBlocking {
+                myProfileStateFlow.emit(state)
+            }
+        }
+
+        fun showError(error: Error) {
+            val operations = listOf(
+                HandleErrorOperation(error)
+            )
+
+            var avatar =
+                if (myProfileUiState.value != null) myProfileUiState.value!!.avatar else null
+            var username =
+                if (myProfileUiState.value != null) myProfileUiState.value!!.username else null
+            var description =
+                if (myProfileUiState.value != null) myProfileUiState.value!!.description else null
+            var password =
+                if (myProfileUiState.value != null) myProfileUiState.value!!.password else null
+            var hitUpOption =
+                if (myProfileUiState.value != null) myProfileUiState.value!!.hitUpOption else null
+
+            val newState = MyProfileState(
+                avatar, username, description, password, hitUpOption, operations)
+
+            runBlocking {
+                myProfileStateFlow.emit(newState)
+            }
         }
     }
 
@@ -84,16 +117,20 @@ class MyProfileFragmentTest {
             MyProfileFragment::class.java.getDeclaredField("mPrivacyHitUpPosition").apply {
                 isAccessible = true
             }
+        val myProfileStateFlowFieldReflection = MyProfileViewModel::class.java
+            .getDeclaredField("mMyProfileStateFlow").apply {
+                isAccessible = true
+            }
         val myProfileUiStateFieldReflection = MyProfileViewModel::class.java
-            .getDeclaredField("mMyProfileUiState").apply {
+            .getDeclaredField("myProfileUiState").apply {
                 isAccessible = true
             }
 
         mPrivacyHitUpTestData = PrivacyHitUpTestData(
             curPrivacyHitUpPositionFieldReflection, fragment!!)
         mMyProfileUiStateTestData = MyProfileUiStateTestData(
-            mModel,
-            myProfileUiStateFieldReflection.get(mModel) as MutableLiveData<MyProfileUiState>
+            myProfileStateFlowFieldReflection.get(mModel) as MutableStateFlow<MyProfileState?>,
+            myProfileUiStateFieldReflection.get(mModel) as LiveData<MyProfileUiState?>
         )
     }
 
@@ -181,16 +218,11 @@ class MyProfileFragmentTest {
 
         val privacyHitUpVariants = mContext.resources.getStringArray(R.array.hit_up_variants)
 
-        // todo: why DOESN'T it work????
+        // todo: still doesnt work:
 
 //        for (privacyHitUpVariant in privacyHitUpVariants) {
-//            Log.d(TAG, "allPrivacyHitUpVariantsAreVisibleOnClickTest(): " +
-//                    "privacyHitUpVariant = $privacyHitUpVariant")
-//
 //            Espresso.onView(withText(privacyHitUpVariant))
-//                .check(ViewAssertions.matches(Matchers.allOf(
-//                    ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
-//                )))
+//                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 //        }
 
         assertEquals(privacyHitUpVariants.size, mBinding.privacyHitUp.adapter.count)
@@ -238,7 +270,7 @@ class MyProfileFragmentTest {
 
     @Test
     fun providingFullProfileInformationGoesWithoutShowingMessagesTest() {
-        val text = "Some text"
+        val text = "Sometext"
 
         Espresso.onView(Matchers.allOf(
             ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
@@ -270,24 +302,22 @@ class MyProfileFragmentTest {
 
     @Test
     fun errorMessageShownOnUiStateWithErrorTest() {
-        val error = Error(R.string.error_my_profile_changing_failed, Error.Level.NORMAL)
-        val errorMyProfileUiState = MyProfileUiState(error = error)
+        val error = Error(R.string.error_my_profile_saving_failed, Error.Level.NORMAL)
 
         mMyProfileFragmentScenarioRule.onFragment {
-            mMyProfileUiStateTestData.setMyProfileUiState(errorMyProfileUiState)
+            mMyProfileUiStateTestData.showError(error)
         }
 
-        Espresso.onView(withText(R.string.error_my_profile_changing_failed))
+        Espresso.onView(withText(R.string.error_my_profile_saving_failed))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
     fun criticalErrorLeadsToClosingAppTest() {
-        val error = Error(R.string.error_my_profile_changing_failed, Error.Level.NORMAL)
-        val errorMyProfileUiState = MyProfileUiState(error = error)
+        val error = Error(R.string.error_my_profile_saving_failed, Error.Level.NORMAL)
 
         mMyProfileFragmentScenarioRule.onFragment {
-            mMyProfileUiStateTestData.setMyProfileUiState(errorMyProfileUiState)
+            mMyProfileUiStateTestData.showError(error)
         }
 
         try {
@@ -297,5 +327,49 @@ class MyProfileFragmentTest {
         } catch (e: Exception) {
             Assert.assertEquals(NoActivityResumedException::class, e::class)
         }
+    }
+
+    @Test
+    fun providingCorrectDataLeadsToShowingSuccessMessageTest() {
+        val state = MyProfileState(
+            null,
+            "username",
+            "something",
+            "password",
+            MyProfileContext.HitUpOption.NEGATIVE,
+            listOf(SuccessfulProfileSavingCallbackOperation()))
+
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
+            .perform(ViewActions.typeText(state.username), ViewActions.closeSoftKeyboard())
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
+            .perform(ViewActions.typeText(state.description), ViewActions.closeSoftKeyboard())
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.password_input)), withId(R.id.input)))
+            .perform(ViewActions.typeText(state.password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.password_confirmation_input)), withId(R.id.input)))
+            .perform(ViewActions.typeText(state.password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.confirm_button))
+            .perform(ViewActions.click())
+
+        mMyProfileUiStateTestData.setState(state)
+    }
+
+    @Test
+    fun successfulProfileDataSavingLeadsToSuccessMessageShowingTest() {
+        val state = MyProfileState(
+            null,
+            "me",
+            "something",
+            "pass",
+            MyProfileContext.HitUpOption.NEGATIVE,
+            listOf(SuccessfulProfileSavingCallbackOperation()))
+
+        mMyProfileUiStateTestData.setState(state)
+
+        Espresso.onView(withText(R.string.profile_data_saved))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 }

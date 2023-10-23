@@ -9,7 +9,7 @@ class MateChatsState(
     val chatPreviews: List<MateChatPreview> = listOf(),
     val users: List<User> = listOf(),
     val requestCount: Int = 0,
-    newOperations: List<Operation>
+    newOperations: List<Operation> = listOf()
 ) : State(newOperations) {
 
 }

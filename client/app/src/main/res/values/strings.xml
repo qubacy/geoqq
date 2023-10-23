@@ -36,6 +36,7 @@
     <string name="profile_security_section_confirm_password_hint">Confirm new password..</string>
     <string name="profile_privacy_section_title">Privacy</string>
     <string name="profile_privacy_section_hit_up">Can anybody hit me up?</string>
+    <string name="profile_data_saved">Your profile data has been saved!</string>
     <string name="go_button_caption">GO</string>
     <string name="sending_button_description">Send Button</string>
     <string name="friend_request_card_button_caption">Check</string>
@@ -76,6 +77,6 @@
 
     <string name="error_my_profile_data_incorrect">Please, provide all the profile data!</string>
     <!-- TODO: specify it: -->
-    <string name="error_my_profile_changing_failed">Profile changing has been failed!</string>
+    <string name="error_my_profile_saving_failed">Profile saving has been failed!</string>
 
 </resources>

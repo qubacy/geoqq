@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.myprofile
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -20,9 +21,12 @@ import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
 import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
 import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
+import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 
 class MyProfileFragment() : WaitingFragment() {
@@ -65,7 +69,7 @@ class MyProfileFragment() : WaitingFragment() {
         mUserAvatarUri = savedInstanceState.getString(USER_AVATAR_URI_KEY)?.toUri()
         val privacyHitUpPosition = savedInstanceState.getInt(PRIVACY_HIT_UP_POSITION_KEY)
 
-        mBinding.userAvatar.setImageURI(mUserAvatarUri)
+        mUserAvatarUri?.let { setUserAvatarWithUri(it) }
         changePrivacyHitUpPosition(privacyHitUpPosition)
     }
 
@@ -123,7 +127,14 @@ class MyProfileFragment() : WaitingFragment() {
             changePrivacyHitUpPosition(0)
         }
 
+        mModel.myProfileUiState.value?.let {
+            if (!it.isFull()) return@let
+
+            initInputsWithUiState(it)
+        }
         mModel.myProfileUiState.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
             onUiStateChanged(it)
         }
 
@@ -134,18 +145,44 @@ class MyProfileFragment() : WaitingFragment() {
     }
 
     private fun initInputsWithUiState(uiState: MyProfileUiState) {
-        mBinding.userAvatar.setImageURI(uiState.avatar!!)
+        mUserAvatarUri = uiState.avatar?.apply {
+            setUserAvatarWithUri(this@apply)
+        }
+
         mBinding.usernameInput.input.setText(uiState.username!!)
         mBinding.aboutMeInput.input.setText(uiState.description!!)
         mBinding.passwordInput.input.setText(uiState.password!!)
         mBinding.passwordConfirmationInput.input.setText(uiState.password!!)
+
         changePrivacyHitUpPosition(uiState.hitUpOption!!.index)
     }
 
     private fun onUiStateChanged(uiState: MyProfileUiState) {
-        if (checkUiStateForErrors(uiState)) return
+        if (uiState.isFull()) initInputsWithUiState(uiState)
+        if (uiState.newUiOperations.isEmpty()) return
 
-        initInputsWithUiState(uiState)
+        for (uiOperation in uiState.newUiOperations) {
+            processUiOperation(uiOperation)
+        }
+    }
+
+    private fun processUiOperation(uiOperation: UiOperation) {
+        when (uiOperation::class) {
+            ProfileDataSavedUiOperation::class -> {
+                val profileDataSavedUiOperation = uiOperation as ProfileDataSavedUiOperation
+
+                onProfileSaved(profileDataSavedUiOperation)
+            }
+            ShowErrorUiOperation::class -> {
+                val showErrorUiOperation = uiOperation as ShowErrorUiOperation
+
+                onErrorOccurred(showErrorUiOperation.error)
+            }
+        }
+    }
+
+    private fun onProfileSaved(profileDataSavedUiOperation: ProfileDataSavedUiOperation) {
+        showMessage(R.string.profile_data_saved)
     }
 
     private fun changePrivacyHitUpPosition(newPosition: Int) {
@@ -166,8 +203,16 @@ class MyProfileFragment() : WaitingFragment() {
             Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${it.toString()}")
 
             mUserAvatarUri = it
-            mBinding.userAvatar.setImageURI(it)
+
+            setUserAvatarWithUri(it)
         }
+    }
+
+    private fun setUserAvatarWithUri(avatarUri: Uri) {
+        val avatarInputStream = requireContext().contentResolver.openInputStream(avatarUri)
+        val avatarDrawable = Drawable.createFromStream(avatarInputStream, String())
+
+        mBinding.userAvatar.setImageDrawable(avatarDrawable)
     }
 
     private fun onConfirmButtonClicked() {
@@ -186,9 +231,8 @@ class MyProfileFragment() : WaitingFragment() {
             return
         }
 
-        // todo: conveying data to the model..
-
-
+        mModel.saveProfileData(
+            usernameText, aboutMeText, passwordText, passwordConfirmationText, hitUpOption)
     }
 
     override fun handleWaitingAbort() {
