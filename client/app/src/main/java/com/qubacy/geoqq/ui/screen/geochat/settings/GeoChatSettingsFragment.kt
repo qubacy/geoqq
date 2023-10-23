@@ -66,11 +66,12 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
 
-        exitTransition = Fade().apply {
-            mode = Fade.MODE_OUT
-            interpolator = AccelerateDecelerateInterpolator()
-            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
-        }
+        // todo: decide what to do with this abrupt animation:
+//        exitTransition = Fade().apply {
+//            mode = Fade.MODE_OUT
+//            interpolator = AccelerateDecelerateInterpolator()
+//            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+//        }
         reenterTransition = Fade().apply {
             mode = Fade.MODE_IN
             interpolator = AccelerateDecelerateInterpolator()

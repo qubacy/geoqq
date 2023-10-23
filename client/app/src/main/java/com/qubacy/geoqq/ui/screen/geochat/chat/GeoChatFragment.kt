@@ -47,11 +47,12 @@ class GeoChatFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enterTransition = Fade().apply {
-            mode = MaterialFade.MODE_IN
-            interpolator = AccelerateDecelerateInterpolator()
-            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
-        }
+        // todo: decide what to do with this abrupt animation:
+//        enterTransition = Fade().apply {
+//            mode = MaterialFade.MODE_IN
+//            interpolator = AccelerateDecelerateInterpolator()
+//            duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+//        }
         returnTransition = Fade().apply {
             mode = MaterialFade.MODE_OUT
             interpolator = AccelerateDecelerateInterpolator()
