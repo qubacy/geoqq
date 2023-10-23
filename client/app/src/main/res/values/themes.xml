@@ -73,7 +73,7 @@
 
         <!-- Following m3 guidelines: -->
 
-        <item name="colorPrimaryContainer">@color/orange_primary</item>
+        <item name="colorPrimaryContainer">#F4AB1E</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
 
         <item name="colorSecondaryContainer">@color/orange_dark</item>
