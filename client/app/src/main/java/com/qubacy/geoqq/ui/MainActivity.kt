@@ -8,6 +8,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.arch.core.util.Function
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.qubacy.geoqq.databinding.ActivityMainBinding
 import com.qubacy.geoqq.ui.common.activity.StyleableActivity
 
@@ -18,6 +20,8 @@ class MainActivity : AppCompatActivity(), StyleableActivity {
     private lateinit var mPickImageCallback: Function<Uri?, Unit>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreenCompat = installSplashScreen()
+
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityMainBinding.inflate(layoutInflater)
