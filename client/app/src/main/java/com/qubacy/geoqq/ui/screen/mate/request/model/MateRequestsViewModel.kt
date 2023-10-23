@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
@@ -27,13 +28,33 @@ class MateRequestsViewModel(
     private val mMateRequestsUiStateFlow = mMateRequestsStateFlow.map { stateToUiState(it) }
     val mateRequestFlow: LiveData<MateRequestsUiState?> = mMateRequestsUiStateFlow.asLiveData()
 
+    // todo: delete:
+    init {
+        mMateRequestsStateFlow.tryEmit(
+            MateRequestsState(
+            listOf(MateRequest(0), MateRequest(1), MateRequest(2)),
+            listOf(User(0, "user 1"), User(1, "user 2"), User(2,"user 3")),
+            listOf()
+        ))
+    }
+
     fun acceptMateRequest(mateRequest: MateRequest) {
-        isWaiting.value = true
+        isWaiting.value = true // todo: uncomment;
 
         viewModelScope.launch {
             // todo: calling an appropriate method..
 
+            // todo: delete:
+            val requests = mateRequestFlow.value!!.mateRequests.filter { it.userId != mateRequest.userId }
+            val users = mateRequestFlow.value!!.users.filter { it.userId != mateRequest.userId }
 
+            mMateRequestsStateFlow.tryEmit(MateRequestsState(
+                requests,
+                users,
+                listOf()
+            ))
+
+            isWaiting.value = false
         }
     }
 
@@ -43,7 +64,17 @@ class MateRequestsViewModel(
         viewModelScope.launch {
             // todo: calling an appropriate method..
 
+            // todo: delete:
+            val requests = mateRequestFlow.value!!.mateRequests.filter { it.userId != mateRequest.userId }
+            val users = mateRequestFlow.value!!.users.filter { it.userId != mateRequest.userId }
 
+            mMateRequestsStateFlow.tryEmit(MateRequestsState(
+                requests,
+                users,
+                listOf()
+            ))
+
+            isWaiting.value = false
         }
     }
 

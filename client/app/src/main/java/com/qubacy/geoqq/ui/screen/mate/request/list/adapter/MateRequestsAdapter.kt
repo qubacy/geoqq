@@ -15,7 +15,7 @@ open class MateRequestsAdapter(
     : Carousel3DAdapter<MateRequest>()
 {
     companion object {
-        const val TAG = "CAROUSEL_ADAPTER"
+        const val TAG = "MATE_CAROUSEL_ADAPTER"
     }
 
     override fun areItemsExpandable(): Boolean {

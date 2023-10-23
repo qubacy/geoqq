@@ -66,13 +66,13 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
             adapter = mAdapter
         }
 
+        mModel.mateRequestFlow.value?.let {
+            mAdapter.setItems(it.mateRequests)
+        }
         mModel.mateRequestFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateGotten(it)
-        }
-        mModel.mateRequestFlow.value?.let {
-            mAdapter.setItems(it.mateRequests)
         }
     }
 

@@ -46,16 +46,28 @@ class MateChatViewModel(
         return text.isNotEmpty()
     }
 
+    // todo: delete:
+    private var curMessageId = 0L
+
     fun sendMessage(text: String) {
         viewModelScope.launch {
             // todo: sending a message using DATA layer..
 
+            // todo: delete:
+            val newMessages = mutableListOf<Message>()
+            val messages = if (mateChatUiStateFlow.value != null) mateChatUiStateFlow.value!!.messages else listOf()
+
+            newMessages.addAll(messages)
+            newMessages.add(Message(curMessageId,0, text, 1697448075990))
+
             mMateChatStateFlow.emit(ChatState(
-                MateChat(chatId, null, "test"),
-                listOf(Message(0,0, text, 1697448075990)),
+                MateChat(chatId, null, "somebody"),
+                newMessages,
                 listOf(User(0, "me")),
                 listOf(AddMessageChatOperation(0))
             ))
+
+            ++curMessageId
         }
     }
 

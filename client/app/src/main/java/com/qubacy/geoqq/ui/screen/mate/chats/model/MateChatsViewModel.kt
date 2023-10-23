@@ -31,6 +31,15 @@ class MateChatsViewModel() : WaitingViewModel() {
     private val mMateChatsUiStateFlow = mMateChatsStateFlow.map { chatsStateToUiState(it) }
     val mateChatsUiStateFlow: LiveData<MateChatsUiState?> = mMateChatsUiStateFlow.asLiveData()
 
+    // todo: delete:
+    init {
+        mMateChatsStateFlow.tryEmit(MateChatsState(
+            listOf(MateChatPreview(0, null, "somebody", Message(0, 0, "test", 124125125125))),
+            listOf(User(0, "me")),
+            3
+        ))
+    }
+
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
         if (mateChatsState == null) return null
 

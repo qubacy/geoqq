@@ -10,10 +10,13 @@ import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.chat.state.ChatState
+import com.qubacy.geoqq.data.common.entity.chat.Chat
+import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
@@ -51,9 +54,28 @@ class GeoChatViewModel : LocationViewModel() {
         return text.isNotEmpty()
     }
 
+    // todo: delete:
+    private var curMessageId = 0L
+
     fun sendMessage(text: String) {
         viewModelScope.launch {
             // todo: sending a message using DATA layer..
+
+            // todo: delete:
+            val newMessages = mutableListOf<Message>()
+            val messages = if (geoChatUiStateFlow.value != null) geoChatUiStateFlow.value!!.messages else listOf()
+
+            newMessages.addAll(messages)
+            newMessages.add(Message(curMessageId,0, text, 1697448075990))
+
+            mGeoChatStateFlow.emit(ChatState(
+                Chat(),
+                newMessages,
+                listOf(User(0, "me")),
+                listOf(AddMessageChatOperation(curMessageId))
+            ))
+
+            ++curMessageId
         }
     }
 
