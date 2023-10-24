@@ -2,9 +2,14 @@ package com.qubacy.geoqq.ui.screen.mate.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -30,7 +35,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOp
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 
-class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
+class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
     private val mArgs by navArgs<MateChatFragmentArgs>()
     override val mModel: MateChatViewModel by viewModels {
         MateChatViewModelFactory(mArgs.chatId)
@@ -46,6 +51,14 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        requireActivity().addMenuProvider(this)
+    }
+
+    override fun onDestroy() {
+        requireActivity().removeMenuProvider(this)
+
+        super.onDestroy()
     }
 
     override fun onCreateView(
@@ -64,6 +77,8 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (requireActivity() as AppCompatActivity).setSupportActionBar(mBinding.chatActionBar)
 
         mAdapter = ChatAdapter(this)
 
@@ -170,9 +185,29 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback {
     }
 
     override fun onMessageClicked(message: Message) {
-        if (mModel.isLocalUser(message.userId)) return
+        // nothing??
+    }
 
-        val user = getUserById(message.userId)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.mate_chat_menu, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.mate_chat_menu_show_user_info_action -> {
+                onShowUserInfoActionClicked()
+
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun onShowUserInfoActionClicked() {
+        closeSoftKeyboard()
+
+        val user = mModel.getMateInfo()
 
         mBinding.bottomSheet.bottomSheetContentCard.setData(user)
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()

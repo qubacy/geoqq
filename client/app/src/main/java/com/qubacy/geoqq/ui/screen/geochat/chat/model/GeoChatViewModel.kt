@@ -16,7 +16,6 @@ import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextVal
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
@@ -24,7 +23,6 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.Ui
 import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -142,7 +140,7 @@ class GeoChatViewModel(
         }
     }
 
-    override fun isLocalUser(userId: Long): Boolean {
+    fun isLocalUser(userId: Long): Boolean {
         // todo: checking the userId using the DATA layer..
 
         return false

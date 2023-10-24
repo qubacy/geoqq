@@ -30,6 +30,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurface"
                 android:text="@string/new_mates_requests"/>
 
             <com.google.android.material.button.MaterialButton

@@ -28,7 +28,7 @@
     </style>
 
     <style name="MaterialTextAppearanceBodyLarge" parent="@style/TextAppearance.Material3.BodyLarge">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="MaterialTextAppearanceBodyMedium" parent="@style/TextAppearance.Material3.BodyMedium">
@@ -196,7 +196,7 @@
     </style>
 
     <style name="ChatMessageMaterialTextView" parent="Widget.MaterialComponents.TextView">
-
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="ChatMessageMaterialTextView.Title" parent="ChatMessageMaterialTextView">

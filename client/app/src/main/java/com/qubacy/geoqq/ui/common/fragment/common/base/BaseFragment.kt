@@ -1,7 +1,9 @@
 package com.qubacy.geoqq.ui.common.fragment.common.base
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -108,5 +110,12 @@ abstract class BaseFragment() : StyleableFragment() {
 
     open fun onRequestedPermissionsDenied(deniedPermissions: List<String>) {
 
+    }
+
+    fun closeSoftKeyboard() {
+        val inputMethodManager =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+
+        inputMethodManager?.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 }

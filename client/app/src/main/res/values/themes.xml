@@ -14,6 +14,11 @@
         <item name="colorOnSurface">@color/black</item>
         <!-- TextInput hint color etc: -->
         <item name="colorOnSurfaceVariant">#FF615D5D</item>
+        <!-- MaterialToolbar overflow icon tint: -->
+        <item name="colorControlNormal">@color/white</item>
+
+        <!-- MaterialToolbar overflow actions text color: -->
+        <item name="android:textColorPrimary">@color/white</item>
 
         <item name="materialCardViewStyle">@style/MaterialCardView</item>
         <item name="extendedFloatingActionButtonStyle">@style/ExtendedMaterialActionButton</item>

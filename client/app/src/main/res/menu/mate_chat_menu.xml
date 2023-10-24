@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mate_chat_menu_show_user_info_action"
+        android:title="@string/mate_chat_menu_show_user_info_action_title"/>
+
+</menu>

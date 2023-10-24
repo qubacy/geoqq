@@ -124,10 +124,10 @@ class MateChatViewModel(
         }
     }
 
-    override fun isLocalUser(userId: Long): Boolean {
-        // todo: checking the userId using the DATA layer..
+    fun getMateInfo(): User {
+        // todo: getting the mate's info in the DATA layer..
 
-        return false
+        return User(0, "somebody", "its fucking me...")
     }
 }
 
