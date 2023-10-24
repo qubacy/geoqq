@@ -1,12 +1,4 @@
-@startuml models_p1
-
-' `Time` is not part of `Datetime`. This is global level
-' `Datetime` is `Timestamp` (UTC?)
-
-' Useful links:
-' https://stackoverflow.com/questions/14221775/in-postgresql-force-unique-on-combination-of-two-columns
-
-' -----------------------------------------------
+@startuml models_p2
 
 skinparam ArrowThickness 1.25
 skinparam ClassBorderThickness 1.5
@@ -23,8 +15,11 @@ hide empty members
 
 ' models
 ' -----------------------------------------------
+' | | |
+' V V V
 
-package User {
+' User
+' -----------------------------------------------
 
 class UserEntry {
     Id: Number
@@ -53,16 +48,14 @@ class UserOptions {
     Privacy: Number
 }
 
-}
-
-package Mate {
+' Mate
+' -----------------------------------------------
 
 class Mate {
     Id: Number
     FirstUserId: Number
     SecondUserId: Number
 }
-' When deleted, a new one-way request is added
 
 class MateRequest {
     Id: Number
@@ -72,26 +65,20 @@ class MateRequest {
     ResTime: Datetime
     Result: String
 }
-' Cron to remove some requests
 
-}
-
-package Mate-chat {
+' Mate-chat
+' -----------------------------------------------
 
 class MateChat {
     Id: Number
     FirstUserId: Number
     SecondUserId: Number
-    LastMessageId: Number
 }
-' Created when created friendship
-' Hidden for user who deleted chat
 
 class MateMessage {
     Id: Number
     MateChatId: Number
     FromUserId: Number
-    ToUserId: Number
     Text: String
     Time: Datetime
 }
@@ -101,9 +88,8 @@ class DeletedMateChat {
     UserId: Number
 }
 
-}
-
-package Geo-chat {
+' Geo-chat
+' -----------------------------------------------
 
 class GeoMessage {
     Id: Number
@@ -114,6 +100,30 @@ class GeoMessage {
     Lat: Number
 }
 
-}
+' edges
+' -----------------------------------------------
+
+UserLocation --> UserEntry
+UserOptions --> UserEntry
+UserDetails --> UserEntry
+
+' ***
+
+GeoMessage -r-> UserEntry
+
+' ***
+
+MateRequest -d-> UserEntry
+Mate -u-> UserEntry
+
+' ***
+ 
+MateChat -u-> UserEntry
+MateMessage -l-> UserEntry
+
+' ***
+
+DeletedMateChat -l-> MateChat
+DeletedMateChat -u-> UserEntry
 
 @enduml
