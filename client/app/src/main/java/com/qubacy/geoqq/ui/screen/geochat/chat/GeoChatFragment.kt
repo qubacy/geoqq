@@ -177,6 +177,8 @@ class GeoChatFragment(
     }
 
     override fun onMessageClicked(message: Message) {
+        if (mModel.isLocalUser(message.userId)) return
+
         val user = getUserById(message.userId)
 
         mBinding.bottomSheet.bottomSheetContentCard.setData(user)

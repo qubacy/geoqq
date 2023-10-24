@@ -18,6 +18,7 @@ import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 // todo: provide a repository as a param..
 class MateChatViewModel(
     val chatId: Long
-) : BaseViewModel() {
+) : BaseViewModel(), ChatViewModel {
     // todo: assign to the repository's flow:
     private val mMateChatStateFlow = MutableStateFlow<ChatState?>(null)
 
@@ -64,7 +65,7 @@ class MateChatViewModel(
                 MateChat(chatId, null, "somebody"),
                 newMessages,
                 listOf(User(0, "me")),
-                listOf(AddMessageChatOperation(0))
+                listOf(AddMessageChatOperation(curMessageId))
             ))
 
             ++curMessageId
@@ -121,6 +122,12 @@ class MateChatViewModel(
                 throw IllegalStateException()
             }
         }
+    }
+
+    override fun isLocalUser(userId: Long): Boolean {
+        // todo: checking the userId using the DATA layer..
+
+        return false
     }
 }
 

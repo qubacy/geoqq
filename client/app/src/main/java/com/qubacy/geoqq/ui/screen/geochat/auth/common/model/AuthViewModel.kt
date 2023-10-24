@@ -37,7 +37,7 @@ abstract class AuthViewModel : WaitingViewModel() {
             uiOperations.add(uiOperation)
         }
 
-        return AuthUiState(state.isAuthorized, state.authToken, uiOperations)
+        return AuthUiState(state.isAuthorized, uiOperations)
     }
 
     protected open fun processOperation(operation: Operation): UiOperation? {

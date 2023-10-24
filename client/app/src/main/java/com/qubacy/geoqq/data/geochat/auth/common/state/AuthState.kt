@@ -5,7 +5,6 @@ import com.qubacy.geoqq.data.common.state.State
 
 class AuthState(
     val isAuthorized: Boolean = false,
-    val authToken: String = String(),
     newOperations: List<Operation> = listOf()
 ) : State(newOperations) {
 

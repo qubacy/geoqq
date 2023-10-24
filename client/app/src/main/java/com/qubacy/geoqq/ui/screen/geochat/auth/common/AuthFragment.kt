@@ -50,8 +50,6 @@ abstract class AuthFragment : WaitingFragment() {
 
         if (!authUiState.isAuthorized) return
 
-        mMainModel.setAccessToken(authUiState.authToken)
-
         moveToMainMenu()
     }
 

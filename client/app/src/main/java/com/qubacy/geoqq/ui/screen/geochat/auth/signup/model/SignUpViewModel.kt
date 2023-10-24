@@ -46,7 +46,7 @@ class SignUpViewModel(
         viewModelScope.launch {
             // todo: conveying the data to the DATA layer..
 
-            mAuthStateFlow.emit(AuthState(true, String(), listOf(AuthorizeOperation())))
+            mAuthStateFlow.emit(AuthState(true, listOf(AuthorizeOperation())))
         }
 
 //        mIsWaiting.value = true

@@ -21,6 +21,7 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowError
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
@@ -29,7 +30,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 // todo: provide a repository as a param..
-class GeoChatViewModel : LocationViewModel() {
+class GeoChatViewModel(
+
+) : LocationViewModel(), ChatViewModel {
     // todo: assign to the repository's flow:
     private val mGeoChatStateFlow = MutableStateFlow<ChatState?>(null)
 
@@ -137,6 +140,12 @@ class GeoChatViewModel : LocationViewModel() {
 
 
         }
+    }
+
+    override fun isLocalUser(userId: Long): Boolean {
+        // todo: checking the userId using the DATA layer..
+
+        return false
     }
 }
 

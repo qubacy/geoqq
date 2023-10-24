@@ -5,7 +5,6 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.state.OperationUiSt
 
 class AuthUiState(
     val isAuthorized: Boolean,
-    val authToken: String,
     newUiOperations: List<UiOperation>
 ) : OperationUiState(newUiOperations) {
 

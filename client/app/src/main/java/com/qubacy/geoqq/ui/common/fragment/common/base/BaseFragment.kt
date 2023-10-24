@@ -6,20 +6,13 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.state.BaseUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.fragment.common.styleable.StyleableFragment
-import com.qubacy.geoqq.ui.model.MainViewModel
-import com.qubacy.geoqq.ui.model.MainViewModelFactory
 
 abstract class BaseFragment() : StyleableFragment() {
-    protected val mMainModel: MainViewModel by activityViewModels {
-        MainViewModelFactory()
-    }
     protected abstract val mModel: BaseViewModel
 
     private lateinit var mPermissionRequestLauncher: ActivityResultLauncher<Array<String>>
