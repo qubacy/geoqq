@@ -3,6 +3,8 @@ package com.qubacy.geoqq.ui.screen.myprofile
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +14,19 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
 import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.transition.Fade
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.DESCRIPTION_TEXT_KEY
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.USER_AVATAR_URI_KEY
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
 import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
@@ -33,8 +43,6 @@ class MyProfileFragment() : WaitingFragment() {
     companion object {
         const val TAG = "MyProfileFragment"
 
-        const val PRIVACY_HIT_UP_POSITION_KEY = "privacyHitUpPosition"
-        const val USER_AVATAR_URI_KEY = "userAvatarUri"
     }
 
     override val mModel: MyProfileViewModel by viewModels {
@@ -45,8 +53,8 @@ class MyProfileFragment() : WaitingFragment() {
 
     private lateinit var mPrivacyHitUpAdapter: ArrayAdapter<String>
 
-    private var mPrivacyHitUpPosition: Int = POSITION_NOT_DEFINED
-    private var mUserAvatarUri: Uri? = null
+    private var mChangedInputHash = HashMap<String, Any>()
+    private var mIsInitInputs = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,16 +74,73 @@ class MyProfileFragment() : WaitingFragment() {
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {
-        mUserAvatarUri = savedInstanceState.getString(USER_AVATAR_URI_KEY)?.toUri()
-        val privacyHitUpPosition = savedInstanceState.getInt(PRIVACY_HIT_UP_POSITION_KEY)
+        mIsInitInputs = true
 
-        mUserAvatarUri?.let { setUserAvatarWithUri(it) }
-        changePrivacyHitUpPosition(privacyHitUpPosition)
+        savedInstanceState.getString(USER_AVATAR_URI_KEY)?.let {
+            mChangedInputHash[USER_AVATAR_URI_KEY] = it.toUri()
+
+            setUserAvatarWithUri(it.toUri())
+        }
+        savedInstanceState.getString(DESCRIPTION_TEXT_KEY)?.let {
+            mChangedInputHash[DESCRIPTION_TEXT_KEY] = it
+
+            highlightChangedTextInputLayout(mBinding.aboutMeInput.inputLayout)
+            mBinding.aboutMeInput.input.setText(it)
+        }
+
+        savedInstanceState.getString(CURRENT_PASSWORD_TEXT_KEY)?.let {
+            mChangedInputHash[CURRENT_PASSWORD_TEXT_KEY] = it
+
+            highlightChangedTextInputLayout(mBinding.currentPasswordInput.inputLayout)
+            mBinding.currentPasswordInput.input.setText(it)
+        }
+        savedInstanceState.getString(NEW_PASSWORD_TEXT_KEY)?.let {
+            mChangedInputHash[NEW_PASSWORD_TEXT_KEY] = it
+
+            highlightChangedTextInputLayout(mBinding.newPasswordInput.inputLayout)
+            mBinding.newPasswordInput.input.setText(it)
+        }
+        savedInstanceState.getString(REPEAT_NEW_PASSWORD_TEXT_KEY)?.let {
+            mChangedInputHash[REPEAT_NEW_PASSWORD_TEXT_KEY] = it
+
+            highlightChangedTextInputLayout(mBinding.newPasswordConfirmationInput.inputLayout)
+            mBinding.newPasswordConfirmationInput.input.setText(it)
+        }
+
+        val hitUpOption = savedInstanceState.getInt(
+            PRIVACY_HIT_UP_POSITION_KEY, POSITION_NOT_DEFINED)
+
+        if (hitUpOption != POSITION_NOT_DEFINED) {
+            mChangedInputHash[PRIVACY_HIT_UP_POSITION_KEY] = hitUpOption
+
+            highlightChangedTextInputLayout(mBinding.privacyHitUpLayout)
+            changePrivacyHitUpPosition(hitUpOption)
+        }
+
+        mIsInitInputs = false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(USER_AVATAR_URI_KEY, mUserAvatarUri?.toString())
-        outState.putInt(PRIVACY_HIT_UP_POSITION_KEY, mPrivacyHitUpPosition)
+        mChangedInputHash[USER_AVATAR_URI_KEY]?.let {
+            outState.putString(USER_AVATAR_URI_KEY, (it as Uri).toString())
+        }
+        mChangedInputHash[DESCRIPTION_TEXT_KEY]?.let {
+            outState.putString(DESCRIPTION_TEXT_KEY, it as String)
+        }
+
+        mChangedInputHash[CURRENT_PASSWORD_TEXT_KEY]?.let {
+            outState.putString(CURRENT_PASSWORD_TEXT_KEY, it as String)
+        }
+        mChangedInputHash[NEW_PASSWORD_TEXT_KEY]?.let {
+            outState.putString(NEW_PASSWORD_TEXT_KEY, it as String)
+        }
+        mChangedInputHash[REPEAT_NEW_PASSWORD_TEXT_KEY]?.let {
+            outState.putString(REPEAT_NEW_PASSWORD_TEXT_KEY, it as String)
+        }
+
+        mChangedInputHash[PRIVACY_HIT_UP_POSITION_KEY]?.let {
+            outState.putInt(PRIVACY_HIT_UP_POSITION_KEY, it as Int)
+        }
 
         super.onSaveInstanceState(outState)
     }
@@ -100,6 +165,52 @@ class MyProfileFragment() : WaitingFragment() {
         mBinding.uploadAvatarButton.setOnClickListener {
             onUploadAvatarButtonClicked()
         }
+
+        mBinding.usernameInput.input.apply {
+            inputType = InputType.TYPE_NULL
+
+            setTextIsSelectable(true)
+        }
+        mBinding.aboutMeInput.input.apply {
+            isSaveEnabled = false
+            isSaveFromParentEnabled = false
+
+            addTextChangedListener {
+                if (mIsInitInputs) return@addTextChangedListener
+
+                onDescriptionChanged(it)
+            }
+        }
+        mBinding.currentPasswordInput.input.apply {
+            isSaveEnabled = false
+            isSaveFromParentEnabled = false
+
+            addTextChangedListener {
+                if (mIsInitInputs) return@addTextChangedListener
+
+                onCurrentPasswordChanged(it)
+            }
+        }
+        mBinding.newPasswordInput.input.apply {
+            isSaveEnabled = false
+            isSaveFromParentEnabled = false
+
+            addTextChangedListener {
+                if (mIsInitInputs) return@addTextChangedListener
+
+                onNewPasswordChanged(it)
+            }
+        }
+        mBinding.newPasswordConfirmationInput.input.apply {
+            isSaveEnabled = false
+            isSaveFromParentEnabled = false
+
+            addTextChangedListener {
+                if (mIsInitInputs) return@addTextChangedListener
+
+                onRepeatNewPasswordChanged(it)
+            }
+        }
         mBinding.confirmButton.setOnClickListener {
             onConfirmButtonClicked()
         }
@@ -119,14 +230,6 @@ class MyProfileFragment() : WaitingFragment() {
             setAdapter(mPrivacyHitUpAdapter)
         }
 
-        if (savedInstanceState != null) {
-            retrieveSavedInstanceState(savedInstanceState)
-        }
-
-        if (mPrivacyHitUpPosition == POSITION_NOT_DEFINED) {
-            changePrivacyHitUpPosition(0)
-        }
-
         mModel.myProfileUiState.value?.let {
             if (!it.isFull()) return@let
 
@@ -138,6 +241,10 @@ class MyProfileFragment() : WaitingFragment() {
             onUiStateChanged(it)
         }
 
+        if (savedInstanceState != null) {
+            retrieveSavedInstanceState(savedInstanceState)
+        }
+
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
@@ -145,16 +252,23 @@ class MyProfileFragment() : WaitingFragment() {
     }
 
     private fun initInputsWithUiState(uiState: MyProfileUiState) {
-        mUserAvatarUri = uiState.avatar?.apply {
-            setUserAvatarWithUri(this@apply)
-        }
+        mIsInitInputs = true
+
+        uiState.avatar?.apply { setUserAvatarWithUri(this@apply) }
 
         mBinding.usernameInput.input.setText(uiState.username!!)
-        mBinding.aboutMeInput.input.setText(uiState.description!!)
-        mBinding.passwordInput.input.setText(uiState.password!!)
-        mBinding.passwordConfirmationInput.input.setText(uiState.password!!)
 
-        changePrivacyHitUpPosition(uiState.hitUpOption!!.index)
+        if (mChangedInputHash[DESCRIPTION_TEXT_KEY] == null) {
+            mBinding.aboutMeInput.input.setText(uiState.description!!)
+        }
+
+        if (mChangedInputHash[PRIVACY_HIT_UP_POSITION_KEY] == null) {
+            uiState.hitUpOption?.let {
+                changePrivacyHitUpPosition(it.index)
+            }
+        }
+
+        mIsInitInputs = false
     }
 
     private fun onUiStateChanged(uiState: MyProfileUiState) {
@@ -181,19 +295,117 @@ class MyProfileFragment() : WaitingFragment() {
         }
     }
 
+    private fun onDescriptionChanged(description: Editable?) {
+        onTextInputContentChanged(
+            description,
+            DESCRIPTION_TEXT_KEY,
+            mModel.myProfileUiState.value!!.description!!,
+            mBinding.aboutMeInput.inputLayout
+        )
+    }
+
+    private fun onCurrentPasswordChanged(password: Editable?) {
+        onTextInputContentChanged(
+            password,
+            CURRENT_PASSWORD_TEXT_KEY,
+            String(),
+            mBinding.currentPasswordInput.inputLayout
+        )
+    }
+
+    private fun onNewPasswordChanged(newPassword: Editable?) {
+        onTextInputContentChanged(
+            newPassword,
+            NEW_PASSWORD_TEXT_KEY,
+            String(),
+            mBinding.newPasswordInput.inputLayout
+        )
+    }
+
+    private fun onRepeatNewPasswordChanged(repeatNewPassword: Editable?) {
+        onTextInputContentChanged(
+            repeatNewPassword,
+            REPEAT_NEW_PASSWORD_TEXT_KEY,
+            String(),
+            mBinding.newPasswordConfirmationInput.inputLayout
+        )
+    }
+
+    private fun onTextInputContentChanged(
+        newValue: Editable?,
+        hashKey: String,
+        prevValue: String?,
+        textInputLayout: TextInputLayout
+    ) {
+        val curValue = newValue?.toString() ?: String()
+
+        Log.d(TAG, "onTextInputContentChanged(): key: $hashKey; curValue: $curValue; prevValue: $prevValue")
+
+        if (prevValue == curValue) {
+            mChangedInputHash.remove(hashKey)
+
+            hideTextInputLayoutOutline(textInputLayout)
+        }
+        else {
+            mChangedInputHash[hashKey] = curValue
+
+            highlightChangedTextInputLayout(textInputLayout)
+        }
+    }
+
+    private fun highlightChangedTextInputLayout(textInputLayout: TextInputLayout) {
+        setTextInputLayoutOutline(textInputLayout, true)
+    }
+
+    private fun hideTextInputLayoutOutline(textInputLayout: TextInputLayout) {
+        setTextInputLayoutOutline(textInputLayout, false)
+    }
+
+    private fun setTextInputLayoutOutline(
+        textInputLayout: TextInputLayout,
+        isHighlighted: Boolean
+    ) {
+        if (!isHighlighted) {
+            textInputLayout.apply {
+                boxStrokeWidth = 0
+
+                requestLayout()
+            }
+
+            return
+        }
+
+        textInputLayout.apply {
+            boxStrokeWidth =
+                resources.getDimension(R.dimen.text_input_layout_changed_stroke_width).toInt()
+
+            requestLayout()
+        }
+    }
+
     private fun onProfileSaved(profileDataSavedUiOperation: ProfileDataSavedUiOperation) {
         showMessage(R.string.profile_data_saved)
     }
 
     private fun changePrivacyHitUpPosition(newPosition: Int) {
         mBinding.privacyHitUp.currentItemPosition = newPosition
-        mPrivacyHitUpPosition = newPosition
     }
 
     private fun onPrivacyHitUpItemSelected(position: Int) {
         Log.d(TAG, "onPrivacyHitUpItemSelected(): position = $position")
 
-        mPrivacyHitUpPosition = position
+        val curOption = mModel.getHitUpOptionByIndex(position)
+        val prevOption = mModel.myProfileUiState.value!!.hitUpOption!!
+
+        if (curOption == prevOption) {
+            mChangedInputHash.remove(PRIVACY_HIT_UP_POSITION_KEY)
+
+            hideTextInputLayoutOutline(mBinding.privacyHitUpLayout)
+        } else {
+            mChangedInputHash[PRIVACY_HIT_UP_POSITION_KEY] = position
+
+            highlightChangedTextInputLayout(mBinding.privacyHitUpLayout)
+        }
     }
 
     private fun onUploadAvatarButtonClicked() {
@@ -202,7 +414,7 @@ class MyProfileFragment() : WaitingFragment() {
 
             Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${it.toString()}")
 
-            mUserAvatarUri = it
+            mChangedInputHash[USER_AVATAR_URI_KEY] = it
 
             setUserAvatarWithUri(it)
         }
@@ -216,23 +428,15 @@ class MyProfileFragment() : WaitingFragment() {
     }
 
     private fun onConfirmButtonClicked() {
-        val usernameText = mBinding.usernameInput.input.text.toString()
-        val aboutMeText = mBinding.aboutMeInput.input.text.toString()
-        val passwordText = mBinding.passwordInput.input.text.toString()
-        val passwordConfirmationText = mBinding.passwordConfirmationInput.input.text.toString()
-        val hitUpOption = mModel.getHitUpOptionByIndex(mPrivacyHitUpPosition)
+        if (mChangedInputHash.isEmpty()) return
 
-        if (!mModel.isProfileDataCorrect(
-                usernameText, aboutMeText, passwordText, passwordConfirmationText, hitUpOption
-            )
-        ) {
+        if (!mModel.isChangedProfileDataCorrect(mChangedInputHash)) {
             showMessage(R.string.error_my_profile_data_incorrect)
 
             return
         }
 
-        mModel.saveProfileData(
-            usernameText, aboutMeText, passwordText, passwordConfirmationText, hitUpOption)
+        mModel.saveProfileData(mChangedInputHash)
     }
 
     override fun handleWaitingAbort() {

@@ -1,14 +1,15 @@
 package com.qubacy.geoqq.ui.screen.myprofile.model
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.myprofile.MyProfileContext
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.data.myprofile.state.MyProfileState
@@ -30,6 +31,18 @@ class MyProfileViewModel(
 
     private val mMyProfileUiState = mMyProfileStateFlow.map { stateToUiState(it) }
     val myProfileUiState: LiveData<MyProfileUiState?> = mMyProfileUiState.asLiveData()
+
+    // todo: delete:
+    init {
+        mMyProfileStateFlow.tryEmit(
+            MyProfileState(
+                null,
+                "fqwfqwf",
+                "fqffqwf fqwf qwfqwfqwf0",
+                hitUpOption = MyProfileContext.HitUpOption.NEGATIVE
+            )
+        )
+    }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
         if (isWaiting.value == true) isWaiting.value = false
@@ -74,12 +87,59 @@ class MyProfileViewModel(
         }
     }
 
+    private fun checkPasswordFieldsChange(
+        changedFields: Set<String>,
+        changedPropHashMap: HashMap<String, Any>
+    ): Boolean {
+        var passwordChangingFieldCount = 0
+
+        if (changedFields.contains(MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY))
+            ++passwordChangingFieldCount
+        if (changedFields.contains(MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY))
+            ++passwordChangingFieldCount
+        if (changedFields.contains(MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY))
+            ++passwordChangingFieldCount
+
+        if (passwordChangingFieldCount != 0 && passwordChangingFieldCount < 3) {
+            return false
+
+        } else if (passwordChangingFieldCount == 3) {
+            val currentPassword = changedPropHashMap[MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY].toString()
+            val newPassword = changedPropHashMap[MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY].toString()
+            val repeatNewPassword = changedPropHashMap[MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY].toString()
+
+            return (isPasswordsDataCorrect(currentPassword, newPassword, repeatNewPassword))
+        }
+
+        return true
+    }
+
+    fun isChangedProfileDataCorrect(
+        changedPropHashMap: HashMap<String, Any>
+    ): Boolean {
+        val changedFields = changedPropHashMap.keys
+
+        if (changedFields.contains(MyProfileEntityContext.USER_AVATAR_URI_KEY)) {
+            if (!isAvatarDataCorrect(changedPropHashMap[MyProfileEntityContext.USER_AVATAR_URI_KEY] as Uri))
+                return false
+        }
+        if (changedFields.contains(MyProfileEntityContext.DESCRIPTION_TEXT_KEY)) {
+            if (!isDescriptionDataCorrect(changedPropHashMap[MyProfileEntityContext.DESCRIPTION_TEXT_KEY] as String)){
+                return false
+            }
+        }
+        if (!checkPasswordFieldsChange(changedFields, changedPropHashMap)) return false
+
+        if (changedFields.contains(MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY)) {
+            if (!isPrivacyHitUpOptionCorrect(changedPropHashMap[MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY] as Int))
+                return false
+        }
+
+        return true
+    }
+
     fun saveProfileData(
-        username: String,
-        description: String,
-        password: String,
-        passwordConfirmation: String,
-        hitUpOption: MyProfileContext.HitUpOption
+        changedPropHashMap: HashMap<String, Any>
     ) {
         viewModelScope.launch {
             // todo: sending data to the DATA layer..
@@ -95,34 +155,51 @@ class MyProfileViewModel(
 
     }
 
-    fun isProfileDataCorrect(
-        username: String,
-        description: String,
-        password: String,
-        passwordConfirmation: String,
-        hitUpOption: MyProfileContext.HitUpOption
+    private fun isAvatarDataCorrect(
+        avatarUri: Uri
     ): Boolean {
-        if (!isProfileDataFull(username, description, password, passwordConfirmation)
-         || password != passwordConfirmation)
-        {
+
+        return true // todo: how to validate?
+    }
+
+    private fun isDescriptionDataCorrect(
+        description: String
+    ): Boolean {
+        if (description.isEmpty()) return false
+
+        return true
+    }
+
+    private fun isPasswordsDataCorrect(
+        currentPassword: String,
+        newPassword: String,
+        repeatNewPassword: String,
+    ): Boolean {
+        if (currentPassword.isEmpty() || newPassword.isEmpty() || repeatNewPassword.isEmpty()
+        || (newPassword != repeatNewPassword)
+        ) {
             return false
         }
 
-        return (UsernameValidator().check(username) && LoginPasswordValidator().check(password)
-             && LoginPasswordValidator().check(password))
+        val loginPasswordValidator = LoginPasswordValidator()
+
+        return (loginPasswordValidator.check(currentPassword)
+                && loginPasswordValidator.check(newPassword)
+                && loginPasswordValidator.check(repeatNewPassword))
     }
 
-    private fun isProfileDataFull(
-        username: String,
-        description: String,
-        password: String,
-        passwordConfirmation: String
+    private fun isPrivacyHitUpOptionCorrect(
+        hitUpOptionIndex: Int
     ): Boolean {
-        return (username.isNotEmpty() && description.isNotEmpty()
-             && password.isNotEmpty() && passwordConfirmation.isNotEmpty())
+        if (getHitUpOptionByIndex(hitUpOptionIndex) == null) return false
+
+        return true
     }
 
-    fun getHitUpOptionByIndex(index: Int): MyProfileContext.HitUpOption {
+    fun getHitUpOptionByIndex(index: Int): MyProfileContext.HitUpOption? {
+        if (index >= MyProfileContext.HitUpOption.entries.size)
+            return null
+
         return MyProfileContext.HitUpOption.entries[index]
     }
 }

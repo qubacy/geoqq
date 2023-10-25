@@ -14,7 +14,6 @@ class MyProfileUiState(
     newOperations: List<UiOperation>
 ) : OperationUiState(newOperations) {
     fun isFull(): Boolean {
-        return (username != null && description != null
-             && password != null && hitUpOption != null)
+        return (username != null && description != null && hitUpOption != null)
     }
 }

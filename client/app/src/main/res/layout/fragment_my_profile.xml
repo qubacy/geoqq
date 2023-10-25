@@ -193,10 +193,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:layout_marginTop="12dp"
-                            android:text="@string/profile_security_section_password" />
+                            android:text="@string/profile_security_section_current_password" />
 
                         <include
-                            android:id="@+id/password_input"
+                            android:id="@+id/current_password_input"
                             layout="@layout/component_large_password_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -209,10 +209,26 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:layout_marginTop="12dp"
-                            android:text="@string/profile_security_section_confirm_password" />
+                            android:text="@string/profile_security_section_new_password" />
 
                         <include
-                            android:id="@+id/password_confirmation_input"
+                            android:id="@+id/new_password_input"
+                            layout="@layout/component_large_password_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/ProfileCardMaterialTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/profile_security_section_confirm_new_password"/>
+
+                        <include
+                            android:id="@+id/new_password_confirmation_input"
                             layout="@layout/component_large_password_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -260,6 +276,7 @@
                             android:text="@string/profile_privacy_section_hit_up" />
 
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/privacy_hit_up_layout"
                             style="@style/MaterialDropdownTextInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

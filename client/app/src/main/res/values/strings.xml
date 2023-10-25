@@ -30,9 +30,9 @@
     <string name="profile_personal_data_section_username">Username</string>
     <string name="profile_personal_data_section_about_me">About Me</string>
     <string name="profile_security_section_title">Security</string>
-    <string name="profile_security_section_password">Password</string>
+    <string name="profile_security_section_new_password">New Password</string>
     <string name="profile_security_section_password_hint">New password..</string>
-    <string name="profile_security_section_confirm_password">Repeat Password</string>
+    <string name="profile_security_section_confirm_new_password">Repeat New Password</string>
     <string name="profile_security_section_confirm_password_hint">Confirm new password..</string>
     <string name="profile_privacy_section_title">Privacy</string>
     <string name="profile_privacy_section_hit_up">Can anybody hit me up?</string>
@@ -79,5 +79,6 @@
     <!-- TODO: specify it: -->
     <string name="error_my_profile_saving_failed">Profile saving has been failed!</string>
     <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
+    <string name="profile_security_section_current_password">Current Password</string>
 
 </resources>

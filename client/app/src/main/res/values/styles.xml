@@ -96,6 +96,7 @@
         <item name="boxBackgroundMode">filled</item>
         <item name="shapeAppearanceOverlay">@style/EasyRoundedMaterialShapeAppearanceOverlay</item>
         <item name="boxBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+        <item name="boxStrokeColor">@drawable/component_text_input_layout_box_stroke_selector</item>
     </style>
 
     <style name="MaterialDropdownTextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
@@ -107,6 +108,7 @@
         <item name="boxBackgroundMode">filled</item>
         <item name="shapeAppearanceOverlay">@style/EasyRoundedMaterialShapeAppearanceOverlay</item>
         <item name="boxBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+        <item name="boxStrokeColor">@drawable/component_text_input_layout_box_stroke_selector</item>
     </style>
 
     <style name="MaterialTextInputEditText" parent="ThemeOverlay.Material3.TextInputEditText">
@@ -189,6 +191,7 @@
         <!--        <item name="android:textSize">24sp</item>-->
         <item name="android:textColor">?attr/colorOnPrimarySurface</item>
         <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="lineHeight">28sp</item>
     </style>
 
     <style name="ProfileCardMaterialTextView.Title" parent="ProfileCardMaterialTextView">

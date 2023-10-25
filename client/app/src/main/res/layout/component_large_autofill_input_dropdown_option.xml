@@ -10,4 +10,5 @@
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
     android:textAppearance="?attr/textAppearanceBodyMedium"
+    android:textColor="?attr/colorOnSurface"
     tools:text="Test"/>
