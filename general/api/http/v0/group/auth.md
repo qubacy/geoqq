@@ -6,7 +6,7 @@
 ```json
 {
     "login": "<string>",
-    "password-hash": "<string>",
+    "password": "<hash-string>"
 }
 ```
 
@@ -15,7 +15,7 @@
 ```json
 {
     "access-token": "<jwt-string>",
-    "update-token": "<jwt-string>",
+    "update-token": "<jwt-string>"
 }
 ```
 - Other error codes.
@@ -28,7 +28,7 @@
 ```json
 {
     "login": "<string>",
-    "password-hash": "<string>",
+    "password": "<hash-string>"
 }
 ```
 
@@ -37,7 +37,7 @@
 ```json
 {
     "access-token": "<jwt-string>",
-    "update-token": "<jwt-string>",
+    "update-token": "<jwt-string>"
 }
 ```
 - Other error codes.

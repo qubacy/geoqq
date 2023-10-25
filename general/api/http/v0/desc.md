@@ -9,6 +9,6 @@
 ## Some details
 
 - `"<id>"` is a special unsigned type for keys.
-- Time is presented in UTC format.
+- Time field is in UTC format.
 
 

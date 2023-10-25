@@ -4,7 +4,7 @@
   "name": "V0",
   "endpointPrefix": "",
   "latency": 0,
-  "port": 3002,
+  "port": 5555,
   "hostname": "",
   "folders": [],
   "routes": [

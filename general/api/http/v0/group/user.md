@@ -33,6 +33,10 @@
     "avatar": "<base58-string>",
     "privacy": {
         "hit-me-up": "<int>"
+    },
+    "security": {
+        "password": "<hash-string>",
+        "new-password": "<hash-string>"
     }
 }
 ```
@@ -43,7 +47,7 @@
 
 <!-- -------------------------------------------- -->
 
-## GET /api/users/{`userId`}
+## GET /api/user/{`userId`}
 
 ### Parameters
 #### Required

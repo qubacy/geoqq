@@ -10,7 +10,7 @@
 - *200*
 ```json
 {
-    "list": [
+    "chats": [
         {
             "id": "<id>",
             "user": {
@@ -53,7 +53,7 @@
 - *200*
 ```json
 {
-    "list": [
+    "messages": [
         {
             "id": "<id>",
             "text": "<string>",
