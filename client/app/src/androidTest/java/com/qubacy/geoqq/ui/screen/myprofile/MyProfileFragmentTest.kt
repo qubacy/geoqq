@@ -1,6 +1,8 @@
 package com.qubacy.geoqq.ui.screen.myprofile
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -10,9 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,6 +27,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.myprofile.MyProfileContext
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
 import com.qubacy.geoqq.data.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.data.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
@@ -36,16 +41,29 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.lang.Exception
-import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 @RunWith(AndroidJUnit4::class)
 class MyProfileFragmentTest {
+    class UserAvatarTestData(
+        val setUserAvatarWithUriMethodReflection: Method,
+        val fragment: MyProfileFragment
+    ) {
+        fun setUserAvatarWithUri(uri: Uri?) {
+            setUserAvatarWithUriMethodReflection.invoke(fragment, uri)
+        }
+    }
     class PrivacyHitUpTestData(
-        val curPrivacyHitUpPositionFieldReflection: Field,
+        val changedInputHash: HashMap<String, Any>,
+        val onPrivacyHitUpItemSelectedMethodReflection: Method,
         val fragment: MyProfileFragment
     ) {
         fun getCurPrivacyHitUpPosition(): Int {
-            return curPrivacyHitUpPositionFieldReflection.getInt(fragment)
+            return changedInputHash[MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY] as Int
+        }
+
+        fun changeCurPrivacyHitUpPosition(position: Int) {
+            onPrivacyHitUpItemSelectedMethodReflection.invoke(fragment, position)
         }
     }
 
@@ -93,6 +111,7 @@ class MyProfileFragmentTest {
     private lateinit var mModel: MyProfileViewModel
     private lateinit var mContext: Context
 
+    private lateinit var mUserAvatarTestData: UserAvatarTestData
     private lateinit var mPrivacyHitUpTestData: PrivacyHitUpTestData
     private lateinit var mMyProfileUiStateTestData: MyProfileUiStateTestData
 
@@ -113,8 +132,8 @@ class MyProfileFragmentTest {
             }
         }
 
-        val curPrivacyHitUpPositionFieldReflection =
-            MyProfileFragment::class.java.getDeclaredField("mPrivacyHitUpPosition").apply {
+        val changedInputHashFieldReflection =
+            MyProfileFragment::class.java.getDeclaredField("mChangedInputHash").apply {
                 isAccessible = true
             }
         val myProfileStateFlowFieldReflection = MyProfileViewModel::class.java
@@ -125,9 +144,25 @@ class MyProfileFragmentTest {
             .getDeclaredField("myProfileUiState").apply {
                 isAccessible = true
             }
+        val onPrivacyHitUpItemSelectedMethodReflection = MyProfileFragment::class.java
+            .getDeclaredMethod("onPrivacyHitUpItemSelected", Int::class.java)
+            .apply {
+                isAccessible = true
+            }
+        val setUserAvatarWithUriMethodReflection = MyProfileFragment::class.java
+            .getDeclaredMethod("setUserAvatarWithUri", Uri::class.java)
+            .apply {
+                isAccessible = true
+            }
 
+        mUserAvatarTestData = UserAvatarTestData(
+            setUserAvatarWithUriMethodReflection,
+            fragment!!
+        )
         mPrivacyHitUpTestData = PrivacyHitUpTestData(
-            curPrivacyHitUpPositionFieldReflection, fragment!!)
+            changedInputHashFieldReflection.get(fragment) as HashMap<String, Any>,
+            onPrivacyHitUpItemSelectedMethodReflection,
+            fragment!!)
         mMyProfileUiStateTestData = MyProfileUiStateTestData(
             myProfileStateFlowFieldReflection.get(mModel) as MutableStateFlow<MyProfileState?>,
             myProfileUiStateFieldReflection.get(mModel) as LiveData<MyProfileUiState?>
@@ -145,10 +180,13 @@ class MyProfileFragmentTest {
         Espresso.onView(withId(R.id.about_me_input))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(withId(R.id.password_input))
+        Espresso.onView(withId(R.id.current_password_input))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-        Espresso.onView(withId(R.id.password_confirmation_input))
+        Espresso.onView(withId(R.id.new_password_input))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        Espresso.onView(withId(R.id.new_password_confirmation_input))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(withId(R.id.privacy_hit_up))
@@ -163,16 +201,16 @@ class MyProfileFragmentTest {
     fun allElementsEnabledTest() {
         Espresso.onView(withId(R.id.plus_icon))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(withId(R.id.username_input))
-            .perform(ViewActions.click(), ViewActions.closeSoftKeyboard())
-            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(withId(R.id.about_me_input))
             .perform(ViewActions.click(), ViewActions.closeSoftKeyboard())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(withId(R.id.password_input))
+        Espresso.onView(withId(R.id.current_password_input))
             .perform(ViewActions.click(), ViewActions.closeSoftKeyboard())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-        Espresso.onView(withId(R.id.password_confirmation_input))
+        Espresso.onView(withId(R.id.new_password_input))
+            .perform(ViewActions.click(), ViewActions.closeSoftKeyboard())
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        Espresso.onView(withId(R.id.new_password_confirmation_input))
             .perform(ViewActions.click(), ViewActions.closeSoftKeyboard())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(withId(R.id.privacy_hit_up))
@@ -235,70 +273,169 @@ class MyProfileFragmentTest {
     }
 
     @Test
-    fun clickingPrivacyHitUpYesVariantChangesCurrentPrivacyHitUpVariantTest() {
-        val hitUpVariantCaption = "Yes"
-        val hitUpVariantPosition = 0
-
-        Espresso.onView(withId(R.id.scroll_view))
-            .perform(ViewActions.swipeUp())
-        Espresso.onView(withId(R.id.privacy_hit_up))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(hitUpVariantCaption))
-            .perform(ViewActions.click())
-        Espresso.onView(withId(R.id.privacy_hit_up))
-            .check(ViewAssertions.matches(withText(hitUpVariantCaption)))
-
-        assertEquals(hitUpVariantPosition, mPrivacyHitUpTestData.getCurPrivacyHitUpPosition())
+    fun providingNoNewInfoLeadsToNothingTest() {
+        Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.doesNotExist())
     }
 
     @Test
-    fun providingNotFullProfileInformationLeadsToShowingMessageTest() {
-        val text = "Some text"
+    fun providingNewAvatarGoesWithoutShowingErrorMessageTest() {
+        val resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+        val imageUri = Uri.parse(
+            ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + resources.getResourcePackageName(R.drawable.ic_add_friend)
+                + '/' + resources.getResourceTypeName(R.drawable.ic_add_friend)
+                + '/' + resources.getResourceEntryName(R.drawable.ic_add_friend));
 
-        Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.confirm_button))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
-            .check(ViewAssertions.matches(
-                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        mMyProfileFragmentScenarioRule.onFragment {
+            mUserAvatarTestData.setUserAvatarWithUri(imageUri)
+        }
+
+        Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
     }
 
     @Test
-    fun providingFullProfileInformationGoesWithoutShowingMessagesTest() {
-        val text = "Sometext"
+    fun providingNewDescriptionGoesWithoutShowingErrorMessageTest() {
+        val newDescription = "fqfq qwfq fq f q wf"
 
         Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.password_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            ViewMatchers.isDescendantOfA(withId(R.id.password_confirmation_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-
-        val hitUpVariantCaption = "Yes"
-
-        Espresso.onView(withId(R.id.scroll_view))
-            .perform(ViewActions.swipeUp())
-        Espresso.onView(withId(R.id.privacy_hit_up))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(hitUpVariantCaption))
-            .perform(ViewActions.click())
-
-        Espresso.onView(withId(R.id.confirm_button))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
-            .check(ViewAssertions.doesNotExist())
+            isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
+            .perform(
+                ViewActions.scrollTo(),
+                ViewActions.typeText(newDescription),
+                ViewActions.closeSoftKeyboard()
+            )
+        Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
     }
+
+    data class PasswordChangingTestCase(
+        val curPassword: String = String(),
+        val newPassword: String = String(),
+        val repeatNewPassword: String = String(),
+        val isIncorrect: Boolean
+    )
+
+    @Test
+    fun passwordChangingTest() {
+        val correctPassword = "password"
+        val testCases = listOf(
+            PasswordChangingTestCase(isIncorrect = true),
+            PasswordChangingTestCase(curPassword = correctPassword, isIncorrect = true),
+            PasswordChangingTestCase(newPassword = correctPassword, isIncorrect = true),
+            PasswordChangingTestCase(repeatNewPassword = correctPassword, isIncorrect = true),
+            PasswordChangingTestCase(curPassword = correctPassword, newPassword = correctPassword, isIncorrect = true),
+            PasswordChangingTestCase(curPassword = correctPassword, repeatNewPassword = correctPassword, isIncorrect = true),
+            PasswordChangingTestCase(correctPassword, correctPassword, correctPassword, false),
+        )
+
+        for (testCase in testCases) {
+            if (testCase.curPassword.isNotEmpty()) {
+                Espresso.onView(Matchers.allOf(
+                    isDescendantOfA(withId(R.id.current_password_input)), withId(R.id.input)))
+                    .perform(ViewActions.scrollTo(), ViewActions.typeText(testCase.curPassword), ViewActions.closeSoftKeyboard())
+            }
+            if (testCase.newPassword.isNotEmpty()) {
+                Espresso.onView(Matchers.allOf(
+                    isDescendantOfA(withId(R.id.new_password_input)), withId(R.id.input)))
+                    .perform(ViewActions.scrollTo(), ViewActions.typeText(testCase.newPassword), ViewActions.closeSoftKeyboard())
+            }
+            if (testCase.repeatNewPassword.isNotEmpty()) {
+                Espresso.onView(Matchers.allOf(
+                    isDescendantOfA(withId(R.id.new_password_confirmation_input)), withId(R.id.input)))
+                    .perform(ViewActions.scrollTo(), ViewActions.typeText(testCase.repeatNewPassword), ViewActions.closeSoftKeyboard())
+            }
+
+            Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+
+            if (!testCase.isIncorrect) {
+                Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
+            } else {
+                Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.doesNotExist())
+            }
+
+            clearPasswordFields()
+        }
+    }
+
+    private fun clearPasswordFields() {
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.current_password_input)), withId(R.id.input)))
+            .perform(ViewActions.scrollTo(), ViewActions.clearText(), ViewActions.closeSoftKeyboard())
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.new_password_input)), withId(R.id.input)))
+            .perform(ViewActions.scrollTo(), ViewActions.clearText(), ViewActions.closeSoftKeyboard())
+        Espresso.onView(Matchers.allOf(
+            isDescendantOfA(withId(R.id.new_password_confirmation_input)), withId(R.id.input)))
+            .perform(ViewActions.scrollTo(), ViewActions.clearText(), ViewActions.closeSoftKeyboard())
+    }
+
+    @Test
+    fun providingNewHitUpOptionGoesWithoutShowingErrorMessageTest() {
+        mMyProfileFragmentScenarioRule.onFragment {
+            mMyProfileUiStateTestData.setState(
+                MyProfileState(username = "fwqf", description = "g3523 235 235", hitUpOption = MyProfileContext.HitUpOption.POSITIVE))
+        }
+
+        Espresso.onView(withId(R.id.privacy_hit_up)).perform(scrollTo())
+
+        mMyProfileFragmentScenarioRule.onFragment {
+            mPrivacyHitUpTestData.changeCurPrivacyHitUpPosition(MyProfileContext.HitUpOption.NEGATIVE.index)
+        }
+
+        Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
+    }
+
+//    @Test
+//    fun providingNotFullProfileInformationLeadsToShowingMessageTest() {
+//        val text = "Some text"
+//
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//        Espresso.onView(withId(R.id.confirm_button))
+//            .perform(ViewActions.click())
+//        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
+//            .check(ViewAssertions.matches(
+//                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+//    }
+
+//    @Test
+//    fun providingFullProfileInformationGoesWithoutShowingMessagesTest() {
+//        val text = "Sometext"
+//
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.password_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//        Espresso.onView(Matchers.allOf(
+//            ViewMatchers.isDescendantOfA(withId(R.id.password_confirmation_input)), withId(R.id.input)))
+//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
+//
+//        val hitUpVariantCaption = "Yes"
+//
+//        Espresso.onView(withId(R.id.scroll_view))
+//            .perform(ViewActions.swipeUp())
+//        Espresso.onView(withId(R.id.privacy_hit_up))
+//            .perform(ViewActions.click())
+//        Espresso.onView(withText(hitUpVariantCaption))
+//            .perform(ViewActions.click())
+//
+//        Espresso.onView(withId(R.id.confirm_button))
+//            .perform(ViewActions.click())
+//        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
+//            .check(ViewAssertions.doesNotExist())
+//    }
 
     @Test
     fun errorMessageShownOnUiStateWithErrorTest() {
@@ -327,34 +464,6 @@ class MyProfileFragmentTest {
         } catch (e: Exception) {
             Assert.assertEquals(NoActivityResumedException::class, e::class)
         }
-    }
-
-    @Test
-    fun providingCorrectDataLeadsToShowingSuccessMessageTest() {
-        val state = MyProfileState(
-            null,
-            "username",
-            "something",
-            "password",
-            MyProfileContext.HitUpOption.NEGATIVE,
-            listOf(SuccessfulProfileSavingCallbackOperation()))
-
-        Espresso.onView(Matchers.allOf(
-            isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(state.username), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(state.description), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            isDescendantOfA(withId(R.id.password_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(state.password), ViewActions.closeSoftKeyboard())
-        Espresso.onView(Matchers.allOf(
-            isDescendantOfA(withId(R.id.password_confirmation_input)), withId(R.id.input)))
-            .perform(ViewActions.typeText(state.password), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.confirm_button))
-            .perform(ViewActions.click())
-
-        mMyProfileUiStateTestData.setState(state)
     }
 
     @Test

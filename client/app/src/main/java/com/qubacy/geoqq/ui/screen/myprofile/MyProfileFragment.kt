@@ -414,13 +414,13 @@ class MyProfileFragment() : WaitingFragment() {
 
             Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${it.toString()}")
 
-            mChangedInputHash[USER_AVATAR_URI_KEY] = it
-
             setUserAvatarWithUri(it)
         }
     }
 
     private fun setUserAvatarWithUri(avatarUri: Uri) {
+        mChangedInputHash[USER_AVATAR_URI_KEY] = avatarUri
+
         val avatarInputStream = requireContext().contentResolver.openInputStream(avatarUri)
         val avatarDrawable = Drawable.createFromStream(avatarInputStream, String())
 

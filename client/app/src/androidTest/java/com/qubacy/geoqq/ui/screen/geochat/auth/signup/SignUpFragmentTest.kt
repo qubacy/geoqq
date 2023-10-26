@@ -354,7 +354,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
 
         mSignUpFragmentScenarioRule.onFragment {
-            mSignUpUiStateTestData.setAuthorized("some_access_token")
+            mSignUpUiStateTestData.setAuthorized()
         }
 
         Assert.assertEquals(R.id.mainMenuFragment, mNavController.currentDestination?.id)

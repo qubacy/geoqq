@@ -17,12 +17,12 @@ abstract class AuthFragmentTest {
         private val mModel: AuthViewModel,
         private val mAuthStateFlow: MutableStateFlow<AuthState>
     ) {
-        fun setAuthorized(accessToken: String = String()) {
+        fun setAuthorized() {
             val operations = listOf(
                 AuthorizeOperation()
             )
 
-            val authorizedState = AuthState(true, accessToken, operations)
+            val authorizedState = AuthState(true, operations)
 
             runBlocking {
                 mAuthStateFlow.emit(authorizedState)
@@ -34,7 +34,7 @@ abstract class AuthFragmentTest {
                 HandleErrorOperation(error)
             )
 
-            val authorizedState = AuthState(false, String(), operations)
+            val authorizedState = AuthState(false, operations)
 
             runBlocking {
                 mAuthStateFlow.emit(authorizedState)
