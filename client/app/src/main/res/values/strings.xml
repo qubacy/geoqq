@@ -59,6 +59,8 @@
 
     <string name="error_dialog_title">Error</string>
 
+    <string name="error_image_picking_failed">Image picking has been failed!</string>
+
     <string name="error_sign_in_data_incorrect">Incorrect Sign In data!</string>
     <!-- TODO: specify it: -->
     <string name="error_sign_in_failed">Signing In has been failed!</string>

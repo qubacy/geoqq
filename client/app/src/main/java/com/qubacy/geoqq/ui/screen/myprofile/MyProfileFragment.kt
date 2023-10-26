@@ -21,6 +21,8 @@ import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.DESCRIPTION_TEXT_KEY
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY
@@ -29,6 +31,7 @@ import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.R
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.USER_AVATAR_URI_KEY
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
+import com.qubacy.geoqq.ui.PickImageCallback
 import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
 import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -39,7 +42,7 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
 import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 
-class MyProfileFragment() : WaitingFragment() {
+class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     companion object {
         const val TAG = "MyProfileFragment"
 
@@ -409,13 +412,11 @@ class MyProfileFragment() : WaitingFragment() {
     }
 
     private fun onUploadAvatarButtonClicked() {
-        (requireActivity() as MainActivity).pickImage {
-            if (it == null) return@pickImage
-
-            Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${it.toString()}")
-
-            setUserAvatarWithUri(it)
-        }
+        (requireActivity() as MainActivity).pickImage(
+            MyProfileEntityContext.MAX_AVATAR_SIZE,
+            MyProfileEntityContext.MAX_AVATAR_SIZE,
+            this
+        )
     }
 
     private fun setUserAvatarWithUri(avatarUri: Uri) {
@@ -443,5 +444,15 @@ class MyProfileFragment() : WaitingFragment() {
         super.handleWaitingAbort()
 
         mModel.interruptSavingProfileData()
+    }
+
+    override fun onImagePicked(image: Uri) {
+        Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${image.toString()}")
+
+        setUserAvatarWithUri(image)
+    }
+
+    override fun onImagePickingError(error: Error) {
+        onErrorOccurred(error)
     }
 }

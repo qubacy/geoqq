@@ -388,55 +388,6 @@ class MyProfileFragmentTest {
         Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
     }
 
-//    @Test
-//    fun providingNotFullProfileInformationLeadsToShowingMessageTest() {
-//        val text = "Some text"
-//
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//        Espresso.onView(withId(R.id.confirm_button))
-//            .perform(ViewActions.click())
-//        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
-//            .check(ViewAssertions.matches(
-//                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-//    }
-
-//    @Test
-//    fun providingFullProfileInformationGoesWithoutShowingMessagesTest() {
-//        val text = "Sometext"
-//
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.username_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.about_me_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.password_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//        Espresso.onView(Matchers.allOf(
-//            ViewMatchers.isDescendantOfA(withId(R.id.password_confirmation_input)), withId(R.id.input)))
-//            .perform(ViewActions.typeText(text), ViewActions.closeSoftKeyboard())
-//
-//        val hitUpVariantCaption = "Yes"
-//
-//        Espresso.onView(withId(R.id.scroll_view))
-//            .perform(ViewActions.swipeUp())
-//        Espresso.onView(withId(R.id.privacy_hit_up))
-//            .perform(ViewActions.click())
-//        Espresso.onView(withText(hitUpVariantCaption))
-//            .perform(ViewActions.click())
-//
-//        Espresso.onView(withId(R.id.confirm_button))
-//            .perform(ViewActions.click())
-//        Espresso.onView(withText(R.string.error_my_profile_data_incorrect))
-//            .check(ViewAssertions.doesNotExist())
-//    }
-
     @Test
     fun errorMessageShownOnUiStateWithErrorTest() {
         val error = Error(R.string.error_my_profile_saving_failed, Error.Level.NORMAL)

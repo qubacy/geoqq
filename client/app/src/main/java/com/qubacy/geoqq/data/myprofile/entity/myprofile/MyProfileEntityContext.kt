@@ -1,6 +1,8 @@
 package com.qubacy.geoqq.data.myprofile.entity.myprofile
 
 object MyProfileEntityContext {
+    const val MAX_AVATAR_SIZE = 1000
+
     const val MIN_PASSWORD_LENGTH = 8
     const val MAX_PASSWORD_LENGTH = 32
 
