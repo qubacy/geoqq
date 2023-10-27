@@ -77,7 +77,7 @@
     <!-- TODO: specify it: -->
     <string name="error_chat_message_sending_failed">Message sending has been failed!</string>
 
-    <string name="error_my_profile_data_incorrect">Please, provide all the profile data!</string>
+    <string name="error_my_profile_data_incorrect">The provided data was incorrect!</string>
     <!-- TODO: specify it: -->
     <string name="error_my_profile_saving_failed">Profile saving has been failed!</string>
     <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
