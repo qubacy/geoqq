@@ -83,4 +83,9 @@
     <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
     <string name="profile_security_section_current_password">Current Password</string>
 
+    <!-- DATA Errors: -->
+
+    <string name="error_network_response_unknown_error">Unknown network error!</string>
+    <string name="error_local_refresh_token_not_found">Local refresh token hasn\'t been found!</string>
+
 </resources>

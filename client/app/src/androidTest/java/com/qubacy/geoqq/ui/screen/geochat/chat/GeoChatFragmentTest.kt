@@ -13,7 +13,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
@@ -414,7 +415,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
 
     @Test
     fun errorMessageAppearsOnShowErrorUiOperationTest() {
-        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.NORMAL)
+        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.NORMAL)
 
         mGeoChatFragmentScenarioRule.onFragment {
             mGeoChatUiStateTestData.showError(error)
@@ -426,7 +427,7 @@ class GeoChatFragmentTest : ChatFragmentTest() {
 
     @Test
     fun criticalErrorLeadsToClosingAppTest() {
-        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.NORMAL)
+        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.NORMAL)
 
         mGeoChatFragmentScenarioRule.onFragment {
             mGeoChatUiStateTestData.showError(error)

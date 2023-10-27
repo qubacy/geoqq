@@ -21,7 +21,7 @@ import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.DESCRIPTION_TEXT_KEY
@@ -452,7 +452,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         setUserAvatarWithUri(image)
     }
 
-    override fun onImagePickingError(error: Error) {
+    override fun onImagePickingError(error: LocalError) {
         onErrorOccurred(error)
     }
 }

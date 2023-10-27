@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.screen.common.chat
 
 import androidx.lifecycle.LiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
@@ -93,7 +93,7 @@ abstract class ChatFragmentTest {
             }
         }
 
-        fun showError(error: Error, emptyChat: Chat = Chat()) {
+        fun showError(error: LocalError, emptyChat: Chat = Chat()) {
             val chat = if (mMateUiState.value == null) emptyChat else mMateUiState.value!!.chat
             val users = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.users
             val messages = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.messages

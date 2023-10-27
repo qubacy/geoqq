@@ -1,8 +1,7 @@
 package com.qubacy.geoqq.ui.screen.common.chat.error
 
-import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.local.LocalError
 
-enum class ChatErrorEnum(val error: Error) {
+enum class ChatErrorEnum(val error: LocalError) {
 
 }

@@ -14,7 +14,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
@@ -253,7 +254,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
 
     @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
-        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.NORMAL)
+        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.NORMAL)
 
         mMateChatFragmentScenarioRule.onFragment {
             mMateChatUiStateTestData.showError(error, MateChat(0, null, String()))
@@ -266,7 +267,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
 
     @Test
     fun handlingCriticalErrorOperationLeadsToAppClosingTest() {
-        val error = Error(R.string.error_chat_message_sending_failed, Error.Level.CRITICAL)
+        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.CRITICAL)
 
         mMateChatFragmentScenarioRule.onFragment {
             mMateChatUiStateTestData.showError(error, MateChat(0, null, String()))

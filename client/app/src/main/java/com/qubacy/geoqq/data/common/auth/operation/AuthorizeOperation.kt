@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.geochat.auth.common.operation
+package com.qubacy.geoqq.data.common.auth.operation
 
 import com.qubacy.geoqq.data.common.operation.Operation
 

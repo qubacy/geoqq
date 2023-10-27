@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.ui.common.fragment.common.base.model.state
 
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.local.LocalError
 
 abstract class BaseUiState(
-    val error: Error? = null
+    val error: LocalError? = null
 ) : UiState() {
 
 }

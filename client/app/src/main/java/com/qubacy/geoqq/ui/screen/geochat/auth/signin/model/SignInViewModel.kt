@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
-import com.qubacy.geoqq.data.geochat.auth.common.operation.AuthorizeOperation
-import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
+import com.qubacy.geoqq.data.common.auth.operation.AuthorizeOperation
+import com.qubacy.geoqq.data.common.auth.state.AuthState
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
 import kotlinx.coroutines.launch
 

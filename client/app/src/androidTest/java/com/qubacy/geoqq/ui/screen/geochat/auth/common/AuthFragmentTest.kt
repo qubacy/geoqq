@@ -1,12 +1,11 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.common
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.common.error.Error
+import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.geochat.auth.common.operation.AuthorizeOperation
-import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
+import com.qubacy.geoqq.data.common.auth.operation.AuthorizeOperation
+import com.qubacy.geoqq.data.common.auth.state.AuthState
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.runner.RunWith
@@ -29,7 +28,7 @@ abstract class AuthFragmentTest {
             }
         }
 
-        fun showError(error: Error) {
+        fun showError(error: LocalError) {
             val operations = listOf(
                 HandleErrorOperation(error)
             )

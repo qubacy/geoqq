@@ -17,8 +17,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.Error
-import com.qubacy.geoqq.data.geochat.auth.common.state.AuthState
+import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.local.LocalError
+import com.qubacy.geoqq.data.common.auth.state.AuthState
 import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragmentTest
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -262,7 +263,7 @@ class SignInFragmentTest : AuthFragmentTest() {
 
     @Test
     fun errorMessageDisplayedOnErrorOccurredInUiStateTest() {
-        val error = Error(R.string.error_sign_in_failed, Error.Level.NORMAL)
+        val error = LocalError(R.string.error_sign_in_failed, ErrorBase.Level.NORMAL)
 
         mSignInFragmentScenarioRule.onFragment {
             mSignInUiStateTestData.showError(error)
@@ -274,7 +275,7 @@ class SignInFragmentTest : AuthFragmentTest() {
 
     @Test
     fun criticalErrorLeadsToClosingApp() {
-        val error = Error(R.string.error_sign_in_failed, Error.Level.CRITICAL)
+        val error = LocalError(R.string.error_sign_in_failed, ErrorBase.Level.CRITICAL)
 
         mSignInFragmentScenarioRule.onFragment {
             mSignInUiStateTestData.showError(error)
