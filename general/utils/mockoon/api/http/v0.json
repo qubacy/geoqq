@@ -64,7 +64,7 @@
       "responses": [
         {
           "uuid": "8cc1c8da-8d61-47f7-a661-608c42cae04e",
-          "body": "{\n  \"access-token\": \"{{faker 'datatype.uuid'}}\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
+          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -136,7 +136,7 @@
       "responses": [
         {
           "uuid": "abf20215-e771-4cde-9a16-7a97f23ec3fc",
-          "body": "{\n  \"access-token\": \"{{faker 'datatype.uuid'}}\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
+          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",

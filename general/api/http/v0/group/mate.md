@@ -2,6 +2,9 @@
 
 ## GET /api/mate/chat
 
+### Header
+- Accept-Language: `en-US`
+
 ### Parameters
 #### Required
 - accessToken=`"<jwt-string>"`
@@ -127,12 +130,11 @@
 ## PUT /api/mate/request/{`id`}
 
 ### Request body
-```json
-{
-    "access-token": "<jwt-string>",
-    "accepted": "<bool>"
-}
-```
+#### Type: *application/x-www-form-urlencoded*
+| Key | Value Type |
+|-----|------------|
+| access-token | `jwt-string` | 
+| accepted | `bool` | 
 
 ### Responses
 - *200*
