@@ -114,9 +114,11 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         val isListEmpty = mAdapter.itemCount <= 0
 
         if (isListEmpty) initChats(chatsUiState)
-        if (chatsUiState.newUiOperations.isEmpty()) return
+        if (chatsUiState.uiOperationCount() <= 0) return
 
-        for (uiOperation in chatsUiState.newUiOperations) {
+        while (true) {
+            val uiOperation = chatsUiState.takeUiOperation() ?: break
+
             processUiOperation(uiOperation, isListEmpty)
         }
     }

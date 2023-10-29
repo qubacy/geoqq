@@ -77,7 +77,9 @@ class SignInFragment : WaitingFragment() {
     }
 
     private fun onUiStateGotten(uiState: SignInUiState) {
-        for (uiOperation in uiState.newUiOperations) {
+        while (true) {
+            val uiOperation = uiState.takeUiOperation() ?: break
+
             processUiOperation(uiOperation)
         }
     }

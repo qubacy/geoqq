@@ -76,7 +76,9 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     private fun onUiStateGotten(uiState: MateRequestsUiState) {
         mAdapter.setItems(uiState.mateRequests)
 
-        for (uiOperation in uiState.newUiOperations) {
+        while (true) {
+            val uiOperation = uiState.takeUiOperation() ?: break
+
             processUiOperation(uiOperation)
         }
     }

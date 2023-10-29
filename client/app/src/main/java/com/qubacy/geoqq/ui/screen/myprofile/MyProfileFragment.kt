@@ -273,9 +273,11 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
     private fun onUiStateChanged(uiState: MyProfileUiState) {
         if (uiState.isFull()) initInputsWithUiState(uiState)
-        if (uiState.newUiOperations.isEmpty()) return
+        if (uiState.uiOperationCount() <= 0) return
 
-        for (uiOperation in uiState.newUiOperations) {
+        while (true) {
+            val uiOperation = uiState.takeUiOperation() ?: break
+
             processUiOperation(uiOperation)
         }
     }

@@ -68,9 +68,9 @@ class SignInViewModel(
     }
 
     fun interruptSignIn() {
-        // todo: handling Sign In interruption..
-
         mIsWaiting.value = false
+
+        mSignInUseCase.interruptSignIn()
     }
 
     private fun stateToUiState(state: SignInState?): SignInUiState? {

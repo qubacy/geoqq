@@ -28,6 +28,9 @@ abstract class WaitingFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if ((mModel as WaitingViewModel).isWaiting.value == true) {
+            handleWaitingStart()
+        }
         (mModel as WaitingViewModel).isWaiting.observe(viewLifecycleOwner) {
             if (it) handleWaitingStart()
             else handleWaitingStop()

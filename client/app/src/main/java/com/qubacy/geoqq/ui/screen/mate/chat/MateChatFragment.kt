@@ -109,9 +109,11 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
         val isListEmpty = mAdapter.itemCount <= 0
 
         if (isListEmpty) initChat(chatUiState)
-        if (chatUiState.newUiOperations.isEmpty()) return
+        if (chatUiState.uiOperationCount() <= 0) return
 
-        for (uiOperation in chatUiState.newUiOperations) {
+        while (true) {
+            val uiOperation = chatUiState.takeUiOperation() ?: break
+
             processUiOperation(uiOperation, isListEmpty)
         }
     }
