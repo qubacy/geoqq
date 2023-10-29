@@ -27,11 +27,11 @@ class AppContainer(
     private val networkSignInDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkSignInDataSource::class.java)
 
-    private val signInDataRepository = SignInDataRepository(networkSignInDataSource)
+    private val signInDataRepository = SignInDataRepository(
+        tokenDataRepository, networkSignInDataSource)
 
 
-
-    val signInUseCase = SignInUseCase(tokenDataRepository, signInDataRepository)
+    val signInUseCase = SignInUseCase(signInDataRepository)
 
     var signInContainer: SignInContainer? = null
 

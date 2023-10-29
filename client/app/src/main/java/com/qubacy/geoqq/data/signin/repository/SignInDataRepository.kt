@@ -9,15 +9,15 @@ import com.qubacy.geoqq.data.common.repository.source.network.error.NetworkDataS
 import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingUtil
-import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
-import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithRefreshTokenResponse
 import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithUsernamePasswordResponse
+import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import java.io.IOException
 
 class SignInDataRepository(
+    val tokenDataRepository: TokenDataRepository,
     val networkSignInDataSource: NetworkSignInDataSource
 ) : DataRepository() {
-    fun signInWithUsernamePassword(
+    suspend fun signInWithUsernamePassword(
         login: String,
         password: String
     ) : Result {
@@ -43,32 +43,15 @@ class SignInDataRepository(
         val accessToken = responseBody.accessToken
         val refreshToken = responseBody.refreshToken
 
+        val saveTokensResult = tokenDataRepository.saveTokens(refreshToken, accessToken)
+
+        if (saveTokensResult is ErrorResult) return saveTokensResult
+
         return SignInWithUsernamePasswordResult(
             accessToken = accessToken, refreshToken = refreshToken)
     }
 
-    fun signInWithRefreshToken(
-        refreshToken: String
-    ): Result {
-        var response: retrofit2.Response<SignInWithRefreshTokenResponse>? = null
-
-        try {
-            response = networkSignInDataSource.signInWithRefreshToken(refreshToken).execute()
-
-        } catch (e: IOException) {
-            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
-        }
-
-        val error = retrieveNetworkError(response as retrofit2.Response<Response>)
-
-        if (error != null) return ErrorResult(error)
-
-        val responseBody = response.body()!!
-
-        val newAccessToken = responseBody.accessToken
-        val newRefreshToken = responseBody.refreshToken
-
-        return SignInWithRefreshTokenResult(
-            accessToken = newAccessToken, refreshToken = newRefreshToken)
+    suspend fun signInWithRefreshToken(): Result {
+        return tokenDataRepository.updateTokens()
     }
 }

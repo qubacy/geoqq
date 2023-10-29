@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SignInUseCase(
-    val tokenDataRepository: TokenDataRepository,
     val signInDataRepository: SignInDataRepository
 ) {
     private val mSignInStateFlow = MutableStateFlow<SignInState?>(null)
@@ -48,7 +47,8 @@ class SignInUseCase(
     }
 
     suspend fun signInWithLocalToken() {
-        val checkExistenceResult = tokenDataRepository.checkLocalRefreshTokenExistence()
+        val checkExistenceResult = signInDataRepository.tokenDataRepository
+            .checkLocalRefreshTokenExistence()
 
         if (checkExistenceResult is ErrorResult) {
             processErrorResult(checkExistenceResult)
@@ -64,7 +64,7 @@ class SignInUseCase(
             return
         }
 
-        val checkResult = tokenDataRepository.checkRefreshTokenValidity()
+        val checkResult = signInDataRepository.tokenDataRepository.checkRefreshTokenValidity()
 
         if (checkResult is ErrorResult) {
             processErrorResult(checkResult)
@@ -72,18 +72,13 @@ class SignInUseCase(
             return
         }
 
-        val signInResult = signInDataRepository
-            .signInWithRefreshToken((checkResult as CheckRefreshTokenValidityResult).refreshToken)
+        val signInResult = signInDataRepository.signInWithRefreshToken()
 
         if (signInResult is ErrorResult) {
             processErrorResult(signInResult)
 
             return
         }
-
-        val signInResultCast = signInResult as SignInWithRefreshTokenResult
-
-        saveSignInTokens(signInResultCast.refreshToken, signInResultCast.accessToken)
 
         val operations = listOf(
             ApproveSignInOperation()
@@ -110,10 +105,6 @@ class SignInUseCase(
             return
         }
 
-        val signInResultCast = signInResult as SignInWithUsernamePasswordResult
-
-        saveSignInTokens(signInResultCast.refreshToken, signInResultCast.accessToken)
-
         val operations = listOf(
             ApproveSignInOperation()
         )
@@ -125,19 +116,6 @@ class SignInUseCase(
         }
 
         mSignInStateFlow.emit(SignInState(operations))
-    }
-
-    private suspend fun saveSignInTokens(
-        refreshToken: String,
-        accessToken: String
-    ) {
-        val tokensSaveResult = tokenDataRepository.saveTokens(refreshToken, accessToken)
-
-        if (tokensSaveResult is ErrorResult) {
-            processErrorResult(tokensSaveResult)
-
-            return
-        }
     }
 
     private fun createErrorState(error: TypedErrorBase): SignInState {

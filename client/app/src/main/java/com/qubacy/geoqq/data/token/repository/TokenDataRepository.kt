@@ -3,7 +3,10 @@ package com.qubacy.geoqq.data.token.repository
 import com.qubacy.geoqq.data.common.repository.DataRepository
 import com.qubacy.geoqq.data.common.repository.result.common.Result
 import com.qubacy.geoqq.data.common.repository.result.error.ErrorResult
+import com.qubacy.geoqq.data.common.repository.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
+import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
+import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithRefreshTokenResponse
 import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
@@ -11,8 +14,10 @@ import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import com.qubacy.geoqq.data.token.repository.result.UpdateAccessTokenResult
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.network.model.response.UpdateTokensResponse
+import java.io.IOException
 
-class TokenDataRepository(
+open class TokenDataRepository(
     val localTokenDataSource: LocalTokenDataSource,
     val networkTokenDataSource: NetworkTokenDataSource
 ) : DataRepository() {
@@ -39,14 +44,22 @@ class TokenDataRepository(
         return CheckRefreshTokenValidityResult(curRefreshToken)
     }
 
-    suspend fun updateAccessToken(): Result {
+    suspend fun updateTokens(): Result {
         val curRefreshToken = localTokenDataSource.loadRefreshToken()
 
         if (curRefreshToken == null)
             return ErrorResult(
                TokenErrorEnum.LOCAL_REFRESH_TOKEN_NOT_FOUND.error)
 
-        val response = networkTokenDataSource.updateTokens(curRefreshToken).execute()
+        var response: retrofit2.Response<UpdateTokensResponse>? = null
+
+        try {
+            response = networkTokenDataSource.updateTokens(curRefreshToken).execute()
+
+        } catch (e: IOException) {
+            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
+        }
+
         val error = retrieveNetworkError(response as retrofit2.Response<Response>)
 
         if (error != null) return ErrorResult(error)
