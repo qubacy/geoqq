@@ -1,48 +1,69 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.signin.model
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
-import com.qubacy.geoqq.data.common.auth.operation.AuthorizeOperation
-import com.qubacy.geoqq.data.common.auth.state.AuthState
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
+import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
+import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.operation.PassSignInUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-// todo: providing a data repository as an argument..
 class SignInViewModel(
+    private val mSignInUseCase: SignInUseCase
+) : WaitingViewModel() {
+    private var mSignInStateFlow = mSignInUseCase.signInStateFlow
 
-) : AuthViewModel() {
+    private var mSignInUiStateFlow = mSignInStateFlow.map { stateToUiState(it) }
+    val signInUiStateFlow: LiveData<SignInUiState?> = mSignInUiStateFlow.asLiveData()
+
     fun isSignInDataCorrect(
-        username: String,
+        login: String,
         password: String
     ): Boolean {
-        if (!isSignInDataFull(username, password))
+        if (!isSignInDataFull(login, password))
             return false
 
-        return UsernameValidator().check(username)
+        return UsernameValidator().check(login)
             && LoginPasswordValidator().check(password)
     }
 
     private fun isSignInDataFull(
-        username: String,
+        login: String,
         password: String
     ): Boolean {
-        return (username.isNotEmpty() && password.isNotEmpty())
+        return (login.isNotEmpty() && password.isNotEmpty())
     }
 
     fun signIn(
-        username: String,
+        login: String,
         password: String
     ) {
-        viewModelScope.launch {
-            // todo: conveying the request to the DATA layer..
-
-            mAuthStateFlow.emit(AuthState(true, listOf(AuthorizeOperation())))
+        viewModelScope.launch(Dispatchers.IO) {
+            mSignInUseCase.signInWithUsernamePassword(login, password)
         }
 
-        //mIsWaiting.value = true
+        mIsWaiting.value = true
+    }
+
+    fun signIn() {
+        viewModelScope.launch(Dispatchers.IO) {
+            mSignInUseCase.signInWithLocalToken()
+        }
+
+        mIsWaiting.value = true
     }
 
     fun interruptSignIn() {
@@ -50,13 +71,51 @@ class SignInViewModel(
 
         mIsWaiting.value = false
     }
+
+    private fun stateToUiState(state: SignInState?): SignInUiState? {
+        mIsWaiting.value = false
+
+        if (state == null) return null
+
+        val uiOperations = mutableListOf<UiOperation>()
+
+        for (operation in state.newOperations) {
+            val uiOperation = processOperation(operation)
+
+            if (uiOperation == null) continue
+
+            uiOperations.add(uiOperation)
+        }
+
+        return SignInUiState(uiOperations)
+    }
+
+    private fun processOperation(operation: Operation): UiOperation? {
+        return when (operation::class.java) {
+            ApproveSignInOperation::class.java -> {
+                val approveSignInOperation = operation as ApproveSignInOperation
+
+                PassSignInUiOperation()
+            }
+            HandleErrorOperation::class.java -> {
+                val handleErrorOperation = operation as HandleErrorOperation
+
+                ShowErrorUiOperation(handleErrorOperation.error)
+            }
+            else -> {
+                throw IllegalStateException()
+            }
+        }
+    }
 }
 
-class SignInViewModelFactory : ViewModelProvider.Factory {
+class SignInViewModelFactory(
+    private val mSignInUseCase: SignInUseCase
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(SignInViewModel::class.java))
             throw IllegalArgumentException()
 
-        return SignInViewModel() as T
+        return SignInViewModel(mSignInUseCase) as T
     }
 }

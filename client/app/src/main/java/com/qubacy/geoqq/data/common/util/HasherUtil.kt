@@ -10,10 +10,10 @@ object HasherUtil {
     fun hashString(
         string: String,
         hashAlgorithm: HashAlgorithm
-    ): String {
+    ): ByteArray {
         val messageDigest = MessageDigest.getInstance(hashAlgorithm.title)
         val stringBytes = string.encodeToByteArray()
 
-        return String(messageDigest.digest(stringBytes))
+        return messageDigest.digest(stringBytes)
     }
 }

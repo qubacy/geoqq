@@ -36,10 +36,6 @@ class GeoChatFragment(
     ChatAdapterCallback,
     UserInfoBottomSheetContentCallback
 {
-    override val mModel: GeoChatViewModel by viewModels {
-        GeoChatViewModelFactory()
-    }
-
     private lateinit var mBinding: FragmentGeoChatBinding
 
     private lateinit var mGeoChatAdapter: ChatAdapter
@@ -58,6 +54,8 @@ class GeoChatFragment(
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        mModel = GeoChatViewModelFactory().create(GeoChatViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -91,10 +89,10 @@ class GeoChatFragment(
             onSendingMessageButtonClicked()
         }
 
-        mModel.geoChatUiStateFlow.value?.let {
+        (mModel as GeoChatViewModel).geoChatUiStateFlow.value?.let {
             initChat(it)
         }
-        mModel.geoChatUiStateFlow.observe(viewLifecycleOwner) {
+            (mModel as GeoChatViewModel).geoChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatUiStateGotten(it)
@@ -122,7 +120,7 @@ class GeoChatFragment(
                 if (isListEmpty) return
 
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
-                val message = mModel.geoChatUiStateFlow.value!!.messages.find {
+                val message = (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.messages.find {
                     it.messageId == addMessageUiOperation.messageId
                 }!!
 
@@ -153,7 +151,7 @@ class GeoChatFragment(
     private fun onSendingMessageButtonClicked() {
         val messageText = mBinding.messageSendingSection.sendingMessage.text.toString()
 
-        if (!mModel.isMessageCorrect(messageText)) {
+        if (!(mModel as GeoChatViewModel).isMessageCorrect(messageText)) {
             showMessage(R.string.error_chat_message_incorrect, 400)
 
             return
@@ -161,7 +159,7 @@ class GeoChatFragment(
 
         mBinding.messageSendingSection.sendingMessage.text?.clear()
 
-        mModel.sendMessage(messageText)
+                (mModel as GeoChatViewModel).sendMessage(messageText)
     }
 
     override fun onLocationPointChanged(newLocationPoint: Point) {
@@ -171,13 +169,13 @@ class GeoChatFragment(
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.geoChatUiStateFlow.value!!.users.find {
+        return (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.users.find {
             it.userId == userId
         }!!
     }
 
     override fun onMessageClicked(message: Message) {
-        if (mModel.isLocalUser(message.userId)) return
+        if ((mModel as GeoChatViewModel).isLocalUser(message.userId)) return
 
         closeSoftKeyboard()
 
@@ -188,6 +186,6 @@ class GeoChatFragment(
     }
 
     override fun addToFriend(user: User) {
-        mModel.addToFriend(user)
+        (mModel as GeoChatViewModel).addToFriend(user)
     }
 }

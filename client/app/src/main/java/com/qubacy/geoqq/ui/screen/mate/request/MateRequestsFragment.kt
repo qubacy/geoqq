@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.fragment.app.viewModels
 import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
@@ -24,10 +23,6 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModelFactor
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 
 class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
-    override val mModel: MateRequestsViewModel by viewModels {
-        MateRequestsViewModelFactory()
-    }
-
     private lateinit var mBinding: FragmentMateRequestsBinding
     private lateinit var mAdapter: MateRequestsAdapter
 
@@ -44,6 +39,8 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        mModel = MateRequestsViewModelFactory().create(MateRequestsViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -66,10 +63,10 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
             adapter = mAdapter
         }
 
-        mModel.mateRequestFlow.value?.let {
+        (mModel as MateRequestsViewModel).mateRequestFlow.value?.let {
             mAdapter.setItems(it.mateRequests)
         }
-        mModel.mateRequestFlow.observe(viewLifecycleOwner) {
+            (mModel as MateRequestsViewModel).mateRequestFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateGotten(it)
@@ -97,7 +94,8 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.mateRequestFlow.value!!.users.find { it.userId == userId }!!
+        return (mModel as MateRequestsViewModel).mateRequestFlow.value!!
+            .users.find { it.userId == userId }!!
     }
 
     override fun onMateRequestSwiped(
@@ -105,10 +103,10 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         direction: Carousel3DContext.SwipeDirection
     ) {
         if (direction == Carousel3DContext.SwipeDirection.RIGHT) {
-            mModel.acceptMateRequest(mateRequest)
+            (mModel as MateRequestsViewModel).acceptMateRequest(mateRequest)
 
         } else {
-            mModel.declineMateRequest(mateRequest)
+            (mModel as MateRequestsViewModel).declineMateRequest(mateRequest)
         }
     }
 }

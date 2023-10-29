@@ -31,10 +31,6 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperati
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
 
 class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
-    override val mModel: MateChatsViewModel by viewModels {
-        MateChatsViewModelFactory()
-    }
-
     private lateinit var mBinding: FragmentMateChatsBinding
 
     private lateinit var mAdapter: MateChatsAdapter
@@ -63,6 +59,8 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        mModel = MateChatsViewModelFactory().create(MateChatsViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -92,10 +90,10 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             onFriendRequestsClicked()
         }
 
-        mModel.mateChatsUiStateFlow.value?.let {
+        (mModel as MateChatsViewModel).mateChatsUiStateFlow.value?.let {
             initChats(it)
         }
-        mModel.mateChatsUiStateFlow.observe(viewLifecycleOwner) {
+            (mModel as MateChatsViewModel).mateChatsUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatsUiStateGotten(it)
@@ -129,23 +127,26 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
                 if (isListEmpty) return
 
                 val addChatUiOperation = uiOperation as AddChatUiOperation
-                val chat = mModel.mateChatsUiStateFlow.value!!.chatPreviews.find {
-                    it.chatId == addChatUiOperation.chatId
-                }!!
+                val chat = (mModel as MateChatsViewModel)
+                    .mateChatsUiStateFlow.value!!.chatPreviews.find {
+                        it.chatId == addChatUiOperation.chatId
+                    }!!
 
                 mAdapter.addItem(chat)
             }
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation
-                val chat = mModel.mateChatsUiStateFlow.value!!.chatPreviews.find {
-                    it.chatId == updateChatUiOperation.chatId
-                }!!
+                val chat = (mModel as MateChatsViewModel)
+                    .mateChatsUiStateFlow.value!!.chatPreviews.find {
+                        it.chatId == updateChatUiOperation.chatId
+                    }!!
 
                 mAdapter.updateItem(chat)
             }
             UpdateRequestCountUiOperation::class -> {
                 val updateRequestCountUiOperation = uiOperation as UpdateRequestCountUiOperation
-                val requestCount = mModel.mateChatsUiStateFlow.value!!.requestCount
+                val requestCount = (mModel as MateChatsViewModel)
+                    .mateChatsUiStateFlow.value!!.requestCount
 
                 onMateRequestCountChanged(requestCount)
             }

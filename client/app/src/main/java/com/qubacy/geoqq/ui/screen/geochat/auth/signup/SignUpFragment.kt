@@ -8,23 +8,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.transition.Slide
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModelFactory
 
-class SignUpFragment : AuthFragment() {
-    override val mModel: SignUpViewModel by viewModels {
-        SignUpViewModelFactory()
-    }
+class SignUpFragment(
 
+) : WaitingFragment() {
     private lateinit var mBinding: FragmentSignUpBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +49,14 @@ class SignUpFragment : AuthFragment() {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.signUpContainer =
+            SignUpContainer()
+
+        mModel = application.appContainer.signUpContainer!!
+            .signUpViewModelFactory.create(SignUpViewModel::class.java)
     }
 
     private fun getExitTransitionListener(): Transition.TransitionListener {
@@ -84,7 +90,7 @@ class SignUpFragment : AuthFragment() {
         }
     }
 
-    override fun moveToMainMenu() {
+    fun moveToMainMenu() {
         findNavController().navigate(R.id.action_signUpFragment_to_mainMenuFragment)
     }
 
@@ -93,18 +99,19 @@ class SignUpFragment : AuthFragment() {
         val password = mBinding.passwordInput.input.text.toString()
         val repeatedPassword = mBinding.passwordConfirmationInput.input.text.toString()
 
-        if (!mModel.isSignUpDataCorrect(login, password, repeatedPassword)) {
+        if (!(mModel as SignUpViewModel).isSignUpDataCorrect(login, password, repeatedPassword)) {
             showMessage(R.string.error_sign_up_data_incorrect)
 
             return
         }
 
-        mModel.signUp(login, password, repeatedPassword)
+        closeSoftKeyboard()
+        (mModel as SignUpViewModel).signUp(login, password, repeatedPassword)
     }
 
     override fun handleWaitingAbort() {
         super.handleWaitingAbort()
 
-        mModel.interruptSignUp()
+        (mModel as SignUpViewModel).interruptSignUp()
     }
 }

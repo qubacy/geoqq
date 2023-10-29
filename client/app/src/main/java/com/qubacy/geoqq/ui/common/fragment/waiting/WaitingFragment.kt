@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.common.fragment.waiting
 
 import android.os.Bundle
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +15,6 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 abstract class WaitingFragment(
     @LayoutRes val loadingViewLayoutResId: Int = R.layout.component_loading_screen
 ) : BaseFragment() {
-    abstract override val mModel: WaitingViewModel
-
     private var mLoadingView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +28,7 @@ abstract class WaitingFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mModel.isWaiting.observe(viewLifecycleOwner) {
+        (mModel as WaitingViewModel).isWaiting.observe(viewLifecycleOwner) {
             if (it) handleWaitingStart()
             else handleWaitingStop()
         }
@@ -41,7 +38,7 @@ abstract class WaitingFragment(
         dispatcher: OnBackPressedDispatcher,
         callback: OnBackPressedCallback)
     {
-        if (!mModel.isWaiting.value!!) {
+        if (!(mModel as WaitingViewModel).isWaiting.value!!) {
             callback.remove()
             dispatcher.onBackPressed()
 

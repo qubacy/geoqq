@@ -7,20 +7,20 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.applicaion.container.signin.SignInContainer
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragment
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.operation.PassSignInUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 
-class SignInFragment : AuthFragment() {
-    override val mModel: SignInViewModel by viewModels {
-        SignInViewModelFactory()
-    }
-
+class SignInFragment : WaitingFragment() {
     private lateinit var mBinding: FragmentSignInBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +36,14 @@ class SignInFragment : AuthFragment() {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.signInContainer =
+            SignInContainer(application.appContainer.signInUseCase)
+
+        mModel = application.appContainer.signInContainer!!
+            .signInViewModelFactory.create(SignInViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -54,10 +62,46 @@ class SignInFragment : AuthFragment() {
         mBinding.signInButton.setOnClickListener { onSignInButtonClicked() }
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
 
+        (mModel as SignInViewModel).signInUiStateFlow.value?.let {
+            onUiStateGotten(it)
+        }
+        (mModel as SignInViewModel).signInUiStateFlow.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
+            onUiStateGotten(it)
+        }
+
         setStartAnimation() // todo: think of this! it isn't working OK all the time.
+
+        (mModel as SignInViewModel).signIn()
     }
 
-    override fun moveToMainMenu() {
+    private fun onUiStateGotten(uiState: SignInUiState) {
+        for (uiOperation in uiState.newUiOperations) {
+            processUiOperation(uiOperation)
+        }
+    }
+
+    private fun processUiOperation(uiOperation: UiOperation) {
+        when (uiOperation::class.java) {
+            PassSignInUiOperation::class.java -> {
+                val passSignInUiOperation = uiOperation as PassSignInUiOperation
+
+                processPassSignInUiOperation(passSignInUiOperation)
+            }
+            ShowErrorUiOperation::class.java -> {
+                val showErrorUiOperation = uiOperation as ShowErrorUiOperation
+
+                onErrorOccurred(showErrorUiOperation.error)
+            }
+        }
+    }
+
+    private fun processPassSignInUiOperation(passSignInUiOperation: PassSignInUiOperation) {
+        moveToMainMenu()
+    }
+
+    private fun moveToMainMenu() {
         findNavController().navigate(R.id.action_signInFragment_to_mainMenuFragment)
     }
 
@@ -69,13 +113,14 @@ class SignInFragment : AuthFragment() {
         val login = mBinding.loginInput.input.text.toString()
         val password = mBinding.passwordInput.input.text.toString()
 
-        if (!mModel.isSignInDataCorrect(login, password)) {
+        if (!(mModel as SignInViewModel).isSignInDataCorrect(login, password)) {
             showMessage(R.string.error_sign_in_data_incorrect)
 
             return
         }
 
-        mModel.signIn(login, password)
+        closeSoftKeyboard()
+        (mModel as SignInViewModel).signIn(login, password)
     }
 
     private fun setStartAnimation() {
@@ -96,6 +141,6 @@ class SignInFragment : AuthFragment() {
     override fun handleWaitingAbort() {
         super.handleWaitingAbort()
 
-        mModel.interruptSignIn()
+        (mModel as SignInViewModel).interruptSignIn()
     }
 }

@@ -5,15 +5,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
-import com.qubacy.geoqq.data.common.auth.operation.AuthorizeOperation
-import com.qubacy.geoqq.data.common.auth.state.AuthState
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.model.AuthViewModel
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import kotlinx.coroutines.launch
 
 // todo: providing a data repository as an argument..
 class SignUpViewModel(
 
-) : AuthViewModel() {
+) : WaitingViewModel() {
+
+
     fun isSignUpDataCorrect(
         username: String,
         password: String,
@@ -46,7 +46,7 @@ class SignUpViewModel(
         viewModelScope.launch {
             // todo: conveying the data to the DATA layer..
 
-            mAuthStateFlow.emit(AuthState(true, listOf(AuthorizeOperation())))
+
         }
 
 //        mIsWaiting.value = true
@@ -59,7 +59,9 @@ class SignUpViewModel(
     }
 }
 
-class SignUpViewModelFactory : ViewModelProvider.Factory {
+class SignUpViewModelFactory(
+
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(SignUpViewModel::class.java))
             throw IllegalArgumentException()

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.MaterialContainerTransform
@@ -37,9 +36,6 @@ import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 
 class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
     private val mArgs by navArgs<MateChatFragmentArgs>()
-    override val mModel: MateChatViewModel by viewModels {
-        MateChatViewModelFactory(mArgs.chatId)
-    }
 
     private lateinit var mBinding: FragmentMateChatBinding
     private lateinit var mAdapter: ChatAdapter
@@ -53,6 +49,8 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
         }
 
         requireActivity().addMenuProvider(this)
+
+        mModel = MateChatViewModelFactory(mArgs.chatId).create(MateChatViewModel::class.java)
     }
 
     override fun onDestroy() {
@@ -92,10 +90,10 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
             onSendingMessageButtonClicked()
         }
 
-        mModel.mateChatUiStateFlow.value?.let {
+        (mModel as MateChatViewModel).mateChatUiStateFlow.value?.let {
             initChat(it)
         }
-        mModel.mateChatUiStateFlow.observe(viewLifecycleOwner) {
+            (mModel as MateChatViewModel).mateChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatUiStateGotten(it)
@@ -132,7 +130,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
                 if (isListEmpty) return
 
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
-                val message = mModel.mateChatUiStateFlow.value!!.messages.find {
+                val message = (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.messages.find {
                     it.messageId == addMessageUiOperation.messageId
                 }!!
 
@@ -148,7 +146,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
             ChangeChatInfoUiOperation::class -> {
                 val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
 
-                setChatInfo(mModel.mateChatUiStateFlow.value!!.chat as MateChat)
+                setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.chat as MateChat)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
@@ -167,7 +165,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
     private fun onSendingMessageButtonClicked() {
         val messageText = mBinding.messageSendingSection.sendingMessage.text.toString()
 
-        if (!mModel.isMessageCorrect(messageText)) {
+        if (!(mModel as MateChatViewModel).isMessageCorrect(messageText)) {
             showMessage(R.string.error_chat_message_incorrect, 400)
 
             return
@@ -175,11 +173,11 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
 
         mBinding.messageSendingSection.sendingMessage.text?.clear()
 
-        mModel.sendMessage(messageText)
+                (mModel as MateChatViewModel).sendMessage(messageText)
     }
 
     override fun getUserById(userId: Long): User {
-        return mModel.mateChatUiStateFlow.value!!.users.find {
+        return (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.users.find {
             it.userId == userId
         }!!
     }
@@ -207,7 +205,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
     private fun onShowUserInfoActionClicked() {
         closeSoftKeyboard()
 
-        val user = mModel.getMateInfo()
+        val user = (mModel as MateChatViewModel).getMateInfo()
 
         mBinding.bottomSheet.bottomSheetContentCard.setData(user)
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()

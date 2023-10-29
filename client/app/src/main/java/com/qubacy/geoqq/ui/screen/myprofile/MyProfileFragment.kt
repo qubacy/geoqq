@@ -16,7 +16,6 @@ import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
@@ -48,10 +47,6 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
     }
 
-    override val mModel: MyProfileViewModel by viewModels {
-        MyProfileViewModelFactory()
-    }
-
     private lateinit var mBinding: FragmentMyProfileBinding
 
     private lateinit var mPrivacyHitUpAdapter: ArrayAdapter<String>
@@ -74,6 +69,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        mModel = MyProfileViewModelFactory().create(MyProfileViewModel::class.java)
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {
@@ -233,12 +230,12 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             setAdapter(mPrivacyHitUpAdapter)
         }
 
-        mModel.myProfileUiState.value?.let {
+        (mModel as MyProfileViewModel).myProfileUiState.value?.let {
             if (!it.isFull()) return@let
 
             initInputsWithUiState(it)
         }
-        mModel.myProfileUiState.observe(viewLifecycleOwner) {
+            (mModel as MyProfileViewModel).myProfileUiState.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateChanged(it)
@@ -302,7 +299,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         onTextInputContentChanged(
             description,
             DESCRIPTION_TEXT_KEY,
-            mModel.myProfileUiState.value!!.description!!,
+            (mModel as MyProfileViewModel).myProfileUiState.value!!.description!!,
             mBinding.aboutMeInput.inputLayout
         )
     }
@@ -397,8 +394,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     private fun onPrivacyHitUpItemSelected(position: Int) {
         Log.d(TAG, "onPrivacyHitUpItemSelected(): position = $position")
 
-        val curOption = mModel.getHitUpOptionByIndex(position)
-        val prevOption = mModel.myProfileUiState.value!!.hitUpOption!!
+        val curOption = (mModel as MyProfileViewModel).getHitUpOptionByIndex(position)
+        val prevOption = (mModel as MyProfileViewModel).myProfileUiState.value!!.hitUpOption!!
 
         if (curOption == prevOption) {
             mChangedInputHash.remove(PRIVACY_HIT_UP_POSITION_KEY)
@@ -431,19 +428,19 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     private fun onConfirmButtonClicked() {
         if (mChangedInputHash.isEmpty()) return
 
-        if (!mModel.isChangedProfileDataCorrect(mChangedInputHash)) {
+        if (!(mModel as MyProfileViewModel).isChangedProfileDataCorrect(mChangedInputHash)) {
             showMessage(R.string.error_my_profile_data_incorrect)
 
             return
         }
 
-        mModel.saveProfileData(mChangedInputHash)
+        (mModel as MyProfileViewModel).saveProfileData(mChangedInputHash)
     }
 
     override fun handleWaitingAbort() {
         super.handleWaitingAbort()
 
-        mModel.interruptSavingProfileData()
+        (mModel as MyProfileViewModel).interruptSavingProfileData()
     }
 
     override fun onImagePicked(image: Uri) {

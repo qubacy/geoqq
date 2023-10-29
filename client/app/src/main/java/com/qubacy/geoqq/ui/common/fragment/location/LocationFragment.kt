@@ -27,8 +27,6 @@ abstract class LocationFragment() : WaitingFragment() {
         const val DEFAULT_LOCATION_UPDATING_INTERVAL = 10000L
     }
 
-    abstract override val mModel: LocationViewModel
-
     private var mLocationUpdatingInterval: Long = DEFAULT_LOCATION_UPDATING_INTERVAL
 
     private var mAreLocationServicesEnabled = false
@@ -74,7 +72,7 @@ abstract class LocationFragment() : WaitingFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mModel.lastLocationPoint.observe(viewLifecycleOwner) {
+        (mModel as LocationViewModel).lastLocationPoint.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onLocationPointChanged(it)
@@ -137,7 +135,7 @@ abstract class LocationFragment() : WaitingFragment() {
             return
         }
 
-        mModel.changeLastLocation(newLocation)
+        (mModel as LocationViewModel).changeLastLocation(newLocation)
     }
 
     open fun getOnLocationChangedCallback(): LocationCallback {

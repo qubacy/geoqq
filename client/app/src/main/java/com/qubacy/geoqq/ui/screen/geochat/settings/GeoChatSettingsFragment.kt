@@ -44,10 +44,6 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         const val VIEW_CIRCLE_COEFFICIENT = 1.2f
     }
 
-    override val mModel: GeoChatSettingsViewModel by viewModels {
-        GeoChatSettingsViewModelFactory()
-    }
-
     private lateinit var mBinding: FragmentGeoChatSettingsBinding
 
     private var mCurLocationCircle: CircleMapObject? = null
@@ -77,6 +73,8 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        mModel = GeoChatSettingsViewModelFactory().create(GeoChatSettingsViewModel::class.java)
     }
 
     override fun onDestroy() {
@@ -89,7 +87,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
 
         MapKitFactory.getInstance().onStart()
 
-        mModel.onMapLoadingStarted()
+        (mModel as GeoChatSettingsViewModel).onMapLoadingStarted()
 
         mBinding.map.apply {
             onStart()
@@ -99,7 +97,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     }
 
     override fun onStop() {
-        mModel.onMapLoadingStopped()
+        (mModel as GeoChatSettingsViewModel).onMapLoadingStopped()
         MapKitFactory.getInstance().onStop()
         mBinding.map.onStop()
 
@@ -130,38 +128,38 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         }
 
         mBinding.radiusSetting1.apply {
-            radiusSettingOptionText = mModel.getLabelForRadiusOption(0)
+            radiusSettingOptionText = (mModel as GeoChatSettingsViewModel).getLabelForRadiusOption(0)
 
             radioButton.setOnClickListener {
-                mModel.changeCurRadiusOptionIndex(0)
+                (mModel as GeoChatSettingsViewModel).changeCurRadiusOptionIndex(0)
             }
         }
         mBinding.radiusSetting2.apply {
-            radiusSettingOptionText = mModel.getLabelForRadiusOption(1)
+            radiusSettingOptionText = (mModel as GeoChatSettingsViewModel).getLabelForRadiusOption(1)
 
             radioButton.setOnClickListener {
-                mModel.changeCurRadiusOptionIndex(1)
+                (mModel as GeoChatSettingsViewModel).changeCurRadiusOptionIndex(1)
             }
         }
         mBinding.radiusSetting3.apply {
-            radiusSettingOptionText = mModel.getLabelForRadiusOption(2)
+            radiusSettingOptionText = (mModel as GeoChatSettingsViewModel).getLabelForRadiusOption(2)
 
             radioButton.setOnClickListener {
-                mModel.changeCurRadiusOptionIndex(2)
+                (mModel as GeoChatSettingsViewModel).changeCurRadiusOptionIndex(2)
             }
         }
         mBinding.radiusSetting4.apply {
-            radiusSettingOptionText = mModel.getLabelForRadiusOption(3)
+            radiusSettingOptionText = (mModel as GeoChatSettingsViewModel).getLabelForRadiusOption(3)
 
             radioButton.setOnClickListener {
-                mModel.changeCurRadiusOptionIndex(3)
+                (mModel as GeoChatSettingsViewModel).changeCurRadiusOptionIndex(3)
             }
         }
         mBinding.radiusSetting5.apply {
-            radiusSettingOptionText = mModel.getLabelForRadiusOption(4)
+            radiusSettingOptionText = (mModel as GeoChatSettingsViewModel).getLabelForRadiusOption(4)
 
             radioButton.setOnClickListener {
-                mModel.changeCurRadiusOptionIndex(4)
+                (mModel as GeoChatSettingsViewModel).changeCurRadiusOptionIndex(4)
             }
         }
 
@@ -170,12 +168,12 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             setOnClickListener { onGoClicked() }
         }
 
-        mModel.curRadiusOptionIndex.observe(viewLifecycleOwner) {
+        (mModel as GeoChatSettingsViewModel).curRadiusOptionIndex.observe(viewLifecycleOwner) {
             Log.d(TAG, "curRadiusOptionIndex.observe")
 
             changeRadiusChoice(it)
 
-            drawCurLocationCircle(mModel.lastLocationPoint.value)
+            drawCurLocationCircle((mModel as GeoChatSettingsViewModel).lastLocationPoint.value)
             setCameraPositionForCurCircle()
         }
 
@@ -211,7 +209,8 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
 
     private fun onGoClicked() {
         val directions = GeoChatSettingsFragmentDirections
-            .actionGeoChatSettingsFragmentToGeoChatFragment(mModel.getCurRadiusOptionMeters())
+            .actionGeoChatSettingsFragmentToGeoChatFragment(
+                (mModel as GeoChatSettingsViewModel).getCurRadiusOptionMeters())
 
         findNavController().navigate(directions)
     }
@@ -221,7 +220,8 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
 
         if (locationPoint == null) return
 
-        val locationCircle = Circle(locationPoint, mModel.getCurRadiusOptionMeters())
+        val locationCircle = Circle(
+            locationPoint, (mModel as GeoChatSettingsViewModel).getCurRadiusOptionMeters())
 
         if (mCurLocationCircle != null) removeCircleFromMap(mCurLocationCircle!!)
 
@@ -280,7 +280,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     }
 
     override fun onMapLoaded(p0: MapLoadStatistics) {
-        mModel.onMapLoadingStopped()
+        (mModel as GeoChatSettingsViewModel).onMapLoadingStopped()
 
         mBinding.goButton.isEnabled = true
     }

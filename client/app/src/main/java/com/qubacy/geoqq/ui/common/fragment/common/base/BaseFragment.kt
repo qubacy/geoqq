@@ -17,7 +17,7 @@ import com.qubacy.geoqq.ui.common.fragment.common.styleable.StyleableFragment
 import com.qubacy.geoqq.ui.common.util.ErrorUtil
 
 abstract class BaseFragment() : StyleableFragment() {
-    protected abstract val mModel: BaseViewModel
+    protected var mModel: BaseViewModel? = null
 
     private lateinit var mPermissionRequestLauncher: ActivityResultLauncher<Array<String>>
 
