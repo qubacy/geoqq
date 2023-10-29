@@ -11,6 +11,7 @@ import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
+import com.qubacy.geoqq.domain.geochat.signin.operation.DeclineAutomaticSignInOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -96,6 +97,13 @@ class SignInViewModel(
                 val approveSignInOperation = operation as ApproveSignInOperation
 
                 PassSignInUiOperation()
+            }
+            DeclineAutomaticSignInOperation::class.java -> {
+                val declineAutomaticSignInOperation = operation as DeclineAutomaticSignInOperation
+
+                mIsWaiting.value = false
+
+                null
             }
             HandleErrorOperation::class.java -> {
                 val handleErrorOperation = operation as HandleErrorOperation

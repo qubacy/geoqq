@@ -5,10 +5,14 @@ import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataS
 import com.qubacy.geoqq.data.common.repository.DataRepository
 import com.qubacy.geoqq.data.common.repository.result.common.Result
 import com.qubacy.geoqq.data.common.repository.result.error.ErrorResult
+import com.qubacy.geoqq.data.common.repository.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingUtil
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
+import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithRefreshTokenResponse
+import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithUsernamePasswordResponse
+import java.io.IOException
 
 class SignInDataRepository(
     val networkSignInDataSource: NetworkSignInDataSource
@@ -20,8 +24,15 @@ class SignInDataRepository(
         val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
         val passwordHash = StringEncodingUtil.bytesAsBase64String(passwordHashBytes)
 
-        val response = networkSignInDataSource
-            .signInWithUsernameAndPassword(login, passwordHash).execute()
+        var response: retrofit2.Response<SignInWithUsernamePasswordResponse>? = null
+
+        try {
+            response = networkSignInDataSource
+                    .signInWithUsernameAndPassword(login, passwordHash).execute()
+
+        } catch (e: IOException) {
+            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
+        }
 
         val error = retrieveNetworkError(response as retrofit2.Response<Response>)
 
@@ -39,7 +50,14 @@ class SignInDataRepository(
     fun signInWithRefreshToken(
         refreshToken: String
     ): Result {
-        val response = networkSignInDataSource.signInWithRefreshToken(refreshToken).execute()
+        var response: retrofit2.Response<SignInWithRefreshTokenResponse>? = null
+
+        try {
+            response = networkSignInDataSource.signInWithRefreshToken(refreshToken).execute()
+
+        } catch (e: IOException) {
+            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
+        }
 
         val error = retrieveNetworkError(response as retrofit2.Response<Response>)
 

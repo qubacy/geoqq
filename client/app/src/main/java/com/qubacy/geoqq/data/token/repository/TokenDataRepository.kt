@@ -5,6 +5,7 @@ import com.qubacy.geoqq.data.common.repository.result.common.Result
 import com.qubacy.geoqq.data.common.repository.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.token.error.TokenErrorEnum
+import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import com.qubacy.geoqq.data.token.repository.result.UpdateAccessTokenResult
@@ -15,6 +16,12 @@ class TokenDataRepository(
     val localTokenDataSource: LocalTokenDataSource,
     val networkTokenDataSource: NetworkTokenDataSource
 ) : DataRepository() {
+    suspend fun checkLocalRefreshTokenExistence(): Result {
+        val curRefreshToken = localTokenDataSource.loadRefreshToken()
+
+        return CheckRefreshTokenExistenceResult(curRefreshToken != null)
+    }
+
     suspend fun checkRefreshTokenValidity(): Result {
         val curRefreshToken = localTokenDataSource.loadRefreshToken()
 
