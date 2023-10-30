@@ -3,6 +3,7 @@ package com.qubacy.geoqq.domain.common
 import com.qubacy.geoqq.common.error.common.TypedErrorBase
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.data.common.repository.common.DataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicBoolean
@@ -14,6 +15,7 @@ abstract class UseCase<StateType>(
     val stateFlow: StateFlow<StateType?> = mStateFlow
 
     protected val mInterruptionFlag = AtomicBoolean(false)
+    protected var mCurrentRepository: DataRepository? = null
 
     protected abstract fun generateErrorState(operations: List<Operation>): StateType
 
@@ -27,6 +29,8 @@ abstract class UseCase<StateType>(
     }
 
     fun interruptOperation() {
+        mCurrentRepository?.let { it.interrupt() }
+
         mInterruptionFlag.set(true)
     }
 }

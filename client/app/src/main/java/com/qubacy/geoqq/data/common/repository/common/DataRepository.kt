@@ -1,10 +1,10 @@
-package com.qubacy.geoqq.data.common.repository
+package com.qubacy.geoqq.data.common.repository.common
 
 import com.qubacy.geoqq.common.error.common.TypedErrorBase
-import com.qubacy.geoqq.data.common.repository.source.network.NetworkDataSourceContext
-import com.qubacy.geoqq.data.common.repository.source.network.error.NetworkDataSourceErrorEnum
-import com.qubacy.geoqq.data.common.repository.source.network.error.toRemoteError
-import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
+import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
+import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
+import com.qubacy.geoqq.data.common.repository.common.source.network.error.toRemoteError
+import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -27,4 +27,6 @@ abstract class DataRepository(
 
         return errorResponse.error.toRemoteError()
     }
+
+    abstract fun interrupt()
 }

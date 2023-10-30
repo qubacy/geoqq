@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.data.common.repository.source.network
+package com.qubacy.geoqq.data.common.repository.common.source.network
 
 import android.os.Build
 import android.os.LocaleList
-import com.qubacy.geoqq.data.common.repository.source.network.model.response.error.ErrorResponse
+import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.error.ErrorResponse
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor

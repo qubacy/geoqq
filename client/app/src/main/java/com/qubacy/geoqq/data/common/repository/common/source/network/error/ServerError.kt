@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.data.common.repository.source.network.error
+package com.qubacy.geoqq.data.common.repository.common.source.network.error
 
 import com.qubacy.geoqq.common.error.common.ErrorBase
 import com.qubacy.geoqq.common.error.remote.RemoteError
-import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
+import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

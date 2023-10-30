@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import com.qubacy.geoqq.applicaion.container.signin.SignInContainer
 import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
-import com.qubacy.geoqq.data.common.repository.source.network.NetworkDataSourceContext
+import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
@@ -14,7 +14,6 @@ import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
-import retrofit2.create
 
 class AppContainer(
     context: Context

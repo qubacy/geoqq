@@ -2,21 +2,25 @@ package com.qubacy.geoqq.data.signin.repository
 
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithUsernamePasswordResult
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
-import com.qubacy.geoqq.data.common.repository.DataRepository
-import com.qubacy.geoqq.data.common.repository.result.common.Result
-import com.qubacy.geoqq.data.common.repository.result.error.ErrorResult
-import com.qubacy.geoqq.data.common.repository.source.network.error.NetworkDataSourceErrorEnum
-import com.qubacy.geoqq.data.common.repository.source.network.model.response.common.Response
+import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
+import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
+import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
+import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
+import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingUtil
 import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithUsernamePasswordResponse
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import retrofit2.Call
 import java.io.IOException
+import java.io.InterruptedIOException
+import java.net.SocketException
 
 class SignInDataRepository(
     val tokenDataRepository: TokenDataRepository,
     val networkSignInDataSource: NetworkSignInDataSource
-) : DataRepository() {
+) : NetworkDataRepository() {
     suspend fun signInWithUsernamePassword(
         login: String,
         password: String
@@ -27,9 +31,12 @@ class SignInDataRepository(
         var response: retrofit2.Response<SignInWithUsernamePasswordResponse>? = null
 
         try {
-            response = networkSignInDataSource
-                    .signInWithUsernameAndPassword(login, passwordHash).execute()
+            mCurrentNetworkRequest = networkSignInDataSource
+                .signInWithUsernameAndPassword(login, passwordHash) as Call<Response>
+            response = mCurrentNetworkRequest!!
+                .execute() as retrofit2.Response<SignInWithUsernamePasswordResponse>
 
+        } catch (e: SocketException) { return InterruptionResult()
         } catch (e: IOException) {
             return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
         }

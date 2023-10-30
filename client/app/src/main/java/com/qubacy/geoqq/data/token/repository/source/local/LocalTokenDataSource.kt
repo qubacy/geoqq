@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data.token.repository.source.local
 
 import android.content.SharedPreferences
 import com.auth0.android.jwt.JWT
-import com.qubacy.geoqq.data.common.repository.source.DataSource
+import com.qubacy.geoqq.data.common.repository.common.source.DataSource
 import java.lang.Exception
 
 class LocalTokenDataSource(

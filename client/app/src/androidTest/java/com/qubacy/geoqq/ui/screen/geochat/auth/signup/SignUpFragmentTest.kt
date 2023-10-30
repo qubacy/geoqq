@@ -4,7 +4,6 @@ import android.view.View
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -15,17 +14,21 @@ import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.common.TypedErrorBase
 import com.qubacy.geoqq.common.error.local.LocalError
-import com.qubacy.geoqq.data.common.auth.state.AuthState
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragmentTest
-import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
+import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Before
@@ -34,12 +37,37 @@ import org.junit.runner.RunWith
 import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
-class SignUpFragmentTest : AuthFragmentTest() {
+class SignUpFragmentTest {
+    class SignUpUiStateTestData(
+        private val mSignUpStateFlow: MutableStateFlow<SignUpState>
+    ) {
+        fun register() {
+            val operations = listOf(
+                ApproveSignUpOperation()
+            )
+
+            emitState(SignUpState(operations))
+        }
+
+        fun showError(error: TypedErrorBase) {
+            val operations = listOf(
+                HandleErrorOperation(error)
+            )
+
+            emitState(SignUpState(operations))
+        }
+
+        private fun emitState(state: SignUpState) {
+            runBlocking {
+                mSignUpStateFlow.emit(state)
+            }
+        }
+    }
+
     private lateinit var mSignUpFragmentScenarioRule: FragmentScenario<SignUpFragment>
-    private lateinit var mModel: SignUpViewModel
     private lateinit var mNavController: TestNavHostController
 
-    private lateinit var mSignUpUiStateTestData: AuthUiStateTestData
+    private lateinit var mSignUpUiStateTestData: SignUpUiStateTestData
 
     @Before
     fun setup() {
@@ -49,22 +77,29 @@ class SignUpFragmentTest : AuthFragmentTest() {
 
         mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
+        var fragment: SignUpFragment? = null
+
         mSignUpFragmentScenarioRule.onFragment {
             mNavController.setGraph(R.navigation.nav_graph)
             mNavController.setCurrentDestination(R.id.signUpFragment)
             Navigation.setViewNavController(it.requireView(), mNavController)
 
-            mModel = ViewModelProvider(it)[SignUpViewModel::class.java]
+            fragment = it
         }
 
-        val authStateFlowFieldReflection = SignInViewModel::class.java.superclass
-            .getDeclaredField("mAuthStateFlow").apply {
+        val signUpViewModelFieldReference = SignUpFragment::class.java.superclass.superclass
+            .getDeclaredField("mModel").apply {
+                isAccessible = true
+            }
+        val signUpStateFlowFieldReflection = SignUpViewModel::class.java
+            .getDeclaredField("mSignUpStateFlow").apply {
                 isAccessible = true
             }
 
-        mSignUpUiStateTestData = AuthUiStateTestData(
-            mModel,
-            authStateFlowFieldReflection.get(mModel) as MutableStateFlow<AuthState>
+        val model = signUpViewModelFieldReference.get(fragment)
+
+        mSignUpUiStateTestData = SignUpUiStateTestData(
+            signUpStateFlowFieldReflection.get(model) as MutableStateFlow<SignUpState>
         )
     }
 
@@ -92,6 +127,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
     fun textInputsAreEnabledTest() {
         val text = "something"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -174,6 +210,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
 
     @Test
     fun nothingProvidedAndConfirmClickedTest() {
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
@@ -188,6 +225,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
     fun onlyLoginProvidedAndConfirmClickedTest() {
         val login = "loginnnn"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -208,6 +246,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
     fun onlyPasswordProvidedAndConfirmClickedTest() {
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
@@ -228,6 +267,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
     fun onlyRepeatedPasswordProvidedAndConfirmClickedTest() {
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_confirmation_input)),
@@ -249,6 +289,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
         val login = "loginnnn"
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -276,6 +317,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
         val login = "loginnnn"
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -302,6 +344,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
     fun passwordAndRepeatedPasswordProvidedAndConfirmClickedTest() {
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
@@ -330,6 +373,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
         val login = "loginnnn"
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -355,7 +399,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
 
         mSignUpFragmentScenarioRule.onFragment {
-            mSignUpUiStateTestData.setAuthorized()
+            mSignUpUiStateTestData.register()
         }
 
         Assert.assertEquals(R.id.mainMenuFragment, mNavController.currentDestination?.id)
@@ -366,6 +410,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
         val login = "loginnnn"
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),
@@ -396,6 +441,7 @@ class SignUpFragmentTest : AuthFragmentTest() {
         val login = "loginnnn"
         val password = "password"
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.login_input)),

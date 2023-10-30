@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.signup.repository.source.network
 
-import com.qubacy.geoqq.data.common.repository.source.DataSource
+import com.qubacy.geoqq.data.common.repository.common.source.DataSource
 import com.qubacy.geoqq.data.signup.repository.source.network.response.SignUpResponse
 import retrofit2.Call
 import retrofit2.http.Field

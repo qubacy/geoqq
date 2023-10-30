@@ -15,16 +15,21 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.common.TypedErrorBase
 import com.qubacy.geoqq.common.error.local.LocalError
-import com.qubacy.geoqq.data.common.auth.state.AuthState
-import com.qubacy.geoqq.ui.screen.geochat.auth.common.AuthFragmentTest
+import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
+import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.SilentClickViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Before
@@ -32,11 +37,34 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SignInFragmentTest : AuthFragmentTest() {
-    private lateinit var mSignInFragmentScenarioRule: FragmentScenario<SignInFragment>
-    private lateinit var mModel: SignInViewModel
+class SignInFragmentTest {
+    class SignInUiStateTestData(
+        private val signInStateFlow: MutableStateFlow<SignInState>
+    ) {
+        fun authorize() {
+            val operations = listOf(
+                ApproveSignInOperation()
+            )
 
-    private lateinit var mSignInUiStateTestData: AuthUiStateTestData
+            runBlocking {
+                signInStateFlow.emit(SignInState(operations))
+            }
+        }
+
+        fun showError(error: TypedErrorBase) {
+            val operations = listOf(
+                HandleErrorOperation(error)
+            )
+
+            runBlocking {
+                signInStateFlow.emit(SignInState(operations))
+            }
+        }
+    }
+
+    private lateinit var mSignInFragmentScenarioRule: FragmentScenario<SignInFragment>
+
+    private lateinit var mSignInUiStateTestData: SignInUiStateTestData
     private lateinit var mNavController: TestNavHostController
 
     @Before
@@ -47,21 +75,28 @@ class SignInFragmentTest : AuthFragmentTest() {
 
         mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
+        var fragment: SignInFragment? = null
+
         mSignInFragmentScenarioRule.onFragment {
             mNavController.setGraph(R.navigation.nav_graph)
             Navigation.setViewNavController(it.requireView(), mNavController)
 
-            mModel = ViewModelProvider(it)[SignInViewModel::class.java]
+            fragment = it
         }
 
-        val authStateFlowFieldReflection = SignInViewModel::class.java.superclass
-            .getDeclaredField("mAuthStateFlow").apply {
+        val signInViewModelFieldReference = SignInFragment::class.java.superclass.superclass
+            .getDeclaredField("mModel").apply {
+                isAccessible = true
+            }
+        val signInStateFlowFieldReflection = SignInViewModel::class.java
+            .getDeclaredField("mSignInStateFlow").apply {
                 isAccessible = true
             }
 
-        mSignInUiStateTestData = AuthUiStateTestData(
-            mModel,
-            authStateFlowFieldReflection.get(mModel) as MutableStateFlow<AuthState>
+        val model = signInViewModelFieldReference.get(fragment) as SignInViewModel
+
+        mSignInUiStateTestData = SignInUiStateTestData(
+            signInStateFlowFieldReflection.get(model) as MutableStateFlow<SignInState>
         )
     }
 
@@ -207,7 +242,7 @@ class SignInFragmentTest : AuthFragmentTest() {
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))
 
         mSignInFragmentScenarioRule.onFragment {
-            mSignInUiStateTestData.setAuthorized()
+            mSignInUiStateTestData.authorize()
         }
 
         Assert.assertEquals(R.id.mainMenuFragment, mNavController.currentDestination?.id)

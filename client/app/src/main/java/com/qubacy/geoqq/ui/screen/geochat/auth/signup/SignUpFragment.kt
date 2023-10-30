@@ -63,6 +63,14 @@ class SignUpFragment(
             .signUpViewModelFactory.create(SignUpViewModel::class.java)
     }
 
+    override fun onDestroy() {
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.signUpContainer = null
+
+        super.onDestroy()
+    }
+
     private fun getExitTransitionListener(): Transition.TransitionListener {
         return object : TransitionListenerAdapter() {
             override fun onTransitionStart(transition: Transition) {

@@ -46,6 +46,14 @@ class SignInFragment : WaitingFragment() {
             .signInViewModelFactory.create(SignInViewModel::class.java)
     }
 
+    override fun onDestroy() {
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.signInContainer = null
+
+        super.onDestroy()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

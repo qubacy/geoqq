@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.repository.source.network.error
+package com.qubacy.geoqq.data.common.repository.common.source.network.error
 
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.ErrorBase
