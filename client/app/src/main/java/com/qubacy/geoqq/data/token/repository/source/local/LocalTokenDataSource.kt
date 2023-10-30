@@ -1,7 +1,9 @@
 package com.qubacy.geoqq.data.token.repository.source.local
 
 import android.content.SharedPreferences
+import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq.data.common.repository.source.DataSource
+import java.lang.Exception
 
 class LocalTokenDataSource(
     private val mTokenSharedPreferences: SharedPreferences
@@ -42,11 +44,11 @@ class LocalTokenDataSource(
     }
 
     fun checkRefreshTokenForValidity(refreshToken: String): Boolean {
-        // todo: decoding the data part of the token..
+        var jwtToken: JWT? = null
 
-        // todo: checking an expiration time..
+        try { jwtToken = JWT(refreshToken) }
+        catch (e: Exception) { return false }
 
-
-        return true
+        return !jwtToken.isExpired(0)
     }
 }
