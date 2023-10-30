@@ -4,7 +4,7 @@
   "name": "V0",
   "endpointPrefix": "",
   "latency": 0,
-  "port": 5555,
+  "port": 3001,
   "hostname": "",
   "folders": [
     {
@@ -15,6 +15,10 @@
         {
           "type": "route",
           "uuid": "456da1b1-9b8e-4ded-b609-8dd842387eac"
+        },
+        {
+          "type": "route",
+          "uuid": "a0d6b8e6-e300-45da-b2cd-ab216efee33c"
         },
         {
           "type": "route",
@@ -64,7 +68,7 @@
       "responses": [
         {
           "uuid": "8cc1c8da-8d61-47f7-a661-608c42cae04e",
-          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
+          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"refresh-token\": \"{{faker 'datatype.uuid'}}\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -82,7 +86,7 @@
             {
               "target": "body",
               "modifier": "login",
-              "value": "Joshua",
+              "value": "testtest",
               "invert": false,
               "operator": "equals"
             },
@@ -97,12 +101,12 @@
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false,
+          "default": true,
           "crudKey": "id"
         },
         {
           "uuid": "16d1c848-3a14-482b-b0ba-ec7f2899573c",
-          "body": "{}",
+          "body": "{\n  \"error\": {\n    \"message\": \"Authorization has been failed!\",\n    \"level\": 0\n  }\n}",
           "latency": 0,
           "statusCode": 401,
           "label": "",
@@ -120,7 +124,7 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true,
+          "default": false,
           "crudKey": "id"
         }
       ],
@@ -136,7 +140,7 @@
       "responses": [
         {
           "uuid": "abf20215-e771-4cde-9a16-7a97f23ec3fc",
-          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"update-token\": \"{{faker 'datatype.uuid'}}\"\n}",
+          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"refresh-token\": \"{{faker 'datatype.uuid'}}\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -395,6 +399,43 @@
           "databucketID": "",
           "sendFileAsBody": false,
           "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id"
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "a0d6b8e6-e300-45da-b2cd-ab216efee33c",
+      "type": "http",
+      "documentation": "",
+      "method": "put",
+      "endpoint": "api/sign-in",
+      "responses": [
+        {
+          "uuid": "273f0db6-8193-4d34-8e01-cfdc09f65098",
+          "body": "{\n  \"access-token\": \"3f25a73c-9ad0-4c40-9e7e-833931e57492\",\n  \"refresh-token\": \"{{faker 'datatype.uuid'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "refresh-token",
+              "value": "\\d{1,}",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
