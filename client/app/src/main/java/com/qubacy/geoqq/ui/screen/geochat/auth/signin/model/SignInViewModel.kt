@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class SignInViewModel(
     private val mSignInUseCase: SignInUseCase
 ) : WaitingViewModel() {
-    private var mSignInStateFlow = mSignInUseCase.signInStateFlow
+    private var mSignInStateFlow = mSignInUseCase.stateFlow
 
     private var mSignInUiStateFlow = mSignInStateFlow.map { stateToUiState(it) }
     val signInUiStateFlow: LiveData<SignInUiState?> = mSignInUiStateFlow.asLiveData()
@@ -52,25 +52,25 @@ class SignInViewModel(
         login: String,
         password: String
     ) {
+        mIsWaiting.value = true
+
         viewModelScope.launch(Dispatchers.IO) {
             mSignInUseCase.signInWithUsernamePassword(login, password)
         }
-
-        mIsWaiting.value = true
     }
 
     fun signIn() {
+        mIsWaiting.value = true
+
         viewModelScope.launch(Dispatchers.IO) {
             mSignInUseCase.signInWithLocalToken()
         }
-
-        mIsWaiting.value = true
     }
 
     fun interruptSignIn() {
         mIsWaiting.value = false
 
-        mSignInUseCase.interruptSignIn()
+        mSignInUseCase.interruptOperation()
     }
 
     private fun stateToUiState(state: SignInState?): SignInUiState? {

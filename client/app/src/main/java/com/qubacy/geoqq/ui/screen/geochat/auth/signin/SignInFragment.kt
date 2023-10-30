@@ -117,13 +117,14 @@ class SignInFragment : WaitingFragment() {
         val login = mBinding.loginInput.input.text.toString()
         val password = mBinding.passwordInput.input.text.toString()
 
+        closeSoftKeyboard()
+
         if (!(mModel as SignInViewModel).isSignInDataCorrect(login, password)) {
             showMessage(R.string.error_sign_in_data_incorrect)
 
             return
         }
 
-        closeSoftKeyboard()
         (mModel as SignInViewModel).signIn(login, password)
     }
 

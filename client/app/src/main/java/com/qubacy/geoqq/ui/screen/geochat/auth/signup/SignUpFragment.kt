@@ -17,8 +17,12 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.operation.PassSignUpUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.state.SignUpUiState
 
 class SignUpFragment(
 
@@ -53,7 +57,7 @@ class SignUpFragment(
         val application = (requireActivity().application as Application)
 
         application.appContainer.signUpContainer =
-            SignUpContainer()
+            SignUpContainer(application.appContainer.signUpUseCase)
 
         mModel = application.appContainer.signUpContainer!!
             .signUpViewModelFactory.create(SignUpViewModel::class.java)
@@ -84,13 +88,49 @@ class SignUpFragment(
 
         mBinding.signUpButton.setOnClickListener { onSignUpButtonClicked() }
 
+        (mModel as SignUpViewModel).signUpUiStateFlow.value?.let {
+            onUiStateGotten(it)
+        }
+        (mModel as SignUpViewModel).signUpUiStateFlow.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
+            onUiStateGotten(it)
+        }
+
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
         }
     }
 
-    fun moveToMainMenu() {
+    private fun onUiStateGotten(uiState: SignUpUiState) {
+        while (true) {
+            val uiOperation = uiState.takeUiOperation() ?: break
+
+            processUiOperation(uiOperation)
+        }
+    }
+
+    private fun processUiOperation(uiOperation: UiOperation) {
+        when (uiOperation::class) {
+            PassSignUpUiOperation::class -> {
+                val passSignUpUiOperation = uiOperation as PassSignUpUiOperation
+
+                processPassSignUpUiOperation(passSignUpUiOperation)
+            }
+            ShowErrorUiOperation::class -> {
+                val errorUiOperation = uiOperation as ShowErrorUiOperation
+
+                onErrorOccurred(errorUiOperation.error)
+            }
+        }
+    }
+
+    private fun processPassSignUpUiOperation(passSignUpUiOperation: PassSignUpUiOperation) {
+        moveToMainMenu()
+    }
+
+    private fun moveToMainMenu() {
         findNavController().navigate(R.id.action_signUpFragment_to_mainMenuFragment)
     }
 
@@ -99,13 +139,14 @@ class SignUpFragment(
         val password = mBinding.passwordInput.input.text.toString()
         val repeatedPassword = mBinding.passwordConfirmationInput.input.text.toString()
 
+        closeSoftKeyboard()
+
         if (!(mModel as SignUpViewModel).isSignUpDataCorrect(login, password, repeatedPassword)) {
             showMessage(R.string.error_sign_up_data_incorrect)
 
             return
         }
 
-        closeSoftKeyboard()
         (mModel as SignUpViewModel).signUp(login, password, repeatedPassword)
     }
 

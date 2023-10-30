@@ -7,10 +7,14 @@ import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
 import com.qubacy.geoqq.data.common.repository.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
+import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
+import com.qubacy.geoqq.data.signup.repository.source.network.NetworkSignUpDataSource
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
+import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
+import retrofit2.create
 
 class AppContainer(
     context: Context
@@ -35,6 +39,13 @@ class AppContainer(
 
     var signInContainer: SignInContainer? = null
 
+    private val networkSignUpDataSource =
+        NetworkDataSourceContext.retrofit.create(NetworkSignUpDataSource::class.java)
+
+    private val signUpDataRepository = SignUpDataRepository(
+        tokenDataRepository, networkSignUpDataSource)
+
+    val signUpUseCase = SignUpUseCase(signUpDataRepository)
 
     var signUpContainer: SignUpContainer? = null
 }
