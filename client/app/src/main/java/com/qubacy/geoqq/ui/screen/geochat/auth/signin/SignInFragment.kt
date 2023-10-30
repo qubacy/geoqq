@@ -71,9 +71,11 @@ class SignInFragment : WaitingFragment() {
             onUiStateGotten(it)
         }
 
-        setStartAnimation() // todo: think of this! it isn't working OK all the time.
+        view.doOnPreDraw {
+            setStartAnimation() // todo: think of this! it isn't working OK all the time.
 
-        (mModel as SignInViewModel).signIn()
+            (mModel as SignInViewModel).signIn()
+        }
     }
 
     private fun onUiStateGotten(uiState: SignInUiState) {
