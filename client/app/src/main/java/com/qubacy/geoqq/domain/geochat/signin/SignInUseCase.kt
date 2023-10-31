@@ -72,7 +72,7 @@ class SignInUseCase(
         if (mInterruptionFlag.get()) return mInterruptionFlag.set(false)
 
         mCurrentRepository = signInDataRepository
-        val signInResult = signInDataRepository.signInWithUsernamePassword(login, password)
+        val signInResult = signInDataRepository.signInWithLoginPassword(login, password)
 
         if (signInResult is ErrorResult) return processError(signInResult.error)
         if (signInResult is InterruptionResult) return mInterruptionFlag.set(false)

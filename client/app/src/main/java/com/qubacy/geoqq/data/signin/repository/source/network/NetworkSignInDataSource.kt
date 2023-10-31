@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.signin.repository.source.network
 
-import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithUsernamePasswordResponse
+import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithLoginPasswordResponse
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -13,5 +13,5 @@ interface NetworkSignInDataSource : DataSource {
     fun signInWithUsernameAndPassword(
         @Field("login") login: String,
         @Field("password") passwordHash: String
-    ): Call<SignInWithUsernamePasswordResponse>
+    ): Call<SignInWithLoginPasswordResponse>
 }

@@ -1,19 +1,14 @@
 package com.qubacy.geoqq.data.token.repository
 
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
+import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
-import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
-import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
-import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -21,30 +16,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class TokenDataRepositoryTest() {
-    private lateinit var mTokenSharedPreferences: SharedPreferences
-
-    private lateinit var mTokenDataRepository: TokenDataRepository
-
-    private fun initTokenDataRepository(
-        code: Int = 200,
-        responseString: String = String()
-    ) {
-        val localTokenDataSource = LocalTokenDataSource(mTokenSharedPreferences)
-        val networkTokenDataSource = NetworkTestContext
-            .generateTestRetrofit(
-                NetworkTestContext.generateDefaultTestInterceptor(code, responseString))
-            .create(NetworkTokenDataSource::class.java)
-
-        mTokenDataRepository = TokenDataRepository(localTokenDataSource, networkTokenDataSource)
-    }
-
+class TokenDataRepositoryTest() : TokenBasedRepositoryTest() {
     @Before
     fun setup() {
-        mTokenSharedPreferences = InstrumentationRegistry.getInstrumentation()
-            .targetContext.getSharedPreferences(
-                LocalTokenDataSource.TOKEN_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-
         initTokenDataRepository()
     }
 
@@ -77,10 +51,10 @@ class TokenDataRepositoryTest() {
 
     @Test
     fun checkRefreshTokenExistenceTest() {
-        runBlocking {
-            val refreshToken = "token"
-            val accessToken = "token"
+        val refreshToken = "token"
+        val accessToken = "token"
 
+        runBlocking {
             mTokenDataRepository.saveTokens(refreshToken, accessToken)
 
             val result = mTokenDataRepository.checkLocalRefreshTokenExistence()
@@ -92,10 +66,10 @@ class TokenDataRepositoryTest() {
 
     @Test
     fun checkRefreshTokenValidityTest() {
-        runBlocking {
-            val refreshToken = "invalid_token"
-            val accessToken = "token"
+        val refreshToken = "invalid_token"
+        val accessToken = "token"
 
+        runBlocking {
             mTokenDataRepository.saveTokens(refreshToken, accessToken)
             val invalidResult = mTokenDataRepository.checkRefreshTokenValidity()
 
@@ -115,18 +89,18 @@ class TokenDataRepositoryTest() {
 
     @Test
     fun updateTokensTest() {
+        val refreshToken = "token"
+        val accessToken = "token"
+
+        val updatedRefreshToken = "updatedToken"
+        val updatedAccessToken = "updatedToken"
+
+        val responseString =
+            "{\"access-token\":\"$updatedAccessToken\",\"refresh-token\":\"$updatedRefreshToken\"}"
+
+        initTokenDataRepository(200, responseString)
+
         runBlocking {
-            val refreshToken = "token"
-            val accessToken = "token"
-
-            val updatedRefreshToken = "updatedToken"
-            val updatedAccessToken = "updatedToken"
-
-            val responseString =
-                "{\"access-token\":\"$updatedAccessToken\",\"refresh-token\":\"$updatedRefreshToken\"}"
-
-            initTokenDataRepository(200, responseString)
-
             mTokenDataRepository.saveTokens(refreshToken, accessToken)
 
             val result = mTokenDataRepository.updateTokens()

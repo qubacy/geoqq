@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.signin.repository
 
-import com.qubacy.geoqq.data.signin.repository.result.SignInWithUsernamePasswordResult
+import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -10,31 +10,32 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.model.respo
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingUtil
-import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithUsernamePasswordResponse
+import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
+import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithLoginPasswordResponse
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
 import retrofit2.Call
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.net.SocketException
 
 class SignInDataRepository(
     val tokenDataRepository: TokenDataRepository,
     val networkSignInDataSource: NetworkSignInDataSource
 ) : NetworkDataRepository() {
-    suspend fun signInWithUsernamePassword(
+    suspend fun signInWithLoginPassword(
         login: String,
         password: String
     ) : Result {
         val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
         val passwordHash = StringEncodingUtil.bytesAsBase64String(passwordHashBytes)
 
-        var response: retrofit2.Response<SignInWithUsernamePasswordResponse>? = null
+        var response: retrofit2.Response<SignInWithLoginPasswordResponse>? = null
 
         try {
             mCurrentNetworkRequest = networkSignInDataSource
                 .signInWithUsernameAndPassword(login, passwordHash) as Call<Response>
             response = mCurrentNetworkRequest!!
-                .execute() as retrofit2.Response<SignInWithUsernamePasswordResponse>
+                .execute() as retrofit2.Response<SignInWithLoginPasswordResponse>
 
         } catch (e: SocketException) { return InterruptionResult()
         } catch (e: IOException) {
@@ -54,11 +55,18 @@ class SignInDataRepository(
 
         if (saveTokensResult is ErrorResult) return saveTokensResult
 
-        return SignInWithUsernamePasswordResult(
+        return SignInWithLoginPasswordResult(
             accessToken = accessToken, refreshToken = refreshToken)
     }
 
     suspend fun signInWithRefreshToken(): Result {
-        return tokenDataRepository.updateTokens()
+        val updateTokensResult = tokenDataRepository.updateTokens()
+
+        if (updateTokensResult is ErrorResult) return updateTokensResult
+
+        val updateTokensResultCast = updateTokensResult as UpdateTokensResult
+
+        return SignInWithRefreshTokenResult(
+            updateTokensResultCast.refreshToken, updateTokensResultCast.accessToken)
     }
 }
