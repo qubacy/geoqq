@@ -14,7 +14,6 @@ import com.qubacy.geoqq.data.signup.repository.source.network.response.SignUpRes
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import retrofit2.Call
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.net.SocketException
 
 class SignUpDataRepository(
