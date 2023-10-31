@@ -10,13 +10,12 @@ import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
-import com.qubacy.geoqq.data.token.repository.result.UpdateAccessTokenResult
+import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.model.response.UpdateTokensResponse
 import retrofit2.Call
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.net.SocketException
 
 class TokenDataRepository(
@@ -77,7 +76,7 @@ class TokenDataRepository(
 
         saveTokens(refreshToken, accessToken)
 
-        return UpdateAccessTokenResult(refreshToken, accessToken)
+        return UpdateTokensResult(refreshToken, accessToken)
     }
 
     fun getAccessToken(): Result {

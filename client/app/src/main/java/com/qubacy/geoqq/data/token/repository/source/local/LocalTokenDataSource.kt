@@ -15,7 +15,7 @@ class LocalTokenDataSource(
     }
 
     private var mAccessToken: String? = null
-    val accessToken: String? = mAccessToken
+    val accessToken: String? get() { return mAccessToken }
 
     private var mRefreshToken: String? = null
 
