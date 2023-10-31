@@ -38,11 +38,7 @@ class TokenDataRepository(
         val isCurRefreshTokenValid = localTokenDataSource
             .checkRefreshTokenForValidity(curRefreshToken)
 
-        if (!isCurRefreshTokenValid)
-            return ErrorResult(
-                TokenErrorEnum.REFRESH_TOKEN_EXPIRED.error)
-
-        return CheckRefreshTokenValidityResult(curRefreshToken)
+        return CheckRefreshTokenValidityResult(isCurRefreshTokenValid)
     }
 
     suspend fun updateTokens(): Result {

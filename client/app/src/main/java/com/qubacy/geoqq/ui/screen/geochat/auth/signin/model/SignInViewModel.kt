@@ -55,7 +55,7 @@ class SignInViewModel(
         mIsWaiting.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            mSignInUseCase.signInWithUsernamePassword(login, password)
+            mSignInUseCase.signInWithLoginPassword(login, password)
         }
     }
 

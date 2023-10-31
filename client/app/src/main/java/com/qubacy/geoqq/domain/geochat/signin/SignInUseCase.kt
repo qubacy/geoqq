@@ -5,7 +5,9 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
+import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.domain.common.UseCase
+import com.qubacy.geoqq.domain.common.error.ErrorEnum
 import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.DeclineAutomaticSignInOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
@@ -48,6 +50,10 @@ class SignInUseCase(
         if (checkResult is ErrorResult) return processError(checkResult.error)
         if (checkResult is InterruptionResult) return mInterruptionFlag.set(false)
 
+        val checkResultCast = checkResult as CheckRefreshTokenValidityResult
+
+        if (!checkResultCast.isValid) return processError(ErrorEnum.INVALID_TOKEN.error)
+
         if (mInterruptionFlag.get()) return mInterruptionFlag.set(false)
 
         mCurrentRepository = signInDataRepository
@@ -65,7 +71,7 @@ class SignInUseCase(
         mStateFlow.emit(SignInState(operations))
     }
 
-    suspend fun signInWithUsernamePassword(
+    suspend fun signInWithLoginPassword(
         login: String,
         password: String
     ) {

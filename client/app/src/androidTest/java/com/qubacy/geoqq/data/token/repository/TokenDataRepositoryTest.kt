@@ -73,9 +73,8 @@ class TokenDataRepositoryTest() : TokenBasedRepositoryTest() {
             mTokenDataRepository.saveTokens(refreshToken, accessToken)
             val invalidResult = mTokenDataRepository.checkRefreshTokenValidity()
 
-            Assert.assertEquals(ErrorResult::class, invalidResult::class)
-            Assert.assertEquals(
-                TokenErrorEnum.REFRESH_TOKEN_EXPIRED.error, (invalidResult as ErrorResult).error)
+            Assert.assertEquals(CheckRefreshTokenValidityResult::class, invalidResult::class)
+            Assert.assertFalse((invalidResult as CheckRefreshTokenValidityResult).isValid)
 
             val validRefreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY5ODcyMjc4MywiZXhwIjoxOTk4NzI2MzgzfQ.-zTDQgcS_MuPK2uQgCEwQKmh1r4u1U3Wd7jqDZTPm38"
 
@@ -83,7 +82,7 @@ class TokenDataRepositoryTest() : TokenBasedRepositoryTest() {
             val validResult = mTokenDataRepository.checkRefreshTokenValidity()
 
             Assert.assertEquals(CheckRefreshTokenValidityResult::class, validResult::class)
-            Assert.assertEquals(validRefreshToken, (validResult as CheckRefreshTokenValidityResult).refreshToken)
+            Assert.assertTrue((validResult as CheckRefreshTokenValidityResult).isValid)
         }
     }
 

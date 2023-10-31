@@ -1,16 +1,18 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.signup
 
+import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 class SignUpViewModelTest {
     private lateinit var mModel: SignUpViewModel
 
     @Before
     fun setup() {
-        mModel = SignUpViewModel()
+        mModel = SignUpViewModel(mock(SignUpUseCase::class.java))
     }
 
     data class IsSignUpDataCorrectTestCase(
