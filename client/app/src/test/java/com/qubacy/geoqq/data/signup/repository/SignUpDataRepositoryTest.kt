@@ -1,10 +1,9 @@
 package com.qubacy.geoqq.data.signup.repository
 
-import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
+import com.qubacy.geoqq.common.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.signup.repository.source.network.NetworkSignUpDataSource
-import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -12,7 +11,11 @@ import org.junit.Test
 
 class SignUpDataRepositoryTest(
 
-) : TokenBasedRepositoryTest() {
+) {
+    companion object {
+        init { Base64MockContext.mockBase64() }
+    }
+
     private lateinit var mSignUpDataRepository: SignUpDataRepository
 
     private fun initSignUpDataRepository(
@@ -23,12 +26,11 @@ class SignUpDataRepositoryTest(
             NetworkTestContext.generateDefaultTestInterceptor(code, responseString)
         ).create(NetworkSignUpDataSource::class.java)
 
-        mSignUpDataRepository = SignUpDataRepository(mTokenDataRepository, networkSignUpDataSource)
+        mSignUpDataRepository = SignUpDataRepository(networkSignUpDataSource)
     }
 
     @Before
     fun setup() {
-        initTokenDataRepository()
         initSignUpDataRepository()
     }
 
@@ -50,13 +52,10 @@ class SignUpDataRepositoryTest(
 
             Assert.assertEquals(SignUpResult::class, result::class)
 
-            val getAccessTokenResult = mTokenDataRepository.getAccessToken() as GetAccessTokenResult
+            val signUpResult = result as SignUpResult
 
-            val currentRefreshToken = mTokenDataRepository.localTokenDataSource.loadRefreshToken()
-            val currentAccessToken = getAccessTokenResult.accessToken
-
-            Assert.assertEquals(refreshToken, currentRefreshToken)
-            Assert.assertEquals(accessToken, currentAccessToken)
+            Assert.assertEquals(refreshToken, signUpResult.refreshToken)
+            Assert.assertEquals(accessToken, signUpResult.accessToken)
         }
     }
 }

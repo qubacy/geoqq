@@ -10,16 +10,12 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.model.respo
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
-import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
 import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithLoginPasswordResponse
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
 import retrofit2.Call
 import java.io.IOException
 import java.net.SocketException
 
 class SignInDataRepository(
-    val tokenDataRepository: TokenDataRepository,
     val networkSignInDataSource: NetworkSignInDataSource
 ) : NetworkDataRepository() {
     suspend fun signInWithLoginPassword(
@@ -51,28 +47,7 @@ class SignInDataRepository(
         val accessToken = responseBody.accessToken
         val refreshToken = responseBody.refreshToken
 
-        val saveTokensResult = tokenDataRepository.saveTokens(refreshToken, accessToken)
-
-        if (saveTokensResult is ErrorResult) return saveTokensResult
-
         return SignInWithLoginPasswordResult(
             accessToken = accessToken, refreshToken = refreshToken)
-    }
-
-    suspend fun signInWithRefreshToken(): Result {
-        val updateTokensResult = tokenDataRepository.updateTokens()
-
-        if (updateTokensResult is ErrorResult) return updateTokensResult
-        if (updateTokensResult is InterruptionResult) return updateTokensResult
-
-        val updateTokensResultCast = updateTokensResult as UpdateTokensResult
-
-        return SignInWithRefreshTokenResult(
-            updateTokensResultCast.refreshToken, updateTokensResultCast.accessToken)
-    }
-
-    override fun interrupt() {
-        super.interrupt()
-        tokenDataRepository.interrupt()
     }
 }

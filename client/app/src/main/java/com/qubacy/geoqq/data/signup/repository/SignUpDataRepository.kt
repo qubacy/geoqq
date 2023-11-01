@@ -11,13 +11,11 @@ import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.signup.repository.source.network.NetworkSignUpDataSource
 import com.qubacy.geoqq.data.signup.repository.source.network.response.SignUpResponse
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import retrofit2.Call
 import java.io.IOException
 import java.net.SocketException
 
 class SignUpDataRepository(
-    val tokenDataRepository: TokenDataRepository,
     val networkSignUpDataSource: NetworkSignUpDataSource
 ) : NetworkDataRepository() {
     suspend fun signUp(login: String, password: String): Result {
@@ -46,10 +44,6 @@ class SignUpDataRepository(
         val accessToken = responseBody.accessToken
         val refreshToken = responseBody.refreshToken
 
-        val saveTokensResult = tokenDataRepository.saveTokens(refreshToken, accessToken)
-
-        if (saveTokensResult is ErrorResult) return saveTokensResult
-
-        return SignUpResult()
+        return SignUpResult(refreshToken, accessToken)
     }
 }

@@ -1,17 +1,62 @@
 package com.qubacy.geoqq.data.token.repository
 
-import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
+import com.qubacy.geoqq.common.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
+import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 
-class TokenDataRepositoryTest() : TokenBasedRepositoryTest() {
+class TokenDataRepositoryTest() {
+    companion object {
+        init { Base64MockContext.mockBase64() }
+    }
+
+    private var mPreservedRefreshToken: String? = null
+    private var mAccessToken: String? = null
+
+    protected lateinit var mTokenDataRepository: TokenDataRepository
+
+    protected fun initTokenDataRepository(
+        code: Int = 200,
+        responseString: String = String()
+    ) {
+        val localTokenDataSourceMocked = Mockito.mock(LocalTokenDataSource::class.java)
+
+        Mockito.`when`(localTokenDataSourceMocked.loadRefreshToken()).thenAnswer { mPreservedRefreshToken }
+        Mockito.`when`(localTokenDataSourceMocked.accessToken).thenAnswer { mAccessToken }
+        Mockito.`when`(
+            localTokenDataSourceMocked.saveTokens(
+                Mockito.anyString(),
+                Mockito.anyString()
+            )
+        )
+            .thenAnswer {
+                this.mAccessToken = it.arguments[0] as String
+                this.mPreservedRefreshToken = it.arguments[1] as String
+
+                Unit
+            }
+        Mockito.`when`(localTokenDataSourceMocked.checkRefreshTokenForValidity(Mockito.anyString()))
+            .thenCallRealMethod()
+
+        val networkTokenDataSource = NetworkTestContext
+            .generateTestRetrofit(
+                NetworkTestContext.generateDefaultTestInterceptor(code, responseString))
+            .create(NetworkTokenDataSource::class.java)
+
+        mTokenDataRepository = TokenDataRepository(
+            localTokenDataSourceMocked, networkTokenDataSource)
+    }
+
     @Before
     fun setup() {
         initTokenDataRepository()

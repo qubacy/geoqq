@@ -3,8 +3,8 @@ package com.qubacy.geoqq.data.image.repository
 import android.graphics.Bitmap
 import android.net.Uri
 import com.qubacy.geoqq.common.AnyUtility
+import com.qubacy.geoqq.common.Base64MockContext
 import com.qubacy.geoqq.common.BitmapMockContext
-import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
@@ -19,9 +19,12 @@ import org.mockito.Mockito.mock
 
 class ImageDataRepositoryTest(
 
-) : TokenBasedRepositoryTest() {
+) {
     companion object {
-        init { BitmapMockContext.mockBitmapFactory() }
+        init {
+            Base64MockContext.mockBase64()
+            BitmapMockContext.mockBitmapFactory()
+        }
     }
 
     private lateinit var mImageDataRepository: ImageDataRepository
@@ -48,8 +51,7 @@ class ImageDataRepositoryTest(
             NetworkTestContext.generateDefaultTestInterceptor(code, responseString)
         ).create(NetworkImageDataSource::class.java)
 
-        mImageDataRepository = ImageDataRepository(
-            mTokenDataRepository, localImageDataSource, networkImageDataSource)
+        mImageDataRepository = ImageDataRepository(localImageDataSource, networkImageDataSource)
     }
 
     private fun getMockedUri(): Uri {
@@ -58,7 +60,6 @@ class ImageDataRepositoryTest(
 
     @Before
     fun setup() {
-        initTokenDataRepository()
         initImageDataRepository()
     }
 
@@ -70,7 +71,7 @@ class ImageDataRepositoryTest(
         initImageDataRepository(loadedImageUri = imageUri)
 
         runBlocking {
-            val result = mImageDataRepository.getImage(imageId)
+            val result = mImageDataRepository.getImage(imageId, String())
 
             Assert.assertNotEquals(ErrorResult::class.java, result::class.java)
             Assert.assertEquals(imageUri, (result as GetImageResult).imageUri)
@@ -88,9 +89,7 @@ class ImageDataRepositoryTest(
         initImageDataRepository(responseString = responseString, savedImageUri = imageUri)
 
         runBlocking {
-            mTokenDataRepository.saveTokens(String(), accessToken)
-
-            val result = mImageDataRepository.getImage(imageId)
+            val result = mImageDataRepository.getImage(imageId, accessToken)
 
             Assert.assertNotEquals(ErrorResult::class.java, result::class.java)
             Assert.assertEquals(imageUri, (result as GetImageResult).imageUri)

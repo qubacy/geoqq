@@ -3,7 +3,6 @@ package com.qubacy.geoqq.domain.geochat.signin
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
-import com.qubacy.geoqq.data.signin.repository.result.SignInWithRefreshTokenResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
@@ -27,9 +26,6 @@ class SignInUseCaseTest {
         checkRefreshTokenValidityResult: CheckRefreshTokenValidityResult = CheckRefreshTokenValidityResult(
             true
         ),
-        signInWithRefreshTokenResult: SignInWithRefreshTokenResult = SignInWithRefreshTokenResult(
-            String(), String()
-        ),
         signInWithLoginPasswordResult: SignInWithLoginPasswordResult = SignInWithLoginPasswordResult(
             String(), String()
         )
@@ -44,13 +40,10 @@ class SignInUseCaseTest {
 
             val signInDataRepositoryMock = Mockito.mock(SignInDataRepository::class.java)
 
-            doReturn(signInWithRefreshTokenResult)
-                .`when`(signInDataRepositoryMock).signInWithRefreshToken()
             doReturn(signInWithLoginPasswordResult)
                 .`when`(signInDataRepositoryMock).signInWithLoginPassword(String(), String())
-            doReturn(tokenDataRepositoryMock).`when`(signInDataRepositoryMock).tokenDataRepository
 
-            mSignInUseCase = SignInUseCase(signInDataRepositoryMock)
+            mSignInUseCase = SignInUseCase(tokenDataRepositoryMock, signInDataRepositoryMock)
         }
     }
 

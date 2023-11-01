@@ -6,7 +6,6 @@ import com.qubacy.geoqq.data.common.repository.common.result.interruption.Interr
 import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.models.DataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
@@ -17,7 +16,6 @@ import java.io.IOException
 import java.net.SocketException
 
 class UserDataRepository(
-    val tokenDataRepository: TokenDataRepository,
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : NetworkDataRepository() {
