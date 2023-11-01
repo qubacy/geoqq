@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.error.Netwo
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
-import com.qubacy.geoqq.data.image.repository.error.ImageErrorEnum
+import com.qubacy.geoqq.data.image.error.ImageErrorEnum
 import com.qubacy.geoqq.data.image.repository.result.DownloadImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.SaveImageResult

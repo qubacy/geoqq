@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.image.repository.error
+package com.qubacy.geoqq.data.image.error
 
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.ErrorBase
