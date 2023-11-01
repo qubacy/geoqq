@@ -63,10 +63,16 @@ class SignInDataRepository(
         val updateTokensResult = tokenDataRepository.updateTokens()
 
         if (updateTokensResult is ErrorResult) return updateTokensResult
+        if (updateTokensResult is InterruptionResult) return updateTokensResult
 
         val updateTokensResultCast = updateTokensResult as UpdateTokensResult
 
         return SignInWithRefreshTokenResult(
             updateTokensResultCast.refreshToken, updateTokensResultCast.accessToken)
+    }
+
+    override fun interrupt() {
+        super.interrupt()
+        tokenDataRepository.interrupt()
     }
 }
