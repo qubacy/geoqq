@@ -91,4 +91,8 @@
     <string name="error_invalid_token">Token is invalid!</string>
     <string name="error_network_request_unknown_failure">Unknown network request failure has been gotten!</string>
 
+    <string name="error_image_loading_failed">Image loading process has been failed!</string>
+    <string name="error_image_saving_failed">Image saving process has been failed!</string>
+    <string name="error_image_decoding_failed">Image decoding process has been failed!</string>
+
 </resources>
