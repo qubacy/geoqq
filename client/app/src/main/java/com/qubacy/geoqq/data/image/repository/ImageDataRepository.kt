@@ -17,11 +17,14 @@ import com.qubacy.geoqq.data.image.repository.result.SaveImageResult
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.response.GetImageResponse
+import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
 import retrofit2.Call
 import java.io.IOException
 import java.net.SocketException
 
 class ImageDataRepository(
+    val tokenDataRepository: TokenDataRepository,
     val localImageDataSource: LocalImageDataSource,
     val networkImageDataSource: NetworkImageDataSource
 ) : NetworkDataRepository() {
@@ -34,11 +37,16 @@ class ImageDataRepository(
     }
 
     private suspend fun downloadImage(imageId: Long): Result {
+        val tokenResult = tokenDataRepository.getAccessToken()
+
+        if (tokenResult is ErrorResult) return tokenResult
+
+        val accessToken = (tokenResult as GetAccessTokenResult).accessToken
         var response: retrofit2.Response<GetImageResponse>? = null
 
         try {
             mCurrentNetworkRequest = networkImageDataSource
-                .getImage(imageId) as Call<Response>
+                .getImage(imageId, accessToken) as Call<Response>
             response = mCurrentNetworkRequest!!
                 .execute() as retrofit2.Response<GetImageResponse>
 
@@ -85,7 +93,13 @@ class ImageDataRepository(
 
         val imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 
-        return saveImage(imageId, imageBitmap)
+        val saveImageResult = saveImage(imageId, imageBitmap)
+
+        if (saveImageResult is ErrorResult) return saveImageResult
+
+        val saveImageResultCast = saveImageResult as SaveImageResult
+
+        return GetImageResult(saveImageResultCast.imageUri)
     }
 
 }
