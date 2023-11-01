@@ -1,10 +1,7 @@
 package com.qubacy.geoqq.data.token.repository
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
-import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
-import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
@@ -13,9 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class TokenDataRepositoryTest() : TokenBasedRepositoryTest() {
     @Before
     fun setup() {

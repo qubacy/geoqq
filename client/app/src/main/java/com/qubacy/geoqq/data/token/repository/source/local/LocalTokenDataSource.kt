@@ -47,7 +47,9 @@ class LocalTokenDataSource(
         var jwtToken: JWT? = null
 
         try { jwtToken = JWT(refreshToken) }
-        catch (e: Exception) { return false }
+        catch (e: Exception) {
+            return false
+        }
 
         return !jwtToken.isExpired(0)
     }

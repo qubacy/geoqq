@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.data.signin.repository
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.data.common.repository.TokenBasedRepositoryTest
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
@@ -10,9 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class SignInDataRepositoryTest(
 
 ) : TokenBasedRepositoryTest() {
