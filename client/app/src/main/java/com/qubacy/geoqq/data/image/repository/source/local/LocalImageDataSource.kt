@@ -24,7 +24,7 @@ class LocalImageDataSource(
         )
     }
 
-    suspend fun loadImage(title: String): Uri? {
+    fun loadImage(title: String): Uri? {
         val selection = "${Images.ImageColumns.TITLE} == ?"
         val selectionArgs = arrayOf(title)
 
@@ -51,7 +51,7 @@ class LocalImageDataSource(
         return imageUri
     }
 
-    suspend fun saveImageOnDevice(title: String, image: Bitmap): Uri {
+    fun saveImageOnDevice(title: String, image: Bitmap): Uri {
         val contentValues = ContentValues()
 
         contentValues.put(Images.Media.TITLE, title)

@@ -3,12 +3,17 @@ package com.qubacy.geoqq.data.user.repository
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
+import com.qubacy.geoqq.data.common.repository.common.source.local.database.error.DatabaseErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
-import com.qubacy.geoqq.data.user.models.DataUser
+import com.qubacy.geoqq.data.user.model.DataUser
+import com.qubacy.geoqq.data.user.repository.result.GetNetworkWithNetworkResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
+import com.qubacy.geoqq.data.user.repository.result.GetUserWithDatabaseResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
+import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository.source.local.entity.toDataUser
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.network.response.GetUserResponse
 import retrofit2.Call
@@ -19,13 +24,7 @@ class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : NetworkDataRepository() {
-    suspend fun getUserById(userId: Long): Result {
-        // todo: getting user from the local storage..
-
-
-
-        // todo: requesting the user's data using network:
-
+    private fun getUserWithNetwork(userId: Long): Result {
         var response: retrofit2.Response<GetUserResponse>? = null
 
         try {
@@ -48,11 +47,43 @@ class UserDataRepository(
         val user = DataUser(
             responseBody.username,
             responseBody.description,
-            responseBody.avatar,
+            responseBody.avatarId,
             responseBody.isMate
         )
 
-        return GetUserByIdResult(user)
+        return GetNetworkWithNetworkResult(user)
+    }
+
+    private fun getUserWithDatabase(userId: Long): Result {
+        var userEntity: UserEntity? = null
+
+        try {
+            userEntity = localUserDataSource.getUserById(userId)
+
+        } catch (e: Exception) {
+            return ErrorResult(DatabaseErrorEnum.UNKNOWN_DATABASE_ERROR.error)
+        }
+
+        return GetUserWithDatabaseResult(userEntity?.toDataUser())
+    }
+
+    suspend fun getUserById(userId: Long): Result {
+        val getUserWithDatabaseResult = getUserWithDatabase(userId)
+
+        if (getUserWithDatabaseResult is ErrorResult) return getUserWithDatabaseResult
+        if (getUserWithDatabaseResult is InterruptionResult) return getUserWithDatabaseResult
+
+        val getUserWithDatabaseResultCast = getUserWithDatabaseResult as GetUserWithDatabaseResult
+
+        if (getUserWithDatabaseResultCast.user != null)
+            return GetUserByIdResult(getUserWithDatabaseResultCast.user)
+
+        val getUserWithNetworkResult = getUserWithNetwork(userId)
+
+        if (getUserWithNetworkResult is ErrorResult) return getUserWithNetworkResult
+        if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult
+
+        return GetUserByIdResult((getUserWithNetworkResult as GetNetworkWithNetworkResult).user)
     }
 
 }

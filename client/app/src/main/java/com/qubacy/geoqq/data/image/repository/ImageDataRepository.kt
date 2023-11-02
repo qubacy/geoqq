@@ -13,6 +13,7 @@ import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.image.error.ImageErrorEnum
 import com.qubacy.geoqq.data.image.repository.result.DownloadImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
+import com.qubacy.geoqq.data.image.repository.result.LoadImageResult
 import com.qubacy.geoqq.data.image.repository.result.SaveImageResult
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
@@ -33,7 +34,7 @@ class ImageDataRepository(
         return (IMAGE_PREFIX + imageId.toString())
     }
 
-    private suspend fun downloadImage(imageId: Long, accessToken: String): Result {
+    private fun downloadImage(imageId: Long, accessToken: String): Result {
         var response: retrofit2.Response<GetImageResponse>? = null
 
         try {
@@ -56,7 +57,18 @@ class ImageDataRepository(
         return DownloadImageResult(responseBody.imageContent)
     }
 
-    private suspend fun saveImage(imageId: Long, image: Bitmap): Result {
+    private fun loadImage(imageId: Long): Result {
+        var localImageUri: Uri? = null
+
+        try {
+            localImageUri = localImageDataSource.loadImage(getImageTitleFromImageId(imageId))
+
+        } catch (e: Exception) { return ErrorResult(ImageErrorEnum.IMAGE_LOADING_FAILED.error) }
+
+        return LoadImageResult(localImageUri)
+    }
+
+    private fun saveImage(imageId: Long, image: Bitmap): Result {
         val uri = localImageDataSource.saveImageOnDevice(getImageTitleFromImageId(imageId), image)
 
         if (uri == null) return ErrorResult(ImageErrorEnum.IMAGE_SAVING_FAILED.error)
@@ -65,14 +77,14 @@ class ImageDataRepository(
     }
 
     suspend fun getImage(imageId: Long, accessToken: String): Result {
-        var localImageUri: Uri? = null
+        val imageLoadResult = loadImage(imageId)
 
-        try {
-            localImageUri = localImageDataSource.loadImage(getImageTitleFromImageId(imageId))
+        if (imageLoadResult is ErrorResult) return imageLoadResult
 
-        } catch (e: Exception) { return ErrorResult(ImageErrorEnum.IMAGE_LOADING_FAILED.error) }
+        val imageLoadResultCast = imageLoadResult as LoadImageResult
 
-        if (localImageUri != null) return GetImageResult(localImageUri)
+        if (imageLoadResultCast.imageUri != null)
+            return GetImageResult(imageLoadResultCast.imageUri)
 
         val imageDownloadResult = downloadImage(imageId, accessToken)
 

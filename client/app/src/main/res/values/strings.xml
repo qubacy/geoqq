@@ -85,6 +85,8 @@
 
     <!-- DATA Errors: -->
 
+    <string name="error_unknown_database_error">Unknown database error has been occurred!</string>
+
     <string name="error_network_response_unknown_error">Unknown network error!</string>
     <string name="error_local_refresh_token_not_found">Local refresh token hasn\'t been found!</string>
     <string name="error_local_access_token_not_found">Local access token hasn\'t been found!</string>

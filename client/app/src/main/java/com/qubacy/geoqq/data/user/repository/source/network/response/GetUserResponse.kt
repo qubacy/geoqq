@@ -8,7 +8,7 @@ import com.squareup.moshi.JsonClass
 class GetUserResponse(
     val username: String,
     val description: String,
-    val avatar: String,
+    @Json(name = "avatar-id") val avatarId: Long,
     @Json(name = "is-mate") val isMate: Boolean
 ) : Response() {
 
