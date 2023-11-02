@@ -1,13 +1,10 @@
 package com.qubacy.geoqq.domain.geochat.signin
 
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
-import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
+import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
-import com.qubacy.geoqq.domain.geochat.signin.operation.DeclineAutomaticSignInOperation
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -22,10 +19,7 @@ class SignInUseCaseTest {
     private lateinit var mSignInUseCase: SignInUseCase
 
     private fun initSignInUseCase(
-        checkRefreshTokenExistenceResult: CheckRefreshTokenExistenceResult = CheckRefreshTokenExistenceResult(true),
-        checkRefreshTokenValidityResult: CheckRefreshTokenValidityResult = CheckRefreshTokenValidityResult(
-            true
-        ),
+        getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
         signInWithLoginPasswordResult: SignInWithLoginPasswordResult = SignInWithLoginPasswordResult(
             String(), String()
         )
@@ -33,10 +27,7 @@ class SignInUseCaseTest {
         runBlocking {
             val tokenDataRepositoryMock = Mockito.mock(TokenDataRepository::class.java)
 
-            doReturn(checkRefreshTokenExistenceResult)
-                .`when`(tokenDataRepositoryMock).checkLocalRefreshTokenExistence()
-            doReturn(checkRefreshTokenValidityResult)
-                .`when`(tokenDataRepositoryMock).checkRefreshTokenValidity()
+            doReturn(getTokensResult).`when`(tokenDataRepositoryMock).getTokens()
 
             val signInDataRepositoryMock = Mockito.mock(SignInDataRepository::class.java)
 
@@ -73,12 +64,9 @@ class SignInUseCaseTest {
     }
 
     @Test
-    fun signInWithRefreshTokenTest() {
-        val refreshToken = "refreshToken"
-
+    fun signInWithLocalTokenTest() {
         initSignInUseCase(
-            checkRefreshTokenExistenceResult = CheckRefreshTokenExistenceResult(true),
-            checkRefreshTokenValidityResult = CheckRefreshTokenValidityResult(true)
+            getTokensResult = GetTokensResult("token", "token")
         )
 
         runBlocking {
@@ -93,49 +81,6 @@ class SignInUseCaseTest {
             }
 
             Assert.assertNotNull(approveSignInOperation)
-        }
-    }
-
-    @Test
-    fun signInWithRefreshTokenWithoutRefreshTokenTest() {
-        initSignInUseCase(
-            checkRefreshTokenExistenceResult = CheckRefreshTokenExistenceResult(false)
-        )
-
-        runBlocking {
-            mSignInUseCase.signInWithLocalToken()
-
-            val state = mSignInUseCase.stateFlow.value
-
-            Assert.assertNotNull(state)
-
-            val declineAutomaticSignInOperation = state!!.newOperations.find {
-                it::class == DeclineAutomaticSignInOperation::class
-            }
-
-            Assert.assertNotNull(declineAutomaticSignInOperation)
-        }
-    }
-
-    @Test
-    fun signInWithRefreshTokenWithInvalidRefreshTokenTest() {
-        initSignInUseCase(
-            checkRefreshTokenExistenceResult = CheckRefreshTokenExistenceResult(true),
-            checkRefreshTokenValidityResult = CheckRefreshTokenValidityResult(false)
-        )
-
-        runBlocking {
-            mSignInUseCase.signInWithLocalToken()
-
-            val state = mSignInUseCase.stateFlow.value
-
-            Assert.assertNotNull(state)
-
-            val handleErrorOperation = state!!.newOperations.find {
-                it::class == HandleErrorOperation::class
-            }
-
-            Assert.assertNotNull(handleErrorOperation)
         }
     }
 }

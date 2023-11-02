@@ -2,11 +2,10 @@ package com.qubacy.geoqq.data.token.repository
 
 import com.qubacy.geoqq.common.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
-import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
-import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenResult
-import com.qubacy.geoqq.data.token.repository.result.UpdateTokensResult
+import com.qubacy.geoqq.data.token.error.TokenErrorEnum
+import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import kotlinx.coroutines.runBlocking
@@ -45,7 +44,7 @@ class TokenDataRepositoryTest() {
 
                 Unit
             }
-        Mockito.`when`(localTokenDataSourceMocked.checkRefreshTokenForValidity(Mockito.anyString()))
+        Mockito.`when`(localTokenDataSourceMocked.checkTokenForValidity(Mockito.anyString()))
             .thenCallRealMethod()
 
         val networkTokenDataSource = NetworkTestContext
@@ -75,64 +74,43 @@ class TokenDataRepositoryTest() {
     }
 
     @Test
-    fun getAccessTokenTest() {
+    fun getTokensWithoutLocalRefreshTokenTest() {
+        initTokenDataRepository()
+
         runBlocking {
-            val refreshToken = "token"
-            val accessToken = "token"
+            val getTokensResult = mTokenDataRepository.getTokens()
 
-            mTokenDataRepository.saveTokens(refreshToken, accessToken)
-
-            val result = mTokenDataRepository.getAccessToken()
-
-            Assert.assertEquals(GetAccessTokenResult::class, result::class)
-            Assert.assertEquals(accessToken, (result as GetAccessTokenResult).accessToken)
+            Assert.assertEquals(ErrorResult::class, getTokensResult::class)
         }
     }
 
     @Test
-    fun checkRefreshTokenExistenceTest() {
-        val refreshToken = "token"
-        val accessToken = "token"
-
-        runBlocking {
-            mTokenDataRepository.saveTokens(refreshToken, accessToken)
-
-            val result = mTokenDataRepository.checkLocalRefreshTokenExistence()
-
-            Assert.assertEquals(CheckRefreshTokenExistenceResult::class, result::class)
-            Assert.assertEquals(true, (result as CheckRefreshTokenExistenceResult).isExisting)
-        }
-    }
-
-    @Test
-    fun checkRefreshTokenValidityTest() {
+    fun getTokensWithInvalidLocalRefreshTokenTest() {
         val refreshToken = "invalid_token"
-        val accessToken = "token"
+        val accessToken = "invalid_token"
+
+        initTokenDataRepository()
 
         runBlocking {
             mTokenDataRepository.saveTokens(refreshToken, accessToken)
-            val invalidResult = mTokenDataRepository.checkRefreshTokenValidity()
 
-            Assert.assertEquals(CheckRefreshTokenValidityResult::class, invalidResult::class)
-            Assert.assertFalse((invalidResult as CheckRefreshTokenValidityResult).isValid)
+            val getTokensResult = mTokenDataRepository.getTokens()
 
-            val validRefreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY5ODcyMjc4MywiZXhwIjoxOTk4NzI2MzgzfQ.-zTDQgcS_MuPK2uQgCEwQKmh1r4u1U3Wd7jqDZTPm38"
-
-            mTokenDataRepository.saveTokens(validRefreshToken, accessToken)
-            val validResult = mTokenDataRepository.checkRefreshTokenValidity()
-
-            Assert.assertEquals(CheckRefreshTokenValidityResult::class, validResult::class)
-            Assert.assertTrue((validResult as CheckRefreshTokenValidityResult).isValid)
+            Assert.assertEquals(ErrorResult::class, getTokensResult::class)
+            Assert.assertEquals(
+                TokenErrorEnum.LOCAL_REFRESH_TOKEN_INVALID.error,
+                (getTokensResult as ErrorResult).error
+            )
         }
     }
 
     @Test
-    fun updateTokensTest() {
-        val refreshToken = "token"
-        val accessToken = "token"
+    fun getTokensWithInvalidAccessTokenTest() {
+        val validRefreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY5ODcyMjc4MywiZXhwIjoxOTk4NzI2MzgzfQ.-zTDQgcS_MuPK2uQgCEwQKmh1r4u1U3Wd7jqDZTPm38"
+        val invalidAccessToken = "invalid_token"
 
-        val updatedRefreshToken = "updatedToken"
-        val updatedAccessToken = "updatedToken"
+        val updatedRefreshToken = "refresh_token"
+        val updatedAccessToken = "access_token"
 
         val responseString =
             "{\"access-token\":\"$updatedAccessToken\",\"refresh-token\":\"$updatedRefreshToken\"}"
@@ -140,16 +118,16 @@ class TokenDataRepositoryTest() {
         initTokenDataRepository(200, responseString)
 
         runBlocking {
-            mTokenDataRepository.saveTokens(refreshToken, accessToken)
+            mTokenDataRepository.saveTokens(validRefreshToken, invalidAccessToken)
 
-            val result = mTokenDataRepository.updateTokens()
+            val result = mTokenDataRepository.getTokens()
 
-            Assert.assertEquals(UpdateTokensResult::class, result::class)
+            Assert.assertEquals(GetTokensResult::class, result::class)
 
-            val updateTokensResult = result as UpdateTokensResult
+            val getTokensResult = result as GetTokensResult
 
-            val currentRefreshTokenFromResult = updateTokensResult.refreshToken
-            val currentAccessTokenFromResult = updateTokensResult.accessToken
+            val currentRefreshTokenFromResult = getTokensResult.refreshToken
+            val currentAccessTokenFromResult = getTokensResult.accessToken
 
             Assert.assertEquals(updatedRefreshToken, currentRefreshTokenFromResult)
             Assert.assertEquals(updatedAccessToken, currentAccessTokenFromResult)
@@ -159,6 +137,34 @@ class TokenDataRepositoryTest() {
 
             Assert.assertEquals(updatedRefreshToken, currentRefreshToken)
             Assert.assertEquals(updatedAccessToken, currentAccessToken)
+        }
+    }
+
+    @Test
+    fun getTokensWithValidTokens() {
+        val validRefreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY5ODcyMjc4MywiZXhwIjoxOTk4NzI2MzgzfQ.-zTDQgcS_MuPK2uQgCEwQKmh1r4u1U3Wd7jqDZTPm38"
+        val validAccessToken = validRefreshToken
+
+        runBlocking {
+            mTokenDataRepository.saveTokens(validRefreshToken, validAccessToken)
+
+            val result = mTokenDataRepository.getTokens()
+
+            Assert.assertEquals(GetTokensResult::class, result::class)
+
+            val getTokensResult = result as GetTokensResult
+
+            val currentRefreshTokenFromResult = getTokensResult.refreshToken
+            val currentAccessTokenFromResult = getTokensResult.accessToken
+
+            Assert.assertEquals(validRefreshToken, currentRefreshTokenFromResult)
+            Assert.assertEquals(validAccessToken, currentAccessTokenFromResult)
+
+            val currentRefreshToken = mTokenDataRepository.localTokenDataSource.loadRefreshToken()
+            val currentAccessToken = mTokenDataRepository.localTokenDataSource.accessToken
+
+            Assert.assertEquals(validRefreshToken, currentRefreshToken)
+            Assert.assertEquals(validAccessToken, currentAccessToken)
         }
     }
 }

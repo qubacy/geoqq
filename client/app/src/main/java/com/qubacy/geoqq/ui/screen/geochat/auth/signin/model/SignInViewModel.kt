@@ -9,9 +9,9 @@ import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.Login
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.InterruptOperation
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
-import com.qubacy.geoqq.domain.geochat.signin.operation.DeclineAutomaticSignInOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -92,21 +92,23 @@ class SignInViewModel(
     }
 
     private fun processOperation(operation: Operation): UiOperation? {
-        return when (operation::class.java) {
-            ApproveSignInOperation::class.java -> {
+        return when (operation::class) {
+            ApproveSignInOperation::class -> {
                 val approveSignInOperation = operation as ApproveSignInOperation
 
                 PassSignInUiOperation()
             }
-            DeclineAutomaticSignInOperation::class.java -> {
-                val declineAutomaticSignInOperation = operation as DeclineAutomaticSignInOperation
+            InterruptOperation::class -> {
+                val interruptOperation = operation as InterruptOperation
 
                 mIsWaiting.value = false
 
                 null
             }
-            HandleErrorOperation::class.java -> {
+            HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 ShowErrorUiOperation(handleErrorOperation.error)
             }

@@ -9,6 +9,7 @@ import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.Login
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.InterruptOperation
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
@@ -53,6 +54,13 @@ class SignUpViewModel(
                 val approveSignUpOperation = operation as ApproveSignUpOperation
 
                 PassSignUpUiOperation()
+            }
+            InterruptOperation::class -> {
+                val interruptOperation = operation as InterruptOperation
+
+                mIsWaiting.value = false
+
+                null
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.signin.repository
 
+import com.qubacy.geoqq.common.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
@@ -11,6 +12,10 @@ import org.junit.Test
 class SignInDataRepositoryTest(
 
 ) {
+    companion object {
+        init { Base64MockContext.mockBase64() }
+    }
+
     private lateinit var mSignInDataRepository: SignInDataRepository
 
     private fun initSignInDataRepository(

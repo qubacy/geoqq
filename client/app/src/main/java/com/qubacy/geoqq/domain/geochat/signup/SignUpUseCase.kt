@@ -19,7 +19,7 @@ class SignUpUseCase(
         val result = signUpDataRepository.signUp(login, password)
 
         if (result is ErrorResult) return processError(result.error)
-        if (result is InterruptionResult) return mInterruptionFlag.set(false)
+        if (result is InterruptionResult) return processInterruption()
 
         val resultCast = result as SignUpResult
 
@@ -36,7 +36,7 @@ class SignUpUseCase(
         mStateFlow.emit(SignUpState(operations))
     }
 
-    override fun generateErrorState(operations: List<Operation>): SignUpState {
+    override fun generateState(operations: List<Operation>): SignUpState {
         return SignUpState(operations)
     }
 }

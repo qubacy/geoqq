@@ -43,10 +43,10 @@ class LocalTokenDataSource(
         return mRefreshToken
     }
 
-    fun checkRefreshTokenForValidity(refreshToken: String): Boolean {
+    fun checkTokenForValidity(token: String): Boolean {
         var jwtToken: JWT? = null
 
-        try { jwtToken = JWT(refreshToken) }
+        try { jwtToken = JWT(token) }
         catch (e: Exception) {
             return false
         }

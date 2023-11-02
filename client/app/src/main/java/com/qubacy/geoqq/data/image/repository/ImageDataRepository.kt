@@ -6,9 +6,9 @@ import android.net.Uri
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
-import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
+import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.image.error.ImageErrorEnum
 import com.qubacy.geoqq.data.image.repository.result.DownloadImageResult
@@ -19,8 +19,6 @@ import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.response.GetImageResponse
 import retrofit2.Call
-import java.io.IOException
-import java.net.SocketException
 
 class ImageDataRepository(
     val localImageDataSource: LocalImageDataSource,
@@ -35,24 +33,15 @@ class ImageDataRepository(
     }
 
     private fun downloadImage(imageId: Long, accessToken: String): Result {
-        var response: retrofit2.Response<GetImageResponse>? = null
+        val networkCall = networkImageDataSource
+            .getImage(imageId, accessToken) as Call<Response>
+        val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
-        try {
-            mCurrentNetworkRequest = networkImageDataSource
-                .getImage(imageId, accessToken) as Call<Response>
-            response = mCurrentNetworkRequest!!
-                .execute() as retrofit2.Response<GetImageResponse>
+        if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult
+        if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
-        } catch (e: SocketException) { return InterruptionResult()
-        } catch (e: IOException) {
-            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
-        }
-
-        val error = retrieveNetworkError(response as retrofit2.Response<Response>)
-
-        if (error != null) return ErrorResult(error)
-
-        val responseBody = response.body()!!
+        val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
+            .response.body()!! as GetImageResponse
 
         return DownloadImageResult(responseBody.imageContent)
     }
