@@ -28,7 +28,7 @@ class SignUpDataRepository(
         if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
-            .response.body()!! as SignUpResponse
+            .response as SignUpResponse
 
         val accessToken = responseBody.accessToken
         val refreshToken = responseBody.refreshToken

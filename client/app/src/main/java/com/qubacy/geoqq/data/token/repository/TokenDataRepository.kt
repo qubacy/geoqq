@@ -59,7 +59,7 @@ class TokenDataRepository(
         if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
-            .response.body()!! as UpdateTokensResponse
+            .response as UpdateTokensResponse
 
         val updatedRefreshToken = responseBody.refreshToken
         val updatedAccessToken = responseBody.accessToken

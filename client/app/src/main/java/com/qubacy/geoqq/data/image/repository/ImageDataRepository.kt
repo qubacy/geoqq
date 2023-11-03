@@ -41,7 +41,7 @@ class ImageDataRepository(
         if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
-            .response.body()!! as GetImageResponse
+            .response as GetImageResponse
 
         return DownloadImageResult(responseBody.imageContent)
     }

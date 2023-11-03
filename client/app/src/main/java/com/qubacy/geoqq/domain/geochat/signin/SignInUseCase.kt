@@ -5,6 +5,7 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
+import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain.common.UseCase
 import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
@@ -38,6 +39,15 @@ class SignInUseCase(
 
         if (signInResult is ErrorResult) return processError(signInResult.errorId)
         if (signInResult is InterruptionResult) return processInterruption()
+
+        val signInResultCast = signInResult as SignInWithLoginPasswordResult
+
+        mCurrentRepository = tokenDataRepository
+        val saveTokensResult = tokenDataRepository.saveTokens(
+            signInResultCast.refreshToken, signInResultCast.accessToken)
+
+        if (saveTokensResult is ErrorResult) return processError(saveTokensResult.errorId)
+        if (saveTokensResult is InterruptionResult) return processInterruption()
 
         val operations = listOf(
             ApproveSignInOperation()

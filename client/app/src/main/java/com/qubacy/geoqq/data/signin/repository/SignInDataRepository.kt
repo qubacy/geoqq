@@ -31,7 +31,7 @@ class SignInDataRepository(
         if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
-            .response.body()!! as SignInWithLoginPasswordResponse
+            .response as SignInWithLoginPasswordResponse
 
         val accessToken = responseBody.accessToken
         val refreshToken = responseBody.refreshToken

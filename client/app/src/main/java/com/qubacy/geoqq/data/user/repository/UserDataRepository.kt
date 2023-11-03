@@ -30,7 +30,7 @@ class UserDataRepository(
         if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
-            .response.body()!! as GetUserResponse
+            .response as GetUserResponse
 
         val user = DataUser(
             responseBody.username,
