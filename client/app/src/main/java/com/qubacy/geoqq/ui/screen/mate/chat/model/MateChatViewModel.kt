@@ -129,6 +129,10 @@ class MateChatViewModel(
 
         return User(0, "somebody", "its fucking me...")
     }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
+    }
 }
 
 class MateChatViewModelFactory(val chatId: Long) : ViewModelProvider.Factory {

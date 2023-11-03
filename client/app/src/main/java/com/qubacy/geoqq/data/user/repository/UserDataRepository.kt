@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.data.user.repository
 
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
-import com.qubacy.geoqq.data.common.repository.common.source.local.database.error.DatabaseErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
@@ -49,7 +49,7 @@ class UserDataRepository(
             userEntity = localUserDataSource.getUserById(userId)
 
         } catch (e: Exception) {
-            return ErrorResult(DatabaseErrorEnum.UNKNOWN_DATABASE_ERROR.error)
+            return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
         return GetUserWithDatabaseResult(userEntity?.toDataUser())

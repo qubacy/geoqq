@@ -1,9 +1,7 @@
 package com.qubacy.geoqq.data.common.repository.common
 
-import com.qubacy.geoqq.common.error.common.TypedErrorBase
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
-import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
-import com.qubacy.geoqq.data.common.repository.common.source.network.error.toRemoteError
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -13,19 +11,19 @@ abstract class DataRepository(
 ) {
     protected fun retrieveNetworkError(
         response: retrofit2.Response<Response>
-    ): TypedErrorBase? {
+    ): Long? {
         if (response.isSuccessful) return null
         if (response.errorBody() == null)
-            return NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_RESPONSE_ERROR.error
+            return ErrorContext.Network.UNKNOWN_NETWORK_RESPONSE_ERROR.id
 
         val errorResponseString = response.errorBody()!!.string()
         val errorResponse = NetworkDataSourceContext
             .errorResponseJsonAdapter.fromJson(errorResponseString)
 
         if (errorResponse == null)
-            return NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_RESPONSE_ERROR.error
+            return ErrorContext.Network.UNKNOWN_NETWORK_RESPONSE_ERROR.id
 
-        return errorResponse.error.toRemoteError()
+        return errorResponse.error.id
     }
 
     abstract fun interrupt()

@@ -1,14 +1,12 @@
 package com.qubacy.geoqq.data.token.repository
 
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
-import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
-import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithLoginPasswordResponse
-import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.CheckAccessTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
@@ -34,7 +32,7 @@ class TokenDataRepository(
 
         if (curRefreshToken == null)
             return ErrorResult(
-                TokenErrorEnum.LOCAL_REFRESH_TOKEN_NOT_FOUND.error)
+                ErrorContext.Token.LOCAL_REFRESH_TOKEN_NOT_FOUND.id)
 
         val isCurRefreshTokenValid = localTokenDataSource
             .checkTokenForValidity(curRefreshToken)
@@ -74,13 +72,13 @@ class TokenDataRepository(
 
         if (checkRefreshTokenExistenceResult is ErrorResult) return checkRefreshTokenExistenceResult
         if (!(checkRefreshTokenExistenceResult as CheckRefreshTokenExistenceResult).isExisting)
-            return ErrorResult(TokenErrorEnum.LOCAL_REFRESH_TOKEN_NOT_FOUND.error)
+            return ErrorResult(ErrorContext.Token.LOCAL_REFRESH_TOKEN_NOT_FOUND.id)
 
         val checkRefreshTokenValidityResult = checkRefreshTokenValidity()
 
         if (checkRefreshTokenValidityResult is ErrorResult) return checkRefreshTokenValidityResult
         if (!(checkRefreshTokenValidityResult as CheckRefreshTokenValidityResult).isValid)
-            return ErrorResult(TokenErrorEnum.LOCAL_REFRESH_TOKEN_INVALID.error)
+            return ErrorResult(ErrorContext.Token.LOCAL_REFRESH_TOKEN_INVALID.id)
 
         val checkAccessTokenValidityResult = checkAccessTokenValidity()
 

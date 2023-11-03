@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.data.common.operation
 
-import com.qubacy.geoqq.common.error.common.TypedErrorBase
+import com.qubacy.geoqq.common.error.common.Error
 
 class HandleErrorOperation(
-    val error: TypedErrorBase
+    val error: Error
 ) : Operation() {
 
 }

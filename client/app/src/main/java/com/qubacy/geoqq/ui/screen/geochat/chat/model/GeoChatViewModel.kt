@@ -145,6 +145,10 @@ class GeoChatViewModel(
 
         return false
     }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
+    }
 }
 
 class GeoChatViewModelFactory() : ViewModelProvider.Factory {

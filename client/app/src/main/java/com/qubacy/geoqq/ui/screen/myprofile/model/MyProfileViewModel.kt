@@ -202,6 +202,10 @@ class MyProfileViewModel(
 
         return MyProfileContext.HitUpOption.entries[index]
     }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
+    }
 }
 
 class MyProfileViewModelFactory : ViewModelProvider.Factory {

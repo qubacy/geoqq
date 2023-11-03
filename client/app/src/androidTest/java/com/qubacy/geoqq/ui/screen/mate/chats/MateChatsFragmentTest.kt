@@ -26,7 +26,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.card.MaterialCardView
-import com.qubacy.geoqq.common.error.local.LocalError
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
@@ -41,7 +40,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.common.ErrorBase
+import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
 import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
@@ -160,7 +159,7 @@ class MateChatsFragmentTest {
             }
         }
 
-        fun showError(error: LocalError) {
+        fun showError(error: Error) {
             val users =
                 if (mMateChatsUiState.value == null) listOf() else mMateChatsUiState.value!!.users
             val chats =
@@ -499,7 +498,7 @@ class MateChatsFragmentTest {
 
     @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
-        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.NORMAL)
+        val error = Error(0, "Test", false)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.showError(error)
@@ -512,7 +511,7 @@ class MateChatsFragmentTest {
 
     @Test
     fun handlingCriticalErrorOperationLeadsToAppClosingTest() {
-        val error = LocalError(R.string.error_chat_message_sending_failed, ErrorBase.Level.CRITICAL)
+        val error = Error(0, "Test", true)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.showError(error)

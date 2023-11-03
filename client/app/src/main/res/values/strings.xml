@@ -41,6 +41,8 @@
     <string name="sending_button_description">Send Button</string>
     <string name="friend_request_card_button_caption">Check</string>
     <string name="new_mates_requests">You have some new friends requests!</string>
+    <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
+    <string name="profile_security_section_current_password">Current Password</string>
 
     <string-array name="hit_up_variants">
         <item>Yes</item>
@@ -59,43 +61,12 @@
 
     <string name="error_dialog_title">Error</string>
 
-    <string name="error_image_picking_failed">Image picking has been failed!</string>
-
     <string name="error_sign_in_data_incorrect">Incorrect Sign In data!</string>
-    <!-- TODO: specify it: -->
-    <string name="error_sign_in_failed">Signing In has been failed!</string>
 
     <string name="error_sign_up_data_incorrect">Incorrect Sign Up data!</string>
-    <!-- TODO: specify it: -->
-    <string name="error_sign_up_failed">Signing Up has been failed!</string>
-
-    <string name="error_location_lacking_location_permissions">Sorry, but it isn\'t possible to use the app without providing your location!</string>
-    <string name="error_location_services_not_enabled">Sorry, but it isn\'t possible to use the app without enabling location services (GPS and Network)!</string>
-    <string name="error_gms_api_not_available">Sorry, but it isn\'t possible to use the app without having GMS API available!</string>
 
     <string name="error_chat_message_incorrect">Incorrect message!</string>
-    <!-- TODO: specify it: -->
-    <string name="error_chat_message_sending_failed">Message sending has been failed!</string>
 
     <string name="error_my_profile_data_incorrect">The provided data was incorrect!</string>
-    <!-- TODO: specify it: -->
-    <string name="error_my_profile_saving_failed">Profile saving has been failed!</string>
-    <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
-    <string name="profile_security_section_current_password">Current Password</string>
-
-    <!-- DATA Errors: -->
-
-    <string name="error_unknown_database_error">Unknown database error has been occurred!</string>
-
-    <string name="error_network_response_unknown_error">Unknown network error!</string>
-    <string name="error_local_refresh_token_not_found">Local refresh token hasn\'t been found!</string>
-    <string name="error_local_refresh_token_invalid">Local refresh token is invalid!</string>
-    <string name="error_local_access_token_not_found">Local access token hasn\'t been found!</string>
-    <string name="error_invalid_token">Token is invalid!</string>
-    <string name="error_network_request_unknown_failure">Unknown network request failure has been gotten!</string>
-
-    <string name="error_image_loading_failed">Image loading process has been failed!</string>
-    <string name="error_image_saving_failed">Image saving process has been failed!</string>
-    <string name="error_image_decoding_failed">Image decoding process has been failed!</string>
 
 </resources>

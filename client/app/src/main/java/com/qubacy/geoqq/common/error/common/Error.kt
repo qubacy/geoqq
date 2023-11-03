@@ -1,8 +1,9 @@
 package com.qubacy.geoqq.common.error.common
 
-class Error(
+data class Error(
+    val id: Long,
     val message: String,
-    level: Level
-) : ErrorBase(level) {
+    val isCritical: Boolean
+) {
 
 }

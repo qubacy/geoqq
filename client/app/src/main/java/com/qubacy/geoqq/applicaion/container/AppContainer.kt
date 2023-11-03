@@ -7,6 +7,7 @@ import com.qubacy.geoqq.applicaion.container.signin.SignInContainer
 import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
+import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
@@ -25,7 +26,16 @@ class AppContainer(
     // Common:
 
     private val database = Room.databaseBuilder(
-        context, Database::class.java, Database.DATABASE_NAME).build()
+        context, Database::class.java, Database.DATABASE_NAME)
+        .fallbackToDestructiveMigration()
+        .createFromAsset(Database.DATABASE_NAME)
+        .build()
+
+    // Error:
+
+    private val localErrorDataSource = database.getErrorDAO()
+
+    private val errorDataRepository = ErrorDataRepository(localErrorDataSource)
 
     // Token:
 
@@ -45,7 +55,7 @@ class AppContainer(
 
     private val signInDataRepository = SignInDataRepository(networkSignInDataSource)
 
-    val signInUseCase = SignInUseCase(tokenDataRepository, signInDataRepository)
+    val signInUseCase = SignInUseCase(tokenDataRepository, signInDataRepository, errorDataRepository)
 
     var signInContainer: SignInContainer? = null
 
@@ -56,7 +66,7 @@ class AppContainer(
 
     private val signUpDataRepository = SignUpDataRepository(networkSignUpDataSource)
 
-    val signUpUseCase = SignUpUseCase(tokenDataRepository, signUpDataRepository)
+    val signUpUseCase = SignUpUseCase(tokenDataRepository, signUpDataRepository, errorDataRepository)
 
     var signUpContainer: SignUpContainer? = null
 

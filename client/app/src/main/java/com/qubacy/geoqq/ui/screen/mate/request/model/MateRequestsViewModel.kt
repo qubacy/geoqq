@@ -108,6 +108,10 @@ class MateRequestsViewModel(
             }
         }
     }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
+    }
 }
 
 class MateRequestsViewModelFactory() : ViewModelProvider.Factory {

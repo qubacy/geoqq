@@ -8,9 +8,9 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.databinding.ActivityMainBinding
 import com.qubacy.geoqq.ui.common.activity.StyleableActivity
-import com.qubacy.geoqq.ui.error.MainErrorEnum
 
 class MainActivity : AppCompatActivity(), StyleableActivity {
     companion object {
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), StyleableActivity {
 
             Log.d(TAG, "StartActivityForResult: error = $errorText")
 
-            mPickImageCallback.onImagePickingError(MainErrorEnum.IMAGE_PICKING_ERROR.error)
+            mPickImageCallback.onImagePickingError(ErrorContext.Local.IMAGE_PICKING_ERROR.id)
 
         } else {
             // do we need to handle a cancellation?

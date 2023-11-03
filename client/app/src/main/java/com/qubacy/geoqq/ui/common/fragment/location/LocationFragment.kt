@@ -15,7 +15,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.qubacy.geoqq.ui.common.fragment.location.error.LocationErrorEnum
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.yandex.mapkit.geometry.Point
@@ -113,19 +113,22 @@ abstract class LocationFragment() : WaitingFragment() {
     open fun onLocationPermissionsDenied() {
         Log.d(TAG, "onLocationPermissionsDenied()")
 
-        onErrorOccurred(LocationErrorEnum.LOCATION_PERMISSIONS_DENIED.error)
+        (mModel as LocationViewModel)
+            .retrieveError(ErrorContext.Location.LOCATION_PERMISSIONS_DENIED.id)
     }
 
     open fun onLocationServicesNotEnabled() {
         Log.d(TAG, "onLocationServicesNotEnabled()")
 
-        onErrorOccurred(LocationErrorEnum.LOCATION_SERVICES_NOT_ENABLED.error)
+        (mModel as LocationViewModel)
+            .retrieveError(ErrorContext.Location.LOCATION_SERVICES_NOT_ENABLED.id)
     }
 
     open fun onRequestingLocationUpdatesFailed(exception: Exception) {
         Log.d(TAG, "onRequestingLocationUpdatesFailed(): ${exception.message}")
 
-        onErrorOccurred(LocationErrorEnum.GMS_API_NOT_AVAILABLE.error)
+        (mModel as LocationViewModel)
+            .retrieveError(ErrorContext.Location.GMS_API_NOT_AVAILABLE.id)
     }
 
     open fun onNewLocationGotten(newLocation: Location?) {

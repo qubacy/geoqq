@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.image.repository
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -10,7 +11,6 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.model.respo
 import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
 import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
-import com.qubacy.geoqq.data.image.error.ImageErrorEnum
 import com.qubacy.geoqq.data.image.repository.result.DownloadImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.LoadImageResult
@@ -52,7 +52,7 @@ class ImageDataRepository(
         try {
             localImageUri = localImageDataSource.loadImage(getImageTitleFromImageId(imageId))
 
-        } catch (e: Exception) { return ErrorResult(ImageErrorEnum.IMAGE_LOADING_FAILED.error) }
+        } catch (e: Exception) { return ErrorResult(ErrorContext.Image.IMAGE_LOADING_FAILED.id) }
 
         return LoadImageResult(localImageUri)
     }
@@ -60,7 +60,7 @@ class ImageDataRepository(
     private fun saveImage(imageId: Long, image: Bitmap): Result {
         val uri = localImageDataSource.saveImageOnDevice(getImageTitleFromImageId(imageId), image)
 
-        if (uri == null) return ErrorResult(ImageErrorEnum.IMAGE_SAVING_FAILED.error)
+        if (uri == null) return ErrorResult(ErrorContext.Image.IMAGE_SAVING_FAILED.id)
 
         return SaveImageResult(uri)
     }
@@ -82,7 +82,7 @@ class ImageDataRepository(
         val imageBytes = StringEncodingDecodingUtil
             .base64StringAsBytes((imageDownloadResult as DownloadImageResult).imageContent)
 
-        if (imageBytes == null) return ErrorResult(ImageErrorEnum.IMAGE_DECODING_FAILED.error)
+        if (imageBytes == null) return ErrorResult(ErrorContext.Image.IMAGE_DECODING_FAILED.id)
 
         val imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 

@@ -8,11 +8,11 @@ import com.qubacy.geoqq.data.user.model.DataUser
 @Entity(tableName = UserEntity.TABLE_NAME)
 data class UserEntity(
     @PrimaryKey()
-    @ColumnInfo(name = ID_PARAM_NAME) val userId: Int,
+    @ColumnInfo(name = ID_PARAM_NAME) val id: Long,
     @ColumnInfo(name = USERNAME_PARAM_NAME) val username: String,
     @ColumnInfo(name = DESCRIPTION_PARAM_NAME) val description: String,
     @ColumnInfo(name = AVATAR_ID_PARAM_NAME) val avatarId: Long,
-    @ColumnInfo(name = IS_MATE_PARAM_NAME) val isMate: Boolean
+    @ColumnInfo(name = IS_MATE_PARAM_NAME) val isMate: Int
 ) {
     companion object {
         const val TABLE_NAME = "User"
@@ -26,5 +26,5 @@ data class UserEntity(
 }
 
 fun UserEntity.toDataUser(): DataUser {
-    return DataUser(username, description, avatarId, isMate)
+    return DataUser(username, description, avatarId, isMate == 1)
 }

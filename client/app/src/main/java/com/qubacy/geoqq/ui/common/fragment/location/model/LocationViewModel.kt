@@ -6,7 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.yandex.mapkit.geometry.Point
 
-abstract class LocationViewModel : WaitingViewModel() {
+abstract class LocationViewModel(
+
+) : WaitingViewModel() {
     companion object {
         const val TAG = "LOCATION_VIEW_MODEL"
     }

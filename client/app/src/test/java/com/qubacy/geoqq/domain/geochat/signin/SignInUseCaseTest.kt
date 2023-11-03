@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.geochat.signin
 
+import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
@@ -34,7 +35,10 @@ class SignInUseCaseTest {
             doReturn(signInWithLoginPasswordResult)
                 .`when`(signInDataRepositoryMock).signInWithLoginPassword(String(), String())
 
-            mSignInUseCase = SignInUseCase(tokenDataRepositoryMock, signInDataRepositoryMock)
+            val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
+
+            mSignInUseCase = SignInUseCase(
+                tokenDataRepositoryMock, signInDataRepositoryMock, errorDataRepository)
         }
     }
 

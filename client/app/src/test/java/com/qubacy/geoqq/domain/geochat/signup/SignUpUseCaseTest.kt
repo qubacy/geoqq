@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.domain.geochat.signup
 
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
@@ -32,7 +33,10 @@ class SignUpUseCaseTest {
             Mockito.doReturn(signUpResult)
                 .`when`(signUpDataRepositoryMock).signUp(Mockito.anyString(), Mockito.anyString())
 
-            mSignUpUseCase = SignUpUseCase(tokenDataRepositoryMock, signUpDataRepositoryMock)
+            val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
+
+            mSignUpUseCase = SignUpUseCase(
+                tokenDataRepositoryMock, signUpDataRepositoryMock, errorDataRepository)
         }
     }
 

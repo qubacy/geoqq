@@ -24,7 +24,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 // todo: provide a repository as a param..
-class MateChatsViewModel() : WaitingViewModel() {
+class MateChatsViewModel(
+
+) : WaitingViewModel() {
     // todo: assign to the repository's flow:
     private var mMateChatsStateFlow = MutableStateFlow<MateChatsState?>(null)
 
@@ -94,6 +96,10 @@ class MateChatsViewModel() : WaitingViewModel() {
                 throw IllegalStateException()
             }
         }
+    }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
     }
 
 }

@@ -1,10 +1,10 @@
 package com.qubacy.geoqq.data.token.repository
 
 import com.qubacy.geoqq.common.Base64MockContext
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.token.error.TokenErrorEnum
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
@@ -98,8 +98,8 @@ class TokenDataRepositoryTest() {
 
             Assert.assertEquals(ErrorResult::class, getTokensResult::class)
             Assert.assertEquals(
-                TokenErrorEnum.LOCAL_REFRESH_TOKEN_INVALID.error,
-                (getTokensResult as ErrorResult).error
+                ErrorContext.Token.LOCAL_REFRESH_TOKEN_INVALID.id,
+                (getTokensResult as ErrorResult).errorId
             )
         }
     }

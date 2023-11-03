@@ -24,8 +24,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.common.ErrorBase
-import com.qubacy.geoqq.common.error.local.LocalError
+import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.myprofile.MyProfileContext
 import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
@@ -78,7 +77,7 @@ class MyProfileFragmentTest {
             }
         }
 
-        fun showError(error: LocalError) {
+        fun showError(error: Error) {
             val operations = listOf(
                 HandleErrorOperation(error)
             )
@@ -391,19 +390,19 @@ class MyProfileFragmentTest {
 
     @Test
     fun errorMessageShownOnUiStateWithErrorTest() {
-        val error = LocalError(R.string.error_my_profile_saving_failed, ErrorBase.Level.NORMAL)
+        val error = Error(0, "Test", false)
 
         mMyProfileFragmentScenarioRule.onFragment {
             mMyProfileUiStateTestData.showError(error)
         }
 
-        Espresso.onView(withText(R.string.error_my_profile_saving_failed))
+        Espresso.onView(withText(error.message))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
     fun criticalErrorLeadsToClosingAppTest() {
-        val error = LocalError(R.string.error_my_profile_saving_failed, ErrorBase.Level.NORMAL)
+        val error = Error(0, "Test", true)
 
         mMyProfileFragmentScenarioRule.onFragment {
             mMyProfileUiStateTestData.showError(error)

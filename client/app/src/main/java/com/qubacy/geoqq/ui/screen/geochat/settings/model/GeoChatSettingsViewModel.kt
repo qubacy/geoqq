@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 
-class GeoChatSettingsViewModel : LocationViewModel() {
+class GeoChatSettingsViewModel(
+
+) : LocationViewModel() {
     companion object {
         const val TAG = "SETTINGS_VIEW_MODEL"
 
@@ -49,6 +51,10 @@ class GeoChatSettingsViewModel : LocationViewModel() {
 
     fun onMapLoadingStopped() {
         mIsWaiting.value = false
+    }
+
+    override fun retrieveError(errorId: Long) {
+        TODO("Not yet implemented")
     }
 }
 

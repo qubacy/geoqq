@@ -8,13 +8,11 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.qubacy.geoqq.common.error.common.ErrorBase
-import com.qubacy.geoqq.common.error.common.TypedErrorBase
+import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.ui.common.component.dialog.error.ErrorDialog
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.state.BaseUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.fragment.common.styleable.StyleableFragment
-import com.qubacy.geoqq.ui.common.util.ErrorUtil
 
 abstract class BaseFragment() : StyleableFragment() {
     protected var mModel: BaseViewModel? = null
@@ -46,9 +44,7 @@ abstract class BaseFragment() : StyleableFragment() {
         return true
     }
 
-    open fun onErrorOccurred(typedError: TypedErrorBase) {
-        val error = ErrorUtil.typedErrorToError(typedError, resources)
-
+    open fun onErrorOccurred(error: Error) {
         ErrorDialog.Builder(
             error.message,
             requireContext()) { handleError(error) }
@@ -56,12 +52,9 @@ abstract class BaseFragment() : StyleableFragment() {
             .show()
     }
 
-    open fun handleError(error: ErrorBase) {
-        when (error.level) {
-            ErrorBase.Level.NORMAL -> {}
-            ErrorBase.Level.CRITICAL -> {
-                requireActivity().finishAndRemoveTask()
-            }
+    open fun handleError(error: Error) {
+        if (error.isCritical) {
+            requireActivity().finishAndRemoveTask()
         }
     }
 

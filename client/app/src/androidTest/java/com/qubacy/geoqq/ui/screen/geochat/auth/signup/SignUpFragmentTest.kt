@@ -19,9 +19,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.common.ErrorBase
-import com.qubacy.geoqq.common.error.common.TypedErrorBase
-import com.qubacy.geoqq.common.error.local.LocalError
+import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
@@ -49,7 +47,7 @@ class SignUpFragmentTest {
             emitState(SignUpState(operations))
         }
 
-        fun showError(error: TypedErrorBase) {
+        fun showError(error: Error) {
             val operations = listOf(
                 HandleErrorOperation(error)
             )
@@ -469,19 +467,19 @@ class SignUpFragmentTest {
 
     @Test
     fun errorMessageShowsUpOnSettingUiStateWithErrorTest() {
-        val error = LocalError(R.string.error_sign_up_failed, ErrorBase.Level.NORMAL)
+        val error = Error(0, "Test", false)
 
         mSignUpFragmentScenarioRule.onFragment {
             mSignUpUiStateTestData.showError(error)
         }
 
-        Espresso.onView(withText(error.messageResId))
+        Espresso.onView(withText(error.message))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
     fun criticalErrorLeadsToClosingAppTest() {
-        val error = LocalError(R.string.error_sign_up_failed, ErrorBase.Level.CRITICAL)
+        val error = Error(0, "Test", true)
 
         mSignUpFragmentScenarioRule.onFragment {
             mSignUpUiStateTestData.showError(error)

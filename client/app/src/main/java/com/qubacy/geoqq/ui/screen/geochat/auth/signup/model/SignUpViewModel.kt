@@ -114,6 +114,12 @@ class SignUpViewModel(
 
         mSignUpUseCase.interruptOperation()
     }
+
+    override fun retrieveError(errorId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            mSignUpUseCase.getError(errorId)
+        }
+    }
 }
 
 class SignUpViewModelFactory(

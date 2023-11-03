@@ -1,10 +1,10 @@
 package com.qubacy.geoqq.data.common.repository.network
 
+import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.DataRepository
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
-import com.qubacy.geoqq.data.common.repository.common.source.network.error.NetworkDataSourceErrorEnum
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
 import retrofit2.Call
@@ -29,7 +29,7 @@ abstract class NetworkDataRepository(
         } catch (e: IOException) {
             if (mCurrentNetworkRequest!!.isCanceled) return InterruptionResult()
 
-            return ErrorResult(NetworkDataSourceErrorEnum.UNKNOWN_NETWORK_FAILURE.error)
+            return ErrorResult(ErrorContext.Network.UNKNOWN_NETWORK_FAILURE.id)
         }
     }
 }

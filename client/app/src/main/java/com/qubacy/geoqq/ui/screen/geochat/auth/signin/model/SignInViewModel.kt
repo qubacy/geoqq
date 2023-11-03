@@ -117,6 +117,12 @@ class SignInViewModel(
             }
         }
     }
+
+    override fun retrieveError(errorId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            mSignInUseCase.getError(errorId)
+        }
+    }
 }
 
 class SignInViewModelFactory(
