@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.token.repository
 
+import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -10,6 +11,7 @@ import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequ
 import com.qubacy.geoqq.data.token.repository.result.CheckAccessTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult
+import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensWithNetworkResult
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
@@ -109,6 +111,16 @@ class TokenDataRepository(
             getTokensWithNetworkResultCast.refreshToken,
             getTokensWithNetworkResultCast.accessToken
         )
+    }
+
+    fun getAccessTokenPayload(): Result {
+        if (localTokenDataSource.accessToken == null) throw IllegalStateException()
+
+        val payload = localTokenDataSource.getTokenPayload(localTokenDataSource.accessToken!!)
+
+        if (payload == null) return ErrorResult(ErrorContext.Token.INVALID_TOKEN.id)
+
+        return GetAccessTokenPayloadResult(payload)
     }
 
     suspend fun saveTokens(

@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class GetImageResponse(
+    val id: Long,
     @Json(name = "image-content") val imageContent: String
 ) : Response() {
 

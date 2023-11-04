@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data.token.repository.source.local
 
 import android.content.SharedPreferences
+import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq.data.common.repository.common.source.DataSource
 import java.lang.Exception
@@ -47,10 +48,17 @@ class LocalTokenDataSource(
         var jwtToken: JWT? = null
 
         try { jwtToken = JWT(token) }
-        catch (e: Exception) {
-            return false
-        }
+        catch (e: Exception) { return false }
 
         return !jwtToken.isExpired(0)
+    }
+
+    fun getTokenPayload(token: String): Map<String, Claim>? {
+        var jwtToken: JWT? = null
+
+        try { jwtToken = JWT(token) }
+        catch (e: Exception) { return null }
+
+        return jwtToken.claims
     }
 }

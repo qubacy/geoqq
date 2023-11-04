@@ -14,7 +14,7 @@ object ErrorContext {
     enum class Token(val id: Long) {
         LOCAL_REFRESH_TOKEN_NOT_FOUND(400),
         LOCAL_REFRESH_TOKEN_INVALID(401),
-        ;
+        INVALID_TOKEN(402);
     }
 
     enum class Image(val id: Long) {
