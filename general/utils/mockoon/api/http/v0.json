@@ -117,7 +117,7 @@
         },
         {
           "uuid": "16d1c848-3a14-482b-b0ba-ec7f2899573c",
-          "body": "{\n  \"error\": {\n    \"message\": \"Authorization has been failed!\",\n    \"level\": 0\n  }\n}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 401,
           "label": "",
@@ -216,7 +216,7 @@
         },
         {
           "uuid": "5b8b2df9-9e86-4a83-b10d-3dabb49b777e",
-          "body": "{}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 403,
           "label": "",
@@ -304,7 +304,7 @@
         },
         {
           "uuid": "dda42557-53eb-4831-b809-a72a843eebde",
-          "body": "{}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 400,
           "label": "",
@@ -335,7 +335,7 @@
         },
         {
           "uuid": "04d310cb-4ebd-42fc-a72b-9a8676aa2346",
-          "body": "{}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 403,
           "label": "",
@@ -364,7 +364,7 @@
       "responses": [
         {
           "uuid": "03d56be4-b78b-4ade-b030-be771d15e0c8",
-          "body": "{\n  \"username\": \"{{faker 'name.firstName'}}\",\n  \"description\": \"{{faker 'address.city'}}\",\n  \"avatar-id\": 1,\n  \"is-mate\": {{boolean}}\n}",
+          "body": "{\n  \"id\": 0,\n  \"username\": \"{{faker 'name.firstName'}}\",\n  \"description\": \"{{faker 'address.city'}}\",\n  \"avatar-id\": 1,\n  \"is-mate\": {{boolean}}\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -395,7 +395,7 @@
         },
         {
           "uuid": "c0bdbba0-c604-4678-a86f-612f388da83e",
-          "body": "{}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 403,
           "label": "",
@@ -466,7 +466,7 @@
       "responses": [
         {
           "uuid": "c056a448-766e-4cce-b9b4-4a7dff2b1fd2",
-          "body": "{\n  \"error\": {\n    \"message\": \"Image can't be gotten!\",\n    \"level\": 0\n  }\n}",
+          "body": "{\n  \"error\": {\n    \"id\": 200\n  }\n}",
           "latency": 0,
           "statusCode": 400,
           "label": "",
