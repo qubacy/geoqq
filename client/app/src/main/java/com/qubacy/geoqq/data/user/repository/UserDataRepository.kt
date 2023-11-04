@@ -33,6 +33,7 @@ class UserDataRepository(
             .response as GetUserResponse
 
         val user = DataUser(
+            responseBody.id,
             responseBody.username,
             responseBody.description,
             responseBody.avatarId,

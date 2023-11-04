@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class GetUserResponse(
+    val id: Long,
     val username: String,
     val description: String,
     @Json(name = "avatar-id") val avatarId: Long,

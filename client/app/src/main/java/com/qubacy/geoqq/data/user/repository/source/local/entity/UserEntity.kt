@@ -26,5 +26,5 @@ data class UserEntity(
 }
 
 fun UserEntity.toDataUser(): DataUser {
-    return DataUser(username, description, avatarId, isMate == 1)
+    return DataUser(id, username, description, avatarId, isMate == 1)
 }
