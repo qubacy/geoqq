@@ -39,19 +39,20 @@ class SignInFragment : WaitingFragment() {
 
         val application = (requireActivity().application as Application)
 
-        application.appContainer.signInContainer =
-            SignInContainer(application.appContainer.signInUseCase)
+        application.appContainer.initSignInContainer(
+            application.appContainer.tokenDataRepository,
+            application.appContainer.signInDataRepository,
+            application.appContainer.errorDataRepository
+        )
 
         mModel = application.appContainer.signInContainer!!
             .signInViewModelFactory.create(SignInViewModel::class.java)
     }
 
-    override fun onDestroy() {
-        val application = (requireActivity().application as Application)
+    override fun onStop() {
+        (requireActivity().application as Application).appContainer.clearSignInContainer()
 
-        application.appContainer.signInContainer = null
-
-        super.onDestroy()
+        super.onStop()
     }
 
     override fun onCreateView(

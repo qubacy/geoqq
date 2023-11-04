@@ -35,7 +35,7 @@ class AppContainer(
 
     private val localErrorDataSource = database.getErrorDAO()
 
-    private val errorDataRepository = ErrorDataRepository(localErrorDataSource)
+    val errorDataRepository = ErrorDataRepository(localErrorDataSource)
 
     // Token:
 
@@ -45,7 +45,7 @@ class AppContainer(
     private val networkTokenDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkTokenDataSource::class.java)
 
-    private val tokenDataRepository = TokenDataRepository(
+    val tokenDataRepository = TokenDataRepository(
         localTokenDataSource, networkTokenDataSource)
 
     // Sign In:
@@ -53,22 +53,46 @@ class AppContainer(
     private val networkSignInDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkSignInDataSource::class.java)
 
-    private val signInDataRepository = SignInDataRepository(networkSignInDataSource)
-
-    val signInUseCase = SignInUseCase(tokenDataRepository, signInDataRepository, errorDataRepository)
+    val signInDataRepository = SignInDataRepository(networkSignInDataSource)
 
     var signInContainer: SignInContainer? = null
+
+    fun initSignInContainer(
+        tokenDataRepository: TokenDataRepository,
+        signInDataRepository: SignInDataRepository,
+        errorDataRepository: ErrorDataRepository
+    ) {
+        val signInUseCase = SignInUseCase(
+            tokenDataRepository, signInDataRepository, errorDataRepository)
+
+        signInContainer = SignInContainer(signInUseCase)
+    }
+
+    fun clearSignInContainer() { signUpContainer  = null }
 
     // Sign Up:
 
     private val networkSignUpDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkSignUpDataSource::class.java)
 
-    private val signUpDataRepository = SignUpDataRepository(networkSignUpDataSource)
-
-    val signUpUseCase = SignUpUseCase(tokenDataRepository, signUpDataRepository, errorDataRepository)
+    val signUpDataRepository = SignUpDataRepository(networkSignUpDataSource)
 
     var signUpContainer: SignUpContainer? = null
+
+    fun initSignUpContainer(
+        tokenDataRepository: TokenDataRepository,
+        signUpDataRepository: SignUpDataRepository,
+        errorDataRepository: ErrorDataRepository
+    ) {
+        val signUpUseCase = SignUpUseCase(
+            tokenDataRepository, signUpDataRepository, errorDataRepository)
+
+        signUpContainer = SignUpContainer(signUpUseCase)
+    }
+
+    fun clearSignUpContainer() {
+        signUpContainer = null
+    }
 
     // User?:
 
@@ -76,7 +100,7 @@ class AppContainer(
     private val networkUserDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkUserDataSource::class.java)
 
-    private val userDataRepository = UserDataRepository(localUserDataSource, networkUserDataSource)
+    val userDataRepository = UserDataRepository(localUserDataSource, networkUserDataSource)
 
 
 }

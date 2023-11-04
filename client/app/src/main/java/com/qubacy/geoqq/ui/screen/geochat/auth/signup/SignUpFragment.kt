@@ -56,19 +56,20 @@ class SignUpFragment(
 
         val application = (requireActivity().application as Application)
 
-        application.appContainer.signUpContainer =
-            SignUpContainer(application.appContainer.signUpUseCase)
+        application.appContainer.initSignUpContainer(
+            application.appContainer.tokenDataRepository,
+            application.appContainer.signUpDataRepository,
+            application.appContainer.errorDataRepository
+        )
 
         mModel = application.appContainer.signUpContainer!!
             .signUpViewModelFactory.create(SignUpViewModel::class.java)
     }
 
-    override fun onDestroy() {
-        val application = (requireActivity().application as Application)
+    override fun onStop() {
+        (requireActivity().application as Application).appContainer.clearSignUpContainer()
 
-        application.appContainer.signUpContainer = null
-
-        super.onDestroy()
+        super.onStop()
     }
 
     private fun getExitTransitionListener(): Transition.TransitionListener {

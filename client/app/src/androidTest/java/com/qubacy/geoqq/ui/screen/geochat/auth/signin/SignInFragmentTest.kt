@@ -18,7 +18,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveSignInOperation
+import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -38,7 +38,7 @@ class SignInFragmentTest {
     ) {
         fun authorize() {
             val operations = listOf(
-                ApproveSignInOperation()
+                ProcessSignInResultOperation(true)
             )
 
             runBlocking {
