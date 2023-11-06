@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.repository.network
+package com.qubacy.geoqq.data.common.repository.network.common
 
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.DataRepository
@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
-import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
+import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import retrofit2.Call
 import java.io.IOException
 

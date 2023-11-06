@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.common.repository.network.result
+package com.qubacy.geoqq.data.common.repository.network.common.result
 
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response

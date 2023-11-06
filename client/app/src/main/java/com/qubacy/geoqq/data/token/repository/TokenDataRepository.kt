@@ -1,13 +1,12 @@
 package com.qubacy.geoqq.data.token.repository
 
-import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
-import com.qubacy.geoqq.data.common.repository.network.NetworkDataRepository
-import com.qubacy.geoqq.data.common.repository.network.result.ExecuteNetworkRequestResult
+import com.qubacy.geoqq.data.common.repository.network.common.NetworkDataRepository
+import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.token.repository.result.CheckAccessTokenValidityResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenExistenceResult
 import com.qubacy.geoqq.data.token.repository.result.CheckRefreshTokenValidityResult

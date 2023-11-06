@@ -8,5 +8,9 @@ import retrofit2.http.Query
 
 interface NetworkMateChatDataSource : DataSource {
     @GET("/api/mate/chat")
-    fun getChats(@Query("accessToken") accessToken: String): Call<GetChatsResponse>
+    fun getChats(
+        @Query("offset") offset: Int,
+        @Query("count") count: Int,
+        @Query("accessToken") accessToken: String
+    ): Call<GetChatsResponse>
 }

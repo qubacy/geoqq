@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 
-@Entity(tableName = ChatEntity.TABLE_NAME)
-data class ChatEntity(
+@Entity(tableName = MateChatEntity.TABLE_NAME)
+data class MateChatEntity(
     @PrimaryKey()
     @ColumnInfo(name = CHAT_ID_PROP_NAME) val id: Long,
     @ColumnInfo(name = USER_ID_PROP_NAME) val userId: Long,
@@ -14,7 +14,7 @@ data class ChatEntity(
     @ColumnInfo(name = LAST_MESSAGE_ID_PROP_NAME) val lastMessageId: Long
 ) {
     companion object {
-        const val TABLE_NAME = "Chat"
+        const val TABLE_NAME = "MateChat"
 
         const val CHAT_ID_PROP_NAME = "id"
         const val USER_ID_PROP_NAME = "user_id"
@@ -23,6 +23,6 @@ data class ChatEntity(
     }
 }
 
-fun ChatEntity.toDataMateChat(): DataMateChat {
+fun MateChatEntity.toDataMateChat(): DataMateChat {
     return DataMateChat(id, userId, newMessageCount, lastMessageId)
 }
