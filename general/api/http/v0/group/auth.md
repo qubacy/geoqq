@@ -17,7 +17,14 @@
     "refresh-token": "<jwt-string>"
 }
 ```
-- Other error codes.
+- *400*, *500*, etc.
+```json
+{
+    "error": {
+        "id": "<int>"
+    }
+}
+```
 
 <!-- -------------------------------------------- -->
 
@@ -38,7 +45,14 @@
     "refresh-token": "<jwt-string>"
 }
 ```
-- Other error codes.
+- *400*, *500*, etc.
+```json
+{
+    "error": {
+        "id": "<int>"
+    }
+}
+```
 
 <!-- -------------------------------------------- -->
 
@@ -58,8 +72,11 @@
     "refresh-token": "<jwt-string>"
 }
 ```
-- Other error codes.
-
-# Useful links:
-- https://habr.com/ru/articles/210760/
-- https://stackoverflow.com/questions/6306185/can-http-put-request-have-application-x-www-form-urlencoded-as-the-content-type
+- *400*, *500*, etc.
+```json
+{
+    "error": {
+        "id": "<int>"
+    }
+}
+```

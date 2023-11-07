@@ -11,14 +11,13 @@
 ```json
 {
     "username": "<string>",
-    "about-me": "<string>",
-    "avatar": "<base58-string>",
+    "description": "<string>",
+    "avatar-id": "<id>",
     "privacy": {
         "hit-me-up": "<int>"
     }
 }
 ```
-- Other error codes.
 
 ## PUT /api/my-profile
 
@@ -29,8 +28,8 @@
     "access-token": "<jwt-string>",
        
     /* optional */
-    "about-me": "<string>",
-    "avatar": "<base58-string>",
+    "description": "<string>",
+    "avatar": "<base64-string>",
     "privacy": {
         "hit-me-up": "<int>"
     },
@@ -43,7 +42,6 @@
 
 ### Responses
 - *200*
-- Other error codes.
 
 <!-- -------------------------------------------- -->
 
@@ -59,8 +57,7 @@
 {
     "username": "<string>",
     "description": "<string>",
-    "avatar": "<base58-string>",
+    "avatar-id": "<id>",
     "is-mate": "<bool>"
 }
 ```
-- Other error codes.

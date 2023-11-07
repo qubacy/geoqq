@@ -34,4 +34,3 @@
     ]
 }
 ```
-- Other error codes.

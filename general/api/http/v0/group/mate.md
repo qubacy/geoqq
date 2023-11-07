@@ -2,9 +2,6 @@
 
 ## GET /api/mate/chat
 
-### Header
-- Accept-Language: `en-US`
-
 ### Parameters
 #### Required
 - accessToken=`"<jwt-string>"`
@@ -15,24 +12,17 @@
 {
     "chats": [
         {
-            "id": "<id>",
-            "user": {
-                "id": "<id>",
-                "username": "<string>",
-                "is-mate": "<bool>",
-                "avatar": "<base58-string>"
-            },
+            "id": "<id>", // ---------------
+                          //           one-to-one?
+            "user-id": "<id>", // ----------
+
             "new-message-count": "<int>",
-            "last-message": {
-                "text": "<string>",
-                "time": "<int>"
-            }
+            "last-message-id": "<id>"
         },
         ...
     ]
 }
 ```
-- Other error codes.
 
 ## DELETE /api/mate/chat/{`id`}
 
@@ -42,9 +32,25 @@
 
 ### Responses
 - *200*
-- Other error codes.
 
 <!-- -------------------------------------------- -->
+
+## GET /api/mate/chat/{`id`}/message/last
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Responses
+- *200*
+```json
+{
+    "id": "<id>",
+    "text": "<string>",
+    "time": "<int>",
+    "user-id": "<id>"
+}
+```
 
 ## GET /api/mate/chat/{`id`}/message
 
@@ -67,7 +73,6 @@
     ]
 }
 ```
-- Other error codes.
 
 ## POST /api/mate/chat/{`id`}/message
 
@@ -83,7 +88,6 @@
 
 ### Responses
 - *200*
-- Other error codes.
 
 <!-- -------------------------------------------- -->
 
@@ -104,14 +108,13 @@
                 "id": "<id>",
                 "username": "<string>",
                 "description": "<string>",
-                "avatar": "<base58-string>",
+                "avatar-id": "<id>"
             }
         },
         ...
     ]
 }
 ```
-- Other error codes.
 
 ## POST /api/mate/request
 
@@ -125,7 +128,6 @@
 
 ### Responses
 - *200*
-- Other error codes.
 
 ## PUT /api/mate/request/{`id`}
 
@@ -138,4 +140,3 @@
 
 ### Responses
 - *200*
-- Other error codes.
