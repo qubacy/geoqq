@@ -4,20 +4,19 @@ import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-
 // TODO: DISCUSSING THE STRUCTS..
 @JsonClass(generateAdapter = true)
 class ChatNetworkModel(
     val id: Long,
-    val user: ChatUserInfo,
+    @Json(name = "user-id") val userId: Long,
     @Json(name = "new-message-count") val newMessageCount: Int,
-    @Json(name = "last-message") val lastMessage: ChatLastMessage
+    @Json(name = "last-message-id") val lastMessageId: Long
 ) {
 
 }
 
 fun ChatNetworkModel.toDataMateChat(): DataMateChat {
-    return DataMateChat(id, 0, newMessageCount, 0) // todo: to fix.
+    return DataMateChat(id, userId, newMessageCount, lastMessageId)
 }
 
 @JsonClass(generateAdapter = true)
