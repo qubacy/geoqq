@@ -12,12 +12,16 @@
 {
     "chats": [
         {
-            "id": "<id>", // ---------------
-                          //           one-to-one?
-            "user-id": "<id>", // ----------
-
+            "id": "<id>",
+            "user-id": "<id>",
+            
             "new-message-count": "<int>",
-            "last-message-id": "<id>"
+            "last-message": {
+                "id": "<id>",
+                "text": "<string>",
+                "time": "<int>",
+                "user-id": "<id>"
+            }
         },
         ...
     ]
@@ -34,23 +38,6 @@
 - *200*
 
 <!-- -------------------------------------------- -->
-
-## GET /api/mate/chat/{`id`}/message/last
-
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-
-### Responses
-- *200*
-```json
-{
-    "id": "<id>",
-    "text": "<string>",
-    "time": "<int>",
-    "user-id": "<id>"
-}
-```
 
 ## GET /api/mate/chat/{`id`}/message
 
