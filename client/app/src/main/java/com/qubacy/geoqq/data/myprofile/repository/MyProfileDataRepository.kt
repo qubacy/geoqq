@@ -21,8 +21,9 @@ import com.qubacy.geoqq.data.myprofile.repository.source.network.model.common.Pr
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.request.UpdateMyProfileRequestBody
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.request.common.Security
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.GetMyProfileResponse
+import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.UpdateMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.toDataMyProfile
-import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 class MyProfileDataRepository(
     val localMyProfileDataSource: LocalMyProfileDataSource,
@@ -84,11 +85,12 @@ class MyProfileDataRepository(
     ) {
         val avatarContent = if (avatarBitmap == null) null
             else {
-                val avatarByteStream = ByteArrayOutputStream()
+                val avatarByteBuffer = ByteBuffer.allocate(
+                    avatarBitmap.rowBytes * avatarBitmap.height)
 
-                avatarBitmap.compress(Bitmap.CompressFormat.JPEG, 100, avatarByteStream)
+                avatarBitmap.copyPixelsToBuffer(avatarByteBuffer)
 
-                StringEncodingDecodingUtil.bytesAsBase64String(avatarByteStream.toByteArray())
+                StringEncodingDecodingUtil.bytesAsBase64String(avatarByteBuffer.array())
             }
         val passwordHash = if (password == null) null
             else {
@@ -127,7 +129,7 @@ class MyProfileDataRepository(
         if (result is ErrorResult) return emitResult(result)
         if (result is InterruptionResult) return emitResult(result)
 
-        val responseBody = (result as ExecuteNetworkRequestResult).response as GetMyProfileResponse
+        val responseBody = (result as ExecuteNetworkRequestResult).response as UpdateMyProfileResponse
 
         return emitResult(UpdateMyProfileResult())
     }

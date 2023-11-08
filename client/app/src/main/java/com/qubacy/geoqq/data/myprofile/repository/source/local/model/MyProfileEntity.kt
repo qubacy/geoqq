@@ -16,7 +16,9 @@ data class MyProfileEntity(
 
 fun MyProfileEntity.toDataMyProfile(): DataMyProfile {
     val hitUpOption = MyProfileDataModelContext.HitUpOption
-        .entries.find { it.index == hitUpOptionIndex }!!
+        .entries.find {
+            it.index == this.hitUpOptionIndex
+        }!!
     val avatarUriCast = avatarUri.toUri()
 
     return DataMyProfileWithLinkedAvatar(username, description, hitUpOption, avatarUriCast)

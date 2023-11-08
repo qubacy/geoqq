@@ -6,7 +6,8 @@ import org.mockito.Mockito
 
 object BitmapMockContext {
     fun mockBitmapFactory() {
-        val mock = Mockito.mockStatic(BitmapFactory::class.java)
+        Mockito.mockStatic(BitmapFactory::class.java)
+
         val bitmapMock = Mockito.mock(Bitmap::class.java)
 
         Mockito.`when`(BitmapFactory.decodeByteArray(

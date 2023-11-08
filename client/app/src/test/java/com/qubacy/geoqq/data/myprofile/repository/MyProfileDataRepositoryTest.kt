@@ -1,17 +1,23 @@
 package com.qubacy.geoqq.data.myprofile.repository
 
+import android.graphics.Bitmap
 import android.net.Uri
+import com.qubacy.geoqq.common.AnyUtility
 import com.qubacy.geoqq.common.Base64MockContext
+import com.qubacy.geoqq.common.BitmapMockContext
 import com.qubacy.geoqq.common.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
-import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileWithSharedPreferencesResult
+import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
+import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileEntity
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.toDataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.source.network.NetworkMyProfileDataSource
+import com.qubacy.geoqq.data.myprofile.repository.source.network.model.common.Privacy
+import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.GetMyProfileResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -20,6 +26,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicReference
 
 class MyProfileDataRepositoryTest(
@@ -29,6 +36,7 @@ class MyProfileDataRepositoryTest(
         init {
             UriMockContext.mockUri()
             Base64MockContext.mockBase64()
+            BitmapMockContext.mockBitmapFactory()
         }
     }
 
@@ -46,18 +54,17 @@ class MyProfileDataRepositoryTest(
         val hitUpOption = MyProfileDataModelContext.HitUpOption.entries
             .find { it.index == hitUpOptionIndex }!!
 
-        val dataMyProfile = DataMyProfileWithLinkedAvatar(
-            username, description, hitUpOption, UriMockContext.mockedUri)
+        val uri = Uri.parse(String())
+        val dataMyProfileWithAvatar =
+            DataMyProfileWithLinkedAvatar(username, description, hitUpOption, uri)
 
-//        Mockito.`when`(spiedMyProfileEntity.toDataMyProfile()).thenReturn(dataMyProfile)
-        Mockito.doReturn(dataMyProfile).`when`(spiedMyProfileEntity.toDataMyProfile())
+        Mockito.doAnswer { dataMyProfileWithAvatar }.`when`(spiedMyProfileEntity).toDataMyProfile()
 
-        return spiedMyProfileEntity
+        return myProfileEntity
     }
 
     private fun initMyProfileDataRepository(
-        myProfileEntity: MyProfileEntity =
-            getSpiedMyProfileEntity(String(), String(), String(), 0),
+        myProfileEntity: MyProfileEntity? = null,
         code: Int = 200,
         responseString: String = String()
     ) {
@@ -77,7 +84,10 @@ class MyProfileDataRepositoryTest(
         GlobalScope.launch(Dispatchers.IO) {
             mMyProfileDataRepository.resultFlow.collect {
                 val curList = mResultListAtomicRef.get()
-                val newList = mutableListOf<Result>().apply { addAll(curList) }
+                val newList = mutableListOf<Result>().apply {
+                    addAll(curList)
+                    add(it)
+                }
 
                 mResultListAtomicRef.set(newList)
             }
@@ -102,28 +112,99 @@ class MyProfileDataRepositoryTest(
 
             while (mResultListAtomicRef.get().isEmpty()) { }
 
-            val operation = mResultListAtomicRef.get().first()
+            val result = mResultListAtomicRef.get().first()
 
-            Assert.assertEquals(GetMyProfileWithSharedPreferencesResult::class, operation::class)
+            Assert.assertEquals(GetMyProfileResult::class, result::class)
 
-            val operationCast = operation as GetMyProfileWithSharedPreferencesResult
+            val resultCast = result as GetMyProfileResult
 
-            Assert.assertEquals(myProfileEntity.toDataMyProfile(), operationCast.myProfileData)
+            Assert.assertEquals(myProfileEntity.username, resultCast.myProfileData.username)
         }
     }
 
     @Test
     fun getNetworkMyProfileWithoutLocalDataTest() {
+        val myProfileResponse = GetMyProfileResponse(
+            "test", "test", 0, Privacy(0)
+        )
+        val responseString = "{\"username\":\"${myProfileResponse.username}\"," +
+                "\"description\":\"${myProfileResponse.description}\"," +
+                "\"avatar-id\":${myProfileResponse.avatarId}," +
+                "\"privacy\":{\"hit-me-up\":${myProfileResponse.privacy.hitMeUp}}}"
 
+        initMyProfileDataRepository(code = 200, responseString = responseString)
+
+        runBlocking {
+            mMyProfileDataRepository.getMyProfile(String())
+
+            while (mResultListAtomicRef.get().isEmpty()) { }
+
+            val result = mResultListAtomicRef.get().first()
+
+            Assert.assertEquals(GetMyProfileResult::class, result::class)
+
+            val resultCast = result as GetMyProfileResult
+
+            Assert.assertEquals(myProfileResponse.username, resultCast.myProfileData.username)
+        }
     }
 
     @Test
     fun getLoadedLocalMyProfileDataThenGetNewMyProfileDataWithNetworkTest() {
+        val myProfileEntity = getSpiedMyProfileEntity(
+            String(), "local", "test", 0
+        )
+        val myProfileResponse = GetMyProfileResponse(
+            "network", "test", 0, Privacy(0)
+        )
+        val responseString = "{\"username\":\"${myProfileResponse.username}\"," +
+                "\"description\":\"${myProfileResponse.description}\"," +
+                "\"avatar-id\":${myProfileResponse.avatarId}," +
+                "\"privacy\":{\"hit-me-up\":${myProfileResponse.privacy.hitMeUp}}}"
 
+        initMyProfileDataRepository(
+            myProfileEntity = myProfileEntity, code = 200, responseString = responseString)
+
+        runBlocking {
+            mMyProfileDataRepository.getMyProfile(String())
+
+            while (mResultListAtomicRef.get().size < 2) { }
+
+            val resultList = mResultListAtomicRef.get()
+            val localResult = resultList[0]
+            val networkResult = resultList[1]
+
+            Assert.assertEquals(GetMyProfileResult::class, localResult::class)
+            Assert.assertEquals(GetMyProfileResult::class, networkResult::class)
+
+            val localResultCast = localResult as GetMyProfileResult
+            val networkResultCast = networkResult as GetMyProfileResult
+
+            Assert.assertEquals(myProfileEntity.username, localResultCast.myProfileData.username)
+            Assert.assertEquals(myProfileResponse.username, networkResultCast.myProfileData.username)
+        }
     }
 
     @Test
     fun uploadMyProfileDataTest() {
+        val avatarBitmapMock = Mockito.mock(Bitmap::class.java)
 
+        Mockito.doAnswer { true }.`when`(avatarBitmapMock)
+            .copyPixelsToBuffer(AnyUtility.any(ByteBuffer::class.java))
+
+        initMyProfileDataRepository(code = 200, responseString = "{}")
+
+        runBlocking {
+            mMyProfileDataRepository.updateMyProfile(
+                String(), avatarBitmapMock, String(),
+                String(), String(), MyProfileDataModelContext.HitUpOption.NEGATIVE
+            )
+
+            while (mResultListAtomicRef.get().isEmpty()) { }
+
+            val result = mResultListAtomicRef.get().first()
+
+            Assert.assertEquals(UpdateMyProfileResult::class, result::class)
+        }
     }
 }
