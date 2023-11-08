@@ -26,10 +26,10 @@ import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.myprofile.MyProfileContext
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
-import com.qubacy.geoqq.data.myprofile.operation.SuccessfulProfileSavingCallbackOperation
-import com.qubacy.geoqq.data.myprofile.state.MyProfileState
+import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
+import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
+import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
@@ -59,7 +59,7 @@ class MyProfileFragmentTest {
         val fragment: MyProfileFragment
     ) {
         fun getCurPrivacyHitUpPosition(): Int {
-            return changedInputHash[MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY] as Int
+            return changedInputHash[MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY] as Int
         }
 
         fun changeCurPrivacyHitUpPosition(position: Int) {
@@ -83,18 +83,17 @@ class MyProfileFragmentTest {
             )
 
             var avatar =
-                if (myProfileUiState.value != null) myProfileUiState.value!!.avatar else null
+                if (myProfileUiState.value != null) myProfileUiState.value!!.avatar else Uri.EMPTY
             var username =
-                if (myProfileUiState.value != null) myProfileUiState.value!!.username else null
+                if (myProfileUiState.value != null) myProfileUiState.value!!.username else String()
             var description =
-                if (myProfileUiState.value != null) myProfileUiState.value!!.description else null
-            var password =
-                if (myProfileUiState.value != null) myProfileUiState.value!!.password else null
+                if (myProfileUiState.value != null) myProfileUiState.value!!.description else String()
             var hitUpOption =
-                if (myProfileUiState.value != null) myProfileUiState.value!!.hitUpOption else null
+                if (myProfileUiState.value != null) myProfileUiState.value!!.hitUpOption
+                else MyProfileDataModelContext.HitUpOption.POSITIVE
 
             val newState = MyProfileState(
-                avatar, username, description, password, hitUpOption, operations)
+                avatar, username, description, hitUpOption, operations)
 
             runBlocking {
                 myProfileStateFlow.emit(newState)
@@ -375,13 +374,14 @@ class MyProfileFragmentTest {
     fun providingNewHitUpOptionGoesWithoutShowingErrorMessageTest() {
         mMyProfileFragmentScenarioRule.onFragment {
             mMyProfileUiStateTestData.setState(
-                MyProfileState(username = "fwqf", description = "g3523 235 235", hitUpOption = MyProfileContext.HitUpOption.POSITIVE))
+                MyProfileState(username = "fwqf", description = "g3523 235 235", hitUpOption = MyProfileDataModelContext.HitUpOption.POSITIVE)
+            )
         }
 
         Espresso.onView(withId(R.id.privacy_hit_up)).perform(scrollTo())
 
         mMyProfileFragmentScenarioRule.onFragment {
-            mPrivacyHitUpTestData.changeCurPrivacyHitUpPosition(MyProfileContext.HitUpOption.NEGATIVE.index)
+            mPrivacyHitUpTestData.changeCurPrivacyHitUpPosition(MyProfileDataModelContext.HitUpOption.NEGATIVE.index)
         }
 
         Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
@@ -420,11 +420,10 @@ class MyProfileFragmentTest {
     @Test
     fun successfulProfileDataSavingLeadsToSuccessMessageShowingTest() {
         val state = MyProfileState(
-            null,
+            Uri.EMPTY,
             "me",
             "something",
-            "pass",
-            MyProfileContext.HitUpOption.NEGATIVE,
+            MyProfileDataModelContext.HitUpOption.NEGATIVE,
             listOf(SuccessfulProfileSavingCallbackOperation()))
 
         mMyProfileUiStateTestData.setState(state)

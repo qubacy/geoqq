@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.screen.myprofile.model
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,41 +9,30 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.data.myprofile.MyProfileContext
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
-import com.qubacy.geoqq.data.myprofile.operation.SuccessfulProfileSavingCallbackOperation
-import com.qubacy.geoqq.data.myprofile.state.MyProfileState
+import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
+import com.qubacy.geoqq.domain.common.model.validator.password.standard.StandardPasswordValidator
+import com.qubacy.geoqq.domain.common.operation.InterruptOperation
+import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
+import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
+import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-// todo: provide a repository as a param..
 class MyProfileViewModel(
-
+    val myProfileUseCase: MyProfileUseCase
 ) : WaitingViewModel() {
-    // todo: assign to the repository's flow:
-    private var mMyProfileStateFlow = MutableStateFlow<MyProfileState?>(null)
+    private var mMyProfileStateFlow = myProfileUseCase.stateFlow
 
     private val mMyProfileUiState = mMyProfileStateFlow.map { stateToUiState(it) }
     val myProfileUiState: LiveData<MyProfileUiState?> = mMyProfileUiState.asLiveData()
 
-    // todo: delete:
-    init {
-        mMyProfileStateFlow.tryEmit(
-            MyProfileState(
-                null,
-                "fqwfqwf",
-                "fqffqwf fqwf qwfqwfqwf0",
-                hitUpOption = MyProfileContext.HitUpOption.NEGATIVE
-            )
-        )
-    }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
         if (isWaiting.value == true) isWaiting.value = false
@@ -62,7 +52,7 @@ class MyProfileViewModel(
             state.avatar,
             state.username,
             state.description,
-            state.password,
+            null,
             state.hitUpOption,
             uiOperations
         )
@@ -75,6 +65,11 @@ class MyProfileViewModel(
                     operation as SuccessfulProfileSavingCallbackOperation
 
                 ProfileDataSavedUiOperation()
+            }
+            InterruptOperation::class -> {
+                val interruptOperation = operation as InterruptOperation
+
+                null
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
@@ -93,20 +88,20 @@ class MyProfileViewModel(
     ): Boolean {
         var passwordChangingFieldCount = 0
 
-        if (changedFields.contains(MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY))
+        if (changedFields.contains(MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY))
             ++passwordChangingFieldCount
-        if (changedFields.contains(MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY))
+        if (changedFields.contains(MyProfileModelContext.NEW_PASSWORD_TEXT_KEY))
             ++passwordChangingFieldCount
-        if (changedFields.contains(MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY))
+        if (changedFields.contains(MyProfileModelContext.REPEAT_NEW_PASSWORD_TEXT_KEY))
             ++passwordChangingFieldCount
 
         if (passwordChangingFieldCount != 0 && passwordChangingFieldCount < 3) {
             return false
 
         } else if (passwordChangingFieldCount == 3) {
-            val currentPassword = changedPropHashMap[MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY].toString()
-            val newPassword = changedPropHashMap[MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY].toString()
-            val repeatNewPassword = changedPropHashMap[MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY].toString()
+            val currentPassword = changedPropHashMap[MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY].toString()
+            val newPassword = changedPropHashMap[MyProfileModelContext.NEW_PASSWORD_TEXT_KEY].toString()
+            val repeatNewPassword = changedPropHashMap[MyProfileModelContext.REPEAT_NEW_PASSWORD_TEXT_KEY].toString()
 
             return (isPasswordsDataCorrect(currentPassword, newPassword, repeatNewPassword))
         }
@@ -119,40 +114,66 @@ class MyProfileViewModel(
     ): Boolean {
         val changedFields = changedPropHashMap.keys
 
-        if (changedFields.contains(MyProfileEntityContext.USER_AVATAR_URI_KEY)) {
-            if (!isAvatarDataCorrect(changedPropHashMap[MyProfileEntityContext.USER_AVATAR_URI_KEY] as Uri))
+        if (changedFields.contains(MyProfileModelContext.USER_AVATAR_URI_KEY)) {
+            if (!isAvatarDataCorrect(changedPropHashMap[MyProfileModelContext.USER_AVATAR_URI_KEY] as Uri))
                 return false
         }
-        if (changedFields.contains(MyProfileEntityContext.DESCRIPTION_TEXT_KEY)) {
-            if (!isDescriptionDataCorrect(changedPropHashMap[MyProfileEntityContext.DESCRIPTION_TEXT_KEY] as String)){
+        if (changedFields.contains(MyProfileModelContext.DESCRIPTION_TEXT_KEY)) {
+            if (!isDescriptionDataCorrect(changedPropHashMap[MyProfileModelContext.DESCRIPTION_TEXT_KEY] as String)){
                 return false
             }
         }
         if (!checkPasswordFieldsChange(changedFields, changedPropHashMap)) return false
 
-        if (changedFields.contains(MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY)) {
-            if (!isPrivacyHitUpOptionCorrect(changedPropHashMap[MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY] as Int))
+        if (changedFields.contains(MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY)) {
+            if (!isPrivacyHitUpOptionCorrect(changedPropHashMap[MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY] as Int))
                 return false
         }
 
         return true
     }
 
+    fun getProfileData() {
+        mIsWaiting.value = true
+
+        viewModelScope.launch(Dispatchers.IO) {
+            myProfileUseCase.getMyProfile()
+        }
+    }
+
     fun saveProfileData(
         changedPropHashMap: HashMap<String, Any>
     ) {
-        viewModelScope.launch {
-            // todo: sending data to the DATA layer..
-
-        }
-
         mIsWaiting.value = true
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val avatarUri = changedPropHashMap[MyProfileModelContext.USER_AVATAR_URI_KEY]
+                ?.toString()?.toUri()
+            val description = changedPropHashMap[MyProfileModelContext.DESCRIPTION_TEXT_KEY]
+                ?.toString()
+            val curPassword = changedPropHashMap[MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY]
+                ?.toString()
+            val newPassword = changedPropHashMap[MyProfileModelContext.NEW_PASSWORD_TEXT_KEY]
+                ?.toString()
+            val hitUpOption =
+                if (changedPropHashMap[MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY] == null) {
+                    null
+                } else {
+                    val hitUpOptionIndex =
+                        (changedPropHashMap[MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY] as Int)
+
+                    MyProfileDataModelContext.HitUpOption.entries.find { it.index == hitUpOptionIndex }
+                }
+
+            myProfileUseCase.updateMyProfile(
+                avatarUri, description, curPassword, newPassword, hitUpOption)
+        }
     }
 
     fun interruptSavingProfileData() {
-        // todo: handling an interruption process..
+        mIsWaiting.value = false
 
-
+        myProfileUseCase.interruptOperation()
     }
 
     private fun isAvatarDataCorrect(
@@ -181,7 +202,7 @@ class MyProfileViewModel(
             return false
         }
 
-        val loginPasswordValidator = LoginPasswordValidator()
+        val loginPasswordValidator = StandardPasswordValidator()
 
         return (loginPasswordValidator.check(currentPassword)
                 && loginPasswordValidator.check(newPassword)
@@ -196,11 +217,11 @@ class MyProfileViewModel(
         return true
     }
 
-    fun getHitUpOptionByIndex(index: Int): MyProfileContext.HitUpOption? {
-        if (index >= MyProfileContext.HitUpOption.entries.size)
+    fun getHitUpOptionByIndex(index: Int): MyProfileDataModelContext.HitUpOption? {
+        if (index >= MyProfileDataModelContext.HitUpOption.entries.size)
             return null
 
-        return MyProfileContext.HitUpOption.entries[index]
+        return MyProfileDataModelContext.HitUpOption.entries[index]
     }
 
     override fun retrieveError(errorId: Long) {
@@ -208,11 +229,13 @@ class MyProfileViewModel(
     }
 }
 
-class MyProfileViewModelFactory : ViewModelProvider.Factory {
+class MyProfileViewModelFactory(
+    val myProfileUseCase: MyProfileUseCase
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(MyProfileViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MyProfileViewModel() as T
+        return MyProfileViewModel(myProfileUseCase) as T
     }
 }

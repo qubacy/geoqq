@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.common.models
+package com.qubacy.geoqq.domain.common.model
 
 import android.net.Uri
 

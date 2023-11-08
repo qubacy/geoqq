@@ -16,17 +16,20 @@ import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.Navigation
 import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.CURRENT_PASSWORD_TEXT_KEY
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.DESCRIPTION_TEXT_KEY
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.NEW_PASSWORD_TEXT_KEY
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.PRIVACY_HIT_UP_POSITION_KEY
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.REPEAT_NEW_PASSWORD_TEXT_KEY
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.MyProfileEntityContext.USER_AVATAR_URI_KEY
+import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.common.error.common.Error
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.DESCRIPTION_TEXT_KEY
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.NEW_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.REPEAT_NEW_PASSWORD_TEXT_KEY
+import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.USER_AVATAR_URI_KEY
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
 import com.qubacy.geoqq.ui.PickImageCallback
@@ -36,7 +39,6 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowError
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
-import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
 import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 
@@ -51,7 +53,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     private lateinit var mPrivacyHitUpAdapter: ArrayAdapter<String>
 
     private var mChangedInputHash = HashMap<String, Any>()
-    private var mIsInitInputs = true
+    private var mIsInitInputs = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +71,17 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
 
-        mModel = MyProfileViewModelFactory().create(MyProfileViewModel::class.java)
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.initMyProfileContainer(
+            application.appContainer.errorDataRepository,
+            application.appContainer.tokenDataRepository,
+            application.appContainer.myProfileDataRepository,
+            application.appContainer.imageDataRepository
+        )
+
+        mModel = application.appContainer.myProfileContainer!!.myProfileViewModel
+            .create(MyProfileViewModel::class.java)
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {
@@ -234,7 +246,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
             initInputsWithUiState(it)
         }
-            (mModel as MyProfileViewModel).myProfileUiState.observe(viewLifecycleOwner) {
+        (mModel as MyProfileViewModel).myProfileUiState.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateChanged(it)
@@ -247,24 +259,23 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
+            (mModel as MyProfileViewModel).getProfileData() // todo: is it legal?
         }
     }
 
     private fun initInputsWithUiState(uiState: MyProfileUiState) {
         mIsInitInputs = true
 
-        uiState.avatar?.apply { setUserAvatarWithUri(this@apply) }
+        uiState.avatar.apply { setUserAvatarWithUri(this@apply) }
 
-        mBinding.usernameInput.input.setText(uiState.username!!)
+        mBinding.usernameInput.input.setText(uiState.username)
 
         if (mChangedInputHash[DESCRIPTION_TEXT_KEY] == null) {
-            mBinding.aboutMeInput.input.setText(uiState.description!!)
+            mBinding.aboutMeInput.input.setText(uiState.description)
         }
 
         if (mChangedInputHash[PRIVACY_HIT_UP_POSITION_KEY] == null) {
-            uiState.hitUpOption?.let {
-                changePrivacyHitUpPosition(it.index)
-            }
+            changePrivacyHitUpPosition(uiState.hitUpOption.index)
         }
 
         mIsInitInputs = false
@@ -300,7 +311,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         onTextInputContentChanged(
             description,
             DESCRIPTION_TEXT_KEY,
-            (mModel as MyProfileViewModel).myProfileUiState.value!!.description!!,
+            (mModel as MyProfileViewModel).myProfileUiState.value!!.description,
             mBinding.aboutMeInput.inputLayout
         )
     }
@@ -396,7 +407,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         Log.d(TAG, "onPrivacyHitUpItemSelected(): position = $position")
 
         val curOption = (mModel as MyProfileViewModel).getHitUpOptionByIndex(position)
-        val prevOption = (mModel as MyProfileViewModel).myProfileUiState.value!!.hitUpOption!!
+        val prevOption = (mModel as MyProfileViewModel).myProfileUiState.value!!.hitUpOption
 
         if (curOption == prevOption) {
             mChangedInputHash.remove(PRIVACY_HIT_UP_POSITION_KEY)
@@ -411,8 +422,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
     private fun onUploadAvatarButtonClicked() {
         (requireActivity() as MainActivity).pickImage(
-            MyProfileEntityContext.MAX_AVATAR_SIZE,
-            MyProfileEntityContext.MAX_AVATAR_SIZE,
+            MyProfileModelContext.MAX_AVATAR_SIZE,
+            MyProfileModelContext.MAX_AVATAR_SIZE,
             this
         )
     }

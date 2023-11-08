@@ -12,6 +12,7 @@ import com.qubacy.geoqq.data.common.repository.network.common.NetworkDataReposit
 import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.image.repository.result.DownloadImageResult
+import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.LoadImageResult
 import com.qubacy.geoqq.data.image.repository.result.SaveImageResult
@@ -95,4 +96,10 @@ class ImageDataRepository(
         return GetImageResult(saveImageResultCast.imageUri)
     }
 
+    suspend fun getImageByUri(imageUri: Uri): Result {
+        val imageBitmap = localImageDataSource.getImageBitmapByUri(imageUri)
+            ?: return ErrorResult(ErrorContext.Image.IMAGE_LOADING_FAILED.id)
+
+        return GetImageByUriResult(imageBitmap)
+    }
 }

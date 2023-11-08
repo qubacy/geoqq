@@ -4,10 +4,14 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore.Images
 import android.util.Log
 import com.qubacy.geoqq.data.common.repository.common.source.DataSource
+import java.io.InputStream
+import java.io.OutputStream
+
 
 class LocalImageDataSource(
     val contentResolver: ContentResolver
@@ -85,7 +89,25 @@ class LocalImageDataSource(
         } catch (e: Exception) {
             Log.d(TAG, e.message ?: "Unknown exception!")
 
-            throw e
+            throw e // todo: think of this.. do we really need to act like this??
         }
+    }
+
+    fun getImageBitmapByUri(imageUri: Uri): Bitmap? {
+        var imageStream: InputStream? = null
+        var imageBitmap: Bitmap? = null
+
+        try {
+            imageStream = contentResolver.openInputStream(imageUri)
+            imageBitmap = BitmapFactory.decodeStream(imageStream)
+
+        } catch (e: Exception) {
+            Log.d(TAG, "Exception: ${e.message}")
+
+        } finally {
+            imageStream?.close()
+        }
+
+        return imageBitmap
     }
 }

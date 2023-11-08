@@ -10,6 +10,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class LocalImageDataSourceTest {
@@ -92,5 +93,28 @@ class LocalImageDataSourceTest {
 
             Assert.assertNotNull(imageUri)
         }
+    }
+
+    @Test
+    fun getImageBitmapByUriTest() {
+        val imageBitmap = getTestImageBitmap()
+
+        mLocalImageDataSource.saveImageOnDevice(TEST_IMAGE_TITLE, imageBitmap)
+
+        val imageBitmapBytes = ByteBuffer.allocate(imageBitmap.height * imageBitmap.rowBytes)
+
+        imageBitmap.copyPixelsToBuffer(imageBitmapBytes)
+
+        val loadedImageUri = mLocalImageDataSource.loadImage(TEST_IMAGE_TITLE)
+        val loadedImageBitmap = mLocalImageDataSource.getImageBitmapByUri(loadedImageUri!!)
+
+        Assert.assertNotNull(loadedImageBitmap)
+
+        val loadedImageBitmapBytes = ByteBuffer.allocate(
+            loadedImageBitmap!!.height * loadedImageBitmap.rowBytes)
+
+        loadedImageBitmap.copyPixelsToBuffer(loadedImageBitmapBytes)
+
+        Assert.assertEquals(imageBitmapBytes, loadedImageBitmapBytes)
     }
 }

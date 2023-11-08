@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.myprofile.operation
+package com.qubacy.geoqq.domain.myprofile.operation
 
 import com.qubacy.geoqq.data.common.operation.Operation
 

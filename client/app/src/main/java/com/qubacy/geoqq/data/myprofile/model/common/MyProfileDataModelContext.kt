@@ -1,6 +1,6 @@
-package com.qubacy.geoqq.data.myprofile
+package com.qubacy.geoqq.data.myprofile.model.common
 
-object MyProfileContext {
+object MyProfileDataModelContext {
     enum class HitUpOption(
         val index: Int
     ) {

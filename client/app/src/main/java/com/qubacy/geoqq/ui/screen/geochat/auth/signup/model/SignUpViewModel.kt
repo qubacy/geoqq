@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.myprofile.entity.myprofile.validator.password.LoginPasswordValidator
+import com.qubacy.geoqq.domain.common.model.validator.password.standard.StandardPasswordValidator
 import com.qubacy.geoqq.data.common.entity.person.common.validator.username.UsernameValidator
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
@@ -31,8 +31,7 @@ class SignUpViewModel(
     val signUpUiStateFlow: LiveData<SignUpUiState?> = mSignUpUiStateFlow.asLiveData()
 
     private fun stateToUiState(signUpState: SignUpState?): SignUpUiState? {
-        mIsWaiting.value = false
-
+        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (signUpState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -57,8 +56,6 @@ class SignUpViewModel(
             }
             InterruptOperation::class -> {
                 val interruptOperation = operation as InterruptOperation
-
-                mIsWaiting.value = false
 
                 null
             }
@@ -85,8 +82,8 @@ class SignUpViewModel(
         }
 
         return UsernameValidator().check(username)
-            && LoginPasswordValidator().check(password)
-            && LoginPasswordValidator().check(confirmationPassword)
+            && StandardPasswordValidator().check(password)
+            && StandardPasswordValidator().check(confirmationPassword)
     }
 
     private fun isSignUpDataFull(
