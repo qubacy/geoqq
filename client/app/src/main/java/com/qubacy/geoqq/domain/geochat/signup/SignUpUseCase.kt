@@ -10,32 +10,37 @@ import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain.common.UseCase
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SignUpUseCase(
+    errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
-    val signUpDataRepository: SignUpDataRepository,
-    errorDataRepository: ErrorDataRepository
+    val signUpDataRepository: SignUpDataRepository
 ) : UseCase<SignUpState>(errorDataRepository) {
-    suspend fun signUp(login: String, password: String) {
-        mCurrentRepository = signUpDataRepository
-        val result = signUpDataRepository.signUp(login, password)
+    fun signUp(login: String, password: String) {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = signUpDataRepository
+            val result = signUpDataRepository.signUp(login, password)
 
-        if (result is ErrorResult) return processError(result.errorId)
-        if (result is InterruptionResult) return processInterruption()
+            if (result is ErrorResult) return@launch processError(result.errorId)
+            if (result is InterruptionResult) return@launch processInterruption()
 
-        val resultCast = result as SignUpResult
+            val resultCast = result as SignUpResult
 
-        mCurrentRepository = tokenDataRepository
-        val saveTokensResult = tokenDataRepository.saveTokens(
-            resultCast.refreshToken, resultCast.accessToken)
+            mCurrentRepository = tokenDataRepository
+            val saveTokensResult = tokenDataRepository.saveTokens(
+                resultCast.refreshToken, resultCast.accessToken)
 
-        if (saveTokensResult is ErrorResult) return processError(saveTokensResult.errorId)
+            if (saveTokensResult is ErrorResult)
+                return@launch processError(saveTokensResult.errorId)
 
-        val operations = listOf(
-            ApproveSignUpOperation()
-        )
+            val operations = listOf(
+                ApproveSignUpOperation()
+            )
 
-        mStateFlow.emit(SignUpState(operations))
+            mStateFlow.emit(SignUpState(operations))
+        }
     }
 
     override fun generateState(operations: List<Operation>): SignUpState {

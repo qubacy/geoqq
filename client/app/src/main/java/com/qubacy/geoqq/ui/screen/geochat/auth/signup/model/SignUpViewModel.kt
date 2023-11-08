@@ -30,6 +30,10 @@ class SignUpViewModel(
     private var mSignUpUiStateFlow = mSignUpStateFlow.map { stateToUiState(it) }
     val signUpUiStateFlow: LiveData<SignUpUiState?> = mSignUpUiStateFlow.asLiveData()
 
+    init {
+        mSignUpUseCase.setCoroutineScope(viewModelScope)
+    }
+
     private fun stateToUiState(signUpState: SignUpState?): SignUpUiState? {
         if (mIsWaiting.value == true) mIsWaiting.value = false
         if (signUpState == null) return null
@@ -101,9 +105,7 @@ class SignUpViewModel(
     ) {
         mIsWaiting.value = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-            mSignUpUseCase.signUp(login, password)
-        }
+        mSignUpUseCase.signUp(login, password)
     }
 
     fun interruptSignUp() {

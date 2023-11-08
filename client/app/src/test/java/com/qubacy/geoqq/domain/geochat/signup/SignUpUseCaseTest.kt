@@ -6,6 +6,10 @@ import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
+import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -13,10 +17,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito
+import java.util.concurrent.atomic.AtomicReference
 
 @RunWith(JUnit4::class)
 class SignUpUseCaseTest {
     private lateinit var mSignUpUseCase: SignUpUseCase
+
+    private lateinit var mSignUpStateAtomicRef: AtomicReference<SignUpState?>
 
     private fun initSignUpUseCase(
         tokenSavingResult: Result = Result(),
@@ -36,7 +43,17 @@ class SignUpUseCaseTest {
             val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
 
             mSignUpUseCase = SignUpUseCase(
-                tokenDataRepositoryMock, signUpDataRepositoryMock, errorDataRepository)
+                errorDataRepository, tokenDataRepositoryMock, signUpDataRepositoryMock)
+
+            mSignUpStateAtomicRef = AtomicReference(null)
+
+            GlobalScope.launch(Dispatchers.IO) {
+                mSignUpUseCase.stateFlow.collect {
+                    if (it == null) return@collect
+
+                    mSignUpStateAtomicRef.set(it)
+                }
+            }
         }
     }
 
@@ -53,11 +70,11 @@ class SignUpUseCaseTest {
         runBlocking {
             mSignUpUseCase.signUp(login, password)
 
-            val state = mSignUpUseCase.stateFlow.value
+            while (mSignUpStateAtomicRef.get() == null) { }
 
-            Assert.assertNotNull(state)
+            val curSignUpState = mSignUpStateAtomicRef.get()
 
-            val approveSignUpOperation = state!!.newOperations.find {
+            val approveSignUpOperation = curSignUpState!!.newOperations.find {
                 it::class == ApproveSignUpOperation::class
             }
 

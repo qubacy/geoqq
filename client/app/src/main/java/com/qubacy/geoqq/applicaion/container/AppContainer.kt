@@ -74,12 +74,13 @@ class AppContainer(
     var signInContainer: SignInContainer? = null
 
     fun initSignInContainer(
+        errorDataRepository: ErrorDataRepository,
         tokenDataRepository: TokenDataRepository,
-        signInDataRepository: SignInDataRepository,
-        errorDataRepository: ErrorDataRepository
+        signInDataRepository: SignInDataRepository
     ) {
         val signInUseCase = SignInUseCase(
-            tokenDataRepository, signInDataRepository, errorDataRepository)
+            errorDataRepository, tokenDataRepository, signInDataRepository
+        )
 
         signInContainer = SignInContainer(signInUseCase)
     }
@@ -96,12 +97,13 @@ class AppContainer(
     var signUpContainer: SignUpContainer? = null
 
     fun initSignUpContainer(
+        errorDataRepository: ErrorDataRepository,
         tokenDataRepository: TokenDataRepository,
-        signUpDataRepository: SignUpDataRepository,
-        errorDataRepository: ErrorDataRepository
+        signUpDataRepository: SignUpDataRepository
     ) {
         val signUpUseCase = SignUpUseCase(
-            tokenDataRepository, signUpDataRepository, errorDataRepository)
+            errorDataRepository, tokenDataRepository, signUpDataRepository
+        )
 
         signUpContainer = SignUpContainer(signUpUseCase)
     }
@@ -130,7 +132,9 @@ class AppContainer(
         imageDataRepository: ImageDataRepository
     ) {
         val myProfileUseCase = MyProfileUseCase(
-            errorDataRepository, tokenDataRepository, myProfileDataRepository, imageDataRepository)
+            errorDataRepository, tokenDataRepository,
+            myProfileDataRepository, imageDataRepository
+        )
 
         myProfileContainer = MyProfileContainer(myProfileUseCase)
     }

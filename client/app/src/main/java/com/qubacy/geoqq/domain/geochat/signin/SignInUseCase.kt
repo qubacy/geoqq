@@ -11,11 +11,13 @@ import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain.common.UseCase
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SignInUseCase(
+    errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
-    val signInDataRepository: SignInDataRepository,
-    errorDataRepository: ErrorDataRepository
+    val signInDataRepository: SignInDataRepository
 ) : UseCase<SignInState>(errorDataRepository) {
     private suspend fun processSignInWithTokenResult(isSignedIn: Boolean) {
         val operations = listOf(
@@ -26,41 +28,46 @@ class SignInUseCase(
         mStateFlow.emit(state)
     }
 
-    suspend fun signInWithLocalToken() {
-        mCurrentRepository = tokenDataRepository
-        val signInResult = tokenDataRepository.getTokens()
+    fun signInWithLocalToken() {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = tokenDataRepository
+            val signInResult = tokenDataRepository.getTokens()
 
-        if (signInResult is ErrorResult) {
-            if (signInResult.errorId == ErrorContext.Token.LOCAL_REFRESH_TOKEN_NOT_FOUND.id)
-                return processSignInWithTokenResult(false)
+            if (signInResult is ErrorResult) {
+                if (signInResult.errorId == ErrorContext.Token.LOCAL_REFRESH_TOKEN_NOT_FOUND.id)
+                    return@launch processSignInWithTokenResult(false)
 
-            return processError(signInResult.errorId)
+                return@launch processError(signInResult.errorId)
+            }
+            if (signInResult is InterruptionResult) return@launch processInterruption()
+
+            processSignInWithTokenResult(true)
         }
-        if (signInResult is InterruptionResult) return processInterruption()
-
-        processSignInWithTokenResult(true)
     }
 
-    suspend fun signInWithLoginPassword(
+    fun signInWithLoginPassword(
         login: String,
         password: String
     ) {
-        mCurrentRepository = signInDataRepository
-        val signInResult = signInDataRepository.signInWithLoginPassword(login, password)
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = signInDataRepository
+            val signInResult = signInDataRepository.signInWithLoginPassword(login, password)
 
-        if (signInResult is ErrorResult) return processError(signInResult.errorId)
-        if (signInResult is InterruptionResult) return processInterruption()
+            if (signInResult is ErrorResult) return@launch processError(signInResult.errorId)
+            if (signInResult is InterruptionResult) return@launch processInterruption()
 
-        val signInResultCast = signInResult as SignInWithLoginPasswordResult
+            val signInResultCast = signInResult as SignInWithLoginPasswordResult
 
-        mCurrentRepository = tokenDataRepository
-        val saveTokensResult = tokenDataRepository.saveTokens(
-            signInResultCast.refreshToken, signInResultCast.accessToken)
+            mCurrentRepository = tokenDataRepository
+            val saveTokensResult = tokenDataRepository.saveTokens(
+                signInResultCast.refreshToken, signInResultCast.accessToken
+            )
 
-        if (saveTokensResult is ErrorResult) return processError(saveTokensResult.errorId)
-        if (saveTokensResult is InterruptionResult) return processInterruption()
+            if (saveTokensResult is ErrorResult) return@launch processError(saveTokensResult.errorId)
+            if (saveTokensResult is InterruptionResult) return@launch processInterruption()
 
-        processSignInWithTokenResult(true)
+            processSignInWithTokenResult(true)
+        }
     }
 
     override fun generateState(operations: List<Operation>): SignInState {

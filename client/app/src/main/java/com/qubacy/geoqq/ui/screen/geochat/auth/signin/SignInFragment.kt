@@ -40,9 +40,9 @@ class SignInFragment : WaitingFragment() {
         val application = (requireActivity().application as Application)
 
         application.appContainer.initSignInContainer(
+            application.appContainer.errorDataRepository,
             application.appContainer.tokenDataRepository,
             application.appContainer.signInDataRepository,
-            application.appContainer.errorDataRepository
         )
 
         mModel = application.appContainer.signInContainer!!

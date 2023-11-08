@@ -30,6 +30,10 @@ class SignInViewModel(
     private var mSignInUiStateFlow = mSignInStateFlow.map { stateToUiState(it) }
     val signInUiStateFlow: LiveData<SignInUiState?> = mSignInUiStateFlow.asLiveData()
 
+    init {
+        mSignInUseCase.setCoroutineScope(viewModelScope)
+    }
+
     fun isSignInDataCorrect(
         login: String,
         password: String
@@ -54,17 +58,13 @@ class SignInViewModel(
     ) {
         mIsWaiting.value = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-            mSignInUseCase.signInWithLoginPassword(login, password)
-        }
+        mSignInUseCase.signInWithLoginPassword(login, password)
     }
 
     fun signIn() {
         mIsWaiting.value = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-            mSignInUseCase.signInWithLocalToken()
-        }
+        mSignInUseCase.signInWithLocalToken()
     }
 
     fun interruptSignIn() {

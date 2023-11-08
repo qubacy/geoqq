@@ -6,6 +6,10 @@ import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordRes
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
+import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -15,10 +19,13 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.doReturn
+import java.util.concurrent.atomic.AtomicReference
 
 @RunWith(JUnit4::class)
 class SignInUseCaseTest {
     private lateinit var mSignInUseCase: SignInUseCase
+
+    private lateinit var mSignInStateAtomicRef: AtomicReference<SignInState?>
 
     private fun initSignInUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
@@ -39,7 +46,17 @@ class SignInUseCaseTest {
             val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
 
             mSignInUseCase = SignInUseCase(
-                tokenDataRepositoryMock, signInDataRepositoryMock, errorDataRepository)
+                errorDataRepository, tokenDataRepositoryMock, signInDataRepositoryMock)
+
+            mSignInStateAtomicRef = AtomicReference(null)
+
+            GlobalScope.launch(Dispatchers.IO) {
+                mSignInUseCase.stateFlow.collect {
+                    if (it == null) return@collect
+
+                    mSignInStateAtomicRef.set(it)
+                }
+            }
         }
     }
 
@@ -56,11 +73,11 @@ class SignInUseCaseTest {
         runBlocking {
             mSignInUseCase.signInWithLoginPassword(login, password)
 
-            val state = mSignInUseCase.stateFlow.value
+            while (mSignInStateAtomicRef.get() == null) { }
 
-            Assert.assertNotNull(state)
+            val curSignInState = mSignInStateAtomicRef.get()
 
-            val processSignInResultOperation = state!!.newOperations.find {
+            val processSignInResultOperation = curSignInState!!.newOperations.find {
                 it::class == ProcessSignInResultOperation::class
             } as ProcessSignInResultOperation
 
@@ -78,11 +95,11 @@ class SignInUseCaseTest {
         runBlocking {
             mSignInUseCase.signInWithLocalToken()
 
-            val state = mSignInUseCase.stateFlow.value
+            while (mSignInStateAtomicRef.get() == null) { }
 
-            Assert.assertNotNull(state)
+            val curSignInState = mSignInStateAtomicRef.get()
 
-            val processSignInResultOperation = state!!.newOperations.find {
+            val processSignInResultOperation = curSignInState!!.newOperations.find {
                 it::class == ProcessSignInResultOperation::class
             } as ProcessSignInResultOperation
 

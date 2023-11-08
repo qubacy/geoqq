@@ -57,9 +57,9 @@ class SignUpFragment(
         val application = (requireActivity().application as Application)
 
         application.appContainer.initSignUpContainer(
+            application.appContainer.errorDataRepository,
             application.appContainer.tokenDataRepository,
-            application.appContainer.signUpDataRepository,
-            application.appContainer.errorDataRepository
+            application.appContainer.signUpDataRepository
         )
 
         mModel = application.appContainer.signUpContainer!!
