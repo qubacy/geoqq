@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data.common.state.State
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 
 class MyProfileState(
-    val avatar: Uri = Uri.EMPTY,
+    val avatar: Uri = Uri.parse(String()),
     val username: String = String(),
     val description: String = String(),
     val hitUpOption: MyProfileDataModelContext.HitUpOption = MyProfileDataModelContext.HitUpOption.POSITIVE,

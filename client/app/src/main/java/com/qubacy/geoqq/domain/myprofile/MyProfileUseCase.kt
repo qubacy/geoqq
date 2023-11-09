@@ -21,7 +21,9 @@ import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.common.UseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MyProfileUseCase(
@@ -30,12 +32,25 @@ class MyProfileUseCase(
     val myProfileDataRepository: MyProfileDataRepository,
     val imageDataRepository: ImageDataRepository
 ) : UseCase<MyProfileState>(errorDataRepository) {
+    private lateinit var mOriginalMyProfileRepositoryFlowJob: Job
+
     init {
-        mCoroutineScope.launch(Dispatchers.IO) {
+        startMyProfileRepositoryFlowCollection()
+    }
+
+    private fun startMyProfileRepositoryFlowCollection() {
+        mOriginalMyProfileRepositoryFlowJob = mCoroutineScope.launch(Dispatchers.IO) {
             myProfileDataRepository.resultFlow.collect {
                 processResult(it)
             }
         }
+    }
+
+    override fun setCoroutineScope(coroutineScope: CoroutineScope) {
+        super.setCoroutineScope(coroutineScope)
+
+        mOriginalMyProfileRepositoryFlowJob.cancel()
+        startMyProfileRepositoryFlowCollection()
     }
 
     private suspend fun processResult(result: Result) {

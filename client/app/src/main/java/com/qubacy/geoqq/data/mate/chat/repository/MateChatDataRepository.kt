@@ -19,8 +19,6 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.network.NetworkMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.model.common.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.model.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpdateMateChatDataSource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import retrofit2.Call
 
 class MateChatDataRepository(
@@ -31,15 +29,15 @@ class MateChatDataRepository(
     private var mPrevChatCount: Int = 0
 
     private fun getChatsWithDatabase(count: Int): Result {
-        var chatFlow: Flow<List<MateChatEntity>>? = null
+        var chats: List<MateChatEntity>? = null
 
         try {
-            chatFlow = localMateChatDataSource.getChats(count)
+            chats = localMateChatDataSource.getChats(count)
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return GetChatsWithDatabaseResult(chatFlow.map { it.map { it.toDataMateChat() } })
+        return GetChatsWithDatabaseResult(chats.map { it.toDataMateChat() })
     }
 
     private fun getChatsWithNetwork(offset: Int, count: Int, accessToken: String): Result {
@@ -70,35 +68,42 @@ class MateChatDataRepository(
         return Result()
     }
 
-    suspend fun getChats(accessToken: String, count: Int): Result {
+    suspend fun getChats(accessToken: String, count: Int) {
         val getChatsWithDatabaseResult = getChatsWithDatabase(count)
 
-        if (getChatsWithDatabaseResult is ErrorResult) return getChatsWithDatabaseResult
-        if (getChatsWithDatabaseResult is InterruptionResult) return getChatsWithDatabaseResult
+        if (getChatsWithDatabaseResult is ErrorResult) return emitResult(getChatsWithDatabaseResult)
+        if (getChatsWithDatabaseResult is InterruptionResult)
+            return emitResult(getChatsWithDatabaseResult)
 
         val getChatsWithDatabaseResultCast = getChatsWithDatabaseResult as GetChatsWithDatabaseResult
+
+        emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats))
 
         val curNetworkRequestChatCount = count - mPrevChatCount
         val getChatsWithNetworkResult = getChatsWithNetwork(
             mPrevChatCount, curNetworkRequestChatCount, accessToken)
 
-        if (getChatsWithNetworkResult is ErrorResult) return getChatsWithDatabaseResult
-        if (getChatsWithNetworkResult is InterruptionResult) return getChatsWithDatabaseResult
+        if (getChatsWithNetworkResult is ErrorResult) return emitResult(getChatsWithDatabaseResult)
+        if (getChatsWithNetworkResult is InterruptionResult)
+            return emitResult(getChatsWithDatabaseResult)
 
         mPrevChatCount = count
         val getChatsWithNetworkResultCast = getChatsWithNetworkResult as GetChatsWithNetworkResult
 
+        emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats))
+
         val insertChatsIntoDatabaseResult = insertChatsIntoDatabase(
             getChatsWithNetworkResultCast.chats)
 
-        if (insertChatsIntoDatabaseResult is ErrorResult) return insertChatsIntoDatabaseResult
-        if (insertChatsIntoDatabaseResult is InterruptionResult) return insertChatsIntoDatabaseResult
+        if (insertChatsIntoDatabaseResult is ErrorResult)
+            return emitResult(insertChatsIntoDatabaseResult)
+        if (insertChatsIntoDatabaseResult is InterruptionResult)
+            return emitResult(insertChatsIntoDatabaseResult)
 
         val startChatsUpdateListeningResult = initUpdateSource()
 
-        if (startChatsUpdateListeningResult is ErrorResult) return startChatsUpdateListeningResult
-
-        return GetChatsResult(getChatsWithDatabaseResultCast.chatFlow)
+        if (startChatsUpdateListeningResult is ErrorResult)
+            return emitResult(startChatsUpdateListeningResult)
     }
 
     override fun processUpdates(updates: List<Update>) {

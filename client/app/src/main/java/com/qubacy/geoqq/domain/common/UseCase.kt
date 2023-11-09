@@ -27,7 +27,7 @@ abstract class UseCase<StateType>(
     protected val mInterruptionFlag = AtomicBoolean(false)
     protected var mCurrentRepository: DataRepository? = null
 
-    fun setCoroutineScope(coroutineScope: CoroutineScope) {
+    open fun setCoroutineScope(coroutineScope: CoroutineScope) {
         mCoroutineScope = coroutineScope
     }
 
