@@ -146,6 +146,36 @@ class MyProfileUseCase(
         return state
     }
 
+    private suspend fun changeCurrentStateAfterUpdate(
+        avatarUri: Uri?,
+        description: String?,
+        hitUpOption: MyProfileDataModelContext.HitUpOption?
+    ) {
+        val state = stateFlow.value
+        val newState = MyProfileState(
+            avatarUri ?: (state?.avatar ?: Uri.parse(String())),
+            state?.username ?: String(),
+            description ?: (state?.description ?: String()),
+            hitUpOption ?:
+            (state?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE),
+            listOf(SuccessfulProfileSavingCallbackOperation())
+        )
+
+        val dataMyProfile = DataMyProfileWithLinkedAvatar(
+            newState.username,
+            newState.description,
+            newState.hitUpOption,
+            newState.avatar
+        )
+        mCurrentRepository = myProfileDataRepository
+        val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
+
+        if (saveMyProfileResult is ErrorResult)
+            return processError(saveMyProfileResult.errorId)
+
+        mStateFlow.emit(newState)
+    }
+
     fun getMyProfile() {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
@@ -203,29 +233,7 @@ class MyProfileUseCase(
                 return@launch processError(updateMyProfileResult.errorId)
             if (updateMyProfileResult is InterruptionResult) return@launch processInterruption()
 
-            val state = stateFlow.value
-            val newState = MyProfileState(
-                avatarUri ?: (state?.avatar ?: Uri.parse(String())),
-                state?.username ?: String(),
-                description ?: (state?.description ?: String()),
-                hitUpOption ?:
-                (state?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE),
-                listOf(SuccessfulProfileSavingCallbackOperation())
-            )
-
-            val dataMyProfile = DataMyProfileWithLinkedAvatar(
-                newState.username,
-                newState.description,
-                newState.hitUpOption,
-                newState.avatar
-            )
-            mCurrentRepository = myProfileDataRepository
-            val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
-
-            if (saveMyProfileResult is ErrorResult)
-                return@launch processError(saveMyProfileResult.errorId)
-
-            mStateFlow.emit(newState)
+            changeCurrentStateAfterUpdate(avatarUri, description, hitUpOption)
         }
     }
 }
