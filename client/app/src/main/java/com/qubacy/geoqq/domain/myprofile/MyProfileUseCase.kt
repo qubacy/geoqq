@@ -15,7 +15,6 @@ import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLink
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
-import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.common.UseCase
@@ -74,56 +73,68 @@ class MyProfileUseCase(
     }
 
     private suspend fun processGetMyProfileResult(getMyProfileResult: GetMyProfileResult) {
-        val operations = listOf<Operation>()
-
-        val state = if (getMyProfileResult.myProfileData is DataMyProfileWithAvatarId) {
-            mCurrentRepository = tokenDataRepository
-            val getTokensResult = tokenDataRepository.getTokens()
-
-            if (getTokensResult is ErrorResult) return processError(getTokensResult.errorId)
-            if (getTokensResult is InterruptionResult) return processInterruption()
-
-            val accessToken = (getTokensResult as GetTokensResult).accessToken
-
-            mCurrentRepository = imageDataRepository
-            val getImageResult = imageDataRepository.getImage(
-                getMyProfileResult.myProfileData.avatarId, accessToken)
-
-            if (getImageResult is ErrorResult) return processError(getImageResult.errorId)
-            if (getImageResult is InterruptionResult) return processInterruption()
-
-            val getImageResultCast = getImageResult as GetImageResult
-
-            val dataMyProfile = DataMyProfileWithLinkedAvatar(
-                getMyProfileResult.myProfileData.username,
-                getMyProfileResult.myProfileData.description,
-                getMyProfileResult.myProfileData.hitUpOption,
-                getImageResultCast.imageUri
-            )
-            mCurrentRepository = myProfileDataRepository
-            val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
-
-            if (saveMyProfileResult is ErrorResult) return processError(saveMyProfileResult.errorId)
-
-            MyProfileState(
-                dataMyProfile.avatarUri,
-                dataMyProfile.username,
-                dataMyProfile.description,
-                dataMyProfile.hitUpOption,
-                operations
-            )
+        if (getMyProfileResult.myProfileData is DataMyProfileWithAvatarId) {
+            processGetMyProfileResultWithAvatarId(getMyProfileResult.myProfileData)
 
         } else if (getMyProfileResult.myProfileData is DataMyProfileWithLinkedAvatar) {
-            MyProfileState(
-                getMyProfileResult.myProfileData.avatarUri,
-                getMyProfileResult.myProfileData.username,
-                getMyProfileResult.myProfileData.description,
-                getMyProfileResult.myProfileData.hitUpOption,
-                operations
-            )
+            processGetMyProfileResultWithLinkedAvatar(getMyProfileResult.myProfileData)
 
         } else
             throw IllegalStateException()
+    }
+
+    private suspend fun processGetMyProfileResultWithAvatarId(
+        myProfileData: DataMyProfileWithAvatarId
+    ) {
+        mCurrentRepository = tokenDataRepository
+        val getTokensResult = tokenDataRepository.getTokens()
+
+        if (getTokensResult is ErrorResult) return processError(getTokensResult.errorId)
+        if (getTokensResult is InterruptionResult) return processInterruption()
+
+        val accessToken = (getTokensResult as GetTokensResult).accessToken
+
+        mCurrentRepository = imageDataRepository
+        val getImageResult = imageDataRepository.getImage(
+            myProfileData.avatarId, accessToken)
+
+        if (getImageResult is ErrorResult) return processError(getImageResult.errorId)
+        if (getImageResult is InterruptionResult) return processInterruption()
+
+        val getImageResultCast = getImageResult as GetImageResult
+
+        val dataMyProfile = DataMyProfileWithLinkedAvatar(
+            myProfileData.username,
+            myProfileData.description,
+            myProfileData.hitUpOption,
+            getImageResultCast.imageUri
+        )
+        mCurrentRepository = myProfileDataRepository
+        val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
+
+        if (saveMyProfileResult is ErrorResult) return processError(saveMyProfileResult.errorId)
+
+        val state = MyProfileState(
+            dataMyProfile.avatarUri,
+            dataMyProfile.username,
+            dataMyProfile.description,
+            dataMyProfile.hitUpOption,
+            listOf()
+        )
+
+        mStateFlow.emit(state)
+    }
+
+    private suspend fun processGetMyProfileResultWithLinkedAvatar(
+        myProfileData: DataMyProfileWithLinkedAvatar
+    ) {
+        val state = MyProfileState(
+            myProfileData.avatarUri,
+            myProfileData.username,
+            myProfileData.description,
+            myProfileData.hitUpOption,
+            listOf()
+        )
 
         mStateFlow.emit(state)
     }
