@@ -9,12 +9,15 @@ import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetw
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
+import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileWithNetworkResult
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileWithSharedPreferencesResult
+import com.qubacy.geoqq.data.myprofile.repository.result.SaveMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
+import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileEntity
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.toDataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.source.network.NetworkMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.common.Privacy
@@ -50,6 +53,18 @@ class MyProfileDataRepository(
         return GetMyProfileWithNetworkResult(responseBody.toDataMyProfile())
     }
 
+    suspend fun saveMyProfile(dataMyProfile: DataMyProfileWithLinkedAvatar): Result {
+        val myProfileEntity = MyProfileEntity(
+            dataMyProfile.avatarUri.toString(),
+            dataMyProfile.username,
+            dataMyProfile.description,
+            dataMyProfile.hitUpOption.index
+        )
+        localMyProfileDataSource.saveMyProfileData(myProfileEntity)
+
+        return SaveMyProfileResult()
+    }
+
     suspend fun getMyProfile(accessToken: String) {
         val getMyProfileWithSharedPreferencesResult = getMyProfileWithSharedPreferences()
 
@@ -82,7 +97,7 @@ class MyProfileDataRepository(
         password: String?,
         newPassword: String?,
         hitUpOption: MyProfileDataModelContext.HitUpOption?
-    ) {
+    ): Result {
         val avatarContent = if (avatarBitmap == null) null
             else {
                 val avatarByteBuffer = ByteBuffer.allocate(
@@ -126,11 +141,11 @@ class MyProfileDataRepository(
         val request = networkMyProfileDataSource.updateMyProfile(requestBody) as retrofit2.Call<Response>
         val result = executeNetworkRequest(request)
 
-        if (result is ErrorResult) return emitResult(result)
-        if (result is InterruptionResult) return emitResult(result)
+        if (result is ErrorResult) return result
+        if (result is InterruptionResult) return result
 
         val responseBody = (result as ExecuteNetworkRequestResult).response as UpdateMyProfileResponse
 
-        return emitResult(UpdateMyProfileResult())
+        return UpdateMyProfileResult()
     }
 }

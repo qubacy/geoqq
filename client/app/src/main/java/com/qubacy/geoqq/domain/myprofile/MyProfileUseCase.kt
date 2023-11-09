@@ -60,11 +60,6 @@ class MyProfileUseCase(
 
                 processGetMyProfileResult(getMyProfileResult)
             }
-            UpdateMyProfileResult::class -> {
-                val updateMyProfileResult = result as UpdateMyProfileResult
-
-                processUpdateMyProfileResult(updateMyProfileResult)
-            }
             InterruptionResult::class -> {
                 val interruptionResult = result as InterruptionResult
 
@@ -99,11 +94,22 @@ class MyProfileUseCase(
 
             val getImageResultCast = getImageResult as GetImageResult
 
-            MyProfileState(
-                getImageResultCast.imageUri,
+            val dataMyProfile = DataMyProfileWithLinkedAvatar(
                 getMyProfileResult.myProfileData.username,
                 getMyProfileResult.myProfileData.description,
                 getMyProfileResult.myProfileData.hitUpOption,
+                getImageResultCast.imageUri
+            )
+            mCurrentRepository = myProfileDataRepository
+            val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
+
+            if (saveMyProfileResult is ErrorResult) return processError(saveMyProfileResult.errorId)
+
+            MyProfileState(
+                dataMyProfile.avatarUri,
+                dataMyProfile.username,
+                dataMyProfile.description,
+                dataMyProfile.hitUpOption,
                 operations
             )
 
@@ -118,17 +124,6 @@ class MyProfileUseCase(
 
         } else
             throw IllegalStateException()
-
-        mStateFlow.emit(state)
-    }
-
-    private suspend fun processUpdateMyProfileResult(
-        updateMyProfileResult: UpdateMyProfileResult
-    ) {
-        val operations = listOf(
-            SuccessfulProfileSavingCallbackOperation()
-        )
-        val state = generateState(operations)
 
         mStateFlow.emit(state)
     }
@@ -173,7 +168,7 @@ class MyProfileUseCase(
         newPassword: String?,
         hitUpOption: MyProfileDataModelContext.HitUpOption?
     ) {
-        mCoroutineScope.launch {
+        mCoroutineScope.launch(Dispatchers.IO) {
             var avatarBitmap: Bitmap? = null
 
             if (avatarUri != null) {
@@ -195,7 +190,7 @@ class MyProfileUseCase(
             val accessToken = (getTokensResult as GetTokensResult).accessToken
 
             mCurrentRepository = myProfileDataRepository
-            myProfileDataRepository.updateMyProfile(
+            val updateMyProfileResult = myProfileDataRepository.updateMyProfile(
                 accessToken,
                 avatarBitmap,
                 description,
@@ -203,6 +198,34 @@ class MyProfileUseCase(
                 newPassword,
                 hitUpOption
             )
+
+            if (updateMyProfileResult is ErrorResult)
+                return@launch processError(updateMyProfileResult.errorId)
+            if (updateMyProfileResult is InterruptionResult) return@launch processInterruption()
+
+            val state = stateFlow.value
+            val newState = MyProfileState(
+                avatarUri ?: (state?.avatar ?: Uri.parse(String())),
+                state?.username ?: String(),
+                description ?: (state?.description ?: String()),
+                hitUpOption ?:
+                (state?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE),
+                listOf(SuccessfulProfileSavingCallbackOperation())
+            )
+
+            val dataMyProfile = DataMyProfileWithLinkedAvatar(
+                newState.username,
+                newState.description,
+                newState.hitUpOption,
+                newState.avatar
+            )
+            mCurrentRepository = myProfileDataRepository
+            val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
+
+            if (saveMyProfileResult is ErrorResult)
+                return@launch processError(saveMyProfileResult.errorId)
+
+            mStateFlow.emit(newState)
         }
     }
 }

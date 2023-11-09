@@ -396,6 +396,18 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     }
 
     private fun onProfileSaved(profileDataSavedUiOperation: ProfileDataSavedUiOperation) {
+        mChangedInputHash.clear()
+
+        hideTextInputLayoutOutline(mBinding.aboutMeInput.inputLayout)
+        hideTextInputLayoutOutline(mBinding.currentPasswordInput.inputLayout)
+        hideTextInputLayoutOutline(mBinding.newPasswordInput.inputLayout)
+        hideTextInputLayoutOutline(mBinding.newPasswordConfirmationInput.inputLayout)
+        hideTextInputLayoutOutline(mBinding.privacyHitUpLayout)
+
+        mBinding.currentPasswordInput.input.setText(String())
+        mBinding.newPasswordInput.input.setText(String())
+        mBinding.newPasswordConfirmationInput.input.setText(String())
+
         showMessage(R.string.profile_data_saved)
     }
 
