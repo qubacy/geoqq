@@ -1,10 +1,12 @@
 package com.qubacy.geoqq.data.mate.chat.model
 
+import com.qubacy.geoqq.data.common.message.model.DataMessage
+
 class DataMateChat(
     val id: Long,
     val userId: Long,
     val newMessageCount: Int,
-    val lastMessageId: Long // todo: it has to ref. to DataMessage obj.
+    val lastMessage: DataMessage?
 ) {
 
 }

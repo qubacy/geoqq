@@ -45,7 +45,7 @@ class UserDataRepositoryTest() {
         initDataRepository(localUserEntity = userEntity)
 
         runBlocking {
-            val getUserByIdResult = mUserDataRepository.getUserById(userEntity.id)
+            val getUserByIdResult = mUserDataRepository.getUserById(userEntity.id, String())
 
             Assert.assertEquals(GetUserByIdResult::class, getUserByIdResult::class)
 
@@ -68,7 +68,7 @@ class UserDataRepositoryTest() {
         initDataRepository(code = 200, responseString = responseString)
 
         runBlocking {
-            val getUserByIdResult = mUserDataRepository.getUserById(userResponseObj.id)
+            val getUserByIdResult = mUserDataRepository.getUserById(userResponseObj.id, String())
 
             Assert.assertEquals(GetUserByIdResult::class, getUserByIdResult::class)
 

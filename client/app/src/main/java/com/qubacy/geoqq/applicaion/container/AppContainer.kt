@@ -152,4 +152,10 @@ class AppContainer(
     val userDataRepository = UserDataRepository(localUserDataSource, networkUserDataSource)
 
 
+    // Mate:
+
+    private val localMateMessageDataSource = database.getMateMessageDAO()
+
+
+
 }

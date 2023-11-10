@@ -22,8 +22,8 @@ class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : NetworkDataRepository() {
-    private fun getUserWithNetwork(userId: Long): Result {
-        val networkCall = networkUserDataSource.getUser(userId) as Call<Response>
+    private fun getUserWithNetwork(userId: Long, accessToken: String): Result {
+        val networkCall = networkUserDataSource.getUser(userId, accessToken) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
         if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult
@@ -56,7 +56,7 @@ class UserDataRepository(
         return GetUserWithDatabaseResult(userEntity?.toDataUser())
     }
 
-    suspend fun getUserById(userId: Long): Result {
+    suspend fun getUserById(userId: Long, accessToken: String): Result {
         val getUserWithDatabaseResult = getUserWithDatabase(userId)
 
         if (getUserWithDatabaseResult is ErrorResult) return getUserWithDatabaseResult
@@ -67,7 +67,7 @@ class UserDataRepository(
         if (getUserWithDatabaseResultCast.user != null)
             return GetUserByIdResult(getUserWithDatabaseResultCast.user)
 
-        val getUserWithNetworkResult = getUserWithNetwork(userId)
+        val getUserWithNetworkResult = getUserWithNetwork(userId, accessToken)
 
         if (getUserWithNetworkResult is ErrorResult) return getUserWithNetworkResult
         if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult

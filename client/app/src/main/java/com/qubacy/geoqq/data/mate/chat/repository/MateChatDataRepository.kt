@@ -14,30 +14,46 @@ import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsWithDatabaseRes
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsWithNetworkResult
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatEntity
-import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.toDataMateChat
+import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatWithLastMessageModel
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.NetworkMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.model.common.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.model.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpdateMateChatDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
+import com.qubacy.geoqq.data.mate.message.repository.source.local.model.toDataMessage
 import retrofit2.Call
 
 class MateChatDataRepository(
     val localMateChatDataSource: LocalMateChatDataSource,
     val networkMateChatDataSource: NetworkMateChatDataSource,
+    val localMateMessageDataSource: LocalMateMessageDataSource,
     webSocketUpdateMateChatDataSource: WebSocketUpdateMateChatDataSource
 ) : UpdatableDataRepository(webSocketUpdateMateChatDataSource) {
     private var mPrevChatCount: Int = 0
 
     private fun getChatsWithDatabase(count: Int): Result {
-        var chats: List<MateChatEntity>? = null
+        var chats: List<MateChatWithLastMessageModel>? = null
 
         try {
             chats = localMateChatDataSource.getChats(count)
+
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return GetChatsWithDatabaseResult(chats.map { it.toDataMateChat() })
+        val dataChats = chats.map {
+            val lastMessage = it.lastMessage?.toDataMessage()
+
+            DataMateChat(
+                it.mateChatEntity.id,
+                it.mateChatEntity.userId,
+                it.mateChatEntity.newMessageCount,
+                lastMessage
+            )
+        }
+
+        return GetChatsWithDatabaseResult(dataChats)
     }
 
     private fun getChatsWithNetwork(offset: Int, count: Int, accessToken: String): Result {
@@ -56,10 +72,30 @@ class MateChatDataRepository(
     private fun insertChatsIntoDatabase(chats: List<DataMateChat>): Result {
         try {
             for (chat in chats) {
+                // todo: isn't it cursed?? try to find a better way
+
                 val chatEntity = MateChatEntity(
-                    chat.id, chat.userId, chat.newMessageCount, chat.lastMessageId)
+                    chat.id, chat.userId, chat.newMessageCount, null)
 
                 localMateChatDataSource.insertChat(chatEntity)
+
+                if (chat.lastMessage != null) {
+                    val lastMessageEntity = MateMessageEntity(
+                        chat.lastMessage.id,
+                        chat.id,
+                        chat.lastMessage.userId,
+                        chat.lastMessage.text,
+                        chat.lastMessage.time / 1000
+                    )
+
+                    localMateMessageDataSource.insertMateMessage(lastMessageEntity)
+
+                    val chatEntityWithLastMessage = MateChatEntity(
+                        chat.id, chat.userId, chat.newMessageCount, lastMessageEntity.id
+                    )
+
+                    localMateChatDataSource.updateChat(chatEntityWithLastMessage)
+                }
             }
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
@@ -68,6 +104,7 @@ class MateChatDataRepository(
         return Result()
     }
 
+    // todo: USE CASE class has to add new users BEFORE CALLING THIS!!!!!
     suspend fun getChats(accessToken: String, count: Int) {
         val getChatsWithDatabaseResult = getChatsWithDatabase(count)
 
@@ -77,7 +114,8 @@ class MateChatDataRepository(
 
         val getChatsWithDatabaseResultCast = getChatsWithDatabaseResult as GetChatsWithDatabaseResult
 
-        emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats))
+        if (getChatsWithDatabaseResultCast.chats.isNotEmpty())
+            emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats))
 
         val curNetworkRequestChatCount = count - mPrevChatCount
         val getChatsWithNetworkResult = getChatsWithNetwork(

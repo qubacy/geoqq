@@ -7,7 +7,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface NetworkImageDataSource {
-    @GET("/api/resources/image/{imageId}")
+    @GET("/api/image/{imageId}")
     fun getImage(
         @Path("imageId", encoded = true) imageId: Long,
         @Query("accessToken") accessToken: String

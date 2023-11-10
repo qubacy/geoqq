@@ -1,19 +1,19 @@
 package com.qubacy.geoqq.data.mate.chat.repository
 
 import com.qubacy.geoqq.common.AnyUtility
+import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatEntity
+import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatWithLastMessageModel
 import com.qubacy.geoqq.data.mate.chat.repository.source.network.NetworkMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpdateMateChatDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -22,18 +22,14 @@ import java.util.concurrent.atomic.AtomicReference
 
 class MateChatDataRepositoryTest() {
     private lateinit var mMateChatDataRepository: MateChatDataRepository
-    private lateinit var mCurMateChatEntityFlow: MutableSharedFlow<List<MateChatEntity>>
-    private lateinit var mCurMateChatEntityListReference: AtomicReference<List<MateChatEntity>>
-    private lateinit var mCurCoroutineJob: Job
-
-    private lateinit var mLocalMateChatDataSourceInsertionBuffer: MutableList<MateChatEntity>
+    private lateinit var mResultListAtomicRef: AtomicReference<List<Result>>
 
     private fun generateNetworkResponseWithCount(count: Int): String {
         val responseStringBuilder = StringBuilder("{\"chats\":[")
 
         for (i in 0 until count)  {
             responseStringBuilder
-                .append("{\"id\":$i, \"user-id\":$i, \"new-message-count\":0, \"last-message-id\":0}")
+                .append("{\"id\":$i, \"user-id\":$i, \"new-message-count\":0}")
             responseStringBuilder.append(if (i != count - 1) "," else "")
         }
 
@@ -42,44 +38,46 @@ class MateChatDataRepositoryTest() {
 
     private fun initDataRepository(
         code: Int = 200,
-        networkResponseChatCount: Int = 0
+        networkResponseChatCount: Int = 0,
+        mateChatWithLastMessageModels: List<MateChatWithLastMessageModel> = listOf()
     ) {
-        mCurMateChatEntityFlow = MutableSharedFlow()
-        mLocalMateChatDataSourceInsertionBuffer = mutableListOf()
-
         val localMateChatDataSource = Mockito.mock(LocalMateChatDataSource::class.java)
 
         Mockito.`when`(localMateChatDataSource.getChats(Mockito.anyInt()))
-            .thenReturn(mCurMateChatEntityFlow)
+            .thenReturn(mateChatWithLastMessageModels)
         Mockito.`when`(localMateChatDataSource.insertChat(AnyUtility.any(MateChatEntity::class.java)))
-            .thenAnswer {
-                runBlocking {
-                    val entity = it.arguments[0] as MateChatEntity
-
-                    mLocalMateChatDataSourceInsertionBuffer.add(entity)
-
-                    if (mLocalMateChatDataSourceInsertionBuffer.size < networkResponseChatCount)
-                        return@runBlocking
-
-                    mCurMateChatEntityFlow.emit(mLocalMateChatDataSourceInsertionBuffer)
-                }
-            }
+            .thenAnswer { }
 
         val networkResponseString = generateNetworkResponseWithCount(networkResponseChatCount)
         val networkMateChatDataSource = NetworkTestContext.generateTestRetrofit(
             NetworkTestContext.generateDefaultTestInterceptor(code, networkResponseString)
         ).create(NetworkMateChatDataSource::class.java)
 
+        val localMateMessageDataSource = Mockito.mock(LocalMateMessageDataSource::class.java)
+
+
+
         val webSocketUpdateMateChatDataSource = Mockito.mock(
             WebSocketUpdateMateChatDataSource::class.java)
 
-        mMateChatDataRepository = MateChatDataRepository(
-            localMateChatDataSource, networkMateChatDataSource, webSocketUpdateMateChatDataSource)
+        Mockito.`when`(webSocketUpdateMateChatDataSource.updateFlow)
+            .thenReturn(MutableSharedFlow())
 
-        mCurMateChatEntityListReference = AtomicReference<List<MateChatEntity>>()
-        mCurCoroutineJob = GlobalScope.launch(Dispatchers.IO) {
-            mCurMateChatEntityFlow.collect {
-                mCurMateChatEntityListReference.set(it)
+        mMateChatDataRepository = MateChatDataRepository(
+            localMateChatDataSource, networkMateChatDataSource,
+            localMateMessageDataSource, webSocketUpdateMateChatDataSource
+        )
+
+        mResultListAtomicRef = AtomicReference<List<Result>>(listOf())
+        GlobalScope.launch(Dispatchers.IO) {
+            mMateChatDataRepository.resultFlow.collect {
+                val curList = mResultListAtomicRef.get()
+                val newList = mutableListOf<Result>().apply {
+                    addAll(curList)
+                    add(it)
+                }
+
+                mResultListAtomicRef.set(newList)
             }
         }
     }
@@ -91,30 +89,33 @@ class MateChatDataRepositoryTest() {
 
     @Test
     fun getLocalMateChatDataFlowTest() {
-        val mateChatEntityList = listOf(
-            MateChatEntity(0, 0, 0, 0),
-            MateChatEntity(1, 1, 0, 0),
+        val mateChatWithLastMessageModelList = listOf(
+            MateChatWithLastMessageModel(
+                MateChatEntity(0, 0, 0, null), null),
+            MateChatWithLastMessageModel(
+                MateChatEntity(1, 1, 0, null), null),
         )
 
-        initDataRepository()
+        initDataRepository(mateChatWithLastMessageModels = mateChatWithLastMessageModelList)
 
-        runBlocking {
-            try {
-                val getChatsResult = mMateChatDataRepository.getChats(String(), mateChatEntityList.size)
-
-                Assert.assertEquals(getChatsResult::class, GetChatsResult::class)
-
-                mCurMateChatEntityFlow.emit(mateChatEntityList)
-
-                while (mCurMateChatEntityListReference.get() == null) { }
-                while (mCurMateChatEntityListReference.get().isEmpty()) { }
-
-                Assert.assertEquals(mateChatEntityList, mCurMateChatEntityListReference.get())
-
-            } finally {
-                mCurCoroutineJob.cancel()
-            }
+        val job = GlobalScope.launch {
+            mMateChatDataRepository
+                .getChats(String(), mateChatWithLastMessageModelList.size)
         }
+
+        while (mResultListAtomicRef.get().isEmpty()) { }
+
+        val result = mResultListAtomicRef.get().first()
+
+        Assert.assertEquals(result::class, GetChatsResult::class)
+
+        val resultCast = result as GetChatsResult
+
+        for (chat in mateChatWithLastMessageModelList) {
+            Assert.assertNotNull(resultCast.chats.find { it.id == chat.mateChatEntity.id })
+        }
+
+        job.cancel()
     }
 
     @Test
@@ -123,22 +124,20 @@ class MateChatDataRepositoryTest() {
 
         initDataRepository(networkResponseChatCount = count)
 
-        runBlocking {
-            try {
-                val getChatsResult = mMateChatDataRepository.getChats(String(), count)
-
-                Assert.assertEquals(getChatsResult::class, GetChatsResult::class)
-
-                while (mCurMateChatEntityListReference.get() == null) { }
-                while (mCurMateChatEntityListReference.get().size < count) { }
-
-                val mateChatEntityList = mCurMateChatEntityListReference.get()
-
-                Assert.assertEquals(count, mateChatEntityList.size)
-
-            } finally {
-                mCurCoroutineJob.cancel()
-            }
+        val job = GlobalScope.launch {
+            mMateChatDataRepository.getChats(String(), count)
         }
+
+        while (mResultListAtomicRef.get().isEmpty()) { }
+
+        val result = mResultListAtomicRef.get().last()
+
+        Assert.assertEquals(result::class, GetChatsResult::class)
+
+        val resultCast = result as GetChatsResult
+
+        Assert.assertEquals(count, resultCast.chats.size)
+
+        job.cancel()
     }
 }
