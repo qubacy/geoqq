@@ -18,12 +18,12 @@ interface LocalMateChatDataSource : DataSource {
                 "${MateChatEntity.TABLE_NAME}.${MateChatEntity.USER_ID_PROP_NAME} as ${MateChatEntity.USER_ID_PROP_NAME}, " +
                 "${MateChatEntity.NEW_MESSAGE_COUNT_PROP_NAME}, " +
                 "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
-        "FROM ${MateChatEntity.TABLE_NAME}, ${MateMessageEntity.TABLE_NAME} " +
-        "WHERE ${MateChatEntity.TABLE_NAME}.${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} = " +
-                "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.ID_PROP_NAME} " +
+        "FROM ${MateChatEntity.TABLE_NAME} " +
+        "LEFT JOIN ${MateMessageEntity.TABLE_NAME} ON ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.ID_PROP_NAME} = " +
+                "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
         "AND ${MateChatEntity.TABLE_NAME}.${MateChatEntity.CHAT_ID_PROP_NAME} = " +
                 "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} " +
-        "ORDER BY ${MateChatEntity.CHAT_ID_PROP_NAME} DESC " +
+        "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC " +
         "LIMIT :count"
     )
     fun getChats(count: Int): List<MateChatWithLastMessageModel>
