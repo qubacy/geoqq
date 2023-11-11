@@ -16,12 +16,6 @@ import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
             childColumns = arrayOf(MateChatEntity.USER_ID_PROP_NAME),
             onDelete = ForeignKey.CASCADE
         ),
-        ForeignKey(
-            entity = MateMessageEntity::class,
-            parentColumns = arrayOf(MateMessageEntity.CHAT_ID_PROP_NAME, MateMessageEntity.ID_PROP_NAME),
-            childColumns = arrayOf(MateChatEntity.CHAT_ID_PROP_NAME, MateChatEntity.LAST_MESSAGE_ID_PROP_NAME),
-            onDelete = ForeignKey.SET_NULL
-        ),
     ])
 data class MateChatEntity(
     @PrimaryKey()

@@ -44,7 +44,7 @@ class LocalMateChatDataSourceTest : DatabaseSourceTest() {
             try {
                 val gottenChats = mLocalMateChatDataSource.getChats(chatEntities.size)
 
-                Assert.assertNotNull(gottenChats)
+                Assert.assertTrue(gottenChats.isNotEmpty())
                 Assert.assertNotNull(gottenChats.find { it.mateChatEntity.id == chatEntities[0].id })
                 Assert.assertNotNull(gottenChats.find { it.mateChatEntity.id == chatEntities[1].id })
 
