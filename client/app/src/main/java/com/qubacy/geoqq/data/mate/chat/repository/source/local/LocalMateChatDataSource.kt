@@ -23,7 +23,7 @@ interface LocalMateChatDataSource : DataSource {
                 "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.ID_PROP_NAME} " +
         "AND ${MateChatEntity.TABLE_NAME}.${MateChatEntity.CHAT_ID_PROP_NAME} = " +
                 "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} " +
-        "ORDER BY ${MateMessageEntity.TEXT_PROP_NAME} DESC " +
+        "ORDER BY ${MateChatEntity.CHAT_ID_PROP_NAME} DESC " +
         "LIMIT :count"
     )
     fun getChats(count: Int): List<MateChatWithLastMessageModel>
