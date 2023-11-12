@@ -15,6 +15,8 @@ interface NetworkMateMessageDataSource : DataSource {
     @GET("/api/mate/chat/{chatId}/message")
     fun getMateMessage(
         @Path("chatId") chatId: Long,
+        @Query("offset") offset: Int,
+        @Query("count") count: Int,
         @Query("accessToken") accessToken: String
     ): Call<MessageListResponse>
 
