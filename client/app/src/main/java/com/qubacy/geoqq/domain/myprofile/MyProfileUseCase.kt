@@ -17,13 +17,10 @@ import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
-import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MyProfileUseCase(
@@ -32,24 +29,19 @@ class MyProfileUseCase(
     val myProfileDataRepository: MyProfileDataRepository,
     val imageDataRepository: ImageDataRepository
 ) : ConsumingUseCase<MyProfileState>(errorDataRepository, myProfileDataRepository) {
-    override suspend fun processResult(result: Result) {
+    override suspend fun processResult(result: Result): Boolean {
+        if (super.processResult(result)) return true
+
         when (result::class) {
             GetMyProfileResult::class -> {
                 val getMyProfileResult = result as GetMyProfileResult
 
                 processGetMyProfileResult(getMyProfileResult)
             }
-            InterruptionResult::class -> {
-                val interruptionResult = result as InterruptionResult
-
-                processInterruption()
-            }
-            ErrorResult::class -> {
-                val errorResult = result as ErrorResult
-
-                processError(errorResult.errorId)
-            }
+            else -> { return false }
         }
+
+        return true
     }
 
     private suspend fun processGetMyProfileResult(getMyProfileResult: GetMyProfileResult) {

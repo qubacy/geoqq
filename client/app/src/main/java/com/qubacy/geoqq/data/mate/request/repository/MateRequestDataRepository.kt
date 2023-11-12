@@ -9,6 +9,7 @@ import com.qubacy.geoqq.data.common.repository.network.updatable.UpdatableDataRe
 import com.qubacy.geoqq.data.common.repository.network.updatable.source.update.update.Update
 import com.qubacy.geoqq.data.mate.request.repository.result.AnswerMateResponseResult
 import com.qubacy.geoqq.data.mate.request.repository.result.CreateMateRequestResult
+import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsWithNetworkResult
 import com.qubacy.geoqq.data.mate.request.repository.source.network.NetworkMateRequestDataSource
@@ -61,6 +62,18 @@ class MateRequestDataRepository(
         val initUpdateSourceResult = initUpdateSource()
 
         if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+    }
+
+    suspend fun getMateRequestCount(accessToken: String): Result {
+        val getMateRequestsWithNetworkResult = getMateRequestsWithNetwork(0, 0, accessToken)
+
+        if (getMateRequestsWithNetworkResult is ErrorResult) return getMateRequestsWithNetworkResult
+        if (getMateRequestsWithNetworkResult is InterruptionResult) return getMateRequestsWithNetworkResult
+
+        val getMateRequestsWithNetworkResultCast = getMateRequestsWithNetworkResult
+                as GetMateRequestsWithNetworkResult
+
+        return GetMateRequestCountResult(getMateRequestsWithNetworkResultCast.mateRequests.size)
     }
 
     suspend fun createMateRequest(accessToken: String, userId: Long): Result {

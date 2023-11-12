@@ -4,11 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
+import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
+import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.operation.AddChatOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
@@ -20,31 +19,26 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
-// todo: provide a repository as a param..
 class MateChatsViewModel(
-
+    val mateChatsUseCase: MateChatsUseCase
 ) : WaitingViewModel() {
-    // todo: assign to the repository's flow:
-    private var mMateChatsStateFlow = MutableStateFlow<MateChatsState?>(null)
+    companion object {
+        const val DEFAULT_CHAT_CHUNK_SIZE = 20
+    }
+
+    private var mMateChatsStateFlow = mateChatsUseCase.stateFlow
 
     private val mMateChatsUiStateFlow = mMateChatsStateFlow.map { chatsStateToUiState(it) }
     val mateChatsUiStateFlow: LiveData<MateChatsUiState?> = mMateChatsUiStateFlow.asLiveData()
 
-    // todo: delete:
     init {
-        mMateChatsStateFlow.tryEmit(
-            MateChatsState(
-            listOf(MateChatPreview(0, null, "somebody", Message(0, 0, "test", 124125125125))),
-            listOf(User(0, "me")),
-            3
-        )
-        )
+        mateChatsUseCase.setCoroutineScope(viewModelScope)
     }
 
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
+        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (mateChatsState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -58,16 +52,13 @@ class MateChatsViewModel(
         }
 
         return MateChatsUiState(
-            mateChatsState.chatPreviews,
-            mateChatsState.users,
-            mateChatsState.requestCount,
+            mateChatsState.chats,
+            mateChatsState.mateRequestCount,
             uiOperations)
     }
 
     private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
-            // todo: should it contain a new user adding case????
-
             AddChatOperation::class -> {
                 val addChatOperation = operation as AddChatOperation
 
@@ -100,17 +91,24 @@ class MateChatsViewModel(
         }
     }
 
+    fun getMateChats() {
+        mIsWaiting.value = true
+
+        mateChatsUseCase.getMateChats(DEFAULT_CHAT_CHUNK_SIZE)
+    }
+
     override fun retrieveError(errorId: Long) {
         TODO("Not yet implemented")
     }
-
 }
 
-class MateChatsViewModelFactory() : ViewModelProvider.Factory {
+class MateChatsViewModelFactory(
+    private val mateChatsUseCase: MateChatsUseCase
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(MateChatsViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MateChatsViewModel() as T
+        return MateChatsViewModel(mateChatsUseCase) as T
     }
 }

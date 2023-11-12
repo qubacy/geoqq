@@ -1,13 +1,13 @@
 package com.qubacy.geoqq.domain.mate.chats.model
 
 import android.net.Uri
-import com.qubacy.geoqq.domain.common.model.Message
+import com.qubacy.geoqq.domain.common.model.message.common.MessageBase
 
 class MateChat(
     val chatId: Long,
     val avatarUri: Uri,
     val chatName: String,
-    val lastMessage: Message
+    val lastMessage: MessageBase?
 ) {
     override fun equals(other: Any?): Boolean {
         if (other !is MateChat) return false

@@ -3,6 +3,9 @@ package com.qubacy.geoqq.applicaion.container
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.room.Room
+import com.qubacy.geoqq.applicaion.container.mate.chat.MateChatContainer
+import com.qubacy.geoqq.applicaion.container.mate.chats.MateChatsContainer
+import com.qubacy.geoqq.applicaion.container.mate.requests.MateRequestsContainer
 import com.qubacy.geoqq.applicaion.container.myprofile.MyProfileContainer
 import com.qubacy.geoqq.applicaion.container.signin.SignInContainer
 import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
@@ -12,6 +15,15 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
+import com.qubacy.geoqq.data.mate.chat.repository.source.network.NetworkMateChatDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpdateMateChatDataSource
+import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
+import com.qubacy.geoqq.data.mate.message.repository.source.network.NetworkMateMessageDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.websocket.WebSocketUpdateMateMessageDataSource
+import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data.mate.request.repository.source.network.NetworkMateRequestDataSource
+import com.qubacy.geoqq.data.mate.request.repository.source.websocket.WebSocketMateRequestDataSource
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.network.NetworkMyProfileDataSource
@@ -26,6 +38,7 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
+import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 
 class AppContainer(
@@ -155,7 +168,71 @@ class AppContainer(
     // Mate:
 
     private val localMateMessageDataSource = database.getMateMessageDAO()
+    private val networkMateMessageDataSource =
+        NetworkDataSourceContext.retrofit.create(NetworkMateMessageDataSource::class.java)
+    private val webSocketUpdateMateMessageDataSource = WebSocketUpdateMateMessageDataSource()
 
+    val mateMessageDataRepository = MateMessageDataRepository(
+        localMateMessageDataSource, networkMateMessageDataSource, webSocketUpdateMateMessageDataSource)
 
+    var mateChatContainer: MateChatContainer? = null
 
+    fun initMateChatContainer(chatId: Long) {
+        mateChatContainer = MateChatContainer(chatId)
+    }
+
+    fun clearMateChatContainer() {
+        mateChatContainer = null
+    }
+
+    private val networkMateRequestDataSource = NetworkDataSourceContext.retrofit
+        .create(NetworkMateRequestDataSource::class.java)
+    private val webSocketUpdateMateRequestDataSource = WebSocketMateRequestDataSource()
+
+    val mateRequestDataRepository = MateRequestDataRepository(
+        networkMateRequestDataSource, webSocketUpdateMateRequestDataSource
+    )
+
+    var mateRequestsContainer: MateRequestsContainer? = null
+
+    fun initMateRequestsContainer() {
+        mateRequestsContainer = MateRequestsContainer()
+    }
+
+    fun clearMateRequestsContainer() {
+        mateRequestsContainer = null
+    }
+
+    private val localMateChatDataSource = database.getMateChatDAO()
+    private val networkMateChatDataSource =
+        NetworkDataSourceContext.retrofit.create(NetworkMateChatDataSource::class.java)
+    private val webSocketMateChatDataSource = WebSocketUpdateMateChatDataSource()
+
+    val mateChatDataRepository = MateChatDataRepository(
+        localMateChatDataSource, networkMateChatDataSource,
+        localMateMessageDataSource, webSocketMateChatDataSource
+    )
+
+    var mateChatsContainer: MateChatsContainer? = null
+
+    fun initMateChatsContainer(
+        errorDataRepository: ErrorDataRepository,
+        tokenDataRepository: TokenDataRepository,
+        mateChatDataRepository: MateChatDataRepository,
+        imageDataRepository: ImageDataRepository,
+        userDataRepository: UserDataRepository,
+        mateRequestDataRepository: MateRequestDataRepository
+    ) {
+        val mateChatsUseCase = MateChatsUseCase(
+            errorDataRepository, tokenDataRepository,
+            mateChatDataRepository, imageDataRepository,
+            userDataRepository, mateRequestDataRepository
+        )
+
+        mateChatsContainer = MateChatsContainer(mateChatsUseCase)
+    }
+
+    fun clearMateChatsContainer() {
+        mateChatsContainer = null
+    }
 }

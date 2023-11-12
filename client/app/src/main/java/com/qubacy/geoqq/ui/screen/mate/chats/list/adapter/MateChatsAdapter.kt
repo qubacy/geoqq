@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.screen.mate.chats.list.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
 import com.qubacy.geoqq.databinding.ComponentMateChatPreviewBinding
+import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.common.component.animatedlist.adapter.AnimatedListAdapter
 import com.qubacy.geoqq.ui.common.util.TimeUtils
 import java.util.Locale
@@ -12,16 +12,19 @@ import java.util.TimeZone
 
 class MateChatsAdapter(
     private val mCallback: MateChatsAdapterCallback
-) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, MateChatPreview>(mIsReversed = true) {
+) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, MateChat>(mIsReversed = true) {
     class MateChatViewHolder(
         private val mBinding: ComponentMateChatPreviewBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
 
-        fun bind(chatPreview: MateChatPreview) {
-            mBinding.lastMessage.text = chatPreview.lastMessage.text
-            mBinding.name.text = chatPreview.chatName
-            mBinding.lastMessageTimestamp.text = TimeUtils.longToHoursMinutesSecondsFormattedString(
-                chatPreview.lastMessage.timestamp, Locale.getDefault(), TimeZone.getDefault()) // todo: is it OK to do it here??
+        fun bind(chat: MateChat) {
+            mBinding.name.text = chat.chatName
+
+            if (mBinding.lastMessage != null) {
+                mBinding.lastMessage.text = chat.lastMessage!!.text
+                mBinding.lastMessageTimestamp.text = TimeUtils.longToHoursMinutesSecondsFormattedString(
+                    chat.lastMessage.timestamp, Locale.getDefault(), TimeZone.getDefault()) // todo: is it OK to do it here??
+            }
         }
     }
 
@@ -42,7 +45,7 @@ class MateChatsAdapter(
         }
     }
 
-    override fun changeItem(item: MateChatPreview): Int {
+    override fun changeItem(item: MateChat): Int {
         val changedItemPos = super.changeItem(item)
         val updatedItemInfo = mItemAdapterInfoList[changedItemPos]
 

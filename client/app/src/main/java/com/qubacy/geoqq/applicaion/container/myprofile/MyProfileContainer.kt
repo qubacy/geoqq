@@ -6,5 +6,5 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
 class MyProfileContainer(
     private val myProfileUseCase: MyProfileUseCase
 ) {
-    val myProfileViewModel = MyProfileViewModelFactory(myProfileUseCase)
+    val myProfileViewModelFactory = MyProfileViewModelFactory(myProfileUseCase)
 }

@@ -1,6 +1,8 @@
 package com.qubacy.geoqq.domain.common.usecase.consuming
 
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
+import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
@@ -34,5 +36,21 @@ abstract class ConsumingUseCase<StateType>(
         startFlowableRepositoryFlowCollection()
     }
 
-    protected abstract suspend fun processResult(result: Result)
+    protected open suspend fun processResult(result: Result): Boolean {
+        when (result::class) {
+            InterruptionResult::class -> {
+                val interruptionResult = result as InterruptionResult
+
+                processInterruption()
+            }
+            ErrorResult::class -> {
+                val errorResult = result as ErrorResult
+
+                processError(errorResult.errorId)
+            }
+            else -> { return false }
+        }
+
+        return true
+    }
 }

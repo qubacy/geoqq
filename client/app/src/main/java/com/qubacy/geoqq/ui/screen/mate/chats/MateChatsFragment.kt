@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,8 +13,9 @@ import androidx.transition.Fade
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
+import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -24,7 +24,6 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapterCallback
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
-import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModelFactory
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
@@ -60,7 +59,25 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
 
-        mModel = MateChatsViewModelFactory().create(MateChatsViewModel::class.java)
+        val application = requireActivity().application as Application
+
+        application.appContainer.initMateChatsContainer(
+            application.appContainer.errorDataRepository,
+            application.appContainer.tokenDataRepository,
+            application.appContainer.mateChatDataRepository,
+            application.appContainer.imageDataRepository,
+            application.appContainer.userDataRepository,
+            application.appContainer.mateRequestDataRepository
+        )
+
+        mModel = application.appContainer.mateChatsContainer!!.mateChatsViewModelFactory
+            .create(MateChatsViewModel::class.java)
+    }
+
+    override fun onStop() {
+        (requireActivity().application as Application).appContainer.clearMateChatsContainer()
+
+        super.onStop()
     }
 
     override fun onCreateView(
@@ -102,12 +119,13 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
+            (mModel as MateChatsViewModel).getMateChats() // todo: is it legal??
         }
     }
 
     private fun initChats(uiState: MateChatsUiState) {
         onMateRequestCountChanged(uiState.requestCount)
-        mAdapter.setItems(uiState.chatPreviews)
+        mAdapter.setItems(uiState.chats)
     }
 
     private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
@@ -130,7 +148,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
                 val addChatUiOperation = uiOperation as AddChatUiOperation
                 val chat = (mModel as MateChatsViewModel)
-                    .mateChatsUiStateFlow.value!!.chatPreviews.find {
+                    .mateChatsUiStateFlow.value!!.chats.find {
                         it.chatId == addChatUiOperation.chatId
                     }!!
 
@@ -139,7 +157,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation
                 val chat = (mModel as MateChatsViewModel)
-                    .mateChatsUiStateFlow.value!!.chatPreviews.find {
+                    .mateChatsUiStateFlow.value!!.chats.find {
                         it.chatId == updateChatUiOperation.chatId
                     }!!
 
@@ -208,7 +226,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         findNavController().navigate(R.id.action_mateChatsFragment_to_mateRequestsFragment)
     }
 
-    override fun onChatClicked(chatPreview: MateChatPreview, chatView: View) {
+    override fun onChatClicked(chatPreview: MateChat, chatView: View) {
         val transitionName = getString(R.string.transition_mate_chats_to_mate_chat)
         val extras = FragmentNavigatorExtras(chatView to transitionName)
         val directions = MateChatsFragmentDirections

@@ -16,13 +16,11 @@ import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.Navigation
 import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.Application
-import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.DESCRIPTION_TEXT_KEY
@@ -80,8 +78,14 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             application.appContainer.imageDataRepository
         )
 
-        mModel = application.appContainer.myProfileContainer!!.myProfileViewModel
+        mModel = application.appContainer.myProfileContainer!!.myProfileViewModelFactory
             .create(MyProfileViewModel::class.java)
+    }
+
+    override fun onStop() {
+        (requireActivity().application as Application).appContainer.clearMyProfileContainer()
+
+        super.onStop()
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {
