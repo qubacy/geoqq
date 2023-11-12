@@ -770,7 +770,7 @@
       "responses": [
         {
           "uuid": "94809252-a1be-4d78-bf85-54b3d09e47de",
-          "body": "{\r\n  \"requests\": [\r\n    {\r\n      \"id\": 0,\r\n      \"user\": {\r\n        \"id\": 1,\r\n        \"username\": \"user 1\",\r\n        \"description\": \"yo maan doing real shit\",\r\n        \"avatar-id\": 1\r\n      }\r\n    },\r\n    {\r\n      \"id\": 1,\r\n      \"user\": {\r\n        \"id\": 2,\r\n        \"username\": \"user 2\",\r\n        \"description\": \"yo maan doing real shit too\",\r\n        \"avatar-id\": 1\r\n      }\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"user\": {\r\n        \"id\": 3,\r\n        \"username\": \"user 3\",\r\n        \"description\": \"fck it\",\r\n        \"avatar-id\": 1\r\n      }\r\n    }\r\n  ]\r\n}",
+          "body": "{\r\n  \"requests\": [\r\n    {\r\n      \"id\": 0,\r\n      \"user-id\": 1\r\n    },\r\n    {\r\n      \"id\": 1,\r\n      \"user-id\": 2\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"user-id\": 3\r\n    }\r\n  ]\r\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
