@@ -591,10 +591,10 @@
       "responses": [
         {
           "uuid": "4697efc8-de72-4758-b220-77fbcd874182",
-          "body": "{\n  \"chats\": [\n    {\n      \"id\": 0,\n      \"user-id\": 1,\n      \"new-message-count\": 0,\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"hi there\",\n        \"time\": 1699591740000,\n        \"user-id\": 1\n      }\n    },\n    {\n      \"id\": 1,\n      \"user-id\": 2,\n      \"new-message-count\": 0,\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"yooo\",\n        \"time\": 1699591750000,\n        \"user-id\": 2\n      }\n    }\n  ]\n}",
+          "body": "{\n  \"chats\": [\n    {\n      \"id\": 0,\n      \"user-id\": 1,\n      \"new-message-count\": 0,\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"hi there\",\n        \"time\": 1700591740000,\n        \"user-id\": 1\n      }\n    },\n    {\n      \"id\": 1,\n      \"user-id\": 2,\n      \"new-message-count\": 0,\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"yooo\",\n        \"time\": 1699591750000,\n        \"user-id\": 2\n      }\n    }\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
-          "label": "",
+          "label": "Note: chats have to be sorted by a last message timestamp;",
           "headers": [],
           "bodyType": "INLINE",
           "filePath": "",
