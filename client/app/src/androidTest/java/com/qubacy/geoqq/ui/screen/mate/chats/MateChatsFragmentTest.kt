@@ -29,8 +29,8 @@ import com.google.android.material.card.MaterialCardView
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
-import com.qubacy.geoqq.data.mates.chats.state.MateChatsState
+import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
+import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
@@ -42,8 +42,8 @@ import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
-import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
-import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
+import com.qubacy.geoqq.domain.mate.chats.operation.AddChatOperation
+import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction

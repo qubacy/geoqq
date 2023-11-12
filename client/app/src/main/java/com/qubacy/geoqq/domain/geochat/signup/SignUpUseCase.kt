@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.domain.common.UseCase
+import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
 import kotlinx.coroutines.Dispatchers

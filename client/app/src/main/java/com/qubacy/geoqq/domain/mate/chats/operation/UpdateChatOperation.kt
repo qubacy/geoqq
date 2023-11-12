@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.mates.chats.operation
+package com.qubacy.geoqq.domain.mate.chats.operation
 
 class UpdateChatOperation(
     val chatId: Long

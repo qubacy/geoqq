@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.common
+package com.qubacy.geoqq.domain.common.usecase.common
 
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation

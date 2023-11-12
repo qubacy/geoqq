@@ -9,10 +9,10 @@ import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
-import com.qubacy.geoqq.data.mates.chats.operation.AddChatOperation
-import com.qubacy.geoqq.data.mates.chats.operation.UpdateChatOperation
-import com.qubacy.geoqq.data.mates.chats.operation.UpdateRequestCountOperation
-import com.qubacy.geoqq.data.mates.chats.state.MateChatsState
+import com.qubacy.geoqq.domain.mate.chats.operation.AddChatOperation
+import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
+import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
+import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
@@ -35,11 +35,13 @@ class MateChatsViewModel(
 
     // todo: delete:
     init {
-        mMateChatsStateFlow.tryEmit(MateChatsState(
+        mMateChatsStateFlow.tryEmit(
+            MateChatsState(
             listOf(MateChatPreview(0, null, "somebody", Message(0, 0, "test", 124125125125))),
             listOf(User(0, "me")),
             3
-        ))
+        )
+        )
     }
 
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {

@@ -17,7 +17,8 @@ import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
-import com.qubacy.geoqq.domain.common.UseCase
+import com.qubacy.geoqq.domain.common.usecase.common.UseCase
+import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import kotlinx.coroutines.CoroutineScope
@@ -30,29 +31,8 @@ class MyProfileUseCase(
     val tokenDataRepository: TokenDataRepository,
     val myProfileDataRepository: MyProfileDataRepository,
     val imageDataRepository: ImageDataRepository
-) : UseCase<MyProfileState>(errorDataRepository) {
-    private lateinit var mOriginalMyProfileRepositoryFlowJob: Job
-
-    init {
-        startMyProfileRepositoryFlowCollection()
-    }
-
-    private fun startMyProfileRepositoryFlowCollection() {
-        mOriginalMyProfileRepositoryFlowJob = mCoroutineScope.launch(Dispatchers.IO) {
-            myProfileDataRepository.resultFlow.collect {
-                processResult(it)
-            }
-        }
-    }
-
-    override fun setCoroutineScope(coroutineScope: CoroutineScope) {
-        super.setCoroutineScope(coroutineScope)
-
-        mOriginalMyProfileRepositoryFlowJob.cancel()
-        startMyProfileRepositoryFlowCollection()
-    }
-
-    private suspend fun processResult(result: Result) {
+) : ConsumingUseCase<MyProfileState>(errorDataRepository, myProfileDataRepository) {
+    override suspend fun processResult(result: Result) {
         when (result::class) {
             GetMyProfileResult::class -> {
                 val getMyProfileResult = result as GetMyProfileResult

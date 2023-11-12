@@ -1,14 +1,14 @@
-package com.qubacy.geoqq.data.mates.chats.state
+package com.qubacy.geoqq.domain.mate.chats.state
 
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.common.operation.Operation
 import com.qubacy.geoqq.data.common.state.State
-import com.qubacy.geoqq.data.mates.chats.entity.MateChatPreview
+import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 
 class MateChatsState(
-    val chatPreviews: List<MateChatPreview> = listOf(),
+    val chats: List<MateChat> = listOf(),
     val users: List<User> = listOf(),
-    val requestCount: Int = 0,
+    val mateRequestCount: Int = 0,
     newOperations: List<Operation> = listOf()
 ) : State(newOperations) {
 
