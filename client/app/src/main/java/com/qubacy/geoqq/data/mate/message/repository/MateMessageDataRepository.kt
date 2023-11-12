@@ -2,7 +2,10 @@ package com.qubacy.geoqq.data.mate.message.repository
 
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.message.model.DataMessage
+import com.qubacy.geoqq.data.common.message.repository.source.network.model.request.SendMessageRequestBody
+import com.qubacy.geoqq.data.common.message.repository.source.network.model.request.common.MessageToSend
 import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.MessageListResponse
+import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.SendMessageResponse
 import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.common.toDataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -15,6 +18,7 @@ import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithDatabaseResult
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithNetworkResult
 import com.qubacy.geoqq.data.mate.message.repository.result.InsertMessagesIntoDatabaseResult
+import com.qubacy.geoqq.data.mate.message.repository.result.SendMessageResult
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.toDataMessage
@@ -120,6 +124,26 @@ class MateMessageDataRepository(
         val initUpdateSourceResult = initUpdateSource()
 
         if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+    }
+
+    suspend fun sendMessage(
+        accessToken: String,
+        chatId: Long,
+        messageText: String
+    ): Result {
+        val messageToSend = MessageToSend(messageText)
+        val sendMessageRequestBody = SendMessageRequestBody(accessToken, messageToSend)
+        val sendMessageNetworkCall = networkMateMessageDataSource
+            .sendMateMessage(chatId, sendMessageRequestBody) as Call<Response>
+        val sendMessageNetworkCallResult = executeNetworkRequest(sendMessageNetworkCall)
+
+        if (sendMessageNetworkCallResult is ErrorResult) return sendMessageNetworkCallResult
+        if (sendMessageNetworkCallResult is InterruptionResult) return sendMessageNetworkCallResult
+
+        val sendMessageNetworkResponse = (sendMessageNetworkCallResult as ExecuteNetworkRequestResult)
+            .response as SendMessageResponse
+
+        return SendMessageResult()
     }
 
     override fun processUpdates(updates: List<Update>) {
