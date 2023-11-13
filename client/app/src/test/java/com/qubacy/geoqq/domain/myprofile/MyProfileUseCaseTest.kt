@@ -18,6 +18,7 @@ import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
+import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import kotlinx.coroutines.Dispatchers
@@ -91,7 +92,7 @@ class MyProfileUseCaseTest {
             errorDataRepository, tokenDataRepository, myProfileDataRepository, imageDataRepository
         )
 
-        val processResultMethodReflection = MyProfileUseCase::class.memberFunctions
+        val processResultMethodReflection = ConsumingUseCase::class.memberFunctions
             .find { it.name == "processResult" }!!.apply {
                 isAccessible = true
             }
@@ -114,6 +115,8 @@ class MyProfileUseCaseTest {
             runBlocking {
                 processResultMethodReflection.callSuspend(mMyProfileUseCase, updateMyProfileResult)
             }
+
+            UpdateMyProfileResult()
         }
 
         mMyProfileStateAtomicRef = AtomicReference(null)
