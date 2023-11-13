@@ -77,6 +77,10 @@
             android:name="chatId"
             app:argType="long"
             android:defaultValue="0L" />
+        <argument
+            android:name="interlocutorUserId"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
     <fragment
         android:id="@+id/mateRequestsFragment"

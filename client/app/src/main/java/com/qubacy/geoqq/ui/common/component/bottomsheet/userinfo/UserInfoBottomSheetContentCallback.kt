@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo
 
-import com.qubacy.geoqq.data.common.entity.person.user.User
+import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContentCallback
 
 interface UserInfoBottomSheetContentCallback : BottomSheetContentCallback {

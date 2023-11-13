@@ -16,25 +16,23 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.MaterialContainerTransform
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.mates.chat.entity.MateChat
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
+import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
-import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
-import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
+import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 
-class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
+class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider {
     private val mArgs by navArgs<MateChatFragmentArgs>()
 
     private lateinit var mBinding: FragmentMateChatBinding
@@ -50,7 +48,27 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
 
         requireActivity().addMenuProvider(this)
 
-        mModel = MateChatViewModelFactory(mArgs.chatId).create(MateChatViewModel::class.java)
+        val application = (requireActivity().application as Application)
+
+        application.appContainer.initMateChatContainer(
+            mArgs.chatId,
+            mArgs.interlocutorUserId,
+            application.appContainer.errorDataRepository,
+            application.appContainer.tokenDataRepository,
+            application.appContainer.mateMessageDataRepository,
+            application.appContainer.imageDataRepository,
+            application.appContainer.userDataRepository
+        )
+
+        mModel = application.appContainer.mateChatContainer!!
+            .mateChatViewModelFactory
+            .create(MateChatViewModel::class.java)
+    }
+
+    override fun onStop() {
+        (requireActivity().application as Application).appContainer.clearMateChatContainer()
+
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -102,10 +120,11 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
+            (mModel as MateChatViewModel).getMessages()
         }
     }
 
-    private fun onChatUiStateGotten(chatUiState: ChatUiState) {
+    private fun onChatUiStateGotten(chatUiState: MateChatUiState) {
         val isListEmpty = mAdapter.itemCount <= 0
 
         if (isListEmpty) initChat(chatUiState)
@@ -118,8 +137,8 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
         }
     }
 
-    private fun initChat(chatUiState: ChatUiState) {
-        setChatInfo(chatUiState.chat as MateChat)
+    private fun initChat(chatUiState: MateChatUiState) {
+        setChatInfo(chatUiState.title)
 
         mAdapter.setItems(chatUiState.messages)
 
@@ -133,7 +152,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
 
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
                 val message = (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.messages.find {
-                    it.messageId == addMessageUiOperation.messageId
+                    it.id == addMessageUiOperation.messageId
                 }!!
 
                 mAdapter.addItem(message)
@@ -148,7 +167,7 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
             ChangeChatInfoUiOperation::class -> {
                 val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
 
-                setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.chat as MateChat)
+                setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.title)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
@@ -158,8 +177,8 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
         }
     }
 
-    private fun setChatInfo(mateChat: MateChat) {
-        mBinding.chatTitle.text = mateChat.chatName
+    private fun setChatInfo(title: String) {
+        mBinding.chatTitle.text = title
 
         // what else??
     }
@@ -178,11 +197,11 @@ class MateChatFragment() : BaseFragment(), ChatAdapterCallback, MenuProvider {
                 (mModel as MateChatViewModel).sendMessage(messageText)
     }
 
-    override fun getUserById(userId: Long): User {
-        return (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.users.find {
-            it.userId == userId
-        }!!
-    }
+//    override fun getUserById(userId: Long): User {
+//        return (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.users.find {
+//            it.userId == userId
+//        }!!
+//    }
 
     override fun onMessageClicked(message: Message) {
         // nothing??

@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.data.mates.request.state.MateRequestsState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation

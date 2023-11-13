@@ -5,6 +5,7 @@ import com.qubacy.geoqq.domain.common.model.message.common.MessageBase
 
 class MateChat(
     val chatId: Long,
+    val interlocutorUserId: Long,
     val avatarUri: Uri,
     val chatName: String,
     val lastMessage: MessageBase?

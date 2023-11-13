@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
@@ -123,7 +122,7 @@ class GeoChatFragment(
 
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
                 val message = (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.messages.find {
-                    it.messageId == addMessageUiOperation.messageId
+                    it.id == addMessageUiOperation.messageId
                 }!!
 
                 mGeoChatAdapter.addItem(message)
@@ -170,20 +169,18 @@ class GeoChatFragment(
 
     }
 
-    override fun getUserById(userId: Long): User {
-        return (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.users.find {
-            it.userId == userId
-        }!!
-    }
+//    override fun getUserById(userId: Long): User {
+//        return (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.users.find {
+//            it.userId == userId
+//        }!!
+//    }
 
     override fun onMessageClicked(message: Message) {
-        if ((mModel as GeoChatViewModel).isLocalUser(message.userId)) return
+        if ((mModel as GeoChatViewModel).isLocalUser(message.sender.id)) return
 
         closeSoftKeyboard()
 
-        val user = getUserById(message.userId)
-
-        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
+        mBinding.bottomSheet.bottomSheetContentCard.setData(message.sender)
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()
     }
 

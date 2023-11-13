@@ -6,16 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
+import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
-import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
-import com.qubacy.geoqq.data.common.chat.state.ChatState
-import com.qubacy.geoqq.data.common.entity.chat.Chat
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
+import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
-import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.state.chat.ChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
@@ -23,6 +21,7 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.Ui
 import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -55,32 +54,15 @@ class GeoChatViewModel(
         return text.isNotEmpty()
     }
 
-    // todo: delete:
-    private var curMessageId = 0L
-
     fun sendMessage(text: String) {
         viewModelScope.launch {
             // todo: sending a message using DATA layer..
 
-            // todo: delete:
-            val newMessages = mutableListOf<Message>()
-            val messages = if (geoChatUiStateFlow.value != null) geoChatUiStateFlow.value!!.messages else listOf()
 
-            newMessages.addAll(messages)
-            newMessages.add(Message(curMessageId,0, text, 1697448075990))
-
-            mGeoChatStateFlow.emit(ChatState(
-                Chat(),
-                newMessages,
-                listOf(User(0, "me")),
-                listOf(AddMessageChatOperation(curMessageId))
-            ))
-
-            ++curMessageId
         }
     }
 
-    private fun chatStateToUiState(chatState: ChatState?): ChatUiState? {
+    private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
         if (chatState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -93,7 +75,7 @@ class GeoChatViewModel(
             uiOperations.add(uiOperation)
         }
 
-        return ChatUiState(chatState.chat, chatState.messages, chatState.users, uiOperations)
+        return GeoChatUiState(chatState.messages, chatState.users, uiOperations)
     }
 
     private fun processOperation(operation: Operation): UiOperation? {

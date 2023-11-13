@@ -28,7 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.card.MaterialCardView
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
 import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter

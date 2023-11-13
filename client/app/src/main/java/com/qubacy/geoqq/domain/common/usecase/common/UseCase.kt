@@ -1,12 +1,12 @@
 package com.qubacy.geoqq.domain.common.usecase.common
 
 import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
-import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.error.repository.result.GetErrorForLanguageResult
-import com.qubacy.geoqq.domain.common.operation.InterruptOperation
+import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

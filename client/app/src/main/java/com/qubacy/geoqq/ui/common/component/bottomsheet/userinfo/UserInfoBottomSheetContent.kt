@@ -10,8 +10,8 @@ import androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.card.MaterialCardView
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.ComponentUserProfileBottomSheetBinding
+import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContent
 import com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContentCallback
 
@@ -119,7 +119,7 @@ class UserInfoBottomSheetContent(
             description.text = data.description
 
             addFriendButton.apply {
-                isEnabled = !data.isFriend
+                isEnabled = !data.isMate
 
                 setOnClickListener {
                     mCallback!!.addToFriend(data)

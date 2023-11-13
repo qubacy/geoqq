@@ -3,14 +3,14 @@ package com.qubacy.geoqq.ui.screen.common.chat
 import androidx.lifecycle.LiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.data.common.chat.operation.AddMessageChatOperation
+import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
-import com.qubacy.geoqq.data.common.chat.operation.ChangeChatInfoOperation
+import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.data.common.entity.chat.message.Message
 import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.common.operation.HandleErrorOperation
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import kotlinx.coroutines.flow.MutableStateFlow

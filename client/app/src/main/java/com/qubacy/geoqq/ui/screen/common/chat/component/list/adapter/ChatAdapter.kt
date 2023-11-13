@@ -3,9 +3,9 @@ package com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.ComponentChatMessageBinding
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.animatedlist.adapter.AnimatedListAdapter
 import com.qubacy.geoqq.ui.common.util.TimeUtils
 import java.util.Locale
@@ -37,8 +37,7 @@ class ChatAdapter(
         val messageAdapterInfo = mItemAdapterInfoList[position]
 
         holder.bind(
-            messageAdapterInfo.item,
-            mCallback.getUserById(messageAdapterInfo.item.userId))
+            messageAdapterInfo.item, messageAdapterInfo.item.sender)
         holder.itemView.setOnClickListener {
             mCallback.onMessageClicked(messageAdapterInfo.item)
         }

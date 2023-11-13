@@ -2,7 +2,7 @@ package com.qubacy.geoqq.domain.myprofile
 
 import android.graphics.Bitmap
 import android.net.Uri
-import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult

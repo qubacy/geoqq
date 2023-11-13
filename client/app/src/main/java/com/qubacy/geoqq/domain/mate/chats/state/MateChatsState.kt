@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.mate.chats.state
 
-import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.data.common.state.State
+import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.state.common.State
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 
 class MateChatsState(

@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.mate.chats
 
 import android.net.Uri
-import com.qubacy.geoqq.data.common.operation.Operation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -53,9 +53,7 @@ class MateChatsUseCase(
         val mateChats = mutableListOf<MateChat>()
 
         for (dataChat in result.chats) {
-            val mateChat = processDataMateChat(dataChat)
-
-            if (mateChat == null) return
+            val mateChat = processDataMateChat(dataChat) ?: return
 
             mateChats.add(mateChat)
         }
@@ -94,7 +92,7 @@ class MateChatsUseCase(
             null
 
         return MateChat(
-            dataMateChat.id, interlocutorDataUserAvatarUri,
+            dataMateChat.id, dataMateChat.userId, interlocutorDataUserAvatarUri,
             interlocutorDataUser.username, lastMessage)
     }
 
@@ -163,7 +161,6 @@ class MateChatsUseCase(
 
         return getImageResultCast.imageUri
     }
-
 
     override fun generateState(operations: List<Operation>): MateChatsState {
         return MateChatsState(newOperations = operations)

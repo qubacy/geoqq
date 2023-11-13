@@ -38,6 +38,7 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
+import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 
@@ -177,8 +178,21 @@ class AppContainer(
 
     var mateChatContainer: MateChatContainer? = null
 
-    fun initMateChatContainer(chatId: Long) {
-        mateChatContainer = MateChatContainer(chatId)
+    fun initMateChatContainer(
+        chatId: Long,
+        interlocutorUserId: Long,
+        errorDataRepository: ErrorDataRepository,
+        tokenDataRepository: TokenDataRepository,
+        mateMessageDataRepository: MateMessageDataRepository,
+        imageDataRepository: ImageDataRepository,
+        userDataRepository: UserDataRepository,
+    ) {
+        val mateChatUseCase = MateChatUseCase(
+            errorDataRepository, tokenDataRepository,
+            mateMessageDataRepository, imageDataRepository, userDataRepository
+        )
+
+        mateChatContainer = MateChatContainer(chatId, interlocutorUserId, mateChatUseCase)
     }
 
     fun clearMateChatContainer() {

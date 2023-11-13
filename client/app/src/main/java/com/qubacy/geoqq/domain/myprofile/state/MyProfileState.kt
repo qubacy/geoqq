@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.domain.myprofile.state
 
 import android.net.Uri
-import com.qubacy.geoqq.data.common.operation.Operation
-import com.qubacy.geoqq.data.common.state.State
+import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.state.common.State
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 
 class MyProfileState(
