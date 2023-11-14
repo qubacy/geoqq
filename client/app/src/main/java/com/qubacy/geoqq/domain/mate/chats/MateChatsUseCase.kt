@@ -25,7 +25,6 @@ import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// todo: shouldn't it process mateRequestDataRepository's updates as well??
 class MateChatsUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
@@ -33,7 +32,10 @@ class MateChatsUseCase(
     val imageDataRepository: ImageDataRepository,
     val userDataRepository: UserDataRepository,
     val mateRequestDataRepository: MateRequestDataRepository
-) : ConsumingUseCase<MateChatsState>(errorDataRepository, mateChatDataRepository) {
+) : ConsumingUseCase<MateChatsState>(
+    errorDataRepository,
+    listOf(mateChatDataRepository, userDataRepository, mateRequestDataRepository)
+) {
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 

@@ -7,6 +7,7 @@ import com.qubacy.geoqq.data.common.repository.common.result.interruption.Interr
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.common.NetworkDataRepository
 import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
+import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.result.GetNetworkWithNetworkResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
@@ -21,13 +22,14 @@ import retrofit2.Call
 class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
-) : NetworkDataRepository() {
-    private fun getUserWithNetwork(userId: Long, accessToken: String): Result {
+) : FlowableDataRepository() {
+    private suspend fun getUserWithNetwork(userId: Long, accessToken: String) {
         val networkCall = networkUserDataSource.getUser(userId, accessToken) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
-        if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult
-        if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
+        if (executeNetworkRequestResult is ErrorResult) return emitResult(executeNetworkRequestResult)
+        if (executeNetworkRequestResult is InterruptionResult)
+            return emitResult(executeNetworkRequestResult)
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
             .response as GetUserResponse
@@ -40,7 +42,7 @@ class UserDataRepository(
             responseBody.isMate
         )
 
-        return GetNetworkWithNetworkResult(user)
+        emitResult(GetUserByIdResult(user))
     }
 
     private fun getUserWithDatabase(userId: Long): Result {
@@ -64,15 +66,14 @@ class UserDataRepository(
 
         val getUserWithDatabaseResultCast = getUserWithDatabaseResult as GetUserWithDatabaseResult
 
-        if (getUserWithDatabaseResultCast.user != null)
-            return GetUserByIdResult(getUserWithDatabaseResultCast.user)
+        getUserWithNetwork(userId, accessToken)
 
-        val getUserWithNetworkResult = getUserWithNetwork(userId, accessToken)
+        return GetUserByIdResult(getUserWithDatabaseResultCast.user)
 
-        if (getUserWithNetworkResult is ErrorResult) return getUserWithNetworkResult
-        if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult
-
-        return GetUserByIdResult((getUserWithNetworkResult as GetNetworkWithNetworkResult).user)
+//        if (getUserWithNetworkResult is ErrorResult) return getUserWithNetworkResult
+//        if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult
+//
+//        return GetUserByIdResult((getUserWithNetworkResult as GetNetworkWithNetworkResult).user)
     }
 
 }

@@ -28,7 +28,10 @@ class MyProfileUseCase(
     val tokenDataRepository: TokenDataRepository,
     val myProfileDataRepository: MyProfileDataRepository,
     val imageDataRepository: ImageDataRepository
-) : ConsumingUseCase<MyProfileState>(errorDataRepository, myProfileDataRepository) {
+) : ConsumingUseCase<MyProfileState>(
+    errorDataRepository,
+    listOf(myProfileDataRepository)
+) {
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 

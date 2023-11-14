@@ -4,7 +4,7 @@ import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.user.model.DataUser
 
 class GetUserByIdResult(
-    val user: DataUser
+    val user: DataUser?
 ) : Result() {
 
 }

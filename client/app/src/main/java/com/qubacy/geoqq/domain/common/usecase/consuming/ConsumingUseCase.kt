@@ -10,29 +10,40 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 abstract class ConsumingUseCase<StateType>(
     errorDataRepository: ErrorDataRepository,
-    val flowableDataRepository: FlowableDataRepository
+    val flowableDataRepositories: List<FlowableDataRepository>
 ) : UseCase<StateType>(errorDataRepository) {
-    private lateinit var mOriginalFlowableRepositoryFlowJob: Job
+    private val mOriginalFlowableRepositoryFlowJobList = mutableListOf<Job>()
+    protected val mStateMutex = Mutex()
 
     init {
         startFlowableRepositoryFlowCollection()
     }
 
     private fun startFlowableRepositoryFlowCollection() {
-        mOriginalFlowableRepositoryFlowJob = mCoroutineScope.launch(Dispatchers.IO) {
-            flowableDataRepository.resultFlow.collect {
-                processResult(it)
+        mOriginalFlowableRepositoryFlowJobList.clear()
+
+        for (flowableDataRepository in flowableDataRepositories) {
+            val originalFlowableRepositoryFlowJob = mCoroutineScope.launch(Dispatchers.IO) {
+                flowableDataRepository.resultFlow.collect {
+                    processResult(it)
+                }
             }
+
+            mOriginalFlowableRepositoryFlowJobList.add(originalFlowableRepositoryFlowJob)
         }
     }
 
     override fun setCoroutineScope(coroutineScope: CoroutineScope) {
         super.setCoroutineScope(coroutineScope)
 
-        mOriginalFlowableRepositoryFlowJob.cancel()
+        for (originalFlowableRepositoryFlowJob in mOriginalFlowableRepositoryFlowJobList) {
+            originalFlowableRepositoryFlowJob.cancel()
+        }
+
         startFlowableRepositoryFlowCollection()
     }
 
@@ -52,5 +63,17 @@ abstract class ConsumingUseCase<StateType>(
         }
 
         return true
+    }
+
+    protected suspend fun lockLastState(): StateType? {
+        mStateMutex.lock()
+
+        return stateFlow.value
+    }
+
+    protected suspend fun postState(state: StateType) {
+        mStateFlow.emit(state)
+
+        mStateMutex.unlock()
     }
 }
