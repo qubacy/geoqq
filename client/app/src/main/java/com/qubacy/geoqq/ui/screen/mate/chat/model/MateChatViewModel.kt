@@ -12,6 +12,7 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
+import com.qubacy.geoqq.domain.mate.chat.operation.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -20,6 +21,8 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import kotlinx.coroutines.flow.map
 
@@ -36,6 +39,8 @@ class MateChatViewModel(
 
     private val mMateChatUiStateFlow = mMateChatStateFlow.map { chatStateToUiState(it) }
     val mateChatUiStateFlow: LiveData<MateChatUiState?> = mMateChatUiStateFlow.asLiveData()
+
+    private var mIsWaitingForInterlocutorDetails = true
 
     init {
         mateChatUseCase.setCoroutineScope(viewModelScope)
@@ -61,6 +66,12 @@ class MateChatViewModel(
         mateChatUseCase.getChat(chatId, interlocutorUserId, DEFAULT_MESSAGE_CHUNK_SIZE)
     }
 
+    fun getMateUserDetails() {
+        mIsWaiting.value = true
+
+        mateChatUseCase.getInterlocutorUserDetails()
+    }
+
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
         if (mIsWaiting.value == true) mIsWaiting.value = false
         if (chatState == null) return null
@@ -75,7 +86,7 @@ class MateChatViewModel(
             uiOperations.add(uiOperation)
         }
 
-        val title = chatState.users.find {it.id == interlocutorUserId}!!.username
+        val title = chatState.users.find {it.id == interlocutorUserId}?.username ?: String()
 
         return MateChatUiState(title, chatState.messages, chatState.users, uiOperations)
     }
@@ -88,6 +99,11 @@ class MateChatViewModel(
                 // mb processing the operation..
 
                 AddMessageUiOperation(addMessageOperation.messageId)
+            }
+            SetUserDetailsOperation::class -> {
+                val setUserDetailsOperation = operation as SetUserDetailsOperation
+
+                processSetUserDetailsOperation(setUserDetailsOperation)
             }
             ChangeChatInfoOperation::class -> {
                 val changeChatInfoOperation = operation as ChangeChatInfoOperation
@@ -107,6 +123,20 @@ class MateChatViewModel(
                 throw IllegalStateException()
             }
         }
+    }
+
+    private fun processSetUserDetailsOperation(
+        setUserDetailsOperation: SetUserDetailsOperation
+    ): UiOperation? {
+        if (mIsWaitingForInterlocutorDetails
+            && setUserDetailsOperation.userId == interlocutorUserId
+        ) {
+            mIsWaitingForInterlocutorDetails = false
+
+            return OpenUserDetailsUiOperation(setUserDetailsOperation.userId)
+        }
+
+        return ChangeUserUiOperation(setUserDetailsOperation.userId)
     }
 
     fun getMateInfo(): User {

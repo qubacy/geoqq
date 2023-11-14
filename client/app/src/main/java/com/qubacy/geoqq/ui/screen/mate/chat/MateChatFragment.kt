@@ -27,8 +27,9 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 
@@ -157,12 +158,15 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
                 mAdapter.addItem(message)
             }
-            AddUserUiOperation::class -> {
-                val addUserUiOperation = uiOperation as AddUserUiOperation
+            OpenUserDetailsUiOperation::class -> {
+                val openUserDetailsUiOperation = uiOperation as OpenUserDetailsUiOperation
 
-                // todo: mb some stuff to visualize a new user's entrance..
+                processOpenUserDetailsOperation(openUserDetailsUiOperation)
+            }
+            ChangeUserUiOperation::class -> {
+                val changeUserUiOperation = uiOperation as ChangeUserUiOperation
 
-
+                // todo: what to do here?
             }
             ChangeChatInfoUiOperation::class -> {
                 val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
@@ -175,6 +179,17 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
                 onErrorOccurred(showErrorUiOperation.error)
             }
         }
+    }
+
+    private fun processOpenUserDetailsOperation(
+        openUserDetailsUiOperation: OpenUserDetailsUiOperation
+    ) {
+        closeSoftKeyboard()
+
+        val user = (mModel as MateChatViewModel).getMateInfo()
+
+        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
+        mBinding.bottomSheet.bottomSheetContentCard.showPreview()
     }
 
     private fun setChatInfo(title: String) {
@@ -197,12 +212,6 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
                 (mModel as MateChatViewModel).sendMessage(messageText)
     }
 
-//    override fun getUserById(userId: Long): User {
-//        return (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.users.find {
-//            it.userId == userId
-//        }!!
-//    }
-
     override fun onMessageClicked(message: Message) {
         // nothing??
     }
@@ -224,11 +233,6 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
     }
 
     private fun onShowUserInfoActionClicked() {
-        closeSoftKeyboard()
-
-        val user = (mModel as MateChatViewModel).getMateInfo()
-
-        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
-        mBinding.bottomSheet.bottomSheetContentCard.showPreview()
+        (mModel as MateChatViewModel).getMateUserDetails()
     }
 }

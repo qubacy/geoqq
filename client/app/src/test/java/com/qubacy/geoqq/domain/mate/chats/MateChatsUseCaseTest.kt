@@ -1,14 +1,11 @@
 package com.qubacy.geoqq.domain.mate.chats
 
-import android.graphics.BitmapFactory
 import android.net.Uri
-import com.qubacy.geoqq.common.AnyUtility
 import com.qubacy.geoqq.common.BitmapMockContext
 import com.qubacy.geoqq.common.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
