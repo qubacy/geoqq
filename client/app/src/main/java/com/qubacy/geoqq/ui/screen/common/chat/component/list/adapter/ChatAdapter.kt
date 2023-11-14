@@ -35,9 +35,10 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: GeoChatViewHolder, position: Int) {
         val messageAdapterInfo = mItemAdapterInfoList[position]
+        val user = mCallback.getUserById(messageAdapterInfo.item.userId)
 
         holder.bind(
-            messageAdapterInfo.item, messageAdapterInfo.item.sender)
+            messageAdapterInfo.item, user)
         holder.itemView.setOnClickListener {
             mCallback.onMessageClicked(messageAdapterInfo.item)
         }

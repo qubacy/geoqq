@@ -169,18 +169,20 @@ class GeoChatFragment(
 
     }
 
-//    override fun getUserById(userId: Long): User {
-//        return (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.users.find {
-//            it.userId == userId
-//        }!!
-//    }
+    override fun getUserById(userId: Long): User {
+        return (mModel as GeoChatViewModel).geoChatUiStateFlow.value!!.users.find {
+            it.id== userId
+        }!!
+    }
 
     override fun onMessageClicked(message: Message) {
-        if ((mModel as GeoChatViewModel).isLocalUser(message.sender.id)) return
+        if ((mModel as GeoChatViewModel).isLocalUser(message.userId)) return
 
         closeSoftKeyboard()
 
-        mBinding.bottomSheet.bottomSheetContentCard.setData(message.sender)
+        val user = getUserById(message.userId)
+
+        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()
     }
 

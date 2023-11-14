@@ -12,6 +12,7 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
+import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -24,6 +25,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOp
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMessagesUiOperation
 import kotlinx.coroutines.flow.map
 
 class MateChatViewModel(
@@ -40,7 +42,7 @@ class MateChatViewModel(
     private val mMateChatUiStateFlow = mMateChatStateFlow.map { chatStateToUiState(it) }
     val mateChatUiStateFlow: LiveData<MateChatUiState?> = mMateChatUiStateFlow.asLiveData()
 
-    private var mIsWaitingForInterlocutorDetails = true
+    private var mIsWaitingForInterlocutorDetails = false
 
     init {
         mateChatUseCase.setCoroutineScope(viewModelScope)
@@ -68,6 +70,7 @@ class MateChatViewModel(
 
     fun getMateUserDetails() {
         mIsWaiting.value = true
+        mIsWaitingForInterlocutorDetails = true
 
         mateChatUseCase.getInterlocutorUserDetails()
     }
@@ -76,29 +79,34 @@ class MateChatViewModel(
         if (mIsWaiting.value == true) mIsWaiting.value = false
         if (chatState == null) return null
 
-        val uiOperations = mutableListOf<UiOperation>()
+        val uiOperationsResult = mutableListOf<UiOperation>()
 
         for (operation in chatState.newOperations) {
-            val uiOperation = processOperation(operation)
+            val uiOperations = processOperation(operation)
 
-            if (uiOperation == null) continue
+            if (uiOperations.isEmpty()) continue
 
-            uiOperations.add(uiOperation)
+            uiOperationsResult.addAll(uiOperations)
         }
 
         val title = chatState.users.find {it.id == interlocutorUserId}?.username ?: String()
 
-        return MateChatUiState(title, chatState.messages, chatState.users, uiOperations)
+        return MateChatUiState(title, chatState.messages, chatState.users, uiOperationsResult)
     }
 
-    private fun processOperation(operation: Operation): UiOperation? {
+    private fun processOperation(operation: Operation): List<UiOperation> {
         return when (operation::class) {
+            SetMessagesOperation::class -> {
+                val setMessagesOperation = operation as SetMessagesOperation
+
+                listOf(SetMessagesUiOperation())
+            }
             AddMessageChatOperation::class -> {
                 val addMessageOperation = operation as AddMessageChatOperation
 
                 // mb processing the operation..
 
-                AddMessageUiOperation(addMessageOperation.messageId)
+                listOf(AddMessageUiOperation(addMessageOperation.messageId))
             }
             SetUserDetailsOperation::class -> {
                 val setUserDetailsOperation = operation as SetUserDetailsOperation
@@ -110,14 +118,14 @@ class MateChatViewModel(
 
                 // ...
 
-                ChangeChatInfoUiOperation()
+                listOf(ChangeChatInfoUiOperation())
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
                 // mb processing the operation..
 
-                ShowErrorUiOperation(handleErrorOperation.error)
+                listOf(ShowErrorUiOperation(handleErrorOperation.error))
             }
             else -> {
                 throw IllegalStateException()
@@ -127,16 +135,20 @@ class MateChatViewModel(
 
     private fun processSetUserDetailsOperation(
         setUserDetailsOperation: SetUserDetailsOperation
-    ): UiOperation? {
+    ): List<UiOperation> {
+        val operations = mutableListOf<UiOperation>(
+            ChangeUserUiOperation(setUserDetailsOperation.userId)
+        )
+
         if (mIsWaitingForInterlocutorDetails
             && setUserDetailsOperation.userId == interlocutorUserId
         ) {
             mIsWaitingForInterlocutorDetails = false
 
-            return OpenUserDetailsUiOperation(setUserDetailsOperation.userId)
+            operations.add(OpenUserDetailsUiOperation(setUserDetailsOperation.userId))
         }
 
-        return ChangeUserUiOperation(setUserDetailsOperation.userId)
+        return operations
     }
 
     fun getMateInfo(): User {

@@ -6,11 +6,11 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
-import com.qubacy.geoqq.data.common.chat.state.ChatState
 import com.qubacy.geoqq.data.common.entity.chat.Chat
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
+import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +21,11 @@ import org.junit.runner.RunWith
 abstract class ChatFragmentTest {
     class ChatUiStateTestData(
         private val mAdapter: ChatAdapter,
-        private val mMateChatStateFlow: MutableStateFlow<ChatState?>,
+        private val mMateChatStateFlow: MutableStateFlow<MateChatState?>,
         private val mMateUiState: LiveData<ChatUiState?>
     ) {
         fun setChat(chat: Chat, messages: List<Message>, users: List<User>) {
-            val chatState = ChatState(chat, messages, users, listOf())
+            val chatState = MateChatState(messages, users, listOf())
 
             runBlocking {
                 mMateChatStateFlow.emit(chatState)
@@ -42,14 +42,13 @@ abstract class ChatFragmentTest {
 
             newMessages.add(message)
 
-            val chat = if (mMateUiState.value == null) emptyChat else mMateUiState.value!!.chat
             val users = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.users
 
             val operations = listOf(
-                AddMessageChatOperation(message.messageId)
+                AddMessageChatOperation(message.id)
             )
 
-            val chatState = ChatState(chat, newMessages, users, operations)
+            val chatState = MateChatState(newMessages, users, operations)
 
             runBlocking {
                 mMateChatStateFlow.emit(chatState)
@@ -64,14 +63,13 @@ abstract class ChatFragmentTest {
 
             newUsers.add(user)
 
-            val chat = if (mMateUiState.value == null) emptyChat else mMateUiState.value!!.chat
             val messages = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.messages
 
             val operations = listOf(
-                AddUserChatOperation(user.userId)
+                AddUserChatOperation(user.id)
             )
 
-            val chatState = ChatState(chat, messages, newUsers, operations)
+            val chatState = MateChatState(messages, newUsers, operations)
 
             runBlocking {
                 mMateChatStateFlow.emit(chatState)
@@ -86,7 +84,7 @@ abstract class ChatFragmentTest {
                 ChangeChatInfoOperation()
             )
 
-            val chatState = ChatState(chat, messages, users, operations)
+            val chatState = MateChatState(messages, users, operations)
 
             runBlocking {
                 mMateChatStateFlow.emit(chatState)
@@ -94,7 +92,6 @@ abstract class ChatFragmentTest {
         }
 
         fun showError(error: Error, emptyChat: Chat = Chat()) {
-            val chat = if (mMateUiState.value == null) emptyChat else mMateUiState.value!!.chat
             val users = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.users
             val messages = if (mMateUiState.value == null) listOf() else mMateUiState.value!!.messages
 
@@ -102,7 +99,7 @@ abstract class ChatFragmentTest {
                 HandleErrorOperation(error)
             )
 
-            val chatState = ChatState(chat, messages, users, operations)
+            val chatState = MateChatState(messages, users, operations)
 
             runBlocking {
                 mMateChatStateFlow.emit(chatState)

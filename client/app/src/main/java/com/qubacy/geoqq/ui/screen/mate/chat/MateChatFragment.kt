@@ -18,6 +18,7 @@ import com.google.android.material.transition.MaterialContainerTransform
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
+import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
@@ -32,6 +33,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperat
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMessagesUiOperation
 
 class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider {
     private val mArgs by navArgs<MateChatFragmentArgs>()
@@ -134,7 +136,7 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
         while (true) {
             val uiOperation = chatUiState.takeUiOperation() ?: break
 
-            processUiOperation(uiOperation, isListEmpty)
+            processUiOperation(chatUiState, uiOperation, isListEmpty)
         }
     }
 
@@ -146,10 +148,17 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
         // what else?
     }
 
-    private fun processUiOperation(uiOperation: UiOperation, isListEmpty: Boolean) {
+    private fun processUiOperation(
+        chatUiState: MateChatUiState,
+        uiOperation: UiOperation,
+        isListEmpty: Boolean
+    ) {
         when (uiOperation::class) {
+            SetMessagesUiOperation::class -> {
+                initChat(chatUiState)
+            }
             AddMessageUiOperation::class -> {
-                if (isListEmpty) return
+                if (isListEmpty) return //??
 
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
                 val message = (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.messages.find {
@@ -166,12 +175,12 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
             ChangeUserUiOperation::class -> {
                 val changeUserUiOperation = uiOperation as ChangeUserUiOperation
 
-                // todo: what to do here?
+                processChangeUserOperation(changeUserUiOperation, chatUiState)
             }
             ChangeChatInfoUiOperation::class -> {
                 val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
 
-                setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.title)
+                setChatInfo(chatUiState.title)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
@@ -179,6 +188,16 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
                 onErrorOccurred(showErrorUiOperation.error)
             }
         }
+    }
+
+    private fun processChangeUserOperation(
+        changeUserUiOperation: ChangeUserUiOperation,
+        chatUiState: MateChatUiState
+    ) {
+        if (changeUserUiOperation.userId == (mModel as MateChatViewModel).interlocutorUserId)
+            setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.title)
+
+        initChat(chatUiState)
     }
 
     private fun processOpenUserDetailsOperation(
@@ -209,7 +228,14 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
         mBinding.messageSendingSection.sendingMessage.text?.clear()
 
-                (mModel as MateChatViewModel).sendMessage(messageText)
+        (mModel as MateChatViewModel).sendMessage(messageText)
+    }
+
+    override fun getUserById(userId: Long): User {
+        val user = (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.users
+            .find { it.id == userId }!!
+
+        return user
     }
 
     override fun onMessageClicked(message: Message) {

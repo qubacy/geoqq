@@ -1,8 +1,10 @@
 package com.qubacy.geoqq.ui.screen.mate.chat
 
+import android.net.Uri
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
@@ -15,12 +17,13 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.data.common.chat.state.ChatState
-import com.qubacy.geoqq.data.common.entity.chat.message.Message
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.mates.chat.entity.MateChat
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.message.Message
+import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
+import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.MateChatsFragmentDirections
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -68,8 +71,8 @@ class MateChatFragmentTest : ChatFragmentTest() {
 
         mMateChatUiStateTestData = ChatUiStateTestData(
             adapter!!,
-            mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<ChatState?>,
-            mModel.mateChatUiStateFlow
+            mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateChatState?>,
+            mModel.mateChatUiStateFlow as LiveData<ChatUiState?>
         )
     }
 
@@ -153,7 +156,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
 
     @Test
     fun messageAppearsOnAddMessageOperationGottenOperationGottenTest() {
-        val user = User(0, "user")
+        val user = User(0, "user", "test", Uri.EMPTY, false)
         val message = Message(0, 0, "message", 1697433645440)
 
         val chat = MateChat(0, null, String())
@@ -172,8 +175,8 @@ class MateChatFragmentTest : ChatFragmentTest() {
     fun threeMessagesAppearOnSetChatOperationWithThreeMessagesGottenTest() {
         val chat = MateChat(0, null, "chat")
         val users = listOf(
-            User(0, "me"),
-            User(1, "other"),
+            User(0, "me", "test", Uri.EMPTY, false),
+            User(1, "other", "test", Uri.EMPTY, false),
         )
         val messages = listOf(
             Message(0, 0, "hi", 1697441985606),
@@ -195,8 +198,8 @@ class MateChatFragmentTest : ChatFragmentTest() {
     fun scrollingDownOnNewMessagesAddingTest() {
         val chat = MateChat(0, null, "chat")
         val users = listOf(
-            User(0, "me"),
-            User(1, "other"),
+            User(0, "me", "test", Uri.EMPTY, false),
+            User(1, "other", "test", Uri.EMPTY, false),
         )
         val messages = listOf(
             Message(0, 0, "hi", 1697441985606),
@@ -229,8 +232,8 @@ class MateChatFragmentTest : ChatFragmentTest() {
     fun newUserProcessingTest() {
         val chat = MateChat(0, null, "chat")
         val users = listOf(
-            User(0, "me"),
-            User(1, "other"),
+            User(0, "me", "test", Uri.EMPTY, false),
+            User(1, "other", "test", Uri.EMPTY, false),
         )
         val messages = listOf(
             Message(0, 0, "hi", 1697441985606),
@@ -238,7 +241,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
             Message(2, 0, "no hi you", 1697441985606),
         )
 
-        val newUser = User(2, "new")
+        val newUser = User(2, "new", "test", Uri.EMPTY, false)
         val newMessage = Message(3, 2, "hi there", 1697441985606)
 
         mMateChatFragmentScenarioRule.onFragment {

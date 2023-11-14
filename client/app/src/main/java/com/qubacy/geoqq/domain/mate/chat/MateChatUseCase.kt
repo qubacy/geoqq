@@ -23,6 +23,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtensio
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserResult
+import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessDataMessageResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
@@ -158,7 +159,7 @@ class MateChatUseCase(
         }
 
         val state = MateChatState(
-            mateMessages, users
+            mateMessages, users, listOf(SetMessagesOperation())
         )
 
         postState(state)
@@ -168,7 +169,7 @@ class MateChatUseCase(
 
     private fun processDataMessage(dataMessage: DataMessage, users: List<User>): Result {
         val user = users.find { it.id == dataMessage.userId }!!
-        val message = Message(dataMessage.id, user, dataMessage.text, dataMessage.time)
+        val message = Message(dataMessage.id, user.id, dataMessage.text, dataMessage.time)
 
         return ProcessDataMessageResult(message)
     }
