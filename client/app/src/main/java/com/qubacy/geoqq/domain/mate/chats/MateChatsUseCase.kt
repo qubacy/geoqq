@@ -48,7 +48,7 @@ class MateChatsUseCase(
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 
-        when (result::class) {
+        val result = when (result::class) {
             GetChatsResult::class -> {
                 val getChatsResult = result as GetChatsResult
 
@@ -61,6 +61,8 @@ class MateChatsUseCase(
             }
             else -> { return false }
         }
+
+        if (result is ErrorResult) processError(result.errorId)
 
         return true
     }
@@ -95,11 +97,11 @@ class MateChatsUseCase(
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser
             else it
-        }
+        }!!
         val state = MateChatsState(
-            prevState?.chats ?: listOf(),
-            updatedUsers ?: listOf(),
-            prevState?.mateRequestCount ?: 0,
+            prevState.chats,
+            updatedUsers,
+            prevState.mateRequestCount,
             listOf(SetUserDetailsOperation(getUserByIdResult.user.id))
         )
 
