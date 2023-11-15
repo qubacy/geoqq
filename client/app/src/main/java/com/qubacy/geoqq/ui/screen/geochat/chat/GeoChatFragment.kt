@@ -24,7 +24,7 @@ import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.yandex.mapkit.geometry.Point

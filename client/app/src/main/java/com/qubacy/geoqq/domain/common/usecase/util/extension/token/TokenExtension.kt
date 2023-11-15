@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 
 interface TokenExtension {
-    suspend fun getAccessTokenExtension(
+    suspend fun getAccessToken(
         tokenDataRepository: TokenDataRepository
     ): Result {
         val getTokensResult = tokenDataRepository.getTokens()

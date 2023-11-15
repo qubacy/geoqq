@@ -17,11 +17,11 @@ class MateChatsAdapter(
         private val mBinding: ComponentMateChatPreviewBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
 
-        fun bind(chat: MateChat) {
-            mBinding.name.text = chat.chatName
+        fun bind(chat: MateChat, title: String) {
+            mBinding.name.text = title
 
-            if (mBinding.lastMessage != null) {
-                mBinding.lastMessage.text = chat.lastMessage!!.text
+            if (chat.lastMessage != null) {
+                mBinding.lastMessage.text = chat.lastMessage.text
                 mBinding.lastMessageTimestamp.text = TimeUtils.longToHoursMinutesSecondsFormattedString(
                     chat.lastMessage.timestamp, Locale.getDefault(), TimeZone.getDefault()) // todo: is it OK to do it here??
             }
@@ -39,7 +39,9 @@ class MateChatsAdapter(
     override fun onBindViewHolder(holder: MateChatViewHolder, position: Int) {
         val chatAdapterInfo = mItemAdapterInfoList[position]
 
-        holder.bind(chatAdapterInfo.item)
+        val interlocutorUser = mCallback.getUser(chatAdapterInfo.item.interlocutorUserId)
+
+        holder.bind(chatAdapterInfo.item, interlocutorUser.username)
         holder.itemView.setOnClickListener {
             mCallback.onChatClicked(chatAdapterInfo.item, holder.itemView)
         }
@@ -55,5 +57,13 @@ class MateChatsAdapter(
         notifyItemMoved(changedItemPos, 0)
 
         return 0
+    }
+
+    fun updateChatUserData(userId: Long) {
+        val itemInfo = mItemAdapterInfoList.find { it.item.interlocutorUserId == userId }!!
+
+        val pos = super.changeItem(itemInfo.item)
+
+        notifyItemChanged(pos)
     }
 }

@@ -13,19 +13,18 @@ import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.domain.mate.chat.operation.SetUserDetailsOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
 import kotlinx.coroutines.flow.map
 
 class MateChatViewModel(

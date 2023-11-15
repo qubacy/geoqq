@@ -19,16 +19,3 @@ class ChatNetworkModel(
 fun ChatNetworkModel.toDataMateChat(): DataMateChat {
     return DataMateChat(id, userId, newMessageCount, lastMessage?.toDataMessage())
 }
-
-@JsonClass(generateAdapter = true)
-class ChatUserInfo(
-    val id: Long,
-    val username: String,
-    val isMate: Boolean,
-    @Json(name = "avatar-id") val avatarId: Long
-)
-
-@JsonClass(generateAdapter = true)
-class ChatLastMessage(
-
-)

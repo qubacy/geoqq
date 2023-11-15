@@ -1,8 +1,9 @@
-package com.qubacy.geoqq.ui.screen.common.chat.model.operation
+package com.qubacy.geoqq.ui.screen.mate.chats.model.operation
 
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 
-class AddUserUiOperation(
-    val userId: Long
+class SetMateChatsUiOperation(
+
 ) : UiOperation() {
+
 }

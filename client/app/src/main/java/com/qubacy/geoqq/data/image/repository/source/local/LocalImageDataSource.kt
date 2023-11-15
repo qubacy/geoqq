@@ -55,7 +55,7 @@ class LocalImageDataSource(
         return imageUri
     }
 
-    fun saveImageOnDevice(title: String, image: Bitmap): Uri {
+    fun saveImageOnDevice(title: String, image: Bitmap): Uri? {
         val contentValues = ContentValues()
 
         contentValues.put(Images.Media.TITLE, title)
@@ -71,11 +71,11 @@ class LocalImageDataSource(
         try {
             val contentUri = contentResolver.insert(Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-            if (contentUri == null) throw IllegalStateException()
+            if (contentUri == null) return contentUri
 
             val imageOutputStream = contentResolver.openOutputStream(contentUri)
 
-            if (imageOutputStream == null) throw IllegalStateException()
+            if (imageOutputStream == null) return null
 
             try {
                 image.compress(Bitmap.CompressFormat.JPEG, DEFAULT_IMAGE_QUALITY, imageOutputStream)
@@ -88,9 +88,9 @@ class LocalImageDataSource(
 
         } catch (e: Exception) {
             Log.d(TAG, e.message ?: "Unknown exception!")
-
-            throw e // todo: think of this.. do we really need to act like this??
         }
+
+        return null
     }
 
     fun getImageBitmapByUri(imageUri: Uri): Bitmap? {

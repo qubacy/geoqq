@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.domain.mate.chat.result
+package com.qubacy.geoqq.domain.mate.chats.result
 
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 
-class ProcessGetUserByIdResult(
+class ProcessGetChatsResult(
 
 ) : Result() {
 

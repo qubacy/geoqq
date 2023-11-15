@@ -7,7 +7,6 @@ class MateChat(
     val chatId: Long,
     val interlocutorUserId: Long,
     val avatarUri: Uri,
-    val chatName: String,
     val lastMessage: MessageBase?
 ) {
     override fun equals(other: Any?): Boolean {

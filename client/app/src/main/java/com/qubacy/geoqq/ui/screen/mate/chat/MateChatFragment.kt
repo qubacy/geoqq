@@ -33,7 +33,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperat
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
 
 class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider {
     private val mArgs by navArgs<MateChatFragmentArgs>()

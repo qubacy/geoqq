@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.mate.chat.operation
+package com.qubacy.geoqq.domain.common.operation.chat
 
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 

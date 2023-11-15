@@ -105,6 +105,17 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
     }
 
     protected open fun changeItem(item: ItemType): Int {
+        val itemPosAndInfo = getItemInfoAndPosForItem(item)
+
+        if (itemPosAndInfo == null)
+            throw IllegalArgumentException()
+
+        itemPosAndInfo.second.item = item
+
+        return itemPosAndInfo.first
+    }
+
+    protected fun getItemInfoAndPosForItem(item: ItemType): Pair<Int, ItemAdapterInfo<ItemType>>? {
         var defaultItemInfo: ItemAdapterInfo<ItemType>? = null
         var defaultItemPos: Int = -1
 
@@ -119,12 +130,9 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
             }
         }
 
-        if (defaultItemInfo == null)
-            throw IllegalArgumentException()
+        if (defaultItemInfo == null) return null
 
-        defaultItemInfo.item = item
-
-        return defaultItemPos
+        return Pair(defaultItemPos, defaultItemInfo)
     }
 
     override fun wasViewHolderAnimated(viewHolder: RecyclerView.ViewHolder): Boolean {

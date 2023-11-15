@@ -44,7 +44,7 @@ interface UserExtension {
         return GetUserResult(user)
     }
 
-    private suspend fun getDataUser(
+    suspend fun getDataUser(
         userId: Long, accessToken: String, userDataRepository: UserDataRepository
     ): Result {
         val getUserResult = userDataRepository.getUserById(userId, accessToken)

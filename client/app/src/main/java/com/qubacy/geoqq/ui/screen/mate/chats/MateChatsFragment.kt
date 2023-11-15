@@ -15,6 +15,7 @@ import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
+import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
@@ -26,8 +27,10 @@ import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapterCallba
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMateChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUserUiOperation
 
 class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     private lateinit var mBinding: FragmentMateChatsBinding
@@ -129,22 +132,25 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     }
 
     private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
-        val isListEmpty = mAdapter.itemCount <= 0
+        //val isListEmpty = mAdapter.itemCount <= 0
 
-        if (isListEmpty) initChats(chatsUiState)
+        //if (isListEmpty) initChats(chatsUiState)
         if (chatsUiState.uiOperationCount() <= 0) return
 
         while (true) {
             val uiOperation = chatsUiState.takeUiOperation() ?: break
 
-            processUiOperation(uiOperation, isListEmpty)
+            processUiOperation(uiOperation, chatsUiState)
         }
     }
 
-    private fun processUiOperation(uiOperation: UiOperation, isListEmpty: Boolean) {
+    private fun processUiOperation(uiOperation: UiOperation, state: MateChatsUiState) {
         when (uiOperation::class) {
+            SetMateChatsUiOperation::class -> {
+                initChats(state)
+            }
             AddChatUiOperation::class -> {
-                if (isListEmpty) return
+                //if (isListEmpty) return
 
                 val addChatUiOperation = uiOperation as AddChatUiOperation
                 val chat = (mModel as MateChatsViewModel)
@@ -153,6 +159,11 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
                     }!!
 
                 mAdapter.addItem(chat)
+            }
+            UpdateUserUiOperation::class -> {
+                val updateUserUiOperation = uiOperation as UpdateUserUiOperation
+
+                mAdapter.updateChatUserData(updateUserUiOperation.userId)
             }
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation
@@ -226,7 +237,16 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         findNavController().navigate(R.id.action_mateChatsFragment_to_mateRequestsFragment)
     }
 
+    override fun getUser(userId: Long): User {
+        val user = (mModel as MateChatsViewModel).mateChatsUiStateFlow.value!!.users
+            .find { it.id == userId }!!
+
+        return user
+    }
+
     override fun onChatClicked(chatPreview: MateChat, chatView: View) {
+        (requireActivity().application as Application).appContainer.clearMateChatsContainer()
+
         val transitionName = getString(R.string.transition_mate_chats_to_mate_chat)
         val extras = FragmentNavigatorExtras(chatView to transitionName)
         val directions = MateChatsFragmentDirections

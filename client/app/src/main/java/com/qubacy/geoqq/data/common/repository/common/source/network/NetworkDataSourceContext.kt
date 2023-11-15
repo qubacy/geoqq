@@ -13,10 +13,20 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.Locale
 
 object NetworkDataSourceContext {
-    const val BASE_URL = "http://10.0.2.2:3001"
+    const val TAG = "NetworkContext"
+
+    const val BASE_URL = "https://60c7-5-101-44-221.ngrok-free.app"//"http://10.0.2.2:3001"
 
     private val mOkHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())
+//        .addInterceptor {
+//            val request = it.request()
+//            val response = it.proceed(request)
+//
+//            Log.d(TAG, response.body()?.string() ?: String())
+//
+//            response
+//        }
         .build()
 
     private val mMoshi = Moshi.Builder()

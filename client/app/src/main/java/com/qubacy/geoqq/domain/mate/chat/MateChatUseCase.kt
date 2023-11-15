@@ -24,10 +24,10 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAcc
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserResult
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.domain.mate.chat.operation.SetUserDetailsOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessDataMessageResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
-import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetUserByIdResult
+import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ class MateChatUseCase(
     }
 
     private suspend fun processGetUserByIdResult(getUserByIdResult: GetUserByIdResult): Result {
-        val getAccessTokenResult = getAccessTokenExtension(tokenDataRepository)
+        val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
         if (getAccessTokenResult is ErrorResult) return getAccessTokenResult
 
@@ -116,7 +116,7 @@ class MateChatUseCase(
     private suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
         lockLastState()
 
-        val getAccessTokenResult = getAccessTokenExtension(tokenDataRepository)
+        val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
         if (getAccessTokenResult is ErrorResult) return getAccessTokenResult
 
