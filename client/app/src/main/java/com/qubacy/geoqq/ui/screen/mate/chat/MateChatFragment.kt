@@ -107,7 +107,7 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
             layoutManager = AnimatedListLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mAdapter
-            itemAnimator = AnimatedListItemAnimator(mAdapter)
+            //itemAnimator = AnimatedListItemAnimator(mAdapter) // todo: has to be fixed in advance!!
         }
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
             onSendingMessageButtonClicked()
@@ -145,7 +145,13 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
     private fun initChat(chatUiState: MateChatUiState) {
         setChatInfo(chatUiState.title)
 
+        mBinding.chatRecyclerView.itemAnimator = null
         mAdapter.setItems(chatUiState.messages)
+
+        // todo: is it ok?:
+        mBinding.chatRecyclerView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            mBinding.chatRecyclerView.itemAnimator = AnimatedListItemAnimator(mAdapter)
+        }
 
         // what else?
     }

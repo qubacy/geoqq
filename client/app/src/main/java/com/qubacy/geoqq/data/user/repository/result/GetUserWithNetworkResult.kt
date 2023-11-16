@@ -4,7 +4,8 @@ import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.user.model.DataUser
 
 class GetUserWithNetworkResult(
-    val user: DataUser
+    val user: DataUser,
+    val isNew: Boolean
 ) : Result() {
 
 }

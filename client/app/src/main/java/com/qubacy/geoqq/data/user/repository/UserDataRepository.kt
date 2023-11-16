@@ -24,7 +24,7 @@ class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : FlowableDataRepository() {
-    private fun insertUserIntoDatabase(dataUser: DataUser): Result {
+    private fun insertOrUpdateUserEntityWithDatabase(dataUser: DataUser): Result {
         val userEntity = UserEntity(
             dataUser.id,
             dataUser.username,
@@ -34,54 +34,58 @@ class UserDataRepository(
         )
 
         try {
-            localUserDataSource.insertUser(userEntity)
+            val gottenUserEntity = localUserDataSource.getUserById(userEntity.id)
+
+            if (userEntity == gottenUserEntity)
+                return InsertUserIntoDatabaseResult(false)
+
+            if (gottenUserEntity == null) localUserDataSource.insertUser(userEntity)
+            else localUserDataSource.updateUser(userEntity)
 
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return InsertUserIntoDatabaseResult()
+        return InsertUserIntoDatabaseResult(true)
     }
 
-    private suspend fun getUserWithNetwork(
-        userId: Long, accessToken: String, isForResult: Boolean
-    ): Any {
+    private suspend fun getUserWithNetworkAndSaveUpdated(
+        userId: Long, accessToken: String
+    ): Result {
         val networkCall = networkUserDataSource.getUser(userId, accessToken) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
-        if (executeNetworkRequestResult is ErrorResult) {
-            return if (isForResult) executeNetworkRequestResult
-            else emitResult(executeNetworkRequestResult)
-        }
-        if (executeNetworkRequestResult is InterruptionResult) {
-            return if (isForResult) executeNetworkRequestResult
-            else emitResult(executeNetworkRequestResult)
-        }
+        if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult
+        if (executeNetworkRequestResult is InterruptionResult) return executeNetworkRequestResult
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
             .response as GetUserResponse
 
-        val insertUserResult = insertUserIntoDatabase(responseBody.toDataUser())
+        val insertUserResult = insertOrUpdateUserEntityWithDatabase(responseBody.toDataUser())
 
-        if (insertUserResult is ErrorResult) {
-            return if (isForResult) insertUserResult
-            else emitResult(insertUserResult)
-        }
-        if (insertUserResult is InterruptionResult) {
-            return if (isForResult) insertUserResult
-            else emitResult(insertUserResult)
-        }
+        if (insertUserResult is ErrorResult) return insertUserResult
+        if (insertUserResult is InterruptionResult) return insertUserResult
 
-        return if (isForResult) GetUserWithNetworkResult(responseBody.toDataUser())
-        else emitResult(GetUserByIdResult(responseBody.toDataUser()))
+        val insertUserResultCast = insertUserResult as InsertUserIntoDatabaseResult
+
+        return GetUserWithNetworkResult(
+            responseBody.toDataUser(), insertUserResultCast.isUpdatedOrInserted)
     }
 
     private suspend fun getUserWithNetworkForUpdate(userId: Long, accessToken: String) {
-        getUserWithNetwork(userId, accessToken, false)
+        val getUserWithNetworkResult = getUserWithNetworkAndSaveUpdated(userId, accessToken)
+
+        if (getUserWithNetworkResult is ErrorResult) return emitResult(getUserWithNetworkResult)
+        if (getUserWithNetworkResult is InterruptionResult) return emitResult(getUserWithNetworkResult)
+
+        val getUserWithNetworkResultCast = getUserWithNetworkResult as GetUserWithNetworkResult
+
+        if (getUserWithNetworkResultCast.isNew)
+            emitResult(GetUserByIdResult(getUserWithNetworkResultCast.user))
     }
 
     private suspend fun getUserWithNetworkForResult(userId: Long, accessToken: String): Result {
-        return getUserWithNetwork(userId, accessToken, true) as Result
+        return getUserWithNetworkAndSaveUpdated(userId, accessToken)
     }
 
     private fun getUserWithDatabase(userId: Long): Result {

@@ -16,8 +16,8 @@ import com.qubacy.geoqq.data.common.repository.network.updatable.UpdatableDataRe
 import com.qubacy.geoqq.data.common.repository.network.updatable.source.update.update.Update
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithDatabaseResult
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithNetworkResult
-import com.qubacy.geoqq.data.mate.message.repository.result.InsertMessagesIntoDatabaseResult
+import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithNetworkAndSaveResult
+import com.qubacy.geoqq.data.mate.message.repository.result.InsertOrUpdateMessagesEntitiesWithDatabaseResult
 import com.qubacy.geoqq.data.mate.message.repository.result.SendMessageResult
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
@@ -46,7 +46,7 @@ class MateMessageDataRepository(
         return GetMessagesWithDatabaseResult(messages.map { it.toDataMessage() })
     }
 
-    private fun getMessagesWithNetwork(
+    private fun getMessagesWithNetworkAndSave(
         chatId: Long,
         offset: Int,
         count: Int,
@@ -61,27 +61,56 @@ class MateMessageDataRepository(
 
         val networkResponse = (networkRequestResult as ExecuteNetworkRequestResult)
             .response as MessageListResponse
+        val messagesFromNetwork = networkResponse.messages.map{ it.toDataMessage() }
 
-        return GetMessagesWithNetworkResult(networkResponse.messages.map{ it.toDataMessage() })
+        val insertOrUpdateMessagesEntitiesWithDatabaseResult =
+            insertOrUpdateMessagesEntitiesWithDatabase(chatId, messagesFromNetwork)
+
+        if (insertOrUpdateMessagesEntitiesWithDatabaseResult is ErrorResult)
+            return insertOrUpdateMessagesEntitiesWithDatabaseResult
+        if (insertOrUpdateMessagesEntitiesWithDatabaseResult is InterruptionResult)
+            return insertOrUpdateMessagesEntitiesWithDatabaseResult
+
+        val insertOrUpdateMessagesEntitiesWithDatabaseResultCast =
+            insertOrUpdateMessagesEntitiesWithDatabaseResult
+                    as InsertOrUpdateMessagesEntitiesWithDatabaseResult
+
+        return GetMessagesWithNetworkAndSaveResult(
+            messagesFromNetwork,
+            insertOrUpdateMessagesEntitiesWithDatabaseResultCast.areInsertedOrUpdated
+        )
     }
 
-    private fun insertMessagesIntoDatabase(
+    private fun insertOrUpdateMessagesEntitiesWithDatabase(
         chatId: Long,
         messages: List<DataMessage>
     ): Result {
+        var updatedMessagesCount = 0
+
         try {
             for (message in messages) {
                 val mateMessageEntity = MateMessageEntity(
                     message.id, chatId, message.userId, message.text, message.time / 1000
                 )
 
-                localMateMessageDataSource.insertMateMessage(mateMessageEntity)
+                val gottenMateMessage = localMateMessageDataSource.getMateMessage(chatId, message.id)
+
+                if (gottenMateMessage == mateMessageEntity) continue
+
+                if (gottenMateMessage == null)
+                    localMateMessageDataSource.insertMateMessage(mateMessageEntity)
+                else
+                    localMateMessageDataSource.updateMateMessage(mateMessageEntity)
+
+                updatedMessagesCount++
             }
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return InsertMessagesIntoDatabaseResult()
+        return InsertOrUpdateMessagesEntitiesWithDatabaseResult(
+            updatedMessagesCount > 0
+        )
     }
 
     suspend fun getMessages(accessToken: String, chatId: Long, count: Int) {
@@ -99,7 +128,7 @@ class MateMessageDataRepository(
             emitResult(GetMessagesResult(getMessagesWithDatabaseResultCast.messages))
 
         val curMessageCount = count - mPrevMessageCount
-        val getMessagesWithNetworkResult = getMessagesWithNetwork(
+        val getMessagesWithNetworkResult = getMessagesWithNetworkAndSave(
             chatId, mPrevMessageCount, curMessageCount, accessToken)
 
         if (getMessagesWithNetworkResult is ErrorResult)
@@ -109,17 +138,10 @@ class MateMessageDataRepository(
 
         mPrevMessageCount = count
         val getMessagesWithNetworkResultCast =
-            getMessagesWithNetworkResult as GetMessagesWithNetworkResult
+            getMessagesWithNetworkResult as GetMessagesWithNetworkAndSaveResult
 
-        emitResult(GetMessagesResult(getMessagesWithNetworkResult.messages))
-
-        val insertMessagesIntoDatabaseResult = insertMessagesIntoDatabase(
-            chatId, getMessagesWithNetworkResultCast.messages)
-
-        if (insertMessagesIntoDatabaseResult is ErrorResult)
-            return emitResult(insertMessagesIntoDatabaseResult)
-        if (insertMessagesIntoDatabaseResult is InterruptionResult)
-            return emitResult(insertMessagesIntoDatabaseResult)
+        if (getMessagesWithNetworkResultCast.areUpdated)
+            emitResult(GetMessagesResult(getMessagesWithNetworkResultCast.messages))
 
         val initUpdateSourceResult = initUpdateSource()
 

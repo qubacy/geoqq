@@ -24,7 +24,7 @@ import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
         )
     ]
 )
-class MateMessageEntity(
+data class MateMessageEntity(
     @ColumnInfo(name = ID_PROP_NAME) val id: Long,
     @ColumnInfo(name = CHAT_ID_PROP_NAME) val chatId: Long,
     @ColumnInfo(name = USER_ID_PROP_NAME) val userId: Long,
@@ -43,5 +43,5 @@ class MateMessageEntity(
 }
 
 fun MateMessageEntity.toDataMessage(): DataMessage {
-    return DataMessage(id, chatId, text, timeInSec * 1000)
+    return DataMessage(id, userId, text, timeInSec * 1000)
 }

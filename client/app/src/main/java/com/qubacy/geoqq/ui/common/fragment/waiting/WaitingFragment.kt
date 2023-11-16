@@ -56,7 +56,8 @@ abstract class WaitingFragment(
 
         // todo: it'd be better to play a provided animation when it's added to the container;
 
-        (view as ViewGroup).addView(mLoadingView)
+        if (mLoadingView!!.parent == null)
+            (view as ViewGroup).addView(mLoadingView)
     }
 
     private fun initLoadingView() {

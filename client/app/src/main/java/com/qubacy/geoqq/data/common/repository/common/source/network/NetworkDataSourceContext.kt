@@ -15,7 +15,7 @@ import java.util.Locale
 object NetworkDataSourceContext {
     const val TAG = "NetworkContext"
 
-    const val BASE_URL = "http://10.0.2.2:3001"
+    const val BASE_URL = "https://4e6e-176-116-169-147.ngrok-free.app"//"http://10.0.2.2:3001"
 
     private val mOkHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())

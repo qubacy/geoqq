@@ -12,6 +12,7 @@ import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsWithDatabaseResult
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsWithNetworkResult
+import com.qubacy.geoqq.data.mate.chat.repository.result.InsertOrUpdateChatsEntitiesWithDatabaseResult
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatEntity
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatWithLastMessageModel
@@ -22,6 +23,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpda
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.toDataMessage
+import com.qubacy.geoqq.data.user.repository.result.InsertUserIntoDatabaseResult
 import retrofit2.Call
 
 class MateChatDataRepository(
@@ -56,7 +58,7 @@ class MateChatDataRepository(
         return GetChatsWithDatabaseResult(dataChats)
     }
 
-    private fun getChatsWithNetwork(offset: Int, count: Int, accessToken: String): Result {
+    private fun getChatsWithNetworkAndSave(offset: Int, count: Int, accessToken: String): Result {
         val networkCall = networkMateChatDataSource.getChats(offset, count, accessToken) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
@@ -66,21 +68,36 @@ class MateChatDataRepository(
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
             .response as GetChatsResponse
 
-        return GetChatsWithNetworkResult(responseBody.chats.map { it.toDataMateChat() })
+        val chatsFromNetwork = responseBody.chats.map { it.toDataMateChat() }
+
+        val insertChatsIntoDatabaseResult = insertOrUpdateChatsEntitiesWithDatabase(chatsFromNetwork)
+
+        if (insertChatsIntoDatabaseResult is ErrorResult) return insertChatsIntoDatabaseResult
+        if (insertChatsIntoDatabaseResult is InterruptionResult) return insertChatsIntoDatabaseResult
+
+        val insertChatsIntoDatabaseResultCast =
+            insertChatsIntoDatabaseResult as InsertOrUpdateChatsEntitiesWithDatabaseResult
+
+        return GetChatsWithNetworkResult(
+            responseBody.chats.map { it.toDataMateChat() },
+            insertChatsIntoDatabaseResultCast.areUpdatedOrInserted
+        )
     }
 
-    private fun insertChatsIntoDatabase(chats: List<DataMateChat>): Result {
+    private fun insertOrUpdateChatsEntitiesWithDatabase(chats: List<DataMateChat>): Result {
+        var updatedOrInsertedChatsCount = 0
+
         try {
             for (chat in chats) {
                 // todo: isn't it cursed?? try to find a better way
 
-                val chatEntity = MateChatEntity(
-                    chat.id, chat.userId, chat.newMessageCount, null)
+                var lastMessageUpdated = false
 
-                localMateChatDataSource.insertChat(chatEntity)
+                var gottenLastMessageEntity: MateMessageEntity? = null
+                var lastMessageEntity: MateMessageEntity? = null
 
                 if (chat.lastMessage != null) {
-                    val lastMessageEntity = MateMessageEntity(
+                    lastMessageEntity = MateMessageEntity(
                         chat.lastMessage.id,
                         chat.id,
                         chat.lastMessage.userId,
@@ -88,20 +105,43 @@ class MateChatDataRepository(
                         chat.lastMessage.time / 1000
                     )
 
-                    localMateMessageDataSource.insertMateMessage(lastMessageEntity)
+                    gottenLastMessageEntity = localMateMessageDataSource
+                        .getMateMessage(chat.id, chat.lastMessage.id)
 
-                    val chatEntityWithLastMessage = MateChatEntity(
-                        chat.id, chat.userId, chat.newMessageCount, lastMessageEntity.id
-                    )
-
-                    localMateChatDataSource.updateChat(chatEntityWithLastMessage)
+                    if (gottenLastMessageEntity != lastMessageEntity)
+                        lastMessageUpdated = true
                 }
+
+                val chatEntity = MateChatEntity(
+                    chat.id, chat.userId, chat.newMessageCount, chat.lastMessage?.id)
+
+                val gottenChatEntity = localMateChatDataSource.getChatById(chat.id)
+
+                if (gottenChatEntity != null && !lastMessageUpdated) {
+                    if (chatEntity == gottenChatEntity.mateChatEntity) continue
+                }
+
+                if (gottenChatEntity == null)
+                    localMateChatDataSource.insertChat(chatEntity)
+                else
+                    localMateChatDataSource.updateChat(chatEntity)
+
+                if (lastMessageUpdated) {
+                    if (gottenLastMessageEntity == null)
+                        localMateMessageDataSource.insertMateMessage(lastMessageEntity!!)
+                    else
+                        localMateMessageDataSource.updateMateMessage(lastMessageEntity!!)
+                }
+
+                updatedOrInsertedChatsCount++
             }
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return Result()
+        return InsertOrUpdateChatsEntitiesWithDatabaseResult(
+            updatedOrInsertedChatsCount > 0
+        )
     }
 
     // todo: USE CASE class has to add new users BEFORE CALLING THIS!!!!!
@@ -118,7 +158,7 @@ class MateChatDataRepository(
             emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats))
 
         val curNetworkRequestChatCount = count - mPrevChatCount
-        val getChatsWithNetworkResult = getChatsWithNetwork(
+        val getChatsWithNetworkResult = getChatsWithNetworkAndSave(
             mPrevChatCount, curNetworkRequestChatCount, accessToken)
 
         if (getChatsWithNetworkResult is ErrorResult) return emitResult(getChatsWithDatabaseResult)
@@ -128,15 +168,8 @@ class MateChatDataRepository(
         mPrevChatCount = count
         val getChatsWithNetworkResultCast = getChatsWithNetworkResult as GetChatsWithNetworkResult
 
-        emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats))
-
-        val insertChatsIntoDatabaseResult = insertChatsIntoDatabase(
-            getChatsWithNetworkResultCast.chats)
-
-        if (insertChatsIntoDatabaseResult is ErrorResult)
-            return emitResult(insertChatsIntoDatabaseResult)
-        if (insertChatsIntoDatabaseResult is InterruptionResult)
-            return emitResult(insertChatsIntoDatabaseResult)
+        if (getChatsWithNetworkResultCast.areNew)
+            emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats))
 
         val startChatsUpdateListeningResult = initUpdateSource()
 

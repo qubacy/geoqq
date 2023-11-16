@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chat
 
+import android.util.Log
 import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -100,13 +101,6 @@ class MateChatUseCase(
 
         val prevState = lockLastState()
 
-        val prevUser = prevState?.users?.find { it.id == updatedUser.id }
-
-        if (prevUser != null) {
-            if (prevUser == updatedUser)
-                return ProcessGetUserByIdResult()
-        }
-
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser
             else it
@@ -114,8 +108,10 @@ class MateChatUseCase(
         val state = MateChatState(
             prevState?.messages ?: listOf(),
             updatedUsers ?: listOf(),
-            listOf(SetUserDetailsOperation(getUserByIdResult.user.id))
+            listOf(SetUserDetailsOperation(getUserByIdResult.user.id, true))
         )
+
+        Log.d(TAG, "processGetUserByIdResult(): posting a state with userId = ${getUserByIdResult.user.id}")
 
         postState(state)
 
@@ -123,6 +119,8 @@ class MateChatUseCase(
     }
 
     private suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
+        Log.d(TAG, "processGetMessagesResult(): before posting a state with messages.size = ${getMessagesResult.messages.size}")
+
         lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -171,12 +169,15 @@ class MateChatUseCase(
             mateMessages, users, listOf(SetMessagesOperation())
         )
 
+        Log.d(TAG, "processGetMessagesResult(): posting a state with messages.size = ${getMessagesResult.messages.size}")
         postState(state)
 
         return ProcessGetMessagesResult()
     }
 
     private fun processDataMessage(dataMessage: DataMessage, users: List<User>): Result {
+        Log.d(TAG, "processDataMessage(): dataMessage.id = ${dataMessage.id}; dataMessage.userId = ${dataMessage.userId}")
+
         val user = users.find { it.id == dataMessage.userId }!!
         val message = Message(dataMessage.id, user.id, dataMessage.text, dataMessage.time)
 
@@ -262,6 +263,16 @@ class MateChatUseCase(
 
             if (getUserByIdResult is ErrorResult) return@launch processError(getUserByIdResult.errorId)
             if (getUserByIdResult is InterruptionResult) return@launch processInterruption()
+
+            val prevState = lockLastState()
+
+            val state = MateChatState(
+                prevState?.messages ?: listOf(),
+                prevState?.users ?: listOf(),
+                listOf(SetUserDetailsOperation(mInterlocutorUserId, false))
+            )
+
+            postState(state)
         }
     }
 }

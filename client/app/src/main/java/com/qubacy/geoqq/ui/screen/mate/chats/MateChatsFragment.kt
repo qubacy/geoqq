@@ -252,7 +252,9 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         val transitionName = getString(R.string.transition_mate_chats_to_mate_chat)
         val extras = FragmentNavigatorExtras(chatView to transitionName)
         val directions = MateChatsFragmentDirections
-            .actionMateChatsFragmentToMateChatFragment(chatPreview.chatId)
+            .actionMateChatsFragmentToMateChatFragment(
+                chatPreview.chatId, chatPreview.interlocutorUserId
+            )
 
         findNavController().navigate(directions, extras)
     }

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chats
 
+import android.util.Log
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -45,6 +46,10 @@ class MateChatsUseCase(
     errorDataRepository,
     listOf(mateChatDataRepository, userDataRepository, mateRequestDataRepository)
 ), UserExtension, ImageExtension, TokenExtension {
+    companion object {
+        const val TAG = "MateChatsUseCase"
+    }
+
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 
@@ -94,13 +99,6 @@ class MateChatsUseCase(
 
         val prevState = lockLastState()
 
-        val prevUser = prevState?.users?.find { it.id == updatedUser.id }
-
-        if (prevUser != null) {
-            if (prevUser == updatedUser)
-                return ProcessGetUserByIdResult()
-        }
-
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser
             else it
@@ -109,15 +107,18 @@ class MateChatsUseCase(
             prevState.chats,
             updatedUsers,
             prevState.mateRequestCount,
-            listOf(SetUserDetailsOperation(getUserByIdResult.user.id))
+            listOf(SetUserDetailsOperation(getUserByIdResult.user.id, true))
         )
 
+        Log.d(TAG, "processGetUserByIdResult(): posting a state with an updatedUser.id = ${updatedUser.id}")
         postState(state)
 
         return ProcessGetUserByIdResult()
     }
 
     private suspend fun processGetChatsResult(result: GetChatsResult): Result {
+        Log.d(TAG, "processGetChatsResult(): before posting a state..")
+
         lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -154,6 +155,7 @@ class MateChatsUseCase(
             listOf(SetMateChatsOperation())
         )
 
+        Log.d(TAG, "processGetChatsResult(): posting a state..")
         postState(newState)
 
         return ProcessGetChatsResult()
@@ -170,6 +172,8 @@ class MateChatsUseCase(
     }
 
     private suspend fun processDataMateChat(dataMateChat: DataMateChat, accessToken: String): Result {
+        Log.d(TAG, "processDataMateChat(): dataMateChat.id = ${dataMateChat.id}; dataMateChat.userId = ${dataMateChat.userId}")
+
         val getUserResult = getUser(
             dataMateChat.userId, accessToken,
             userDataRepository, imageDataRepository, this

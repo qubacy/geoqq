@@ -75,7 +75,6 @@ class MateChatViewModel(
     }
 
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
-        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (chatState == null) return null
 
         val uiOperationsResult = mutableListOf<UiOperation>()
@@ -89,6 +88,8 @@ class MateChatViewModel(
         }
 
         val title = chatState.users.find {it.id == interlocutorUserId}?.username ?: String()
+
+        if (mIsWaiting.value == true && !mIsWaitingForInterlocutorDetails) mIsWaiting.value = false
 
         return MateChatUiState(title, chatState.messages, chatState.users, uiOperationsResult)
     }
@@ -135,9 +136,10 @@ class MateChatViewModel(
     private fun processSetUserDetailsOperation(
         setUserDetailsOperation: SetUserDetailsOperation
     ): List<UiOperation> {
-        val operations = mutableListOf<UiOperation>(
-            ChangeUserUiOperation(setUserDetailsOperation.userId)
-        )
+        val operations = mutableListOf<UiOperation>()
+
+        if (setUserDetailsOperation.isUpdated)
+            operations.add(ChangeUserUiOperation(setUserDetailsOperation.userId))
 
         if (mIsWaitingForInterlocutorDetails
             && setUserDetailsOperation.userId == interlocutorUserId

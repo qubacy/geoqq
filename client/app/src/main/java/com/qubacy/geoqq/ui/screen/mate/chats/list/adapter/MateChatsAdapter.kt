@@ -19,6 +19,7 @@ class MateChatsAdapter(
 
         fun bind(chat: MateChat, title: String) {
             mBinding.name.text = title
+            mBinding.userAvatar.setImageURI(chat.avatarUri)
 
             if (chat.lastMessage != null) {
                 mBinding.lastMessage.text = chat.lastMessage.text
