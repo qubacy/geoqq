@@ -92,6 +92,10 @@ class AppContainer(
         tokenDataRepository: TokenDataRepository,
         signInDataRepository: SignInDataRepository
     ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        signInDataRepository.reset()
+
         val signInUseCase = SignInUseCase(
             errorDataRepository, tokenDataRepository, signInDataRepository
         )
@@ -115,6 +119,10 @@ class AppContainer(
         tokenDataRepository: TokenDataRepository,
         signUpDataRepository: SignUpDataRepository
     ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        signUpDataRepository.reset()
+
         val signUpUseCase = SignUpUseCase(
             errorDataRepository, tokenDataRepository, signUpDataRepository
         )
@@ -145,6 +153,11 @@ class AppContainer(
         myProfileDataRepository: MyProfileDataRepository,
         imageDataRepository: ImageDataRepository
     ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        myProfileDataRepository.reset()
+        imageDataRepository.reset()
+
         val myProfileUseCase = MyProfileUseCase(
             errorDataRepository, tokenDataRepository,
             myProfileDataRepository, imageDataRepository
@@ -187,6 +200,12 @@ class AppContainer(
         imageDataRepository: ImageDataRepository,
         userDataRepository: UserDataRepository,
     ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        mateMessageDataRepository.reset()
+        imageDataRepository.reset()
+        userDataRepository.reset()
+
         val mateChatUseCase = MateChatUseCase(
             errorDataRepository, tokenDataRepository,
             mateMessageDataRepository, imageDataRepository, userDataRepository
@@ -237,6 +256,13 @@ class AppContainer(
         userDataRepository: UserDataRepository,
         mateRequestDataRepository: MateRequestDataRepository
     ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        mateChatDataRepository.reset()
+        imageDataRepository.reset()
+        userDataRepository.reset()
+        mateRequestDataRepository.reset()
+
         val mateChatsUseCase = MateChatsUseCase(
             errorDataRepository, tokenDataRepository,
             mateChatDataRepository, imageDataRepository,

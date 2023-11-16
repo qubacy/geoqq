@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.Fade
 import androidx.transition.Slide
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
@@ -102,6 +103,14 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         mBinding.map.onStop()
 
         super.onStop()
+    }
+
+    override fun initFlowContainerIfNull() {
+
+    }
+
+    override fun clearFlowContainer() {
+
     }
 
     override fun onCreateView(

@@ -68,8 +68,12 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+    }
 
+    override fun initFlowContainerIfNull() {
         val application = (requireActivity().application as Application)
+
+        if (application.appContainer.myProfileContainer != null) return
 
         application.appContainer.initMyProfileContainer(
             application.appContainer.errorDataRepository,
@@ -82,10 +86,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
             .create(MyProfileViewModel::class.java)
     }
 
-    override fun onStop() {
+    override fun clearFlowContainer() {
         (requireActivity().application as Application).appContainer.clearMyProfileContainer()
-
-        super.onStop()
     }
 
     private fun retrieveSavedInstanceState(savedInstanceState: Bundle) {

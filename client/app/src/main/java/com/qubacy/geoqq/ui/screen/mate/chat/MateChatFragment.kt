@@ -50,8 +50,12 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
         }
 
         requireActivity().addMenuProvider(this)
+    }
 
+    override fun initFlowContainerIfNull() {
         val application = (requireActivity().application as Application)
+
+        if (application.appContainer.mateChatContainer != null) return
 
         application.appContainer.initMateChatContainer(
             mArgs.chatId,
@@ -68,10 +72,8 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
             .create(MateChatViewModel::class.java)
     }
 
-    override fun onStop() {
+    override fun clearFlowContainer() {
         (requireActivity().application as Application).appContainer.clearMateChatContainer()
-
-        super.onStop()
     }
 
     override fun onDestroy() {

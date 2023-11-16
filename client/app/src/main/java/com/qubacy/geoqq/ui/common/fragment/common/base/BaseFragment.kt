@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.common.fragment.common.base
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
@@ -34,7 +35,30 @@ abstract class BaseFragment() : StyleableFragment() {
                 mPermissionRequestLauncher.launch(getPermissionsToRequest())
             }
         }
+
+        initFlowContainerIfNull()
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initFlowContainerIfNull()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        initFlowContainerIfNull()
+    }
+
+    override fun onStop() {
+        clearFlowContainer()
+
+        super.onStop()
+    }
+
+    protected abstract fun initFlowContainerIfNull()
+    protected abstract fun clearFlowContainer()
 
     protected fun checkUiStateForErrors(uiState: BaseUiState): Boolean {
         if (uiState.error == null) return false

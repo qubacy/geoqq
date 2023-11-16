@@ -20,6 +20,10 @@ abstract class NetworkDataRepository(
         mCurrentNetworkRequest?.let { it.cancel() }
     }
 
+    override fun reset() {
+        mCurrentNetworkRequest = null
+    }
+
     private fun retrieveNetworkError(
         response: retrofit2.Response<Response>
     ): Long? {

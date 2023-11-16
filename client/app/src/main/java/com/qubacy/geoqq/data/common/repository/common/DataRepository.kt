@@ -4,4 +4,6 @@ abstract class DataRepository(
 
 ) {
     abstract fun interrupt()
+
+    abstract fun reset()
 }

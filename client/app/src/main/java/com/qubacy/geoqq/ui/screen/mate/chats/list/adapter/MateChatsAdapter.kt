@@ -60,7 +60,7 @@ class MateChatsAdapter(
     }
 
     fun updateChatUserData(userId: Long) {
-        val itemInfo = mItemAdapterInfoList.find { it.item.interlocutorUserId == userId }!!
+        val itemInfo = mItemAdapterInfoList.find { it.item.interlocutorUserId == userId } ?: return
 
         val pos = super.changeItem(itemInfo.item)
 

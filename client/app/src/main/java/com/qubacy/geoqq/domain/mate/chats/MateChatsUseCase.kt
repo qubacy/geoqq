@@ -94,6 +94,13 @@ class MateChatsUseCase(
 
         val prevState = lockLastState()
 
+        val prevUser = prevState?.users?.find { it.id == updatedUser.id }
+
+        if (prevUser != null) {
+            if (prevUser == updatedUser)
+                return ProcessGetUserByIdResult()
+        }
+
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser
             else it

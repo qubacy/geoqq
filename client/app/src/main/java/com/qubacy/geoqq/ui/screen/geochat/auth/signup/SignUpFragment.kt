@@ -53,8 +53,12 @@ class SignUpFragment(
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+    }
 
+    override fun initFlowContainerIfNull() {
         val application = (requireActivity().application as Application)
+
+        if (application.appContainer.signUpContainer != null) return
 
         application.appContainer.initSignUpContainer(
             application.appContainer.errorDataRepository,
@@ -66,10 +70,8 @@ class SignUpFragment(
             .signUpViewModelFactory.create(SignUpViewModel::class.java)
     }
 
-    override fun onStop() {
+    override fun clearFlowContainer() {
         (requireActivity().application as Application).appContainer.clearSignUpContainer()
-
-        super.onStop()
     }
 
     private fun getExitTransitionListener(): Transition.TransitionListener {

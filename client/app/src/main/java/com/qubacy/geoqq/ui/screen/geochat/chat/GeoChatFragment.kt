@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
@@ -167,6 +168,18 @@ class GeoChatFragment(
         // todo: mb it'd be nice to use this somehow in the UI??
 
 
+    }
+
+    override fun initFlowContainerIfNull() {
+        // todo: implement..
+
+
+    }
+
+    override fun clearFlowContainer() {
+        // todo: implement:
+
+        //(requireActivity().application as Application).appContainer.clearGeoChatContainer()
     }
 
     override fun getUserById(userId: Long): User {

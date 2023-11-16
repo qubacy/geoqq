@@ -36,8 +36,12 @@ class SignInFragment : WaitingFragment() {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+    }
 
+    override fun initFlowContainerIfNull() {
         val application = (requireActivity().application as Application)
+
+        if (application.appContainer.signInContainer != null) return
 
         application.appContainer.initSignInContainer(
             application.appContainer.errorDataRepository,
@@ -49,10 +53,8 @@ class SignInFragment : WaitingFragment() {
             .signInViewModelFactory.create(SignInViewModel::class.java)
     }
 
-    override fun onStop() {
+    override fun clearFlowContainer() {
         (requireActivity().application as Application).appContainer.clearSignInContainer()
-
-        super.onStop()
     }
 
     override fun onCreateView(

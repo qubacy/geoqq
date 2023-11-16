@@ -10,6 +10,7 @@ import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
@@ -71,6 +72,16 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
 
             onUiStateGotten(it)
         }
+    }
+
+    override fun initFlowContainerIfNull() {
+        // todo: implement this..
+
+
+    }
+
+    override fun clearFlowContainer() {
+        (requireActivity().application as Application).appContainer.clearMateRequestsContainer()
     }
 
     private fun onUiStateGotten(uiState: MateRequestsUiState) {

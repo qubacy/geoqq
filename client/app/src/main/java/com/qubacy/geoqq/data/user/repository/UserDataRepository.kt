@@ -7,9 +7,11 @@ import com.qubacy.geoqq.data.common.repository.common.result.interruption.Interr
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
+import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserWithNetworkResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserWithDatabaseResult
+import com.qubacy.geoqq.data.user.repository.result.InsertUserIntoDatabaseResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.local.entity.toDataUser
@@ -22,6 +24,25 @@ class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : FlowableDataRepository() {
+    private fun insertUserIntoDatabase(dataUser: DataUser): Result {
+        val userEntity = UserEntity(
+            dataUser.id,
+            dataUser.username,
+            dataUser.description,
+            dataUser.avatarId,
+            if (dataUser.isMate) 1 else 0
+        )
+
+        try {
+            localUserDataSource.insertUser(userEntity)
+
+        } catch (e: Exception) {
+            return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
+        }
+
+        return InsertUserIntoDatabaseResult()
+    }
+
     private suspend fun getUserWithNetwork(
         userId: Long, accessToken: String, isForResult: Boolean
     ): Any {
@@ -39,6 +60,17 @@ class UserDataRepository(
 
         val responseBody = (executeNetworkRequestResult as ExecuteNetworkRequestResult)
             .response as GetUserResponse
+
+        val insertUserResult = insertUserIntoDatabase(responseBody.toDataUser())
+
+        if (insertUserResult is ErrorResult) {
+            return if (isForResult) insertUserResult
+            else emitResult(insertUserResult)
+        }
+        if (insertUserResult is InterruptionResult) {
+            return if (isForResult) insertUserResult
+            else emitResult(insertUserResult)
+        }
 
         return if (isForResult) GetUserWithNetworkResult(responseBody.toDataUser())
         else emitResult(GetUserByIdResult(responseBody.toDataUser()))

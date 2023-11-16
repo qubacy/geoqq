@@ -61,8 +61,12 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+    }
 
+    override fun initFlowContainerIfNull() {
         val application = requireActivity().application as Application
+
+        if (application.appContainer.mateChatsContainer != null) return
 
         application.appContainer.initMateChatsContainer(
             application.appContainer.errorDataRepository,
@@ -77,10 +81,8 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             .create(MateChatsViewModel::class.java)
     }
 
-    override fun onStop() {
+    override fun clearFlowContainer() {
         (requireActivity().application as Application).appContainer.clearMateChatsContainer()
-
-        super.onStop()
     }
 
     override fun onCreateView(
@@ -245,7 +247,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     }
 
     override fun onChatClicked(chatPreview: MateChat, chatView: View) {
-        (requireActivity().application as Application).appContainer.clearMateChatsContainer()
+        clearFlowContainer()
 
         val transitionName = getString(R.string.transition_mate_chats_to_mate_chat)
         val extras = FragmentNavigatorExtras(chatView to transitionName)

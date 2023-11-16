@@ -4,18 +4,16 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 
 @Entity(
     tableName = MateChatEntity.TABLE_NAME,
     foreignKeys = [
-        ForeignKey(
-            entity = UserEntity::class,
-            parentColumns = arrayOf(UserEntity.ID_PARAM_NAME),
-            childColumns = arrayOf(MateChatEntity.USER_ID_PROP_NAME),
-            onDelete = ForeignKey.CASCADE
-        ),
+//        ForeignKey(
+//            entity = UserEntity::class,
+//            parentColumns = arrayOf(UserEntity.ID_PARAM_NAME),
+//            childColumns = arrayOf(MateChatEntity.USER_ID_PROP_NAME),
+//            onDelete = ForeignKey.CASCADE
+//        ),
     ])
 data class MateChatEntity(
     @PrimaryKey()

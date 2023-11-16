@@ -48,4 +48,8 @@ class ErrorDataRepository(
     override fun interrupt() {
         // todo: no action??
     }
+
+    override fun reset() {
+
+    }
 }

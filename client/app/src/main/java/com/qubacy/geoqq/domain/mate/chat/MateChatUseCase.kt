@@ -43,6 +43,8 @@ class MateChatUseCase(
         listOf(mateMessageDataRepository, userDataRepository)
 ), UserExtension, ImageExtension, TokenExtension {
     companion object {
+        const val TAG = "MateChatUseCase"
+
         const val USER_ID_TOKEN_PAYLOAD_KEY = "user-id"
     }
 
@@ -97,6 +99,13 @@ class MateChatUseCase(
         )
 
         val prevState = lockLastState()
+
+        val prevUser = prevState?.users?.find { it.id == updatedUser.id }
+
+        if (prevUser != null) {
+            if (prevUser == updatedUser)
+                return ProcessGetUserByIdResult()
+        }
 
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser
@@ -209,7 +218,7 @@ class MateChatUseCase(
             val getTokensResultCast = getTokensResult as GetTokensResult
 
             mCurrentRepository = tokenDataRepository
-            mLocalUserId = getLocalUserId() ?: return@launch
+            mLocalUserId = getLocalUserId() ?: return@launch //??
             mInterlocutorUserId = interlocutorUserId
 
             mCurrentRepository = mateMessageDataRepository
