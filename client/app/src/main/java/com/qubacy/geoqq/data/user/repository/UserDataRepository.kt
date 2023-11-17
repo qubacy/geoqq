@@ -11,6 +11,8 @@ import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserWithNetworkResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserWithDatabaseResult
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
+import com.qubacy.geoqq.data.user.repository.result.GetUsersWithDatabaseResult
 import com.qubacy.geoqq.data.user.repository.result.InsertUserIntoDatabaseResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
@@ -101,6 +103,22 @@ class UserDataRepository(
         return GetUserWithDatabaseResult(userEntity?.toDataUser())
     }
 
+    private fun getUsersWithDatabase(usersIds: List<Long>): Result {
+        val users = mutableListOf<DataUser>()
+
+        for (userId in usersIds) {
+            val getUserWithDatabaseResult = getUserWithDatabase(userId)
+
+            if (getUserWithDatabaseResult is ErrorResult) return getUserWithDatabaseResult
+
+            val user = (getUserWithDatabaseResult as GetUserWithDatabaseResult).user
+
+            if (user != null) users.add(user)
+        }
+
+        return GetUsersWithDatabaseResult(users)
+    }
+
     suspend fun getUserById(userId: Long, accessToken: String, isLatest: Boolean = true): Result {
         val getUserWithDatabaseResult = getUserWithDatabase(userId)
 
@@ -121,5 +139,30 @@ class UserDataRepository(
         if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult
 
         return GetUserByIdResult((getUserWithNetworkResult as GetUserWithNetworkResult).user)
+    }
+
+    suspend fun getUsersByIds(
+        userIds: List<Long>,
+        accessToken: String,
+        isLatest: Boolean = true
+    ): Result {
+        val getUsersWithDatabaseResult = getUsersWithDatabase(userIds)
+
+        if (getUsersWithDatabaseResult is ErrorResult) return getUsersWithDatabaseResult
+        if (getUsersWithDatabaseResult is InterruptionResult) return getUsersWithDatabaseResult
+
+        val getUsersWithDatabaseResultCast = getUsersWithDatabaseResult as GetUsersWithDatabaseResult
+
+        if (getUsersWithDatabaseResultCast.dataUsers.size == userIds.size) {
+            if (isLatest) {
+                // todo: getting users from the network for update..
+            }
+
+            return GetUsersByIdsResult(getUsersWithDatabaseResultCast.dataUsers, true)
+        }
+
+        // todo: getting users from the network for result..
+
+        return GetUsersByIdsResult(, false)
     }
 }

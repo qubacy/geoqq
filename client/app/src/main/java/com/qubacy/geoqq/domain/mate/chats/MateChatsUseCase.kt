@@ -122,7 +122,7 @@ class MateChatsUseCase(
     }
 
     private suspend fun processGetChatsResult(result: GetChatsResult): Result {
-        Log.d(TAG, "processGetChatsResult(): before posting a state..")
+        Log.d(TAG, "processGetChatsResult(): before posting a state with result.isLocal = ${result.isLocal})")
 
         lockLastState()
 

@@ -155,7 +155,7 @@ class MateChatDataRepository(
         val getChatsWithDatabaseResultCast = getChatsWithDatabaseResult as GetChatsWithDatabaseResult
 
         if (getChatsWithDatabaseResultCast.chats.isNotEmpty())
-            emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats))
+            emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats, true))
 
         val curNetworkRequestChatCount = count - mPrevChatCount
         val getChatsWithNetworkResult = getChatsWithNetworkAndSave(
@@ -169,7 +169,7 @@ class MateChatDataRepository(
         val getChatsWithNetworkResultCast = getChatsWithNetworkResult as GetChatsWithNetworkResult
 
         if (getChatsWithNetworkResultCast.areNew)
-            emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats))
+            emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats, false))
 
         val startChatsUpdateListeningResult = initUpdateSource()
 
