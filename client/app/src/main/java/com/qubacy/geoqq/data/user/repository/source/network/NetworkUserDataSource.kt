@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.user.repository.source.network
 
-import com.qubacy.geoqq.data.user.repository.source.network.response.GetUserResponse
+import com.qubacy.geoqq.data.user.repository.source.network.response.GetUsersResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -12,5 +12,5 @@ interface NetworkUserDataSource : DataSource {
     fun getUser(
         @Path("userId", encoded = true) userId: Long,
         @Query("accessToken") accessToken: String
-    ): Call<GetUserResponse>
+    ): Call<GetUsersResponse>
 }

@@ -6,16 +6,23 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-class GetUserResponse(
+class GetUsersResponse(
+    val users: List<NetworkUserModel>
+) : Response() {
+
+}
+
+@JsonClass(generateAdapter = true)
+class NetworkUserModel(
     val id: Long,
     val username: String,
     val description: String,
     @Json(name = "avatar-id") val avatarId: Long,
     @Json(name = "is-mate") val isMate: Boolean
-) : Response() {
+) {
 
 }
 
-fun GetUserResponse.toDataUser(): DataUser {
+fun NetworkUserModel.toDataUser(): DataUser {
     return DataUser(id, username, description, avatarId, isMate)
 }

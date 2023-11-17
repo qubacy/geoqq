@@ -5,9 +5,16 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-class GetImageResponse(
+class GetImagesResponse(
+    val images: List<NetworkImageModel>
+) : Response() {
+
+}
+
+@JsonClass(generateAdapter = true)
+class NetworkImageModel(
     val id: Long,
     @Json(name = "image-content") val imageContent: String
-) : Response() {
+) {
 
 }

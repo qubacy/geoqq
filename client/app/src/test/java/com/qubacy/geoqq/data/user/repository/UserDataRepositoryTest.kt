@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.network.response.GetUserResponse
+import com.qubacy.geoqq.data.user.repository.source.network.response.GetUsersResponse
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -57,7 +57,7 @@ class UserDataRepositoryTest() {
 
     @Test
     fun getUserByIdFromNetworkTest() {
-        val userResponseObj = GetUserResponse(
+        val userResponseObj = GetUsersResponse(
             0, "test", "desc", 0, false)
         val responseString = "{\"id\":${userResponseObj.id}," +
                 "\"username\":\"${userResponseObj.username}\"," +

@@ -23,7 +23,6 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.websocket.WebSocketUpda
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.toDataMessage
-import com.qubacy.geoqq.data.user.repository.result.InsertUserIntoDatabaseResult
 import retrofit2.Call
 
 class MateChatDataRepository(

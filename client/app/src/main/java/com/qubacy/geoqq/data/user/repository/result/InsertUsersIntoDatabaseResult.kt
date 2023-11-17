@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.data.user.repository.result
 
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
-import com.qubacy.geoqq.data.user.model.DataUser
 
-class GetUserWithNetworkResult(
-    val user: DataUser,
-    val isNew: Boolean
+class InsertUsersIntoDatabaseResult(
+    val areUpdatedOrInserted: Boolean
 ) : Result() {
 
 }
