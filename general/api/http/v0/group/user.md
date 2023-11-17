@@ -61,3 +61,35 @@
     "is-mate": "<bool>"
 }
 ```
+
+## GET /api/user
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Request body
+```json
+{
+    "ids": [
+        "<id>",
+        ...
+    ]
+}
+```
+
+### Responses
+- *200*
+```json
+{
+    "users": [
+        {
+            "username": "<string>",
+            "description": "<string>",
+            "avatar-id": "<id>",
+            "is-mate": "<bool>"
+        },
+        ...
+    ]
+}
+```
