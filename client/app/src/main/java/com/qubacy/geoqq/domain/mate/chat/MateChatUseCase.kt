@@ -29,6 +29,7 @@ import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessDataMessageResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
 import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserAvatarUriResult
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,25 +82,28 @@ class MateChatUseCase(
 
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
-        val getImageUriResult = getImageUri(
-            getUserByIdResult.user.avatarId,
+        val prevState = lockLastState()
+        val prevUser = prevState?.users?.find { it.id == getUserByIdResult.user.id }
+
+        val getUserAvatarUriResult = getUserAvatarUriWithPrevUser(
+            getUserByIdResult.user,
+            prevUser,
             getAccessTokenResultCast.accessToken,
+            userDataRepository,
             imageDataRepository
         )
 
-        if (getImageUriResult is ErrorResult) return getImageUriResult
+        if (getUserAvatarUriResult is ErrorResult) return getUserAvatarUriResult
 
-        val getImageUriResultCast = getImageUriResult as GetImageUriResult
+        val getUserAvatarUriResultCast = getUserAvatarUriResult as GetUserAvatarUriResult
 
         val updatedUser = User(
             getUserByIdResult.user.id,
             getUserByIdResult.user.username,
             getUserByIdResult.user.description,
-            getImageUriResultCast.imageUri,
+            getUserAvatarUriResultCast.avatarUri,
             getUserByIdResult.user.isMate
         )
-
-        val prevState = lockLastState()
 
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser

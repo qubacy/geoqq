@@ -101,7 +101,7 @@ class UserDataRepository(
         return GetUserWithDatabaseResult(userEntity?.toDataUser())
     }
 
-    suspend fun getUserById(userId: Long, accessToken: String): Result {
+    suspend fun getUserById(userId: Long, accessToken: String, isLatest: Boolean = true): Result {
         val getUserWithDatabaseResult = getUserWithDatabase(userId)
 
         if (getUserWithDatabaseResult is ErrorResult) return getUserWithDatabaseResult
@@ -110,7 +110,7 @@ class UserDataRepository(
         val getUserWithDatabaseResultCast = getUserWithDatabaseResult as GetUserWithDatabaseResult
 
         if (getUserWithDatabaseResultCast.user != null) {
-            getUserWithNetworkForUpdate(userId, accessToken)
+            if (isLatest) getUserWithNetworkForUpdate(userId, accessToken)
 
             return GetUserByIdResult(getUserWithDatabaseResultCast.user)
         }

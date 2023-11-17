@@ -7,6 +7,7 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
+import com.qubacy.geoqq.data.image.repository.result.GetImageIdByUriResult
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
@@ -26,6 +27,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtensio
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserAvatarUriResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
@@ -79,25 +81,28 @@ class MateChatsUseCase(
 
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
-        val getImageUriResult = getImageUri(
-            getUserByIdResult.user.avatarId,
+        val prevState = lockLastState()
+        val prevUser = prevState?.users?.find { it.id == getUserByIdResult.user.id }
+
+        val getUserAvatarUriResult = getUserAvatarUriWithPrevUser(
+            getUserByIdResult.user,
+            prevUser,
             getAccessTokenResultCast.accessToken,
+            userDataRepository,
             imageDataRepository
         )
 
-        if (getImageUriResult is ErrorResult) return getImageUriResult
+        if (getUserAvatarUriResult is ErrorResult) return getUserAvatarUriResult
 
-        val getImageUriResultCast = getImageUriResult as GetImageUriResult
+        val getUserAvatarUriResultCast = getUserAvatarUriResult as GetUserAvatarUriResult
 
         val updatedUser = User(
             getUserByIdResult.user.id,
             getUserByIdResult.user.username,
             getUserByIdResult.user.description,
-            getImageUriResultCast.imageUri,
+            getUserAvatarUriResultCast.avatarUri,
             getUserByIdResult.user.isMate
         )
-
-        val prevState = lockLastState()
 
         val updatedUsers = prevState?.users?.map {
             if (it.id == getUserByIdResult.user.id) updatedUser

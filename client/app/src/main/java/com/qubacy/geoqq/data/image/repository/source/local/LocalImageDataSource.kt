@@ -26,9 +26,17 @@ class LocalImageDataSource(
             Images.ImageColumns._ID,
             Images.ImageColumns.TITLE
         )
+
+        const val IMAGE_PREFIX = "image"
     }
 
-    fun loadImage(title: String): Uri? {
+    private fun getImageTitleFromImageId(imageId: Long): String {
+        return (IMAGE_PREFIX + imageId.toString())
+    }
+
+    fun loadImage(imageId: Long): Uri? {
+        val title = getImageTitleFromImageId(imageId)
+
         val selection = "${Images.ImageColumns.TITLE} == ?"
         val selectionArgs = arrayOf(title)
 
@@ -55,7 +63,9 @@ class LocalImageDataSource(
         return imageUri
     }
 
-    fun saveImageOnDevice(title: String, image: Bitmap): Uri? {
+    fun saveImageOnDevice(imageId: Long, image: Bitmap): Uri? {
+        val title = getImageTitleFromImageId(imageId)
+
         val contentValues = ContentValues()
 
         contentValues.put(Images.Media.TITLE, title)
@@ -109,5 +119,33 @@ class LocalImageDataSource(
         }
 
         return imageBitmap
+    }
+
+    fun getImageIdByUri(imageUri: Uri): Long? {
+        try {
+            val cursor = contentResolver.query(
+                imageUri,
+                IMAGE_COLUMNS_TO_LOAD,
+                null,
+                null,
+                null
+            )
+
+            if (cursor == null) return null
+
+            val titleColumn = cursor.getColumnIndexOrThrow(Images.ImageColumns.TITLE)
+
+            if (!cursor.moveToNext()) return null
+
+            val imageResourceTitle = cursor.getString(titleColumn)
+            val imageIdString = imageResourceTitle.substring(IMAGE_PREFIX.length)
+
+            return imageIdString.toLong()
+
+        } catch (e: Exception) {
+            Log.d(TAG, "Exception: ${e.message ?: String()}")
+
+            return null
+        }
     }
 }
