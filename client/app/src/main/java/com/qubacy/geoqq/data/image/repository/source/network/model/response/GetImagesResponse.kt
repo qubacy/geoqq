@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.image.repository.source.network.response
+package com.qubacy.geoqq.data.image.repository.source.network.model.response
 
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
 import com.squareup.moshi.Json
@@ -14,7 +14,7 @@ class GetImagesResponse(
 @JsonClass(generateAdapter = true)
 class NetworkImageModel(
     val id: Long,
-    @Json(name = "image-content") val imageContent: String
+    @Json(name = "content") val imageContent: String
 ) {
 
 }

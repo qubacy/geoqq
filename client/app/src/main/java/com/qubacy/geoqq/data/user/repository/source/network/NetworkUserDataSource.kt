@@ -1,16 +1,15 @@
 package com.qubacy.geoqq.data.user.repository.source.network
 
-import com.qubacy.geoqq.data.user.repository.source.network.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository.source.network.model.request.GetUsersRequestBody
+import com.qubacy.geoqq.data.user.repository.source.network.model.response.GetUsersResponse
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.Body
+import retrofit2.http.POST
 import javax.sql.DataSource
 
 interface NetworkUserDataSource : DataSource {
-    @GET("/api/user/{userId}")
-    fun getUser(
-        @Path("userId", encoded = true) userId: Long,
-        @Query("accessToken") accessToken: String
+    @POST("/api/user")
+    fun getUsers(
+        @Body getUsersRequestBody: GetUsersRequestBody
     ): Call<GetUsersResponse>
 }

@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepo
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.image.repository.result.DownloadImagesResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
-import com.qubacy.geoqq.data.image.repository.result.GetImageIdByUriResult
+import com.qubacy.geoqq.data.image.repository.result.GetImagesIdsByUrisResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesWithNetworkResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
@@ -22,7 +22,8 @@ import com.qubacy.geoqq.data.image.repository.result.LoadImagesResult
 import com.qubacy.geoqq.data.image.repository.result.SaveImageResult
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
-import com.qubacy.geoqq.data.image.repository.source.network.response.GetImagesResponse
+import com.qubacy.geoqq.data.image.repository.source.network.model.request.GetImagesRequestBody
+import com.qubacy.geoqq.data.image.repository.source.network.model.response.GetImagesResponse
 import retrofit2.Call
 
 class ImageDataRepository(
@@ -30,8 +31,8 @@ class ImageDataRepository(
     val networkImageDataSource: NetworkImageDataSource
 ) : FlowableDataRepository() {
     private fun downloadImages(imagesIds: List<Long>, accessToken: String): Result {
-        val networkCall = networkImageDataSource
-            .getImages(imagesIds, accessToken) as Call<Response>
+        val getImagesRequestBody = GetImagesRequestBody(accessToken, imagesIds)
+        val networkCall = networkImageDataSource.getImages(getImagesRequestBody) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
         if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult
@@ -184,10 +185,16 @@ class ImageDataRepository(
         return GetImageByUriResult(imageBitmap)
     }
 
-    fun getImageIdByUri(imageUri: Uri): Result {
-        val imageId = localImageDataSource.getImageIdByUri(imageUri)
-            ?: return ErrorResult(ErrorContext.Image.IMAGE_LOADING_FAILED.id)
+    fun getImagesIdsByUris(imagesUris: List<Uri>): Result {
+        val imagesIds = mutableListOf<Long>()
 
-        return GetImageIdByUriResult(imageId)
+        for (imageUri in imagesUris) {
+            val imageId = localImageDataSource.getImageIdByUri(imageUri)
+                ?: return ErrorResult(ErrorContext.Image.IMAGE_LOADING_FAILED.id)
+
+            imagesIds.add(imageId)
+        }
+
+        return GetImagesIdsByUrisResult(imagesIds)
     }
 }

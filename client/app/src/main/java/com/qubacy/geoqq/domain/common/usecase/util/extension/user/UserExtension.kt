@@ -1,185 +1,164 @@
 package com.qubacy.geoqq.domain.common.usecase.util.extension.user
 
+import android.net.Uri
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.image.repository.result.GetImageIdByUriResult
+import com.qubacy.geoqq.data.image.repository.result.GetImagesIdsByUrisResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.result.GetImageUriResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetDataUserResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserAvatarUriResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetAvatarUriResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetDataUsersResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 
 interface UserExtension {
-    suspend fun getUser(
-        userId: Long,
+    suspend fun getUsers(
+        usersIds: List<Long>,
         accessToken: String,
         userDataRepository: UserDataRepository,
         imageDataRepository: ImageDataRepository,
         imageExtension: ImageExtension
     ): Result {
-        val getDataUserResult = getDataUser(userId, accessToken, userDataRepository)
+        val getDataUsersResult = getDataUsers(usersIds, accessToken, userDataRepository)
 
-        if (getDataUserResult is ErrorResult) return getDataUserResult
+        if (getDataUsersResult is ErrorResult) return getDataUsersResult
 
-        val getDataUserResultCast = getDataUserResult as GetDataUserResult
+        val getDataUsersResultCast = getDataUsersResult as GetDataUsersResult
 
-        val getUserAvatarUriResult = getUserAvatarUriWithPrevDataUser(
-            getDataUserResultCast.dataUser,
-            getDataUserResultCast.dataUser,
+
+
+        val getUsersAvatarUrisResult = getUsersAvatarUrisWithPrevDataUsers(
+            getDataUsersResultCast.dataUsers,
+            getDataUsersResultCast.dataUsers,
             accessToken,
             userDataRepository,
             imageDataRepository
         )
 
-        if (getUserAvatarUriResult is ErrorResult) return getUserAvatarUriResult
+        if (getUsersAvatarUrisResult is ErrorResult) return getUsersAvatarUrisResult
 
-        val user = User(
-            getDataUserResultCast.dataUser.id,
-            getDataUserResultCast.dataUser.username,
-            getDataUserResultCast.dataUser.description,
-            (getUserAvatarUriResult as GetUserAvatarUriResult).avatarUri,
-            getDataUserResultCast.dataUser.isMate
-        )
+        val users = (getUsersAvatarUrisResult as GetUsersAvatarUrisResult).avatarUrisMap.map { entry ->
+            val dataUser = getDataUsersResultCast.dataUsers.find {it.id == entry.key}!!
 
-        return GetUserResult(user)
+            User(dataUser.id, dataUser.username, dataUser.description, entry.value, dataUser.isMate)
+        }
+
+        return GetUsersResult(users)
     }
 
-    suspend fun getDataUser(
-        userId: Long, accessToken: String, userDataRepository: UserDataRepository
+    private suspend fun getDataUsers(
+        usersIds: List<Long>, accessToken: String, userDataRepository: UserDataRepository
     ): Result {
-        val getUserResult = userDataRepository.getUserById(userId, accessToken)
+        val getUsersResult = userDataRepository.getUsersByIds(usersIds, accessToken)
 
-        if (getUserResult is ErrorResult) return getUserResult
+        if (getUsersResult is ErrorResult) return getUsersResult
 
-        val getUserResultCast = getUserResult as GetUserByIdResult
+        val getUsersResultCast = getUsersResult as GetUsersByIdsResult
 
-        return GetDataUserResult(getUserResultCast.user)
+        return GetDataUsersResult(getUsersResultCast.users)
     }
 
-//    suspend fun getUserAvatarUri(
-//        newUserData: DataUser,
-//        prevUser: User?,
-//        accessToken: String,
-//        userDataRepository: UserDataRepository,
-//        imageDataRepository: ImageDataRepository
-//    ): Result {
-//        var loadedPrevUserData: DataUser? = null
-//
-//        if (prevUser == null) {
-//            val getUserByIdResult =
-//                userDataRepository.getUserById(newUserData.id, accessToken, false)
-//
-//            if (getUserByIdResult is ErrorResult) return getUserByIdResult
-//
-//            loadedPrevUserData = (getUserByIdResult as GetUserByIdResult).user
-//        }
-//
-//        val prevUserAvatarId = if (prevUser == null) {
-//            loadedPrevUserData!!.avatarId
-//        } else {
-//            val getPrevUserAvatarIdResult = imageDataRepository.getImageIdByUri(prevUser.avatarUri)
-//
-//            if (getPrevUserAvatarIdResult is ErrorResult) return getPrevUserAvatarIdResult
-//
-//            (getPrevUserAvatarIdResult as GetImageIdByUriResult).imageId
-//        }
-//
-//        val avatarUri = if (prevUserAvatarId == newUserData.avatarId) {
-//            if (prevUser == null) {
-//                val getImageResult = imageDataRepository.getImage(
-//                    loadedPrevUserData!!.avatarId, accessToken, false)
-//
-//                if (getImageResult is ErrorResult) return getImageResult
-//
-//                (getImageResult as GetImageResult).imageUri
-//
-//            } else {
-//                prevUser.avatarUri
-//            }
-//
-//        } else {
-//            val getImageUriResult = imageDataRepository.getImage(
-//                newUserData.avatarId,
-//                accessToken
-//            )
-//
-//            if (getImageUriResult is ErrorResult) return getImageUriResult
-//
-//            (getImageUriResult as GetImageUriResult).imageUri
-//        }
-//
-//        return GetUserAvatarUriResult(avatarUri)
-//    }
-
-    suspend fun getUserAvatarUriWithPrevUser(
-        newUserData: DataUser,
-        prevUser: User?,
+    suspend fun getUsersAvatarUrisWithPrevUsers(
+        newUsersData: List<DataUser>,
+        prevUsers: List<User>?,
         accessToken: String,
         userDataRepository: UserDataRepository,
         imageDataRepository: ImageDataRepository
     ): Result {
         return getUserAvatarUri(
-            newUserData, null,
-            prevUser, accessToken,
+            newUsersData, null,
+            prevUsers, accessToken,
             userDataRepository, imageDataRepository
         )
     }
 
-    suspend fun getUserAvatarUriWithPrevDataUser(
-        newUserData: DataUser,
-        prevDataUser: DataUser?,
+    suspend fun getUsersAvatarUrisWithPrevDataUsers(
+        newUsersData: List<DataUser>,
+        prevDataUsers: List<DataUser>?,
         accessToken: String,
         userDataRepository: UserDataRepository,
         imageDataRepository: ImageDataRepository
     ): Result {
         return getUserAvatarUri(
-            newUserData, prevDataUser,
+            newUsersData, prevDataUsers,
             null, accessToken,
             userDataRepository, imageDataRepository
         )
     }
 
     private suspend fun getUserAvatarUri(
-        newUserData: DataUser,
-        prevDataUser: DataUser?,
-        prevUser: User?,
+        newUsersData: List<DataUser>,
+        prevDataUsers: List<DataUser>?,
+        prevUsers: List<User>?,
         accessToken: String,
         userDataRepository: UserDataRepository,
         imageDataRepository: ImageDataRepository
     ): Result {
-        val loadedPrevDataUser = if (prevUser == null) {
-            if (prevDataUser == null) {
-                val getUserByIdResult =
-                    userDataRepository.getUserById(newUserData.id, accessToken, false)
+        val loadedPrevDataUsers = if (prevUsers == null) {
+            if (prevDataUsers == null) {
+                val getUsersByIdResult = userDataRepository
+                    .getUsersByIds(newUsersData.map { it.id }, accessToken, false)
 
-                if (getUserByIdResult is ErrorResult) return getUserByIdResult
+                if (getUsersByIdResult is ErrorResult) return getUsersByIdResult
 
-                (getUserByIdResult as GetUserByIdResult).user
+                (getUsersByIdResult as GetUsersByIdsResult).users
 
             } else {
-                prevDataUser
+                prevDataUsers
             }
 
         } else {
             null
         }
 
-        val prevUserAvatarId = if (prevUser == null) {
-            loadedPrevDataUser!!.avatarId
+        val prevUsersAvatarIds = if (prevUsers == null) {
+            loadedPrevDataUsers!!.map { it.avatarId }
         } else {
-            val getPrevUserAvatarIdResult = imageDataRepository.getImageIdByUri(prevUser.avatarUri)
+            val getPrevUsersAvatarIdsResult = imageDataRepository
+                .getImagesIdsByUris(prevUsers.map { it.avatarUri })
 
-            if (getPrevUserAvatarIdResult is ErrorResult) return getPrevUserAvatarIdResult
+            if (getPrevUsersAvatarIdsResult is ErrorResult) return getPrevUsersAvatarIdsResult
 
-            (getPrevUserAvatarIdResult as GetImageIdByUriResult).imageId
+            (getPrevUsersAvatarIdsResult as GetImagesIdsByUrisResult).imagesIds
         }
 
+        val avatarUrisMap = mutableMapOf<Long, Uri>()
+
+        for (i in prevUsersAvatarIds.indices) {
+            val getAvatarUriResult = getAvatarUri(
+                prevUsers?.get(i),
+                newUsersData[i],
+                loadedPrevDataUsers?.get(i),
+                prevUsersAvatarIds[i],
+                accessToken,
+                imageDataRepository
+            )
+
+            if (getAvatarUriResult is ErrorResult) return getAvatarUriResult
+
+            avatarUrisMap.put(
+                newUsersData[i].id,
+                (getAvatarUriResult as GetAvatarUriResult).avatarUri
+            )
+        }
+
+        return GetUsersAvatarUrisResult(avatarUrisMap)
+    }
+
+    private suspend fun getAvatarUri(
+        prevUser: User?,
+        newUserData: DataUser,
+        loadedPrevDataUser: DataUser?,
+        prevUserAvatarId: Long,
+        accessToken: String,
+        imageDataRepository: ImageDataRepository
+    ): Result {
         val avatarUri = if (prevUserAvatarId == newUserData.avatarId) {
             if (prevUser == null) {
                 val getImageResult = imageDataRepository.getImage(
@@ -204,6 +183,6 @@ interface UserExtension {
             (getImageUriResult as GetImageUriResult).imageUri
         }
 
-        return GetUserAvatarUriResult(avatarUri)
+        return GetAvatarUriResult(avatarUri)
     }
 }

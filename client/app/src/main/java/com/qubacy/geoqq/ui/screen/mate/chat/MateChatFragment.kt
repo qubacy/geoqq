@@ -29,7 +29,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUsersUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
@@ -180,8 +180,8 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
                 processOpenUserDetailsOperation(openUserDetailsUiOperation)
             }
-            ChangeUserUiOperation::class -> {
-                val changeUserUiOperation = uiOperation as ChangeUserUiOperation
+            ChangeUsersUiOperation::class -> {
+                val changeUserUiOperation = uiOperation as ChangeUsersUiOperation
 
                 processChangeUserOperation(changeUserUiOperation, chatUiState)
             }
@@ -199,10 +199,13 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
     }
 
     private fun processChangeUserOperation(
-        changeUserUiOperation: ChangeUserUiOperation,
+        changeUsersUiOperation: ChangeUsersUiOperation,
         chatUiState: MateChatUiState
     ) {
-        if (changeUserUiOperation.userId == (mModel as MateChatViewModel).interlocutorUserId)
+        val foundInterlocutorUserId = changeUsersUiOperation.usersIds
+            .find { it == (mModel as MateChatViewModel).interlocutorUserId }
+
+        if (foundInterlocutorUserId != null)
             setChatInfo((mModel as MateChatViewModel).mateChatUiStateFlow.value!!.title)
 
         initChat(chatUiState)

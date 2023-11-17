@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.network.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository.source.network.model.response.GetUsersResponse
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before

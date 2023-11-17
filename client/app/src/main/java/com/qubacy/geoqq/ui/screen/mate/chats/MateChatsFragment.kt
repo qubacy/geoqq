@@ -30,7 +30,7 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMateChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
-import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUserUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUsersUiOperation
 
 class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     private lateinit var mBinding: FragmentMateChatsBinding
@@ -162,10 +162,10 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
                 mAdapter.addItem(chat)
             }
-            UpdateUserUiOperation::class -> {
-                val updateUserUiOperation = uiOperation as UpdateUserUiOperation
+            UpdateUsersUiOperation::class -> {
+                val updateUserUiOperation = uiOperation as UpdateUsersUiOperation
 
-                mAdapter.updateChatUserData(updateUserUiOperation.userId)
+                mAdapter.updateChatUsersData(updateUserUiOperation.usersIds)
             }
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation

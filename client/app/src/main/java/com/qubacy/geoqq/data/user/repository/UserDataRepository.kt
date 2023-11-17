@@ -18,8 +18,9 @@ import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.local.entity.toDataUser
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.network.response.GetUsersResponse
-import com.qubacy.geoqq.data.user.repository.source.network.response.toDataUser
+import com.qubacy.geoqq.data.user.repository.source.network.model.request.GetUsersRequestBody
+import com.qubacy.geoqq.data.user.repository.source.network.model.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository.source.network.model.response.toDataUser
 import retrofit2.Call
 
 class UserDataRepository(
@@ -58,7 +59,8 @@ class UserDataRepository(
     private suspend fun getUsersWithNetworkAndSaveUpdated(
         usersIds: List<Long>, accessToken: String
     ): Result {
-        val networkCall = networkUserDataSource.getUsers(usersIds, accessToken) as Call<Response>
+        val getUsersRequestBody = GetUsersRequestBody(accessToken, usersIds)
+        val networkCall = networkUserDataSource.getUsers(getUsersRequestBody) as Call<Response>
         val executeNetworkRequestResult = executeNetworkRequest(networkCall)
 
         if (executeNetworkRequestResult is ErrorResult) return executeNetworkRequestResult

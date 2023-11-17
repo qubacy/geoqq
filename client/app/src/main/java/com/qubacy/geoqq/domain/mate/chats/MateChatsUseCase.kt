@@ -7,7 +7,6 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.image.repository.result.GetImageIdByUriResult
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
@@ -15,20 +14,20 @@ import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
+import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.common.MessageBase
 import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
-import com.qubacy.geoqq.domain.common.usecase.util.extension.image.result.GetImageUriResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
-import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserAvatarUriResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUserResult
+import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.result.ProcessDataMateChatResult
@@ -61,10 +60,10 @@ class MateChatsUseCase(
 
                 processGetChatsResult(getChatsResult)
             }
-            GetUserByIdResult::class -> {
-                val getUserByIdResult = result as GetUserByIdResult
+            GetUsersByIdsResult::class -> {
+                val getUsersByIdsResult = result as GetUsersByIdsResult
 
-                processGetUserByIdResult(getUserByIdResult)
+                processGetUsersByIdsResult(getUsersByIdsResult)
             }
             else -> { return false }
         }
@@ -74,7 +73,7 @@ class MateChatsUseCase(
         return true
     }
 
-    private suspend fun processGetUserByIdResult(getUserByIdResult: GetUserByIdResult): Result {
+    private suspend fun processGetUsersByIdsResult(getUsersByIdsResult: GetUsersByIdsResult): Result {
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
         if (getAccessTokenResult is ErrorResult) return getAccessTokenResult
@@ -82,40 +81,32 @@ class MateChatsUseCase(
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
         val prevState = lockLastState()
-        val prevUser = prevState?.users?.find { it.id == getUserByIdResult.user.id }
+        val prevUsers = prevState?.users
 
-        val getUserAvatarUriResult = getUserAvatarUriWithPrevUser(
-            getUserByIdResult.user,
-            prevUser,
+        val getUsersAvatarUrisResult = getUsersAvatarUrisWithPrevUsers(
+            getUsersByIdsResult.users,
+            prevUsers,
             getAccessTokenResultCast.accessToken,
             userDataRepository,
             imageDataRepository
         )
 
-        if (getUserAvatarUriResult is ErrorResult) return getUserAvatarUriResult
+        if (getUsersAvatarUrisResult is ErrorResult) return getUsersAvatarUrisResult
 
-        val getUserAvatarUriResultCast = getUserAvatarUriResult as GetUserAvatarUriResult
+        val getUsersAvatarUrisResultCast = getUsersAvatarUrisResult as GetUsersAvatarUrisResult
+        val updatedUsers = getUsersAvatarUrisResultCast.avatarUrisMap.map { entry ->
+            val user = getUsersByIdsResult.users.find { it.id == entry.key }!!
 
-        val updatedUser = User(
-            getUserByIdResult.user.id,
-            getUserByIdResult.user.username,
-            getUserByIdResult.user.description,
-            getUserAvatarUriResultCast.avatarUri,
-            getUserByIdResult.user.isMate
-        )
-
-        val updatedUsers = prevState?.users?.map {
-            if (it.id == getUserByIdResult.user.id) updatedUser
-            else it
-        }!!
+            User(user.id, user.username, user.description, entry.value, user.isMate)
+        }
         val state = MateChatsState(
-            prevState.chats,
+            prevState!!.chats,
             updatedUsers,
             prevState.mateRequestCount,
-            listOf(SetUserDetailsOperation(getUserByIdResult.user.id, true))
+            listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with an updatedUser.id = ${updatedUser.id}")
+        Log.d(TAG, "processGetUserByIdResult(): posting a state with an updatedUsers.size = ${updatedUsers.size}")
         postState(state)
 
         return ProcessGetUserByIdResult()
@@ -135,9 +126,15 @@ class MateChatsUseCase(
         val mateChats = mutableListOf<MateChat>()
         val mateUsers = mutableListOf<User>()
 
+        val usersIds = result.chats.map { it.userId }
+        val getUsersResult = getUsers(
+            usersIds, getAccessTokenResultCast.accessToken,
+            userDataRepository, imageDataRepository, this
+        )
+
         for (dataChat in result.chats) {
-            val processDataMateChatResult = processDataMateChat(
-                dataChat, getAccessTokenResultCast.accessToken)
+            val user = (getUsersResult as GetUsersResult).users.find { it.id == dataChat.userId }!!
+            val processDataMateChatResult = processDataMateChat(dataChat, user)
 
             if (processDataMateChatResult is ErrorResult) return processDataMateChatResult
 
@@ -176,17 +173,10 @@ class MateChatsUseCase(
         return GetMateRequestCountResult(getRequestCountResultCast.mateRequestCount)
     }
 
-    private suspend fun processDataMateChat(dataMateChat: DataMateChat, accessToken: String): Result {
+    private fun processDataMateChat(
+        dataMateChat: DataMateChat, user: User
+    ): Result {
         Log.d(TAG, "processDataMateChat(): dataMateChat.id = ${dataMateChat.id}; dataMateChat.userId = ${dataMateChat.userId}")
-
-        val getUserResult = getUser(
-            dataMateChat.userId, accessToken,
-            userDataRepository, imageDataRepository, this
-        )
-
-        if (getUserResult is ErrorResult) return getUserResult
-
-        val getUserResultCast = getUserResult as GetUserResult
 
         val lastMessage = if (dataMateChat.lastMessage != null)
             MessageBase(dataMateChat.lastMessage.text, dataMateChat.lastMessage.time)
@@ -194,10 +184,10 @@ class MateChatsUseCase(
             null
 
         val mateChat = MateChat(
-            dataMateChat.id, dataMateChat.userId, getUserResultCast.user.avatarUri, lastMessage
+            dataMateChat.id, dataMateChat.userId, user.avatarUri, lastMessage
         )
 
-        return ProcessDataMateChatResult(mateChat, getUserResultCast.user)
+        return ProcessDataMateChatResult(mateChat, user)
     }
 
     override fun generateState(operations: List<Operation>): MateChatsState {

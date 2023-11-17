@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -21,7 +21,7 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUserUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUsersUiOperation
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
@@ -108,10 +108,10 @@ class MateChatViewModel(
 
                 listOf(AddMessageUiOperation(addMessageOperation.messageId))
             }
-            SetUserDetailsOperation::class -> {
-                val setUserDetailsOperation = operation as SetUserDetailsOperation
+            SetUsersDetailsOperation::class -> {
+                val setUsersDetailsOperation = operation as SetUsersDetailsOperation
 
-                processSetUserDetailsOperation(setUserDetailsOperation)
+                processSetUsersDetailsOperation(setUsersDetailsOperation)
             }
             ChangeChatInfoOperation::class -> {
                 val changeChatInfoOperation = operation as ChangeChatInfoOperation
@@ -133,20 +133,20 @@ class MateChatViewModel(
         }
     }
 
-    private fun processSetUserDetailsOperation(
-        setUserDetailsOperation: SetUserDetailsOperation
+    private fun processSetUsersDetailsOperation(
+        setUsersDetailsOperation: SetUsersDetailsOperation
     ): List<UiOperation> {
         val operations = mutableListOf<UiOperation>()
 
-        if (setUserDetailsOperation.isUpdated)
-            operations.add(ChangeUserUiOperation(setUserDetailsOperation.userId))
+        if (setUsersDetailsOperation.areUpdated)
+            operations.add(ChangeUsersUiOperation(setUsersDetailsOperation.usersIds))
 
         if (mIsWaitingForInterlocutorDetails
-            && setUserDetailsOperation.userId == interlocutorUserId
+            && setUsersDetailsOperation.usersIds.find { it == interlocutorUserId } != null
         ) {
             mIsWaitingForInterlocutorDetails = false
 
-            operations.add(OpenUserDetailsUiOperation(setUserDetailsOperation.userId))
+            operations.add(OpenUserDetailsUiOperation(interlocutorUserId))
         }
 
         return operations

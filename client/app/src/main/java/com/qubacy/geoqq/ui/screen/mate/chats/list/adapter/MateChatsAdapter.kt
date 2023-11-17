@@ -60,11 +60,13 @@ class MateChatsAdapter(
         return 0
     }
 
-    fun updateChatUserData(userId: Long) {
-        val itemInfo = mItemAdapterInfoList.find { it.item.interlocutorUserId == userId } ?: return
+    fun updateChatUsersData(usersIds: List<Long>) {
+        for (userId in usersIds) {
+            val itemInfo = mItemAdapterInfoList.find { it.item.interlocutorUserId == userId } ?: return
 
-        val pos = super.changeItem(itemInfo.item)
+            val pos = super.changeItem(itemInfo.item)
 
-        notifyItemChanged(pos)
+            notifyItemChanged(pos)
+        }
     }
 }

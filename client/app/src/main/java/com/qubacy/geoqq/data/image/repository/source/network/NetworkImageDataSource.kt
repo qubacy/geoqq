@@ -1,15 +1,14 @@
 package com.qubacy.geoqq.data.image.repository.source.network
 
-import com.qubacy.geoqq.data.image.repository.source.network.response.GetImagesResponse
+import com.qubacy.geoqq.data.image.repository.source.network.model.request.GetImagesRequestBody
+import com.qubacy.geoqq.data.image.repository.source.network.model.response.GetImagesResponse
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 interface NetworkImageDataSource {
-    @GET("/api/image/{imageId}")
-    fun getImage(
-        @Path("imageId", encoded = true) imageId: Long,
-        @Query("accessToken") accessToken: String
+    @POST("/api/image")
+    fun getImages(
+        @Body getImagesRequestBody: GetImagesRequestBody
     ): Call<GetImagesResponse>
 }

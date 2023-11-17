@@ -2,8 +2,8 @@ package com.qubacy.geoqq.ui.screen.common.chat.model.operation
 
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 
-class ChangeUserUiOperation(
-    val userId: Long
+class ChangeUsersUiOperation(
+    val usersIds: List<Long>
 ) : UiOperation() {
 
 }

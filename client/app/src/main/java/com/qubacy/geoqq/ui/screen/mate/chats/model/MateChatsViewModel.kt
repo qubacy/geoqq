@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.domain.common.operation.chat.SetUserDetailsOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
@@ -22,7 +22,7 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMateChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
-import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUserUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUsersUiOperation
 import kotlinx.coroutines.flow.map
 
 class MateChatsViewModel(
@@ -69,10 +69,10 @@ class MateChatsViewModel(
 
                 SetMateChatsUiOperation()
             }
-            SetUserDetailsOperation::class -> {
-                val setUserDetailsOperation = operation as SetUserDetailsOperation
+            SetUsersDetailsOperation::class -> {
+                val setUsersDetailsOperation = operation as SetUsersDetailsOperation
 
-                UpdateUserUiOperation(setUserDetailsOperation.userId)
+                UpdateUsersUiOperation(setUsersDetailsOperation.usersIds)
             }
             AddChatOperation::class -> {
                 val addChatOperation = operation as AddChatOperation
