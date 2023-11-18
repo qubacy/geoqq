@@ -13,6 +13,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtensio
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetDataUsersResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 
 interface UserExtension {
     suspend fun getUsers(
@@ -47,6 +48,36 @@ interface UserExtension {
         }
 
         return GetUsersResult(users)
+    }
+
+    suspend fun processDataUsers(
+        dataUsers: List<DataUser>,
+        accessToken: String,
+        userDataRepository: UserDataRepository,
+        imageDataRepository: ImageDataRepository
+    ): Result {
+        val getUsersAvatarUrisResult = getUsersAvatarUris(
+            dataUsers,
+            accessToken,
+            userDataRepository,
+            imageDataRepository
+        )
+
+        if (getUsersAvatarUrisResult is ErrorResult) return getUsersAvatarUrisResult
+
+        val getUsersAvatarUrisResultCast = getUsersAvatarUrisResult as GetUsersAvatarUrisResult
+
+        val users = dataUsers.map {
+            User(
+                it.id,
+                it.username,
+                it.description,
+                getUsersAvatarUrisResultCast.avatarUrisMap[it.id]!!,
+                it.isMate
+            )
+        }
+
+        return ProcessDataUsersResult(users)
     }
 
     private suspend fun getDataUsers(

@@ -10,6 +10,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageResult
+import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.myprofile.model.avatar.labeled.DataMyProfileWithAvatarId
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
 import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
@@ -70,19 +71,19 @@ class MyProfileUseCase(
         val accessToken = (getTokensResult as GetTokensResult).accessToken
 
         mCurrentRepository = imageDataRepository
-        val getImageResult = imageDataRepository.getImage(
-            myProfileData.avatarId, accessToken)
+        val getImagesResult = imageDataRepository.getImages(
+            listOf(myProfileData.avatarId), accessToken)
 
-        if (getImageResult is ErrorResult) return processError(getImageResult.errorId)
-        if (getImageResult is InterruptionResult) return processInterruption()
+        if (getImagesResult is ErrorResult) return processError(getImagesResult.errorId)
+        if (getImagesResult is InterruptionResult) return processInterruption()
 
-        val getImageResultCast = getImageResult as GetImageResult
+        val getImagesResultCast = getImagesResult as GetImagesResult
 
         val dataMyProfile = DataMyProfileWithLinkedAvatar(
             myProfileData.username,
             myProfileData.description,
             myProfileData.hitUpOption,
-            getImageResultCast.imageUri
+            getImagesResultCast.imageIdToUriMap[myProfileData.avatarId]!!
         )
         mCurrentRepository = myProfileDataRepository
         val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)

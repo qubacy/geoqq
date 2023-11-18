@@ -16,7 +16,6 @@ import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
-import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
@@ -27,11 +26,12 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
-import com.qubacy.geoqq.domain.mate.chat.result.ProcessDataMessageResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.message.result.ProcessDataMessagesResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
 import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.message.MessageExtension
 import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,7 +46,7 @@ class MateChatUseCase(
 ) : ConsumingUseCase<MateChatState>(
         errorDataRepository,
         listOf(mateMessageDataRepository, userDataRepository)
-), UserExtension, ImageExtension, TokenExtension {
+), UserExtension, ImageExtension, TokenExtension, MessageExtension {
     companion object {
         const val TAG = "MateChatUseCase"
 
@@ -91,30 +91,16 @@ class MateChatUseCase(
 
         val prevState = lockLastState()
 
-        val getUsersAvatarUrisResult = getUsersAvatarUris(
-            getUsersByIdsResult.users,
-            getAccessTokenResultCast.accessToken,
-            userDataRepository,
-            imageDataRepository
+        val processDataUsersResult = processDataUsers(
+            getUsersByIdsResult.users, getAccessTokenResultCast.accessToken,
+            userDataRepository, imageDataRepository
         )
 
-        if (getUsersAvatarUrisResult is ErrorResult) return getUsersAvatarUrisResult
-
-        val getUsersAvatarUrisResultCast = getUsersAvatarUrisResult as GetUsersAvatarUrisResult
-
-        val updatedUsers = getUsersByIdsResult.users.map {
-            User(
-                it.id,
-                it.username,
-                it.description,
-                getUsersAvatarUrisResultCast.avatarUrisMap[it.id]!!,
-                it.isMate
-            )
-        }
+        if (processDataUsersResult is ErrorResult) return processDataUsersResult
 
         val state = MateChatState(
             prevState?.messages ?: listOf(),
-            updatedUsers,
+            (processDataUsersResult as ProcessDataUsersResult).users,
             listOf(
                 SetUsersDetailsOperation(
                     getUsersByIdsResult.users.map { it.id }, !getUsersByIdsResult.areLocal)
@@ -151,33 +137,20 @@ class MateChatUseCase(
 
         val getUsersResultCast = getUsersResult as GetUsersResult
 
-        val mateMessages = mutableListOf<Message>()
+        val processDataMessagesResult = processDataMessages(getMessagesResult.messages)
 
-        for (dataMessage in getMessagesResult.messages) {
-            val processDataMessageResult = processDataMessage(dataMessage, getUsersResultCast.users)
-
-            if (processDataMessageResult is ErrorResult) return processDataMessageResult
-
-            mateMessages.add((processDataMessageResult as ProcessDataMessageResult).message)
-        }
+        if (processDataMessagesResult is ErrorResult) return processDataMessagesResult
 
         val state = MateChatState(
-            mateMessages, getUsersResultCast.users, listOf(SetMessagesOperation())
+            (processDataMessagesResult as ProcessDataMessagesResult).messages,
+            getUsersResultCast.users,
+            listOf(SetMessagesOperation())
         )
 
         Log.d(TAG, "processGetMessagesResult(): posting a state with messages.size = ${getMessagesResult.messages.size}")
         postState(state)
 
         return ProcessGetMessagesResult()
-    }
-
-    private fun processDataMessage(dataMessage: DataMessage, users: List<User>): Result {
-        Log.d(TAG, "processDataMessage(): dataMessage.id = ${dataMessage.id}; dataMessage.userId = ${dataMessage.userId}")
-
-        val user = users.find { it.id == dataMessage.userId }!!
-        val message = Message(dataMessage.id, user.id, dataMessage.text, dataMessage.time)
-
-        return ProcessDataMessageResult(message)
     }
 
     override fun generateState(operations: List<Operation>, prevState: MateChatState?): MateChatState {

@@ -132,29 +132,6 @@ class ImageDataRepository(
         return getImagesWithNetwork(imagesUris, accessToken)
     }
 
-    suspend fun getImage(imageId: Long, accessToken: String): Result {
-        val imageLoadResult = loadImage(imageId)
-
-        if (imageLoadResult is ErrorResult) return imageLoadResult
-
-        val imageLoadResultCast = imageLoadResult as LoadImageResult
-
-        if (imageLoadResultCast.imageUri != null) {
-//            if (isLatest) getImagesWithNetworkForUpdate(listOf(imageId), accessToken)
-
-            return GetImageResult(imageLoadResultCast.imageUri)
-        }
-
-        val getImageWithNetworkResult = getImagesWithNetworkForResult(listOf(imageId), accessToken)
-
-        if (getImageWithNetworkResult is ErrorResult) return getImageWithNetworkResult
-        if (getImageWithNetworkResult is InterruptionResult) return getImageWithNetworkResult
-
-        val getImageWithNetworkResultCast = getImageWithNetworkResult as GetImagesWithNetworkResult
-
-        return GetImageResult(getImageWithNetworkResultCast.imageIdToUriMap[imageId]!!)
-    }
-
     suspend fun getImages(
         imagesIds: List<Long>,
         accessToken: String
@@ -167,8 +144,6 @@ class ImageDataRepository(
 
         // todo: it'd be better to return a DEFAULT IMAGE URI instead of NULL..
         if (loadImagesResultCast.imageIdToImageUriMap.size == imagesIds.size) {
-//            if (isLatest) getImagesWithNetworkForUpdate(imagesIds, accessToken)
-
             return GetImagesResult(loadImagesResultCast.imageIdToImageUriMap, true)
         }
 

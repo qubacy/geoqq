@@ -130,28 +130,6 @@ class UserDataRepository(
         return GetUsersWithDatabaseResult(users)
     }
 
-    suspend fun getUserById(userId: Long, accessToken: String, isLatest: Boolean = true): Result {
-        val getUserWithDatabaseResult = getUserWithDatabase(userId)
-
-        if (getUserWithDatabaseResult is ErrorResult) return getUserWithDatabaseResult
-        if (getUserWithDatabaseResult is InterruptionResult) return getUserWithDatabaseResult
-
-        val getUserWithDatabaseResultCast = getUserWithDatabaseResult as GetUserWithDatabaseResult
-
-        if (getUserWithDatabaseResultCast.user != null) {
-            if (isLatest) getUsersWithNetworkForUpdate(listOf(userId), accessToken)
-
-            return GetUserByIdResult(getUserWithDatabaseResultCast.user)
-        }
-
-        val getUserWithNetworkResult = getUsersWithNetworkForResult(listOf(userId), accessToken)
-
-        if (getUserWithNetworkResult is ErrorResult) return getUserWithNetworkResult
-        if (getUserWithNetworkResult is InterruptionResult) return getUserWithNetworkResult
-
-        return GetUserByIdResult((getUserWithNetworkResult as GetUsersWithNetworkResult).users.first())
-    }
-
     suspend fun getUsersByIds(
         usersIds: List<Long>,
         accessToken: String,
