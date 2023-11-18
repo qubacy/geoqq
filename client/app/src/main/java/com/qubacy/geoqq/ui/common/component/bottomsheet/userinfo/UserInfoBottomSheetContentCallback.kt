@@ -5,5 +5,5 @@ import com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContentCallba
 
 interface UserInfoBottomSheetContentCallback : BottomSheetContentCallback {
 //    fun isUserFriend(user: User) // todo: think of this one..
-    fun addToFriend(user: User)
+    fun addToMates(user: User)
 }

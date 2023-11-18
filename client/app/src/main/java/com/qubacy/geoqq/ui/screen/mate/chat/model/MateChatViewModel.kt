@@ -14,6 +14,7 @@ import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
+import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -25,6 +26,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUsersUiOpera
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
 import kotlinx.coroutines.flow.map
 
 class MateChatViewModel(
@@ -74,6 +76,12 @@ class MateChatViewModel(
         mateChatUseCase.getInterlocutorUserDetails()
     }
 
+    fun createMateRequest(userId: Long) {
+        mIsWaiting.value = true
+
+        mateChatUseCase.createMateRequest(userId)
+    }
+
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
         if (chatState == null) return null
 
@@ -119,6 +127,12 @@ class MateChatViewModel(
                 // ...
 
                 listOf(ChangeChatInfoUiOperation())
+            }
+            ApproveNewMateRequestCreationOperation::class -> {
+                val approveNewMateRequestCreationOperation =
+                    operation as ApproveNewMateRequestCreationOperation
+
+                listOf(MateRequestCreatedUiOperation())
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation

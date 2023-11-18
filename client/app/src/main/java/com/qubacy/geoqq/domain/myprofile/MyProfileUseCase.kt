@@ -114,22 +114,17 @@ class MyProfileUseCase(
         mStateFlow.emit(state)
     }
 
-    override fun generateState(operations: List<Operation>): MyProfileState {
-        val prevState = stateFlow.value
-        val state = if (prevState == null) {
-            MyProfileState(newOperations = operations)
-        }
-        else {
-            MyProfileState(
-                prevState.avatar,
-                prevState.username,
-                prevState.description,
-                prevState.hitUpOption,
-                operations
-            )
-        }
-
-        return state
+    override fun generateState(
+        operations: List<Operation>,
+        prevState: MyProfileState?
+    ): MyProfileState {
+        return MyProfileState(
+            prevState?.avatar ?: Uri.parse(String()),
+            prevState?.username ?: String(),
+            prevState?.description ?: String(),
+            prevState?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE,
+            operations
+        )
     }
 
     private suspend fun changeCurrentStateAfterUpdate(

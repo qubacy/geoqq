@@ -199,16 +199,19 @@ class AppContainer(
         mateMessageDataRepository: MateMessageDataRepository,
         imageDataRepository: ImageDataRepository,
         userDataRepository: UserDataRepository,
+        mateRequestDataRepository: MateRequestDataRepository
     ) {
         errorDataRepository.reset()
         tokenDataRepository.reset()
         mateMessageDataRepository.reset()
         imageDataRepository.reset()
         userDataRepository.reset()
+        mateRequestDataRepository.reset()
 
         val mateChatUseCase = MateChatUseCase(
             errorDataRepository, tokenDataRepository,
-            mateMessageDataRepository, imageDataRepository, userDataRepository
+            mateMessageDataRepository, imageDataRepository,
+            userDataRepository, mateRequestDataRepository
         )
 
         mateChatContainer = MateChatContainer(chatId, interlocutorUserId, mateChatUseCase)

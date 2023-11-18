@@ -44,6 +44,8 @@
     <string name="mate_chat_menu_show_user_info_action_title">Show user info..</string>
     <string name="profile_security_section_current_password">Current Password</string>
 
+    <string name="chat_mate_request_created_message">Mate request has been created!</string>
+
     <string-array name="hit_up_variants">
         <item>Yes</item>
         <item>No</item>

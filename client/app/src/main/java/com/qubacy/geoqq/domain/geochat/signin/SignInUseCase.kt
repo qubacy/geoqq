@@ -70,7 +70,7 @@ class SignInUseCase(
         }
     }
 
-    override fun generateState(operations: List<Operation>): SignInState {
+    override fun generateState(operations: List<Operation>, prevState: SignInState?): SignInState {
         return SignInState(operations)
     }
 }

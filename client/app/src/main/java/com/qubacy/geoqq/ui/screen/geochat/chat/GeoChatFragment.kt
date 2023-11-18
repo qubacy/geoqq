@@ -199,7 +199,7 @@ class GeoChatFragment(
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()
     }
 
-    override fun addToFriend(user: User) {
+    override fun addToMates(user: User) {
         (mModel as GeoChatViewModel).addToFriend(user)
     }
 }

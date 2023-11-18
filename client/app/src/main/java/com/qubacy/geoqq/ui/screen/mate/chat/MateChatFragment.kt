@@ -22,6 +22,8 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
+import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
+import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
@@ -34,8 +36,15 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiO
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
 
-class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider {
+class MateChatFragment(
+
+) : WaitingFragment(),
+    ChatAdapterCallback,
+    UserInfoBottomSheetContentCallback,
+    MenuProvider
+{
     private val mArgs by navArgs<MateChatFragmentArgs>()
 
     private lateinit var mBinding: FragmentMateChatBinding
@@ -64,7 +73,8 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
             application.appContainer.tokenDataRepository,
             application.appContainer.mateMessageDataRepository,
             application.appContainer.imageDataRepository,
-            application.appContainer.userDataRepository
+            application.appContainer.userDataRepository,
+            application.appContainer.mateRequestDataRepository
         )
 
         mModel = application.appContainer.mateChatContainer!!
@@ -112,6 +122,9 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
             onSendingMessageButtonClicked()
         }
+        mBinding.bottomSheet.bottomSheetContentCard.apply {
+            setCallback(this@MateChatFragment)
+        }
 
         (mModel as MateChatViewModel).mateChatUiStateFlow.value?.let {
             initChat(it)
@@ -141,6 +154,13 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
     private fun initChat(chatUiState: MateChatUiState) {
         setChatInfo(chatUiState.title)
+
+        val interlocutorUser = (mModel as MateChatViewModel).getMateInfo()
+
+        mBinding.messageSendingSection.apply {
+            sendingMessage.isEnabled = interlocutorUser.isMate
+            sendingButton.isEnabled = interlocutorUser.isMate
+        }
 
         mBinding.chatRecyclerView.itemAnimator = null
         mAdapter.setItems(chatUiState.messages)
@@ -182,6 +202,11 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
                 val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
 
                 setChatInfo(chatUiState.title)
+            }
+            MateRequestCreatedUiOperation::class -> {
+                val mateRequestCreatedUiOperation = uiOperation as MateRequestCreatedUiOperation
+
+                showMessage(R.string.chat_mate_request_created_message)
             }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
@@ -263,5 +288,9 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
     private fun onShowUserInfoActionClicked() {
         (mModel as MateChatViewModel).getMateUserDetails()
+    }
+
+    override fun addToMates(user: User) {
+        (mModel as MateChatViewModel).createMateRequest(user.id)
     }
 }

@@ -189,8 +189,16 @@ class MateChatsUseCase(
         return ProcessDataMateChatResult(mateChat, user)
     }
 
-    override fun generateState(operations: List<Operation>): MateChatsState {
-        return MateChatsState(newOperations = operations)
+    override fun generateState(
+        operations: List<Operation>,
+        prevState: MateChatsState?
+    ): MateChatsState {
+        return MateChatsState(
+            prevState?.chats ?: listOf(),
+            prevState?.users ?: listOf(),
+            prevState?.mateRequestCount ?: 0,
+            operations
+        )
     }
 
     fun getMateChats(count: Int) {

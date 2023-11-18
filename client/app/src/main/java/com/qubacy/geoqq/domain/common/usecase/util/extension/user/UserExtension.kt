@@ -20,9 +20,12 @@ interface UserExtension {
         accessToken: String,
         userDataRepository: UserDataRepository,
         imageDataRepository: ImageDataRepository,
-        imageExtension: ImageExtension
+        imageExtension: ImageExtension,
+        getUpdates: Boolean = true,
+        preferLocal: Boolean = true
     ): Result {
-        val getDataUsersResult = getDataUsers(usersIds, accessToken, userDataRepository)
+        val getDataUsersResult = getDataUsers(
+            usersIds, accessToken, userDataRepository, getUpdates, preferLocal)
 
         if (getDataUsersResult is ErrorResult) return getDataUsersResult
 
@@ -47,9 +50,14 @@ interface UserExtension {
     }
 
     private suspend fun getDataUsers(
-        usersIds: List<Long>, accessToken: String, userDataRepository: UserDataRepository
+        usersIds: List<Long>,
+        accessToken: String,
+        userDataRepository: UserDataRepository,
+        getUpdates: Boolean,
+        preferLocal: Boolean
     ): Result {
-        val getUsersResult = userDataRepository.getUsersByIds(usersIds, accessToken)
+        val getUsersResult = userDataRepository
+            .getUsersByIds(usersIds, accessToken, getUpdates, preferLocal)
 
         if (getUsersResult is ErrorResult) return getUsersResult
 

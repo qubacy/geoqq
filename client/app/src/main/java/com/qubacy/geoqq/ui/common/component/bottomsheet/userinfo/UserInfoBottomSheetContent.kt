@@ -122,7 +122,9 @@ class UserInfoBottomSheetContent(
                 isEnabled = !data.isMate
 
                 setOnClickListener {
-                    mCallback!!.addToFriend(data)
+                    mCallback!!.addToMates(data)
+
+                    close()
                 }
             }
         }

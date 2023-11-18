@@ -31,7 +31,10 @@ abstract class UseCase<StateType>(
         mCoroutineScope = coroutineScope
     }
 
-    protected abstract fun generateState(operations: List<Operation>): StateType
+    protected abstract fun generateState(
+        operations: List<Operation>,
+        prevState: StateType? = null
+    ): StateType
 
     // todo: think of this:
     suspend fun getError(errorId: Long): Error {

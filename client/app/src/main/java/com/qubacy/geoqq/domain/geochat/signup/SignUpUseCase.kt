@@ -43,7 +43,7 @@ class SignUpUseCase(
         }
     }
 
-    override fun generateState(operations: List<Operation>): SignUpState {
+    override fun generateState(operations: List<Operation>, prevState: SignUpState?): SignUpState {
         return SignUpState(operations)
     }
 }
