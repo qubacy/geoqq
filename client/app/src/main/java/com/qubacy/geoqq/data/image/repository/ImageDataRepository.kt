@@ -56,7 +56,8 @@ class ImageDataRepository(
     }
 
     private fun loadImages(imagesIds: List<Long>): Result {
-        val images = mutableListOf<Uri>()
+        val imageIdToImageUriMap = mutableMapOf<Long, Uri>()
+        val notFoundImagesIds = mutableListOf<Long>()
 
         for (imageId in imagesIds) {
             val loadImageResult = loadImage(imageId)
@@ -65,10 +66,11 @@ class ImageDataRepository(
 
             val imageUri = (loadImageResult as LoadImageResult).imageUri
 
-            if (imageUri != null) images.add(imageUri)
+            if (imageUri != null) imageIdToImageUriMap[imageId] = imageUri
+            else notFoundImagesIds.add(imageId)
         }
 
-        return LoadImagesResult(images)
+        return LoadImagesResult(imageIdToImageUriMap, notFoundImagesIds)
     }
 
     private fun saveImage(imageId: Long, image: Bitmap): Result {
@@ -87,7 +89,7 @@ class ImageDataRepository(
         if (downloadImagesResult is ErrorResult) return downloadImagesResult
 
         val downloadImagesResultCast = downloadImagesResult as DownloadImagesResult
-        val savedImagesUris = mutableListOf<Uri>()
+        val savedImageIdToUriMap = mutableMapOf<Long, Uri>()
 
         for (downloadedImage in downloadImagesResultCast.images) {
             val imageBytes = StringEncodingDecodingUtil
@@ -103,10 +105,10 @@ class ImageDataRepository(
 
             val saveImageResultCast = saveImageResult as SaveImageResult
 
-            savedImagesUris.add(saveImageResultCast.imageUri)
+            savedImageIdToUriMap[downloadedImage.id] = saveImageResultCast.imageUri
         }
 
-        return GetImagesWithNetworkResult(savedImagesUris)
+        return GetImagesWithNetworkResult(savedImageIdToUriMap)
     }
 
     private suspend fun getImagesWithNetworkForUpdate(imagesIds: List<Long>, accessToken: String) {
@@ -117,9 +119,11 @@ class ImageDataRepository(
         val getImagesWithNetworkResultCast = getImagesWithNetworkResult as GetImagesWithNetworkResult
 
         if (imagesIds.size == 1)
-            emitResult(GetImageResult(getImagesWithNetworkResultCast.imagesUris.first()))
-        else
-            emitResult(GetImagesResult(getImagesWithNetworkResultCast.imagesUris, false))
+            emitResult(GetImageResult(
+                getImagesWithNetworkResultCast.imageIdToUriMap[imagesIds.first()]!!))
+        else {
+            emitResult(GetImagesResult(getImagesWithNetworkResultCast.imageIdToUriMap, false))
+        }
     }
 
     private fun getImagesWithNetworkForResult(
@@ -128,7 +132,7 @@ class ImageDataRepository(
         return getImagesWithNetwork(imagesUris, accessToken)
     }
 
-    suspend fun getImage(imageId: Long, accessToken: String, isLatest: Boolean = true): Result {
+    suspend fun getImage(imageId: Long, accessToken: String): Result {
         val imageLoadResult = loadImage(imageId)
 
         if (imageLoadResult is ErrorResult) return imageLoadResult
@@ -136,7 +140,7 @@ class ImageDataRepository(
         val imageLoadResultCast = imageLoadResult as LoadImageResult
 
         if (imageLoadResultCast.imageUri != null) {
-            if (isLatest) getImagesWithNetworkForUpdate(listOf(imageId), accessToken)
+//            if (isLatest) getImagesWithNetworkForUpdate(listOf(imageId), accessToken)
 
             return GetImageResult(imageLoadResultCast.imageUri)
         }
@@ -148,13 +152,12 @@ class ImageDataRepository(
 
         val getImageWithNetworkResultCast = getImageWithNetworkResult as GetImagesWithNetworkResult
 
-        return GetImageResult(getImageWithNetworkResultCast.imagesUris.first())
+        return GetImageResult(getImageWithNetworkResultCast.imageIdToUriMap[imageId]!!)
     }
 
     suspend fun getImages(
         imagesIds: List<Long>,
-        accessToken: String,
-        isLatest: Boolean = true
+        accessToken: String
     ): Result {
         val loadImagesResult = loadImages(imagesIds)
 
@@ -162,20 +165,26 @@ class ImageDataRepository(
 
         val loadImagesResultCast = loadImagesResult as LoadImagesResult
 
-        if (loadImagesResultCast.imagesUris.size == imagesIds.size) {
-            if (isLatest) getImagesWithNetworkForUpdate(imagesIds, accessToken)
+        // todo: it'd be better to return a DEFAULT IMAGE URI instead of NULL..
+        if (loadImagesResultCast.imageIdToImageUriMap.size == imagesIds.size) {
+//            if (isLatest) getImagesWithNetworkForUpdate(imagesIds, accessToken)
 
-            return GetImagesResult(loadImagesResultCast.imagesUris, true)
+            return GetImagesResult(loadImagesResultCast.imageIdToImageUriMap, true)
         }
 
-        val getImagesWithNetworkResult = getImagesWithNetworkForResult(imagesIds, accessToken)
+        val getImagesWithNetworkResult = getImagesWithNetworkForResult(
+            loadImagesResultCast.notFoundImagesIds, accessToken)
 
         if (getImagesWithNetworkResult is ErrorResult) return getImagesWithNetworkResult
         if (getImagesWithNetworkResult is InterruptionResult) return getImagesWithNetworkResult
 
         val getImagesWithNetworkResultCast = getImagesWithNetworkResult as GetImagesWithNetworkResult
+        val resultImageIdToImageUriMap = mutableMapOf<Long, Uri>().apply {
+            putAll(loadImagesResultCast.imageIdToImageUriMap)
+            putAll(getImagesWithNetworkResultCast.imageIdToUriMap)
+        }
 
-        return GetImagesResult(getImagesWithNetworkResultCast.imagesUris, false)
+        return GetImagesResult(resultImageIdToImageUriMap, false)
     }
 
     fun getImageByUri(imageUri: Uri): Result {

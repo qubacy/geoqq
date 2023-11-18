@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
@@ -61,10 +61,10 @@ class MateChatUseCase(
 
                 processGetMessagesResult(getMessagesResult)
             }
-            GetUserByIdResult::class -> {
-                val getUserByIdResult = result as GetUserByIdResult
+            GetUsersByIdsResult::class -> {
+                val getUsersByIdsResult = result as GetUsersByIdsResult
 
-                processGetUserByIdResult(getUserByIdResult)
+                processGetUsersByIdsResult(getUsersByIdsResult)
             }
             else -> { return false }
         }
@@ -74,47 +74,50 @@ class MateChatUseCase(
         return true
     }
 
-    private suspend fun processGetUserByIdResult(getUserByIdResult: GetUserByIdResult): Result {
+    private suspend fun processGetUsersByIdsResult(
+        getUsersByIdsResult: GetUsersByIdsResult
+    ): Result {
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
         if (getAccessTokenResult is ErrorResult) return getAccessTokenResult
 
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
-        val prevState = lockLastState()
-        val prevUser = prevState?.users?.find { it.id == getUserByIdResult.user.id }
+        Log.d(TAG, "processGetUserByIdResult(): before posting a state with users.size = ${getUsersByIdsResult.users.size}; areLocal = ${getUsersByIdsResult.areLocal}")
 
-        val getUsersAvatarUriResult = getUsersAvatarUrisWithPrevUsers(
-            listOf(getUserByIdResult.user),
-            if (prevUser == null) null else listOf(prevUser),
+        val prevState = lockLastState()
+
+        val getUsersAvatarUrisResult = getUsersAvatarUris(
+            getUsersByIdsResult.users,
             getAccessTokenResultCast.accessToken,
             userDataRepository,
             imageDataRepository
         )
 
-        if (getUsersAvatarUriResult is ErrorResult) return getUsersAvatarUriResult
+        if (getUsersAvatarUrisResult is ErrorResult) return getUsersAvatarUrisResult
 
-        val getUsersAvatarUriResultCast = getUsersAvatarUriResult as GetUsersAvatarUrisResult
+        val getUsersAvatarUrisResultCast = getUsersAvatarUrisResult as GetUsersAvatarUrisResult
 
-        val updatedUser = User(
-            getUserByIdResult.user.id,
-            getUserByIdResult.user.username,
-            getUserByIdResult.user.description,
-            getUsersAvatarUriResultCast.avatarUrisMap[getUserByIdResult.user.id]!!,
-            getUserByIdResult.user.isMate
-        )
-
-        val updatedUsers = prevState?.users?.map {
-            if (it.id == getUserByIdResult.user.id) updatedUser
-            else it
+        val updatedUsers = getUsersByIdsResult.users.map {
+            User(
+                it.id,
+                it.username,
+                it.description,
+                getUsersAvatarUrisResultCast.avatarUrisMap[it.id]!!,
+                it.isMate
+            )
         }
+
         val state = MateChatState(
             prevState?.messages ?: listOf(),
-            updatedUsers ?: listOf(),
-            listOf(SetUsersDetailsOperation(listOf(getUserByIdResult.user.id), true))
+            updatedUsers,
+            listOf(
+                SetUsersDetailsOperation(
+                    getUsersByIdsResult.users.map { it.id }, !getUsersByIdsResult.areLocal)
+            )
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with userId = ${getUserByIdResult.user.id}")
+        Log.d(TAG, "processGetUserByIdResult(): posting a state with users.size = ${getUsersByIdsResult.users.size}; areLocal = ${getUsersByIdsResult.areLocal}")
 
         postState(state)
 
@@ -247,21 +250,28 @@ class MateChatUseCase(
             val getTokensResultCast = getTokensResult as GetTokensResult
 
             mCurrentRepository = userDataRepository
-            val getUserByIdResult = userDataRepository
-                .getUserById(mInterlocutorUserId, getTokensResultCast.accessToken)
-
-            if (getUserByIdResult is ErrorResult) return@launch processError(getUserByIdResult.errorId)
-            if (getUserByIdResult is InterruptionResult) return@launch processInterruption()
-
-            val prevState = lockLastState()
-
-            val state = MateChatState(
-                prevState?.messages ?: listOf(),
-                prevState?.users ?: listOf(),
-                listOf(SetUsersDetailsOperation(listOf(mInterlocutorUserId), false))
+            val getUsersByIdsResult = userDataRepository.getUsersByIds(
+                listOf(mInterlocutorUserId), getTokensResultCast.accessToken,
+                false, false
             )
 
-            postState(state)
+            if (getUsersByIdsResult is ErrorResult) return@launch processError(getUsersByIdsResult.errorId)
+            if (getUsersByIdsResult is InterruptionResult) return@launch processInterruption()
+
+            val getUsersByIdsResultCast = getUsersByIdsResult as GetUsersByIdsResult
+
+//            val prevState = lockLastState()
+//            val updatedUsers = prevState?.users?.map {
+//                if (it.id == mInterlocutorUserId) getUserByIdResult
+//            }
+//
+//            val state = MateChatState(
+//                prevState?.messages ?: listOf(),
+//                prevState?.users?.map { it.id == mInterlocutorUserId } ?: listOf(),
+//                listOf(SetUsersDetailsOperation(listOf(mInterlocutorUserId), false))
+//            )
+//
+//            postState(state)
         }
     }
 }

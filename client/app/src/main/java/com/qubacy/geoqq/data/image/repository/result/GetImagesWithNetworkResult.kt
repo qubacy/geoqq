@@ -4,7 +4,7 @@ import android.net.Uri
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 
 class GetImagesWithNetworkResult(
-    val imagesUris: List<Uri>
+    val imageIdToUriMap: Map<Long, Uri>
 ) : Result() {
 
 }

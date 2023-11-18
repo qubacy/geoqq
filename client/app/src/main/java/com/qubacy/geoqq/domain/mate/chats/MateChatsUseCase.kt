@@ -80,12 +80,11 @@ class MateChatsUseCase(
 
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
+        Log.d(TAG, "processGetUserByIdResult(): before posting a state with an users.size = ${getUsersByIdsResult.users.size}; areLocal = ${getUsersByIdsResult.areLocal}")
         val prevState = lockLastState()
-        val prevUsers = prevState?.users
 
-        val getUsersAvatarUrisResult = getUsersAvatarUrisWithPrevUsers(
+        val getUsersAvatarUrisResult = getUsersAvatarUris(
             getUsersByIdsResult.users,
-            prevUsers,
             getAccessTokenResultCast.accessToken,
             userDataRepository,
             imageDataRepository
@@ -106,7 +105,7 @@ class MateChatsUseCase(
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with an updatedUsers.size = ${updatedUsers.size}")
+        Log.d(TAG, "processGetUserByIdResult(): posting a state with an updatedUsers.size = ${updatedUsers.size}; areLocal = ${getUsersByIdsResult.areLocal}")
         postState(state)
 
         return ProcessGetUserByIdResult()

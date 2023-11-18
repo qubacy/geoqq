@@ -134,9 +134,6 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     }
 
     private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
-        //val isListEmpty = mAdapter.itemCount <= 0
-
-        //if (isListEmpty) initChats(chatsUiState)
         if (chatsUiState.uiOperationCount() <= 0) return
 
         while (true) {
@@ -152,8 +149,6 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
                 initChats(state)
             }
             AddChatUiOperation::class -> {
-                //if (isListEmpty) return
-
                 val addChatUiOperation = uiOperation as AddChatUiOperation
                 val chat = (mModel as MateChatsViewModel)
                     .mateChatsUiStateFlow.value!!.chats.find {

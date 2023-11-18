@@ -28,6 +28,8 @@ class UserDataRepository(
     val networkUserDataSource: NetworkUserDataSource
 ) : FlowableDataRepository() {
     private fun insertOrUpdateUserEntitiesWithDatabase(dataUsers: List<DataUser>): Result {
+        var updatedOrInsertedUserCount = 0
+
         try {
             // todo: make a new query which with insert MULTIPLE USER ENTITIES AT A TIME!!!
 
@@ -42,18 +44,19 @@ class UserDataRepository(
 
                 val gottenUserEntity = localUserDataSource.getUserById(userEntity.id)
 
-                if (userEntity == gottenUserEntity)
-                    return InsertUsersIntoDatabaseResult(false)
+                if (userEntity == gottenUserEntity) continue
 
                 if (gottenUserEntity == null) localUserDataSource.insertUser(userEntity)
                 else localUserDataSource.updateUser(userEntity)
+
+                updatedOrInsertedUserCount++
             }
 
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
-        return InsertUsersIntoDatabaseResult(true)
+        return InsertUsersIntoDatabaseResult(updatedOrInsertedUserCount > 0)
     }
 
     private suspend fun getUsersWithNetworkAndSaveUpdated(
@@ -78,7 +81,7 @@ class UserDataRepository(
 
         val insertUsersResultCast = insertUsersResult as InsertUsersIntoDatabaseResult
 
-        return GetUsersWithNetworkResult(gottenUsers, insertUsersResult.areUpdatedOrInserted)
+        return GetUsersWithNetworkResult(gottenUsers, insertUsersResultCast.areUpdatedOrInserted)
     }
 
     private suspend fun getUsersWithNetworkForUpdate(usersIds: List<Long>, accessToken: String) {
@@ -90,12 +93,7 @@ class UserDataRepository(
         val getUserWithNetworkResultCast = getUserWithNetworkResult as GetUsersWithNetworkResult
 
         if (getUserWithNetworkResultCast.areNew) {
-            if (usersIds.size == 1)
-                emitResult(GetUserByIdResult(getUserWithNetworkResultCast.users.first()))
-            else
-                emitResult(GetUsersByIdsResult(
-                    getUserWithNetworkResultCast.users, getUserWithNetworkResultCast.areNew)
-                )
+            emitResult(GetUsersByIdsResult(getUserWithNetworkResultCast.users, false))
         }
     }
 
@@ -157,19 +155,23 @@ class UserDataRepository(
     suspend fun getUsersByIds(
         usersIds: List<Long>,
         accessToken: String,
-        isLatest: Boolean = true
+        getUpdates: Boolean = true,
+        preferLocal: Boolean = true
     ): Result {
-        val getUsersWithDatabaseResult = getUsersWithDatabase(usersIds)
+        if (preferLocal) {
+            val getUsersWithDatabaseResult = getUsersWithDatabase(usersIds)
 
-        if (getUsersWithDatabaseResult is ErrorResult) return getUsersWithDatabaseResult
-        if (getUsersWithDatabaseResult is InterruptionResult) return getUsersWithDatabaseResult
+            if (getUsersWithDatabaseResult is ErrorResult) return getUsersWithDatabaseResult
+            if (getUsersWithDatabaseResult is InterruptionResult) return getUsersWithDatabaseResult
 
-        val getUsersWithDatabaseResultCast = getUsersWithDatabaseResult as GetUsersWithDatabaseResult
+            val getUsersWithDatabaseResultCast =
+                getUsersWithDatabaseResult as GetUsersWithDatabaseResult
 
-        if (getUsersWithDatabaseResultCast.dataUsers.size == usersIds.size) {
-            if (isLatest) getUsersWithNetworkForUpdate(usersIds, accessToken)
+            if (getUsersWithDatabaseResultCast.dataUsers.size == usersIds.size) {
+                if (getUpdates) getUsersWithNetworkForUpdate(usersIds, accessToken)
 
-            return GetUsersByIdsResult(getUsersWithDatabaseResultCast.dataUsers, true)
+                return GetUsersByIdsResult(getUsersWithDatabaseResultCast.dataUsers, true)
+            }
         }
 
         val getUsersWithNetworkResult = getUsersWithNetworkForResult(usersIds, accessToken)
@@ -180,6 +182,6 @@ class UserDataRepository(
         val getUsersWithNetworkResultCast = getUsersWithNetworkResult as GetUsersWithNetworkResult
 
         return GetUsersByIdsResult(
-            getUsersWithNetworkResultCast.users, getUsersWithNetworkResultCast.areNew)
+            getUsersWithNetworkResultCast.users, !getUsersWithNetworkResultCast.areNew)
     }
 }

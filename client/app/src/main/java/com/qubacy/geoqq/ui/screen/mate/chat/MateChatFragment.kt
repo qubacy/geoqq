@@ -130,15 +130,12 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
     }
 
     private fun onChatUiStateGotten(chatUiState: MateChatUiState) {
-        val isListEmpty = mAdapter.itemCount <= 0
-
-        if (isListEmpty) initChat(chatUiState)
         if (chatUiState.uiOperationCount() <= 0) return
 
         while (true) {
             val uiOperation = chatUiState.takeUiOperation() ?: break
 
-            processUiOperation(chatUiState, uiOperation, isListEmpty)
+            processUiOperation(chatUiState, uiOperation)
         }
     }
 
@@ -158,27 +155,23 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
 
     private fun processUiOperation(
         chatUiState: MateChatUiState,
-        uiOperation: UiOperation,
-        isListEmpty: Boolean
+        uiOperation: UiOperation
     ) {
         when (uiOperation::class) {
             SetMessagesUiOperation::class -> {
                 initChat(chatUiState)
             }
             AddMessageUiOperation::class -> {
-                if (isListEmpty) return //??
-
                 val addMessageUiOperation = uiOperation as AddMessageUiOperation
-                val message = (mModel as MateChatViewModel).mateChatUiStateFlow.value!!.messages.find {
-                    it.id == addMessageUiOperation.messageId
-                }!!
+                val message = chatUiState.messages.find { it.id == addMessageUiOperation.messageId }!!
 
                 mAdapter.addItem(message)
             }
             OpenUserDetailsUiOperation::class -> {
                 val openUserDetailsUiOperation = uiOperation as OpenUserDetailsUiOperation
+                val user = chatUiState.users.find { it.id == openUserDetailsUiOperation.userId }!!
 
-                processOpenUserDetailsOperation(openUserDetailsUiOperation)
+                processOpenUserDetailsOperation(openUserDetailsUiOperation, user)
             }
             ChangeUsersUiOperation::class -> {
                 val changeUserUiOperation = uiOperation as ChangeUsersUiOperation
@@ -212,11 +205,10 @@ class MateChatFragment() : WaitingFragment(), ChatAdapterCallback, MenuProvider 
     }
 
     private fun processOpenUserDetailsOperation(
-        openUserDetailsUiOperation: OpenUserDetailsUiOperation
+        openUserDetailsUiOperation: OpenUserDetailsUiOperation,
+        user: User
     ) {
         closeSoftKeyboard()
-
-        val user = (mModel as MateChatViewModel).getMateInfo()
 
         mBinding.bottomSheet.bottomSheetContentCard.setData(user)
         mBinding.bottomSheet.bottomSheetContentCard.showPreview()

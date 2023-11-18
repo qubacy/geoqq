@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.user.model.DataUser
 
 class GetUsersByIdsResult(
     val users: List<DataUser>,
-    val isLocal: Boolean
+    val areLocal: Boolean
 ) : Result() {
 
 }
