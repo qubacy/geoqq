@@ -46,7 +46,7 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     override fun initFlowContainerIfNull() {
         val application = (requireActivity().application as Application)
 
-        if (application.appContainer.mateChatContainer != null) return
+        if (application.appContainer.mateRequestsContainer != null) return
 
         application.appContainer.initMateRequestsContainer(
             application.appContainer.errorDataRepository,

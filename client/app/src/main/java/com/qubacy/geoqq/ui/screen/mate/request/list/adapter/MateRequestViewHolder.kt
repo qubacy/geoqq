@@ -17,6 +17,7 @@ class MateRequestViewHolder(val binding: ComponentMateRequestBinding)
     private var lastProgressValue = 0f
 
     fun bind(item: User) {
+        binding.avatar.setImageURI(item.avatarUri)
         binding.username.text = item.username
         binding.description.text = item.description
     }
