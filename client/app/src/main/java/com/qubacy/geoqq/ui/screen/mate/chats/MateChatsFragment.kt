@@ -115,7 +115,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         (mModel as MateChatsViewModel).mateChatsUiStateFlow.value?.let {
             initChats(it)
         }
-            (mModel as MateChatsViewModel).mateChatsUiStateFlow.observe(viewLifecycleOwner) {
+        (mModel as MateChatsViewModel).mateChatsUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatsUiStateGotten(it)
@@ -150,8 +150,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             }
             AddChatUiOperation::class -> {
                 val addChatUiOperation = uiOperation as AddChatUiOperation
-                val chat = (mModel as MateChatsViewModel)
-                    .mateChatsUiStateFlow.value!!.chats.find {
+                val chat = state.chats.find {
                         it.chatId == addChatUiOperation.chatId
                     }!!
 
@@ -164,8 +163,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             }
             UpdateChatUiOperation::class -> {
                 val updateChatUiOperation = uiOperation as UpdateChatUiOperation
-                val chat = (mModel as MateChatsViewModel)
-                    .mateChatsUiStateFlow.value!!.chats.find {
+                val chat = state.chats.find {
                         it.chatId == updateChatUiOperation.chatId
                     }!!
 
@@ -173,8 +171,7 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             }
             UpdateRequestCountUiOperation::class -> {
                 val updateRequestCountUiOperation = uiOperation as UpdateRequestCountUiOperation
-                val requestCount = (mModel as MateChatsViewModel)
-                    .mateChatsUiStateFlow.value!!.requestCount
+                val requestCount = state.requestCount
 
                 onMateRequestCountChanged(requestCount)
             }

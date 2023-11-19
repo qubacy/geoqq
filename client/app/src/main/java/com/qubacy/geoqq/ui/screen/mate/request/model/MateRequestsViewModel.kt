@@ -5,77 +5,53 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
-import com.qubacy.geoqq.data.mates.request.entity.MateRequest
-import com.qubacy.geoqq.data.mates.request.state.MateRequestsState
+import com.qubacy.geoqq.domain.mate.request.MateRequestsUseCase
+import com.qubacy.geoqq.domain.mate.request.model.MateRequest
+import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
+import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
-// todo: provide a repository as a param..
 class MateRequestsViewModel(
-
+    val mateRequestsUseCase: MateRequestsUseCase
 ) : WaitingViewModel() {
-    // todo: assign to the repository's flow:
-    private val mMateRequestsStateFlow = MutableStateFlow<MateRequestsState?>(null)
+    companion object {
+        const val DEFAULT_REQUEST_CHUNK_SIZE = 20
+    }
+
+    private val mMateRequestsStateFlow = mateRequestsUseCase.stateFlow
 
     private val mMateRequestsUiStateFlow = mMateRequestsStateFlow.map { stateToUiState(it) }
     val mateRequestFlow: LiveData<MateRequestsUiState?> = mMateRequestsUiStateFlow.asLiveData()
 
-    // todo: delete:
     init {
-        mMateRequestsStateFlow.tryEmit(
-            MateRequestsState(
-            listOf(MateRequest(0), MateRequest(1), MateRequest(2)),
-            listOf(User(0, "user 1"), User(1, "user 2"), User(2,"user 3")),
-            listOf()
-        ))
+        mateRequestsUseCase.setCoroutineScope(viewModelScope)
     }
 
     fun acceptMateRequest(mateRequest: MateRequest) {
-        isWaiting.value = true // todo: uncomment;
+        isWaiting.value = true
 
-        viewModelScope.launch {
-            // todo: calling an appropriate method..
+        // todo: calling an appropriate method..
 
-            // todo: delete:
-            val requests = mateRequestFlow.value!!.mateRequests.filter { it.userId != mateRequest.userId }
-            val users = mateRequestFlow.value!!.users.filter { it.userId != mateRequest.userId }
-
-            mMateRequestsStateFlow.tryEmit(MateRequestsState(
-                requests,
-                users,
-                listOf()
-            ))
-
-            isWaiting.value = false
-        }
     }
 
     fun declineMateRequest(mateRequest: MateRequest) {
         isWaiting.value = true
 
-        viewModelScope.launch {
-            // todo: calling an appropriate method..
+        // todo: calling an appropriate method..
 
-            // todo: delete:
-            val requests = mateRequestFlow.value!!.mateRequests.filter { it.userId != mateRequest.userId }
-            val users = mateRequestFlow.value!!.users.filter { it.userId != mateRequest.userId }
+    }
 
-            mMateRequestsStateFlow.tryEmit(MateRequestsState(
-                requests,
-                users,
-                listOf()
-            ))
+    fun getMateRequests() {
+        isWaiting.value = true
 
-            isWaiting.value = false
-        }
+        mateRequestsUseCase.getMateRequests(DEFAULT_REQUEST_CHUNK_SIZE)
     }
 
     private fun stateToUiState(state: MateRequestsState?): MateRequestsUiState? {
@@ -95,9 +71,13 @@ class MateRequestsViewModel(
         return MateRequestsUiState(state.mateRequests, state.users, uiOperations)
     }
 
-    // todo: do i need any operations here?
     private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
+            SetMateRequestsOperation::class -> {
+                val setMateRequestsOperation = operation as SetMateRequestsOperation
+
+                SetMateRequestsUiOperation()
+            }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
@@ -114,11 +94,13 @@ class MateRequestsViewModel(
     }
 }
 
-class MateRequestsViewModelFactory() : ViewModelProvider.Factory {
+class MateRequestsViewModelFactory(
+    val mateRequestsUseCase: MateRequestsUseCase
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(MateRequestsViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MateRequestsViewModel() as T
+        return MateRequestsViewModel(mateRequestsUseCase) as T
     }
 }

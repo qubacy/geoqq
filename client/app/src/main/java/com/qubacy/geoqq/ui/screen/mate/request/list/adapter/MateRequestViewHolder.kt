@@ -7,9 +7,9 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import com.example.carousel3dlib.adapter.Carousel3DViewHolder
 import com.example.carousel3dlib.view.Carousel3DOpenableView
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.data.common.entity.person.user.User
 import com.qubacy.geoqq.databinding.ComponentMateRequestBinding
 import com.qubacy.geoqq.databinding.ComponentMateRequestOpenableBinding
+import com.qubacy.geoqq.domain.common.model.User
 
 class MateRequestViewHolder(val binding: ComponentMateRequestBinding)
     : Carousel3DViewHolder(binding.root)

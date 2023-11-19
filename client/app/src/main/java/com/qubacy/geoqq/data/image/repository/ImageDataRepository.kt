@@ -111,21 +111,6 @@ class ImageDataRepository(
         return GetImagesWithNetworkResult(savedImageIdToUriMap)
     }
 
-    private suspend fun getImagesWithNetworkForUpdate(imagesIds: List<Long>, accessToken: String) {
-        val getImagesWithNetworkResult = getImagesWithNetwork(imagesIds, accessToken)
-
-        if (getImagesWithNetworkResult is ErrorResult) emitResult(getImagesWithNetworkResult)
-
-        val getImagesWithNetworkResultCast = getImagesWithNetworkResult as GetImagesWithNetworkResult
-
-        if (imagesIds.size == 1)
-            emitResult(GetImageResult(
-                getImagesWithNetworkResultCast.imageIdToUriMap[imagesIds.first()]!!))
-        else {
-            emitResult(GetImagesResult(getImagesWithNetworkResultCast.imageIdToUriMap, false))
-        }
-    }
-
     private fun getImagesWithNetworkForResult(
         imagesUris: List<Long>, accessToken: String
     ): Result {

@@ -27,6 +27,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAcc
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
@@ -76,25 +77,17 @@ class MateChatsUseCase(
     }
 
     private suspend fun processGetUsersByIdsResult(getUsersByIdsResult: GetUsersByIdsResult): Result {
-        val getAccessTokenResult = getAccessToken(tokenDataRepository)
-
-        if (getAccessTokenResult is ErrorResult) return getAccessTokenResult
-
-        val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
-
-        Log.d(TAG, "processGetUserByIdResult(): before posting a state with an users.size = ${getUsersByIdsResult.users.size}; areLocal = ${getUsersByIdsResult.areLocal}")
         val prevState = lockLastState()
 
-        val processDataUsersResult = processDataUsers(
-            getUsersByIdsResult.users, getAccessTokenResultCast.accessToken,
-            userDataRepository, imageDataRepository
-        )
+        val getUsersFromGetUsersByIdsResult = getUsersFromGetUsersByIdsResult(
+            getUsersByIdsResult, userDataRepository,
+            imageDataRepository, tokenDataRepository, this)
 
-        if (processDataUsersResult is ErrorResult) return processDataUsersResult
+        if (getUsersFromGetUsersByIdsResult is ErrorResult) return getUsersFromGetUsersByIdsResult
 
         val state = MateChatsState(
             prevState!!.chats,
-            (processDataUsersResult as ProcessDataUsersResult).users,
+            (getUsersFromGetUsersByIdsResult as GetUsersFromGetUsersByIdsResult).users,
             prevState.mateRequestCount,
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
@@ -210,15 +203,16 @@ class MateChatsUseCase(
     fun getMateChats(count: Int) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
-            val getTokensResult = tokenDataRepository.getTokens()
+            val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
-            if (getTokensResult is ErrorResult) return@launch processError(getTokensResult.errorId)
-            if (getTokensResult is InterruptionResult) return@launch processInterruption()
+            if (getAccessTokenResult is ErrorResult)
+                return@launch processError(getAccessTokenResult.errorId)
+            if (getAccessTokenResult is InterruptionResult) return@launch processInterruption()
 
-            val getTokensResultCast = getTokensResult as GetTokensResult
+            val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
             mCurrentRepository = mateChatDataRepository
-            mateChatDataRepository.getChats(getTokensResultCast.accessToken, count)
+            mateChatDataRepository.getChats(getAccessTokenResultCast.accessToken, count)
         }
     }
 }

@@ -6,21 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.view.doOnPreDraw
 import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.Application
-import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapter
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapterCallback
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
-import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModelFactory
+import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 
 class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
@@ -40,8 +41,23 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+    }
 
-        mModel = MateRequestsViewModelFactory().create(MateRequestsViewModel::class.java)
+    override fun initFlowContainerIfNull() {
+        val application = (requireActivity().application as Application)
+
+        if (application.appContainer.mateChatContainer != null) return
+
+        application.appContainer.initMateRequestsContainer(
+            application.appContainer.errorDataRepository,
+            application.appContainer.tokenDataRepository,
+            application.appContainer.mateRequestDataRepository,
+            application.appContainer.imageDataRepository,
+            application.appContainer.userDataRepository
+        )
+
+        mModel = application.appContainer.mateRequestsContainer!!.mateRequestsViewModelFactory
+            .create(MateRequestsViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -65,19 +81,23 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         }
 
         (mModel as MateRequestsViewModel).mateRequestFlow.value?.let {
-            mAdapter.setItems(it.mateRequests)
+            initScreenWithState(it)
         }
-            (mModel as MateRequestsViewModel).mateRequestFlow.observe(viewLifecycleOwner) {
+        (mModel as MateRequestsViewModel).mateRequestFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateGotten(it)
         }
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+            (mModel as MateRequestsViewModel).getMateRequests()
+        }
     }
 
-    override fun initFlowContainerIfNull() {
-        // todo: implement this..
-
-
+    private fun initScreenWithState(state: MateRequestsUiState) {
+        mAdapter.setItems(state.mateRequests)
     }
 
     override fun clearFlowContainer() {
@@ -85,19 +105,20 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     }
 
     private fun onUiStateGotten(uiState: MateRequestsUiState) {
-        mAdapter.setItems(uiState.mateRequests)
-
         while (true) {
             val uiOperation = uiState.takeUiOperation() ?: break
 
-            processUiOperation(uiOperation)
+            processUiOperation(uiOperation, uiState)
         }
     }
 
-    private fun processUiOperation(uiOperation: UiOperation) {
-        // todo: do i need to process any other UI operations here?
-
+    private fun processUiOperation(uiOperation: UiOperation, state: MateRequestsUiState) {
         when (uiOperation::class) {
+            SetMateRequestsUiOperation::class -> {
+                val setMateRequestsUiOperation = uiOperation as SetMateRequestsUiOperation
+
+                initScreenWithState(state)
+            }
             ShowErrorUiOperation::class -> {
                 val showErrorUiOperation = uiOperation as ShowErrorUiOperation
 
@@ -107,8 +128,10 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     }
 
     override fun getUserById(userId: Long): User {
-        return (mModel as MateRequestsViewModel).mateRequestFlow.value!!
-            .users.find { it.userId == userId }!!
+        val user = (mModel as MateRequestsViewModel).mateRequestFlow.value!!
+            .users.find { it.id == userId }!!
+
+        return user
     }
 
     override fun onMateRequestSwiped(

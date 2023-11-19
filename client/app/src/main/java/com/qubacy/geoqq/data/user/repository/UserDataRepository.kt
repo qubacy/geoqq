@@ -8,7 +8,6 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.model.respo
 import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.result.GetUsersWithNetworkResult
 import com.qubacy.geoqq.data.user.repository.result.GetUserWithDatabaseResult
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult

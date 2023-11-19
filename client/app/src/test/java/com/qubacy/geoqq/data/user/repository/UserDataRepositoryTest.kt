@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data.user.repository
 
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource

@@ -7,8 +7,8 @@ import com.example.carousel3dlib.adapter.Carousel3DAdapter
 import com.example.carousel3dlib.adapter.Carousel3DViewHolder
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DHorizontalSwipeHandler
-import com.qubacy.geoqq.data.mates.request.entity.MateRequest
 import com.qubacy.geoqq.databinding.ComponentMateRequestBinding
+import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 
 open class MateRequestsAdapter(
     private val mCallback: MateRequestsAdapterCallback)

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.common.usecase.consuming
 
+import android.util.Log
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -16,6 +17,10 @@ abstract class ConsumingUseCase<StateType>(
     errorDataRepository: ErrorDataRepository,
     val flowableDataRepositories: List<FlowableDataRepository>
 ) : UseCase<StateType>(errorDataRepository) {
+    companion object {
+        const val TAG = "ConsumingUseCase"
+    }
+
     private val mOriginalFlowableRepositoryFlowJobList = mutableListOf<Job>()
     protected val mStateMutex = Mutex()
 
@@ -67,6 +72,7 @@ abstract class ConsumingUseCase<StateType>(
 
     protected suspend fun lockLastState(): StateType? {
         mStateMutex.lock()
+        Log.d(TAG, "lockLastState(): mStateMutex is locked;")
 
         return stateFlow.value
     }
@@ -75,5 +81,6 @@ abstract class ConsumingUseCase<StateType>(
         mStateFlow.emit(state)
 
         mStateMutex.unlock()
+        Log.d(TAG, "postState(): mStateMutex is unlocked;")
     }
 }

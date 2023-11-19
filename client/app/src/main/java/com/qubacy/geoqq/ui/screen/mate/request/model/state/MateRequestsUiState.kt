@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.screen.mate.request.model.state
 
-import com.qubacy.geoqq.data.common.entity.person.user.User
-import com.qubacy.geoqq.data.mates.request.entity.MateRequest
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.state.OperationUiState
 

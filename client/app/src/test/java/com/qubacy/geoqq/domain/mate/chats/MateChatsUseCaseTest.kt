@@ -16,7 +16,6 @@ import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUserByIdResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
