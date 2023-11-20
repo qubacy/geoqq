@@ -24,6 +24,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
+import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.result.ProcessDataMateRequestsResult
 import com.qubacy.geoqq.domain.mate.request.result.ProcessMateRequestsResult
@@ -155,6 +156,35 @@ class MateRequestsUseCase(
             val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
             requestDataRepository.getMateRequests(getAccessTokenResultCast.accessToken, count)
+        }
+    }
+
+    fun answerMateRequest(mateRequestId: Long, isAccepted: Boolean) {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = tokenDataRepository
+            val getAccessTokenResult = getAccessToken(tokenDataRepository)
+
+            if (getAccessTokenResult is ErrorResult)
+                return@launch processError(getAccessTokenResult.errorId)
+            if (getAccessTokenResult is InterruptionResult) return@launch processInterruption()
+
+            val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
+
+            val answerMateRequestResult = requestDataRepository.answerMateRequest(
+                getAccessTokenResultCast.accessToken, mateRequestId, isAccepted)
+
+            if (answerMateRequestResult is ErrorResult)
+                return@launch processError(answerMateRequestResult.errorId)
+            if (answerMateRequestResult is InterruptionResult) return@launch processInterruption()
+
+            val prevState = lockLastState()
+            val newState = MateRequestsState(
+                prevState?.mateRequests?.filter { it.id != mateRequestId } ?: listOf(),
+                prevState?.users ?: listOf(),
+                listOf(MateRequestAnswerProcessedOperation())
+            )
+
+            postState(newState)
         }
     }
 }

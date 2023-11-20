@@ -9,11 +9,13 @@ import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.request.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
+import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.screen.mate.request.model.operation.MateRequestAnswerProcessedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import kotlinx.coroutines.flow.map
@@ -37,15 +39,13 @@ class MateRequestsViewModel(
     fun acceptMateRequest(mateRequest: MateRequest) {
         isWaiting.value = true
 
-        // todo: calling an appropriate method..
-
+        mateRequestsUseCase.answerMateRequest(mateRequest.id, true)
     }
 
     fun declineMateRequest(mateRequest: MateRequest) {
         isWaiting.value = true
 
-        // todo: calling an appropriate method..
-
+        mateRequestsUseCase.answerMateRequest(mateRequest.id, false)
     }
 
     fun getMateRequests() {
@@ -77,6 +77,12 @@ class MateRequestsViewModel(
                 val setMateRequestsOperation = operation as SetMateRequestsOperation
 
                 SetMateRequestsUiOperation()
+            }
+            MateRequestAnswerProcessedOperation::class -> {
+                val mateRequestAnswerProcessedOperation =
+                    operation as MateRequestAnswerProcessedOperation
+
+                MateRequestAnswerProcessedUiOperation()
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation

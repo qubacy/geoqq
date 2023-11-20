@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
+import androidx.navigation.Navigation
 import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
@@ -21,6 +22,7 @@ import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapter
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapterCallback
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
+import com.qubacy.geoqq.ui.screen.mate.request.model.operation.MateRequestAnswerProcessedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 
@@ -110,12 +112,24 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
 
             processUiOperation(uiOperation, uiState)
         }
+
+        if (uiState.mateRequests.isEmpty()) navigateBack()
+    }
+
+    private fun navigateBack() {
+        Navigation.findNavController(requireView()).navigateUp()
     }
 
     private fun processUiOperation(uiOperation: UiOperation, state: MateRequestsUiState) {
         when (uiOperation::class) {
             SetMateRequestsUiOperation::class -> {
                 val setMateRequestsUiOperation = uiOperation as SetMateRequestsUiOperation
+
+                initScreenWithState(state)
+            }
+            MateRequestAnswerProcessedUiOperation::class -> {
+                val mateRequestAnswerProcessedUiOperation =
+                    uiOperation as MateRequestAnswerProcessedUiOperation
 
                 initScreenWithState(state)
             }

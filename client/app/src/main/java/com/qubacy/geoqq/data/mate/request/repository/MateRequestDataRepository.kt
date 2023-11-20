@@ -92,7 +92,7 @@ class MateRequestDataRepository(
         return CreateMateRequestResult()
     }
 
-    suspend fun answerMateResponse(
+    suspend fun answerMateRequest(
         accessToken: String, requestId: Long, isAccepted: Boolean
     ): Result {
         val answerMateRequestNetworkCall = networkMateRequestDataSource
