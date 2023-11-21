@@ -44,12 +44,12 @@ class SignUpViewModelTest : ViewModelTest() {
             mSignUpStateFlow
         }
 
-        val mSignInUiStateFlowFieldReflection = SignUpViewModel::class.java
+        val mSignUpUiStateFlowFieldReflection = SignUpViewModel::class.java
             .getDeclaredField("mSignUpUiStateFlow")
             .apply { isAccessible = true }
 
         mModel = SignUpViewModel(signUpUseCaseMock)
-        mSignUpUiStateFlow = mSignInUiStateFlowFieldReflection.get(mModel) as Flow<SignUpUiState?>
+        mSignUpUiStateFlow = mSignUpUiStateFlowFieldReflection.get(mModel) as Flow<SignUpUiState?>
     }
 
     @Before

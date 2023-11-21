@@ -1,15 +1,18 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat
 
+import com.qubacy.geoqq.ui.screen.common.ViewModelTest
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class GeoChatViewModelTest {
+class GeoChatViewModelTest : ViewModelTest() {
     private lateinit var mModel: GeoChatViewModel
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mModel = GeoChatViewModel()
     }
 

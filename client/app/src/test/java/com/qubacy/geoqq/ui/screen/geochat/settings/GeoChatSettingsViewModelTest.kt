@@ -1,24 +1,20 @@
 package com.qubacy.geoqq.ui.screen.geochat.settings
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
+import com.qubacy.geoqq.ui.screen.common.ViewModelTest
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-class GeoChatSettingsViewModelTest {
-    @get:Rule
-    val rule = InstantTaskExecutorRule()
-
+class GeoChatSettingsViewModelTest : ViewModelTest() {
     private lateinit var mModel: GeoChatSettingsViewModel
 
     @Before
-    fun setup() {
-        mModel = GeoChatSettingsViewModel()
+    override fun setup() {
+        super.setup()
 
-        mModel.curRadiusOptionIndex.observeForever {}
+        mModel = GeoChatSettingsViewModel()
     }
 
     data class GetCurRadiusOptionMetersTestCase(
@@ -48,5 +44,19 @@ class GeoChatSettingsViewModelTest {
 
             Assert.assertEquals(testCase.expectedRadiusOptionMeters, curRadiusInMeters)
         }
+    }
+
+    @Test
+    fun changeCurRadiusOptionIndexTest() {
+        for (radiusOptionIndex in GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY.indices) {
+            mModel.changeCurRadiusOptionIndex(radiusOptionIndex)
+        }
+
+        try {
+            mModel.changeCurRadiusOptionIndex(GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY.size)
+
+            throw IllegalStateException()
+
+        } catch (e: Exception) { }
     }
 }
