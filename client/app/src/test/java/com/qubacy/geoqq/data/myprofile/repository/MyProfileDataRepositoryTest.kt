@@ -195,14 +195,10 @@ class MyProfileDataRepositoryTest(
         initMyProfileDataRepository(code = 200, responseString = "{}")
 
         runBlocking {
-            mMyProfileDataRepository.updateMyProfile(
+            val result = mMyProfileDataRepository.updateMyProfile(
                 String(), avatarBitmapMock, String(),
                 String(), String(), MyProfileDataModelContext.HitUpOption.NEGATIVE
             )
-
-            while (mResultListAtomicRef.get().isEmpty()) { }
-
-            val result = mResultListAtomicRef.get().first()
 
             Assert.assertEquals(UpdateMyProfileResult::class, result::class)
         }

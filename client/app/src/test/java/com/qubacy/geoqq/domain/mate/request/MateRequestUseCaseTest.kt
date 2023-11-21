@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.mate.chats
+package com.qubacy.geoqq.domain.mate.request
 
 import android.net.Uri
 import com.qubacy.geoqq.common.BitmapMockContext
@@ -7,11 +7,9 @@ import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
-import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
-import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
+import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
+import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.model.DataUser
@@ -19,7 +17,8 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
-import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
+import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
+import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,7 +34,7 @@ import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.isAccessible
 
-class MateChatsUseCaseTest {
+class MateRequestUseCaseTest {
     companion object {
         init {
             BitmapMockContext.mockBitmapFactory()
@@ -43,38 +42,31 @@ class MateChatsUseCaseTest {
         }
     }
 
-    private lateinit var mMateChatsUseCase: MateChatsUseCase
+    private lateinit var mMateRequestsUseCase: MateRequestsUseCase
 
-    private lateinit var mMateChatsStateAtomicRef: AtomicReference<MateChatsState?>
+    private lateinit var mMateRequestsStateAtomicRef: AtomicReference<MateRequestsState?>
 
-    private fun emitOriginalState(originalMateChatsState: MateChatsState) = runBlocking {
+    private fun emitOriginalState(originalMateRequestsState: MateRequestsState) = runBlocking {
         val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("mStateFlow")
             .apply { isAccessible = true }
-        val stateFlow = stateFlowFieldReflection.get(mMateChatsUseCase)
-                as MutableStateFlow<MateChatsState>
+        val stateFlow = stateFlowFieldReflection.get(mMateRequestsUseCase)
+                as MutableStateFlow<MateRequestsState>
 
-        stateFlow.emit(originalMateChatsState)
+        stateFlow.emit(originalMateRequestsState)
     }
 
-    private fun initMateChatsUseCase(
+    private fun initMateRequestsUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
-        getMateChatsResult: GetChatsResult = GetChatsResult(listOf(), true),
+        getMateRequestsResult: GetMateRequestsResult = GetMateRequestsResult(listOf()),
         usersResults: GetUsersByIdsResult = GetUsersByIdsResult(listOf(), true),
         imagesResults: GetImagesResult = GetImagesResult(mapOf(), true),
-        mateRequestCount: Int = 0,
-        originalMateChatsState: MateChatsState? = null
+        originalMateRequestsState: MateRequestsState? = null
     ) = runBlocking {
         val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
 
         val tokenDataRepository = Mockito.mock(TokenDataRepository::class.java)
 
         Mockito.`when`(tokenDataRepository.getTokens()).thenReturn(getTokensResult)
-
-        val mateChatDataRepository = Mockito.mock(MateChatDataRepository::class.java)
-
-        Mockito.`when`(mateChatDataRepository.resultFlow).thenAnswer {
-            MutableSharedFlow<Result>()
-        }
 
         val imageDataRepository = Mockito.mock(ImageDataRepository::class.java)
 
@@ -88,53 +80,57 @@ class MateChatsUseCaseTest {
         Mockito.`when`(userDataRepository.getUsersByIds(
             Mockito.anyList(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())
         ).thenAnswer { invocation -> usersResults }
+        Mockito.`when`(userDataRepository.resultFlow).thenAnswer { MutableSharedFlow<Result>() }
 
         val mateRequestDataRepository = Mockito.mock(MateRequestDataRepository::class.java)
 
-        Mockito.`when`(mateRequestDataRepository.getMateRequestCount(Mockito.anyString()))
-            .thenAnswer { GetMateRequestCountResult(mateRequestCount) }
+        Mockito.`when`(mateRequestDataRepository.getMateRequests(Mockito.anyString(), Mockito.anyInt()))
+            .thenAnswer { getMateRequestsResult }
+        Mockito.`when`(mateRequestDataRepository.resultFlow).thenAnswer { MutableSharedFlow<Result>() }
 
-        mMateChatsUseCase = MateChatsUseCase(
-            errorDataRepository, tokenDataRepository, mateChatDataRepository,
-            imageDataRepository, userDataRepository, mateRequestDataRepository
+        mMateRequestsUseCase = MateRequestsUseCase(
+            errorDataRepository, tokenDataRepository, mateRequestDataRepository,
+            userDataRepository, imageDataRepository
         )
 
         val processResultMethodReflection = ConsumingUseCase::class.memberFunctions
             .find { it.name == "processResult" }!!.apply {
                 isAccessible = true
             }
-        if (originalMateChatsState != null)
-            emitOriginalState(originalMateChatsState)
+        if (originalMateRequestsState != null)
+            emitOriginalState(originalMateRequestsState)
 
-        Mockito.`when`(mateChatDataRepository.getChats(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.`when`(mateRequestDataRepository.getMateRequests(Mockito.anyString(), Mockito.anyInt()))
             .thenAnswer {
                 runBlocking {
-                    processResultMethodReflection.callSuspend(mMateChatsUseCase, getMateChatsResult)
+                    processResultMethodReflection.callSuspend(mMateRequestsUseCase, getMateRequestsResult)
                 }
             }
 
-        mMateChatsStateAtomicRef = AtomicReference(null)
+        mMateRequestsStateAtomicRef = AtomicReference(null)
 
         GlobalScope.launch(Dispatchers.IO) {
-            mMateChatsUseCase.stateFlow.collect {
+            mMateRequestsUseCase.stateFlow.collect {
                 if (it == null) return@collect
 
-                mMateChatsStateAtomicRef.set(it)
+                mMateRequestsStateAtomicRef.set(it)
             }
         }
     }
 
     @Before
     fun setup() {
-        initMateChatsUseCase()
+        initMateRequestsUseCase()
     }
 
     @Test
-    fun getTwoMateChatsTest() {
+    fun getTwoMateRequestsTest() {
         val imagesResults = GetImagesResult(
             mapOf(
                 0L to Uri.parse(String())
-            ), false)
+            ),
+            false
+        )
         val usersResults = GetUsersByIdsResult(
             listOf(
                 DataUser(0, "test", "test", 0L, true),
@@ -142,32 +138,46 @@ class MateChatsUseCaseTest {
             ),
             false
         )
-        val chatsResult = GetChatsResult(
+        val requestsResults = GetMateRequestsResult(
             listOf(
-                DataMateChat(0, 0, 0, null),
-                DataMateChat(1, 1, 0, null)
-            ),
-            false
+                DataMateRequest(0, 1),
+                DataMateRequest(0, 2)
+            )
         )
-        val mateRequestCount = 2
 
-        initMateChatsUseCase(
+        initMateRequestsUseCase(
             imagesResults = imagesResults,
             usersResults = usersResults,
-            getMateChatsResult = chatsResult,
-            mateRequestCount = mateRequestCount
+            getMateRequestsResult = requestsResults
         )
 
-        mMateChatsUseCase.getMateChats(chatsResult.chats.size)
+        mMateRequestsUseCase.getMateRequests(requestsResults.mateRequests.size)
 
-        while (mMateChatsStateAtomicRef.get() == null) { }
+        while (mMateRequestsStateAtomicRef.get() == null) { }
 
-        val gottenMateChatsState = mMateChatsStateAtomicRef.get()
+        val gottenMateRequestsState = mMateRequestsStateAtomicRef.get()
 
-        for (gottenChat in gottenMateChatsState!!.chats) {
-            Assert.assertNotNull(chatsResult.chats.find { it.id == gottenChat.chatId })
+        for (gottenMateRequest in gottenMateRequestsState!!.mateRequests) {
+            Assert.assertNotNull(requestsResults.mateRequests.find { it.id == gottenMateRequest.id })
         }
+    }
 
-        Assert.assertEquals(mateRequestCount, gottenMateChatsState.mateRequestCount)
+    @Test
+    fun answerMateRequestTest() {
+        val mateRequestId = 0L
+        val isAccepted = true
+
+        initMateRequestsUseCase()
+
+        runBlocking {
+            mMateRequestsUseCase.answerMateRequest(mateRequestId, isAccepted)
+
+            while (mMateRequestsStateAtomicRef.get() == null) { }
+
+            val gottenState = mMateRequestsStateAtomicRef.get()
+
+            Assert.assertNotNull(gottenState!!.newOperations.find {
+                it::class == MateRequestAnswerProcessedOperation::class })
+        }
     }
 }

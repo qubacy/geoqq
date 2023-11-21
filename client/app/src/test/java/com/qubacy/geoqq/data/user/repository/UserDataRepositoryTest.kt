@@ -1,18 +1,38 @@
 package com.qubacy.geoqq.data.user.repository
 
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.network.model.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository.source.network.model.response.NetworkUserModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import java.lang.StringBuilder
 
 class UserDataRepositoryTest() {
     private lateinit var mUserDataRepository: UserDataRepository
+
+    private fun generateUsersNetworkResponse(usersFromNetwork: List<NetworkUserModel>): String {
+        val responseStringBuilder = StringBuilder("{\"users\": [")
+
+        for (index in usersFromNetwork.indices) {
+            responseStringBuilder.append(
+                "{\"id\":${usersFromNetwork[index].id}," +
+                "\"username\":\"${usersFromNetwork[index].username}\"," +
+                "\"description\":\"${usersFromNetwork[index].description}\"," +
+                "\"avatar-id\":${usersFromNetwork[index].avatarId}," +
+                "\"is-mate\":${usersFromNetwork[index].isMate}}"
+            )
+            responseStringBuilder.append(if (index == usersFromNetwork.size - 1) "" else ",")
+        }
+
+        return responseStringBuilder.append("]}").toString()
+    }
 
     private fun initDataRepository(
         localUserEntity: UserEntity? = null,
@@ -38,42 +58,43 @@ class UserDataRepositoryTest() {
 
     @Test
     fun getUserByIdFromLocalDatabaseTest() {
-        val userEntity = UserEntity(
-            0, "test", "test desc", 0, 0)
+        val userEntities = listOf(UserEntity(
+            0, "test", "test desc", 0, 0))
 
-        initDataRepository(localUserEntity = userEntity)
+        initDataRepository(localUserEntity = userEntities.first())
 
         runBlocking {
-            val getUserByIdResult = mUserDataRepository.getUserById(userEntity.id, String())
+            val getUsersByIdsResult = mUserDataRepository
+                .getUsersByIds(userEntities.map { it.id }, String())
 
-            Assert.assertEquals(GetUserByIdResult::class, getUserByIdResult::class)
+            Assert.assertEquals(GetUsersByIdsResult::class, getUsersByIdsResult::class)
 
-            val gottenUser = (getUserByIdResult as GetUserByIdResult).user
+            val gottenUsers = (getUsersByIdsResult as GetUsersByIdsResult).users
 
-            Assert.assertEquals(userEntity.id, gottenUser.id)
+            Assert.assertEquals(userEntities.first().id, gottenUsers.first().id)
         }
     }
 
     @Test
     fun getUserByIdFromNetworkTest() {
         val userResponseObj = GetUsersResponse(
-            0, "test", "desc", 0, false)
-        val responseString = "{\"id\":${userResponseObj.id}," +
-                "\"username\":\"${userResponseObj.username}\"," +
-                "\"description\":\"${userResponseObj.description}\"," +
-                "\"avatar-id\":${userResponseObj.avatarId}," +
-                "\"is-mate\":${userResponseObj.isMate}}"
+            listOf(
+                NetworkUserModel(0, "test", "desc", 0, false)
+            )
+        )
+        val responseString = generateUsersNetworkResponse(userResponseObj.users)
 
         initDataRepository(code = 200, responseString = responseString)
 
         runBlocking {
-            val getUserByIdResult = mUserDataRepository.getUserById(userResponseObj.id, String())
+            val getUsersByIdsResult = mUserDataRepository
+                .getUsersByIds(userResponseObj.users.map { it.id }, String())
 
-            Assert.assertEquals(GetUserByIdResult::class, getUserByIdResult::class)
+            Assert.assertEquals(GetUsersByIdsResult::class, getUsersByIdsResult::class)
 
-            val gottenUser = (getUserByIdResult as GetUserByIdResult).user
+            val gottenUsers = (getUsersByIdsResult as GetUsersByIdsResult).users
 
-            Assert.assertEquals(userResponseObj.id, gottenUser.id)
+            Assert.assertEquals(userResponseObj.users.first().id, gottenUsers.first().id)
         }
     }
 }

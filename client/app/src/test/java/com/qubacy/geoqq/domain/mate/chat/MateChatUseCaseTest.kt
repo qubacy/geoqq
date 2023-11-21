@@ -8,14 +8,16 @@ import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.image.repository.result.GetImageResult
+import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
@@ -80,8 +82,9 @@ class MateChatUseCaseTest(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
         getAccessTokenPayloadResult: GetAccessTokenPayloadResult = GetAccessTokenPayloadResult(mapOf()),
         getMateMessagesResult: GetMessagesResult = GetMessagesResult(listOf()),
-        usersResults: Map<Long, GetUserByIdResult> = mapOf(),
-        imagesResults: Map<Long, GetImageResult> = mapOf(),
+        usersResults: GetUsersByIdsResult = GetUsersByIdsResult(listOf(), true),
+        imagesResults: GetImagesResult = GetImagesResult(mapOf(), true),
+        mateRequestCount: Long = 0,
         originalMateChatState: MateChatState? = null
     ) = runBlocking {
         val errorDataRepository = Mockito.mock(ErrorDataRepository::class.java)
@@ -100,31 +103,29 @@ class MateChatUseCaseTest(
 
         val imageDataRepository = Mockito.mock(ImageDataRepository::class.java)
 
-        Mockito.`when`(imageDataRepository.getImage(Mockito.anyLong(), Mockito.anyString()))
-            .thenAnswer { invocation ->
-                val imageId = invocation.arguments[0] as Long
-
-                imagesResults[imageId]!!
-            }
+        Mockito.`when`(imageDataRepository.getImages(Mockito.anyList(), Mockito.anyString()))
+            .thenAnswer { invocation -> imagesResults }
         Mockito.`when`(imageDataRepository.resultFlow).thenAnswer {
             MutableSharedFlow<Result>()
         }
 
         val userDataRepository = Mockito.mock(UserDataRepository::class.java)
 
-        Mockito.`when`(userDataRepository.getUserById(Mockito.anyLong(), Mockito.anyString()))
-            .thenAnswer { invocation ->
-                val userId = invocation.arguments[0] as Long
-
-                usersResults[userId]!!
-            }
+        Mockito.`when`(userDataRepository.getUsersByIds(
+            Mockito.anyList(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())
+        ).thenAnswer { invocation -> usersResults }
         Mockito.`when`(userDataRepository.resultFlow).thenAnswer {
             MutableSharedFlow<Result>()
         }
 
+        val mateRequestDataRepository = Mockito.mock(MateRequestDataRepository::class.java)
+
+        Mockito.`when`(mateRequestDataRepository.getMateRequestCount(Mockito.anyString()))
+            .thenAnswer { mateRequestCount }
+
         mMateChatUseCase = MateChatUseCase(
             errorDataRepository, tokenDataRepository, mateMessageDataRepository,
-            imageDataRepository, userDataRepository
+            imageDataRepository, userDataRepository, mateRequestDataRepository
         )
 
         val processResultMethodReflection = ConsumingUseCase::class.memberFunctions
@@ -161,14 +162,16 @@ class MateChatUseCaseTest(
 
     @Test
     fun getChatTest() {
-        val imagesResults = mapOf(
-            0L to GetImageResult(Uri.parse(String()))
-        )
-        val usersResults = mapOf(
-            0L to GetUserByIdResult(
-                DataUser(0, "test", "test", 0L, true)),
-            1L to GetUserByIdResult(
-                DataUser(1, "test", "test", 0L, true))
+        val imagesResults = GetImagesResult(
+            mapOf(
+                0L to Uri.parse(String())
+            ), false)
+        val usersResults = GetUsersByIdsResult(
+            listOf(
+                DataUser(0, "test", "test", 0L, true),
+                DataUser(1, "test", "test", 0L, true)
+            ),
+            false
         )
         val messages = listOf(
             DataMessage(0, 0, "test", 100),

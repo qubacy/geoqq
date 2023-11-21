@@ -92,15 +92,12 @@ class MateChatsUseCase(
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with areLocal = ${getUsersByIdsResult.areLocal}")
         postState(state)
 
         return ProcessGetUserByIdResult()
     }
 
     private suspend fun processGetChatsResult(result: GetChatsResult): Result {
-        Log.d(TAG, "processGetChatsResult(): before posting a state with result.isLocal = ${result.isLocal})")
-
         lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -136,7 +133,6 @@ class MateChatsUseCase(
             listOf(SetMateChatsOperation())
         )
 
-        Log.d(TAG, "processGetChatsResult(): posting a state..")
         postState(newState)
 
         return ProcessGetChatsResult()
@@ -174,8 +170,6 @@ class MateChatsUseCase(
     private fun processDataMateChat(
         dataMateChat: DataMateChat, user: User
     ): Result {
-        Log.d(TAG, "processDataMateChat(): dataMateChat.id = ${dataMateChat.id}; dataMateChat.userId = ${dataMateChat.userId}")
-
         val lastMessage = if (dataMateChat.lastMessage != null)
             MessageBase(dataMateChat.lastMessage.text, dataMateChat.lastMessage.time)
         else

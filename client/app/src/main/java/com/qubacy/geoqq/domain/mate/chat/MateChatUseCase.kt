@@ -99,16 +99,12 @@ class MateChatUseCase(
             )
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with users.size = ${getUsersByIdsResult.users.size}; areLocal = ${getUsersByIdsResult.areLocal}")
-
         postState(state)
 
         return ProcessGetUserByIdResult()
     }
 
     private suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
-        Log.d(TAG, "processGetMessagesResult(): before posting a state with messages.size = ${getMessagesResult.messages.size}")
-
         lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -139,7 +135,6 @@ class MateChatUseCase(
             listOf(SetMessagesOperation())
         )
 
-        Log.d(TAG, "processGetMessagesResult(): posting a state with messages.size = ${getMessagesResult.messages.size}")
         postState(state)
 
         return ProcessGetMessagesResult()

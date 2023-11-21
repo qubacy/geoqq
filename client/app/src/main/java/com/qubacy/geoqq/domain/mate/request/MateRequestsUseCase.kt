@@ -71,7 +71,6 @@ class MateRequestsUseCase(
     private suspend fun processMateRequestsResult(
         getMateRequestsResult: GetMateRequestsResult
     ): Result {
-        Log.d(TAG, "processMateRequestsResult(): before posting a state with requests.size = ${getMateRequestsResult.mateRequests.size}")
         val prevState = lockLastState()
 
         val usersIdsToGet = getMateRequestsResult.mateRequests.map { it.userId }
@@ -96,7 +95,6 @@ class MateRequestsUseCase(
             listOf(SetMateRequestsOperation())
         )
 
-        Log.d(TAG, "processMateRequestsResult(): posting a state with requests.size = ${getMateRequestsResult.mateRequests.size}")
         postState(state)
 
         return ProcessMateRequestsResult()
@@ -112,7 +110,6 @@ class MateRequestsUseCase(
     }
 
     private suspend fun processGetUsersByIdsResult(getUsersByIdsResult: GetUsersByIdsResult): Result {
-        Log.d(TAG, "processGetUsersByIdsResult(): before posting a state with users.size = ${getUsersByIdsResult.users.size}")
         val prevState = lockLastState()
 
         val getUsersFromGetUsersByIdsResult = getUsersFromGetUsersByIdsResult(
@@ -127,7 +124,6 @@ class MateRequestsUseCase(
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
 
-        Log.d(TAG, "processGetUserByIdResult(): posting a state with areLocal = ${getUsersByIdsResult.areLocal}")
         postState(state)
 
         return ProcessGetUserByIdResult()

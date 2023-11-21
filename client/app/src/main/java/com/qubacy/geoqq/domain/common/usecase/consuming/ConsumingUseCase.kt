@@ -72,7 +72,6 @@ abstract class ConsumingUseCase<StateType>(
 
     protected suspend fun lockLastState(): StateType? {
         mStateMutex.lock()
-        Log.d(TAG, "lockLastState(): mStateMutex is locked;")
 
         return stateFlow.value
     }
@@ -81,6 +80,5 @@ abstract class ConsumingUseCase<StateType>(
         mStateFlow.emit(state)
 
         mStateMutex.unlock()
-        Log.d(TAG, "postState(): mStateMutex is unlocked;")
     }
 }
