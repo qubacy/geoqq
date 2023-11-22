@@ -12,7 +12,7 @@ import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest

@@ -20,7 +20,7 @@ import androidx.transition.Fade
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.CURRENT_PASSWORD_TEXT_KEY
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.DESCRIPTION_TEXT_KEY

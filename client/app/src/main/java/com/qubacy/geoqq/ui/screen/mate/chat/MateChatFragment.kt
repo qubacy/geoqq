@@ -16,13 +16,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.MaterialContainerTransform
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.applicaion.Application
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
-import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
@@ -109,7 +108,7 @@ class MateChatFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).setSupportActionBar(mBinding.chatActionBar)
+        setActionBar()
 
         mAdapter = ChatAdapter(this)
 
@@ -150,6 +149,14 @@ class MateChatFragment(
 
             processUiOperation(chatUiState, uiOperation)
         }
+    }
+
+    private fun setActionBar() {
+        val activity = requireActivity()
+
+        if (activity !is AppCompatActivity) return
+
+        activity.setSupportActionBar(mBinding.chatActionBar)
     }
 
     private fun initChat(chatUiState: MateChatUiState) {

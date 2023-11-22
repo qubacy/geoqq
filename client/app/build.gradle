@@ -21,6 +21,10 @@ android {
         buildConfigField "String", "MAPKIT_API_KEY", "\"${mapkitApiKey}\""
     }
 
+    testOptions {
+        animationsDisabled = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false

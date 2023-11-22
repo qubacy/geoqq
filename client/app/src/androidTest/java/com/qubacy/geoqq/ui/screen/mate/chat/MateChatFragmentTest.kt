@@ -20,6 +20,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
@@ -33,11 +34,27 @@ import org.junit.Assert
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateChatFragmentTest : ChatFragmentTest() {
+class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
+    class MateChatUiStateTestData(
+        adapter: ChatAdapter,
+        chatStateFlow: MutableStateFlow<MateChatState?>,
+        chatUiState: LiveData<ChatUiState?>
+    ) : ChatUiStateTestData<MateChatState>(
+        adapter, chatStateFlow, chatUiState
+    ) {
+        override fun generateChatState(
+            messages: List<Message>,
+            users: List<User>,
+            operations: List<Operation>
+        ): MateChatState {
+            return MateChatState(messages, users, operations)
+        }
+    }
+
     private lateinit var mMateChatFragmentScenarioRule: FragmentScenario<MateChatFragment>
     private lateinit var mModel: MateChatViewModel
 
-    private lateinit var mMateChatUiStateTestData: ChatUiStateTestData
+    private lateinit var mMateChatUiStateTestData: MateChatUiStateTestData
 
     @Before
     fun setup() {
@@ -59,6 +76,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
         var adapter: ChatAdapter? = null
 
         mMateChatFragmentScenarioRule.onFragment {
+            mModel
             mModel = ViewModelProvider(it)[MateChatViewModel::class.java]
             adapter = adapterFieldReflection.get(it) as ChatAdapter
         }
@@ -69,7 +87,7 @@ class MateChatFragmentTest : ChatFragmentTest() {
                 isAccessible = true
             }
 
-        mMateChatUiStateTestData = ChatUiStateTestData(
+        mMateChatUiStateTestData = MateChatUiStateTestData(
             adapter!!,
             mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateChatState?>,
             mModel.mateChatUiStateFlow as LiveData<ChatUiState?>

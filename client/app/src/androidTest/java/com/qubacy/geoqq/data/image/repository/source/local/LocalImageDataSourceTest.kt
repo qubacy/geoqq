@@ -15,7 +15,7 @@ import java.nio.ByteBuffer
 @RunWith(AndroidJUnit4::class)
 class LocalImageDataSourceTest {
     companion object {
-        const val TEST_IMAGE_TITLE = "testImage"
+        const val TEST_IMAGE_ID = 1L
     }
 
     private lateinit var mLocalImageDataSource: LocalImageDataSource
@@ -80,7 +80,7 @@ class LocalImageDataSourceTest {
         val imageBitmap = getTestImageBitmap()
 
         runBlocking {
-            val imageUri = mLocalImageDataSource.saveImageOnDevice(TEST_IMAGE_TITLE, imageBitmap)
+            val imageUri = mLocalImageDataSource.saveImageOnDevice(TEST_IMAGE_ID, imageBitmap)
 
             Assert.assertNotNull(imageUri)
         }
@@ -89,7 +89,7 @@ class LocalImageDataSourceTest {
     @Test
     fun loadImageTest() {
         runBlocking {
-            val imageUri = mLocalImageDataSource.loadImage(TEST_IMAGE_TITLE)
+            val imageUri = mLocalImageDataSource.loadImage(TEST_IMAGE_ID)
 
             Assert.assertNotNull(imageUri)
         }
@@ -99,13 +99,13 @@ class LocalImageDataSourceTest {
     fun getImageBitmapByUriTest() {
         val imageBitmap = getTestImageBitmap()
 
-        mLocalImageDataSource.saveImageOnDevice(TEST_IMAGE_TITLE, imageBitmap)
+        mLocalImageDataSource.saveImageOnDevice(TEST_IMAGE_ID, imageBitmap)
 
         val imageBitmapBytes = ByteBuffer.allocate(imageBitmap.height * imageBitmap.rowBytes)
 
         imageBitmap.copyPixelsToBuffer(imageBitmapBytes)
 
-        val loadedImageUri = mLocalImageDataSource.loadImage(TEST_IMAGE_TITLE)
+        val loadedImageUri = mLocalImageDataSource.loadImage(TEST_IMAGE_ID)
         val loadedImageBitmap = mLocalImageDataSource.getImageBitmapByUri(loadedImageUri!!)
 
         Assert.assertNotNull(loadedImageBitmap)

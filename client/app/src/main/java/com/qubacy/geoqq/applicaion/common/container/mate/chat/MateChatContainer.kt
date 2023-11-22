@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.applicaion.container.mate.chat
+package com.qubacy.geoqq.applicaion.common.container.mate.chat
 
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory

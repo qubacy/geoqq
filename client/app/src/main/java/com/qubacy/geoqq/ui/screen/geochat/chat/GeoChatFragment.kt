@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.applicaion.Application
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message

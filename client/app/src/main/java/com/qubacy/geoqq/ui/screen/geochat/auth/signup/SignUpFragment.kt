@@ -14,8 +14,7 @@ import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.applicaion.Application
-import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentSignUpBinding
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation

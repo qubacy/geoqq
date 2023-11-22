@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.applicaion.container.myprofile
+package com.qubacy.geoqq.applicaion.common.container.myprofile
 
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory

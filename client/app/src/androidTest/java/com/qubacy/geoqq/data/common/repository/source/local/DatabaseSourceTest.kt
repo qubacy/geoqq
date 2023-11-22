@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.data.common.repository.source.local
 
 import androidx.test.core.app.ApplicationProvider
-import com.qubacy.geoqq.applicaion.Application
-import com.qubacy.geoqq.applicaion.container.AppContainer
+import com.qubacy.geoqq.applicaion.common.Application
+import com.qubacy.geoqq.applicaion.common.container.AppContainer
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 
 

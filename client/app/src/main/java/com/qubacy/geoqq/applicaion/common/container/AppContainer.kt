@@ -1,14 +1,14 @@
-package com.qubacy.geoqq.applicaion.container
+package com.qubacy.geoqq.applicaion.common.container
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.room.Room
-import com.qubacy.geoqq.applicaion.container.mate.chat.MateChatContainer
-import com.qubacy.geoqq.applicaion.container.mate.chats.MateChatsContainer
-import com.qubacy.geoqq.applicaion.container.mate.requests.MateRequestsContainer
-import com.qubacy.geoqq.applicaion.container.myprofile.MyProfileContainer
-import com.qubacy.geoqq.applicaion.container.signin.SignInContainer
-import com.qubacy.geoqq.applicaion.container.signup.SignUpContainer
+import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
+import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
+import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainer
+import com.qubacy.geoqq.applicaion.common.container.myprofile.MyProfileContainer
+import com.qubacy.geoqq.applicaion.common.container.signin.SignInContainer
+import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainer
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository

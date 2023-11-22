@@ -12,7 +12,7 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:name=".applicaion.impl.ApplicationImpl"
+        android:name=".application.TestApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,6 +22,7 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Geoqq"
+        tools:replace="android:name"
         tools:targetApi="31">
         <activity
             android:name=".ui.MainActivity"
