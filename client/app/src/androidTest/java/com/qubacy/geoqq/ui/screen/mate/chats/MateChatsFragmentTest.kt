@@ -46,7 +46,7 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
-import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentContext
+import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.launch

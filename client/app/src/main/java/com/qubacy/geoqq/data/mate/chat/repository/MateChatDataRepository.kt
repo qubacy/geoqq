@@ -25,7 +25,7 @@ import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMess
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.toDataMessage
 import retrofit2.Call
 
-class MateChatDataRepository(
+open class MateChatDataRepository(
     val localMateChatDataSource: LocalMateChatDataSource,
     val networkMateChatDataSource: NetworkMateChatDataSource,
     val localMateMessageDataSource: LocalMateMessageDataSource,

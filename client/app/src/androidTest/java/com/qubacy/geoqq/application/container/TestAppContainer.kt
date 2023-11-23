@@ -1,5 +1,8 @@
 package com.qubacy.geoqq.application.container
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.qubacy.geoqq.applicaion.common.container.AppContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
@@ -17,6 +20,10 @@ import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.domain.common.usecase.common.UseCase
+import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
+import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
@@ -29,6 +36,7 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModelFactory
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.mockito.Mockito
 
 class TestAppContainer : AppContainer() {
@@ -117,12 +125,28 @@ class TestAppContainer : AppContainer() {
         userDataRepository: UserDataRepository,
         mateRequestDataRepository: MateRequestDataRepository
     ) {
-        val mateChatViewModelMock = Mockito.mock(MateChatViewModel::class.java)
+        val mateChatUseCaseMock = Mockito.mock(MateChatUseCase::class.java)
+
+        Mockito.`when`(mateChatUseCaseMock.getChat(
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt())).thenAnswer {  }
+        Mockito.`when`(mateChatUseCaseMock.createMateRequest(Mockito.anyLong()))
+            .thenAnswer {  }
+        Mockito.`when`(mateChatUseCaseMock.getInterlocutorUserDetails())
+            .thenAnswer {  }
+        Mockito.`when`(mateChatUseCaseMock.sendMessage(Mockito.anyLong(), Mockito.anyString()))
+            .thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(mateChatUseCaseMock, MutableStateFlow<MateChatState?>(null))
+
+        val mateChatViewModel = MateChatViewModel(0L, 1L, mateChatUseCaseMock)
 
         val mateChatViewModelFactoryMock = Mockito.mock(MateChatViewModelFactory::class.java)
 
-        Mockito.`when`(mateChatViewModelFactoryMock.create(mateChatViewModelMock::class.java))
-            .thenAnswer { mateChatViewModelMock }
+        Mockito.`when`(mateChatViewModelFactoryMock.create(MateChatViewModel::class.java))
+            .thenAnswer { mateChatViewModel }
 
         mMateChatContainer = Mockito.mock(MateChatContainer::class.java)
 

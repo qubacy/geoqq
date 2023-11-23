@@ -29,7 +29,7 @@ import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOpera
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
 import kotlinx.coroutines.flow.map
 
-class MateChatViewModel(
+open class MateChatViewModel(
     val chatId: Long,
     val interlocutorUserId: Long,
     val mateChatUseCase: MateChatUseCase
@@ -177,7 +177,7 @@ class MateChatViewModel(
     }
 }
 
-class MateChatViewModelFactory(
+open class MateChatViewModelFactory(
     val chatId: Long,
     val interlocutorUserId: Long,
     val mateChatUseCase: MateChatUseCase

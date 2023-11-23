@@ -26,7 +26,7 @@ import com.qubacy.geoqq.data.image.repository.source.network.model.request.GetIm
 import com.qubacy.geoqq.data.image.repository.source.network.model.response.GetImagesResponse
 import retrofit2.Call
 
-class ImageDataRepository(
+open class ImageDataRepository(
     val localImageDataSource: LocalImageDataSource,
     val networkImageDataSource: NetworkImageDataSource
 ) : FlowableDataRepository() {

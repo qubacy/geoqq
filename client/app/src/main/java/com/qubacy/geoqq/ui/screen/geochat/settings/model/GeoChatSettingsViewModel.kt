@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 
-class GeoChatSettingsViewModel(
+open class GeoChatSettingsViewModel(
 
 ) : LocationViewModel() {
     companion object {
@@ -58,7 +58,7 @@ class GeoChatSettingsViewModel(
     }
 }
 
-class GeoChatSettingsViewModelFactory : ViewModelProvider.Factory {
+open class GeoChatSettingsViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(GeoChatSettingsViewModel::class.java))
             throw IllegalArgumentException()

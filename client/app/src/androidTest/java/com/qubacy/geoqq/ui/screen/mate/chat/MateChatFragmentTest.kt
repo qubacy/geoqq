@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.ui.screen.mate.chat
 
-import android.net.Uri
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
@@ -17,12 +15,14 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.data.mates.chat.entity.MateChat
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
-import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentTest
+import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
+import com.qubacy.geoqq.ui.screen.common.ScreenContext
+import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
+import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
@@ -57,7 +57,9 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
     private lateinit var mMateChatUiStateTestData: MateChatUiStateTestData
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         val args = MateChatsFragmentDirections
             .actionMateChatsFragmentToMateChatFragment(0)
             .arguments
@@ -74,19 +76,21 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
             }
 
         var adapter: ChatAdapter? = null
+        var fragment: MateChatFragment? = null
 
+        mMateChatFragmentScenarioRule.moveToState(Lifecycle.State.STARTED)
         mMateChatFragmentScenarioRule.onFragment {
-            mModel
-            mModel = ViewModelProvider(it)[MateChatViewModel::class.java]
+            fragment = it
             adapter = adapterFieldReflection.get(it) as ChatAdapter
         }
 
+        val modelFieldReflection = BaseFragment::class.java.getDeclaredField("mModel")
+            .apply { isAccessible = true }
         val mateChatStateFlowFieldReflection = MateChatViewModel::class.java
             .getDeclaredField("mMateChatStateFlow")
-            .apply {
-                isAccessible = true
-            }
+            .apply { isAccessible = true }
 
+        mModel = modelFieldReflection.get(fragment) as MateChatViewModel
         mMateChatUiStateTestData = MateChatUiStateTestData(
             adapter!!,
             mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateChatState?>,
@@ -174,36 +178,30 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun messageAppearsOnAddMessageOperationGottenOperationGottenTest() {
-        val user = User(0, "user", "test", Uri.EMPTY, false)
-        val message = Message(0, 0, "message", 1697433645440)
-
-        val chat = MateChat(0, null, String())
+        val users = ScreenContext.generateTestUsers(2, true)
 
         mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.addUser(user, chat)
-            mMateChatUiStateTestData.addMessage(message, chat)
+            mMateChatUiStateTestData.setChat(listOf(), users)
         }
 
-        Espresso.onView(withText(message.text))
+        val newMessage = Message(0, 0, "message", 1697433645440)
+
+        mMateChatFragmentScenarioRule.onFragment {
+            mMateChatUiStateTestData.addMessage(newMessage)
+        }
+
+        Espresso.onView(withText(newMessage.text))
             .perform(WaitingViewAction(1000))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
     fun threeMessagesAppearOnSetChatOperationWithThreeMessagesGottenTest() {
-        val chat = MateChat(0, null, "chat")
-        val users = listOf(
-            User(0, "me", "test", Uri.EMPTY, false),
-            User(1, "other", "test", Uri.EMPTY, false),
-        )
-        val messages = listOf(
-            Message(0, 0, "hi", 1697441985606),
-            Message(1, 1, "hi you", 1697441985606),
-            Message(2, 0, "no hi you", 1697441985606),
-        )
+        val users = ScreenContext.generateTestUsers(2, true)
+        val messages = ChatFragmentContext.generateTestMessages(3)
 
         mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.setChat(chat, messages, users)
+            mMateChatUiStateTestData.setChat(messages, users)
         }
 
         for (message in messages) {
@@ -214,31 +212,15 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun scrollingDownOnNewMessagesAddingTest() {
-        val chat = MateChat(0, null, "chat")
-        val users = listOf(
-            User(0, "me", "test", Uri.EMPTY, false),
-            User(1, "other", "test", Uri.EMPTY, false),
-        )
-        val messages = listOf(
-            Message(0, 0, "hi", 1697441985606),
-            Message(1, 1, "hi you", 1697441985606),
-            Message(2, 0, "no hi you", 1697441985606),
-            Message(3, 0, "2", 1697441985606),
-            Message(4, 0, "no hi you 2", 1697441985606),
-            Message(5, 0, "no hi you 3", 1697441985606),
-            Message(6, 0, "no hi you 4", 1697441985606),
-            Message(7, 0, "no hi you 5", 1697441985606),
-            Message(8, 0, "no hi you 6", 1697441985606),
-            Message(9, 0, "no hi you 7", 1697441985606),
-            Message(10, 1, "that's it", 1697441985606),
-        )
+        val users = ScreenContext.generateTestUsers(2, true)
+        val messages = ChatFragmentContext.generateTestMessages(11)
 
         mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.setChat(chat, listOf(), users)
+            mMateChatUiStateTestData.setChat(listOf(), users)
         }
 
         for (message in messages) {
-            mMateChatUiStateTestData.addMessage(message, chat)
+            mMateChatUiStateTestData.addMessage(message)
 
             Espresso.onView(withText(message.text))
                 .perform(WaitingViewAction(500))
@@ -247,40 +229,14 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
     }
 
     @Test
-    fun newUserProcessingTest() {
-        val chat = MateChat(0, null, "chat")
-        val users = listOf(
-            User(0, "me", "test", Uri.EMPTY, false),
-            User(1, "other", "test", Uri.EMPTY, false),
-        )
-        val messages = listOf(
-            Message(0, 0, "hi", 1697441985606),
-            Message(1, 1, "hi you", 1697441985606),
-            Message(2, 0, "no hi you", 1697441985606),
-        )
-
-        val newUser = User(2, "new", "test", Uri.EMPTY, false)
-        val newMessage = Message(3, 2, "hi there", 1697441985606)
-
-        mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.setChat(chat, messages, users)
-            mMateChatUiStateTestData.addUser(newUser, chat)
-            mMateChatUiStateTestData.addMessage(newMessage, chat)
-        }
-
-        Espresso.onView(withText(newUser.username))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    }
-
-    @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
         val error = Error(0, "Test", false)
 
         mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.showError(error, MateChat(0, null, String()))
+            mMateChatUiStateTestData.showError(error)
         }
 
-        Espresso.onView(withText(error.message))
+        Espresso.onView(withText(R.string.component_dialog_error_neutral_button_caption))
             .perform(ViewActions.click())
             .check(ViewAssertions.doesNotExist())
     }
@@ -290,7 +246,7 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
         val error = Error(0, "Test", true)
 
         mMateChatFragmentScenarioRule.onFragment {
-            mMateChatUiStateTestData.showError(error, MateChat(0, null, String()))
+            mMateChatUiStateTestData.showError(error)
         }
 
         try {

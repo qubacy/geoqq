@@ -25,7 +25,7 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountU
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUsersUiOperation
 import kotlinx.coroutines.flow.map
 
-class MateChatsViewModel(
+open class MateChatsViewModel(
     val mateChatsUseCase: MateChatsUseCase
 ) : WaitingViewModel() {
     companion object {
@@ -117,7 +117,7 @@ class MateChatsViewModel(
     }
 }
 
-class MateChatsViewModelFactory(
+open class MateChatsViewModelFactory(
     private val mateChatsUseCase: MateChatsUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.common.chat
+package com.qubacy.geoqq.ui.screen.common.fragment.chat
 
 import androidx.lifecycle.LiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -6,19 +6,19 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
-import com.qubacy.geoqq.data.common.entity.chat.Chat
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-abstract class ChatFragmentTest<StateType> {
+abstract class ChatFragmentTest<StateType> : FragmentTestBase() {
 
     abstract class ChatUiStateTestData<StateType>(
         private val mAdapter: ChatAdapter,
@@ -28,7 +28,7 @@ abstract class ChatFragmentTest<StateType> {
         abstract fun generateChatState(
             messages: List<Message>, users: List<User>, operations: List<Operation>): StateType
 
-        fun setChat(chat: Chat, messages: List<Message>, users: List<User>) {
+        fun setChat(messages: List<Message>, users: List<User>) {
             val chatState = generateChatState(messages, users, listOf()) //MateChatState(messages, users, listOf())
 
             runBlocking {
@@ -38,7 +38,7 @@ abstract class ChatFragmentTest<StateType> {
             mAdapter.setItems(messages)
         }
 
-        fun addMessage(message: Message, emptyChat: Chat = Chat()) {
+        fun addMessage(message: Message) {
             val newMessages = mutableListOf<Message>()
 
             if (mChatUiState.value != null)
@@ -59,30 +59,33 @@ abstract class ChatFragmentTest<StateType> {
             }
         }
 
-        fun addUser(user: User, emptyChat: Chat = Chat()) {
-            val newUsers = mutableListOf<User>()
+        // TODO: move addUser() to GeoChatFragmentTest!!
 
-            if (mChatUiState.value != null)
-                newUsers.addAll(mChatUiState.value!!.users)
+//        fun addUser(user: User) {
+//            val newUsers = mutableListOf<User>()
+//
+//            if (mChatUiState.value != null)
+//                newUsers.addAll(mChatUiState.value!!.users)
+//
+//            newUsers.add(user)
+//
+//            val messages = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.messages
+//
+//            val operations = listOf(
+//                AddUserChatOperation(user.id)
+//            )
+//
+//            val chatState = generateChatState(messages, newUsers, operations)//MateChatState(messages, newUsers, operations)
+//
+//            runBlocking {
+//                mChatStateFlow.emit(chatState)
+//            }
+//        }
 
-            newUsers.add(user)
-
-            val messages = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.messages
-
-            val operations = listOf(
-                AddUserChatOperation(user.id)
-            )
-
-            val chatState = generateChatState(messages, newUsers, operations)//MateChatState(messages, newUsers, operations)
-
-            runBlocking {
-                mChatStateFlow.emit(chatState)
-            }
-        }
-
-        fun changeChat(chat: Chat) {
-            val users = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.users
-            val messages = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.messages
+        fun changeChat(lastMessage: Message) {
+            val users = mChatUiState.value?.users ?: listOf()
+            val messages = mChatUiState.value?.messages?.toMutableList()?.apply { add(lastMessage) }
+                ?: listOf()
 
             val operations = listOf(
                 ChangeChatInfoOperation()
@@ -95,7 +98,7 @@ abstract class ChatFragmentTest<StateType> {
             }
         }
 
-        fun showError(error: Error, emptyChat: Chat = Chat()) {
+        fun showError(error: Error) {
             val users = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.users
             val messages = if (mChatUiState.value == null) listOf() else mChatUiState.value!!.messages
 

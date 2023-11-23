@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class SignInViewModel(
+open class SignInViewModel(
     private val mSignInUseCase: SignInUseCase
 ) : WaitingViewModel() {
     private var mSignInStateFlow = mSignInUseCase.stateFlow
@@ -74,7 +74,7 @@ class SignInViewModel(
     }
 
     private fun stateToUiState(state: SignInState?): SignInUiState? {
-        if (isWaiting.value == true) isWaiting.value = false
+        if (isWaiting.value == true) mIsWaiting.value = false
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()

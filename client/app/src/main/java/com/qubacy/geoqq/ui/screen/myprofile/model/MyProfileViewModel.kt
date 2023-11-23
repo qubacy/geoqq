@@ -23,7 +23,7 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOp
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import kotlinx.coroutines.flow.map
 
-class MyProfileViewModel(
+open class MyProfileViewModel(
     val myProfileUseCase: MyProfileUseCase
 ) : WaitingViewModel() {
     private var mMyProfileStateFlow = myProfileUseCase.stateFlow
@@ -36,7 +36,7 @@ class MyProfileViewModel(
     }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
-        if (isWaiting.value == true) isWaiting.value = false
+        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -237,7 +237,7 @@ class MyProfileViewModel(
     }
 }
 
-class MyProfileViewModelFactory(
+open class MyProfileViewModelFactory(
     val myProfileUseCase: MyProfileUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -18,7 +18,7 @@ import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSou
 import com.qubacy.geoqq.data.token.repository.source.network.model.response.UpdateTokensResponse
 import retrofit2.Call
 
-class TokenDataRepository(
+open class TokenDataRepository(
     val localTokenDataSource: LocalTokenDataSource,
     val networkTokenDataSource: NetworkTokenDataSource
 ) : NetworkDataRepository() {

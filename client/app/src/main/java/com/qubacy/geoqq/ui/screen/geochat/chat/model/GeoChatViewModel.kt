@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 // todo: provide a repository as a param..
-class GeoChatViewModel(
+open class GeoChatViewModel(
 
 ) : LocationViewModel(), ChatViewModel {
     // todo: assign to the repository's flow:
@@ -133,7 +133,7 @@ class GeoChatViewModel(
     }
 }
 
-class GeoChatViewModelFactory() : ViewModelProvider.Factory {
+open class GeoChatViewModelFactory() : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(GeoChatViewModel::class.java))
             throw IllegalArgumentException()

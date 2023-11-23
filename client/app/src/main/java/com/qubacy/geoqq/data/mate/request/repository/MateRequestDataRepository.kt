@@ -20,7 +20,7 @@ import com.qubacy.geoqq.data.mate.request.repository.source.network.model.respon
 import com.qubacy.geoqq.data.mate.request.repository.source.websocket.WebSocketMateRequestDataSource
 import retrofit2.Call
 
-class MateRequestDataRepository(
+open class MateRequestDataRepository(
     val networkMateRequestDataSource: NetworkMateRequestDataSource,
     webSocketUpdateMateRequestDataSource: WebSocketMateRequestDataSource
 ) : UpdatableDataRepository(webSocketUpdateMateRequestDataSource) {

@@ -22,7 +22,7 @@ import com.qubacy.geoqq.data.user.repository.source.network.model.response.GetUs
 import com.qubacy.geoqq.data.user.repository.source.network.model.response.toDataUser
 import retrofit2.Call
 
-class UserDataRepository(
+open class UserDataRepository(
     val localUserDataSource: LocalUserDataSource,
     val networkUserDataSource: NetworkUserDataSource
 ) : FlowableDataRepository() {

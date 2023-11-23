@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.signup.repository.source.network.NetworkSignUpDataS
 import com.qubacy.geoqq.data.signup.repository.source.network.response.SignUpResponse
 import retrofit2.Call
 
-class SignUpDataRepository(
+open class SignUpDataRepository(
     val networkSignUpDataSource: NetworkSignUpDataSource
 ) : NetworkDataRepository() {
     suspend fun signUp(login: String, password: String): Result {

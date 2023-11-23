@@ -20,7 +20,7 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUi
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import kotlinx.coroutines.flow.map
 
-class MateRequestsViewModel(
+open class MateRequestsViewModel(
     val mateRequestsUseCase: MateRequestsUseCase
 ) : WaitingViewModel() {
     companion object {
@@ -37,25 +37,25 @@ class MateRequestsViewModel(
     }
 
     fun acceptMateRequest(mateRequest: MateRequest) {
-        isWaiting.value = true
+        mIsWaiting.value = true
 
         mateRequestsUseCase.answerMateRequest(mateRequest.id, true)
     }
 
     fun declineMateRequest(mateRequest: MateRequest) {
-        isWaiting.value = true
+        mIsWaiting.value = true
 
         mateRequestsUseCase.answerMateRequest(mateRequest.id, false)
     }
 
     fun getMateRequests() {
-        isWaiting.value = true
+        mIsWaiting.value = true
 
         mateRequestsUseCase.getMateRequests(DEFAULT_REQUEST_CHUNK_SIZE)
     }
 
     private fun stateToUiState(state: MateRequestsState?): MateRequestsUiState? {
-        if (isWaiting.value == true) isWaiting.value = false // todo: should it be this way?
+        if (mIsWaiting.value == true) mIsWaiting.value = false // todo: should it be this way?
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -100,7 +100,7 @@ class MateRequestsViewModel(
     }
 }
 
-class MateRequestsViewModelFactory(
+open class MateRequestsViewModelFactory(
     val mateRequestsUseCase: MateRequestsUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

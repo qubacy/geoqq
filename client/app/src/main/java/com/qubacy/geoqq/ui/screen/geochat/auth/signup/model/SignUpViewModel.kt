@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class SignUpViewModel(
+open class SignUpViewModel(
     private val mSignUpUseCase: SignUpUseCase
 ) : WaitingViewModel() {
     private var mSignUpStateFlow = mSignUpUseCase.stateFlow

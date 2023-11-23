@@ -28,7 +28,7 @@ import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.response.toDataMyProfile
 import java.nio.ByteBuffer
 
-class MyProfileDataRepository(
+open class MyProfileDataRepository(
     val localMyProfileDataSource: LocalMyProfileDataSource,
     val networkMyProfileDataSource: NetworkMyProfileDataSource
 ) : FlowableDataRepository() {

@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.signin.repository.source.network.model.response.SignInWithLoginPasswordResponse
 import retrofit2.Call
 
-class SignInDataRepository(
+open class SignInDataRepository(
     val networkSignInDataSource: NetworkSignInDataSource
 ) : NetworkDataRepository() {
     suspend fun signInWithLoginPassword(

@@ -1,7 +1,5 @@
 package com.qubacy.geoqq.domain.mate.chat
 
-import android.util.Log
-import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -13,10 +11,8 @@ import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.CreateMateRequestResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
-import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
-import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
@@ -32,12 +28,11 @@ import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.MessageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MateChatUseCase(
+open class MateChatUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val mateMessageDataRepository: MateMessageDataRepository,
@@ -168,7 +163,7 @@ class MateChatUseCase(
         return payload[USER_ID_TOKEN_PAYLOAD_KEY]?.asLong()
     }
 
-    fun getChat(chatId: Long, interlocutorUserId: Long, count: Int) {
+    open fun getChat(chatId: Long, interlocutorUserId: Long, count: Int) {
         mCoroutineScope.launch (Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -188,7 +183,7 @@ class MateChatUseCase(
         }
     }
 
-    fun sendMessage(chatId: Long, messageText: String) {
+    open fun sendMessage(chatId: Long, messageText: String) {
         mCoroutineScope.launch (Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -209,7 +204,7 @@ class MateChatUseCase(
         }
     }
 
-    fun getInterlocutorUserDetails() {
+    open fun getInterlocutorUserDetails() {
         mCoroutineScope.launch (Dispatchers.IO) {
             // todo: is it ok??? we don't set the token rep. as a current one;
             mCurrentRepository = userDataRepository
@@ -248,7 +243,7 @@ class MateChatUseCase(
         }
     }
 
-    fun createMateRequest(userId: Long) {
+    open fun createMateRequest(userId: Long) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)

@@ -15,7 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
-import com.qubacy.geoqq.ui.screen.common.chat.ChatFragmentTest
+import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction

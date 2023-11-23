@@ -26,7 +26,7 @@ import com.qubacy.geoqq.data.mate.message.repository.source.network.NetworkMateM
 import com.qubacy.geoqq.data.mate.message.repository.source.websocket.WebSocketUpdateMateMessageDataSource
 import retrofit2.Call
 
-class MateMessageDataRepository(
+open class MateMessageDataRepository(
     val localMateMessageDataSource: LocalMateMessageDataSource,
     val networkMateMessageDataSource: NetworkMateMessageDataSource,
     updateMateMessageDataSource: WebSocketUpdateMateMessageDataSource

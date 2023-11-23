@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.error.repository.source.local.LocalErrorDataSource
 import com.qubacy.geoqq.data.error.repository.source.local.model.ErrorEntity
 import com.qubacy.geoqq.data.error.repository.source.local.model.toError
 
-class ErrorDataRepository(
+open class ErrorDataRepository(
     val localErrorDataSource: LocalErrorDataSource
 ) : DataRepository() {
     private fun getErrorForLanguageWithDatabase(
