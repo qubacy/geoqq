@@ -2,21 +2,24 @@ package com.qubacy.geoqq.ui.screen.myprofile
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
+import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,9 +34,11 @@ import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
+import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
@@ -44,7 +49,7 @@ import java.lang.Exception
 import java.lang.reflect.Method
 
 @RunWith(AndroidJUnit4::class)
-class MyProfileFragmentTest {
+class MyProfileFragmentTest : FragmentTestBase() {
     class UserAvatarTestData(
         val setUserAvatarWithUriMethodReflection: Method,
         val fragment: MyProfileFragment
@@ -110,27 +115,33 @@ class MyProfileFragmentTest {
     private lateinit var mModel: MyProfileViewModel
     private lateinit var mContext: Context
 
+    private lateinit var mResources: Resources
+    private lateinit var mTestAvatarUri: Uri
+
     private lateinit var mUserAvatarTestData: UserAvatarTestData
     private lateinit var mPrivacyHitUpTestData: PrivacyHitUpTestData
     private lateinit var mMyProfileUiStateTestData: MyProfileUiStateTestData
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mMyProfileFragmentScenarioRule = launchFragmentInContainer(
             themeResId = R.style.Theme_Geoqq_MyProfile)
+        mMyProfileFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
         mContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         var fragment: MyProfileFragment? = null
 
         mMyProfileFragmentScenarioRule.apply {
-            moveToState(Lifecycle.State.RESUMED)
             onFragment {
-                mBinding = DataBindingUtil.getBinding<FragmentMyProfileBinding>(it.view!!)!!
+                mBinding = DataBindingUtil.getBinding<FragmentMyProfileBinding>(it.requireView())!!
                 fragment = it
-                mModel = ViewModelProvider(it)[MyProfileViewModel::class.java]
             }
         }
 
+        val mModelFieldReflection = MyProfileFragment::class.java.superclass.superclass
+            .getDeclaredField("mModel").apply { isAccessible = true }
         val changedInputHashFieldReflection =
             MyProfileFragment::class.java.getDeclaredField("mChangedInputHash").apply {
                 isAccessible = true
@@ -154,6 +165,7 @@ class MyProfileFragmentTest {
                 isAccessible = true
             }
 
+        mModel = mModelFieldReflection.get(fragment) as MyProfileViewModel
         mUserAvatarTestData = UserAvatarTestData(
             setUserAvatarWithUriMethodReflection,
             fragment!!
@@ -166,6 +178,14 @@ class MyProfileFragmentTest {
             myProfileStateFlowFieldReflection.get(mModel) as MutableStateFlow<MyProfileState?>,
             myProfileUiStateFieldReflection.get(mModel) as LiveData<MyProfileUiState?>
         )
+
+        mResources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+
+        mTestAvatarUri = Uri.parse(
+            ContentResolver.SCHEME_ANDROID_RESOURCE +
+                    "://" + mResources.getResourcePackageName(R.drawable.ic_add_friend)
+                    + '/' + mResources.getResourceTypeName(R.drawable.ic_add_friend)
+                    + '/' + mResources.getResourceEntryName(R.drawable.ic_add_friend));
     }
 
     @Test
@@ -198,6 +218,8 @@ class MyProfileFragmentTest {
 
     @Test
     fun allElementsEnabledTest() {
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
+
         Espresso.onView(withId(R.id.plus_icon))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(withId(R.id.about_me_input))
@@ -248,6 +270,7 @@ class MyProfileFragmentTest {
 
     @Test
     fun allPrivacyHitUpVariantsAreVisibleOnClickTest() {
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
         Espresso.onView(withId(R.id.scroll_view))
             .perform(ViewActions.swipeUp())
         Espresso.onView(withId(R.id.privacy_hit_up))
@@ -279,23 +302,21 @@ class MyProfileFragmentTest {
 
     @Test
     fun providingNewAvatarGoesWithoutShowingErrorMessageTest() {
-        val resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        val imageUri = Uri.parse(
-            ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + resources.getResourcePackageName(R.drawable.ic_add_friend)
-                + '/' + resources.getResourceTypeName(R.drawable.ic_add_friend)
-                + '/' + resources.getResourceEntryName(R.drawable.ic_add_friend));
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
 
         mMyProfileFragmentScenarioRule.onFragment {
-            mUserAvatarTestData.setUserAvatarWithUri(imageUri)
+            mUserAvatarTestData.setUserAvatarWithUri(mTestAvatarUri)
         }
 
-        Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.confirm_button))
+            .perform(WaitingViewAction(1000), ViewActions.click())
         Espresso.onView(withId(R.id.loading_screen)).check(ViewAssertions.matches(isDisplayed()))
     }
 
     @Test
     fun providingNewDescriptionGoesWithoutShowingErrorMessageTest() {
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
+
         val newDescription = "fqfq qwfq fq f q wf"
 
         Espresso.onView(Matchers.allOf(
@@ -372,9 +393,16 @@ class MyProfileFragmentTest {
 
     @Test
     fun providingNewHitUpOptionGoesWithoutShowingErrorMessageTest() {
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
+
         mMyProfileFragmentScenarioRule.onFragment {
             mMyProfileUiStateTestData.setState(
-                MyProfileState(username = "fwqf", description = "g3523 235 235", hitUpOption = MyProfileDataModelContext.HitUpOption.POSITIVE)
+                MyProfileState(
+                    avatar = mTestAvatarUri,
+                    username = "fwqf",
+                    description = "g3523 235 235",
+                    hitUpOption = MyProfileDataModelContext.HitUpOption.POSITIVE
+                )
             )
         }
 
@@ -419,8 +447,10 @@ class MyProfileFragmentTest {
 
     @Test
     fun successfulProfileDataSavingLeadsToSuccessMessageShowingTest() {
+        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
+
         val state = MyProfileState(
-            Uri.EMPTY,
+            mTestAvatarUri,
             "me",
             "something",
             MyProfileDataModelContext.HitUpOption.NEGATIVE,

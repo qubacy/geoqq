@@ -191,6 +191,8 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     }
 
     override fun onLocationPointChanged(newLocationPoint: Point) {
+        Log.d(TAG, "onLocationPointChanged(): newLocationPoint = (${newLocationPoint.latitude}; ${newLocationPoint.longitude})")
+
         drawCurLocationCircle(newLocationPoint)
         setCameraPositionForCurCircle(true)
     }

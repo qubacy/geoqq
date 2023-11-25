@@ -1,11 +1,12 @@
 package com.qubacy.geoqq.ui.screen.mate.request
 
 import android.net.Uri
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
@@ -16,9 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
-import com.google.android.material.card.MaterialCardView
 import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
@@ -27,7 +26,10 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
+import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
+import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
@@ -39,13 +41,15 @@ import org.junit.Assert
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateRequestsFragmentTest {
+class MateRequestsFragmentTest : FragmentTestBase() {
     class MateRequestsUiStateTestData(
         private val mMateRequestsStateFlow: MutableStateFlow<MateRequestsState?>,
         private val mateRequestFlow: LiveData<MateRequestsUiState?>
     ) {
         fun setMateRequests(mateRequests: List<MateRequest>, users: List<User>) {
-            val operations = listOf<Operation>()
+            val operations = listOf<Operation>(
+                SetMateRequestsOperation()
+            )
 
             runBlocking {
                 mMateRequestsStateFlow.emit(MateRequestsState(mateRequests, users, operations))
@@ -59,7 +63,9 @@ class MateRequestsFragmentTest {
             val newUsers = prevUsers.filter { it.id != mateRequest.userId }
             val newRequests = prevRequests.filter { it.userId != mateRequest.userId }
 
-            val operations = listOf<Operation>()
+            val operations = listOf<Operation>(
+                MateRequestAnswerProcessedOperation()
+            )
 
             runBlocking {
                 mMateRequestsStateFlow.emit(MateRequestsState(newRequests, newUsers, operations))
@@ -97,25 +103,39 @@ class MateRequestsFragmentTest {
     }
 
     private lateinit var mMateRequestsFragmentScenarioRule: FragmentScenario<MateRequestsFragment>
+    private lateinit var mNavHostController: TestNavHostController
     private lateinit var mModel: MateRequestsViewModel
 
     private lateinit var mMateRequestsUiStateTestData: MateRequestsUiStateTestData
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mMateRequestsFragmentScenarioRule = launchFragmentInContainer(
             themeResId = R.style.Theme_Geoqq_Mates)
         mMateRequestsFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
 
+        var fragment: MateRequestsFragment? = null
+
+        mNavHostController = TestNavHostController(ApplicationProvider.getApplicationContext())
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mModel = ViewModelProvider(it)[MateRequestsViewModel::class.java]
+            mNavHostController.setGraph(R.navigation.nav_graph)
+            mNavHostController.setCurrentDestination(R.id.mateRequestsFragment)
+
+            fragment = it
         }
 
+        val mModelFieldReflection = MateRequestsFragment::class.java.superclass.superclass
+            .getDeclaredField("mModel").apply { isAccessible = true }
         val mateRequestsStateFlowFieldReflection = MateRequestsViewModel::class.java
             .getDeclaredField("mMateRequestsStateFlow")
             .apply {
                 isAccessible = true
             }
+
+        mModel = mModelFieldReflection.get(fragment) as MateRequestsViewModel
 
         mMateRequestsUiStateTestData = MateRequestsUiStateTestData(
             mateRequestsStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateRequestsState?>,
@@ -158,7 +178,7 @@ class MateRequestsFragmentTest {
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeDown(), WaitingViewAction(500))
         Espresso.onView(Matchers.allOf(
-            ViewMatchers.isAssignableFrom(MaterialCardView::class.java),
+            ViewMatchers.isAssignableFrom(CardView::class.java),
             ViewMatchers.hasDescendant(withText(TEST_USERS[1].username)),
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
         )).check(IsChildWithIndexViewAssertion(3))
@@ -166,7 +186,7 @@ class MateRequestsFragmentTest {
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeUp(), WaitingViewAction(500))
         Espresso.onView(Matchers.allOf(
-            ViewMatchers.isAssignableFrom(MaterialCardView::class.java),
+            ViewMatchers.isAssignableFrom(CardView::class.java),
             ViewMatchers.hasDescendant(withText(TEST_USERS[0].username)),
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
         )).check(IsChildWithIndexViewAssertion(3))
@@ -178,21 +198,24 @@ class MateRequestsFragmentTest {
             mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
         }
 
-        // todo: this works shitty.. advance it once the DATA layer will be ready to handle things of
-        // this sort
-
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeLeft(), WaitingViewAction(500) {
                 mMateRequestsUiStateTestData.removeMateRequest(TEST_MATE_REQUESTS[0])
             }, WaitingViewAction(1000))
             .check(ViewAssertions.matches(hasChildCount(
                 TEST_USERS.size - 1 + Carousel3DLayoutManager.EDGE_INVISIBLE_ITEMS_COUNT)))
-        Espresso.onView(withText(TEST_USERS[0].username))
-            .check(ViewAssertions.doesNotExist())
+        Espresso.onView(Matchers.allOf(
+            withText(TEST_USERS[0].username),
+            ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
+        )).check(ViewAssertions.doesNotExist())
     }
 
     @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
+        mMateRequestsFragmentScenarioRule.onFragment {
+            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+        }
+
         val error = Error(0, "Test", false)
 
         mMateRequestsFragmentScenarioRule.onFragment {
@@ -206,6 +229,10 @@ class MateRequestsFragmentTest {
 
     @Test
     fun handlingCriticalErrorOperationLeadsToAppClosingTest() {
+        mMateRequestsFragmentScenarioRule.onFragment {
+            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+        }
+
         val error = Error(0, "Test", true)
 
         mMateRequestsFragmentScenarioRule.onFragment {

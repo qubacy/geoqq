@@ -75,6 +75,8 @@ abstract class LocationFragment() : WaitingFragment() {
         (mModel as LocationViewModel).lastLocationPoint.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
+            Log.d(TAG, "lastLocationPoint.observe(): ${it.latitude};${it.longitude}")
+
             onLocationPointChanged(it)
         }
     }

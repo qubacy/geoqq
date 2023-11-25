@@ -1,8 +1,10 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -11,6 +13,7 @@ import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,9 +23,13 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
+import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.ui.screen.common.util.FragmentTestUtil
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.SilentClickViewAction
+import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
@@ -32,7 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SignInFragmentTest {
+class SignInFragmentTest : FragmentTestBase() {
     class SignInUiStateTestData(
         private val signInStateFlow: MutableStateFlow<SignInState>
     ) {
@@ -62,8 +69,12 @@ class SignInFragmentTest {
     private lateinit var mSignInUiStateTestData: SignInUiStateTestData
     private lateinit var mNavController: TestNavHostController
 
+    private lateinit var mModel: SignInViewModel
+
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mSignInFragmentScenarioRule =
             launchFragmentInContainer<SignInFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
         mSignInFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
@@ -88,10 +99,10 @@ class SignInFragmentTest {
                 isAccessible = true
             }
 
-        val model = signInViewModelFieldReference.get(fragment) as SignInViewModel
+        mModel = signInViewModelFieldReference.get(fragment) as SignInViewModel
 
         mSignInUiStateTestData = SignInUiStateTestData(
-            signInStateFlowFieldReflection.get(model) as MutableStateFlow<SignInState>
+            signInStateFlowFieldReflection.get(mModel) as MutableStateFlow<SignInState>
         )
     }
 
@@ -169,8 +180,12 @@ class SignInFragmentTest {
 
     @Test
     fun nothingProvidedAndSignInClickedTest() {
-        Espresso.onView(ViewMatchers.withId(R.id.sign_in_button))
-            .perform(ViewActions.click())
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
+
+        FragmentTestUtil.setIsWaitingValue(
+            mSignInFragmentScenarioRule as FragmentScenario<Fragment>, mModel, false)
+
+        Espresso.onView(ViewMatchers.withId(R.id.sign_in_button)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(
                 ViewMatchers.withText(R.string.error_sign_in_data_incorrect)
@@ -322,8 +337,7 @@ class SignInFragmentTest {
 
     @Test
     fun signUpButtonClickLeadsToTransitionToSignUpFragmentTest() {
-        Espresso.onView(withId(R.id.sign_up_button))
-            .perform(ViewActions.click())
+        Espresso.onView(withId(R.id.sign_up_button)).perform(ViewActions.click())
 
         Assert.assertEquals(R.id.signUpFragment, mNavController.currentDestination?.id)
     }

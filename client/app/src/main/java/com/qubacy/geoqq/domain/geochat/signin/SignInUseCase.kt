@@ -14,7 +14,7 @@ import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SignInUseCase(
+open class SignInUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val signInDataRepository: SignInDataRepository
@@ -28,7 +28,7 @@ class SignInUseCase(
         mStateFlow.emit(state)
     }
 
-    fun signInWithLocalToken() {
+    open fun signInWithLocalToken() {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val signInResult = tokenDataRepository.getTokens()
@@ -45,7 +45,7 @@ class SignInUseCase(
         }
     }
 
-    fun signInWithLoginPassword(
+    open fun signInWithLoginPassword(
         login: String,
         password: String
     ) {

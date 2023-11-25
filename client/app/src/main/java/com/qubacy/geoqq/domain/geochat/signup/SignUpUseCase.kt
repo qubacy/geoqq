@@ -13,12 +13,12 @@ import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SignUpUseCase(
+open class SignUpUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val signUpDataRepository: SignUpDataRepository
 ) : UseCase<SignUpState>(errorDataRepository) {
-    fun signUp(login: String, password: String) {
+    open fun signUp(login: String, password: String) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = signUpDataRepository
             val result = signUpDataRepository.signUp(login, password)

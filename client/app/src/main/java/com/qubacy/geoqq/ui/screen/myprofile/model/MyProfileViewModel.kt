@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.screen.myprofile.model
 
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,10 @@ import kotlinx.coroutines.flow.map
 open class MyProfileViewModel(
     val myProfileUseCase: MyProfileUseCase
 ) : WaitingViewModel() {
+    companion object {
+        const val TAG = "MyProfileViewModel"
+    }
+
     private var mMyProfileStateFlow = myProfileUseCase.stateFlow
 
     private val mMyProfileUiState = mMyProfileStateFlow.map { stateToUiState(it) }

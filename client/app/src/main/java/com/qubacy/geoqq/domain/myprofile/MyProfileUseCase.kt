@@ -24,7 +24,7 @@ import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MyProfileUseCase(
+open class MyProfileUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val myProfileDataRepository: MyProfileDataRepository,
@@ -158,7 +158,7 @@ class MyProfileUseCase(
         mStateFlow.emit(newState)
     }
 
-    fun getMyProfile() {
+    open fun getMyProfile() {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getTokensResult = tokenDataRepository.getTokens()
@@ -173,7 +173,7 @@ class MyProfileUseCase(
         }
     }
 
-    fun updateMyProfile(
+    open fun updateMyProfile(
         avatarUri: Uri?,
         description: String?,
         password: String?,

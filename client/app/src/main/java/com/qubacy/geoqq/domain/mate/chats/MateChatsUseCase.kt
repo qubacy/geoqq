@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.domain.mate.chats
 
-import android.util.Log
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -13,8 +12,6 @@ import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
@@ -26,10 +23,8 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtensio
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.result.ProcessDataMateChatResult
@@ -39,7 +34,7 @@ import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MateChatsUseCase(
+open class MateChatsUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val mateChatDataRepository: MateChatDataRepository,
@@ -194,7 +189,7 @@ class MateChatsUseCase(
         )
     }
 
-    fun getMateChats(count: Int) {
+    open fun getMateChats(count: Int) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)

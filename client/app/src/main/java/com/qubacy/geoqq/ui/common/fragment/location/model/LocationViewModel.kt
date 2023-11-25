@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.common.fragment.location.model
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
@@ -23,6 +24,8 @@ abstract class LocationViewModel(
 
     open fun changeLastLocation(location: Location): Boolean {
         if (location == mLastLocationPoint.value) return false
+
+        Log.d(TAG, "changeLastLocation(): location: ${location.latitude},${location.longitude}")
 
         val locationPoint = Point(location.latitude, location.longitude)
 

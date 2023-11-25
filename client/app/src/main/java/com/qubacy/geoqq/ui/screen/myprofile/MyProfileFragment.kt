@@ -317,7 +317,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         onTextInputContentChanged(
             description,
             DESCRIPTION_TEXT_KEY,
-            (mModel as MyProfileViewModel).myProfileUiState.value!!.description,
+            (mModel as MyProfileViewModel).myProfileUiState.value?.description,
             mBinding.aboutMeInput.inputLayout
         )
     }
@@ -425,7 +425,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         Log.d(TAG, "onPrivacyHitUpItemSelected(): position = $position")
 
         val curOption = (mModel as MyProfileViewModel).getHitUpOptionByIndex(position)
-        val prevOption = (mModel as MyProfileViewModel).myProfileUiState.value!!.hitUpOption
+        val prevOption = (mModel as MyProfileViewModel).myProfileUiState.value?.hitUpOption
 
         if (curOption == prevOption) {
             mChangedInputHash.remove(PRIVACY_HIT_UP_POSITION_KEY)
@@ -456,6 +456,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     }
 
     private fun onConfirmButtonClicked() {
+        Log.d(TAG, "onConfirmButtonClicked(): mChangedInputHash.isEmpty = ${mChangedInputHash.isEmpty()}")
+
         if (mChangedInputHash.isEmpty()) return
 
         if (!(mModel as MyProfileViewModel).isChangedProfileDataCorrect(mChangedInputHash)) {

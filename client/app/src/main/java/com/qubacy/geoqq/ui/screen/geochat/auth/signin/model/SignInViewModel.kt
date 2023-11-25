@@ -121,7 +121,7 @@ open class SignInViewModel(
     }
 }
 
-class SignInViewModelFactory(
+open class SignInViewModelFactory(
     private val mSignInUseCase: SignInUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

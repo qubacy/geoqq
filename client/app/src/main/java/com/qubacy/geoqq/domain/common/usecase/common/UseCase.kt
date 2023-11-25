@@ -72,7 +72,7 @@ abstract class UseCase<StateType>(
         }
     }
 
-    fun interruptOperation() {
+    open fun interruptOperation() {
         mInterruptionFlag.set(true)
 
         mCurrentRepository?.let { it.interrupt() }

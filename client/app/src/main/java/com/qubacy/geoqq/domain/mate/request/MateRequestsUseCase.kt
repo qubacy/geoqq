@@ -32,7 +32,7 @@ import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MateRequestsUseCase(
+open class MateRequestsUseCase(
     errorDataRepository: ErrorDataRepository,
     val tokenDataRepository: TokenDataRepository,
     val requestDataRepository: MateRequestDataRepository,
@@ -140,7 +140,7 @@ class MateRequestsUseCase(
         )
     }
 
-    fun getMateRequests(count: Int) {
+    open fun getMateRequests(count: Int) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -155,7 +155,7 @@ class MateRequestsUseCase(
         }
     }
 
-    fun answerMateRequest(mateRequestId: Long, isAccepted: Boolean) {
+    open fun answerMateRequest(mateRequestId: Long, isAccepted: Boolean) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)

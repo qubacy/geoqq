@@ -23,6 +23,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ import org.junit.runner.RunWith
 import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
-class SignUpFragmentTest {
+class SignUpFragmentTest : FragmentTestBase() {
     class SignUpUiStateTestData(
         private val mSignUpStateFlow: MutableStateFlow<SignUpState>
     ) {
@@ -68,7 +69,9 @@ class SignUpFragmentTest {
     private lateinit var mSignUpUiStateTestData: SignUpUiStateTestData
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mSignUpFragmentScenarioRule =
             launchFragmentInContainer<SignUpFragment>(themeResId = R.style.Theme_Geoqq_GeoChat)
         mSignUpFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
@@ -383,7 +386,7 @@ class SignUpFragmentTest {
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_input)),
                 ViewMatchers.isAssignableFrom(TextInputEditText::class.java)
             ))
-            .perform(ViewActions.typeText(login))
+            .perform(ViewActions.typeText(password))
         Espresso.onView(
             Matchers.allOf(
                 ViewMatchers.isDescendantOfA(ViewMatchers.withId(R.id.password_confirmation_input)),
@@ -391,7 +394,7 @@ class SignUpFragmentTest {
             ))
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(ViewMatchers.withId(R.id.sign_up_button))
-            .perform(ViewActions.click())
+            .perform(ViewActions.click(), WaitingViewAction(1000))
         Espresso.onView(ViewMatchers.isRoot())
             .check(ViewAssertions.matches(
                 ViewMatchers.hasDescendant(ViewMatchers.withId(R.id.loading_screen))))

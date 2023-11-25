@@ -47,6 +47,7 @@ import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
+import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.launch
@@ -54,7 +55,7 @@ import org.hamcrest.Matchers
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateChatsFragmentTest {
+class MateChatsFragmentTest : FragmentTestBase() {
     class MateChatsUiStateTestData(
         private val mModel: MateChatsViewModel,
         private val mAdapter: MateChatsAdapter,
@@ -137,7 +138,7 @@ class MateChatsFragmentTest {
                 UpdateChatOperation(chatPreview.chatId)
             )
 
-            val chatState = MateChatsState(modifiedChats, users, requestCount, operations)
+            val chatState = MateChatsState(modifiedChats, newUsers, requestCount, operations)
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatState)
@@ -187,14 +188,18 @@ class MateChatsFragmentTest {
     private lateinit var mNavHostController: TestNavHostController
     private lateinit var mMateChatsUiStateTestData: MateChatsUiStateTestData
 
-    private fun generateTestMateChats(users: List<User>, lastMessages: List<Message>): List<MateChat> {
-        return IntRange(1, users.size - 1).map {
+    private fun generateTestMateChats(
+        users: List<User>, lastMessages: List<Message>, count: Int = users.size
+    ): List<MateChat> {
+        return IntRange(1, count - 1).map {
             MateChat(it.toLong() - 1, users[it].id, ScreenContext.DEFAULT_URI, lastMessages[it - 1])
         }
     }
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mMateChatsFragmentScenarioRule = launchFragmentInContainer(
             themeResId = R.style.Theme_Geoqq_Mates)
         mMateChatsFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
@@ -208,10 +213,11 @@ class MateChatsFragmentTest {
             mNavHostController.setCurrentDestination(R.id.mateChatsFragment)
             Navigation.setViewNavController(it.requireView(), mNavHostController)
 
-            mModel = ViewModelProvider(it)[MateChatsViewModel::class.java]
             fragment = it
         }
 
+        val mModelFieldReflection = MateChatsFragment::class.java.superclass.superclass
+            .getDeclaredField("mModel").apply { isAccessible = true }
         val adapterFieldReflection = MateChatsFragment::class.java
             .getDeclaredField("mAdapter")
             .apply {
@@ -227,6 +233,8 @@ class MateChatsFragmentTest {
             .apply {
                 isAccessible = true
             }
+
+        mModel = mModelFieldReflection.get(fragment) as MateChatsViewModel
 
         mMateChatsUiStateTestData = MateChatsUiStateTestData(
             mModel,
@@ -295,19 +303,15 @@ class MateChatsFragmentTest {
 
     @Test
     fun newChatGoesAtTopTest() {
-        val users = ScreenContext.generateTestUsers(3, true)
+        val users = ScreenContext.generateTestUsers(4, true)
         val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val chats = generateTestMateChats(users, lastMessages, 3)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
         }
 
-        val newUser = User(
-            users.size.toLong(), "test",
-            "desc", ScreenContext.DEFAULT_URI, true
-        )
-        val newChat = MateChat(chats.size.toLong(), newUser.id, ScreenContext.DEFAULT_URI,
+        val newChat = MateChat(chats.size.toLong(), users.last().id, ScreenContext.DEFAULT_URI,
             Message(0, 0, "hi", 1696847478000))
 
         mMateChatsFragmentScenarioRule.onFragment {
@@ -316,11 +320,13 @@ class MateChatsFragmentTest {
             }
         }
 
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
+
         Espresso.onView(
             Matchers.allOf(
             isDescendantOfA(withId(R.id.chats_recycler_view)),
             isAssignableFrom(MaterialCardView::class.java),
-            hasDescendant(withText(newUser.username))
+            hasDescendant(withText(users.last().username))
         )).check(IsChildWithIndexViewAssertion(0))
     }
 

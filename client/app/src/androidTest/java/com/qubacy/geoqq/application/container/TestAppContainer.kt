@@ -1,8 +1,6 @@
 package com.qubacy.geoqq.application.container
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
+import android.net.Uri
 import com.qubacy.geoqq.applicaion.common.container.AppContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
@@ -10,20 +8,30 @@ import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsCo
 import com.qubacy.geoqq.applicaion.common.container.myprofile.MyProfileContainer
 import com.qubacy.geoqq.applicaion.common.container.signin.SignInContainer
 import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainer
+import com.qubacy.geoqq.common.util.AnyUtility
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
+import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
+import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
+import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
+import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
+import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
+import com.qubacy.geoqq.domain.mate.request.MateRequestsUseCase
+import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
+import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModelFactory
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
@@ -54,12 +62,24 @@ class TestAppContainer : AppContainer() {
         tokenDataRepository: TokenDataRepository,
         signInDataRepository: SignInDataRepository
     ) {
-        val signInViewModelMock = Mockito.mock(SignInViewModel::class.java)
+        val signInUseCaseMock = Mockito.mock(SignInUseCase::class.java)
+
+        Mockito.`when`(signInUseCaseMock.signInWithLocalToken()).thenAnswer {  }
+        Mockito.`when`(signInUseCaseMock.signInWithLoginPassword(
+            Mockito.anyString(), Mockito.anyString())).thenAnswer {  }
+        Mockito.`when`(signInUseCaseMock.interruptOperation()).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(signInUseCaseMock, MutableStateFlow<SignInState?>(null))
+
+        val signInViewModel = SignInViewModel(signInUseCaseMock)
 
         val signInViewModelFactoryMock = Mockito.mock(SignInViewModelFactory::class.java)
 
-        Mockito.`when`(signInViewModelFactoryMock.create(signInViewModelMock::class.java))
-            .thenAnswer { signInViewModelMock }
+        Mockito.`when`(signInViewModelFactoryMock.create(SignInViewModel::class.java))
+            .thenAnswer { signInViewModel }
 
         mSignInContainer = Mockito.mock(SignInContainer::class.java)
 
@@ -75,12 +95,23 @@ class TestAppContainer : AppContainer() {
         tokenDataRepository: TokenDataRepository,
         signUpDataRepository: SignUpDataRepository
     ) {
-        val signUpViewModelMock = Mockito.mock(SignUpViewModel::class.java)
+        val signUpUseCaseMock = Mockito.mock(SignUpUseCase::class.java)
+
+        Mockito.`when`(signUpUseCaseMock.signUp(Mockito.anyString(), Mockito.anyString()))
+            .thenAnswer {  }
+        Mockito.`when`(signUpUseCaseMock.interruptOperation()).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(signUpUseCaseMock, MutableStateFlow<SignUpState?>(null))
+
+        val signUpViewModel = SignUpViewModel(signUpUseCaseMock)
 
         val signUpViewModelFactoryMock = Mockito.mock(SignUpViewModelFactory::class.java)
 
-        Mockito.`when`(signUpViewModelFactoryMock.create(signUpViewModelMock::class.java))
-            .thenAnswer { signUpViewModelMock }
+        Mockito.`when`(signUpViewModelFactoryMock.create(SignUpViewModel::class.java))
+            .thenAnswer { signUpViewModel }
 
         mSignUpContainer = Mockito.mock(SignUpContainer::class.java)
 
@@ -97,12 +128,27 @@ class TestAppContainer : AppContainer() {
         myProfileDataRepository: MyProfileDataRepository,
         imageDataRepository: ImageDataRepository
     ) {
-        val myProfileViewModelMock = Mockito.mock(MyProfileViewModel::class.java)
+        val myProfileUseCaseMock = Mockito.mock(MyProfileUseCase::class.java)
+
+        Mockito.`when`(myProfileUseCaseMock.getMyProfile()).thenAnswer {  }
+        Mockito.`when`(myProfileUseCaseMock.updateMyProfile(
+            AnyUtility.any(Uri::class.java),
+            Mockito.anyString(),
+            Mockito.anyString(),
+            Mockito.anyString(),
+            AnyUtility.any(MyProfileDataModelContext.HitUpOption::class.java))).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(myProfileUseCaseMock, MutableStateFlow<MyProfileState?>(null))
+
+        val myProfileViewModel = MyProfileViewModel(myProfileUseCaseMock)
 
         val myProfileViewModelFactoryMock = Mockito.mock(MyProfileViewModelFactory::class.java)
 
-        Mockito.`when`(myProfileViewModelFactoryMock.create(myProfileViewModelMock::class.java))
-            .thenAnswer { myProfileViewModelMock }
+        Mockito.`when`(myProfileViewModelFactoryMock.create(MyProfileViewModel::class.java))
+            .thenAnswer { myProfileViewModel }
 
         mMyProfileContainer = Mockito.mock(MyProfileContainer::class.java)
 
@@ -129,10 +175,8 @@ class TestAppContainer : AppContainer() {
 
         Mockito.`when`(mateChatUseCaseMock.getChat(
             Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt())).thenAnswer {  }
-        Mockito.`when`(mateChatUseCaseMock.createMateRequest(Mockito.anyLong()))
-            .thenAnswer {  }
-        Mockito.`when`(mateChatUseCaseMock.getInterlocutorUserDetails())
-            .thenAnswer {  }
+        Mockito.`when`(mateChatUseCaseMock.createMateRequest(Mockito.anyLong())).thenAnswer {  }
+        Mockito.`when`(mateChatUseCaseMock.getInterlocutorUserDetails()).thenAnswer {  }
         Mockito.`when`(mateChatUseCaseMock.sendMessage(Mockito.anyLong(), Mockito.anyString()))
             .thenAnswer {  }
 
@@ -164,12 +208,23 @@ class TestAppContainer : AppContainer() {
         imageDataRepository: ImageDataRepository,
         userDataRepository: UserDataRepository
     ) {
-        val mateRequestsViewModelMock = Mockito.mock(MateRequestsViewModel::class.java)
+        val mateRequestsUseCaseMock = Mockito.mock(MateRequestsUseCase::class.java)
+
+        Mockito.`when`(mateRequestsUseCaseMock.getMateRequests(Mockito.anyInt())).thenAnswer {  }
+        Mockito.`when`(mateRequestsUseCaseMock.answerMateRequest(
+            Mockito.anyLong(), Mockito.anyBoolean())).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(mateRequestsUseCaseMock, MutableStateFlow<SignUpState?>(null))
+
+        val mateRequestsViewModel = MateRequestsViewModel(mateRequestsUseCaseMock)
 
         val mateRequestsViewModelFactoryMock = Mockito.mock(MateRequestsViewModelFactory::class.java)
 
-        Mockito.`when`(mateRequestsViewModelFactoryMock.create(mateRequestsViewModelMock::class.java))
-            .thenAnswer { mateRequestsViewModelMock }
+        Mockito.`when`(mateRequestsViewModelFactoryMock.create(MateRequestsViewModel::class.java))
+            .thenAnswer { mateRequestsViewModel }
 
         mMateRequestsContainer = Mockito.mock(MateRequestsContainer::class.java)
 
@@ -188,12 +243,21 @@ class TestAppContainer : AppContainer() {
         userDataRepository: UserDataRepository,
         mateRequestDataRepository: MateRequestDataRepository
     ) {
-        val mateChatsViewModelMock = Mockito.mock(MateChatsViewModel::class.java)
+        val mateChatsUseCaseMock = Mockito.mock(MateChatsUseCase::class.java)
+
+        Mockito.`when`(mateChatsUseCaseMock.getMateChats(Mockito.anyInt())).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(mateChatsUseCaseMock, MutableStateFlow<MateChatsState?>(null))
+
+        val mateChatsViewModel = MateChatsViewModel(mateChatsUseCaseMock)
 
         val mateChatsViewModelFactoryMock = Mockito.mock(MateChatsViewModelFactory::class.java)
 
-        Mockito.`when`(mateChatsViewModelFactoryMock.create(mateChatsViewModelMock::class.java))
-            .thenAnswer { mateChatsViewModelMock }
+        Mockito.`when`(mateChatsViewModelFactoryMock.create(MateChatsViewModel::class.java))
+            .thenAnswer { mateChatsViewModel }
 
         mMateChatsContainer = Mockito.mock(MateChatsContainer::class.java)
 
