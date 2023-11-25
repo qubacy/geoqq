@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
@@ -96,6 +97,11 @@ class GeoChatFragment(
 
             onChatUiStateGotten(it)
         }
+
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     private fun initChat(chatUiState: ChatUiState) {
@@ -160,7 +166,7 @@ class GeoChatFragment(
 
         mBinding.messageSendingSection.sendingMessage.text?.clear()
 
-                (mModel as GeoChatViewModel).sendMessage(messageText)
+        (mModel as GeoChatViewModel).sendMessage(messageText)
     }
 
     override fun onLocationPointChanged(newLocationPoint: Point) {

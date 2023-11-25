@@ -6,7 +6,6 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
@@ -29,7 +28,6 @@ import com.google.android.material.card.MaterialCardView
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
-import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +43,7 @@ import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
+import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
@@ -57,19 +56,16 @@ import org.junit.Test
 @RunWith(AndroidJUnit4::class)
 class MateChatsFragmentTest : FragmentTestBase() {
     class MateChatsUiStateTestData(
-        private val mModel: MateChatsViewModel,
-        private val mAdapter: MateChatsAdapter,
         private val mMateChatsStateFlow: MutableStateFlow<MateChatsState?>,
         private val mMateChatsUiState: LiveData<MateChatsUiState?>
     ) {
         fun setChats(chats: List<MateChat>, users: List<User>) {
-            val chatsState = MateChatsState(chats, users, 0, listOf())
+            val chatsState = MateChatsState(
+                chats, users, 0, listOf(SetMateChatsOperation()))
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
             }
-
-            mAdapter.setItems(chats)
         }
 
         fun addChat(chatPreview: MateChat, users: List<User>) {
@@ -218,11 +214,6 @@ class MateChatsFragmentTest : FragmentTestBase() {
 
         val mModelFieldReflection = MateChatsFragment::class.java.superclass.superclass
             .getDeclaredField("mModel").apply { isAccessible = true }
-        val adapterFieldReflection = MateChatsFragment::class.java
-            .getDeclaredField("mAdapter")
-            .apply {
-                isAccessible = true
-            }
         val mateChatsStateFlowFieldReflection =
             MateChatsViewModel::class.java.getDeclaredField("mMateChatsStateFlow")
                 .apply {
@@ -237,11 +228,11 @@ class MateChatsFragmentTest : FragmentTestBase() {
         mModel = mModelFieldReflection.get(fragment) as MateChatsViewModel
 
         mMateChatsUiStateTestData = MateChatsUiStateTestData(
-            mModel,
-            adapterFieldReflection.get(fragment) as MateChatsAdapter,
             mateChatsStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateChatsState?>,
             mateChatsUiStateFieldReflection.get(mModel) as LiveData<MateChatsUiState?>
         )
+
+        mMateChatsUiStateTestData.setChats(listOf(), listOf())
     }
 
     @Test

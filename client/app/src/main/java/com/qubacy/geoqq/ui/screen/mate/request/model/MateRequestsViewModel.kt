@@ -32,6 +32,9 @@ open class MateRequestsViewModel(
     private val mMateRequestsUiStateFlow = mMateRequestsStateFlow.map { stateToUiState(it) }
     val mateRequestFlow: LiveData<MateRequestsUiState?> = mMateRequestsUiStateFlow.asLiveData()
 
+    private var mIsGettingRequests: Boolean = false
+    val isGettingRequests get() = mIsGettingRequests
+
     init {
         mateRequestsUseCase.setCoroutineScope(viewModelScope)
     }
@@ -50,12 +53,14 @@ open class MateRequestsViewModel(
 
     fun getMateRequests() {
         mIsWaiting.value = true
+        mIsGettingRequests = true
 
         mateRequestsUseCase.getMateRequests(DEFAULT_REQUEST_CHUNK_SIZE)
     }
 
     private fun stateToUiState(state: MateRequestsState?): MateRequestsUiState? {
         if (mIsWaiting.value == true) mIsWaiting.value = false // todo: should it be this way?
+        if (mIsGettingRequests) mIsGettingRequests = false
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()

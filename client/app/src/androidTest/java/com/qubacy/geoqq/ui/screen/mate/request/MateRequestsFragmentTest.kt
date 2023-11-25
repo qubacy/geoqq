@@ -141,6 +141,8 @@ class MateRequestsFragmentTest : FragmentTestBase() {
             mateRequestsStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateRequestsState?>,
             mModel.mateRequestFlow
         )
+
+        mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
     }
 
     @Test

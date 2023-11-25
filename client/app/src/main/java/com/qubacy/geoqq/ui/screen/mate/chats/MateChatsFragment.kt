@@ -124,8 +124,12 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            (mModel as MateChatsViewModel).getMateChats() // todo: is it legal??
+            getInitChats()
         }
+    }
+
+    private fun getInitChats() {
+        (mModel as MateChatsViewModel).getMateChats()
     }
 
     private fun initChats(uiState: MateChatsUiState) {
@@ -249,5 +253,11 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             )
 
         findNavController().navigate(directions, extras)
+    }
+
+    override fun handleWaitingAbort() {
+        if ((mModel as MateChatsViewModel).isGettingChats) return
+
+        super.handleWaitingAbort()
     }
 }

@@ -94,8 +94,12 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            (mModel as MateRequestsViewModel).getMateRequests()
+            getInitRequests()
         }
+    }
+
+    private fun getInitRequests() {
+        (mModel as MateRequestsViewModel).getMateRequests()
     }
 
     private fun initScreenWithState(state: MateRequestsUiState) {
@@ -158,5 +162,11 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         } else {
             (mModel as MateRequestsViewModel).declineMateRequest(mateRequest)
         }
+    }
+
+    override fun handleWaitingAbort() {
+        if ((mModel as MateRequestsViewModel).isGettingRequests) return
+
+        super.handleWaitingAbort()
     }
 }

@@ -10,6 +10,8 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
+import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
+import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
@@ -19,9 +21,11 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 abstract class ChatFragmentTest<StateType> : FragmentTestBase() {
+    companion object {
+        val TEST_USERS = ScreenContext.generateTestUsers(2, true)
+    }
 
     abstract class ChatUiStateTestData<StateType>(
-        private val mAdapter: ChatAdapter,
         private val mChatStateFlow: MutableStateFlow<StateType?>,
         private val mChatUiState: LiveData<ChatUiState?>
     ) {
@@ -29,13 +33,11 @@ abstract class ChatFragmentTest<StateType> : FragmentTestBase() {
             messages: List<Message>, users: List<User>, operations: List<Operation>): StateType
 
         fun setChat(messages: List<Message>, users: List<User>) {
-            val chatState = generateChatState(messages, users, listOf()) //MateChatState(messages, users, listOf())
+            val chatState = generateChatState(messages, users, listOf(SetMessagesOperation()))
 
             runBlocking {
                 mChatStateFlow.emit(chatState)
             }
-
-            mAdapter.setItems(messages)
         }
 
         fun addMessage(message: Message) {

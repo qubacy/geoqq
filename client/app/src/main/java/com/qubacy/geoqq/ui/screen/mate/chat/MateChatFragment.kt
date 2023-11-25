@@ -137,8 +137,12 @@ class MateChatFragment(
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            (mModel as MateChatViewModel).getMessages()
+            getInitMessages()
         }
+    }
+
+    private fun getInitMessages() {
+        (mModel as MateChatViewModel).getMessages()
     }
 
     private fun onChatUiStateGotten(chatUiState: MateChatUiState) {
@@ -299,5 +303,11 @@ class MateChatFragment(
 
     override fun addToMates(user: User) {
         (mModel as MateChatViewModel).createMateRequest(user.id)
+    }
+
+    override fun handleWaitingAbort() {
+        if ((mModel as MateChatViewModel).isGettingChat) return
+
+        super.handleWaitingAbort()
     }
 }

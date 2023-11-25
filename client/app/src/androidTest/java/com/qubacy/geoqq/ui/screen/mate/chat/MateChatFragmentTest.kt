@@ -36,11 +36,10 @@ import org.junit.Test
 @RunWith(AndroidJUnit4::class)
 class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
     class MateChatUiStateTestData(
-        adapter: ChatAdapter,
         chatStateFlow: MutableStateFlow<MateChatState?>,
         chatUiState: LiveData<ChatUiState?>
     ) : ChatUiStateTestData<MateChatState>(
-        adapter, chatStateFlow, chatUiState
+        chatStateFlow, chatUiState
     ) {
         override fun generateChatState(
             messages: List<Message>,
@@ -75,13 +74,11 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
                 isAccessible = true
             }
 
-        var adapter: ChatAdapter? = null
         var fragment: MateChatFragment? = null
 
         mMateChatFragmentScenarioRule.moveToState(Lifecycle.State.STARTED)
         mMateChatFragmentScenarioRule.onFragment {
             fragment = it
-            adapter = adapterFieldReflection.get(it) as ChatAdapter
         }
 
         val modelFieldReflection = BaseFragment::class.java.getDeclaredField("mModel")
@@ -92,10 +89,11 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
         mModel = modelFieldReflection.get(fragment) as MateChatViewModel
         mMateChatUiStateTestData = MateChatUiStateTestData(
-            adapter!!,
             mateChatStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateChatState?>,
             mModel.mateChatUiStateFlow as LiveData<ChatUiState?>
         )
+
+        mMateChatUiStateTestData.setChat(listOf(), TEST_USERS)
     }
 
     @Test

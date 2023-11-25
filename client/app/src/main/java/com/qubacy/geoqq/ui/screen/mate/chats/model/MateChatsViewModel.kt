@@ -37,12 +37,16 @@ open class MateChatsViewModel(
     private val mMateChatsUiStateFlow = mMateChatsStateFlow.map { chatsStateToUiState(it) }
     val mateChatsUiStateFlow: LiveData<MateChatsUiState?> = mMateChatsUiStateFlow.asLiveData()
 
+    private var mIsGettingChats: Boolean = false
+    val isGettingChats get() = mIsGettingChats
+
     init {
         mateChatsUseCase.setCoroutineScope(viewModelScope)
     }
 
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
         if (mIsWaiting.value == true) mIsWaiting.value = false
+        if (mIsGettingChats) mIsGettingChats = false
         if (mateChatsState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -108,6 +112,7 @@ open class MateChatsViewModel(
 
     fun getMateChats() {
         mIsWaiting.value = true
+        mIsGettingChats = true
 
         mateChatsUseCase.getMateChats(DEFAULT_CHAT_CHUNK_SIZE)
     }

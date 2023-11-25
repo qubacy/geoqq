@@ -45,6 +45,9 @@ open class MateChatViewModel(
 
     private var mIsWaitingForInterlocutorDetails = false
 
+    private var mIsGettingChat: Boolean = false
+    val isGettingChat get() = mIsGettingChat
+
     init {
         mateChatUseCase.setCoroutineScope(viewModelScope)
     }
@@ -65,6 +68,7 @@ open class MateChatViewModel(
 
     fun getMessages() {
         mIsWaiting.value = true
+        mIsGettingChat = true
 
         mateChatUseCase.getChat(chatId, interlocutorUserId, DEFAULT_MESSAGE_CHUNK_SIZE)
     }
@@ -84,6 +88,7 @@ open class MateChatViewModel(
 
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
         if (chatState == null) return null
+        if (mIsWaitingForInterlocutorDetails) mIsWaitingForInterlocutorDetails = false
 
         val uiOperationsResult = mutableListOf<UiOperation>()
 
