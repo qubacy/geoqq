@@ -13,13 +13,11 @@ import androidx.lifecycle.LiveData
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -51,11 +49,11 @@ import java.lang.reflect.Method
 @RunWith(AndroidJUnit4::class)
 class MyProfileFragmentTest : FragmentTestBase() {
     class UserAvatarTestData(
-        val setUserAvatarWithUriMethodReflection: Method,
+        val setNewUserAvatarWithUriMethodReflection: Method,
         val fragment: MyProfileFragment
     ) {
-        fun setUserAvatarWithUri(uri: Uri?) {
-            setUserAvatarWithUriMethodReflection.invoke(fragment, uri)
+        fun setNewUserAvatarWithUri(uri: Uri?) {
+            setNewUserAvatarWithUriMethodReflection.invoke(fragment, uri)
         }
     }
     class PrivacyHitUpTestData(
@@ -122,6 +120,16 @@ class MyProfileFragmentTest : FragmentTestBase() {
     private lateinit var mPrivacyHitUpTestData: PrivacyHitUpTestData
     private lateinit var mMyProfileUiStateTestData: MyProfileUiStateTestData
 
+    private fun generateMyProfileUiTestState(avatarUri: Uri): MyProfileState {
+        return MyProfileState(
+            avatarUri,
+            "test",
+            "test",
+            MyProfileDataModelContext.HitUpOption.NEGATIVE,
+            listOf()
+        )
+    }
+
     @Before
     override fun setup() {
         super.setup()
@@ -159,15 +167,15 @@ class MyProfileFragmentTest : FragmentTestBase() {
             .apply {
                 isAccessible = true
             }
-        val setUserAvatarWithUriMethodReflection = MyProfileFragment::class.java
-            .getDeclaredMethod("setUserAvatarWithUri", Uri::class.java)
+        val setNewUserAvatarWithUriMethodReflection = MyProfileFragment::class.java
+            .getDeclaredMethod("setNewUserAvatarWithUri", Uri::class.java)
             .apply {
                 isAccessible = true
             }
 
         mModel = mModelFieldReflection.get(fragment) as MyProfileViewModel
         mUserAvatarTestData = UserAvatarTestData(
-            setUserAvatarWithUriMethodReflection,
+            setNewUserAvatarWithUriMethodReflection,
             fragment!!
         )
         mPrivacyHitUpTestData = PrivacyHitUpTestData(
@@ -185,7 +193,12 @@ class MyProfileFragmentTest : FragmentTestBase() {
             ContentResolver.SCHEME_ANDROID_RESOURCE +
                     "://" + mResources.getResourcePackageName(R.drawable.ic_add_friend)
                     + '/' + mResources.getResourceTypeName(R.drawable.ic_add_friend)
-                    + '/' + mResources.getResourceEntryName(R.drawable.ic_add_friend));
+                    + '/' + mResources.getResourceEntryName(R.drawable.ic_add_friend)
+        )
+
+        val testState = generateMyProfileUiTestState(mTestAvatarUri)
+
+        mMyProfileUiStateTestData.setState(testState)
     }
 
     @Test
@@ -218,8 +231,6 @@ class MyProfileFragmentTest : FragmentTestBase() {
 
     @Test
     fun allElementsEnabledTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-
         Espresso.onView(withId(R.id.plus_icon))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
         Espresso.onView(withId(R.id.about_me_input))
@@ -269,9 +280,7 @@ class MyProfileFragmentTest : FragmentTestBase() {
     }
 
     @Test
-    fun allPrivacyHitUpVariantsAreVisibleOnClickTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-        Espresso.onView(withId(R.id.scroll_view))
+    fun allPrivacyHitUpVariantsAreVisibleOnClickTest() { Espresso.onView(withId(R.id.scroll_view))
             .perform(ViewActions.swipeUp())
         Espresso.onView(withId(R.id.privacy_hit_up))
             .perform(ViewActions.click())
@@ -302,10 +311,8 @@ class MyProfileFragmentTest : FragmentTestBase() {
 
     @Test
     fun providingNewAvatarGoesWithoutShowingErrorMessageTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-
         mMyProfileFragmentScenarioRule.onFragment {
-            mUserAvatarTestData.setUserAvatarWithUri(mTestAvatarUri)
+            mUserAvatarTestData.setNewUserAvatarWithUri(mTestAvatarUri)
         }
 
         Espresso.onView(withId(R.id.confirm_button))
@@ -315,8 +322,6 @@ class MyProfileFragmentTest : FragmentTestBase() {
 
     @Test
     fun providingNewDescriptionGoesWithoutShowingErrorMessageTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-
         val newDescription = "fqfq qwfq fq f q wf"
 
         Espresso.onView(Matchers.allOf(
@@ -393,8 +398,6 @@ class MyProfileFragmentTest : FragmentTestBase() {
 
     @Test
     fun providingNewHitUpOptionGoesWithoutShowingErrorMessageTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-
         mMyProfileFragmentScenarioRule.onFragment {
             mMyProfileUiStateTestData.setState(
                 MyProfileState(
@@ -447,8 +450,6 @@ class MyProfileFragmentTest : FragmentTestBase() {
 
     @Test
     fun successfulProfileDataSavingLeadsToSuccessMessageShowingTest() {
-        Espresso.onView(isRoot()).perform(click()) // todo: skipping a network request..
-
         val state = MyProfileState(
             mTestAvatarUri,
             "me",

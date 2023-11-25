@@ -9,7 +9,6 @@ class MyProfileUiState(
     val avatar: Uri,
     val username: String,
     val description: String,
-    val password: String? = null,
     val hitUpOption: MyProfileDataModelContext.HitUpOption,
     newOperations: List<UiOperation>
 ) : OperationUiState(newOperations) {

@@ -265,8 +265,12 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            (mModel as MyProfileViewModel).getProfileData() // todo: is it legal?
+            initGettingProfile()
         }
+    }
+
+    private fun initGettingProfile() {
+        (mModel as MyProfileViewModel).getProfileData()
     }
 
     private fun initInputsWithUiState(uiState: MyProfileUiState) {
@@ -446,9 +450,13 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         )
     }
 
-    private fun setUserAvatarWithUri(avatarUri: Uri) {
+    private fun setNewUserAvatarWithUri(avatarUri: Uri) {
         mChangedInputHash[USER_AVATAR_URI_KEY] = avatarUri
 
+        setUserAvatarWithUri(avatarUri)
+    }
+
+    private fun setUserAvatarWithUri(avatarUri: Uri) {
         val avatarInputStream = requireContext().contentResolver.openInputStream(avatarUri)
         val avatarDrawable = Drawable.createFromStream(avatarInputStream, String())
 
@@ -470,15 +478,16 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     }
 
     override fun handleWaitingAbort() {
-        super.handleWaitingAbort()
+        if ((mModel as MyProfileViewModel).isGettingMyProfile) return
 
+        super.handleWaitingAbort()
         (mModel as MyProfileViewModel).interruptSavingProfileData()
     }
 
     override fun onImagePicked(image: Uri) {
         Log.d(TAG, "onUploadAvatarButtonClicked(): pickedImgUri: ${image.toString()}")
 
-        setUserAvatarWithUri(image)
+        setNewUserAvatarWithUri(image)
     }
 
     override fun onImagePickingError(errorId: Long) {

@@ -36,12 +36,16 @@ open class MyProfileViewModel(
     private val mMyProfileUiState = mMyProfileStateFlow.map { stateToUiState(it) }
     val myProfileUiState: LiveData<MyProfileUiState?> = mMyProfileUiState.asLiveData()
 
+    private var mIsGettingMyProfile: Boolean = false
+    val isGettingMyProfile get() = mIsGettingMyProfile
+
     init {
         myProfileUseCase.setCoroutineScope(viewModelScope)
     }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
         if (mIsWaiting.value == true) mIsWaiting.value = false
+        if (mIsGettingMyProfile) mIsGettingMyProfile = false
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -58,7 +62,6 @@ open class MyProfileViewModel(
             state.avatar,
             state.username,
             state.description,
-            null,
             state.hitUpOption,
             uiOperations
         )
@@ -152,6 +155,7 @@ open class MyProfileViewModel(
 
     fun getProfileData() {
         mIsWaiting.value = true
+        mIsGettingMyProfile = true
 
         myProfileUseCase.getMyProfile()
     }
