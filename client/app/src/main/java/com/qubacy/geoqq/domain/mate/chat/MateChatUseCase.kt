@@ -8,98 +8,53 @@ import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.mate.request.repository.result.CreateMateRequestResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
+import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
-import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.result.ProcessDataMessagesResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
-import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
+import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.MessageExtension
-import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
-import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetLocalUserIdResult
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 open class MateChatUseCase(
     errorDataRepository: ErrorDataRepository,
-    val tokenDataRepository: TokenDataRepository,
+    tokenDataRepository: TokenDataRepository,
     val mateMessageDataRepository: MateMessageDataRepository,
-    val imageDataRepository: ImageDataRepository,
-    val userDataRepository: UserDataRepository,
-    val mateRequestDataRepository: MateRequestDataRepository
-) : ConsumingUseCase<MateChatState>(
+    imageDataRepository: ImageDataRepository,
+    userDataRepository: UserDataRepository,
+    mateRequestDataRepository: MateRequestDataRepository
+) : ChatUseCase<MateChatState>(
         errorDataRepository,
-        listOf(mateMessageDataRepository, userDataRepository)
+        tokenDataRepository,
+        imageDataRepository,
+        userDataRepository,
+        mateRequestDataRepository,
+        listOf(mateMessageDataRepository)
 ), UserExtension, ImageExtension, TokenExtension, MessageExtension {
     companion object {
         const val TAG = "MateChatUseCase"
-
-        const val USER_ID_TOKEN_PAYLOAD_KEY = "user-id"
     }
 
     private var mLocalUserId: Long = 0
     private var mInterlocutorUserId: Long = 0
 
     override suspend fun processResult(result: Result): Boolean {
-        if (super.processResult(result)) return true
-
-        val result = when (result::class) {
-            GetMessagesResult::class -> {
-                val getMessagesResult = result as GetMessagesResult
-
-                processGetMessagesResult(getMessagesResult)
-            }
-            GetUsersByIdsResult::class -> {
-                val getUsersByIdsResult = result as GetUsersByIdsResult
-
-                processGetUsersByIdsResult(getUsersByIdsResult)
-            }
-            else -> { return false }
-        }
-
-        if (result is ErrorResult) processError(result.errorId)
-
-        return true
+        return super.processResult(result)
     }
 
-    private suspend fun processGetUsersByIdsResult(
-        getUsersByIdsResult: GetUsersByIdsResult
-    ): Result {
-        val prevState = lockLastState()
-
-        val getUsersFromGetUsersByIdsResult = getUsersFromGetUsersByIdsResult(
-            getUsersByIdsResult, userDataRepository,
-            imageDataRepository, tokenDataRepository, this)
-
-        if (getUsersFromGetUsersByIdsResult is ErrorResult) return getUsersFromGetUsersByIdsResult
-
-        val state = MateChatState(
-            prevState?.messages ?: listOf(),
-            (getUsersFromGetUsersByIdsResult as GetUsersFromGetUsersByIdsResult).users,
-            listOf(
-                SetUsersDetailsOperation(
-                    getUsersByIdsResult.users.map { it.id }, !getUsersByIdsResult.areLocal)
-            )
-        )
-
-        postState(state)
-
-        return ProcessGetUserByIdResult()
-    }
-
-    private suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
+    override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
         lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -113,7 +68,8 @@ open class MateChatUseCase(
             getAccessTokenResultCast.accessToken,
             userDataRepository,
             imageDataRepository,
-            this
+            this,
+            !getMessagesResult.areLocal
         )
 
         if (getUsersResult is ErrorResult) return getUsersResult
@@ -135,32 +91,22 @@ open class MateChatUseCase(
         return ProcessGetMessagesResult()
     }
 
-    override fun generateState(operations: List<Operation>, prevState: MateChatState?): MateChatState {
+    override fun generateChatState(
+        messages: List<Message>,
+        users: List<User>,
+        operations: List<Operation>
+    ): MateChatState {
+        return MateChatState(messages, users, operations)
+    }
+
+    override fun generateState(
+        operations: List<Operation>, prevState: MateChatState?
+    ): MateChatState {
         return MateChatState(
             prevState?.messages ?: listOf(),
             prevState?.users ?: listOf(),
             operations
         )
-    }
-
-    private fun getLocalUserId(): Long? {
-        mCurrentRepository = tokenDataRepository
-        val getLocalUserIdResult = tokenDataRepository.getAccessTokenPayload()
-
-        if (getLocalUserIdResult is ErrorResult) {
-            processError(getLocalUserIdResult.errorId)
-
-            return null
-        }
-        if (getLocalUserIdResult is InterruptionResult) {
-            processInterruption()
-
-            return null
-        }
-
-        val payload = (getLocalUserIdResult as GetAccessTokenPayloadResult).payload
-
-        return payload[USER_ID_TOKEN_PAYLOAD_KEY]?.asLong()
     }
 
     open fun getChat(chatId: Long, interlocutorUserId: Long, count: Int) {
@@ -175,7 +121,13 @@ open class MateChatUseCase(
             val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
             mCurrentRepository = tokenDataRepository
-            mLocalUserId = getLocalUserId() ?: return@launch //??
+            val getLocalUserIdResult = getLocalUserId(tokenDataRepository)
+
+            if (getLocalUserIdResult is ErrorResult)
+                return@launch processError(getLocalUserIdResult.errorId)
+            if (getLocalUserIdResult is InterruptionResult) return@launch processInterruption()
+
+            mLocalUserId = (getLocalUserIdResult as GetLocalUserIdResult).localUserId
             mInterlocutorUserId = interlocutorUserId
 
             mCurrentRepository = mateMessageDataRepository
@@ -205,70 +157,6 @@ open class MateChatUseCase(
     }
 
     open fun getInterlocutorUserDetails() {
-        mCoroutineScope.launch (Dispatchers.IO) {
-            // todo: is it ok??? we don't set the token rep. as a current one;
-            mCurrentRepository = userDataRepository
-            val getUsersResult = getUsers(
-                listOf(mInterlocutorUserId), tokenDataRepository, this@MateChatUseCase,
-                userDataRepository, imageDataRepository, this@MateChatUseCase,
-                false, false
-            )
-
-            if (getUsersResult is ErrorResult) return@launch processError(getUsersResult.errorId)
-            if (getUsersResult is InterruptionResult) return@launch processInterruption()
-
-            val getUsersResultCast = getUsersResult as GetUsersResult
-
-            val prevState = lockLastState()
-            val updatedInterlocutorUser = getUsersResultCast.users.find { user -> user.id == mInterlocutorUserId }!!  // todo: delete this!!!
-
-            var isInterlocutorUserUpdated = false
-            val updatedUsers = prevState?.users?.map { prevUser ->
-                if (prevUser.id == mInterlocutorUserId) {
-                    if (prevUser != updatedInterlocutorUser) isInterlocutorUserUpdated = true
-
-                    updatedInterlocutorUser
-                    // todo: change to: getUsersResultCast.users.first()
-                }
-                else prevUser
-            }
-
-            val state = MateChatState(
-                prevState?.messages ?: listOf(),
-                updatedUsers ?: listOf(),
-                listOf(SetUsersDetailsOperation(listOf(mInterlocutorUserId), isInterlocutorUserUpdated))
-            )
-
-            postState(state)
-        }
-    }
-
-    open fun createMateRequest(userId: Long) {
-        mCoroutineScope.launch(Dispatchers.IO) {
-            mCurrentRepository = tokenDataRepository
-            val getAccessTokenResult = getAccessToken(tokenDataRepository)
-
-            if (getAccessTokenResult is ErrorResult)
-                return@launch processError(getAccessTokenResult.errorId)
-            if (getAccessTokenResult is InterruptionResult) return@launch processInterruption()
-
-            val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
-
-            mCurrentRepository = mateRequestDataRepository
-            val createMateRequestResult = mateRequestDataRepository.createMateRequest(
-                getAccessTokenResultCast.accessToken, userId)
-
-            if (createMateRequestResult is ErrorResult)
-                return@launch processError(createMateRequestResult.errorId)
-            if (createMateRequestResult is InterruptionResult)
-                return@launch processInterruption()
-
-            val createMateRequestResultCast = createMateRequestResult as CreateMateRequestResult
-
-            val prevState = lockLastState()
-            val newState = generateState(listOf(ApproveNewMateRequestCreationOperation()), prevState)
-
-            postState(newState)
-        }
+        getUserDetails(mInterlocutorUserId)
     }
 }

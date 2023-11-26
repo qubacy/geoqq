@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.image.repository.source.local
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -40,27 +41,36 @@ class LocalImageDataSource(
         val selection = "${Images.ImageColumns.TITLE} == ?"
         val selectionArgs = arrayOf(title)
 
-        val cursor = contentResolver.query(
-            Images.Media.EXTERNAL_CONTENT_URI,
-            IMAGE_COLUMNS_TO_LOAD,
-            selection,
-            selectionArgs,
-            null
-        )
+        var cursor: Cursor? = null
 
-        if (cursor == null) return null
+        try {
+            cursor = contentResolver.query(
+                Images.Media.EXTERNAL_CONTENT_URI,
+                IMAGE_COLUMNS_TO_LOAD,
+                selection,
+                selectionArgs,
+                null
+            )
 
-        val idColumn = cursor.getColumnIndexOrThrow(Images.ImageColumns._ID)
+            if (cursor == null) return null
 
-        if (!cursor.moveToNext()) return null
+            val idColumn = cursor.getColumnIndexOrThrow(Images.ImageColumns._ID)
 
-        val imageResourceId = cursor.getLong(idColumn)
-        val imageUri = ContentUris.withAppendedId(
-            Images.Media.EXTERNAL_CONTENT_URI,
-            imageResourceId
-        )
+            if (!cursor.moveToNext()) return null
 
-        return imageUri
+            val imageResourceId = cursor.getLong(idColumn)
+            val imageUri = ContentUris.withAppendedId(
+                Images.Media.EXTERNAL_CONTENT_URI,
+                imageResourceId
+            )
+
+            return imageUri
+
+        } catch (e: Exception) {
+            Log.d(TAG, e.message.toString())
+
+            throw e
+        } finally { cursor?.close() }
     }
 
     fun saveImageOnDevice(imageId: Long, image: Bitmap): Uri? {

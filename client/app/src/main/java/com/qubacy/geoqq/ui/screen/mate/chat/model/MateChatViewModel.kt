@@ -88,7 +88,6 @@ open class MateChatViewModel(
 
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
         if (chatState == null) return null
-        if (mIsWaitingForInterlocutorDetails) mIsWaitingForInterlocutorDetails = false
 
         val uiOperationsResult = mutableListOf<UiOperation>()
 

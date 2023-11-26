@@ -107,6 +107,8 @@ open class MateChatsUseCase(
             userDataRepository, imageDataRepository, this
         )
 
+        if (getUsersResult is ErrorResult) return getUsersResult
+
         val getUsersResultCast = getUsersResult as GetUsersResult
 
         val processDataMateChatsResult = processDataMateChats(

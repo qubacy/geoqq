@@ -20,6 +20,7 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -63,7 +64,7 @@ class MateChatUseCaseTest(
     private fun generateAccessTokenPayloadResult(userId: Long): GetAccessTokenPayloadResult {
         return GetAccessTokenPayloadResult(
             mapOf(
-                MateChatUseCase.USER_ID_TOKEN_PAYLOAD_KEY to object : Claim {
+                UserExtension.USER_ID_TOKEN_PAYLOAD_KEY to object : Claim {
                     override fun asBoolean(): Boolean? = null
                     override fun asInt(): Int? = null
                     override fun asLong(): Long? = userId
@@ -81,7 +82,7 @@ class MateChatUseCaseTest(
     private fun initMateChatsUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
         getAccessTokenPayloadResult: GetAccessTokenPayloadResult = GetAccessTokenPayloadResult(mapOf()),
-        getMateMessagesResult: GetMessagesResult = GetMessagesResult(listOf()),
+        getMateMessagesResult: GetMessagesResult = GetMessagesResult(listOf(), true),
         usersResults: GetUsersByIdsResult = GetUsersByIdsResult(listOf(), true),
         imagesResults: GetImagesResult = GetImagesResult(mapOf(), true),
         mateRequestCount: Long = 0,
@@ -181,7 +182,7 @@ class MateChatUseCaseTest(
 
         initMateChatsUseCase(
             getAccessTokenPayloadResult = getAccessTokenPayloadResult,
-            getMateMessagesResult = GetMessagesResult(messages),
+            getMateMessagesResult = GetMessagesResult(messages, false),
             imagesResults = imagesResults,
             usersResults = usersResults
         )

@@ -4,28 +4,42 @@ import android.net.Uri
 import android.util.Log
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
+import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
-import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
-import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
-import com.qubacy.geoqq.domain.common.state.common.State
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetDataUsersResult
+import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetLocalUserIdResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersAvatarUrisResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.ProcessDataUsersResult
 import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 
 interface UserExtension {
+    companion object {
+        const val USER_ID_TOKEN_PAYLOAD_KEY = "user-id"
+    }
+
+    fun getLocalUserId(tokenDataRepository: TokenDataRepository): Result {
+        val getLocalUserIdResult = tokenDataRepository.getAccessTokenPayload()
+
+        if (getLocalUserIdResult is ErrorResult) return getLocalUserIdResult
+        if (getLocalUserIdResult is InterruptionResult) return getLocalUserIdResult
+
+        val payload = (getLocalUserIdResult as GetAccessTokenPayloadResult).payload
+
+        return GetLocalUserIdResult(payload[USER_ID_TOKEN_PAYLOAD_KEY]!!.asLong()!!)
+    }
+
     suspend fun getUsers(
         usersIds: List<Long>,
         tokenDataRepository: TokenDataRepository,

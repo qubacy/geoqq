@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository
 
+import android.util.Log
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -31,6 +32,10 @@ open class MateChatDataRepository(
     val localMateMessageDataSource: LocalMateMessageDataSource,
     webSocketUpdateMateChatDataSource: WebSocketUpdateMateChatDataSource
 ) : UpdatableDataRepository(webSocketUpdateMateChatDataSource) {
+    companion object {
+        const val TAG = "MateChatDataRepos"
+    }
+
     private var mPrevChatCount: Int = 0
 
     private fun getChatsWithDatabase(count: Int): Result {
@@ -40,6 +45,8 @@ open class MateChatDataRepository(
             chats = localMateChatDataSource.getChats(count)
 
         } catch (e: Exception) {
+            Log.d(TAG, e.message.toString())
+
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
@@ -135,6 +142,8 @@ open class MateChatDataRepository(
                 updatedOrInsertedChatsCount++
             }
         } catch (e: Exception) {
+            Log.d(TAG, e.message.toString())
+
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
         }
 
@@ -160,9 +169,9 @@ open class MateChatDataRepository(
         val getChatsWithNetworkResult = getChatsWithNetworkAndSave(
             mPrevChatCount, curNetworkRequestChatCount, accessToken)
 
-        if (getChatsWithNetworkResult is ErrorResult) return emitResult(getChatsWithDatabaseResult)
+        if (getChatsWithNetworkResult is ErrorResult) return emitResult(getChatsWithNetworkResult)
         if (getChatsWithNetworkResult is InterruptionResult)
-            return emitResult(getChatsWithDatabaseResult)
+            return emitResult(getChatsWithNetworkResult)
 
         mPrevChatCount = count
         val getChatsWithNetworkResultCast = getChatsWithNetworkResult as GetChatsWithNetworkResult

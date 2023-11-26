@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.ui.screen.mate.request
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -29,6 +31,8 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     private lateinit var mBinding: FragmentMateRequestsBinding
     private lateinit var mAdapter: MateRequestsAdapter
+
+    private var mInitRequestsRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +98,8 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            getInitRequests()
+
+            if (mInitRequestsRequested) getInitRequests()
         }
     }
 
@@ -168,5 +173,25 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         if ((mModel as MateRequestsViewModel).isGettingRequests) return
 
         super.handleWaitingAbort()
+    }
+
+    override fun getPermissionsToRequest(): Array<String>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
+            return arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+
+        return null
+    }
+
+    override fun onRequestedPermissionsGranted() {
+        if (view == null) {
+            mInitRequestsRequested = true
+
+            return
+        }
+
+        getInitRequests()
     }
 }

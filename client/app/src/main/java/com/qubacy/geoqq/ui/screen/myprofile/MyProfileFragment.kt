@@ -1,7 +1,9 @@
 package com.qubacy.geoqq.ui.screen.myprofile
 
+import android.Manifest
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -52,6 +54,7 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
     private var mChangedInputHash = HashMap<String, Any>()
     private var mIsInitInputs = false
+    private var mInitMyProfileRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -265,7 +268,8 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            initGettingProfile()
+
+            if (mInitMyProfileRequested) initGettingProfile()
         }
     }
 
@@ -492,5 +496,25 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
 
     override fun onImagePickingError(errorId: Long) {
         mModel!!.retrieveError(errorId)
+    }
+
+    override fun getPermissionsToRequest(): Array<String>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
+            return arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+
+        return null
+    }
+
+    override fun onRequestedPermissionsGranted() {
+        if (view == null) {
+            mInitMyProfileRequested = true
+
+            return
+        }
+
+        initGettingProfile()
     }
 }

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
+import android.util.Log
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.common.message.repository.source.network.model.request.SendMessageRequestBody
@@ -124,8 +125,8 @@ open class MateMessageDataRepository(
         val getMessagesWithDatabaseResultCast =
             getMessagesWithDatabaseResult as GetMessagesWithDatabaseResult
 
-        if (getMessagesWithDatabaseResult.messages.isNotEmpty())
-            emitResult(GetMessagesResult(getMessagesWithDatabaseResultCast.messages))
+        if (getMessagesWithDatabaseResultCast.messages.isNotEmpty())
+            emitResult(GetMessagesResult(getMessagesWithDatabaseResultCast.messages, true))
 
         val curMessageCount = count - mPrevMessageCount
         val getMessagesWithNetworkResult = getMessagesWithNetworkAndSave(
@@ -141,7 +142,7 @@ open class MateMessageDataRepository(
             getMessagesWithNetworkResult as GetMessagesWithNetworkAndSaveResult
 
         if (getMessagesWithNetworkResultCast.areUpdated)
-            emitResult(GetMessagesResult(getMessagesWithNetworkResultCast.messages))
+            emitResult(GetMessagesResult(getMessagesWithNetworkResultCast.messages, false))
 
         val initUpdateSourceResult = initUpdateSource()
 

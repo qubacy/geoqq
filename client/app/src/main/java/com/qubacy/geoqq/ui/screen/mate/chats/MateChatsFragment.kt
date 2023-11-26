@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.ui.screen.mate.chats
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +38,8 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
     private lateinit var mBinding: FragmentMateChatsBinding
 
     private lateinit var mAdapter: MateChatsAdapter
+
+    private var mInitChatsRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,7 +128,8 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
-            getInitChats()
+
+            if (mInitChatsRequested) getInitChats()
         }
     }
 
@@ -259,5 +264,25 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         if ((mModel as MateChatsViewModel).isGettingChats) return
 
         super.handleWaitingAbort()
+    }
+
+    override fun getPermissionsToRequest(): Array<String>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
+            return arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+
+        return null
+    }
+
+    override fun onRequestedPermissionsGranted() {
+        if (view == null) {
+            mInitChatsRequested = true
+
+            return
+        }
+
+        getInitChats()
     }
 }

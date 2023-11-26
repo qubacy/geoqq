@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatEntity
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 
 @Entity(tableName = MateMessageEntity.TABLE_NAME,
     primaryKeys = [MateMessageEntity.ID_PROP_NAME, MateMessageEntity.CHAT_ID_PROP_NAME],
@@ -15,13 +14,13 @@ import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
             parentColumns = arrayOf(MateChatEntity.CHAT_ID_PROP_NAME),
             childColumns = arrayOf(MateMessageEntity.CHAT_ID_PROP_NAME),
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = UserEntity::class,
-            parentColumns = arrayOf(UserEntity.ID_PARAM_NAME),
-            childColumns = arrayOf(MateMessageEntity.USER_ID_PROP_NAME),
-            onDelete = ForeignKey.CASCADE
-        )
+        )//,
+//        ForeignKey(
+//            entity = UserEntity::class,
+//            parentColumns = arrayOf(UserEntity.ID_PARAM_NAME),
+//            childColumns = arrayOf(MateMessageEntity.USER_ID_PROP_NAME),
+//            onDelete = ForeignKey.CASCADE
+//        )
     ]
 )
 data class MateMessageEntity(

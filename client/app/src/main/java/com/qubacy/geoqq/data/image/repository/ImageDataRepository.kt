@@ -14,7 +14,6 @@ import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.image.repository.result.DownloadImagesResult
 import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesIdsByUrisResult
-import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesWithNetworkResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.image.repository.result.LoadImageResult
