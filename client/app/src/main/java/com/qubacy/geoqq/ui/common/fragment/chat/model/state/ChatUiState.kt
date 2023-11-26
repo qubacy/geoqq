@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.common.chat.model.state
+package com.qubacy.geoqq.ui.common.fragment.chat.model.state
 
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message

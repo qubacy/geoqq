@@ -12,8 +12,8 @@ import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
+import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking

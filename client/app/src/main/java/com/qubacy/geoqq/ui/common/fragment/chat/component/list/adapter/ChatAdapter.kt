@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter
+package com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,8 +11,8 @@ import com.qubacy.geoqq.ui.common.util.TimeUtils
 import java.util.Locale
 import java.util.TimeZone
 
-class ChatAdapter(
-    private val mCallback: ChatAdapterCallback
+open class ChatAdapter(
+    protected val mCallback: ChatAdapterCallback
 ) : AnimatedListAdapter<ChatAdapter.GeoChatViewHolder, Message>() {
     class GeoChatViewHolder(
         private val mBinding: ComponentChatMessageBinding

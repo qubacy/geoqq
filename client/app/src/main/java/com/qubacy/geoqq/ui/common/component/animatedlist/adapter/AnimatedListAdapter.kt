@@ -20,8 +20,8 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
         return _mIsAutoScrollingEnabled
     }
 
-    private var mRecyclerView: RecyclerView? = null
-    private var mLayoutManager: AnimatedListLayoutManager? = null
+    protected var mRecyclerView: RecyclerView? = null
+    protected var mLayoutManager: AnimatedListLayoutManager? = null
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)

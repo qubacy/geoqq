@@ -16,10 +16,10 @@ import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.ChatViewModel
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import kotlinx.coroutines.flow.MutableStateFlow

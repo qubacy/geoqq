@@ -17,17 +17,17 @@ import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContentCallback
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeChatInfoUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.yandex.mapkit.geometry.Point
 
 class GeoChatFragment(

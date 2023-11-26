@@ -19,13 +19,13 @@ import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
-import com.qubacy.geoqq.ui.screen.common.chat.model.ChatViewModel
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUsersUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.ChatViewModel
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeChatInfoUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeUsersUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
 import kotlinx.coroutines.flow.map
 
@@ -78,6 +78,16 @@ open class MateChatViewModel(
         mIsWaitingForInterlocutorDetails = true
 
         mateChatUseCase.getInterlocutorUserDetails()
+    }
+
+    fun messageListEndReached() {
+        // todo: checking is it an init. state?..
+
+
+
+        // todo: loading the next chunk..
+
+
     }
 
     fun createMateRequest(userId: Long) {

@@ -23,8 +23,8 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.screen.common.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
+import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.MateChatsFragmentDirections
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion

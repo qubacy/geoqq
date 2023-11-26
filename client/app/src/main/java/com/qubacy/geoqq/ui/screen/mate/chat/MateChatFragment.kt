@@ -28,21 +28,23 @@ import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomS
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.screen.common.chat.component.list.adapter.ChatAdapterCallback
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeChatInfoUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.ChangeUsersUiOperation
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.OpenUserDetailsUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapterCallback
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeChatInfoUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeUsersUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.screen.common.chat.model.operation.SetMessagesUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapter
+import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapterCallback
 
 class MateChatFragment(
 
 ) : WaitingFragment(),
-    ChatAdapterCallback,
+    MateChatAdapterCallback,
     UserInfoBottomSheetContentCallback,
     MenuProvider
 {
@@ -114,7 +116,7 @@ class MateChatFragment(
 
         setActionBar()
 
-        mAdapter = ChatAdapter(this)
+        mAdapter = MateChatAdapter(this)
 
         mBinding.chatRecyclerView.apply {
             layoutManager = AnimatedListLayoutManager(
@@ -273,6 +275,10 @@ class MateChatFragment(
         mBinding.messageSendingSection.sendingMessage.text?.clear()
 
         (mModel as MateChatViewModel).sendMessage(messageText)
+    }
+
+    override fun onEdgeReached() {
+        (mModel as MateChatViewModel).messageListEndReached()
     }
 
     override fun getUserById(userId: Long): User {
