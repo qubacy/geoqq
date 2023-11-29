@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.token.repository
 
-import com.qubacy.geoqq.common.Base64MockContext
+import com.qubacy.geoqq.common.util.mock.Base64MockContext
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult

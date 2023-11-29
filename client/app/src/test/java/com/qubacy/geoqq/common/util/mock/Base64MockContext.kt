@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.common
+package com.qubacy.geoqq.common.util.mock
 
 import android.util.Base64
 import org.mockito.Mockito

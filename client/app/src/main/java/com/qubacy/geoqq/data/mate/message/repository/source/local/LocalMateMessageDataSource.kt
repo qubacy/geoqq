@@ -20,9 +20,9 @@ interface LocalMateMessageDataSource : DataSource {
     @Query("SELECT * FROM ${MateMessageEntity.TABLE_NAME} " +
             "WHERE ${MateMessageEntity.CHAT_ID_PROP_NAME} = :chatId " +
             "ORDER BY ${MateMessageEntity.ID_PROP_NAME} DESC " +
-            "LIMIT :count"
+            "LIMIT :offset, :count"
     )
-    fun getMateMessages(chatId: Long, count: Int): List<MateMessageEntity>
+    fun getMateMessages(chatId: Long, offset: Int, count: Int): List<MateMessageEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMateMessage(mateMessage: MateMessageEntity)

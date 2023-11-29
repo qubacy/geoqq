@@ -2,10 +2,10 @@ package com.qubacy.geoqq.data.myprofile.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
-import com.qubacy.geoqq.common.AnyUtility
-import com.qubacy.geoqq.common.Base64MockContext
-import com.qubacy.geoqq.common.BitmapMockContext
-import com.qubacy.geoqq.common.UriMockContext
+import com.qubacy.geoqq.common.util.mock.AnyUtility
+import com.qubacy.geoqq.common.util.mock.Base64MockContext
+import com.qubacy.geoqq.common.util.mock.BitmapMockContext
+import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar

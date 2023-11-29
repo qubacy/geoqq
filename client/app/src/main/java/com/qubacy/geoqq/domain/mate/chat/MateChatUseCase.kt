@@ -24,6 +24,7 @@ import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.MessageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetLocalUserIdResult
+import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,12 +51,14 @@ open class MateChatUseCase(
     private var mLocalUserId: Long = 0
     private var mInterlocutorUserId: Long = 0
 
+    private var mLastPrecedingMessages: List<Message>? = null
+
     override suspend fun processResult(result: Result): Boolean {
         return super.processResult(result)
     }
 
     override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
-        lockLastState()
+        val prevState = lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
@@ -80,10 +83,37 @@ open class MateChatUseCase(
 
         if (processDataMessagesResult is ErrorResult) return processDataMessagesResult
 
+        val processDataMessagesResultCast = processDataMessagesResult as ProcessDataMessagesResult
+
+        val messages = if (getMessagesResult.isInitial) {
+            processDataMessagesResultCast.messages
+        } else {
+            if (getMessagesResult.areLocal) {
+                val newMessages = prevState!!.messages + processDataMessagesResultCast.messages
+
+                mLastPrecedingMessages = processDataMessagesResultCast.messages
+                newMessages
+            } else {
+                val newMessages = if (mLastPrecedingMessages == null)
+                    prevState!!.messages + processDataMessagesResultCast.messages
+                else {
+                    prevState!!.messages
+                        .subList(0, prevState.messages.size - mLastPrecedingMessages!!.size) +
+                            processDataMessagesResultCast.messages
+                }
+
+                mLastPrecedingMessages = null
+                newMessages
+            }
+        }
+        val operations = if (getMessagesResult.isInitial) listOf(SetMessagesOperation()) else
+            listOf(AddPrecedingMessagesOperation(
+                processDataMessagesResultCast.messages, !getMessagesResult.areLocal))
+
         val state = MateChatState(
-            (processDataMessagesResult as ProcessDataMessagesResult).messages,
+            messages,
             getUsersResultCast.users,
-            listOf(SetMessagesOperation())
+            operations
         )
 
         postState(state)

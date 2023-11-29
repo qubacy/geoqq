@@ -2,12 +2,11 @@ package com.qubacy.geoqq.data.image.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
-import com.qubacy.geoqq.common.AnyUtility
-import com.qubacy.geoqq.common.Base64MockContext
-import com.qubacy.geoqq.common.BitmapMockContext
+import com.qubacy.geoqq.common.util.mock.AnyUtility
+import com.qubacy.geoqq.common.util.mock.Base64MockContext
+import com.qubacy.geoqq.common.util.mock.BitmapMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource

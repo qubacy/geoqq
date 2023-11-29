@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.signin.repository
 
-import com.qubacy.geoqq.common.Base64MockContext
+import com.qubacy.geoqq.common.util.mock.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.signin.repository.source.network.NetworkSignInDataSource

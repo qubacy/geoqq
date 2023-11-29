@@ -14,6 +14,7 @@ import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
+import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -27,6 +28,7 @@ import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.OpenUserDetailsU
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chat.model.operation.AddPrecedingMessagesUiOperation
 import kotlinx.coroutines.flow.map
 
 open class MateChatViewModel(
@@ -81,13 +83,16 @@ open class MateChatViewModel(
     }
 
     fun messageListEndReached() {
-        // todo: checking is it an init. state?..
+        val curState = mateChatUiStateFlow.value
 
+        if (curState == null) return
 
+        val curMessageCount = curState.messages.size
+        val nextMessageCount = curMessageCount + DEFAULT_MESSAGE_CHUNK_SIZE
 
-        // todo: loading the next chunk..
+        if (nextMessageCount % DEFAULT_MESSAGE_CHUNK_SIZE != 0) return
 
-
+        mateChatUseCase.getChat(chatId, interlocutorUserId, nextMessageCount)
     }
 
     fun createMateRequest(userId: Long) {
@@ -129,6 +134,11 @@ open class MateChatViewModel(
                 // mb processing the operation..
 
                 listOf(AddMessageUiOperation(addMessageOperation.messageId))
+            }
+            AddPrecedingMessagesOperation::class -> {
+                val addPrecedingMessagesOperation = operation as AddPrecedingMessagesOperation
+
+                listOf(AddPrecedingMessagesUiOperation(addPrecedingMessagesOperation.precedingMessages))
             }
             SetUsersDetailsOperation::class -> {
                 val setUsersDetailsOperation = operation as SetUsersDetailsOperation

@@ -12,9 +12,11 @@ import java.util.Locale
 import java.util.TimeZone
 
 open class ChatAdapter(
-    protected val mCallback: ChatAdapterCallback
-) : AnimatedListAdapter<ChatAdapter.GeoChatViewHolder, Message>() {
-    class GeoChatViewHolder(
+    private val mChatAdapterCallback: ChatAdapterCallback
+) : AnimatedListAdapter<ChatAdapter.ChatMessageViewHolder, Message>(
+    false, mChatAdapterCallback
+) {
+    class ChatMessageViewHolder(
         private val mBinding: ComponentChatMessageBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
         fun bind(message: Message, user: User) {
@@ -25,22 +27,22 @@ open class ChatAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeoChatViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatMessageViewHolder {
         val viewBinding = ComponentChatMessageBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
 
-        return GeoChatViewHolder(viewBinding)
+        return ChatMessageViewHolder(viewBinding)
     }
 
-    override fun onBindViewHolder(holder: GeoChatViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ChatMessageViewHolder, position: Int) {
         val messageAdapterInfo = mItemAdapterInfoList[position]
-        val user = mCallback.getUserById(messageAdapterInfo.item.userId)
+        val user = mChatAdapterCallback.getUserById(messageAdapterInfo.item.userId)
 
         holder.bind(
             messageAdapterInfo.item, user)
         holder.itemView.setOnClickListener {
-            mCallback.onMessageClicked(messageAdapterInfo.item)
+            mChatAdapterCallback.onMessageClicked(messageAdapterInfo.item)
         }
     }
 }

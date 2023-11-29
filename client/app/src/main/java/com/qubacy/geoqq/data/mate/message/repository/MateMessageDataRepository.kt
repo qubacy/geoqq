@@ -34,11 +34,17 @@ open class MateMessageDataRepository(
 ) : UpdatableDataRepository(updateMateMessageDataSource) {
     private var mPrevMessageCount: Int = 0
 
-    private fun getMessagesWithDatabase(chatId: Long, count: Int): Result {
+    override fun reset() {
+        super.reset()
+
+        mPrevMessageCount = 0
+    }
+
+    private fun getMessagesWithDatabase(chatId: Long, offset: Int, count: Int): Result {
         var messages: List<MateMessageEntity>? = null
 
         try {
-            messages = localMateMessageDataSource.getMateMessages(chatId, count)
+            messages = localMateMessageDataSource.getMateMessages(chatId, offset, count)
 
         } catch (e: Exception) {
             return ErrorResult(ErrorContext.Database.UNKNOWN_DATABASE_ERROR.id)
@@ -115,7 +121,9 @@ open class MateMessageDataRepository(
     }
 
     suspend fun getMessages(accessToken: String, chatId: Long, count: Int) {
-        val getMessagesWithDatabaseResult = getMessagesWithDatabase(chatId, count)
+        val curMessageCount = count - mPrevMessageCount
+        val getMessagesWithDatabaseResult = getMessagesWithDatabase(
+            chatId, mPrevMessageCount, curMessageCount)
 
         if (getMessagesWithDatabaseResult is ErrorResult)
             return emitResult(getMessagesWithDatabaseResult)
@@ -125,10 +133,12 @@ open class MateMessageDataRepository(
         val getMessagesWithDatabaseResultCast =
             getMessagesWithDatabaseResult as GetMessagesWithDatabaseResult
 
-        if (getMessagesWithDatabaseResultCast.messages.isNotEmpty())
-            emitResult(GetMessagesResult(getMessagesWithDatabaseResultCast.messages, true))
+        val isInitial = mPrevMessageCount == 0
 
-        val curMessageCount = count - mPrevMessageCount
+        if (getMessagesWithDatabaseResultCast.messages.isNotEmpty())
+            emitResult(GetMessagesResult(
+                getMessagesWithDatabaseResultCast.messages, true, isInitial))
+
         val getMessagesWithNetworkResult = getMessagesWithNetworkAndSave(
             chatId, mPrevMessageCount, curMessageCount, accessToken)
 
@@ -137,16 +147,20 @@ open class MateMessageDataRepository(
         if (getMessagesWithNetworkResult is InterruptionResult)
             return emitResult(getMessagesWithNetworkResult)
 
-        mPrevMessageCount = count
         val getMessagesWithNetworkResultCast =
             getMessagesWithNetworkResult as GetMessagesWithNetworkAndSaveResult
 
         if (getMessagesWithNetworkResultCast.areUpdated)
-            emitResult(GetMessagesResult(getMessagesWithNetworkResultCast.messages, false))
+            emitResult(GetMessagesResult(
+                getMessagesWithNetworkResultCast.messages, false, isInitial))
 
-        val initUpdateSourceResult = initUpdateSource()
+        mPrevMessageCount = count
 
-        if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+        if (isInitial) {
+            val initUpdateSourceResult = initUpdateSource()
+
+            if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+        }
     }
 
     suspend fun sendMessage(

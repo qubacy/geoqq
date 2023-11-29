@@ -26,8 +26,8 @@ abstract class ChatFragmentTest<StateType> : FragmentTestBase() {
     }
 
     abstract class ChatUiStateTestData<StateType>(
-        private val mChatStateFlow: MutableStateFlow<StateType?>,
-        private val mChatUiState: LiveData<ChatUiState?>
+        protected val mChatStateFlow: MutableStateFlow<StateType?>,
+        protected val mChatUiState: LiveData<ChatUiState?>
     ) {
         abstract fun generateChatState(
             messages: List<Message>, users: List<User>, operations: List<Operation>): StateType

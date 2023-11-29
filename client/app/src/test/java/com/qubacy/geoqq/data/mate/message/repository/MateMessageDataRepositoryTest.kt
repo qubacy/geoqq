@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
-import com.qubacy.geoqq.common.AnyUtility
+import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
@@ -41,7 +41,7 @@ class MateMessageDataRepositoryTest() {
     ) {
         val localMateMessageDataSource = Mockito.mock(LocalMateMessageDataSource::class.java)
 
-        Mockito.`when`(localMateMessageDataSource.getMateMessages(Mockito.anyLong(), Mockito.anyInt()))
+        Mockito.`when`(localMateMessageDataSource.getMateMessages(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(mateMessageModels)
         Mockito.`when`(localMateMessageDataSource.insertMateMessage(AnyUtility.any(MateMessageEntity::class.java)))
             .thenAnswer { }

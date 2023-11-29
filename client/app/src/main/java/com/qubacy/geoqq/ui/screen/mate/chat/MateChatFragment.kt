@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.screen.mate.chat
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -29,7 +30,6 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowError
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapterCallback
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeChatInfoUiOperation
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.ChangeUsersUiOperation
@@ -40,6 +40,7 @@ import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.SetMessagesUiOpe
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapter
 import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapterCallback
+import com.qubacy.geoqq.ui.screen.mate.chat.model.operation.AddPrecedingMessagesUiOperation
 
 class MateChatFragment(
 
@@ -48,12 +49,17 @@ class MateChatFragment(
     UserInfoBottomSheetContentCallback,
     MenuProvider
 {
+    companion object {
+        const val TAG = "MateChatFragment"
+    }
+
     private val mArgs by navArgs<MateChatFragmentArgs>()
 
     private lateinit var mBinding: FragmentMateChatBinding
     private lateinit var mAdapter: ChatAdapter
 
     private var mInitChatRequested = false
+    private var mIsChatVisualStateInitialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,6 +155,8 @@ class MateChatFragment(
     }
 
     private fun getInitMessages() {
+        mIsChatVisualStateInitialized = false
+
         (mModel as MateChatViewModel).getMessages()
     }
 
@@ -204,6 +212,11 @@ class MateChatFragment(
                 val message = chatUiState.messages.find { it.id == addMessageUiOperation.messageId }!!
 
                 mAdapter.addItem(message)
+            }
+            AddPrecedingMessagesUiOperation::class -> {
+                val addPrecedingMessagesUiOperation = uiOperation as AddPrecedingMessagesUiOperation
+
+                mAdapter.addPrecedingItems(addPrecedingMessagesUiOperation.precedingMessages)
             }
             OpenUserDetailsUiOperation::class -> {
                 val openUserDetailsUiOperation = uiOperation as OpenUserDetailsUiOperation
@@ -278,6 +291,10 @@ class MateChatFragment(
     }
 
     override fun onEdgeReached() {
+        if (!mIsChatVisualStateInitialized) return
+
+        Log.d(TAG, "onEdgeReached()")
+
         (mModel as MateChatViewModel).messageListEndReached()
     }
 
@@ -290,6 +307,10 @@ class MateChatFragment(
 
     override fun onMessageClicked(message: Message) {
         // nothing??
+    }
+
+    override fun onScrolledToLastPos() {
+        mIsChatVisualStateInitialized = true
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

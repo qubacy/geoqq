@@ -1,9 +1,10 @@
 package com.qubacy.geoqq.domain.mate.chats
 
 import android.net.Uri
-import com.qubacy.geoqq.common.BitmapMockContext
-import com.qubacy.geoqq.common.UriMockContext
+import com.qubacy.geoqq.common.util.mock.BitmapMockContext
+import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.util.generator.DataUserGeneratorUtility
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
@@ -136,10 +137,7 @@ class MateChatsUseCaseTest {
                 0L to Uri.parse(String())
             ), false)
         val usersResults = GetUsersByIdsResult(
-            listOf(
-                DataUser(0, "test", "test", 0L, true),
-                DataUser(1, "test", "test", 0L, true)
-            ),
+            DataUserGeneratorUtility.generateDataUsers(2),
             false
         )
         val chatsResult = GetChatsResult(

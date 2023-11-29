@@ -46,7 +46,7 @@ class LocalMateMessageDataSourceTest(
                     mLocalMateMessageDataSource.insertMateMessage(message)
 
                 try {
-                    val gottenMessages = mLocalMateMessageDataSource.getMateMessages(chat.id, messages.size)
+                    val gottenMessages = mLocalMateMessageDataSource.getMateMessages(chat.id, 0, messages.size)
 
                     Assert.assertTrue(gottenMessages.isNotEmpty())
 

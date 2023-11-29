@@ -5,7 +5,8 @@ import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 
 class GetMessagesResult(
     val messages: List<DataMessage>,
-    val areLocal: Boolean
+    val areLocal: Boolean,
+    val isInitial: Boolean
 ) : Result() {
 
 }

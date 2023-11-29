@@ -3,9 +3,9 @@ package com.qubacy.geoqq.domain.myprofile
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import com.qubacy.geoqq.common.AnyUtility
-import com.qubacy.geoqq.common.BitmapMockContext
-import com.qubacy.geoqq.common.UriMockContext
+import com.qubacy.geoqq.common.util.mock.AnyUtility
+import com.qubacy.geoqq.common.util.mock.BitmapMockContext
+import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository

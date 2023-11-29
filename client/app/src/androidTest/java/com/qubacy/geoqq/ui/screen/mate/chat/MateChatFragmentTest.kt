@@ -8,7 +8,10 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Before
@@ -18,18 +21,20 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
+import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
-import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.MateChatsFragmentDirections
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
@@ -47,6 +52,19 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
             operations: List<Operation>
         ): MateChatState {
             return MateChatState(messages, users, operations)
+        }
+
+        fun addPrecedingMessages(prevMessages: List<Message>) {
+            val prevState = mChatStateFlow.value!!
+
+            val messages = prevMessages + prevState.messages
+            val operations = listOf(AddPrecedingMessagesOperation(prevMessages, true))
+
+            val newState = generateChatState(messages, prevState.users, operations)
+
+            runBlocking {
+                mChatStateFlow.emit(newState)
+            }
         }
     }
 
@@ -67,12 +85,6 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
             fragmentArgs = args,
             themeResId = R.style.Theme_Geoqq_Mates)
         mMateChatFragmentScenarioRule.moveToState(Lifecycle.State.RESUMED)
-
-        val adapterFieldReflection = MateChatFragment::class.java
-            .getDeclaredField("mAdapter")
-            .apply {
-                isAccessible = true
-            }
 
         var fragment: MateChatFragment? = null
 
@@ -224,6 +236,40 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
                 .perform(WaitingViewAction(500))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
+    }
+
+    @Test
+    fun scrollingUpLeadsToLoadingPrecedingMessagesTest() {
+        val users = ScreenContext.generateTestUsers(2, true)
+
+        val messages = ChatFragmentContext.generateTestMessages(30)
+        val prevMessages = messages.subList(0, 10)
+        val newMessages = messages.subList(prevMessages.size, messages.size)
+
+        mMateChatFragmentScenarioRule.onFragment {
+            mMateChatUiStateTestData.setChat(newMessages, users)
+        }
+
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
+        Espresso.onView(withText(newMessages.last().text))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withId(R.id.chat_recycler_view))
+            .perform(
+                RecyclerViewActions.scrollToPosition<ChatAdapter.ChatMessageViewHolder>(1),
+                WaitingViewAction(1000)
+            )
+
+        mMateChatFragmentScenarioRule.onFragment {
+            mMateChatUiStateTestData.addPrecedingMessages(prevMessages)
+        }
+
+        Espresso.onView(withId(R.id.chat_recycler_view))
+            .perform(RecyclerViewActions
+                .scrollToPosition<ChatAdapter.ChatMessageViewHolder>(prevMessages.size - 1))
+
+        Espresso.onView(withText(prevMessages.last().text))
+            .perform(WaitingViewAction(1000))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test

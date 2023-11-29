@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.signup.repository
 
-import com.qubacy.geoqq.common.Base64MockContext
+import com.qubacy.geoqq.common.util.mock.Base64MockContext
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.signup.repository.result.SignUpResult
 import com.qubacy.geoqq.data.signup.repository.source.network.NetworkSignUpDataSource

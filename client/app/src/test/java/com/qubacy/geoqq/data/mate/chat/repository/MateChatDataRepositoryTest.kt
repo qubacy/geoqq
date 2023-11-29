@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository
 
-import com.qubacy.geoqq.common.AnyUtility
+import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsResult
