@@ -21,12 +21,12 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.util.generator.MessageGeneratorUtility
+import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
 import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.common.fragment.common.base.BaseFragment
-import com.qubacy.geoqq.ui.screen.common.ScreenContext
-import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
@@ -105,7 +105,9 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
             mModel.mateChatUiStateFlow as LiveData<ChatUiState?>
         )
 
-        mMateChatUiStateTestData.setChat(listOf(), TEST_USERS)
+        val testUsers = UserGeneratorUtility.generateUsers(2)
+
+        mMateChatUiStateTestData.setChat(listOf(), testUsers)
     }
 
     @Test
@@ -188,7 +190,7 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun messageAppearsOnAddMessageOperationGottenOperationGottenTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
+        val users = UserGeneratorUtility.generateUsers(2)
 
         mMateChatFragmentScenarioRule.onFragment {
             mMateChatUiStateTestData.setChat(listOf(), users)
@@ -207,8 +209,8 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun threeMessagesAppearOnSetChatOperationWithThreeMessagesGottenTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
-        val messages = ChatFragmentContext.generateTestMessages(3)
+        val users = UserGeneratorUtility.generateUsers(2)
+        val messages = MessageGeneratorUtility.generateMessages(3)
 
         mMateChatFragmentScenarioRule.onFragment {
             mMateChatUiStateTestData.setChat(messages, users)
@@ -222,8 +224,8 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun scrollingDownOnNewMessagesAddingTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
-        val messages = ChatFragmentContext.generateTestMessages(11)
+        val users = UserGeneratorUtility.generateUsers(2)
+        val messages = MessageGeneratorUtility.generateMessages(11)
 
         mMateChatFragmentScenarioRule.onFragment {
             mMateChatUiStateTestData.setChat(listOf(), users)
@@ -240,9 +242,9 @@ class MateChatFragmentTest : ChatFragmentTest<MateChatState>() {
 
     @Test
     fun scrollingUpLeadsToLoadingPrecedingMessagesTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
+        val users = UserGeneratorUtility.generateUsers(2)
+        val messages = MessageGeneratorUtility.generateMessages(30)
 
-        val messages = ChatFragmentContext.generateTestMessages(30)
         val prevMessages = messages.subList(0, 10)
         val newMessages = messages.subList(prevMessages.size, messages.size)
 

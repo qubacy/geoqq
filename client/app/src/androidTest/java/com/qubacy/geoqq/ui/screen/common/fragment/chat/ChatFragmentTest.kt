@@ -10,7 +10,6 @@ import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.common.ApplicationTestBase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,9 +18,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 abstract class ChatFragmentTest<StateType> : ApplicationTestBase() {
-    companion object {
-        val TEST_USERS = ScreenContext.generateTestUsers(2, true)
-    }
 
     abstract class ChatUiStateTestData<StateType>(
         protected val mChatStateFlow: MutableStateFlow<StateType?>,

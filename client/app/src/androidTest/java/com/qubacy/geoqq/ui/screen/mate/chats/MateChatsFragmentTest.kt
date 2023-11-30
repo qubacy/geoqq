@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.mate.chats
 
+import android.util.Log
 import android.view.View
 import androidx.core.view.marginTop
 import androidx.fragment.app.testing.FragmentScenario
@@ -16,6 +17,7 @@ import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
@@ -44,9 +46,11 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
-import com.qubacy.geoqq.ui.screen.common.ScreenContext
-import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
 import com.qubacy.geoqq.common.ApplicationTestBase
+import com.qubacy.geoqq.domain.common.util.generator.MateChatGeneratorUtility
+import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
+import com.qubacy.geoqq.domain.mate.chats.operation.AddPrecedingChatsOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapter
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.launch
@@ -62,6 +66,30 @@ class MateChatsFragmentTest : ApplicationTestBase() {
         fun setChats(chats: List<MateChat>, users: List<User>) {
             val chatsState = MateChatsState(
                 chats, users, 0, listOf(SetMateChatsOperation()))
+
+            runBlocking {
+                mMateChatsStateFlow.emit(chatsState)
+            }
+        }
+
+        fun addPrecedingChats(precedingChats: List<MateChat>, precedingUsers: List<User>) {
+            val prevState = mMateChatsUiState.value
+
+            val chats = if (prevState == null) {
+                precedingChats
+            } else {
+                prevState.chats + precedingChats
+            }
+            val users = if (prevState == null) {
+                precedingUsers
+            } else {
+                prevState.users + precedingUsers
+            }
+
+            val chatsState = MateChatsState(
+                chats, users, 0,
+                listOf(AddPrecedingChatsOperation(precedingChats, false))
+            )
 
             runBlocking {
                 mMateChatsStateFlow.emit(chatsState)
@@ -184,14 +212,6 @@ class MateChatsFragmentTest : ApplicationTestBase() {
     private lateinit var mNavHostController: TestNavHostController
     private lateinit var mMateChatsUiStateTestData: MateChatsUiStateTestData
 
-    private fun generateTestMateChats(
-        users: List<User>, lastMessages: List<Message>, count: Int = users.size
-    ): List<MateChat> {
-        return IntRange(1, count - 1).map {
-            MateChat(it.toLong() - 1, users[it].id, ScreenContext.DEFAULT_URI, lastMessages[it - 1])
-        }
-    }
-
     @Before
     override fun setup() {
         super.setup()
@@ -260,11 +280,10 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun addedChatHasCorrectChatNameLastMessageTextAndTimestampTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
-        val lastMessages = listOf(
-            Message(0L, 0L, "test", 1696847478000)
-        )
-        val chat = generateTestMateChats(users, lastMessages).first()
+        val users = UserGeneratorUtility.generateUsers(2)
+        val lastMessage = Message(0L, 0L, "test", 1696847478000)
+        val chat = MateChatGeneratorUtility.generateMateChats(1, lastMessage = lastMessage)
+            .first()
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.addChat(chat, users)
@@ -280,9 +299,8 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun settingThreeChatsLeadsToShowingThreeChatPreviewsTest() {
-        val users = ScreenContext.generateTestUsers(4, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val users = UserGeneratorUtility.generateUsers(4)
+        val chats = MateChatGeneratorUtility.generateMateChats(3)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
@@ -294,15 +312,14 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun newChatGoesAtTopTest() {
-        val users = ScreenContext.generateTestUsers(4, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages, 3)
+        val users = UserGeneratorUtility.generateUsers(5)
+        val chats = MateChatGeneratorUtility.generateMateChats(users.size - 2)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
         }
 
-        val newChat = MateChat(chats.size.toLong(), users.last().id, ScreenContext.DEFAULT_URI,
+        val newChat = MateChat(chats.size.toLong(), users.last().id, UserGeneratorUtility.DEFAULT_URI,
             Message(0, 0, "hi", 1696847478000))
 
         mMateChatsFragmentScenarioRule.onFragment {
@@ -323,9 +340,8 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun scrollingUpOnNewItemsAddingTest() {
-        val users = ScreenContext.generateTestUsers(13, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val users = UserGeneratorUtility.generateUsers(13)
+        val chats = MateChatGeneratorUtility.generateMateChats(users.size - 1)
 
         for (chat in chats) {
             mMateChatsFragmentScenarioRule.onFragment {
@@ -342,9 +358,8 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun chatPreviewGoesUpOnChatUpdateTest() {
-        val users = ScreenContext.generateTestUsers(6, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val users = UserGeneratorUtility.generateUsers(6)
+        val chats = MateChatGeneratorUtility.generateMateChats(users.size - 1)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
@@ -352,7 +367,7 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
         Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
 
-        val updatedChat = MateChat(0, 1, ScreenContext.DEFAULT_URI,
+        val updatedChat = MateChat(0, 1, UserGeneratorUtility.DEFAULT_URI,
             Message(1, 0, "aloooo", 1696847480000))
 
         mMateChatsFragmentScenarioRule.onFragment {
@@ -393,9 +408,8 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun newRequestsCardAppearanceChangesChatsListTopBoundTest() {
-        val users = ScreenContext.generateTestUsers(6, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val users = UserGeneratorUtility.generateUsers(6)
+        val chats = MateChatGeneratorUtility.generateMateChats(users.size - 1)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
@@ -443,6 +457,46 @@ class MateChatsFragmentTest : ApplicationTestBase() {
     }
 
     @Test
+    fun scrollingDownLeadsToLoadingPrecedingChatsTest() {
+        val localUser = UserGeneratorUtility.generateUsers(1).first()
+        val precedingUsers = UserGeneratorUtility.generateUsers(10, 1)
+        val newUsers = UserGeneratorUtility.generateUsers(
+            20, precedingUsers.size.toLong() + 1) + localUser
+
+        val precedingChats = MateChatGeneratorUtility.generateMateChats(10)
+        val newChats = MateChatGeneratorUtility
+            .generateMateChats(20, precedingChats.size.toLong())
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.setChats(newChats, newUsers)
+        }
+
+        Espresso.onView(isRoot()).perform(WaitingViewAction(1000))
+        Espresso.onView(withText(newChats.first().lastMessage!!.text))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        Espresso.onView(withId(R.id.chats_recycler_view))
+            .perform(
+                RecyclerViewActions
+                    .scrollToPosition<MateChatsAdapter.MateChatViewHolder>(newChats.size - 1),
+                WaitingViewAction(1000)
+            )
+
+        mMateChatsFragmentScenarioRule.onFragment {
+            mMateChatsUiStateTestData.addPrecedingChats(precedingChats, precedingUsers)
+        }
+
+        Espresso.onView(withId(R.id.chats_recycler_view))
+            .perform(
+                RecyclerViewActions
+                .scrollToPosition<MateChatsAdapter.MateChatViewHolder>(newChats.size + 1))
+
+        Espresso.onView(withText(precedingChats.first().lastMessage!!.text))
+            .perform(WaitingViewAction(1000))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
         val error = Error(0, "Test", false)
 
@@ -474,9 +528,8 @@ class MateChatsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun chatPreviewClickLeadsToTransitionToMateChatFragmentTest() {
-        val users = ScreenContext.generateTestUsers(2, true)
-        val lastMessages = ChatFragmentContext.generateTestMessages(users.size - 1)
-        val chats = generateTestMateChats(users, lastMessages)
+        val users = UserGeneratorUtility.generateUsers(2)
+        val chats = MateChatGeneratorUtility.generateMateChats(users.size - 1)
 
         mMateChatsFragmentScenarioRule.onFragment {
             mMateChatsUiStateTestData.setChats(chats, users)
