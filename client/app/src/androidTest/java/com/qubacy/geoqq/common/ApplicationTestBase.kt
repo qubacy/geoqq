@@ -1,9 +1,9 @@
-package com.qubacy.geoqq.ui.screen.common.fragment.common
+package com.qubacy.geoqq.common
 
 import androidx.test.core.app.ApplicationProvider
 import com.qubacy.geoqq.application.TestApplication
 
-abstract class FragmentTestBase {
+abstract class ApplicationTestBase {
     open fun setup() {
         val app = ApplicationProvider.getApplicationContext<TestApplication>()
 

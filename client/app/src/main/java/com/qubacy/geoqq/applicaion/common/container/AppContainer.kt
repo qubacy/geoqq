@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.applicaion.common.container
 
+import android.content.Context
+import androidx.room.RoomDatabase
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainer
@@ -17,7 +19,9 @@ import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 
-abstract class AppContainer() {
+abstract class AppContainer(val context: Context) {
+    protected abstract val mDatabase: RoomDatabase
+
     // Error:
 
     abstract val errorDataRepository: ErrorDataRepository

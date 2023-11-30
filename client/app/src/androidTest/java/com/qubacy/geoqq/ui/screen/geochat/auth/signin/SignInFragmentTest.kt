@@ -4,7 +4,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -23,8 +22,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import com.qubacy.geoqq.ui.screen.common.util.FragmentTestUtil
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -39,7 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SignInFragmentTest : FragmentTestBase() {
+class SignInFragmentTest : ApplicationTestBase() {
     class SignInUiStateTestData(
         private val signInStateFlow: MutableStateFlow<SignInState>
     ) {

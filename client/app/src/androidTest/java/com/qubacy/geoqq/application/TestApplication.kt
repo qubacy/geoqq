@@ -13,6 +13,6 @@ class TestApplication() : Application() {
     }
 
     fun setAppContainer() {
-        mAppContainer = TestAppContainer()
+        mAppContainer = TestAppContainer(this)
     }
 }

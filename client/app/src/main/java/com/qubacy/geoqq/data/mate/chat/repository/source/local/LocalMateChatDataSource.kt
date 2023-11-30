@@ -24,9 +24,9 @@ interface LocalMateChatDataSource : DataSource {
         "AND ${MateChatEntity.TABLE_NAME}.${MateChatEntity.CHAT_ID_PROP_NAME} = " +
                 "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} " +
         "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC " +
-        "LIMIT :count"
+        "LIMIT :offset, :count"
     )
-    fun getChats(count: Int): List<MateChatWithLastMessageModel>
+    fun getChats(offset: Int, count: Int): List<MateChatWithLastMessageModel>
 
     @Query("SELECT * FROM ${MateChatEntity.TABLE_NAME}" +
             " WHERE ${MateChatEntity.CHAT_ID_PROP_NAME} = :chatId"

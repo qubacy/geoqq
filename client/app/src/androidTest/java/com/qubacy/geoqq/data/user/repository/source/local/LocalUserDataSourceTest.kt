@@ -13,7 +13,9 @@ class LocalUserDataSourceTest() : DatabaseSourceTest() {
     private lateinit var mLocalUserDataSource: LocalUserDataSource
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mLocalUserDataSource = mDatabase.getUserDAO()
     }
 

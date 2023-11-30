@@ -86,6 +86,26 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
 
                 changeAutoScrollingFlag(isScrollEnabled)
             }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if (!mIsReversed) {
+                    if (dy >= 0) return
+
+                    val firstVisibleItemPos = mLayoutManager!!.findFirstVisibleItemPosition()
+
+                    if (firstVisibleItemPos == 0) mAnimatedListAdapterCallback?.onEdgeReached()
+
+                } else {
+                    if (dy <= 0) return
+
+                    val lastVisibleItemPos = mLayoutManager!!.findLastVisibleItemPosition()
+
+                    if (lastVisibleItemPos == itemCount - 1)
+                        mAnimatedListAdapterCallback?.onEdgeReached()
+                }
+            }
         })
     }
 
@@ -117,11 +137,13 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
     }
 
     fun addPrecedingItems(precedingItems: List<ItemType>) {
-        mItemAdapterInfoList.addAll(0,
+        val startInsertingIndex = if (!mIsReversed) 0 else itemCount
+
+        mItemAdapterInfoList.addAll(startInsertingIndex,
             precedingItems.map { ItemAdapterInfo(it, true) })
 
         mPendingCallbackOperations.add(CallbackOperation.ADD_PRECEDING_ITEMS)
-        notifyItemRangeInserted(0, precedingItems.size)
+        notifyItemRangeInserted(startInsertingIndex, precedingItems.size)
     }
 
     fun setItems(items: List<ItemType>) {

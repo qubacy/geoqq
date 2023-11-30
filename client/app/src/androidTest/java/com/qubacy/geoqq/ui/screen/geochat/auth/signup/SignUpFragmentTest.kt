@@ -23,7 +23,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.geochat.signup.operation.ApproveSignUpOperation
 import com.qubacy.geoqq.domain.geochat.signup.state.SignUpState
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
-class SignUpFragmentTest : FragmentTestBase() {
+class SignUpFragmentTest : ApplicationTestBase() {
     class SignUpUiStateTestData(
         private val mSignUpStateFlow: MutableStateFlow<SignUpState>
     ) {

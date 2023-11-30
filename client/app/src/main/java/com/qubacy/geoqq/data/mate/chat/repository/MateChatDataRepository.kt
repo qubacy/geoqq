@@ -38,11 +38,17 @@ open class MateChatDataRepository(
 
     private var mPrevChatCount: Int = 0
 
-    private fun getChatsWithDatabase(count: Int): Result {
+    override fun reset() {
+        super.reset()
+
+        mPrevChatCount = 0
+    }
+
+    private fun getChatsWithDatabase(offset: Int, count: Int): Result {
         var chats: List<MateChatWithLastMessageModel>? = null
 
         try {
-            chats = localMateChatDataSource.getChats(count)
+            chats = localMateChatDataSource.getChats(offset, count)
 
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
@@ -154,7 +160,8 @@ open class MateChatDataRepository(
 
     // todo: USE CASE class has to add new users BEFORE CALLING THIS!!!!!
     suspend fun getChats(accessToken: String, count: Int) {
-        val getChatsWithDatabaseResult = getChatsWithDatabase(count)
+        val curChatCount = count - mPrevChatCount
+        val getChatsWithDatabaseResult = getChatsWithDatabase(mPrevChatCount, curChatCount)
 
         if (getChatsWithDatabaseResult is ErrorResult) return emitResult(getChatsWithDatabaseResult)
         if (getChatsWithDatabaseResult is InterruptionResult)
@@ -162,27 +169,31 @@ open class MateChatDataRepository(
 
         val getChatsWithDatabaseResultCast = getChatsWithDatabaseResult as GetChatsWithDatabaseResult
 
-        if (getChatsWithDatabaseResultCast.chats.isNotEmpty())
-            emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats, true))
+        val isInitial = mPrevChatCount == 0
 
-        val curNetworkRequestChatCount = count - mPrevChatCount
+        if (getChatsWithDatabaseResultCast.chats.isNotEmpty())
+            emitResult(GetChatsResult(getChatsWithDatabaseResultCast.chats, true, isInitial))
+
         val getChatsWithNetworkResult = getChatsWithNetworkAndSave(
-            mPrevChatCount, curNetworkRequestChatCount, accessToken)
+            mPrevChatCount, curChatCount, accessToken)
 
         if (getChatsWithNetworkResult is ErrorResult) return emitResult(getChatsWithNetworkResult)
         if (getChatsWithNetworkResult is InterruptionResult)
             return emitResult(getChatsWithNetworkResult)
 
-        mPrevChatCount = count
         val getChatsWithNetworkResultCast = getChatsWithNetworkResult as GetChatsWithNetworkResult
 
         if (getChatsWithNetworkResultCast.areNew)
-            emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats, false))
+            emitResult(GetChatsResult(getChatsWithNetworkResultCast.chats, false, isInitial))
 
-        val startChatsUpdateListeningResult = initUpdateSource()
+        mPrevChatCount = count
 
-        if (startChatsUpdateListeningResult is ErrorResult)
-            return emitResult(startChatsUpdateListeningResult)
+        if (isInitial) {
+            val startChatsUpdateListeningResult = initUpdateSource()
+
+            if (startChatsUpdateListeningResult is ErrorResult)
+                return emitResult(startChatsUpdateListeningResult)
+        }
     }
 
     override fun processUpdates(updates: List<Update>) {

@@ -13,7 +13,9 @@ class LocalErrorDataSourceTest() : DatabaseSourceTest() {
     private lateinit var mLocalErrorDataSource: LocalErrorDataSource
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mLocalErrorDataSource = mDatabase.getErrorDAO()
     }
 

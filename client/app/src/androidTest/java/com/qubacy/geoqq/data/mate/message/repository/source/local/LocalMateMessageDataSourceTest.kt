@@ -21,7 +21,9 @@ class LocalMateMessageDataSourceTest(
     private lateinit var mLocalMateChatDataSource: LocalMateChatDataSource
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mLocalMateMessageDataSource = mDatabase.getMateMessageDAO()
         mLocalUserDataSource = mDatabase.getUserDAO()
         mLocalMateChatDataSource = mDatabase.getMateChatDAO()

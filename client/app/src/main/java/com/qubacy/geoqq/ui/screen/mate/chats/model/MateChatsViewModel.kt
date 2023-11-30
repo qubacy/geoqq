@@ -10,6 +10,7 @@ import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.operation.AddChatOperation
+import com.qubacy.geoqq.domain.mate.chats.operation.AddPrecedingChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
@@ -19,6 +20,7 @@ import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.Ui
 import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddPrecedingChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMateChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
@@ -78,6 +80,11 @@ open class MateChatsViewModel(
 
                 UpdateUsersUiOperation(setUsersDetailsOperation.usersIds)
             }
+            AddPrecedingChatsOperation::class -> {
+                val addPrecedingChatsOperation = operation as AddPrecedingChatsOperation
+
+                AddPrecedingChatsUiOperation(addPrecedingChatsOperation.precedingChats)
+            }
             AddChatOperation::class -> {
                 val addChatOperation = operation as AddChatOperation
 
@@ -115,6 +122,21 @@ open class MateChatsViewModel(
         mIsGettingChats = true
 
         mateChatsUseCase.getMateChats(DEFAULT_CHAT_CHUNK_SIZE)
+    }
+
+    fun chatListEndReached() {
+        val curState = mateChatsUiStateFlow.value
+
+        if (curState == null || mIsGettingChats) return
+
+        mIsGettingChats = true
+
+        val curChatCount = curState.chats.size
+        val nextChatCount = curChatCount + DEFAULT_CHAT_CHUNK_SIZE
+
+        if (nextChatCount % DEFAULT_CHAT_CHUNK_SIZE != 0) return
+
+        mateChatsUseCase.getMateChats(nextChatCount)
     }
 
     override fun retrieveError(errorId: Long) {

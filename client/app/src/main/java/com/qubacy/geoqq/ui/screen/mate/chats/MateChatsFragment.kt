@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.screen.mate.chats
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,17 +30,22 @@ import com.qubacy.geoqq.ui.screen.mate.chats.list.adapter.MateChatsAdapterCallba
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
+import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddPrecedingChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.SetMateChatsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateRequestCountUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUsersUiOperation
 
 class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
+    companion object {
+        const val TAG = "MateChatsFragment"
+    }
+
     private lateinit var mBinding: FragmentMateChatsBinding
 
     private lateinit var mAdapter: MateChatsAdapter
 
-    private var mInitChatsRequested: Boolean = false
+    private var mInitChatsRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,6 +171,11 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
                 mAdapter.addItem(chat)
             }
+            AddPrecedingChatsUiOperation::class -> {
+                val addPrecedingChatsUiOperation = uiOperation as AddPrecedingChatsUiOperation
+
+                mAdapter.addPrecedingItems(addPrecedingChatsUiOperation.precedingChats)
+            }
             UpdateUsersUiOperation::class -> {
                 val updateUserUiOperation = uiOperation as UpdateUsersUiOperation
 
@@ -245,6 +256,12 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             .find { it.id == userId }!!
 
         return user
+    }
+
+    override fun onEdgeReached() {
+        Log.d(TAG, "onEdgeReached()")
+
+        (mModel as MateChatsViewModel).chatListEndReached()
     }
 
     override fun onChatClicked(chatPreview: MateChat, chatView: View) {

@@ -1,6 +1,9 @@
 package com.qubacy.geoqq.application.container
 
+import android.content.Context
 import android.net.Uri
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.qubacy.geoqq.applicaion.common.container.AppContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
@@ -9,6 +12,7 @@ import com.qubacy.geoqq.applicaion.common.container.myprofile.MyProfileContainer
 import com.qubacy.geoqq.applicaion.common.container.signin.SignInContainer
 import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainer
 import com.qubacy.geoqq.common.util.AnyUtility
+import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
@@ -47,7 +51,13 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.mockito.Mockito
 
-class TestAppContainer : AppContainer() {
+class TestAppContainer(context: Context) : AppContainer(context) {
+    override val mDatabase = Room.databaseBuilder(
+        context, Database::class.java, Database.DATABASE_NAME + "Test")
+        .fallbackToDestructiveMigration()
+        .createFromAsset(Database.DATABASE_NAME)
+        .build()
+
     override val errorDataRepository: ErrorDataRepository =
         Mockito.mock(ErrorDataRepository::class.java)
     override val imageDataRepository: ImageDataRepository =

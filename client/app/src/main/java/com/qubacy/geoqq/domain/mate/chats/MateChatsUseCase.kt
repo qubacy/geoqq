@@ -26,6 +26,7 @@ import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
+import com.qubacy.geoqq.domain.mate.chats.operation.AddPrecedingChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.result.ProcessDataMateChatResult
 import com.qubacy.geoqq.domain.mate.chats.result.ProcessDataMateChatsResult
@@ -48,6 +49,8 @@ open class MateChatsUseCase(
     companion object {
         const val TAG = "MateChatsUseCase"
     }
+
+    private var mLastPrecedingChats: List<MateChat>? = null
 
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
@@ -93,7 +96,7 @@ open class MateChatsUseCase(
     }
 
     private suspend fun processGetChatsResult(result: GetChatsResult): Result {
-        lockLastState()
+        val prevState = lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
 
@@ -117,22 +120,74 @@ open class MateChatsUseCase(
 
         if (processDataMateChatsResult is ErrorResult) return processDataMateChatsResult
 
+        val processDataMateChatsResultCast = processDataMateChatsResult as ProcessDataMateChatsResult
+
+        val chats = retrieveChats(prevState, result, processDataMateChatsResultCast)
+        val users = retrieveUsers(prevState, result.isInitial, getUsersResultCast)
+
         val getMateRequestCountResult = getMateRequestCount(getAccessTokenResultCast.accessToken) // todo: is this legal?
 
         if (getMateRequestCountResult is ErrorResult) return getMateRequestCountResult
 
         val getMateRequestCountResultCast = getMateRequestCountResult as GetMateRequestCountResult
 
+        val operations =  if (result.isInitial) listOf(SetMateChatsOperation()) else
+            listOf(
+                AddPrecedingChatsOperation(processDataMateChatsResultCast.mateChats, !result.isLocal)
+            )
+
         val newState = MateChatsState(
-            (processDataMateChatsResult as ProcessDataMateChatsResult).mateChats,
-            getUsersResultCast.users,
+            chats,
+            users,
             getMateRequestCountResultCast.mateRequestCount,
-            listOf(SetMateChatsOperation())
+            operations
         )
 
         postState(newState)
 
         return ProcessGetChatsResult()
+    }
+
+    private fun retrieveUsers(
+        prevState: MateChatsState?,
+        isInitial: Boolean,
+        getUsersResult: GetUsersResult
+    ): List<User> {
+        return if (isInitial) {
+            getUsersResult.users
+        } else {
+            (prevState!!.users + getUsersResult.users).toSet().toList()
+        }
+    }
+
+    private fun retrieveChats(
+        prevState: MateChatsState?,
+        getChatsResult: GetChatsResult,
+        processDataMateChatsResult: ProcessDataMateChatsResult
+    ): List<MateChat> {
+        return if (getChatsResult.isInitial) {
+            processDataMateChatsResult.mateChats
+        } else {
+            prevState!!
+
+            if (getChatsResult.isLocal) {
+                val newChats = prevState.chats + processDataMateChatsResult.mateChats
+
+                mLastPrecedingChats = processDataMateChatsResult.mateChats
+                newChats
+            } else {
+                val newChats = if (mLastPrecedingChats == null)
+                    prevState.chats + processDataMateChatsResult.mateChats
+                else {
+                    prevState.chats
+                        .subList(0, prevState.chats.size - mLastPrecedingChats!!.size) +
+                            processDataMateChatsResult.mateChats
+                }
+
+                mLastPrecedingChats = null
+                newChats
+            }
+        }
     }
 
     private fun processDataMateChats(

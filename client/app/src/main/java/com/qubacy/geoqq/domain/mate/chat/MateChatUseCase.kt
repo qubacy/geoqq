@@ -85,27 +85,7 @@ open class MateChatUseCase(
 
         val processDataMessagesResultCast = processDataMessagesResult as ProcessDataMessagesResult
 
-        val messages = if (getMessagesResult.isInitial) {
-            processDataMessagesResultCast.messages
-        } else {
-            if (getMessagesResult.areLocal) {
-                val newMessages = prevState!!.messages + processDataMessagesResultCast.messages
-
-                mLastPrecedingMessages = processDataMessagesResultCast.messages
-                newMessages
-            } else {
-                val newMessages = if (mLastPrecedingMessages == null)
-                    prevState!!.messages + processDataMessagesResultCast.messages
-                else {
-                    prevState!!.messages
-                        .subList(0, prevState.messages.size - mLastPrecedingMessages!!.size) +
-                            processDataMessagesResultCast.messages
-                }
-
-                mLastPrecedingMessages = null
-                newMessages
-            }
-        }
+        val messages = retrieveMessages(prevState, getMessagesResult, processDataMessagesResultCast)
         val operations = if (getMessagesResult.isInitial) listOf(SetMessagesOperation()) else
             listOf(AddPrecedingMessagesOperation(
                 processDataMessagesResultCast.messages, !getMessagesResult.areLocal))
@@ -119,6 +99,36 @@ open class MateChatUseCase(
         postState(state)
 
         return ProcessGetMessagesResult()
+    }
+
+    private fun retrieveMessages(
+        prevState: MateChatState?,
+        getMessagesResult: GetMessagesResult,
+        processDataMessagesResult: ProcessDataMessagesResult
+    ): List<Message> {
+        return if (getMessagesResult.isInitial) {
+            processDataMessagesResult.messages
+        } else {
+            prevState!!
+
+            if (getMessagesResult.areLocal) {
+                val newMessages = prevState.messages + processDataMessagesResult.messages
+
+                mLastPrecedingMessages = processDataMessagesResult.messages
+                newMessages
+            } else {
+                val newMessages = if (mLastPrecedingMessages == null)
+                    prevState.messages + processDataMessagesResult.messages
+                else {
+                    prevState.messages
+                        .subList(0, prevState.messages.size - mLastPrecedingMessages!!.size) +
+                            processDataMessagesResult.messages
+                }
+
+                mLastPrecedingMessages = null
+                newMessages
+            }
+        }
     }
 
     override fun generateChatState(

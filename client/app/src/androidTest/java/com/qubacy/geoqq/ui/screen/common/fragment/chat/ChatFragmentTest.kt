@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
-import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
@@ -12,15 +11,14 @@ import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
-import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-abstract class ChatFragmentTest<StateType> : FragmentTestBase() {
+abstract class ChatFragmentTest<StateType> : ApplicationTestBase() {
     companion object {
         val TEST_USERS = ScreenContext.generateTestUsers(2, true)
     }

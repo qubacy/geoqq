@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -32,7 +31,7 @@ import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -47,7 +46,7 @@ import java.lang.Exception
 import java.lang.reflect.Method
 
 @RunWith(AndroidJUnit4::class)
-class MyProfileFragmentTest : FragmentTestBase() {
+class MyProfileFragmentTest : ApplicationTestBase() {
     class UserAvatarTestData(
         val setNewUserAvatarWithUriMethodReflection: Method,
         val fragment: MyProfileFragment

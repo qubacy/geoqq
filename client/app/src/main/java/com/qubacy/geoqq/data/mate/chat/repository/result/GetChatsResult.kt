@@ -5,7 +5,8 @@ import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 
 class GetChatsResult(
     val chats: List<DataMateChat>,
-    val isLocal: Boolean
+    val isLocal: Boolean,
+    val isInitial: Boolean
 ) : Result() {
 
 }

@@ -46,7 +46,7 @@ import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.ui.screen.common.ScreenContext
 import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentContext
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
 import com.qubacy.geoqq.ui.util.WaitingViewAction
 import kotlinx.coroutines.launch
@@ -54,7 +54,7 @@ import org.hamcrest.Matchers
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateChatsFragmentTest : FragmentTestBase() {
+class MateChatsFragmentTest : ApplicationTestBase() {
     class MateChatsUiStateTestData(
         private val mMateChatsStateFlow: MutableStateFlow<MateChatsState?>,
         private val mMateChatsUiState: LiveData<MateChatsUiState?>

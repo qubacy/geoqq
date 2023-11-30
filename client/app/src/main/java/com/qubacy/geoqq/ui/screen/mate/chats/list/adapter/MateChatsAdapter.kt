@@ -12,7 +12,9 @@ import java.util.TimeZone
 
 class MateChatsAdapter(
     private val mCallback: MateChatsAdapterCallback
-) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, MateChat>(mIsReversed = true) {
+) : AnimatedListAdapter<MateChatsAdapter.MateChatViewHolder, MateChat>(
+    true, mCallback
+) {
     class MateChatViewHolder(
         private val mBinding: ComponentMateChatPreviewBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {

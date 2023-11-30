@@ -20,7 +20,9 @@ class LocalMateChatDataSourceTest : DatabaseSourceTest() {
     private lateinit var mLocalUserDataSource: LocalUserDataSource
 
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
+
         mLocalMateChatDataSource = mDatabase.getMateChatDAO()
         mLocalMateMessageDataSource = mDatabase.getMateMessageDAO()
         mLocalUserDataSource = mDatabase.getUserDAO()
@@ -42,7 +44,7 @@ class LocalMateChatDataSourceTest : DatabaseSourceTest() {
             }
 
             try {
-                val gottenChats = mLocalMateChatDataSource.getChats(chatEntities.size)
+                val gottenChats = mLocalMateChatDataSource.getChats(0, chatEntities.size)
 
                 Assert.assertTrue(gottenChats.isNotEmpty())
                 Assert.assertNotNull(gottenChats.find { it.mateChatEntity.id == chatEntities[0].id })
@@ -70,7 +72,7 @@ class LocalMateChatDataSourceTest : DatabaseSourceTest() {
         try {
             mLocalMateChatDataSource.updateChat(updatedChat)
 
-            val gottenChats = mLocalMateChatDataSource.getChats(1)
+            val gottenChats = mLocalMateChatDataSource.getChats(0, 1)
 
             Assert.assertFalse(gottenChats.isEmpty())
 

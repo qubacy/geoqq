@@ -45,10 +45,10 @@ import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 
 class AppContainerImpl(
     context: Context
-) : AppContainer() {
+) : AppContainer(context) {
     // Common:
 
-    private val database = Room.databaseBuilder(
+    override val mDatabase = Room.databaseBuilder(
         context, Database::class.java, Database.DATABASE_NAME)
         .fallbackToDestructiveMigration()
         .createFromAsset(Database.DATABASE_NAME)
@@ -56,7 +56,7 @@ class AppContainerImpl(
 
     // Error:
 
-    private val localErrorDataSource = database.getErrorDAO()
+    private val localErrorDataSource = mDatabase.getErrorDAO()
 
     override val errorDataRepository = ErrorDataRepository(localErrorDataSource)
 
@@ -164,7 +164,7 @@ class AppContainerImpl(
 
     // User?:
 
-    private val localUserDataSource = database.getUserDAO()
+    private val localUserDataSource = mDatabase.getUserDAO()
     private val networkUserDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkUserDataSource::class.java)
 
@@ -173,7 +173,7 @@ class AppContainerImpl(
 
     // Mate:
 
-    private val localMateMessageDataSource = database.getMateMessageDAO()
+    private val localMateMessageDataSource = mDatabase.getMateMessageDAO()
     private val networkMateMessageDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkMateMessageDataSource::class.java)
     private val webSocketUpdateMateMessageDataSource = WebSocketUpdateMateMessageDataSource()
@@ -241,7 +241,7 @@ class AppContainerImpl(
 
     override fun clearMateRequestsContainer() { mMateRequestsContainer = null }
 
-    private val localMateChatDataSource = database.getMateChatDAO()
+    private val localMateChatDataSource = mDatabase.getMateChatDAO()
     private val networkMateChatDataSource =
         NetworkDataSourceContext.retrofit.create(NetworkMateChatDataSource::class.java)
     private val webSocketMateChatDataSource = WebSocketUpdateMateChatDataSource()

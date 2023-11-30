@@ -43,7 +43,7 @@ class MateChatDataRepositoryTest() {
     ) {
         val localMateChatDataSource = Mockito.mock(LocalMateChatDataSource::class.java)
 
-        Mockito.`when`(localMateChatDataSource.getChats(Mockito.anyInt()))
+        Mockito.`when`(localMateChatDataSource.getChats(Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(mateChatWithLastMessageModels)
         Mockito.`when`(localMateChatDataSource.insertChat(AnyUtility.any(MateChatEntity::class.java)))
             .thenAnswer { }

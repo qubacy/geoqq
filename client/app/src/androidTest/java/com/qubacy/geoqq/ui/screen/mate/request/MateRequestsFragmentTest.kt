@@ -29,7 +29,7 @@ import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
-import com.qubacy.geoqq.ui.screen.common.fragment.common.FragmentTestBase
+import com.qubacy.geoqq.common.ApplicationTestBase
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
@@ -41,7 +41,7 @@ import org.junit.Assert
 import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
-class MateRequestsFragmentTest : FragmentTestBase() {
+class MateRequestsFragmentTest : ApplicationTestBase() {
     class MateRequestsUiStateTestData(
         private val mMateRequestsStateFlow: MutableStateFlow<MateRequestsState?>,
         private val mateRequestFlow: LiveData<MateRequestsUiState?>
