@@ -2,8 +2,8 @@
 
 ## API
 Description
-  - http 
-    - v0 [here](./api/http/v0/desc.md)
+  - Http 
+    - Version 0 [here](./api/http/v0/desc.md)
 
 ## Diagrams 🎰
 
@@ -17,7 +17,7 @@ Description
     - Source [here](./puml_diagrams/domain/v0/models_p2.wsd)
     - Image [here](./out_diagrams/puml_diagrams/domain/v0/models_p2.png)
 
-### Use Case 
+### Use Case (no versions)
 
 - Part 1: 
   - Source [here](./puml_diagrams/usecase/uc_p1.wsd)

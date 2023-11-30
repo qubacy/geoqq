@@ -45,7 +45,7 @@ class UserLocation {
 class UserDetails {
     UserId: Number
     Description: String
-    Avatar: String
+    AvatarId: Number
 }
 
 class UserOptions {
