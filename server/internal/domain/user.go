@@ -21,7 +21,7 @@ type UserLocation struct {
 type UserDetails struct {
 	UserId      uint64
 	Description string
-	Avatar      string
+	AvatarId    uint64
 }
 
 type UserOptions struct {
