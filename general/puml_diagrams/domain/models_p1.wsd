@@ -24,6 +24,15 @@ hide empty members
 ' models
 ' -----------------------------------------------
 
+package Resource {
+
+class Image {
+    Id: Number
+    Content: String
+}
+
+}
+
 package User {
 
 class UserEntry {
@@ -70,8 +79,9 @@ class MateRequest {
     ToUserId: Number
     ReqTime: Datetime
     ResTime: Datetime
-    Result: String
+    Result: Number 
 }
+' Result from list: accepted, rejected, waiting
 ' Cron to remove some requests
 
 }

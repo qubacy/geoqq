@@ -44,6 +44,8 @@
 ### Parameters
 #### Required
 - accessToken=`"<jwt-string>"`
+- offset=`"<int>"`
+- count=`"<int>"`
 
 ### Responses
 - *200*
@@ -83,6 +85,8 @@
 ### Parameters
 #### Required
 - accessToken=`"<jwt-string>"`
+- offset=`"<int>"`
+- count=`"<int>"`
 
 ### Responses
 - *200*
@@ -100,6 +104,20 @@
         },
         ...
     ]
+}
+```
+
+## GET /api/mate/request/count
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Responses
+- *200*
+```json
+{
+    "count": "<int>"
 }
 ```
 
