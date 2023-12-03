@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.mate.request.repository.source.network
 import com.qubacy.geoqq.data.common.repository.common.source.DataSource
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.AnswerMateRequestResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.CreateMateRequestResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.GetMateRequestCountResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.GetMateRequestsResponse
 import retrofit2.Call
 import retrofit2.http.Field
@@ -14,6 +15,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface NetworkMateRequestDataSource : DataSource {
+    @GET("/api/mate/request/count")
+    fun getMateRequestCount(
+        @Query("accessToken") accessToken: String
+    ): Call<GetMateRequestCountResponse>
+
     @GET("/api/mate/request")
     fun getMateRequests(
         @Query("offset") offset: Int,
@@ -24,7 +30,8 @@ interface NetworkMateRequestDataSource : DataSource {
     @FormUrlEncoded
     @POST("/api/mate/request")
     fun createMateRequest(
-        @Field("access-token") accessToken: String, @Field("user-id") userId: Long
+        @Field("access-token") accessToken: String,
+        @Field("user-id") userId: Long
     ): Call<CreateMateRequestResponse>
 
     @FormUrlEncoded

@@ -78,7 +78,7 @@ class MateRequestDataRepositoryTest(
         initDataRepository(networkResponseRequestCount = count)
 
         val job = GlobalScope.launch {
-            mMateRequestDataRepository.getMateRequests(String(), count)
+            mMateRequestDataRepository.getMateRequests(String(), count, 0, false)
         }
 
         while (mResultListAtomicRef.get().isEmpty()) { }

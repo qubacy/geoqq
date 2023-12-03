@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.domain.mate.request
 
-import android.util.Log
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -8,6 +7,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -25,6 +25,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUser
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessedOperation
+import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestCountOperation
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.result.ProcessDataMateRequestsResult
 import com.qubacy.geoqq.domain.mate.request.result.ProcessMateRequestsResult
@@ -89,15 +90,40 @@ open class MateRequestsUseCase(
 
         if (processDataMateRequestsResult is ErrorResult) return processDataMateRequestsResult
 
+        val processDataMateRequestsResultCast =
+            processDataMateRequestsResult as ProcessDataMateRequestsResult
+
+        val mateRequests = retrieveMateRequests(prevState, processDataMateRequestsResultCast)
+        val users = retrieveUsers(prevState, getUsersResult)
+        val operations = listOf(SetMateRequestsOperation(getMateRequestsResult.isInit))
+
         val state = MateRequestsState(
-            (processDataMateRequestsResult as ProcessDataMateRequestsResult).mateRequests,
-            getUsersResultCast.users,
-            listOf(SetMateRequestsOperation())
+            mateRequests,
+            users,
+            operations
         )
 
         postState(state)
 
         return ProcessMateRequestsResult()
+    }
+
+    private fun retrieveUsers(
+        prevState: MateRequestsState?,
+        getUsersResult: GetUsersResult
+    ): List<User> {
+        return ((prevState?.users ?: listOf()) + getUsersResult.users).toSet().toList()
+    }
+
+    private fun retrieveMateRequests(
+        prevState: MateRequestsState?,
+        processDataMateRequestsResult: ProcessDataMateRequestsResult
+    ): HashMap<Long, List<MateRequest>> {
+        val firstElemId = processDataMateRequestsResult.mateRequests.first().id
+
+        return (prevState?.mateRequestChunks ?: hashMapOf()).apply {
+            put(firstElemId, processDataMateRequestsResult.mateRequests)
+        }
     }
 
     private fun processDataMateRequests(
@@ -119,7 +145,7 @@ open class MateRequestsUseCase(
         if (getUsersFromGetUsersByIdsResult is ErrorResult) return getUsersFromGetUsersByIdsResult
 
         val state = MateRequestsState(
-            prevState?.mateRequests ?: listOf(),
+            prevState?.mateRequestChunks ?: hashMapOf(),
             (getUsersFromGetUsersByIdsResult as GetUsersFromGetUsersByIdsResult).users,
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
@@ -134,13 +160,13 @@ open class MateRequestsUseCase(
         prevState: MateRequestsState?
     ): MateRequestsState {
         return MateRequestsState(
-            prevState?.mateRequests ?: listOf(),
+            prevState?.mateRequestChunks ?: hashMapOf(),
             prevState?.users ?: listOf(),
             operations
         )
     }
 
-    open fun getMateRequests(count: Int) {
+    open fun getMateRequests(count: Int, offset: Int, isInit: Boolean) {
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -151,7 +177,40 @@ open class MateRequestsUseCase(
 
             val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
-            requestDataRepository.getMateRequests(getAccessTokenResultCast.accessToken, count)
+            mCurrentRepository = requestDataRepository
+            requestDataRepository.getMateRequests(
+                getAccessTokenResultCast.accessToken, count, offset, isInit)
+        }
+    }
+
+    open fun getMateRequestCount() {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = tokenDataRepository
+            val getAccessTokenResult = getAccessToken(tokenDataRepository)
+
+            if (getAccessTokenResult is ErrorResult)
+                return@launch processError(getAccessTokenResult.errorId)
+            if (getAccessTokenResult is InterruptionResult) return@launch processInterruption()
+
+            val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
+
+            mCurrentRepository = requestDataRepository
+            val getMateRequestCountResult = requestDataRepository
+                .getMateRequestCount(getAccessTokenResultCast.accessToken)
+
+            if (getMateRequestCountResult is ErrorResult)
+                return@launch processError(getMateRequestCountResult.errorId)
+            if (getMateRequestCountResult is InterruptionResult) return@launch processInterruption()
+
+            val getMateRequestCountResultCast =
+                getMateRequestCountResult as GetMateRequestCountResult
+
+            lockLastState()
+
+            val state = generateState(listOf(
+                SetMateRequestCountOperation(getMateRequestCountResultCast.mateRequestCount)))
+
+            postState(state)
         }
     }
 
@@ -173,14 +232,40 @@ open class MateRequestsUseCase(
                 return@launch processError(answerMateRequestResult.errorId)
             if (answerMateRequestResult is InterruptionResult) return@launch processInterruption()
 
-            val prevState = lockLastState()
+            val prevState = lockLastState()!!
+
+            val resultMateRequestChunks = removeMateRequestFromChunk(
+                prevState.mateRequestChunks, mateRequestId)
             val newState = MateRequestsState(
-                prevState?.mateRequests?.filter { it.id != mateRequestId } ?: listOf(),
-                prevState?.users ?: listOf(),
+                resultMateRequestChunks,
+                prevState.users,
                 listOf(MateRequestAnswerProcessedOperation())
             )
 
             postState(newState)
         }
+    }
+
+    private fun removeMateRequestFromChunk(
+        mateRequestChunks: HashMap<Long, List<MateRequest>>,
+        mateRequestIdToRemove: Long
+    ): HashMap<Long, List<MateRequest>> {
+        val filteredMateRequestChunks = hashMapOf<Long, List<MateRequest>>()
+        var isRemovedFlag = false
+
+        for (mateRequestChunk in mateRequestChunks) {
+            filteredMateRequestChunks[mateRequestChunk.key] = if (!isRemovedFlag) {
+                mateRequestChunk.value
+                    .filter {
+                        if (it.id == mateRequestIdToRemove) isRemovedFlag = true
+
+                        it.id != mateRequestIdToRemove
+                    }
+            } else {
+                mateRequestChunk.value
+            }
+        }
+
+        return filteredMateRequestChunks
     }
 }

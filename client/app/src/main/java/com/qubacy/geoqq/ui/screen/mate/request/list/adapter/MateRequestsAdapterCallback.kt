@@ -9,4 +9,7 @@ interface MateRequestsAdapterCallback {
     fun onMateRequestSwiped(
         mateRequest: MateRequest,
         direction: Carousel3DContext.SwipeDirection)
+    fun onRequestListVerticalRoll(
+        edgePosition: Int,
+        direction: Carousel3DContext.RollingDirection)
 }

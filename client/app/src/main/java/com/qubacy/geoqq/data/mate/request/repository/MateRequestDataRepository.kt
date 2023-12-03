@@ -10,12 +10,14 @@ import com.qubacy.geoqq.data.common.repository.network.updatable.source.update.u
 import com.qubacy.geoqq.data.mate.request.repository.result.AnswerMateResponseResult
 import com.qubacy.geoqq.data.mate.request.repository.result.CreateMateRequestResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountResult
+import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountWithNetworkResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsWithNetworkResult
 import com.qubacy.geoqq.data.mate.request.repository.source.network.NetworkMateRequestDataSource
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.common.toDataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.AnswerMateRequestResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.CreateMateRequestResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.GetMateRequestCountResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.network.model.response.GetMateRequestsResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.websocket.WebSocketMateRequestDataSource
 import retrofit2.Call
@@ -24,7 +26,11 @@ open class MateRequestDataRepository(
     val networkMateRequestDataSource: NetworkMateRequestDataSource,
     webSocketUpdateMateRequestDataSource: WebSocketMateRequestDataSource
 ) : UpdatableDataRepository(webSocketUpdateMateRequestDataSource) {
-    private var mPrevRequestCount: Int = 0
+    companion object {
+        const val TAG = "MateRequestDataRep"
+    }
+
+    private var mIsInitial = true
 
     private fun getMateRequestsWithNetwork(
         offset: Int, count: Int, accessToken: String
@@ -43,37 +49,52 @@ open class MateRequestDataRepository(
             networkResponseBody.requests.map { it.toDataMateRequest() })
     }
 
-    suspend fun getMateRequests(accessToken: String, count: Int) {
-        val curRequestCount = count - mPrevRequestCount
-        val getMateRequestsWithNetworkResult = getMateRequestsWithNetwork(
-            mPrevRequestCount, curRequestCount, accessToken)
+    private fun getMateRequestCountWithNetwork(accessToken: String): Result {
+        val networkCall = networkMateRequestDataSource
+            .getMateRequestCount(accessToken) as Call<Response>
+        val networkRequestResult = executeNetworkRequest(networkCall)
+
+        if (networkRequestResult is ErrorResult) return networkRequestResult
+        if (networkRequestResult is InterruptionResult) return networkRequestResult
+
+        val networkResponseBody = (networkRequestResult as ExecuteNetworkRequestResult)
+            .response as GetMateRequestCountResponse
+
+        return GetMateRequestCountWithNetworkResult(networkResponseBody.count)
+    }
+
+    suspend fun getMateRequests(accessToken: String, count: Int, offset: Int, isInit: Boolean) {
+        if (mIsInitial) mIsInitial = false
+
+        val getMateRequestsWithNetworkResult = getMateRequestsWithNetwork(offset, count, accessToken)
 
         if (getMateRequestsWithNetworkResult is ErrorResult)
             return emitResult(getMateRequestsWithNetworkResult)
         if (getMateRequestsWithNetworkResult is InterruptionResult)
             return emitResult(getMateRequestsWithNetworkResult)
 
-        mPrevRequestCount = count
         val getMateRequestsWithNetworkResultCast = getMateRequestsWithNetworkResult
                 as GetMateRequestsWithNetworkResult
 
-        emitResult(GetMateRequestsResult(getMateRequestsWithNetworkResultCast.mateRequests))
+        emitResult(GetMateRequestsResult(getMateRequestsWithNetworkResultCast.mateRequests, isInit))
 
-        val initUpdateSourceResult = initUpdateSource()
+        if (mIsInitial) {
+            val initUpdateSourceResult = initUpdateSource()
 
-        if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+            if (initUpdateSourceResult is ErrorResult) return emitResult(initUpdateSourceResult)
+        }
     }
 
     suspend fun getMateRequestCount(accessToken: String): Result {
-        val getMateRequestsWithNetworkResult = getMateRequestsWithNetwork(0, 0, accessToken)
+        val getMateRequestsWithNetworkResult = getMateRequestCountWithNetwork(accessToken)
 
         if (getMateRequestsWithNetworkResult is ErrorResult) return getMateRequestsWithNetworkResult
         if (getMateRequestsWithNetworkResult is InterruptionResult) return getMateRequestsWithNetworkResult
 
         val getMateRequestsWithNetworkResultCast = getMateRequestsWithNetworkResult
-                as GetMateRequestsWithNetworkResult
+                as GetMateRequestCountWithNetworkResult
 
-        return GetMateRequestCountResult(getMateRequestsWithNetworkResultCast.mateRequests.size)
+        return GetMateRequestCountResult(getMateRequestsWithNetworkResultCast.count)
     }
 
     suspend fun createMateRequest(accessToken: String, userId: Long): Result {

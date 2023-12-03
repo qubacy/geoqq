@@ -6,7 +6,9 @@ import com.qubacy.geoqq.domain.common.state.common.State
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 
 class MateRequestsState(
-    val mateRequests: List<MateRequest> = listOf(),
+    //val mateRequests: List<MateRequest> = listOf(),
+    val mateRequestChunks: HashMap<Long, List<MateRequest>>,
+    // todo: add an additional list for incoming requests obtained with updates;
     val users: List<User> = listOf(),
     newOperations: List<Operation>
 ) : State(newOperations) {

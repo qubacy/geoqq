@@ -4,6 +4,7 @@ import android.net.Uri
 import com.qubacy.geoqq.common.util.mock.BitmapMockContext
 import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.util.generator.DataMateRequestGeneratorUtility
 import com.qubacy.geoqq.data.common.util.generator.DataUserGeneratorUtility
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
@@ -13,7 +14,6 @@ import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
@@ -58,7 +58,7 @@ class MateRequestUseCaseTest {
 
     private fun initMateRequestsUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
-        getMateRequestsResult: GetMateRequestsResult = GetMateRequestsResult(listOf()),
+        getMateRequestsResultHashMap: HashMap<Int, GetMateRequestsResult> = hashMapOf(0 to GetMateRequestsResult(listOf(), true)),
         usersResults: GetUsersByIdsResult = GetUsersByIdsResult(listOf(), true),
         imagesResults: GetImagesResult = GetImagesResult(mapOf(), true),
         originalMateRequestsState: MateRequestsState? = null
@@ -85,8 +85,9 @@ class MateRequestUseCaseTest {
 
         val mateRequestDataRepository = Mockito.mock(MateRequestDataRepository::class.java)
 
-        Mockito.`when`(mateRequestDataRepository.getMateRequests(Mockito.anyString(), Mockito.anyInt()))
-            .thenAnswer { getMateRequestsResult }
+        Mockito.`when`(mateRequestDataRepository.getMateRequests(
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean())
+        ).thenAnswer { getMateRequestsResultHashMap }
         Mockito.`when`(mateRequestDataRepository.resultFlow).thenAnswer { MutableSharedFlow<Result>() }
 
         mMateRequestsUseCase = MateRequestsUseCase(
@@ -101,12 +102,15 @@ class MateRequestUseCaseTest {
         if (originalMateRequestsState != null)
             emitOriginalState(originalMateRequestsState)
 
-        Mockito.`when`(mateRequestDataRepository.getMateRequests(Mockito.anyString(), Mockito.anyInt()))
-            .thenAnswer {
-                runBlocking {
-                    processResultMethodReflection.callSuspend(mMateRequestsUseCase, getMateRequestsResult)
-                }
+        Mockito.`when`(mateRequestDataRepository.getMateRequests(
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean())
+        ).thenAnswer {
+            val offset = it.arguments[2] as Int
+
+            runBlocking {
+                processResultMethodReflection.callSuspend(mMateRequestsUseCase, getMateRequestsResultHashMap[offset])
             }
+        }
 
         mMateRequestsStateAtomicRef = AtomicReference(null)
 
@@ -140,23 +144,73 @@ class MateRequestUseCaseTest {
             listOf(
                 DataMateRequest(0, 1),
                 DataMateRequest(0, 2)
-            )
+            ),
+            false
         )
 
         initMateRequestsUseCase(
             imagesResults = imagesResults,
             usersResults = usersResults,
-            getMateRequestsResult = requestsResults
+            getMateRequestsResultHashMap = hashMapOf(0 to requestsResults)
         )
 
-        mMateRequestsUseCase.getMateRequests(requestsResults.mateRequests.size)
+        mMateRequestsUseCase.getMateRequests(requestsResults.mateRequests.size, 0, false)
 
         while (mMateRequestsStateAtomicRef.get() == null) { }
 
-        val gottenMateRequestsState = mMateRequestsStateAtomicRef.get()
+        val gottenMateRequestsState = mMateRequestsStateAtomicRef.get()!!
 
-        for (gottenMateRequest in gottenMateRequestsState!!.mateRequests) {
-            Assert.assertNotNull(requestsResults.mateRequests.find { it.id == gottenMateRequest.id })
+        Assert.assertEquals(1, gottenMateRequestsState.mateRequestChunks.size)
+
+        for (sourceMateRequest in requestsResults.mateRequests) {
+            Assert.assertNotNull(
+                gottenMateRequestsState.mateRequestChunks.values.find { requests ->
+                    requests.find { it.id == sourceMateRequest.id } != null
+                }
+            )
+        }
+    }
+
+    @Test
+    fun getTwoMateRequestChunksTest() {
+        val imagesResults = GetImagesResult(
+            mapOf(
+                0L to Uri.parse(String())
+            ),
+            false
+        )
+        val chunkSize = 5
+
+        val getMateRequestsResultHashMap = hashMapOf(
+            0 to GetMateRequestsResult(
+                DataMateRequestGeneratorUtility.generateDataMateRequests(chunkSize),
+                false
+            ),
+            chunkSize to GetMateRequestsResult(
+                DataMateRequestGeneratorUtility.generateDataMateRequests(chunkSize, chunkSize.toLong()),
+                false
+            )
+        )
+
+        initMateRequestsUseCase(
+            imagesResults = imagesResults,
+            getMateRequestsResultHashMap = getMateRequestsResultHashMap
+        )
+
+        mMateRequestsUseCase.getMateRequests(chunkSize, 0, false)
+        mMateRequestsUseCase.getMateRequests(chunkSize, chunkSize, false)
+
+        while (mMateRequestsStateAtomicRef.get() == null) { }
+        while (mMateRequestsStateAtomicRef.get()!!.mateRequestChunks.size < 2) { }
+
+        val gottenMateRequestsState = mMateRequestsStateAtomicRef.get()!!
+
+        for (sourceMateRequest in getMateRequestsResultHashMap.values.map { it.mateRequests }.flatten()) {
+            Assert.assertNotNull(
+                gottenMateRequestsState.mateRequestChunks.values.find { requests ->
+                    requests.find { it.id == sourceMateRequest.id } != null
+                }
+            )
         }
     }
 
@@ -165,12 +219,19 @@ class MateRequestUseCaseTest {
         val mateRequestId = 0L
         val isAccepted = true
 
-        initMateRequestsUseCase()
+        val originalMateRequestsState = MateRequestsState(
+            hashMapOf(),
+            listOf(),
+            listOf()
+        )
+
+        initMateRequestsUseCase(originalMateRequestsState = originalMateRequestsState)
 
         runBlocking {
             mMateRequestsUseCase.answerMateRequest(mateRequestId, isAccepted)
 
             while (mMateRequestsStateAtomicRef.get() == null) { }
+            while (mMateRequestsStateAtomicRef.get()!!.newOperations.isEmpty()) { }
 
             val gottenState = mMateRequestsStateAtomicRef.get()
 

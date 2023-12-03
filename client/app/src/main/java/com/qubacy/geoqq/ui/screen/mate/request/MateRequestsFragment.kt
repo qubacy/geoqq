@@ -122,7 +122,7 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
             processUiOperation(uiOperation, uiState)
         }
 
-        if (uiState.mateRequests.isEmpty()) navigateBack()
+        //if (uiState.mateRequests.isEmpty()) navigateBack() // todo: resolve this sh*t
     }
 
     private fun navigateBack() {
@@ -167,6 +167,13 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         } else {
             (mModel as MateRequestsViewModel).declineMateRequest(mateRequest)
         }
+    }
+
+    override fun onRequestListVerticalRoll(
+        edgePosition: Int,
+        direction: Carousel3DContext.RollingDirection
+    ) {
+        (mModel as MateRequestsViewModel).mateRequestsListRolled(edgePosition, direction)
     }
 
     override fun handleWaitingAbort() {

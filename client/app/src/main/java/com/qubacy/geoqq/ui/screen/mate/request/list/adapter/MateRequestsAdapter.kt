@@ -11,9 +11,8 @@ import com.qubacy.geoqq.databinding.ComponentMateRequestBinding
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 
 open class MateRequestsAdapter(
-    private val mCallback: MateRequestsAdapterCallback)
-    : Carousel3DAdapter<MateRequest>()
-{
+    private val mCallback: MateRequestsAdapterCallback
+) : Carousel3DAdapter<MateRequest>() {
     companion object {
         const val TAG = "MATE_CAROUSEL_ADAPTER"
     }
@@ -54,6 +53,13 @@ open class MateRequestsAdapter(
         // Providing an answer to the request by calling the following method on the handler:
 
         handler.onHorizontalSwipeAction(position, Carousel3DContext.SwipeAction.ERASE)
+    }
+
+    override fun onVerticalRoll(
+        edgePosition: Int,
+        direction: Carousel3DContext.RollingDirection
+    ) {
+        mCallback.onRequestListVerticalRoll(edgePosition, direction)
     }
 
     override fun areItemsSwipeable(): Boolean {
