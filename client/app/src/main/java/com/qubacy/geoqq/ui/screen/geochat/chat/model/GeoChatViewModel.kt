@@ -7,13 +7,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
-import com.qubacy.geoqq.data.common.chat.operation.AddUserChatOperation
-import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
+import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
@@ -22,16 +21,14 @@ import com.qubacy.geoqq.ui.common.fragment.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-// todo: provide a repository as a param..
 open class GeoChatViewModel(
-
+    val radius: Int,
+    val geoChatUseCase: GeoChatUseCase
 ) : LocationViewModel(), ChatViewModel {
-    // todo: assign to the repository's flow:
-    private val mGeoChatStateFlow = MutableStateFlow<ChatState?>(null)
+    private val mGeoChatStateFlow = geoChatUseCase.stateFlow
 
     private val mGeoChatUiStateFlow = mGeoChatStateFlow.map { chatStateToUiState(it) }
     val geoChatUiStateFlow: LiveData<ChatUiState?> = mGeoChatUiStateFlow.asLiveData()
@@ -39,7 +36,7 @@ open class GeoChatViewModel(
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
 
-        // todo: calling some data-layer methods..
+        // todo: calling some data-layer methods..??
 
         return true
     }
@@ -54,12 +51,18 @@ open class GeoChatViewModel(
         return text.isNotEmpty()
     }
 
+    fun getGeoChat() {
+        val lastLocationPoint = lastLocationPoint.value ?: return
+
+        mIsWaiting.value = true
+
+        geoChatUseCase.getGeoChat(radius, lastLocationPoint.latitude, lastLocationPoint.longitude)
+    }
+
     fun sendMessage(text: String) {
-        viewModelScope.launch {
-            // todo: sending a message using DATA layer..
+        // todo: sending a message...
 
 
-        }
     }
 
     private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
@@ -80,7 +83,8 @@ open class GeoChatViewModel(
 
     private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
-            AddUserChatOperation::class -> {
+            Set
+            AddUserChatOperation::class -> { // todo: is it necessary?
                 val addUserChatOperation = operation as AddUserChatOperation
 
                 // mb processing the operation..
@@ -93,13 +97,6 @@ open class GeoChatViewModel(
                 // mb processing the operation..
 
                 AddMessageUiOperation(addMessageOperation.messageId)
-            }
-            ChangeChatInfoOperation::class -> {
-                val changeChatInfoOperation = operation as ChangeChatInfoOperation
-
-                // todo: think of a possible application of this operation:
-                //ChangeChatInfoUiOperation()
-                null
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
@@ -114,7 +111,7 @@ open class GeoChatViewModel(
         }
     }
 
-    fun addToFriend(user: User) {
+    fun addToMates(user: User) {
         viewModelScope.launch {
             // todo: conveying a request to the DATA layer..
 
@@ -133,11 +130,14 @@ open class GeoChatViewModel(
     }
 }
 
-open class GeoChatViewModelFactory() : ViewModelProvider.Factory {
+open class GeoChatViewModelFactory(
+    val radius: Int,
+    val geoChatUseCase: GeoChatUseCase
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(GeoChatViewModel::class.java))
             throw IllegalArgumentException()
 
-        return GeoChatViewModel() as T
+        return GeoChatViewModel(radius, geoChatUseCase) as T
     }
 }

@@ -27,7 +27,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.util.generator.MessageGeneratorUtility
 import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
 import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
-import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

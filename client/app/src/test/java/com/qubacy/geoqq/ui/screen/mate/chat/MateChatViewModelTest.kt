@@ -7,8 +7,8 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
-import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
-import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.screen.common.ViewModelTest
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.OpenUserDetailsUiOperation

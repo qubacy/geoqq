@@ -18,7 +18,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtensio
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
-import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.result.ProcessDataMessagesResult
 import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase

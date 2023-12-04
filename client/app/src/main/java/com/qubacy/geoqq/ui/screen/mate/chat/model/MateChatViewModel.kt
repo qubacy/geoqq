@@ -12,10 +12,10 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
-import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
-import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation

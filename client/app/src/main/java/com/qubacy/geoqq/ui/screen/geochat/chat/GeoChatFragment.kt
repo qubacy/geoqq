@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialFade
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
@@ -22,7 +24,6 @@ import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapt
 import com.qubacy.geoqq.ui.common.component.animatedlist.animator.AnimatedListItemAnimator
 import com.qubacy.geoqq.ui.common.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
@@ -36,6 +37,8 @@ class GeoChatFragment(
     ChatAdapterCallback,
     UserInfoBottomSheetContentCallback
 {
+    private val mArgs by navArgs<GeoChatFragmentArgs>()
+
     private lateinit var mBinding: FragmentGeoChatBinding
 
     private lateinit var mGeoChatAdapter: ChatAdapter
@@ -54,8 +57,6 @@ class GeoChatFragment(
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
-
-        mModel = GeoChatViewModelFactory().create(GeoChatViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -176,9 +177,23 @@ class GeoChatFragment(
     }
 
     override fun initFlowContainerIfNull() {
-        // todo: implement..
+        val application = (requireActivity().application as Application)
 
+        if (application.appContainer.geoChatContainer != null) return
 
+        application.appContainer.initGeoChatContainer(
+            mArgs.radius,
+            application.appContainer.errorDataRepository,
+            application.appContainer.tokenDataRepository,
+            application.appContainer.geoMessageDataRepository,
+            application.appContainer.imageDataRepository,
+            application.appContainer.userDataRepository,
+            application.appContainer.mateRequestDataRepository
+        )
+
+        mModel = application.appContainer.geoChatContainer!!
+            .geoChatViewModelFactory
+            .create(GeoChatViewModel::class.java)
     }
 
     override fun clearFlowContainer() {
@@ -205,6 +220,6 @@ class GeoChatFragment(
     }
 
     override fun addToMates(user: User) {
-        (mModel as GeoChatViewModel).addToFriend(user)
+        (mModel as GeoChatViewModel).addToMates(user)
     }
 }

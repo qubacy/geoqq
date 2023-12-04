@@ -26,7 +26,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAcc
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
-import com.qubacy.geoqq.domain.mate.chat.result.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

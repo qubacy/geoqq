@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.data.common.chat.operation
+package com.qubacy.geoqq.domain.common.operation.chat
 
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 
-abstract class ChatOperation(
+open class SetMessagesOperation(
 
 ) : Operation() {
 

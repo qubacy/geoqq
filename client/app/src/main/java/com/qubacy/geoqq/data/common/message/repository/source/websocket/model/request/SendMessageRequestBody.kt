@@ -1,6 +1,6 @@
-package com.qubacy.geoqq.data.common.message.repository.source.network.model.request
+package com.qubacy.geoqq.data.common.message.repository.source.websocket.model.request
 
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.request.common.MessageToSend
+import com.qubacy.geoqq.data.common.message.repository.source.websocket.model.request.common.MessageToSend
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

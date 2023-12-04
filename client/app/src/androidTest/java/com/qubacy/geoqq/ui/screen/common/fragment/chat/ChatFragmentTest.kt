@@ -9,7 +9,7 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
-import com.qubacy.geoqq.domain.mate.chat.operation.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.common.ApplicationTestBase
 import kotlinx.coroutines.flow.MutableStateFlow

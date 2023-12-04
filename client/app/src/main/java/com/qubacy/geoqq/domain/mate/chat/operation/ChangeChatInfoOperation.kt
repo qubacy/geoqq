@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.domain.mate.chat.operation
 
-import com.qubacy.geoqq.data.common.chat.operation.ChatOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 
 class ChangeChatInfoOperation(
 
-) : ChatOperation() {
+) : Operation() {
 
 }

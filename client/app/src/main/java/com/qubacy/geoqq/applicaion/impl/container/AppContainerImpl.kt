@@ -3,15 +3,20 @@ package com.qubacy.geoqq.applicaion.common.container
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.room.Room
+import com.qubacy.geoqq.applicaion.common.container.geochat.GeoChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.myprofile.MyProfileContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.signin.SignInContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainerImpl
+import com.qubacy.geoqq.applicaion.impl.container.geochat.GeoChatContainerImpl
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.geochat.message.repository.GeoMessageDataRepository
+import com.qubacy.geoqq.data.geochat.message.repository.source.network.model.NetworkGeoMessageDataSource
+import com.qubacy.geoqq.data.geochat.message.repository.source.websocket.WebSocketUpdateGeoMessageDataSource
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.network.NetworkImageDataSource
@@ -36,6 +41,7 @@ import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
+import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
@@ -129,6 +135,47 @@ class AppContainerImpl(
     }
 
     override fun clearSignUpContainer() { mSignUpContainer = null }
+
+    // Geo Chat
+
+    private val networkGeoMessageDataSource =
+        NetworkDataSourceContext.retrofit.create(NetworkGeoMessageDataSource::class.java)
+    private val webSocketUpdateGeoMessageDataSource = WebSocketUpdateGeoMessageDataSource()
+
+    override val geoMessageDataRepository = GeoMessageDataRepository(
+        networkGeoMessageDataSource, webSocketUpdateGeoMessageDataSource)
+
+    override fun initGeoChatContainer(
+        radius: Int,
+        errorDataRepository: ErrorDataRepository,
+        tokenDataRepository: TokenDataRepository,
+        geoMessageDataRepository: GeoMessageDataRepository,
+        imageDataRepository: ImageDataRepository,
+        userDataRepository: UserDataRepository,
+        mateRequestDataRepository: MateRequestDataRepository
+    ) {
+        errorDataRepository.reset()
+        tokenDataRepository.reset()
+        geoMessageDataRepository.reset()
+        imageDataRepository.reset()
+        userDataRepository.reset()
+        mateRequestDataRepository.reset()
+
+        val geoChatUseCase = GeoChatUseCase(
+            errorDataRepository,
+            tokenDataRepository,
+            geoMessageDataRepository,
+            imageDataRepository,
+            userDataRepository,
+            mateRequestDataRepository
+        )
+
+        mGeoChatContainer = GeoChatContainerImpl(radius, geoChatUseCase)
+    }
+
+    override fun clearGeoChatContainer() {
+        mGeoChatContainer = null
+    }
 
     // My Profile:
 
