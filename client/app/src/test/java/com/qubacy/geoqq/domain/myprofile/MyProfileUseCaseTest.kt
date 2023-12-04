@@ -11,6 +11,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
@@ -62,7 +63,7 @@ class MyProfileUseCaseTest {
     private fun initMyProfileUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
         getMyProfileResult: GetMyProfileResult = GetMyProfileResult(DataMyProfileWithLinkedAvatar(
-            String(), String(), MyProfileDataModelContext.HitUpOption.NEGATIVE, Uri.parse(String())
+            String(), String(), DataMyProfile.HitUpOption.NEGATIVE, Uri.parse(String())
         )),
         getImageByUriResult: GetImageByUriResult = GetImageByUriResult(
             BitmapFactory.decodeByteArray(ByteArray(0), 0, 0)
@@ -109,7 +110,7 @@ class MyProfileUseCaseTest {
             Mockito.anyString(),
             Mockito.anyString(),
             Mockito.anyString(),
-            AnyUtility.any(MyProfileDataModelContext.HitUpOption::class.java))
+            AnyUtility.any(DataMyProfile.HitUpOption::class.java))
         ).thenAnswer {
             runBlocking {
                 processResultMethodReflection.callSuspend(mMyProfileUseCase, updateMyProfileResult)
@@ -138,7 +139,7 @@ class MyProfileUseCaseTest {
     fun getMyProfileTest() {
         val dataMyProfile = DataMyProfileWithLinkedAvatar(
             "test", "test",
-            MyProfileDataModelContext.HitUpOption.NEGATIVE, Uri.parse(String())
+            DataMyProfile.HitUpOption.NEGATIVE, Uri.parse(String())
         )
 
         initMyProfileUseCase(getMyProfileResult = GetMyProfileResult(dataMyProfile))
@@ -158,7 +159,7 @@ class MyProfileUseCaseTest {
         val description = String()
         val password = String()
         val newPassword = String()
-        val hitUpOption = MyProfileDataModelContext.HitUpOption.NEGATIVE
+        val hitUpOption = DataMyProfile.HitUpOption.NEGATIVE
 
         val prevMyProfileState = MyProfileState(
             avatarUri, "test", description, hitUpOption, listOf())

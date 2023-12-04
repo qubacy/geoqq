@@ -9,6 +9,7 @@ import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
@@ -50,7 +51,7 @@ class MyProfileDataRepositoryTest(
     ): MyProfileEntity {
         val myProfileEntity = MyProfileEntity(avatarUri, username, description, hitUpOptionIndex)
         val spiedMyProfileEntity = Mockito.spy(myProfileEntity)
-        val hitUpOption = MyProfileDataModelContext.HitUpOption.entries
+        val hitUpOption = DataMyProfile.HitUpOption.entries
             .find { it.index == hitUpOptionIndex }!!
 
         val uri = Uri.parse(String())
@@ -196,7 +197,7 @@ class MyProfileDataRepositoryTest(
         runBlocking {
             val result = mMyProfileDataRepository.updateMyProfile(
                 String(), avatarBitmapMock, String(),
-                String(), String(), MyProfileDataModelContext.HitUpOption.NEGATIVE
+                String(), String(), DataMyProfile.HitUpOption.NEGATIVE
             )
 
             Assert.assertEquals(UpdateMyProfileResult::class, result::class)

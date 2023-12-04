@@ -4,6 +4,7 @@ import android.net.Uri
 import app.cash.turbine.test
 import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.common.util.mock.UriMockContext
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
@@ -49,7 +50,7 @@ class MyProfileViewModelTest : ViewModelTest() {
             Mockito.anyString(),
             Mockito.anyString(),
             Mockito.anyString(),
-            AnyUtility.any(MyProfileDataModelContext.HitUpOption::class.java)
+            AnyUtility.any(DataMyProfile.HitUpOption::class.java)
         )).thenAnswer { setNewUiState(newState) }
 
         mMyProfileStateFlow = MutableStateFlow<MyProfileState?>(null)
@@ -81,7 +82,7 @@ class MyProfileViewModelTest : ViewModelTest() {
             mockUri,
             String(),
             String(),
-            MyProfileDataModelContext.HitUpOption.NEGATIVE,
+            DataMyProfile.HitUpOption.NEGATIVE,
             listOf()
         )
 
@@ -107,7 +108,7 @@ class MyProfileViewModelTest : ViewModelTest() {
             mockUri,
             String(),
             String(),
-            MyProfileDataModelContext.HitUpOption.NEGATIVE,
+            DataMyProfile.HitUpOption.NEGATIVE,
             listOf(
                 SuccessfulProfileSavingCallbackOperation()
             )

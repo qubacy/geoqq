@@ -19,7 +19,7 @@ class GeoChatSettingsViewModelTest : ViewModelTest() {
 
     data class GetCurRadiusOptionMetersTestCase(
         val radiusOptionIndex: Int,
-        val expectedRadiusOptionMeters: Float
+        val expectedRadiusOptionMeters: Int
     )
 
     @Test
