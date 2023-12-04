@@ -29,7 +29,7 @@ open class GeoChatSettingsViewModel(
         mCurRadiusOptionIndex.value = index
     }
 
-    fun getCurRadiusOptionMeters(): Float {
+    fun getCurRadiusOptionMeters(): Int {
         return GeoChatSettingsContext.RADIUS_OPTION_IN_METERS_ARRAY[curRadiusOptionIndex.value!!]
     }
 

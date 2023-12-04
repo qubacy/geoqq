@@ -12,7 +12,7 @@ import com.qubacy.geoqq.data.common.repository.common.source.network.model.respo
 import com.qubacy.geoqq.data.common.repository.network.common.result.ExecuteNetworkRequestResult
 import com.qubacy.geoqq.data.common.repository.network.updatable.UpdatableDataRepository
 import com.qubacy.geoqq.data.common.repository.network.updatable.source.update.update.Update
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithDatabaseResult
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesWithNetworkAndSaveResult
 import com.qubacy.geoqq.data.mate.message.repository.result.InsertOrUpdateMessagesEntitiesWithDatabaseResult
@@ -133,7 +133,7 @@ open class MateMessageDataRepository(
         val isInitial = mPrevMessageCount == 0
 
         if (getMessagesWithDatabaseResultCast.messages.isNotEmpty())
-            emitResult(GetMessagesResult(
+            emitResult(GetMateMessagesResult(
                 getMessagesWithDatabaseResultCast.messages, true, isInitial))
 
         val getMessagesWithNetworkResult = getMessagesWithNetworkAndSave(
@@ -148,7 +148,7 @@ open class MateMessageDataRepository(
             getMessagesWithNetworkResult as GetMessagesWithNetworkAndSaveResult
 
         if (getMessagesWithNetworkResultCast.areUpdated)
-            emitResult(GetMessagesResult(
+            emitResult(GetMateMessagesResult(
                 getMessagesWithNetworkResultCast.messages, false, isInitial))
 
         mPrevMessageCount = count

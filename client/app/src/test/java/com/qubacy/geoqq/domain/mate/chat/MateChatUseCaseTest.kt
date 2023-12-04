@@ -4,7 +4,6 @@ import android.net.Uri
 import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq.common.util.mock.BitmapMockContext
 import com.qubacy.geoqq.common.util.mock.UriMockContext
-import com.qubacy.geoqq.data.common.message.model.DataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.util.generator.DataMessageGeneratorUtility
 import com.qubacy.geoqq.data.common.util.generator.DataUserGeneratorUtility
@@ -12,15 +11,13 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
-import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
@@ -89,7 +86,7 @@ class MateChatUseCaseTest(
     private fun initMateChatsUseCase(
         getTokensResult: GetTokensResult = GetTokensResult(String(), String()),
         getAccessTokenPayloadResult: GetAccessTokenPayloadResult = GetAccessTokenPayloadResult(mapOf()),
-        getMateMessagesResult: GetMessagesResult = GetMessagesResult(listOf(), true, true),
+        getMateMessagesResult: GetMateMessagesResult = GetMateMessagesResult(listOf(), true, true),
         usersResults: GetUsersByIdsResult = GetUsersByIdsResult(listOf(), true),
         imagesResults: GetImagesResult = GetImagesResult(mapOf(), true),
         mateRequestCount: Long = 0,
@@ -183,7 +180,7 @@ class MateChatUseCaseTest(
 
         initMateChatsUseCase(
             getAccessTokenPayloadResult = getAccessTokenPayloadResult,
-            getMateMessagesResult = GetMessagesResult(messages, false, true),
+            getMateMessagesResult = GetMateMessagesResult(messages, false, true),
             imagesResults = imagesResults,
             usersResults = usersResults
         )
@@ -220,7 +217,7 @@ class MateChatUseCaseTest(
 
         initMateChatsUseCase(
             getAccessTokenPayloadResult = getAccessTokenPayloadResult,
-            getMateMessagesResult = GetMessagesResult(precedingMessages, false, false),
+            getMateMessagesResult = GetMateMessagesResult(precedingMessages, false, false),
             imagesResults = imagesResults,
             usersResults = newUsersResults,
             originalMateChatState = prevState

@@ -7,7 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
-import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
+import com.qubacy.geoqq.data.common.message.model.validator.MessageTextValidator
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation

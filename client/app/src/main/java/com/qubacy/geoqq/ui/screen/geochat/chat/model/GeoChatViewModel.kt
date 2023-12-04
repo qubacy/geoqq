@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
-import com.qubacy.geoqq.data.common.entity.chat.message.validator.MessageTextValidator
+import com.qubacy.geoqq.data.common.message.model.validator.MessageTextValidator
 import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
@@ -19,10 +19,9 @@ import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.fragment.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.AddMessageUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.AddUserUiOperation
+import com.qubacy.geoqq.ui.common.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 open class GeoChatViewModel(
     val radius: Int,
@@ -33,10 +32,13 @@ open class GeoChatViewModel(
     private val mGeoChatUiStateFlow = mGeoChatStateFlow.map { chatStateToUiState(it) }
     val geoChatUiStateFlow: LiveData<ChatUiState?> = mGeoChatUiStateFlow.asLiveData()
 
+    private var mGeoChatInitialized = false
+    val geoChatInitialized get() = mGeoChatInitialized
+
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
 
-        // todo: calling some data-layer methods..??
+        if (!mGeoChatInitialized) getGeoChat()
 
         return true
     }
@@ -65,8 +67,24 @@ open class GeoChatViewModel(
 
     }
 
+    fun addToMates(user: User) {
+        // todo: adding to mates..
+
+
+    }
+
+    fun isLocalUser(userId: Long): Boolean {
+        // todo: checking the userId using the DATA layer..
+
+
+
+        return false
+    }
+
     private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
         if (chatState == null) return null
+        if (mIsWaiting.value == true) mIsWaiting.value = false
+        if (!mGeoChatInitialized) mGeoChatInitialized = true
 
         val uiOperations = mutableListOf<UiOperation>()
 
@@ -83,14 +101,18 @@ open class GeoChatViewModel(
 
     private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
-            Set
-            AddUserChatOperation::class -> { // todo: is it necessary?
-                val addUserChatOperation = operation as AddUserChatOperation
+            SetMessagesOperation::class -> {
+                val setMessagesOperation = operation as SetMessagesOperation
 
-                // mb processing the operation..
-
-                AddUserUiOperation(addUserChatOperation.userId)
+                processSetMessagesOperation(setMessagesOperation)
             }
+//            AddUserChatOperation::class -> { // todo: is it necessary?
+//                val addUserChatOperation = operation as AddUserChatOperation
+//
+//                // mb processing the operation..
+//
+//                AddUserUiOperation(addUserChatOperation.userId)
+//            }
             AddMessageChatOperation::class -> {
                 val addMessageOperation = operation as AddMessageChatOperation
 
@@ -111,18 +133,10 @@ open class GeoChatViewModel(
         }
     }
 
-    fun addToMates(user: User) {
-        viewModelScope.launch {
-            // todo: conveying a request to the DATA layer..
-
-
-        }
-    }
-
-    fun isLocalUser(userId: Long): Boolean {
-        // todo: checking the userId using the DATA layer..
-
-        return false
+    private fun processSetMessagesOperation(
+        setMessagesOperation: SetMessagesOperation
+    ): UiOperation {
+        return SetMessagesUiOperation()
     }
 
     override fun retrieveError(errorId: Long) {

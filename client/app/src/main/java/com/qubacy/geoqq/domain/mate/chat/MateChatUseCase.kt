@@ -1,12 +1,13 @@
 package com.qubacy.geoqq.domain.mate.chat
 
+import com.qubacy.geoqq.data.common.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -20,7 +21,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.result.ProcessDataMessagesResult
-import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
+import com.qubacy.geoqq.domain.common.result.chat.ProcessGetMessagesResult
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.MessageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetLocalUserIdResult
@@ -58,6 +59,8 @@ open class MateChatUseCase(
     }
 
     override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
+       val getMateMessagesResult = getMessagesResult as GetMateMessagesResult
+
         val prevState = lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -72,7 +75,7 @@ open class MateChatUseCase(
             userDataRepository,
             imageDataRepository,
             this,
-            !getMessagesResult.areLocal
+            !getMateMessagesResult.areLocal
         )
 
         if (getUsersResult is ErrorResult) return getUsersResult
@@ -86,9 +89,9 @@ open class MateChatUseCase(
         val processDataMessagesResultCast = processDataMessagesResult as ProcessDataMessagesResult
 
         val messages = retrieveMessages(prevState, getMessagesResult, processDataMessagesResultCast)
-        val operations = if (getMessagesResult.isInitial) listOf(SetMessagesOperation()) else
+        val operations = if (getMateMessagesResult.isInitial) listOf(SetMessagesOperation()) else
             listOf(AddPrecedingMessagesOperation(
-                processDataMessagesResultCast.messages, !getMessagesResult.areLocal))
+                processDataMessagesResultCast.messages, !getMateMessagesResult.areLocal))
 
         val state = MateChatState(
             messages,
@@ -103,7 +106,7 @@ open class MateChatUseCase(
 
     private fun retrieveMessages(
         prevState: MateChatState?,
-        getMessagesResult: GetMessagesResult,
+        getMessagesResult: GetMateMessagesResult,
         processDataMessagesResult: ProcessDataMessagesResult
     ): List<Message> {
         return if (getMessagesResult.isInitial) {

@@ -14,6 +14,7 @@ import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainer
 import com.qubacy.geoqq.common.util.AnyUtility
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.geochat.message.repository.GeoMessageDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
@@ -127,6 +128,21 @@ class TestAppContainer(context: Context) : AppContainer(context) {
 
         Mockito.`when`(mSignUpContainer!!.signUpViewModelFactory)
             .thenAnswer { signUpViewModelFactoryMock }
+    }
+
+    override val geoMessageDataRepository: GeoMessageDataRepository =
+        Mockito.mock(GeoMessageDataRepository::class.java)
+
+    override fun initGeoChatContainer(
+        radius: Int,
+        errorDataRepository: ErrorDataRepository,
+        tokenDataRepository: TokenDataRepository,
+        geoMessageDataRepository: GeoMessageDataRepository,
+        imageDataRepository: ImageDataRepository,
+        userDataRepository: UserDataRepository,
+        mateRequestDataRepository: MateRequestDataRepository
+    ) {
+        TODO("Not yet implemented")
     }
 
     override val myProfileDataRepository: MyProfileDataRepository =

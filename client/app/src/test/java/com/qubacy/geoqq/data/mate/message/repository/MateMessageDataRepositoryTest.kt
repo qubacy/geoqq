@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.mate.message.repository
 import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.model.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.network.NetworkMateMessageDataSource
@@ -99,9 +99,9 @@ class MateMessageDataRepositoryTest() {
 
         val result = mResultListAtomicRef.get().first()
 
-        Assert.assertEquals(result::class, GetMessagesResult::class)
+        Assert.assertEquals(result::class, GetMateMessagesResult::class)
 
-        val resultCast = result as GetMessagesResult
+        val resultCast = result as GetMateMessagesResult
 
         for (message in mateMessageEntities) {
             Assert.assertNotNull(resultCast.messages.find { it.id == message.id })
@@ -125,9 +125,9 @@ class MateMessageDataRepositoryTest() {
 
         val result = mResultListAtomicRef.get().last()
 
-        Assert.assertEquals(result::class, GetMessagesResult::class)
+        Assert.assertEquals(result::class, GetMateMessagesResult::class)
 
-        val resultCast = result as GetMessagesResult
+        val resultCast = result as GetMateMessagesResult
 
         Assert.assertEquals(count, resultCast.messages.size)
 

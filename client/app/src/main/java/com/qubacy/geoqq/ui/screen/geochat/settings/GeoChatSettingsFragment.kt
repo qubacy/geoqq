@@ -230,7 +230,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         if (locationPoint == null) return
 
         val locationCircle = Circle(
-            locationPoint, (mModel as GeoChatSettingsViewModel).getCurRadiusOptionMeters())
+            locationPoint, (mModel as GeoChatSettingsViewModel).getCurRadiusOptionMeters().toFloat())
 
         if (mCurLocationCircle != null) removeCircleFromMap(mCurLocationCircle!!)
 

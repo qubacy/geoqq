@@ -15,7 +15,7 @@ import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
-import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
+import com.qubacy.geoqq.domain.common.result.common.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtension

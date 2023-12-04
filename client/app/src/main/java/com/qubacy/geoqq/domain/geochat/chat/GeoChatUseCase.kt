@@ -1,12 +1,12 @@
 package com.qubacy.geoqq.domain.geochat.chat
 
+import com.qubacy.geoqq.data.common.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.geochat.message.repository.GeoMessageDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -23,7 +23,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetLocalUserIdResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.geochat.chat.state.GeoChatState
-import com.qubacy.geoqq.domain.mate.chat.result.ProcessGetMessagesResult
+import com.qubacy.geoqq.domain.common.result.chat.ProcessGetMessagesResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -63,8 +63,7 @@ open class GeoChatUseCase(
             getAccessTokenResultCast.accessToken,
             userDataRepository,
             imageDataRepository,
-            this,
-            !getMessagesResult.areLocal
+            this
         )
 
         if (getUsersResult is ErrorResult) return getUsersResult
@@ -135,12 +134,8 @@ open class GeoChatUseCase(
             mLocalUserId = (getLocalUserIdResult as GetLocalUserIdResult).localUserId
 
             mCurrentRepository = geoMessageDataRepository
-            val getGeoMessagesResult = geoMessageDataRepository.getGeoMessages(
+            geoMessageDataRepository.getGeoMessages(
                 radius, latitude, longitude, getAccessTokenResultCast.accessToken)
-
-            if (getGeoMessagesResult is ErrorResult)
-                return@launch processError(getGeoMessagesResult.errorId)
-            if (getGeoMessagesResult is InterruptionResult) return@launch processInterruption()
         }
     }
 }

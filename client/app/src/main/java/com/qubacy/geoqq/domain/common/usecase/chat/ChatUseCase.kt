@@ -1,12 +1,12 @@
 package com.qubacy.geoqq.domain.common.usecase.chat
 
+import com.qubacy.geoqq.data.common.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.CreateMateRequestResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
@@ -16,7 +16,7 @@ import com.qubacy.geoqq.domain.common.model.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
-import com.qubacy.geoqq.domain.common.result.ProcessGetUserByIdResult
+import com.qubacy.geoqq.domain.common.result.common.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
