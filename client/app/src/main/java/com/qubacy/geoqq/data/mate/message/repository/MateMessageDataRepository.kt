@@ -1,10 +1,10 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
 import com.qubacy.geoqq.common.error.ErrorContext
-import com.qubacy.geoqq.data.common.message.model.DataMessage
-import com.qubacy.geoqq.data.common.message.repository.source.websocket.model.request.common.MessageToSend
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.MessageListResponse
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.common.toDataMessage
+import com.qubacy.geoqq.data.common.model.message.DataMessage
+import com.qubacy.geoqq.data.common.repository.message.source.websocket.model.request.common.MessageToSend
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.MessageListResponse
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.common.toDataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult

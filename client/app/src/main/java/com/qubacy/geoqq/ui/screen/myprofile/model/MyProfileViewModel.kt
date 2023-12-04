@@ -1,25 +1,24 @@
 package com.qubacy.geoqq.ui.screen.myprofile.model
 
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
-import com.qubacy.geoqq.domain.common.model.validator.password.standard.StandardPasswordValidator
+import com.qubacy.geoqq.domain.common.model.common.validator.password.standard.StandardPasswordValidator
 import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import kotlinx.coroutines.flow.map
@@ -180,7 +179,7 @@ open class MyProfileViewModel(
                 val hitUpOptionIndex =
                     (changedPropHashMap[MyProfileModelContext.PRIVACY_HIT_UP_POSITION_KEY] as Int)
 
-                MyProfileDataModelContext.HitUpOption.entries.find { it.index == hitUpOptionIndex }
+                DataMyProfile.HitUpOption.entries.find { it.index == hitUpOptionIndex }
             }
 
         myProfileUseCase.updateMyProfile(
@@ -234,11 +233,11 @@ open class MyProfileViewModel(
         return true
     }
 
-    fun getHitUpOptionByIndex(index: Int): MyProfileDataModelContext.HitUpOption? {
-        if (index >= MyProfileDataModelContext.HitUpOption.entries.size)
+    fun getHitUpOptionByIndex(index: Int): DataMyProfile.HitUpOption? {
+        if (index >= DataMyProfile.HitUpOption.entries.size)
             return null
 
-        return MyProfileDataModelContext.HitUpOption.entries[index]
+        return DataMyProfile.HitUpOption.entries[index]
     }
 
     override fun retrieveError(errorId: Long) {

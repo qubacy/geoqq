@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepo
 import com.qubacy.geoqq.data.common.util.HasherUtil
 import com.qubacy.geoqq.data.common.util.StringEncodingDecodingUtil
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileWithNetworkResult
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileWithSharedPreferencesResult
@@ -96,7 +96,7 @@ open class MyProfileDataRepository(
         description: String?,
         password: String?,
         newPassword: String?,
-        hitUpOption: MyProfileDataModelContext.HitUpOption?
+        hitUpOption: DataMyProfile.HitUpOption?
     ): Result {
         val avatarContent = if (avatarBitmap == null) null
             else {

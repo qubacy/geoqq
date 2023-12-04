@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.mate.message.repository.source.local.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.qubacy.geoqq.data.common.message.model.DataMessage
+import com.qubacy.geoqq.data.common.model.message.DataMessage
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.model.MateChatEntity
 
 @Entity(tableName = MateMessageEntity.TABLE_NAME,

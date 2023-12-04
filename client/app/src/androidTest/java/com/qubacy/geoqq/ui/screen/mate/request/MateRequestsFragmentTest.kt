@@ -21,7 +21,7 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.model
 
-import com.qubacy.geoqq.data.common.message.model.DataMessage
+import com.qubacy.geoqq.data.common.model.message.DataMessage
 
 class DataMateChat(
     val id: Long,

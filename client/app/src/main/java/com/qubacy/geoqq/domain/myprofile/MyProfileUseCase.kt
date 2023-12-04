@@ -9,11 +9,10 @@ import com.qubacy.geoqq.data.common.repository.common.result.interruption.Interr
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImageByUriResult
-import com.qubacy.geoqq.data.image.repository.result.GetImageResult
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
 import com.qubacy.geoqq.data.myprofile.model.avatar.labeled.DataMyProfileWithAvatarId
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
@@ -123,7 +122,7 @@ open class MyProfileUseCase(
             prevState?.avatar ?: Uri.parse(String()),
             prevState?.username ?: String(),
             prevState?.description ?: String(),
-            prevState?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE,
+            prevState?.hitUpOption ?: DataMyProfile.HitUpOption.POSITIVE,
             operations
         )
     }
@@ -131,7 +130,7 @@ open class MyProfileUseCase(
     private suspend fun changeCurrentStateAfterUpdate(
         avatarUri: Uri?,
         description: String?,
-        hitUpOption: MyProfileDataModelContext.HitUpOption?
+        hitUpOption: DataMyProfile.HitUpOption?
     ) {
         val state = stateFlow.value
         val newState = MyProfileState(
@@ -139,7 +138,7 @@ open class MyProfileUseCase(
             state?.username ?: String(),
             description ?: (state?.description ?: String()),
             hitUpOption ?:
-            (state?.hitUpOption ?: MyProfileDataModelContext.HitUpOption.POSITIVE),
+            (state?.hitUpOption ?: DataMyProfile.HitUpOption.POSITIVE),
             listOf(SuccessfulProfileSavingCallbackOperation())
         )
 
@@ -178,7 +177,7 @@ open class MyProfileUseCase(
         description: String?,
         password: String?,
         newPassword: String?,
-        hitUpOption: MyProfileDataModelContext.HitUpOption?
+        hitUpOption: DataMyProfile.HitUpOption?
     ) {
         mCoroutineScope.launch(Dispatchers.IO) {
             var avatarBitmap: Bitmap? = null

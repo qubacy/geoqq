@@ -26,12 +26,12 @@ import org.junit.runner.RunWith
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.common.ApplicationTestBase
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
@@ -92,7 +92,7 @@ class MyProfileFragmentTest : ApplicationTestBase() {
                 if (myProfileUiState.value != null) myProfileUiState.value!!.description else String()
             var hitUpOption =
                 if (myProfileUiState.value != null) myProfileUiState.value!!.hitUpOption
-                else MyProfileDataModelContext.HitUpOption.POSITIVE
+                else DataMyProfile.HitUpOption.POSITIVE
 
             val newState = MyProfileState(
                 avatar, username, description, hitUpOption, operations)
@@ -124,7 +124,7 @@ class MyProfileFragmentTest : ApplicationTestBase() {
             avatarUri,
             "test",
             "test",
-            MyProfileDataModelContext.HitUpOption.NEGATIVE,
+            DataMyProfile.HitUpOption.NEGATIVE,
             listOf()
         )
     }
@@ -403,7 +403,7 @@ class MyProfileFragmentTest : ApplicationTestBase() {
                     avatar = mTestAvatarUri,
                     username = "fwqf",
                     description = "g3523 235 235",
-                    hitUpOption = MyProfileDataModelContext.HitUpOption.POSITIVE
+                    hitUpOption = DataMyProfile.HitUpOption.POSITIVE
                 )
             )
         }
@@ -411,7 +411,7 @@ class MyProfileFragmentTest : ApplicationTestBase() {
         Espresso.onView(withId(R.id.privacy_hit_up)).perform(scrollTo())
 
         mMyProfileFragmentScenarioRule.onFragment {
-            mPrivacyHitUpTestData.changeCurPrivacyHitUpPosition(MyProfileDataModelContext.HitUpOption.NEGATIVE.index)
+            mPrivacyHitUpTestData.changeCurPrivacyHitUpPosition(DataMyProfile.HitUpOption.NEGATIVE.index)
         }
 
         Espresso.onView(withId(R.id.confirm_button)).perform(ViewActions.click())
@@ -453,7 +453,7 @@ class MyProfileFragmentTest : ApplicationTestBase() {
             mTestAvatarUri,
             "me",
             "something",
-            MyProfileDataModelContext.HitUpOption.NEGATIVE,
+            DataMyProfile.HitUpOption.NEGATIVE,
             listOf(SuccessfulProfileSavingCallbackOperation()))
 
         mMyProfileUiStateTestData.setState(state)

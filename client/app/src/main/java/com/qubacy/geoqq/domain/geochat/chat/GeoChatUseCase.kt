@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.geochat.chat
 
-import com.qubacy.geoqq.data.common.message.repository.result.GetMessagesResult
+import com.qubacy.geoqq.data.common.repository.message.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase

@@ -20,7 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
-import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import com.qubacy.geoqq.ui.util.SilentClickViewAction
 import com.qubacy.geoqq.ui.util.WaitingViewAction

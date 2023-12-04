@@ -4,7 +4,6 @@ import android.net.Uri
 import app.cash.turbine.test
 import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.common.util.mock.UriMockContext
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState

@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.common.util.generator
 
 import android.net.Uri
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 
 object UserGeneratorUtility {
     val DEFAULT_URI: Uri = Uri.parse(String())

@@ -14,7 +14,7 @@ import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountR
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.model.message.common.MessageBase
 import com.qubacy.geoqq.domain.common.result.common.ProcessGetUserByIdResult
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase

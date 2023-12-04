@@ -9,7 +9,6 @@ import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.result.UpdateMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource

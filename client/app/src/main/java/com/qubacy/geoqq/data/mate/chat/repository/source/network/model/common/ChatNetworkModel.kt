@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.mate.chat.repository.source.network.model.common
 
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.common.MessageNetworkModel
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.common.toDataMessage
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.common.MessageNetworkModel
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.common.toDataMessage
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

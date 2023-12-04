@@ -12,7 +12,7 @@ import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.usecase.util.extension.image.ImageExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.TokenExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.token.result.GetAccessTokenResult

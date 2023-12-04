@@ -12,7 +12,7 @@ import androidx.transition.Fade
 import androidx.transition.Slide
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMainMenuBinding
-import com.qubacy.geoqq.ui.common.fragment.common.styleable.StyleableFragment
+import com.qubacy.geoqq.ui.common.visual.fragment.common.styleable.StyleableFragment
 
 class MainMenuFragment() : StyleableFragment() {
     private lateinit var mBinding: FragmentMainMenuBinding

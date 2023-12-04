@@ -4,7 +4,7 @@ import android.net.Uri
 import app.cash.turbine.test
 import com.example.carousel3dlib.general.Carousel3DContext
 import com.qubacy.geoqq.common.util.mock.UriMockContext
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.util.generator.MateRequestGeneratorUtility
 import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
 import com.qubacy.geoqq.domain.mate.request.MateRequestsUseCase

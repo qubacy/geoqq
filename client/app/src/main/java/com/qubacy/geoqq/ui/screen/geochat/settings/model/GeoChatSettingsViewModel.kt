@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data.geochat.settings.GeoChatSettingsContext
-import com.qubacy.geoqq.ui.common.fragment.location.model.LocationViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.location.model.LocationViewModel
 
 open class GeoChatSettingsViewModel(
 

@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.local.model
 
 import androidx.core.net.toUri
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.linked.DataMyProfileWithLinkedAvatar
 import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 
@@ -15,7 +14,7 @@ data class MyProfileEntity(
 }
 
 fun MyProfileEntity.toDataMyProfile(): DataMyProfile {
-    val hitUpOption = MyProfileDataModelContext.HitUpOption
+    val hitUpOption = DataMyProfile.HitUpOption
         .entries.find {
             it.index == this.hitUpOptionIndex
         }!!

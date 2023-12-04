@@ -10,9 +10,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.qubacy.geoqq.common.error.ErrorContext
 import com.qubacy.geoqq.databinding.ActivityMainBinding
-import com.qubacy.geoqq.ui.common.activity.StyleableActivity
+import com.qubacy.geoqq.ui.common.visual.activity.StyleableActivity
 
-class MainActivity : AppCompatActivity(), StyleableActivity {
+class MainActivity : AppCompatActivity(),
+    com.qubacy.geoqq.ui.common.visual.activity.StyleableActivity {
     companion object {
         const val TAG = "MAIN_ACTIVITY"
     }

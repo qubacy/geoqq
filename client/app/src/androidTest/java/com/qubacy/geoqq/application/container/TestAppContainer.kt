@@ -3,7 +3,6 @@ package com.qubacy.geoqq.application.container
 import android.content.Context
 import android.net.Uri
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.qubacy.geoqq.applicaion.common.container.AppContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
@@ -19,7 +18,7 @@ import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
+import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signup.repository.SignUpDataRepository
@@ -162,7 +161,7 @@ class TestAppContainer(context: Context) : AppContainer(context) {
             Mockito.anyString(),
             Mockito.anyString(),
             Mockito.anyString(),
-            AnyUtility.any(MyProfileDataModelContext.HitUpOption::class.java))).thenAnswer {  }
+            AnyUtility.any(DataMyProfile.HitUpOption::class.java))).thenAnswer {  }
 
         val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
             .apply { isAccessible = true }

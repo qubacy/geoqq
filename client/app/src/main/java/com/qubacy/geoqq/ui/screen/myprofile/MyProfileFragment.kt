@@ -33,11 +33,11 @@ import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext.USER_AVATAR
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.MainActivity
 import com.qubacy.geoqq.ui.PickImageCallback
-import com.qubacy.geoqq.ui.common.component.combobox.adapter.ComboBoxAdapter
-import com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
+import com.qubacy.geoqq.ui.common.visual.component.combobox.adapter.ComboBoxAdapter
+import com.qubacy.geoqq.ui.common.visual.component.combobox.view.ComboBoxView.Companion.POSITION_NOT_DEFINED
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.screen.myprofile.model.operation.ProfileDataSavedUiOperation
 import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState

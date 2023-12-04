@@ -1,35 +1,5 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat
 
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.ViewModelProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoActivityResumedException
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.R
-import com.qubacy.geoqq.common.error.common.Error
-import com.qubacy.geoqq.ui.common.component.bottomsheet.userinfo.UserInfoBottomSheetContent
-import com.qubacy.geoqq.ui.screen.common.fragment.chat.ChatFragmentTest
-import com.qubacy.geoqq.ui.common.fragment.chat.component.list.adapter.ChatAdapter
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
-import com.qubacy.geoqq.ui.util.DragBottomSheetViewAction
-import com.qubacy.geoqq.ui.util.MaterialTextInputVisualLineCountViewAssertion
-import com.qubacy.geoqq.ui.util.SilentClickViewAction
-import com.qubacy.geoqq.ui.util.WaitingViewAction
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.hamcrest.Matchers
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.lang.Exception
-
 //@RunWith(AndroidJUnit4::class)
 //class GeoChatFragmentTest : ChatFragmentTest<GeoChatState>() {
 //    companion object {

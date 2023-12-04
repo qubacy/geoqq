@@ -16,11 +16,11 @@ import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapter
 import com.qubacy.geoqq.ui.screen.mate.request.list.adapter.MateRequestsAdapterCallback
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel

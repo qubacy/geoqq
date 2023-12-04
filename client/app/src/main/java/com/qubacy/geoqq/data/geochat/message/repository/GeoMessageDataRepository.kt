@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.data.geochat.message.repository
 
-import com.qubacy.geoqq.data.common.message.repository.result.GetMessagesResult
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.MessageListResponse
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.common.toDataMessage
+import com.qubacy.geoqq.data.common.repository.message.result.GetMessagesResult
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.MessageListResponse
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.common.toDataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult

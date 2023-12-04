@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.screen.mate.chats
 import android.net.Uri
 import app.cash.turbine.test
 import com.qubacy.geoqq.common.util.mock.UriMockContext
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.mate.chats.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation

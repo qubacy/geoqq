@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.common.util.generator
 
-import com.qubacy.geoqq.data.common.message.model.DataMessage
+import com.qubacy.geoqq.data.common.model.message.DataMessage
 
 object DataMessageGeneratorUtility {
     fun generateDataMessages(count: Int, startId: Long = 0L): List<DataMessage> {

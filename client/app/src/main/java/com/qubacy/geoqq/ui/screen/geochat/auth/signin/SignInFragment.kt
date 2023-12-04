@@ -12,9 +12,9 @@ import com.google.android.material.transition.MaterialElevationScale
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.FragmentSignInBinding
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.WaitingFragment
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.WaitingFragment
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.SignInViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.operation.PassSignInUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState

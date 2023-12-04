@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.domain.common.usecase.consuming
 
-import android.util.Log
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult

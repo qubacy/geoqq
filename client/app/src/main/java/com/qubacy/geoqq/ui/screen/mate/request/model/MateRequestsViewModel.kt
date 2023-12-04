@@ -14,9 +14,9 @@ import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessed
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestCountOperation
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.MateRequestAnswerProcessedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState

@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.screen.common.util
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
 
 object FragmentTestUtil {
     fun setIsWaitingValue(

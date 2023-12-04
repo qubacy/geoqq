@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chat.state
 
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.state.chat.ChatState

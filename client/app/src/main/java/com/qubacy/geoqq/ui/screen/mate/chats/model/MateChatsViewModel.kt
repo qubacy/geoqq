@@ -15,9 +15,9 @@ import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateChatOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.domain.mate.chats.state.MateChatsState
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.ShowErrorUiOperation
-import com.qubacy.geoqq.ui.common.fragment.common.base.model.operation.common.UiOperation
-import com.qubacy.geoqq.ui.common.fragment.waiting.model.WaitingViewModel
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.chats.model.state.MateChatsUiState
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddChatUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.AddPrecedingChatsUiOperation

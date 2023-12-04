@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.network.model.response
 
 import com.qubacy.geoqq.data.common.repository.common.source.network.model.response.common.Response
-import com.qubacy.geoqq.data.myprofile.model.common.MyProfileDataModelContext
 import com.qubacy.geoqq.data.myprofile.model.avatar.labeled.DataMyProfileWithAvatarId
 import com.qubacy.geoqq.data.myprofile.model.common.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.source.network.model.common.Privacy
@@ -19,7 +18,7 @@ class GetMyProfileResponse(
 }
 
 fun GetMyProfileResponse.toDataMyProfile(): DataMyProfile {
-    val hitMeUpOption = MyProfileDataModelContext.HitUpOption.entries
+    val hitMeUpOption = DataMyProfile.HitUpOption.entries
         .find { it.index == privacy.hitMeUp }!!
 
     return DataMyProfileWithAvatarId(username, description, hitMeUpOption, avatarId)

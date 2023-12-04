@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.screen.mate.chats
 
-import android.util.Log
 import android.view.View
 import androidx.core.view.marginTop
 import androidx.fragment.app.testing.FragmentScenario
@@ -42,7 +41,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.mate.chats.operation.AddChatOperation
 import com.qubacy.geoqq.domain.mate.chats.operation.UpdateRequestCountOperation
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.operation.SetMateChatsOperation

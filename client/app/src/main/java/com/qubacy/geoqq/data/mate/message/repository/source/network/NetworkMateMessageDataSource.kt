@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository.source.network
 
-import com.qubacy.geoqq.data.common.message.repository.source.network.model.response.MessageListResponse
+import com.qubacy.geoqq.data.common.repository.message.source.network.model.response.MessageListResponse
 import com.qubacy.geoqq.data.common.repository.common.source.DataSource
 import retrofit2.Call
 import retrofit2.http.GET

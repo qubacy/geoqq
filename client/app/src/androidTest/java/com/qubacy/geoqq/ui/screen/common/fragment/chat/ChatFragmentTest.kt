@@ -5,12 +5,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
-import com.qubacy.geoqq.domain.common.model.User
+import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
-import com.qubacy.geoqq.ui.common.fragment.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.common.ApplicationTestBase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking

@@ -16,7 +16,7 @@ import androidx.transition.Slide
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
-import com.qubacy.geoqq.ui.common.fragment.location.LocationFragment
+import com.qubacy.geoqq.ui.common.visual.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
 import com.yandex.mapkit.Animation

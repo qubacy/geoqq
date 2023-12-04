@@ -286,7 +286,7 @@
                             android:textAppearance="?attr/textAppearanceTitleLarge"
                             android:textSize="24sp">
 
-                            <com.qubacy.geoqq.ui.common.component.combobox.view.ComboBoxView
+                            <com.qubacy.geoqq.ui.common.visual.component.combobox.view.ComboBoxView
                                 android:id="@+id/privacy_hit_up"
                                 style="@style/MaterialTextInputEditText.High"
                                 android:layout_width="match_parent"

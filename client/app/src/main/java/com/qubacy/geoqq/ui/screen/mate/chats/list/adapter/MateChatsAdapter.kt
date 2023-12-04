@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.qubacy.geoqq.databinding.ComponentMateChatPreviewBinding
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
-import com.qubacy.geoqq.ui.common.component.animatedlist.adapter.AnimatedListAdapter
+import com.qubacy.geoqq.ui.common.visual.component.animatedlist.adapter.AnimatedListAdapter
 import com.qubacy.geoqq.ui.common.util.TimeUtils
 import java.util.Locale
 import java.util.TimeZone

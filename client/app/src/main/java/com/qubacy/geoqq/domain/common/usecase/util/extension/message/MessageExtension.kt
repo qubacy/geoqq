@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.common.usecase.util.extension.message
 
-import com.qubacy.geoqq.data.common.message.model.DataMessage
+import com.qubacy.geoqq.data.common.model.message.DataMessage
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.usecase.util.extension.message.result.ProcessDataMessagesResult
