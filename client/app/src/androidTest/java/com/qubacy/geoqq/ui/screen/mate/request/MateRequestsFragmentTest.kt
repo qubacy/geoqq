@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.screen.mate.request
 
-import android.net.Uri
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -30,6 +29,8 @@ import com.qubacy.geoqq.domain.mate.request.operation.MateRequestAnswerProcessed
 import com.qubacy.geoqq.domain.mate.request.operation.SetMateRequestsOperation
 import com.qubacy.geoqq.domain.mate.request.state.MateRequestsState
 import com.qubacy.geoqq.common.ApplicationTestBase
+import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
+import com.qubacy.geoqq.domain.generator.MateRequestGeneratorUtility
 import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.util.IsChildWithIndexViewAssertion
@@ -46,13 +47,44 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
         private val mMateRequestsStateFlow: MutableStateFlow<MateRequestsState?>,
         private val mateRequestFlow: LiveData<MateRequestsUiState?>
     ) {
-        fun setMateRequests(mateRequests: List<MateRequest>, users: List<User>) {
+        private fun mateRequestsToChunks(
+            mateRequests: List<MateRequest>
+        ): HashMap<Long, List<MateRequest>> {
+            val mateRequestCount = mateRequests.size
+            val chunkCount = mateRequestCount / MateRequestsViewModel.DEFAULT_REQUEST_CHUNK_SIZE +
+                if (mateRequestCount % MateRequestsViewModel.DEFAULT_REQUEST_CHUNK_SIZE == 0) 0
+                else 1
+
+            val mateRequestChunks = hashMapOf<Long, List<MateRequest>>()
+
+            for (i in 0 until chunkCount) {
+                val mateRequestStartIndex = (i * MateRequestsViewModel.DEFAULT_REQUEST_CHUNK_SIZE)
+                val mateRequestEndIndex = (if (i != chunkCount - 1)
+                    mateRequestStartIndex + MateRequestsViewModel.DEFAULT_REQUEST_CHUNK_SIZE
+                else mateRequestCount - mateRequestStartIndex).toInt()
+
+                mateRequestChunks[mateRequestStartIndex.toLong()] = mateRequests.subList(
+                    mateRequestStartIndex, mateRequestEndIndex)
+            }
+
+            return mateRequestChunks
+        }
+
+        fun setMateRequests(mateRequests: List<MateRequest>, users: List<User>, isInit: Boolean) {
+            val mateRequestChunks = mateRequestsToChunks(mateRequests)
+
+            setMateRequests(mateRequestChunks, users, isInit)
+        }
+
+        fun setMateRequests(
+            mateRequestChunks: HashMap<Long, List<MateRequest>>, users: List<User>, isInit: Boolean
+        ) {
             val operations = listOf<Operation>(
-                SetMateRequestsOperation()
+                SetMateRequestsOperation(isInit)
             )
 
             runBlocking {
-                mMateRequestsStateFlow.emit(MateRequestsState(mateRequests, users, operations))
+                mMateRequestsStateFlow.emit(MateRequestsState(mateRequestChunks, users, operations))
             }
         }
 
@@ -67,39 +99,28 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
                 MateRequestAnswerProcessedOperation()
             )
 
+            val mateRequestChunks = mateRequestsToChunks(newRequests)
+
             runBlocking {
-                mMateRequestsStateFlow.emit(MateRequestsState(newRequests, newUsers, operations))
+                mMateRequestsStateFlow.emit(MateRequestsState(mateRequestChunks, newUsers, operations))
             }
         }
 
         fun showError(error: Error) {
             val users = if (mateRequestFlow.value == null) listOf() else mateRequestFlow.value!!.users
             val requests = if (mateRequestFlow.value == null) listOf() else mateRequestFlow.value!!.mateRequests
+            val mateRequestChunks = mateRequestsToChunks(requests)
 
             val operations = listOf(
                 HandleErrorOperation(error)
             )
 
-            val mateRequestsState = MateRequestsState(requests, users, operations)
+            val mateRequestsState = MateRequestsState(mateRequestChunks, users, operations)
 
             runBlocking {
                 mMateRequestsStateFlow.emit(mateRequestsState)
             }
         }
-    }
-
-    companion object {
-        val TEST_URI: Uri = Uri.parse(String())
-        val TEST_USERS = listOf(
-            User(1, "iii", "test", TEST_URI, false),
-            User(2, "aaa", "test", TEST_URI, false),
-            User(3, "ggg", "test", TEST_URI, false),
-        )
-        val TEST_MATE_REQUESTS = listOf(
-            MateRequest(0, 1),
-            MateRequest(1, 2),
-            MateRequest(2, 3),
-        )
     }
 
     private lateinit var mMateRequestsFragmentScenarioRule: FragmentScenario<MateRequestsFragment>
@@ -141,8 +162,6 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
             mateRequestsStateFlowFieldReflection.get(mModel) as MutableStateFlow<MateRequestsState?>,
             mModel.mateRequestFlow
         )
-
-        mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
     }
 
     @Test
@@ -154,6 +173,13 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun allElementsEnabledTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(1)
+        val initUsers = UserGeneratorUtility.generateUsers(1, 1)
+
+        mMateRequestsFragmentScenarioRule.onFragment {
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
+        }
+
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeDown())
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
@@ -161,27 +187,33 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun settingThreeMateRequestsLeadsToShowingThreeMateRequestCardsTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(3)
+        val initUsers = UserGeneratorUtility.generateUsers(3, 1)
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
         }
 
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(WaitingViewAction(1000))
             .check(ViewAssertions.matches(ViewMatchers.hasChildCount(
-                TEST_MATE_REQUESTS.size + Carousel3DLayoutManager.EDGE_INVISIBLE_ITEMS_COUNT)))
+                initUsers.size + Carousel3DLayoutManager.EDGE_INVISIBLE_ITEMS_COUNT)))
     }
 
     @Test
     fun mateRequestsListRollOnVerticalSwipeTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(3)
+        val initUsers = UserGeneratorUtility.generateUsers(3, 1)
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
         }
 
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeDown(), WaitingViewAction(500))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.isAssignableFrom(CardView::class.java),
-            ViewMatchers.hasDescendant(withText(TEST_USERS[1].username)),
+            ViewMatchers.hasDescendant(withText(initUsers[1].username)),
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
         )).check(IsChildWithIndexViewAssertion(3))
 
@@ -189,33 +221,39 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
             .perform(ViewActions.swipeUp(), WaitingViewAction(500))
         Espresso.onView(Matchers.allOf(
             ViewMatchers.isAssignableFrom(CardView::class.java),
-            ViewMatchers.hasDescendant(withText(TEST_USERS[0].username)),
+            ViewMatchers.hasDescendant(withText(initUsers[0].username)),
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
         )).check(IsChildWithIndexViewAssertion(3))
     }
 
     @Test
     fun horizontalSwipeLeadsToMateRequestDisappearanceTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(3)
+        val initUsers = UserGeneratorUtility.generateUsers(3, 1)
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
         }
 
         Espresso.onView(withId(R.id.requests_recycler_view))
             .perform(ViewActions.swipeLeft(), WaitingViewAction(500) {
-                mMateRequestsUiStateTestData.removeMateRequest(TEST_MATE_REQUESTS[0])
+                mMateRequestsUiStateTestData.removeMateRequest(initMateRequests[0])
             }, WaitingViewAction(1000))
             .check(ViewAssertions.matches(hasChildCount(
-                TEST_USERS.size - 1 + Carousel3DLayoutManager.EDGE_INVISIBLE_ITEMS_COUNT)))
+                initUsers.size - 1 + Carousel3DLayoutManager.EDGE_INVISIBLE_ITEMS_COUNT)))
         Espresso.onView(Matchers.allOf(
-            withText(TEST_USERS[0].username),
+            withText(initUsers[0].username),
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
         )).check(ViewAssertions.doesNotExist())
     }
 
     @Test
     fun handlingNormalErrorOperationLeadsToShowingDialogTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(3)
+        val initUsers = UserGeneratorUtility.generateUsers(3, 1)
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
         }
 
         val error = Error(0, "Test", false)
@@ -231,8 +269,11 @@ class MateRequestsFragmentTest : ApplicationTestBase() {
 
     @Test
     fun handlingCriticalErrorOperationLeadsToAppClosingTest() {
+        val initMateRequests = MateRequestGeneratorUtility.generateMateRequests(3)
+        val initUsers = UserGeneratorUtility.generateUsers(3, 1)
+
         mMateRequestsFragmentScenarioRule.onFragment {
-            mMateRequestsUiStateTestData.setMateRequests(TEST_MATE_REQUESTS, TEST_USERS)
+            mMateRequestsUiStateTestData.setMateRequests(initMateRequests, initUsers, true)
         }
 
         val error = Error(0, "Test", true)

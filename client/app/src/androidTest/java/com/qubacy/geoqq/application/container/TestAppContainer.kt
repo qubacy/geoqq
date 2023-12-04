@@ -220,7 +220,8 @@ class TestAppContainer(context: Context) : AppContainer(context) {
     ) {
         val mateRequestsUseCaseMock = Mockito.mock(MateRequestsUseCase::class.java)
 
-        Mockito.`when`(mateRequestsUseCaseMock.getMateRequests(Mockito.anyInt())).thenAnswer {  }
+        Mockito.`when`(mateRequestsUseCaseMock.getMateRequests(
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean())).thenAnswer {  }
         Mockito.`when`(mateRequestsUseCaseMock.answerMateRequest(
             Mockito.anyLong(), Mockito.anyBoolean())).thenAnswer {  }
 
