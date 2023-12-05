@@ -15,7 +15,7 @@ import com.qubacy.geoqq.data.geochat.message.repository.source.network.model.Net
 import com.qubacy.geoqq.data.geochat.message.repository.source.websocket.WebSocketUpdateGeoMessageDataSource
 import retrofit2.Call
 
-class GeoMessageDataRepository(
+open class GeoMessageDataRepository(
     val networkGeoMessageDataSource: NetworkGeoMessageDataSource,
     val updateGeoMessageDataSource: WebSocketUpdateGeoMessageDataSource
 ) : UpdatableDataRepository(updateGeoMessageDataSource) {

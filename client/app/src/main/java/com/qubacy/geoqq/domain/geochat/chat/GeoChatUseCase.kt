@@ -110,7 +110,7 @@ open class GeoChatUseCase(
         )
     }
 
-    fun getGeoChat(
+    open fun getGeoChat(
         radius: Int,
         latitude: Double,
         longitude: Double
@@ -140,7 +140,7 @@ open class GeoChatUseCase(
         }
     }
 
-    fun sendGeoMessage(
+    open fun sendGeoMessage(
         radius: Int,
         latitude: Double,
         longitude: Double,

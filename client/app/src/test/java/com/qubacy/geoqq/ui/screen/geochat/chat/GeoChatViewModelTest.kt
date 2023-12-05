@@ -7,11 +7,14 @@ import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.util.generator.MessageGeneratorUtility
+import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
 import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
 import com.qubacy.geoqq.domain.geochat.chat.state.GeoChatState
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.location.model.LocationViewModel
-import com.qubacy.geoqq.ui.screen.common.ViewModelTest
+import com.qubacy.geoqq.ui.screen.common.chat.ChatViewModelTest
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import com.yandex.mapkit.geometry.Point
@@ -24,7 +27,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 
-class GeoChatViewModelTest : ViewModelTest() {
+class GeoChatViewModelTest : ChatViewModelTest<GeoChatState, GeoChatUiState>() {
     companion object {
         const val DEFAULT_RADIUS = 1000
 
@@ -33,56 +36,63 @@ class GeoChatViewModelTest : ViewModelTest() {
         }
     }
 
-    private lateinit var mModel: GeoChatViewModel
-    private lateinit var mGeoChatStateFlow: MutableStateFlow<GeoChatState?>
-
-    private lateinit var mGeoChatUiStateFlow: Flow<GeoChatUiState?>
-
-
-
-    private fun setNewUiState(newState: GeoChatState?) = runTest {
-        if (newState == null) return@runTest
-
-        mGeoChatStateFlow.emit(newState)
+    override fun generateChatState(
+        messages: List<Message>,
+        users: List<User>,
+        operations: List<Operation>
+    ): GeoChatState {
+        return GeoChatState(messages, users, operations)
     }
 
-    private fun initGeoChatViewModel(
-        newState: GeoChatState? = null,
-        initialLocationPoint: Point? = null
-    ) {
+    override fun initChatViewModel(newState: GeoChatState?) {
         val geoChatUseCastMock = Mockito.mock(GeoChatUseCase::class.java)
 
         Mockito.`when`(geoChatUseCastMock.getGeoChat(
             Mockito.anyInt(), Mockito.anyDouble(), Mockito.anyDouble())
         ).thenAnswer { setNewUiState(newState) }
+        Mockito.`when`(geoChatUseCastMock.getUserDetails(Mockito.anyLong()))
+            .thenAnswer { setNewUiState(newState) }
+        Mockito.`when`(geoChatUseCastMock.createMateRequest(Mockito.anyLong()))
+            .thenAnswer { setNewUiState(newState) }
+        Mockito.`when`(geoChatUseCastMock.sendGeoMessage(
+            Mockito.anyInt(), Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyString())
+        ).thenAnswer { setNewUiState(newState) }
 
-        mGeoChatStateFlow = MutableStateFlow<GeoChatState?>(null)
+        mChatStateFlow = MutableStateFlow<GeoChatState?>(null)
 
         Mockito.`when`(geoChatUseCastMock.stateFlow).thenAnswer {
-            mGeoChatStateFlow
+            mChatStateFlow
         }
 
         val mGeoChatUiStateFlowFieldReflection = GeoChatViewModel::class.java
             .getDeclaredField("mGeoChatUiStateFlow")
             .apply { isAccessible = true }
+
+        mModel = GeoChatViewModel(DEFAULT_RADIUS, geoChatUseCastMock)
+
+        mChatUiStateFlow = mGeoChatUiStateFlowFieldReflection.get(mModel) as Flow<GeoChatUiState?>
+    }
+
+    private fun initGeoChatViewModel(
+        newState: GeoChatState?,
+        initialLocationPoint: Point = Point()
+    ) {
+        initChatViewModel(newState)
+
         val mLastLocationPointFieldReflection = LocationViewModel::class.java
             .getDeclaredField("mLastLocationPoint")
             .apply { isAccessible = true }
 
-        mModel = GeoChatViewModel(DEFAULT_RADIUS, geoChatUseCastMock)
-
         val mLastLocationPoint = mLastLocationPointFieldReflection.get(mModel) as MutableLiveData<Point?>
 
         mLastLocationPoint.value = initialLocationPoint
-
-        mGeoChatUiStateFlow = mGeoChatUiStateFlowFieldReflection.get(mModel) as Flow<GeoChatUiState?>
     }
 
     @Before
     override fun setup() {
         super.setup()
 
-        initGeoChatViewModel()
+        initChatViewModel()
     }
 
     data class IsMessageCorrectTestCase(
@@ -100,7 +110,7 @@ class GeoChatViewModelTest : ViewModelTest() {
         )
 
         for (testCase in testCases) {
-            val result = mModel.isMessageCorrect(testCase.messageText)
+            val result = (mModel as GeoChatViewModel).isMessageCorrect(testCase.messageText)
 
             assertEquals(testCase.expectedResult, result)
         }
@@ -110,14 +120,8 @@ class GeoChatViewModelTest : ViewModelTest() {
     fun getGeoChatTest() = runTest {
         val mockUri = Uri.parse(String())
         val newState = GeoChatState(
-            listOf(
-                Message(0, 0, "test 1", 100L),
-                Message(1, 1, "test 2", 100L)
-            ),
-            listOf(
-                User(0, "me", "pox", mockUri, true),
-                User(1, "test", "pox", mockUri, true)
-            ),
+            MessageGeneratorUtility.generateMessages(2),
+            UserGeneratorUtility.generateUsers(2),
             listOf(
                 SetMessagesOperation()
             )
@@ -126,9 +130,9 @@ class GeoChatViewModelTest : ViewModelTest() {
 
         initGeoChatViewModel(newState, locationPoint)
 
-        mGeoChatUiStateFlow.test {
+        mChatUiStateFlow.test {
             awaitItem()
-            mModel.getGeoChat()
+            (mModel as GeoChatViewModel).getGeoChat()
 
             val gottenState = awaitItem()!!
 

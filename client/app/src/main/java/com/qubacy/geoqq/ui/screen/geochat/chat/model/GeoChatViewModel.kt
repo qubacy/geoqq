@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.model.message.validator.MessageTextValidator
-import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
@@ -43,6 +43,10 @@ open class GeoChatViewModel(
     private var mIsWaitingForUserDetails = false
     private var mWaitingForUserDetailsId: Long? = null
 
+    init {
+        geoChatUseCase.setCoroutineScope(viewModelScope)
+    }
+
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
 
@@ -76,13 +80,13 @@ open class GeoChatViewModel(
             radius, lastLocationPoint.latitude, lastLocationPoint.longitude, text)
     }
 
-    fun addToMates(user: User) {
+    override fun createMateRequest(userId: Long) {
         mIsWaiting.value = true
 
-        geoChatUseCase.createMateRequest(user.id)
+        geoChatUseCase.createMateRequest(userId)
     }
 
-    fun getUserDetails(userId: Long) {
+    override fun getUserDetails(userId: Long) {
         mIsWaiting.value = true
 
         mIsWaitingForUserDetails = true

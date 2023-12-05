@@ -237,6 +237,6 @@ class GeoChatFragment(
     }
 
     override fun addToMates(user: User) {
-        (mModel as GeoChatViewModel).addToMates(user)
+        (mModel as GeoChatViewModel).createMateRequest(user.id)
     }
 }

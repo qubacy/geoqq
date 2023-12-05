@@ -75,11 +75,15 @@ open class MateChatViewModel(
         mateChatUseCase.getChat(chatId, interlocutorUserId, DEFAULT_MESSAGE_CHUNK_SIZE)
     }
 
-    fun getMateUserDetails() {
+    override fun getUserDetails(userId: Long) {
         mIsWaiting.value = true
         mIsWaitingForInterlocutorDetails = true
 
-        mateChatUseCase.getInterlocutorUserDetails()
+        mateChatUseCase.getInterlocutorUserDetails() // todo: this is ugly
+    }
+
+    fun getMateUserDetails() {
+        getUserDetails(interlocutorUserId)
     }
 
     fun messageListEndReached() {
@@ -95,7 +99,7 @@ open class MateChatViewModel(
         mateChatUseCase.getChat(chatId, interlocutorUserId, nextMessageCount)
     }
 
-    fun createMateRequest(userId: Long) {
+    override fun createMateRequest(userId: Long) {
         mIsWaiting.value = true
 
         mateChatUseCase.createMateRequest(userId)

@@ -48,7 +48,7 @@ abstract class ChatFragmentTest<StateType> : ApplicationTestBase() {
                 AddMessageChatOperation(message.id)
             )
 
-            val chatState = generateChatState(newMessages, users, operations)//MateChatState(newMessages, users, operations)
+            val chatState = generateChatState(newMessages, users, operations)
 
             runBlocking {
                 mChatStateFlow.emit(chatState)

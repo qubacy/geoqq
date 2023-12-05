@@ -13,10 +13,7 @@ class SilentClickViewAction() : ViewAction {
     }
 
     override fun getConstraints(): Matcher<View> {
-        return Matchers.allOf(
-            ViewMatchers.isClickable(),
-            ViewMatchers.isEnabled()
-        )
+        return Matchers.allOf()
     }
 
     override fun perform(uiController: UiController?, view: View?) {

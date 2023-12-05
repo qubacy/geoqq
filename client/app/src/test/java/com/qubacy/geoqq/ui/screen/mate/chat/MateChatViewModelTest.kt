@@ -5,15 +5,12 @@ import app.cash.turbine.test
 import com.qubacy.geoqq.common.util.mock.UriMockContext
 import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.model.message.Message
-import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
-import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
-import com.qubacy.geoqq.ui.screen.common.ViewModelTest
-import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
-import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.screen.common.chat.ChatViewModelTest
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import kotlinx.coroutines.flow.Flow
@@ -24,27 +21,22 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 
-class MateChatViewModelTest() : ViewModelTest() {
+class MateChatViewModelTest() : ChatViewModelTest<MateChatState, MateChatUiState>() {
     companion object {
         init {
             UriMockContext.mockUri()
         }
     }
 
-    private lateinit var mModel: MateChatViewModel
-    private lateinit var mMateChatStateFlow: MutableStateFlow<MateChatState?>
-
-    private lateinit var mMateChatUiStateFlow: Flow<MateChatUiState?>
-
-    private fun setNewUiState(newState: MateChatState?) = runTest {
-        if (newState == null) return@runTest
-
-        mMateChatStateFlow.emit(newState)
+    override fun generateChatState(
+        messages: List<Message>,
+        users: List<User>,
+        operations: List<Operation>
+    ): MateChatState {
+        return MateChatState(messages, users, operations)
     }
 
-    private fun initMateChatViewModel(
-        newState: MateChatState? = null
-    ) {
+    override fun initChatViewModel(newState: MateChatState?) {
         val mateChatUseCastMock = Mockito.mock(MateChatUseCase::class.java)
 
         Mockito.`when`(mateChatUseCastMock.getChat(
@@ -57,10 +49,10 @@ class MateChatViewModelTest() : ViewModelTest() {
         Mockito.`when`(mateChatUseCastMock.sendMessage(Mockito.anyLong(), Mockito.anyString()))
             .thenAnswer {  }
 
-        mMateChatStateFlow = MutableStateFlow<MateChatState?>(null)
+        mChatStateFlow = MutableStateFlow<MateChatState?>(null)
 
         Mockito.`when`(mateChatUseCastMock.stateFlow).thenAnswer {
-            mMateChatStateFlow
+            mChatStateFlow
         }
 
         val mMateChatUiStateFlowFieldReflection = MateChatViewModel::class.java
@@ -68,14 +60,14 @@ class MateChatViewModelTest() : ViewModelTest() {
             .apply { isAccessible = true }
 
         mModel = MateChatViewModel(0L, 1L, mateChatUseCastMock)
-        mMateChatUiStateFlow = mMateChatUiStateFlowFieldReflection.get(mModel) as Flow<MateChatUiState?>
+        mChatUiStateFlow = mMateChatUiStateFlowFieldReflection.get(mModel) as Flow<MateChatUiState?>
     }
 
     @Before
     override fun setup() {
         super.setup()
 
-        initMateChatViewModel()
+        initChatViewModel()
     }
 
     @Test
@@ -95,11 +87,11 @@ class MateChatViewModelTest() : ViewModelTest() {
             )
         )
 
-        initMateChatViewModel(newState)
+        initChatViewModel(newState)
 
-        mMateChatUiStateFlow.test {
+        mChatUiStateFlow.test {
             awaitItem()
-            mModel.getMessages()
+            (mModel as MateChatViewModel).getMessages()
 
             val gottenState = awaitItem()!!
 
@@ -109,64 +101,6 @@ class MateChatViewModelTest() : ViewModelTest() {
                 Assert.assertNotNull(gottenState.users.find { it == sourceUser })
 
             Assert.assertEquals(SetMessagesUiOperation::class, gottenState.takeUiOperation()!!::class)
-        }
-    }
-
-    @Test
-    fun getMateUserDetailsTest() = runTest {
-        val mockUri = Uri.parse(String())
-        val newState = MateChatState(
-            listOf(),
-            listOf(
-                User(0, "me", "pox", mockUri, true),
-                User(1, "test", "pox", mockUri, true)
-            ),
-            listOf(
-                SetUsersDetailsOperation(listOf(1L), false)
-            )
-        )
-
-        initMateChatViewModel(newState)
-
-        mMateChatUiStateFlow.test {
-            awaitItem()
-            mModel.getMateUserDetails()
-
-            val gottenState = awaitItem()!!
-
-            for (sourceUser in newState.users)
-                Assert.assertNotNull(gottenState.users.find { it == sourceUser })
-
-            Assert.assertEquals(OpenUserDetailsUiOperation::class, gottenState.takeUiOperation()!!::class)
-        }
-    }
-
-    @Test
-    fun createMateRequestTest() = runTest {
-        val mockUri = Uri.parse(String())
-        val newState = MateChatState(
-            listOf(),
-            listOf(
-                User(0, "me", "pox", mockUri, true),
-                User(1, "test", "pox", mockUri, true)
-            ),
-            listOf(
-                ApproveNewMateRequestCreationOperation()
-            )
-        )
-
-        initMateChatViewModel(newState)
-
-        mMateChatUiStateFlow.test {
-            awaitItem()
-            mModel.createMateRequest(1L)
-
-            val gottenState = awaitItem()!!
-
-            for (sourceUser in newState.users)
-                Assert.assertNotNull(gottenState.users.find { it == sourceUser })
-
-            Assert.assertEquals(MateRequestCreatedUiOperation::class, gottenState.takeUiOperation()!!::class)
         }
     }
 
@@ -182,11 +116,11 @@ class MateChatViewModelTest() : ViewModelTest() {
             listOf()
         )
 
-        initMateChatViewModel(newState)
+        initChatViewModel(newState)
 
-        mMateChatUiStateFlow.test {
+        mChatUiStateFlow.test {
             awaitItem()
-            mModel.sendMessage("test")
+            (mModel as MateChatViewModel).sendMessage("test")
         }
     }
 }
