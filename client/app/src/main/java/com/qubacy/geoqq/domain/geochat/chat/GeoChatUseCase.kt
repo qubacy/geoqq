@@ -47,6 +47,7 @@ open class GeoChatUseCase(
     }
 
     private var mLocalUserId: Long = 0
+    val localUserId get() = mLocalUserId
 
     override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
         lockLastState()
@@ -136,6 +137,32 @@ open class GeoChatUseCase(
             mCurrentRepository = geoMessageDataRepository
             geoMessageDataRepository.getGeoMessages(
                 radius, latitude, longitude, getAccessTokenResultCast.accessToken)
+        }
+    }
+
+    fun sendGeoMessage(
+        radius: Int,
+        latitude: Double,
+        longitude: Double,
+        text: String
+    ) {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = tokenDataRepository
+            val getAccessTokenResult = getAccessToken(tokenDataRepository)
+
+            if (getAccessTokenResult is ErrorResult)
+                return@launch processError(getAccessTokenResult.errorId)
+            if (getAccessTokenResult is InterruptionResult) return@launch processInterruption()
+
+            val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
+
+            mCurrentRepository = geoMessageDataRepository
+            val sendGeoMessageResult = geoMessageDataRepository.sendGeoMessage(
+                radius, latitude, longitude, text, getAccessTokenResultCast.accessToken)
+
+            if (sendGeoMessageResult is ErrorResult)
+                return@launch processError(sendGeoMessageResult.errorId)
+            if (sendGeoMessageResult is InterruptionResult) return@launch processInterruption()
         }
     }
 }

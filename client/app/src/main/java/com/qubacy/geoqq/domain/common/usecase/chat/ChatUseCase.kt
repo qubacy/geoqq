@@ -48,7 +48,7 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 
-        val result = when (result::class) {
+        val processResult = when (result::class) {
             GetMessagesResult::class -> {
                 val getMessagesResult = result as GetMessagesResult
 
@@ -66,7 +66,7 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
             }
         }
 
-        if (result is ErrorResult) processError(result.errorId)
+        if (processResult is ErrorResult) processError(processResult.errorId)
 
         return true
     }
@@ -113,7 +113,7 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
             val getUsersResult = getUsers(
                 listOf(userId), tokenDataRepository, this@ChatUseCase,
                 userDataRepository, imageDataRepository, this@ChatUseCase,
-                false, false
+//                false, false
             )
 
             if (getUsersResult is ErrorResult) return@launch processError(getUsersResult.errorId)

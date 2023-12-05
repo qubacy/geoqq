@@ -25,9 +25,11 @@ import com.qubacy.geoqq.ui.common.visual.component.animatedlist.animator.Animate
 import com.qubacy.geoqq.ui.common.visual.component.animatedlist.layoutmanager.AnimatedListLayoutManager
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.state.ChatUiState
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.MateRequestCreatedUiOperation
 import com.yandex.mapkit.geometry.Point
 
 class GeoChatFragment(
@@ -140,17 +142,21 @@ class GeoChatFragment(
 
                 mGeoChatAdapter.addItem(message)
             }
+            OpenUserDetailsUiOperation::class -> {
+                val openUserDetailsUiOperation = uiOperation as OpenUserDetailsUiOperation
+                val user = chatUiState.users.find { it.id == openUserDetailsUiOperation.userId }!!
+
+                processOpenUserDetailsOperation(openUserDetailsUiOperation, user)
+            }
+            MateRequestCreatedUiOperation::class -> {
+                val mateRequestCreatedUiOperation = uiOperation as MateRequestCreatedUiOperation
+
+                showMessage(R.string.chat_mate_request_created_message)
+            }
 //            AddUserUiOperation::class -> { // todo: is it necessary?
 //                val addUserUiOperation = uiOperation as AddUserUiOperation
 //
 //                // todo: mb some stuff to visualize a new user's entrance..
-//
-//
-//            }
-//            ChangeChatInfoUiOperation::class -> {
-//                val changeChatInfoUiOperation = uiOperation as ChangeChatInfoUiOperation
-//
-//                // todo: think of a possible application..
 //
 //
 //            }
@@ -160,6 +166,16 @@ class GeoChatFragment(
                 onErrorOccurred(showErrorUiOperation.error)
             }
         }
+    }
+
+    private fun processOpenUserDetailsOperation(
+        openUserDetailsUiOperation: OpenUserDetailsUiOperation,
+        user: User
+    ) {
+        closeSoftKeyboard()
+
+        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
+        mBinding.bottomSheet.bottomSheetContentCard.showPreview()
     }
 
     private fun onSendingMessageButtonClicked() {
@@ -217,10 +233,7 @@ class GeoChatFragment(
 
         closeSoftKeyboard()
 
-        val user = getUserById(message.userId)
-
-        mBinding.bottomSheet.bottomSheetContentCard.setData(user)
-        mBinding.bottomSheet.bottomSheetContentCard.showPreview()
+        (mModel as GeoChatViewModel).getUserDetails(message.userId)
     }
 
     override fun addToMates(user: User) {

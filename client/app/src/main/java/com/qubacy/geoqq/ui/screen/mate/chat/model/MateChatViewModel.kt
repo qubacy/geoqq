@@ -27,7 +27,7 @@ import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.ChangeUse
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.MateRequestCreatedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.model.operation.AddPrecedingMessagesUiOperation
 import kotlinx.coroutines.flow.map
 

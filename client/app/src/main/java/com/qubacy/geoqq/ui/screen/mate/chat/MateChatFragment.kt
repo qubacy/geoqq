@@ -37,7 +37,7 @@ import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.OpenUserD
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
-import com.qubacy.geoqq.ui.screen.geochat.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.MateRequestCreatedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapter
 import com.qubacy.geoqq.ui.screen.mate.chat.list.adapter.MateChatAdapterCallback
 import com.qubacy.geoqq.ui.screen.mate.chat.model.operation.AddPrecedingMessagesUiOperation

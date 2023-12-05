@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="120dp"
-    app:layout_behavior="com.qubacy.geoqq.ui.common.component.bottomsheet.BottomSheetContentBehavior"
+    app:layout_behavior="com.qubacy.geoqq.ui.common.visual.component.bottomsheet.common.content.behavior.BottomSheetContentBehavior"
     app:behavior_hideable="true"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
     app:shapeAppearanceOverlay="@style/ChatSendingMaterialCardShape"

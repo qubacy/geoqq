@@ -46,8 +46,9 @@ class GeoMessageDataRepository(
 
     suspend fun sendGeoMessage(
         radius: Int,
-        latitude: Float,
-        longitude: Float,
+        latitude: Double,
+        longitude: Double,
+        text: String,
         accessToken: String
     ): Result {
         // todo: implement using WebSocketUpdateGeoMessageDataSource..

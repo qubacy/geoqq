@@ -8,7 +8,9 @@ import androidx.lifecycle.asLiveData
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.data.common.model.message.validator.MessageTextValidator
 import com.qubacy.geoqq.domain.common.model.user.User
+import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
+import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
@@ -19,6 +21,9 @@ import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.state.ChatUiState
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.AddMessageUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.ChangeUsersUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.MateRequestCreatedUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.OpenUserDetailsUiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.chat.model.operation.SetMessagesUiOperation
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.state.GeoChatUiState
 import kotlinx.coroutines.flow.map
@@ -34,6 +39,9 @@ open class GeoChatViewModel(
 
     private var mGeoChatInitialized = false
     val geoChatInitialized get() = mGeoChatInitialized
+
+    private var mIsWaitingForUserDetails = false
+    private var mWaitingForUserDetailsId: Long? = null
 
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
@@ -62,28 +70,33 @@ open class GeoChatViewModel(
     }
 
     fun sendMessage(text: String) {
-        // todo: sending a message...
+        val lastLocationPoint = lastLocationPoint.value ?: return
 
-
+        geoChatUseCase.sendGeoMessage(
+            radius, lastLocationPoint.latitude, lastLocationPoint.longitude, text)
     }
 
     fun addToMates(user: User) {
-        // todo: adding to mates..
+        mIsWaiting.value = true
 
+        geoChatUseCase.createMateRequest(user.id)
+    }
 
+    fun getUserDetails(userId: Long) {
+        mIsWaiting.value = true
+
+        mIsWaitingForUserDetails = true
+        mWaitingForUserDetailsId = userId
+
+        geoChatUseCase.getUserDetails(userId)
     }
 
     fun isLocalUser(userId: Long): Boolean {
-        // todo: checking the userId using the DATA layer..
-
-
-
-        return false
+        return (geoChatUseCase.localUserId == userId)
     }
 
     private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
         if (chatState == null) return null
-        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (!mGeoChatInitialized) mGeoChatInitialized = true
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -93,13 +106,15 @@ open class GeoChatViewModel(
 
             if (uiOperation == null) continue
 
-            uiOperations.add(uiOperation)
+            uiOperations.addAll(uiOperation)
         }
+
+        if (mIsWaiting.value == true && !mIsWaitingForUserDetails) mIsWaiting.value = false
 
         return GeoChatUiState(chatState.messages, chatState.users, uiOperations)
     }
 
-    private fun processOperation(operation: Operation): UiOperation? {
+    private fun processOperation(operation: Operation): List<UiOperation> {
         return when (operation::class) {
             SetMessagesOperation::class -> {
                 val setMessagesOperation = operation as SetMessagesOperation
@@ -118,14 +133,25 @@ open class GeoChatViewModel(
 
                 // mb processing the operation..
 
-                AddMessageUiOperation(addMessageOperation.messageId)
+                listOf(AddMessageUiOperation(addMessageOperation.messageId))
+            }
+            SetUsersDetailsOperation::class -> {
+                val setUsersDetailsOperation = operation as SetUsersDetailsOperation
+
+                processSetUsersDetailsOperation(setUsersDetailsOperation)
+            }
+            ApproveNewMateRequestCreationOperation::class -> {
+                val approveNewMateRequestCreationOperation =
+                    operation as ApproveNewMateRequestCreationOperation
+
+                listOf(MateRequestCreatedUiOperation())
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
                 // mb processing the operation..
 
-                ShowErrorUiOperation(handleErrorOperation.error)
+                listOf(ShowErrorUiOperation(handleErrorOperation.error))
             }
             else -> {
                 throw IllegalStateException()
@@ -133,10 +159,30 @@ open class GeoChatViewModel(
         }
     }
 
+    private fun processSetUsersDetailsOperation(
+        setUsersDetailsOperation: SetUsersDetailsOperation
+    ): List<UiOperation> {
+        val operations = mutableListOf<UiOperation>()
+
+        if (setUsersDetailsOperation.areUpdated)
+            operations.add(ChangeUsersUiOperation(setUsersDetailsOperation.usersIds))
+
+        if (mIsWaitingForUserDetails &&
+            setUsersDetailsOperation.usersIds.find { it == mWaitingForUserDetailsId } != null
+        ) {
+            operations.add(OpenUserDetailsUiOperation(mWaitingForUserDetailsId!!))
+
+            mIsWaitingForUserDetails = false
+            mWaitingForUserDetailsId = null
+        }
+
+        return operations
+    }
+
     private fun processSetMessagesOperation(
         setMessagesOperation: SetMessagesOperation
-    ): UiOperation {
-        return SetMessagesUiOperation()
+    ): List<UiOperation> {
+        return listOf(SetMessagesUiOperation())
     }
 
     override fun retrieveError(errorId: Long) {

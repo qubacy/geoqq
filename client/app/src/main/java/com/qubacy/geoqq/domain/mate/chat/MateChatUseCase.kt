@@ -55,7 +55,20 @@ open class MateChatUseCase(
     private var mLastPrecedingMessages: List<Message>? = null
 
     override suspend fun processResult(result: Result): Boolean {
-        return super.processResult(result)
+        if (super.processResult(result)) return true
+
+        val processResult = when (result::class) {
+            GetMateMessagesResult::class -> {
+                val getMateMessagesResult = result as GetMateMessagesResult
+
+                processGetMessagesResult(getMateMessagesResult)
+            }
+            else -> { return false }
+        }
+
+        if (processResult is ErrorResult) processError(processResult.errorId)
+
+        return true
     }
 
     override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
