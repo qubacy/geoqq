@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.mate.message.repository
 
 import com.qubacy.geoqq.common.util.mock.AnyUtility
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
+import com.qubacy.geoqq.data.common.repository.message.MessageDataRepositoryTest
 import com.qubacy.geoqq.data.common.repository.network.NetworkTestContext
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
@@ -18,21 +19,9 @@ import org.junit.Test
 import org.mockito.Mockito
 import java.util.concurrent.atomic.AtomicReference
 
-class MateMessageDataRepositoryTest() {
+class MateMessageDataRepositoryTest() : MessageDataRepositoryTest() {
     private lateinit var mMateMessageDataRepository: MateMessageDataRepository
     private lateinit var mResultListAtomicRef: AtomicReference<List<Result>>
-
-    private fun generateNetworkResponseWithCount(count: Int): String {
-        val responseStringBuilder = StringBuilder("{\"messages\":[")
-
-        for (i in 0 until count)  {
-            responseStringBuilder
-                .append("{\"id\":$i, \"user-id\":$i, \"text\":\"test\", \"time\":100}")
-            responseStringBuilder.append(if (i != count - 1) "," else "")
-        }
-
-        return responseStringBuilder.append("]}").toString()
-    }
 
     private fun initDataRepository(
         code: Int = 200,

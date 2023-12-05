@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.mate.chat
+package com.qubacy.geoqq.domain.geochat.chat
 
 import android.net.Uri
 import com.qubacy.geoqq.common.util.mock.BitmapMockContext
@@ -8,33 +8,21 @@ import com.qubacy.geoqq.data.common.repository.message.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.util.generator.DataMessageGeneratorUtility
 import com.qubacy.geoqq.data.common.util.generator.DataUserGeneratorUtility
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.geochat.message.repository.GeoMessageDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.result.GetImagesResult
-import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMateMessagesResult
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.result.GetAccessTokenPayloadResult
-import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.model.message.Message
 import com.qubacy.geoqq.domain.common.model.user.User
-import com.qubacy.geoqq.domain.common.usecase.common.UseCase
-import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
-import com.qubacy.geoqq.domain.common.util.generator.MessageGeneratorUtility
-import com.qubacy.geoqq.domain.common.util.generator.UserGeneratorUtility
-import com.qubacy.geoqq.domain.mate.chat.operation.AddPrecedingMessagesOperation
-import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCase
 import com.qubacy.geoqq.domain.common.usecase.chat.ChatUseCaseTest
-import com.qubacy.geoqq.domain.mate.chat.state.MateChatState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
+import com.qubacy.geoqq.domain.geochat.chat.state.GeoChatState
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -44,9 +32,7 @@ import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.isAccessible
 
-class MateChatUseCaseTest(
-
-) : ChatUseCaseTest<MateChatState>() {
+class GeoChatUseCaseTest : ChatUseCaseTest<GeoChatState>() {
     companion object {
         init {
             BitmapMockContext.mockBitmapFactory()
@@ -55,15 +41,15 @@ class MateChatUseCaseTest(
     }
 
     override fun generateDefaultGetMessagesResult(): GetMessagesResult {
-        return GetMateMessagesResult(listOf(), true, true)
+        return GetMessagesResult(listOf())
     }
 
     override fun generateChatState(
         messages: List<Message>,
         users: List<User>,
         operations: List<Operation>
-    ): MateChatState {
-        return MateChatState(messages, users, operations)
+    ): GeoChatState {
+        return GeoChatState(messages, users, operations)
     }
 
     override suspend fun generateUseCase(
@@ -73,10 +59,10 @@ class MateChatUseCaseTest(
         userDataRepository: UserDataRepository,
         mateRequestDataRepository: MateRequestDataRepository,
         getMessagesResult: GetMessagesResult
-    ): ChatUseCase<MateChatState> {
-        val mateMessageDataRepository = Mockito.mock(MateMessageDataRepository::class.java)
+    ): ChatUseCase<GeoChatState> {
+        val geoMessageDataRepository = Mockito.mock(GeoMessageDataRepository::class.java)
 
-        Mockito.`when`(mateMessageDataRepository.resultFlow).thenAnswer {
+        Mockito.`when`(geoMessageDataRepository.resultFlow).thenAnswer {
             MutableSharedFlow<Result>()
         }
 
@@ -84,9 +70,8 @@ class MateChatUseCaseTest(
             .find { it.name == "processResult" }!!.apply {
                 isAccessible = true
             }
-
-        Mockito.`when`(mateMessageDataRepository
-            .getMessages(Mockito.anyString(), Mockito.anyLong(), Mockito.anyInt())
+        Mockito.`when`(geoMessageDataRepository
+            .getGeoMessages(Mockito.anyInt(), Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyString())
         )
             .thenAnswer {
                 runBlocking {
@@ -94,9 +79,9 @@ class MateChatUseCaseTest(
                 }
             }
 
-        return MateChatUseCase(
+        return GeoChatUseCase(
             errorDataRepository, tokenDataRepository,
-            mateMessageDataRepository, imageDataRepository,
+            geoMessageDataRepository, imageDataRepository,
             userDataRepository, mateRequestDataRepository
         )
     }
@@ -121,12 +106,16 @@ class MateChatUseCaseTest(
 
         initChatUseCase(
             getAccessTokenPayloadResult = getAccessTokenPayloadResult,
-            getMessagesResult = GetMateMessagesResult(messages, false, true),
+            getMessagesResult = GetMessagesResult(messages),
             imagesResults = imagesResults,
             usersResults = usersResults
         )
 
-        (mChatUseCase as MateChatUseCase).getChat(0, 1, messages.size)
+        val radius = 0
+        val latitude = 0.0
+        val longitude = 0.0
+
+        (mChatUseCase as GeoChatUseCase).getGeoChat(radius, latitude, longitude)
 
         while (mChatStateAtomicRef.get() == null) { }
 
@@ -134,48 +123,6 @@ class MateChatUseCaseTest(
 
         for (gottenMessage in gottenMateChatState!!.messages) {
             Assert.assertNotNull(messages.find { it.id == gottenMessage.id })
-        }
-    }
-
-    @Test
-    fun getPrecedingMessageChunkTest() {
-        val imagesResults = GetImagesResult(
-            mapOf(
-                0L to Uri.parse(String())
-            ), false)
-        val precedingUsers = UserGeneratorUtility.generateUsers(2)
-        val newUsersResults = GetUsersByIdsResult(
-            DataUserGeneratorUtility.generateDataUsers(2),
-            false
-        )
-        val precedingMessages = DataMessageGeneratorUtility.generateDataMessages(10)
-        val newMessages = MessageGeneratorUtility
-            .generateMessages(20, precedingMessages.size.toLong())
-
-        val prevState = MateChatState(newMessages, precedingUsers, listOf(SetMessagesOperation()))
-
-        val getAccessTokenPayloadResult = generateAccessTokenPayloadResult(0L)
-
-        initChatUseCase(
-            getAccessTokenPayloadResult = getAccessTokenPayloadResult,
-            getMessagesResult = GetMateMessagesResult(precedingMessages, false, false),
-            imagesResults = imagesResults,
-            usersResults = newUsersResults,
-            originalChatState = prevState
-        )
-
-        (mChatUseCase as MateChatUseCase).getChat(0, 1, precedingMessages.size)
-
-        while (mChatStateAtomicRef.get() == null) { }
-        while (mChatStateAtomicRef.get()!!.newOperations.first()::class
-            != AddPrecedingMessagesOperation::class) { }
-
-        val gottenMateChatState = mChatStateAtomicRef.get()
-        val gottenAddPrecedingMessagesOperation = gottenMateChatState!!.newOperations.first()
-                as AddPrecedingMessagesOperation
-
-        for (gottenPrecedingMessage in gottenAddPrecedingMessagesOperation.precedingMessages) {
-            Assert.assertNotNull(precedingMessages.find { it.id == gottenPrecedingMessage.id })
         }
     }
 }
