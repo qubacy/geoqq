@@ -14,6 +14,7 @@ import com.qubacy.geoqq.domain.myprofile.model.MyProfileModelContext
 import com.qubacy.geoqq.domain.common.model.common.validator.password.standard.StandardPasswordValidator
 import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
 import com.qubacy.geoqq.domain.myprofile.MyProfileUseCase
+import com.qubacy.geoqq.domain.myprofile.operation.SetProfileDataOperation
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -43,7 +44,6 @@ open class MyProfileViewModel(
     }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
-        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (mIsGettingMyProfile) mIsGettingMyProfile = false
         if (state == null) return null
 
@@ -68,9 +68,18 @@ open class MyProfileViewModel(
 
     private fun processOperation(operation: Operation): UiOperation? {
         return when (operation::class) {
+            SetProfileDataOperation::class -> {
+                val setProfileDataOperation = operation as SetProfileDataOperation
+
+                mIsWaiting.value = false
+
+                null
+            }
             SuccessfulProfileSavingCallbackOperation::class -> {
                 val successfulProfileSavingCallbackOperation =
                     operation as SuccessfulProfileSavingCallbackOperation
+
+                mIsWaiting.value = false
 
                 ProfileDataSavedUiOperation()
             }
@@ -81,6 +90,8 @@ open class MyProfileViewModel(
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 ShowErrorUiOperation(handleErrorOperation.error)
             }

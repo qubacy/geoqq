@@ -47,7 +47,6 @@ open class MateChatsViewModel(
     }
 
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
-        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (mIsGettingChats) mIsGettingChats = false
         if (mateChatsState == null) return null
 
@@ -72,6 +71,8 @@ open class MateChatsViewModel(
         return when (operation::class) {
             SetMateChatsOperation::class -> {
                 val setMateChatsOperation = operation as SetMateChatsOperation
+
+                mIsWaiting.value = false
 
                 SetMateChatsUiOperation()
             }
@@ -108,6 +109,8 @@ open class MateChatsViewModel(
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 ShowErrorUiOperation(handleErrorOperation.error)
             }

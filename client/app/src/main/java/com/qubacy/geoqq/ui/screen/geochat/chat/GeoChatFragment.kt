@@ -1,6 +1,9 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,11 +41,17 @@ class GeoChatFragment(
     ChatAdapterCallback,
     UserInfoBottomSheetContentCallback
 {
+    companion object {
+        const val TAG = "GEO_CHAT_FRAGMENT"
+    }
+
     private val mArgs by navArgs<GeoChatFragmentArgs>()
 
     private lateinit var mBinding: FragmentGeoChatBinding
 
     private lateinit var mGeoChatAdapter: ChatAdapter
+
+    private var mInitChatRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +103,7 @@ class GeoChatFragment(
         (mModel as GeoChatViewModel).geoChatUiStateFlow.value?.let {
             initChat(it)
         }
-            (mModel as GeoChatViewModel).geoChatUiStateFlow.observe(viewLifecycleOwner) {
+        (mModel as GeoChatViewModel).geoChatUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onChatUiStateGotten(it)
@@ -104,8 +113,10 @@ class GeoChatFragment(
         view.doOnPreDraw {
             startPostponedEnterTransition()
 
-            getInitChatMessages()
+            if (mInitChatRequested) getInitChatMessages()
         }
+
+        Log.d(TAG, "onViewCreated()")
     }
 
     private fun getInitChatMessages() {
@@ -238,5 +249,27 @@ class GeoChatFragment(
 
     override fun addToMates(user: User) {
         (mModel as GeoChatViewModel).createMateRequest(user.id)
+    }
+
+    override fun getPermissionsToRequest(): Array<String>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
+            return (arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ).plus(super.getPermissionsToRequest() ?: arrayOf()))
+
+        return super.getPermissionsToRequest()
+    }
+
+    override fun onRequestedPermissionsGranted() {
+        super.onRequestedPermissionsGranted()
+
+        if (view == null) {
+            mInitChatRequested = true
+
+            return
+        }
+
+        getInitChatMessages()
     }
 }

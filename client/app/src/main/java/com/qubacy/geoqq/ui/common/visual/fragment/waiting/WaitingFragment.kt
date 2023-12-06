@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.annotation.LayoutRes
+import androidx.core.view.doOnPreDraw
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.BaseFragment
 import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
@@ -53,6 +54,11 @@ abstract class WaitingFragment(
 
     protected open fun handleWaitingStart() {
         if (mLoadingView == null) initLoadingView()
+
+        // todo: delete;
+        mLoadingView!!.doOnPreDraw {
+            it.apply {  }
+        }
 
         // todo: it'd be better to play a provided animation when it's added to the container;
 

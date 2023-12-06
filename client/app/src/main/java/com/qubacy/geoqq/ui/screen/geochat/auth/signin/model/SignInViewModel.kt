@@ -74,7 +74,6 @@ open class SignInViewModel(
     }
 
     private fun stateToUiState(state: SignInState?): SignInUiState? {
-        if (isWaiting.value == true) mIsWaiting.value = false
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -95,6 +94,8 @@ open class SignInViewModel(
             ProcessSignInResultOperation::class -> {
                 val processSignInResultOperation = operation as ProcessSignInResultOperation
 
+                mIsWaiting.value = false
+
                 if (processSignInResultOperation.isSignedIn) PassSignInUiOperation()
                 else null
             }
@@ -105,6 +106,8 @@ open class SignInViewModel(
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 ShowErrorUiOperation(handleErrorOperation.error)
             }

@@ -35,7 +35,6 @@ open class SignUpViewModel(
     }
 
     private fun stateToUiState(signUpState: SignUpState?): SignUpUiState? {
-        if (mIsWaiting.value == true) mIsWaiting.value = false
         if (signUpState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -56,6 +55,8 @@ open class SignUpViewModel(
             ApproveSignUpOperation::class -> {
                 val approveSignUpOperation = operation as ApproveSignUpOperation
 
+                mIsWaiting.value = false
+
                 PassSignUpUiOperation()
             }
             InterruptOperation::class -> {
@@ -65,6 +66,8 @@ open class SignUpViewModel(
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 ShowErrorUiOperation(handleErrorOperation.error)
             }

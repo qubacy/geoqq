@@ -99,7 +99,6 @@ open class MateRequestsViewModel(
     }
 
     private fun stateToUiState(state: MateRequestsState?): MateRequestsUiState? {
-        if (mIsWaiting.value == true) mIsWaiting.value = false // todo: should it be this way?
         if (state == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -143,10 +142,14 @@ open class MateRequestsViewModel(
                 val mateRequestAnswerProcessedOperation =
                     operation as MateRequestAnswerProcessedOperation
 
+                mIsWaiting.value = false
+
                 MateRequestAnswerProcessedUiOperation()
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
+
+                mIsWaiting.value = false
 
                 return ShowErrorUiOperation(handleErrorOperation.error)
             }
@@ -163,6 +166,7 @@ open class MateRequestsViewModel(
 
         if (mRequestChunkToLoad > 0) return null
 
+        mIsWaiting.value = false
         mIsGettingRequests = false
 
         return SetMateRequestsUiOperation(setMateRequestsOperation.isInit)

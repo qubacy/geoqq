@@ -120,8 +120,6 @@ open class MateChatViewModel(
 
         val title = chatState.users.find {it.id == interlocutorUserId}?.username ?: String()
 
-        if (mIsWaiting.value == true && !mIsWaitingForInterlocutorDetails) mIsWaiting.value = false
-
         return MateChatUiState(title, chatState.messages, chatState.users, uiOperationsResult)
     }
 
@@ -129,6 +127,8 @@ open class MateChatViewModel(
         return when (operation::class) {
             SetMessagesOperation::class -> {
                 val setMessagesOperation = operation as SetMessagesOperation
+
+                mIsWaiting.value = false
 
                 listOf(SetMessagesUiOperation())
             }
@@ -160,12 +160,14 @@ open class MateChatViewModel(
                 val approveNewMateRequestCreationOperation =
                     operation as ApproveNewMateRequestCreationOperation
 
+                mIsWaiting.value = false
+
                 listOf(MateRequestCreatedUiOperation())
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
-                // mb processing the operation..
+                mIsWaiting.value = false
 
                 listOf(ShowErrorUiOperation(handleErrorOperation.error))
             }
@@ -178,6 +180,8 @@ open class MateChatViewModel(
     private fun processSetUsersDetailsOperation(
         setUsersDetailsOperation: SetUsersDetailsOperation
     ): List<UiOperation> {
+        mIsWaiting.value = false
+
         val operations = mutableListOf<UiOperation>()
 
         if (setUsersDetailsOperation.areUpdated)

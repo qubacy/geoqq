@@ -18,6 +18,7 @@ import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
 import com.qubacy.geoqq.domain.common.usecase.consuming.ConsumingUseCase
+import com.qubacy.geoqq.domain.myprofile.operation.SetProfileDataOperation
 import com.qubacy.geoqq.domain.myprofile.operation.SuccessfulProfileSavingCallbackOperation
 import com.qubacy.geoqq.domain.myprofile.state.MyProfileState
 import kotlinx.coroutines.Dispatchers
@@ -94,7 +95,7 @@ open class MyProfileUseCase(
             dataMyProfile.username,
             dataMyProfile.description,
             dataMyProfile.hitUpOption,
-            listOf()
+            listOf(SetProfileDataOperation())
         )
 
         mStateFlow.emit(state)
@@ -108,7 +109,7 @@ open class MyProfileUseCase(
             myProfileData.username,
             myProfileData.description,
             myProfileData.hitUpOption,
-            listOf()
+            listOf(SetProfileDataOperation())
         )
 
         mStateFlow.emit(state)

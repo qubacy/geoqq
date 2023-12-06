@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat.model
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -50,6 +51,8 @@ open class GeoChatViewModel(
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
 
+        Log.d(TAG, "changeLastLocation(): mGeoChatInitialized = $mGeoChatInitialized")
+
         if (!mGeoChatInitialized) getGeoChat()
 
         return true
@@ -66,9 +69,9 @@ open class GeoChatViewModel(
     }
 
     fun getGeoChat() {
-        val lastLocationPoint = lastLocationPoint.value ?: return
+        if (mIsWaiting.value == false) mIsWaiting.value = true
 
-        mIsWaiting.value = true
+        val lastLocationPoint = lastLocationPoint.value ?: return
 
         geoChatUseCase.getGeoChat(radius, lastLocationPoint.latitude, lastLocationPoint.longitude)
     }
@@ -101,7 +104,6 @@ open class GeoChatViewModel(
 
     private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
         if (chatState == null) return null
-        if (!mGeoChatInitialized) mGeoChatInitialized = true
 
         val uiOperations = mutableListOf<UiOperation>()
 
@@ -112,8 +114,6 @@ open class GeoChatViewModel(
 
             uiOperations.addAll(uiOperation)
         }
-
-        if (mIsWaiting.value == true && !mIsWaitingForUserDetails) mIsWaiting.value = false
 
         return GeoChatUiState(chatState.messages, chatState.users, uiOperations)
     }
@@ -148,12 +148,12 @@ open class GeoChatViewModel(
                 val approveNewMateRequestCreationOperation =
                     operation as ApproveNewMateRequestCreationOperation
 
-                listOf(MateRequestCreatedUiOperation())
+                processApproveNewMateRequestCreationOperation(approveNewMateRequestCreationOperation)
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
 
-                // mb processing the operation..
+                mIsWaiting.value = false
 
                 listOf(ShowErrorUiOperation(handleErrorOperation.error))
             }
@@ -163,9 +163,19 @@ open class GeoChatViewModel(
         }
     }
 
+    private fun processApproveNewMateRequestCreationOperation(
+        approveNewMateRequestCreationOperation: ApproveNewMateRequestCreationOperation
+    ): List<UiOperation> {
+        mIsWaiting.value = false
+
+        return listOf(MateRequestCreatedUiOperation())
+    }
+
     private fun processSetUsersDetailsOperation(
         setUsersDetailsOperation: SetUsersDetailsOperation
     ): List<UiOperation> {
+        mIsWaiting.value = false
+
         val operations = mutableListOf<UiOperation>()
 
         if (setUsersDetailsOperation.areUpdated)
@@ -186,6 +196,9 @@ open class GeoChatViewModel(
     private fun processSetMessagesOperation(
         setMessagesOperation: SetMessagesOperation
     ): List<UiOperation> {
+        mGeoChatInitialized = true
+        mIsWaiting.value = false
+
         return listOf(SetMessagesUiOperation())
     }
 
