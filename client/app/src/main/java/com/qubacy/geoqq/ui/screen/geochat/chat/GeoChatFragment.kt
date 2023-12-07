@@ -115,8 +115,6 @@ class GeoChatFragment(
 
             if (mInitChatRequested) getInitChatMessages()
         }
-
-        Log.d(TAG, "onViewCreated()")
     }
 
     private fun getInitChatMessages() {
@@ -271,5 +269,11 @@ class GeoChatFragment(
         }
 
         getInitChatMessages()
+    }
+
+    override fun handleWaitingAbort() {
+        if ((mModel as GeoChatViewModel).isGettingChat) return
+
+        super.handleWaitingAbort()
     }
 }

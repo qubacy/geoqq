@@ -46,7 +46,7 @@ abstract class UseCase<StateType>(
         return (result as GetErrorForLanguageResult).error
     }
 
-    protected fun processError(errorId: Long) {
+    protected open fun processError(errorId: Long) {
         mCoroutineScope.launch(Dispatchers.IO) {
             val error = getError(errorId)
 

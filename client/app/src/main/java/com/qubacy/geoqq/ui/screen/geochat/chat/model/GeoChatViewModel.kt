@@ -41,8 +41,13 @@ open class GeoChatViewModel(
     private var mGeoChatInitialized = false
     val geoChatInitialized get() = mGeoChatInitialized
 
+    private var mGeoChatInitializationRequested = false
+
     private var mIsWaitingForUserDetails = false
     private var mWaitingForUserDetailsId: Long? = null
+
+    private var mIsGettingChat = false
+    val isGettingChat get() = mIsGettingChat
 
     init {
         geoChatUseCase.setCoroutineScope(viewModelScope)
@@ -50,10 +55,7 @@ open class GeoChatViewModel(
 
     override fun changeLastLocation(location: Location): Boolean {
         if (!super.changeLastLocation(location)) return false
-
-        Log.d(TAG, "changeLastLocation(): mGeoChatInitialized = $mGeoChatInitialized")
-
-        if (!mGeoChatInitialized) getGeoChat()
+        if (mGeoChatInitializationRequested) getGeoChat()
 
         return true
     }
@@ -71,7 +73,16 @@ open class GeoChatViewModel(
     fun getGeoChat() {
         if (mIsWaiting.value == false) mIsWaiting.value = true
 
-        val lastLocationPoint = lastLocationPoint.value ?: return
+        val lastLocationPoint = lastLocationPoint.value
+
+        if (lastLocationPoint == null) {
+            mGeoChatInitializationRequested = true
+
+            return
+        }
+
+        mGeoChatInitializationRequested = false
+        mIsGettingChat = true
 
         geoChatUseCase.getGeoChat(radius, lastLocationPoint.latitude, lastLocationPoint.longitude)
     }

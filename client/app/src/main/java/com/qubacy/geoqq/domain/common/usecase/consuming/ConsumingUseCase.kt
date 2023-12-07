@@ -5,6 +5,8 @@ import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.data.common.repository.network.flowable.FlowableDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,5 +81,27 @@ abstract class ConsumingUseCase<StateType>(
         mStateFlow.emit(state)
 
         mStateMutex.unlock()
+    }
+
+    // Note: lockLastState should be called in advance before calling this function!
+    fun processError(errorId: Long, prevState: StateType?) {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            val error = getError(errorId)
+
+            val operations = listOf(
+                HandleErrorOperation(error)
+            )
+            val state = generateState(operations, prevState)
+
+            postState(state)
+        }
+    }
+
+    override fun processError(errorId: Long) {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            val prevState = lockLastState()
+
+            processError(errorId, prevState)
+        }
     }
 }

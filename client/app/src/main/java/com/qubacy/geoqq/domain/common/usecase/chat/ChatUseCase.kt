@@ -112,8 +112,7 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
             mCurrentRepository = userDataRepository
             val getUsersResult = getUsers(
                 listOf(userId), tokenDataRepository, this@ChatUseCase,
-                userDataRepository, imageDataRepository, this@ChatUseCase,
-//                false, false
+                userDataRepository, imageDataRepository, this@ChatUseCase
             )
 
             if (getUsersResult is ErrorResult) return@launch processError(getUsersResult.errorId)
