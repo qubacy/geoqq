@@ -17,18 +17,9 @@
     [
         {
             "id": "<id>",
-            "user": {
-                "id": "<id>"
-            },
+            "user-id": "<id>",
             "text": "<string>",
             "time": "<int>"
-        },
-        ...
-    ],
-    "users": [
-        {
-            "id": "<id>",
-            "username": "<string>"
         },
         ...
     ]

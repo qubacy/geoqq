@@ -63,21 +63,6 @@
 }
 ```
 
-## POST /api/mate/chat/{`id`}/message
-
-### Request body
-```json
-{
-    "access-token": "<jwt-string>",
-    "message": {
-        "text": "<string>"
-    }
-}
-```
-
-### Responses
-- *200*
-
 <!-- -------------------------------------------- -->
 
 ## GET /api/mate/request
@@ -95,12 +80,7 @@
     "requests": [
         {
             "id": "<id>",
-            "user": {
-                "id": "<id>",
-                "username": "<string>",
-                "description": "<string>",
-                "avatar-id": "<id>"
-            }
+            "user-id": "<id>"
         },
         ...
     ]
