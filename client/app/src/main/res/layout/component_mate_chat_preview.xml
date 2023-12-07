@@ -25,8 +25,8 @@
 
         <androidx.constraintlayout.utils.widget.ImageFilterView
             android:id="@+id/user_avatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -50,17 +50,17 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintStart_toStartOf="@id/name"
-            app:layout_constraintEnd_toStartOf="@id/last_message_timestamp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp"
             style="@style/ChatMessageMaterialTextView.Body"
-            tools:text="Last message.."/>
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/last_message_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/last_message"
+            app:layout_constraintTop_toBottomOf="@id/last_message"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             style="@style/ChatMessageMaterialTextView.Detail"
             tools:text="00:00 pm"/>

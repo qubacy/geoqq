@@ -31,7 +31,7 @@
             app:layout_constraintStart_toStartOf="@id/username"
             android:layout_marginTop="8dp"
             style="@style/ChatMessageMaterialTextView.Body"
-            tools:text="Message text"/>
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/timestamp"

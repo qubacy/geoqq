@@ -52,6 +52,8 @@ open class MateChatsUseCase(
 
     private var mLastPrecedingChats: List<MateChat>? = null
 
+    private var mMateChatsGotten = false
+
     override suspend fun processResult(result: Result): Boolean {
         if (super.processResult(result)) return true
 
@@ -105,17 +107,20 @@ open class MateChatsUseCase(
         val getAccessTokenResultCast = getAccessTokenResult as GetAccessTokenResult
 
         val usersIds = result.chats.map { it.userId }
-        val getUsersResult = getUsers(
-            usersIds, getAccessTokenResultCast.accessToken,
-            userDataRepository, imageDataRepository, this
-        )
+        val initUsers = if (!mMateChatsGotten) {
+            val getUsersResult = getUsers(
+                usersIds, getAccessTokenResultCast.accessToken,
+                userDataRepository, imageDataRepository, this
+            )
 
-        if (getUsersResult is ErrorResult) return getUsersResult
+            if (getUsersResult is ErrorResult) return getUsersResult
 
-        val getUsersResultCast = getUsersResult as GetUsersResult
+            (getUsersResult as GetUsersResult).users
+        } else
+            prevState!!.users
 
         val processDataMateChatsResult = processDataMateChats(
-            result.chats, getUsersResultCast.users
+            result.chats, initUsers//getUsersResultCast.users
         )
 
         if (processDataMateChatsResult is ErrorResult) return processDataMateChatsResult
@@ -123,23 +128,28 @@ open class MateChatsUseCase(
         val processDataMateChatsResultCast = processDataMateChatsResult as ProcessDataMateChatsResult
 
         val chats = retrieveChats(prevState, result, processDataMateChatsResultCast)
-        val users = retrieveUsers(prevState, result.isInitial, getUsersResultCast)
+        val users = retrieveUsers(prevState, result.isInitial, initUsers)//getUsersResultCast)
 
-        val getMateRequestCountResult = getMateRequestCount(getAccessTokenResultCast.accessToken) // todo: is this legal?
+        val mateRequestCount = if (!mMateChatsGotten) {
+            val getMateRequestCountResult =
+                getMateRequestCount(getAccessTokenResultCast.accessToken) // todo: is this legal?
 
-        if (getMateRequestCountResult is ErrorResult) return getMateRequestCountResult
+            if (getMateRequestCountResult is ErrorResult) return getMateRequestCountResult
 
-        val getMateRequestCountResultCast = getMateRequestCountResult as GetMateRequestCountResult
+            (getMateRequestCountResult as GetMateRequestCountResult).mateRequestCount
+        } else 0
 
         val operations =  if (result.isInitial) listOf(SetMateChatsOperation()) else
             listOf(
                 AddPrecedingChatsOperation(processDataMateChatsResultCast.mateChats, !result.isLocal)
             )
 
+        if (!mMateChatsGotten) mMateChatsGotten = true
+
         val newState = MateChatsState(
             chats,
             users,
-            getMateRequestCountResultCast.mateRequestCount,
+            mateRequestCount,
             operations
         )
 
@@ -151,12 +161,12 @@ open class MateChatsUseCase(
     private fun retrieveUsers(
         prevState: MateChatsState?,
         isInitial: Boolean,
-        getUsersResult: GetUsersResult
+        initUsers: List<User>
     ): List<User> {
         return if (isInitial) {
-            getUsersResult.users
+            initUsers
         } else {
-            (prevState!!.users + getUsersResult.users).toSet().toList()
+            (prevState!!.users + initUsers).toSet().toList()
         }
     }
 
@@ -247,6 +257,8 @@ open class MateChatsUseCase(
     }
 
     open fun getMateChats(count: Int) {
+        mMateChatsGotten = false
+
         mCoroutineScope.launch(Dispatchers.IO) {
             mCurrentRepository = tokenDataRepository
             val getAccessTokenResult = getAccessToken(tokenDataRepository)

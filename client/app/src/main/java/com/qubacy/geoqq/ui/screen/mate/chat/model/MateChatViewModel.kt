@@ -50,6 +50,8 @@ open class MateChatViewModel(
     private var mIsGettingChat: Boolean = false
     val isGettingChat get() = mIsGettingChat
 
+    private var mIsGettingNewChunk = false
+
     init {
         mateChatUseCase.setCoroutineScope(viewModelScope)
     }
@@ -89,7 +91,9 @@ open class MateChatViewModel(
     fun messageListEndReached() {
         val curState = mateChatUiStateFlow.value
 
-        if (curState == null) return
+        if (curState == null || mIsGettingNewChunk) return
+
+        mIsGettingNewChunk = true
 
         val curMessageCount = curState.messages.size
         val nextMessageCount = curMessageCount + DEFAULT_MESSAGE_CHUNK_SIZE
@@ -141,6 +145,8 @@ open class MateChatViewModel(
             }
             AddPrecedingMessagesOperation::class -> {
                 val addPrecedingMessagesOperation = operation as AddPrecedingMessagesOperation
+
+                mIsGettingNewChunk = false
 
                 listOf(AddPrecedingMessagesUiOperation(addPrecedingMessagesOperation.precedingMessages))
             }
