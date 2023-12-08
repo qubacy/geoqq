@@ -290,10 +290,16 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
 
+        requestInitChats()
+
         return null
     }
 
     override fun onRequestedPermissionsGranted() {
+        requestInitChats()
+    }
+
+    private fun requestInitChats() {
         if (view == null) {
             mInitChatsRequested = true
 

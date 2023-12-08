@@ -189,10 +189,16 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
 
+        requestInitMateRequests()
+
         return null
     }
 
     override fun onRequestedPermissionsGranted() {
+        requestInitMateRequests()
+    }
+
+    private fun requestInitMateRequests() {
         if (view == null) {
             mInitRequestsRequested = true
 

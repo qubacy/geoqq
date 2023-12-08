@@ -350,10 +350,16 @@ class MateChatFragment(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
 
+        requestInitChat()
+
         return null
     }
 
     override fun onRequestedPermissionsGranted() {
+        requestInitChat()
+    }
+
+    private fun requestInitChat() {
         if (view == null) {
             mInitChatRequested = true
 
