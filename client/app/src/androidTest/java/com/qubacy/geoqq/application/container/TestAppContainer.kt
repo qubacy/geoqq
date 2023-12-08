@@ -4,7 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.room.Room
 import com.qubacy.geoqq.applicaion.common.container.AppContainer
-import com.qubacy.geoqq.applicaion.common.container.geochat.GeoChatContainer
+import com.qubacy.geoqq.applicaion.common.container.geo.chat.GeoChatContainer
+import com.qubacy.geoqq.applicaion.common.container.geo.settings.GeoChatSettingsContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainer
@@ -28,6 +29,8 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
 import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
 import com.qubacy.geoqq.domain.geochat.chat.state.GeoChatState
+import com.qubacy.geoqq.domain.geochat.settings.GeoChatSettingsUseCase
+import com.qubacy.geoqq.domain.geochat.settings.state.GeoChatSettingsState
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
@@ -45,6 +48,8 @@ import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModel
 import com.qubacy.geoqq.ui.screen.geochat.auth.signup.model.SignUpViewModelFactory
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
+import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.screen.mate.chat.model.MateChatViewModelFactory
 import com.qubacy.geoqq.ui.screen.mate.chats.model.MateChatsViewModel
@@ -132,6 +137,31 @@ class TestAppContainer(context: Context) : AppContainer(context) {
 
         Mockito.`when`(mSignUpContainer!!.signUpViewModelFactory)
             .thenAnswer { signUpViewModelFactoryMock }
+    }
+
+    override fun initGeoChatSettingsContainer(errorDataRepository: ErrorDataRepository) {
+        val geoChatSettingsUseCaseMock = Mockito.mock(GeoChatSettingsUseCase::class.java)
+
+        Mockito.`when`(geoChatSettingsUseCaseMock.getError(Mockito.anyLong())).thenAnswer {  }
+
+        val stateFlowFieldReflection = UseCase::class.java.getDeclaredField("stateFlow")
+            .apply { isAccessible = true }
+
+        stateFlowFieldReflection.set(
+            geoChatSettingsUseCaseMock, MutableStateFlow<GeoChatSettingsState?>(null))
+
+        val geoChatSettingsViewModel = GeoChatSettingsViewModel(geoChatSettingsUseCaseMock)
+
+        val geoChatSettingsViewModelFactoryMock =
+            Mockito.mock(GeoChatSettingsViewModelFactory::class.java)
+
+        Mockito.`when`(geoChatSettingsViewModelFactoryMock.create(GeoChatSettingsViewModel::class.java))
+            .thenAnswer { geoChatSettingsViewModel }
+
+        mGeoChatSettingsContainer = Mockito.mock(GeoChatSettingsContainer::class.java)
+
+        Mockito.`when`(mGeoChatSettingsContainer!!.geoChatSettingsViewModelFactory)
+            .thenAnswer { geoChatSettingsViewModelFactoryMock }
     }
 
     override val geoMessageDataRepository: GeoMessageDataRepository =

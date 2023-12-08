@@ -118,9 +118,7 @@ open class SignUpViewModel(
     }
 
     override fun retrieveError(errorId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            mSignUpUseCase.getError(errorId)
-        }
+        mSignUpUseCase.getError(errorId)
     }
 }
 

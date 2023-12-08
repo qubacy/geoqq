@@ -86,7 +86,7 @@ abstract class ConsumingUseCase<StateType>(
     // Note: lockLastState should be called in advance before calling this function!
     fun processError(errorId: Long, prevState: StateType?) {
         mCoroutineScope.launch(Dispatchers.IO) {
-            val error = getError(errorId)
+            val error = retrieveError(errorId)
 
             val operations = listOf(
                 HandleErrorOperation(error)

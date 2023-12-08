@@ -2,7 +2,8 @@ package com.qubacy.geoqq.applicaion.common.container
 
 import android.content.Context
 import androidx.room.RoomDatabase
-import com.qubacy.geoqq.applicaion.common.container.geochat.GeoChatContainer
+import com.qubacy.geoqq.applicaion.common.container.geo.chat.GeoChatContainer
+import com.qubacy.geoqq.applicaion.common.container.geo.settings.GeoChatSettingsContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainer
@@ -65,6 +66,17 @@ abstract class AppContainer(val context: Context) {
     )
 
     open fun clearSignUpContainer() { mSignUpContainer = null }
+
+    // Geo Chat Settings:
+
+    var mGeoChatSettingsContainer: GeoChatSettingsContainer? = null
+    val geoChatSettingsContainer get() = mGeoChatSettingsContainer
+
+    abstract fun initGeoChatSettingsContainer(
+        errorDataRepository: ErrorDataRepository
+    )
+
+    open fun clearGeoChatSettingsContainer() { mGeoChatSettingsContainer = null }
 
     // Geo Chat:
 

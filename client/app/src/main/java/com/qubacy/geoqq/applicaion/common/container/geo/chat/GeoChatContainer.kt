@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.applicaion.common.container.geochat
+package com.qubacy.geoqq.applicaion.common.container.geo.chat
 
 import com.qubacy.geoqq.ui.screen.geochat.chat.model.GeoChatViewModelFactory
 

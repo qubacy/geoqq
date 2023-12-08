@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.screen.geochat.chat.model
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -31,9 +30,9 @@ import kotlinx.coroutines.flow.map
 
 open class GeoChatViewModel(
     val radius: Int,
-    val geoChatUseCase: GeoChatUseCase
+    private val mGeoChatUseCase: GeoChatUseCase
 ) : LocationViewModel(), ChatViewModel {
-    private val mGeoChatStateFlow = geoChatUseCase.stateFlow
+    private val mGeoChatStateFlow = mGeoChatUseCase.stateFlow
 
     private val mGeoChatUiStateFlow = mGeoChatStateFlow.map { chatStateToUiState(it) }
     val geoChatUiStateFlow: LiveData<ChatUiState?> = mGeoChatUiStateFlow.asLiveData()
@@ -50,7 +49,7 @@ open class GeoChatViewModel(
     val isGettingChat get() = mIsGettingChat
 
     init {
-        geoChatUseCase.setCoroutineScope(viewModelScope)
+        mGeoChatUseCase.setCoroutineScope(viewModelScope)
     }
 
     override fun changeLastLocation(location: Location): Boolean {
@@ -84,20 +83,20 @@ open class GeoChatViewModel(
         mGeoChatInitializationRequested = false
         mIsGettingChat = true
 
-        geoChatUseCase.getGeoChat(radius, lastLocationPoint.latitude, lastLocationPoint.longitude)
+        mGeoChatUseCase.getGeoChat(radius, lastLocationPoint.latitude, lastLocationPoint.longitude)
     }
 
     fun sendMessage(text: String) {
         val lastLocationPoint = lastLocationPoint.value ?: return
 
-        geoChatUseCase.sendGeoMessage(
+        mGeoChatUseCase.sendGeoMessage(
             radius, lastLocationPoint.latitude, lastLocationPoint.longitude, text)
     }
 
     override fun createMateRequest(userId: Long) {
         mIsWaiting.value = true
 
-        geoChatUseCase.createMateRequest(userId)
+        mGeoChatUseCase.createMateRequest(userId)
     }
 
     override fun getUserDetails(userId: Long) {
@@ -106,11 +105,11 @@ open class GeoChatViewModel(
         mIsWaitingForUserDetails = true
         mWaitingForUserDetailsId = userId
 
-        geoChatUseCase.getUserDetails(userId)
+        mGeoChatUseCase.getUserDetails(userId)
     }
 
     fun isLocalUser(userId: Long): Boolean {
-        return (geoChatUseCase.localUserId == userId)
+        return (mGeoChatUseCase.localUserId == userId)
     }
 
     private fun chatStateToUiState(chatState: ChatState?): GeoChatUiState? {
@@ -214,18 +213,18 @@ open class GeoChatViewModel(
     }
 
     override fun retrieveError(errorId: Long) {
-        TODO("Not yet implemented")
+        mGeoChatUseCase.getError(errorId)
     }
 }
 
 open class GeoChatViewModelFactory(
     val radius: Int,
-    val geoChatUseCase: GeoChatUseCase
+    private val mGeoChatUseCase: GeoChatUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(GeoChatViewModel::class.java))
             throw IllegalArgumentException()
 
-        return GeoChatViewModel(radius, geoChatUseCase) as T
+        return GeoChatViewModel(radius, mGeoChatUseCase) as T
     }
 }

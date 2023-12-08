@@ -14,11 +14,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.Fade
 import androidx.transition.Slide
 import com.qubacy.geoqq.R
+import com.qubacy.geoqq.applicaion.common.Application
 import com.qubacy.geoqq.databinding.ComponentRadiusSettingOptionBinding
 import com.qubacy.geoqq.databinding.FragmentGeoChatSettingsBinding
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
+import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
 import com.qubacy.geoqq.ui.common.visual.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModel
-import com.qubacy.geoqq.ui.screen.geochat.settings.model.GeoChatSettingsViewModelFactory
+import com.qubacy.geoqq.ui.screen.geochat.settings.model.state.GeoChatSettingsUiState
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Circle
@@ -72,8 +75,6 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
-
-        mModel = GeoChatSettingsViewModelFactory().create(GeoChatSettingsViewModel::class.java)
     }
 
     override fun onDestroy() {
@@ -104,11 +105,21 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
     }
 
     override fun initFlowContainerIfNull() {
+        val application = (requireActivity().application as Application)
 
+        if (application.appContainer.geoChatSettingsContainer != null) return
+
+        application.appContainer.initGeoChatSettingsContainer(
+            application.appContainer.errorDataRepository
+        )
+
+        mModel = application.appContainer.geoChatSettingsContainer!!
+            .geoChatSettingsViewModelFactory
+            .create(GeoChatSettingsViewModel::class.java)
     }
 
     override fun clearFlowContainer() {
-
+        (requireActivity().application as Application).appContainer.clearGeoChatSettingsContainer()
     }
 
     override fun onCreateView(
@@ -183,11 +194,40 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             drawCurLocationCircle((mModel as GeoChatSettingsViewModel).lastLocationPoint.value)
             setCameraPositionForCurCircle()
         }
+        (mModel as GeoChatSettingsViewModel).geoChatUiStateFlow.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
+            onUiStateGotten(it)
+        }
 
         postponeEnterTransition()
         view.doOnPreDraw {
             startPostponedEnterTransition()
         }
+    }
+
+    private fun onUiStateGotten(uiState: GeoChatSettingsUiState) {
+        if (uiState.uiOperationCount() <= 0) return
+
+        while (true) {
+            val uiOperation = uiState.takeUiOperation() ?: break
+
+            processUiOperation(uiOperation)
+        }
+    }
+
+    private fun processUiOperation(uiOperation: UiOperation) {
+        when (uiOperation::class) {
+            ShowErrorUiOperation::class -> {
+                val showErrorUiOperation = uiOperation as ShowErrorUiOperation
+
+                onErrorOccurred(showErrorUiOperation.error) { navigateBack() }
+            }
+        }
+    }
+
+    private fun navigateBack() {
+        findNavController().navigateUp()
     }
 
     override fun onLocationPointChanged(newLocationPoint: Point) {

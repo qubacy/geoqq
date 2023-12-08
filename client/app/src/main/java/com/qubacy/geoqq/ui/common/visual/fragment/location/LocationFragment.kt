@@ -46,6 +46,12 @@ abstract class LocationFragment() : WaitingFragment() {
         super.onDestroy()
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        setLocationServiceStatus()
+    }
+
     private fun checkLocationServiceAvailability(): Boolean {
         val locationManager = requireContext()
             .getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -158,12 +164,16 @@ abstract class LocationFragment() : WaitingFragment() {
 
                 Log.d(TAG, "onLocationAvailability(): ${p0.isLocationAvailable}")
 
-                mAreLocationServicesEnabled = checkLocationServiceAvailability()
-
-                if (!mAreLocationServicesEnabled) {
-                    onLocationServicesNotEnabled()
-                }
+                setLocationServiceStatus()
             }
+        }
+    }
+
+    private fun setLocationServiceStatus() {
+        mAreLocationServicesEnabled = checkLocationServiceAvailability()
+
+        if (!mAreLocationServicesEnabled) {
+            onLocationServicesNotEnabled()
         }
     }
 }

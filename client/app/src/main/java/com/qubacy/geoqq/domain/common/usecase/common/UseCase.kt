@@ -4,6 +4,7 @@ import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.DataRepository
+import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.error.repository.result.GetErrorForLanguageResult
 import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
@@ -36,19 +37,20 @@ abstract class UseCase<StateType>(
         prevState: StateType? = null
     ): StateType
 
-    // todo: think of this:
-    suspend fun getError(errorId: Long): Error {
+    protected suspend fun retrieveError(errorId: Long): Error {
         val languageCode = Locale.getDefault().language
         val result = errorDataRepository.getErrorForLanguage(errorId, languageCode)
-
-        // todo: error processing?..
 
         return (result as GetErrorForLanguageResult).error
     }
 
+    open fun getError(errorId: Long) {
+        processError(errorId)
+    }
+
     protected open fun processError(errorId: Long) {
         mCoroutineScope.launch(Dispatchers.IO) {
-            val error = getError(errorId)
+            val error = retrieveError(errorId)
 
             val operations = listOf(
                 HandleErrorOperation(error)

@@ -3,14 +3,14 @@ package com.qubacy.geoqq.applicaion.common.container
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.room.Room
-import com.qubacy.geoqq.applicaion.common.container.geochat.GeoChatContainer
 import com.qubacy.geoqq.applicaion.common.container.mate.chat.MateChatContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.mate.chats.MateChatsContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.mate.requests.MateRequestsContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.myprofile.MyProfileContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.signin.SignInContainerImpl
 import com.qubacy.geoqq.applicaion.common.container.signup.SignUpContainerImpl
-import com.qubacy.geoqq.applicaion.impl.container.geochat.GeoChatContainerImpl
+import com.qubacy.geoqq.applicaion.impl.container.geo.chat.GeoChatContainerImpl
+import com.qubacy.geoqq.applicaion.impl.container.geo.settings.GeoChatSettingsContainerImpl
 import com.qubacy.geoqq.data.common.repository.common.source.local.database.Database
 import com.qubacy.geoqq.data.common.repository.common.source.network.NetworkDataSourceContext
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -42,6 +42,7 @@ import com.qubacy.geoqq.data.token.repository.source.network.NetworkTokenDataSou
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.network.NetworkUserDataSource
 import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
+import com.qubacy.geoqq.domain.geochat.settings.GeoChatSettingsUseCase
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
 import com.qubacy.geoqq.domain.geochat.signup.SignUpUseCase
 import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
@@ -135,6 +136,16 @@ class AppContainerImpl(
     }
 
     override fun clearSignUpContainer() { mSignUpContainer = null }
+
+    // Geo Chat Settings
+
+    override fun initGeoChatSettingsContainer(errorDataRepository: ErrorDataRepository) {
+        errorDataRepository.reset()
+
+        val geoChatSettingsUseCase = GeoChatSettingsUseCase(errorDataRepository)
+
+        mGeoChatSettingsContainer = GeoChatSettingsContainerImpl(geoChatSettingsUseCase)
+    }
 
     // Geo Chat
 

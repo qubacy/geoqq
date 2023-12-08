@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.common.visual.fragment.common.base
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
@@ -68,10 +69,18 @@ abstract class BaseFragment() : StyleableFragment() {
         return true
     }
 
-    open fun onErrorOccurred(error: Error) {
+    open fun onErrorOccurred(error: Error, callback: (() -> Unit)? = null) {
+        Log.d("TEST", "onErrorOccurred")
+
         ErrorDialog.Builder(
             error.message,
-            requireContext()) { handleError(error) }
+            requireContext()
+        ) { }
+            .setOnDismissListener {
+                handleError(error)
+                callback?.invoke()
+
+            }
             .create()
             .show()
     }

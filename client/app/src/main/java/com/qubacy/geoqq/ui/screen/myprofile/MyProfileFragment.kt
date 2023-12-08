@@ -505,10 +505,16 @@ class MyProfileFragment() : WaitingFragment(), PickImageCallback {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
 
+        requestInitMyProfile()
+
         return null
     }
 
     override fun onRequestedPermissionsGranted() {
+        requestInitMyProfile()
+    }
+
+    private fun requestInitMyProfile() {
         if (view == null) {
             mInitMyProfileRequested = true
 
