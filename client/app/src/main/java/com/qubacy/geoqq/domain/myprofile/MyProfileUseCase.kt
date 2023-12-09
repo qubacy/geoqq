@@ -62,6 +62,8 @@ open class MyProfileUseCase(
     private suspend fun processGetMyProfileResultWithAvatarId(
         myProfileData: DataMyProfileWithAvatarId
     ) {
+        lockLastState()
+
         mCurrentRepository = tokenDataRepository
         val getTokensResult = tokenDataRepository.getTokens()
 
@@ -98,12 +100,14 @@ open class MyProfileUseCase(
             listOf(SetProfileDataOperation())
         )
 
-        mStateFlow.emit(state)
+        postState(state)
     }
 
     private suspend fun processGetMyProfileResultWithLinkedAvatar(
         myProfileData: DataMyProfileWithLinkedAvatar
     ) {
+        lockLastState()
+
         val state = MyProfileState(
             myProfileData.avatarUri,
             myProfileData.username,
@@ -112,7 +116,7 @@ open class MyProfileUseCase(
             listOf(SetProfileDataOperation())
         )
 
-        mStateFlow.emit(state)
+        postState(state)
     }
 
     override fun generateState(
@@ -133,13 +137,13 @@ open class MyProfileUseCase(
         description: String?,
         hitUpOption: DataMyProfile.HitUpOption?
     ) {
-        val state = stateFlow.value
+        val prevState = lockLastState()
         val newState = MyProfileState(
-            avatarUri ?: (state?.avatar ?: Uri.parse(String())),
-            state?.username ?: String(),
-            description ?: (state?.description ?: String()),
+            avatarUri ?: (prevState?.avatar ?: Uri.parse(String())),
+            prevState?.username ?: String(),
+            description ?: (prevState?.description ?: String()),
             hitUpOption ?:
-            (state?.hitUpOption ?: DataMyProfile.HitUpOption.POSITIVE),
+            (prevState?.hitUpOption ?: DataMyProfile.HitUpOption.POSITIVE),
             listOf(SuccessfulProfileSavingCallbackOperation())
         )
 
@@ -153,9 +157,9 @@ open class MyProfileUseCase(
         val saveMyProfileResult = myProfileDataRepository.saveMyProfile(dataMyProfile)
 
         if (saveMyProfileResult is ErrorResult)
-            return processError(saveMyProfileResult.errorId)
+            return processError(saveMyProfileResult.errorId, prevState)
 
-        mStateFlow.emit(newState)
+        postState(newState)
     }
 
     open fun getMyProfile() {

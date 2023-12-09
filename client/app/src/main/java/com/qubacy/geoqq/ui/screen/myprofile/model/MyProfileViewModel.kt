@@ -25,13 +25,13 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 import kotlinx.coroutines.flow.map
 
 open class MyProfileViewModel(
-    val myProfileUseCase: MyProfileUseCase
+    private val mMyProfileUseCase: MyProfileUseCase
 ) : WaitingViewModel() {
     companion object {
         const val TAG = "MyProfileViewModel"
     }
 
-    private var mMyProfileStateFlow = myProfileUseCase.stateFlow
+    private var mMyProfileStateFlow = mMyProfileUseCase.stateFlow
 
     private val mMyProfileUiState = mMyProfileStateFlow.map { stateToUiState(it) }
     val myProfileUiState: LiveData<MyProfileUiState?> = mMyProfileUiState.asLiveData()
@@ -40,7 +40,7 @@ open class MyProfileViewModel(
     val isGettingMyProfile get() = mIsGettingMyProfile
 
     init {
-        myProfileUseCase.setCoroutineScope(viewModelScope)
+        mMyProfileUseCase.setCoroutineScope(viewModelScope)
     }
 
     private fun stateToUiState(state: MyProfileState?): MyProfileUiState? {
@@ -167,7 +167,7 @@ open class MyProfileViewModel(
         mIsWaiting.value = true
         mIsGettingMyProfile = true
 
-        myProfileUseCase.getMyProfile()
+        mMyProfileUseCase.getMyProfile()
     }
 
     fun saveProfileData(
@@ -193,14 +193,14 @@ open class MyProfileViewModel(
                 DataMyProfile.HitUpOption.entries.find { it.index == hitUpOptionIndex }
             }
 
-        myProfileUseCase.updateMyProfile(
+        mMyProfileUseCase.updateMyProfile(
             avatarUri, description, curPassword, newPassword, hitUpOption)
     }
 
     fun interruptSavingProfileData() {
         mIsWaiting.value = false
 
-        myProfileUseCase.interruptOperation()
+        mMyProfileUseCase.interruptOperation()
     }
 
     private fun isAvatarDataCorrect(
@@ -252,17 +252,17 @@ open class MyProfileViewModel(
     }
 
     override fun retrieveError(errorId: Long) {
-        TODO("Not yet implemented")
+        mMyProfileUseCase.getError(errorId)
     }
 }
 
 open class MyProfileViewModelFactory(
-    val myProfileUseCase: MyProfileUseCase
+    private val mMyProfileUseCase: MyProfileUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (!modelClass.isAssignableFrom(MyProfileViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MyProfileViewModel(myProfileUseCase) as T
+        return MyProfileViewModel(mMyProfileUseCase) as T
     }
 }

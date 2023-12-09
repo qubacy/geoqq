@@ -45,7 +45,6 @@ import com.qubacy.geoqq.ui.screen.myprofile.model.state.MyProfileUiState
 class MyProfileFragment() : WaitingFragment(), PickImageCallback {
     companion object {
         const val TAG = "MyProfileFragment"
-
     }
 
     private lateinit var mBinding: FragmentMyProfileBinding

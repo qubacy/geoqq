@@ -40,6 +40,12 @@ abstract class BaseFragment() : StyleableFragment() {
         initFlowContainerIfNull()
     }
 
+    override fun onDestroy() {
+        clearFlowContainer()
+
+        super.onDestroy()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,8 +59,6 @@ abstract class BaseFragment() : StyleableFragment() {
     }
 
     override fun onStop() {
-        clearFlowContainer()
-
         super.onStop()
     }
 
