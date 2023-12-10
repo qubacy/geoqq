@@ -1,8 +1,8 @@
 CREATE TABLE "MateChat"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "FirstUserId" BIGINT,
-    "SecondUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "FirstUserId" BIGINT NOT NULL,
+    "SecondUserId" BIGINT NOT NULL,
     
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
@@ -10,12 +10,12 @@ CREATE TABLE "MateChat"
 
 CREATE TABLE "MateMessage"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "MateChatId" BIGINT,
-    "FromUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "MateChatId" BIGINT NOT NULL,
+    "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Read" BOOLEAN,
+    "Read" BOOLEAN NOT NULL,
     
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
@@ -23,8 +23,8 @@ CREATE TABLE "MateMessage"
 
 CREATE TABLE "DeletedMateChat"
 (
-    "ChatId" BIGINT,
-    "UserId" BIGINT,
+    "ChatId" BIGINT NOT NULL,
+    "UserId" BIGINT NOT NULL,
     
     FOREIGN KEY ("ChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")

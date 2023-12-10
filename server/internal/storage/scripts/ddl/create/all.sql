@@ -1,8 +1,16 @@
+-- resource
+-- ---------------------------------------------------------------------------
+CREATE TABLE "Avatar" 
+(
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "Filename" VARCHAR(1024) NOT NULL
+);
+
 -- user
 -- ---------------------------------------------------------------------------
 CREATE TABLE "UserEntry"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "Username" CHARACTER VARYING(128) UNIQUE,
     "HashPassword" VARCHAR(512) NOT NULL,
     "HashUpdToken" VARCHAR(512) NOT NULL,
@@ -12,25 +20,27 @@ CREATE TABLE "UserEntry"
 
 CREATE TABLE "UserLocation"
 (
-    "UserId" BIGINT,
-    "Longitude" double precision,
-    "Latitude" double precision,
+    "UserId" BIGINT NOT NULL,
+    "Longitude" double precision NOT NULL,
+    "Latitude" double precision NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NULL,
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
 CREATE TABLE "UserDetails"
 (
-    "UserId" BIGINT,
-    "Description" CHARACTER VARYING(1024) UNIQUE,
-    "Avatar" VARCHAR(1024) NOT NULL,
-	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
+    "UserId" BIGINT NOT NULL,
+    "Description" CHARACTER VARYING(4096) UNIQUE,
+    "AvatarId" BIGINT NULL,
+
+	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
+    FOREIGN KEY ("AvatarId") REFERENCES "Avatar"("Id")
 );
 
 CREATE TABLE "UserOptions"
 (
-    "UserId" BIGINT,
-    "Privacy" INTEGER,
+    "UserId" BIGINT NOT NULL,
+    "Privacy" INTEGER NOT NULL,
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
@@ -39,9 +49,9 @@ CREATE TABLE "UserOptions"
 -- ---------------------------------------------------------------------------
 CREATE TABLE "Mate"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "FirstUserId" BIGINT,
-    "SecondUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "FirstUserId" BIGINT NOT NULL,
+    "SecondUserId" BIGINT NOT NULL,
     
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
@@ -49,12 +59,12 @@ CREATE TABLE "Mate"
 
 CREATE TABLE "MateRequest"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "FromUserId" BIGINT,
-    "ToUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "FromUserId" BIGINT NOT NULL,
+    "ToUserId" BIGINT NOT NULL,
     "RequestTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "ResponseTime" TIMESTAMP WITHOUT TIME ZONE,
-    "Result" VARCHAR(512) NOT NULL,
+    "Result" smallint NOT NULL,
     
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("ToUserId") REFERENCES "UserEntry"("Id")
@@ -64,9 +74,9 @@ CREATE TABLE "MateRequest"
 -- ---------------------------------------------------------------------------
 CREATE TABLE "MateChat"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "FirstUserId" BIGINT,
-    "SecondUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "FirstUserId" BIGINT NOT NULL,
+    "SecondUserId" BIGINT NOT NULL,
     
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
@@ -74,9 +84,9 @@ CREATE TABLE "MateChat"
 
 CREATE TABLE "MateMessage"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "MateChatId" BIGINT,
-    "FromUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "MateChatId" BIGINT NOT NULL,
+    "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "Read" BOOLEAN,
@@ -87,8 +97,8 @@ CREATE TABLE "MateMessage"
 
 CREATE TABLE "DeletedMateChat"
 (
-    "ChatId" BIGINT,
-    "UserId" BIGINT,
+    "ChatId" BIGINT NOT NULL,
+    "UserId" BIGINT NOT NULL,
     
     FOREIGN KEY ("ChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
@@ -98,12 +108,12 @@ CREATE TABLE "DeletedMateChat"
 -- ---------------------------------------------------------------------------
 CREATE TABLE "GeoMessage"
 (
-    "Id" BIGSERIAL PRIMARY KEY,
-    "FromUserId" BIGINT,
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NULL,
-    "Longitude" double precision,
-    "Latitude" double precision,
+    "Longitude" double precision NOT NULL,
+    "Latitude" double precision NOT NULL,
     
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
 );

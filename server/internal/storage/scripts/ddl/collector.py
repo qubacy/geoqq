@@ -4,7 +4,12 @@ output_filename = "all.sql"
 # ------------------------------------------------------------------------
 
 func_and_scripts = {
-    "create/": ["user.sql", "mate.sql", "mateChat.sql", "geoChat.sql"]
+    "create/": 
+    [
+        "resource.sql", "user.sql",
+        "mate.sql", "mateChat.sql",
+        "geoChat.sql"
+    ]
 }
 
 for func, scripts in func_and_scripts.items():

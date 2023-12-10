@@ -1,0 +1,5 @@
+CREATE TABLE "Avatar" 
+(
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "Filename" VARCHAR(1024) NOT NULL
+);
