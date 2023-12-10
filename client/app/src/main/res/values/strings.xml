@@ -70,5 +70,6 @@
     <string name="error_chat_message_incorrect">Incorrect message!</string>
 
     <string name="error_my_profile_data_incorrect">The provided data was incorrect!</string>
+    <string name="component_new_message_count_label_prefix">+</string>
 
 </resources>

@@ -128,7 +128,7 @@ open class MateChatsUseCase(
         val processDataMateChatsResultCast = processDataMateChatsResult as ProcessDataMateChatsResult
 
         val chats = retrieveChats(prevState, result, processDataMateChatsResultCast)
-        val users = retrieveUsers(prevState, result.isInitial, initUsers)//getUsersResultCast)
+        val users = retrieveUsers(prevState, result.isInitial, initUsers)
 
         val mateRequestCount = if (!mMateChatsGotten) {
             val getMateRequestCountResult =
@@ -137,7 +137,8 @@ open class MateChatsUseCase(
             if (getMateRequestCountResult is ErrorResult) return getMateRequestCountResult
 
             (getMateRequestCountResult as GetMateRequestCountResult).mateRequestCount
-        } else 0
+        } else
+            prevState!!.mateRequestCount
 
         val operations =  if (result.isInitial) listOf(SetMateChatsOperation()) else
             listOf(
@@ -238,7 +239,8 @@ open class MateChatsUseCase(
             null
 
         val mateChat = MateChat(
-            dataMateChat.id, dataMateChat.userId, user.avatarUri, lastMessage
+            dataMateChat.id, dataMateChat.userId,
+            user.avatarUri, lastMessage, dataMateChat.newMessageCount
         )
 
         return ProcessDataMateChatResult(mateChat, user)

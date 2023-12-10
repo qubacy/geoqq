@@ -1,70 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:cardElevation="8dp"
-    app:cardCornerRadius="8dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="?attr/colorSurfaceContainer"
-    android:transitionGroup="true"
-    android:transitionName="@string/transition_mate_chats_to_mate_chat"
-    tools:theme="@style/Theme.Geoqq.Mates">
+<layout>
+    <data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
-        android:paddingStart="4dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp">
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="8dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        android:transitionGroup="true"
+        android:transitionName="@string/transition_mate_chats_to_mate_chat"
+        tools:theme="@style/Theme.Geoqq.Mates">
 
-        <androidx.constraintlayout.utils.widget.ImageFilterView
-            android:id="@+id/user_avatar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="8dp"
-            style="@style/MaterialImageView"
-            tools:srcCompat="@drawable/geo_chat_background"/>
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/user_avatar"
-            android:layout_marginStart="16dp"
-            style="@style/ChatMessageMaterialTextView.Title"
-            tools:text="Username"/>
+            android:paddingTop="12dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/last_message"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/name"
-            app:layout_constraintStart_toStartOf="@id/name"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp"
-            style="@style/ChatMessageMaterialTextView.Body"
-            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
+            <androidx.constraintlayout.utils.widget.ImageFilterView
+                android:id="@+id/user_avatar"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="8dp"
+                style="@style/MaterialImageView"
+                tools:srcCompat="@drawable/geo_chat_background"/>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/last_message_timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/last_message"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            style="@style/ChatMessageMaterialTextView.Detail"
-            tools:text="00:00 pm"/>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/user_avatar"
+                android:layout_marginStart="16dp"
+                style="@style/ChatMessageMaterialTextView.Title"
+                tools:text="Username"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/last_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/name"
+                app:layout_constraintStart_toStartOf="@id/name"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp"
+                style="@style/ChatMessageMaterialTextView.Body"
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
-</com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/last_message_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/last_message"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/ChatMessageMaterialTextView.Detail"
+                tools:text="00:00 pm"/>
+
+            <include
+                android:id="@+id/new_message_count"
+                layout="@layout/component_new_message_count_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="1dp"
+                android:layout_marginTop="1dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
