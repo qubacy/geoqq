@@ -4,7 +4,8 @@ import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.common.UiOperation
 
 class AddPrecedingChatsUiOperation(
-    val precedingChats: List<MateChat>
+    val precedingChats: List<MateChat>,
+    val areUpdated: Boolean
 ) : UiOperation() {
 
 }

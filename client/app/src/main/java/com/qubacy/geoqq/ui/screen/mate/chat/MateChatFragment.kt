@@ -188,15 +188,19 @@ class MateChatFragment(
             sendingButton.isEnabled = interlocutorUser.isMate
         }
 
+        setInitChatMessages(chatUiState.messages)
+
+        // what else?
+    }
+
+    private fun setInitChatMessages(messages: List<Message>) {
         mBinding.chatRecyclerView.itemAnimator = null
-        mAdapter.setItems(chatUiState.messages)
+        mAdapter.setItems(messages)
 
         // todo: is it ok?:
         mBinding.chatRecyclerView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             mBinding.chatRecyclerView.itemAnimator = AnimatedListItemAnimator(mAdapter)
         }
-
-        // what else?
     }
 
     private fun processUiOperation(

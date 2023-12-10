@@ -36,17 +36,19 @@ abstract class AnimatedListAdapter<ViewHolderType : ViewHolder, ItemType>(
     private val mPendingCallbackOperations = mutableListOf<CallbackOperation>()
 
     private fun onLayoutCompleted() {
-        if (mPendingCallbackOperations.isEmpty()) return
-
         Log.d(TAG, "onLayoutCompleted(): mIsAutoScrollingEnabled = $mIsAutoScrollingEnabled")
 
-        val curPendingCallbackOperation = mPendingCallbackOperations.removeFirst()
+        while (true) {
+            if (mPendingCallbackOperations.isEmpty()) break
 
-        when (curPendingCallbackOperation) {
-            CallbackOperation.SET_ITEMS -> { scrollToLastPos() }
-            CallbackOperation.ADD_NEW_ITEMS -> { if (mIsAutoScrollingEnabled) scrollToLastPos() }
-            CallbackOperation.ADD_PRECEDING_ITEMS -> {
-                // nothing?..
+            val curPendingCallbackOperation = mPendingCallbackOperations.removeFirst()
+
+            when (curPendingCallbackOperation) {
+                CallbackOperation.SET_ITEMS -> { scrollToLastPos() }
+                CallbackOperation.ADD_NEW_ITEMS -> { if (mIsAutoScrollingEnabled) scrollToLastPos() }
+                CallbackOperation.ADD_PRECEDING_ITEMS -> {
+                    // nothing?..
+                }
             }
         }
     }

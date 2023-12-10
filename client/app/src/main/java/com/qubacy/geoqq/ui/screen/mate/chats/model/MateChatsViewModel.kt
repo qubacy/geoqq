@@ -84,7 +84,8 @@ open class MateChatsViewModel(
             AddPrecedingChatsOperation::class -> {
                 val addPrecedingChatsOperation = operation as AddPrecedingChatsOperation
 
-                AddPrecedingChatsUiOperation(addPrecedingChatsOperation.precedingChats)
+                AddPrecedingChatsUiOperation(
+                    addPrecedingChatsOperation.precedingChats, addPrecedingChatsOperation.areUpdated)
             }
             AddChatOperation::class -> {
                 val addChatOperation = operation as AddChatOperation

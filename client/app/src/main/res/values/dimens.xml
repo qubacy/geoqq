@@ -6,4 +6,6 @@
     <integer name="default_transition_duration">700</integer>
 
     <dimen name="text_input_layout_changed_stroke_width">4dp</dimen>
+
+    <dimen name="default_list_item_gap">4dp</dimen>
 </resources>

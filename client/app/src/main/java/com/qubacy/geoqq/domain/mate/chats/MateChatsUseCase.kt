@@ -190,9 +190,11 @@ open class MateChatsUseCase(
                 val newChats = if (mLastPrecedingChats == null)
                     prevState.chats + processDataMateChatsResult.mateChats
                 else {
+                    val curChatsCount = prevState.chats.size
+
                     prevState.chats
-                        .subList(0, prevState.chats.size - mLastPrecedingChats!!.size) +
-                            processDataMateChatsResult.mateChats
+                        .subList(0, curChatsCount - mLastPrecedingChats!!.size
+                        ) + processDataMateChatsResult.mateChats
                 }
 
                 mLastPrecedingChats = null

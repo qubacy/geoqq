@@ -116,10 +116,10 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             layoutManager = AnimatedListLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mAdapter
-            itemAnimator = AnimatedListItemAnimator(mAdapter)
+            //itemAnimator = AnimatedListItemAnimator(mAdapter) // todo: works shitty for initialization;
         }
         mBinding.mateRequestsCardButton.setOnClickListener {
-            onFriendRequestsClicked()
+            onMateRequestsClicked()
         }
 
         (mModel as MateChatsViewModel).mateChatsUiStateFlow.value?.let {
@@ -145,7 +145,17 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
 
     private fun initChats(uiState: MateChatsUiState) {
         onMateRequestCountChanged(uiState.requestCount)
-        mAdapter.setItems(uiState.chats)
+        setInitChats(uiState.chats)
+    }
+
+    private fun setInitChats(chats: List<MateChat>) {
+        mBinding.chatsRecyclerView.itemAnimator = null
+        mAdapter.setItems(chats)
+
+        // todo: is it ok?:
+        mBinding.chatsRecyclerView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            mBinding.chatsRecyclerView.itemAnimator = AnimatedListItemAnimator(mAdapter)
+        }
     }
 
     private fun onChatsUiStateGotten(chatsUiState: MateChatsUiState) {
@@ -174,7 +184,12 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
             AddPrecedingChatsUiOperation::class -> {
                 val addPrecedingChatsUiOperation = uiOperation as AddPrecedingChatsUiOperation
 
-                mAdapter.addPrecedingItems(addPrecedingChatsUiOperation.precedingChats)
+                if (addPrecedingChatsUiOperation.areUpdated)
+                    mAdapter.updateChatUsersData(
+                        addPrecedingChatsUiOperation.precedingChats.map { it.chatId }
+                    )
+                else
+                    mAdapter.addPrecedingItems(addPrecedingChatsUiOperation.precedingChats)
             }
             UpdateUsersUiOperation::class -> {
                 val updateUserUiOperation = uiOperation as UpdateUsersUiOperation
@@ -247,7 +262,9 @@ class MateChatsFragment() : WaitingFragment(), MateChatsAdapterCallback {
         }
     }
 
-    private fun onFriendRequestsClicked() {
+    private fun onMateRequestsClicked() {
+        clearFlowContainer()
+
         findNavController().navigate(R.id.action_mateChatsFragment_to_mateRequestsFragment)
     }
 
