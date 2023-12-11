@@ -16,6 +16,7 @@
         <item name="colorOnSurfaceVariant">#FF615D5D</item>
         <!-- MaterialToolbar overflow icon tint: -->
         <item name="colorControlNormal">@color/white</item>
+        <item name="colorOnPrimarySurface">@color/white</item>
 
         <!-- MaterialToolbar overflow actions text color: -->
         <item name="android:textColorPrimary">@color/white</item>
