@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.common.visual.component.bottomsheet.userinfo.content
 import android.content.Context
 import android.text.TextUtils.TruncateAt
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
@@ -23,6 +24,8 @@ class UserInfoBottomSheetContent(
     TransitionListener
 {
     companion object {
+        const val TAG = "USER_BOTTOM_SHEET_CONT"
+
         const val COLLAPSED_BOTTOM_PADDING_IN_DP = 20f
     }
 
@@ -35,11 +38,21 @@ class UserInfoBottomSheetContent(
 
     private val mBottomSheetCallback: BottomSheetCallback = object : BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (newState !in intArrayOf(
+                BottomSheetBehavior.STATE_COLLAPSED, BottomSheetBehavior.STATE_EXPANDED
+            )) return
 
+            Log.d(TAG, "onStateChanged(): newState = $newState")
+
+            mBinding.bottomSheetContent.progress = when (newState) {
+                BottomSheetBehavior.STATE_EXPANDED -> { 0.999f }
+                BottomSheetBehavior.STATE_COLLAPSED -> { 0.001f }
+                else -> {throw IllegalStateException() }
+            }
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            // 0 - 1 = collapsed -> expanded
+            // offset = 0 - 1 ==> collapsed -> expanded
 
             if (slideOffset < 0 || slideOffset == 1.0f || slideOffset == 0.0f) return
 
