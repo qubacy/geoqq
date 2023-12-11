@@ -24,7 +24,8 @@ class MateRequestViewHolder(val binding: ComponentMateRequestBinding)
 
     override fun getOpenableView(root: ViewGroup, topMarginPx: Int): Carousel3DOpenableView {
         val layoutInflater = LayoutInflater.from(binding.root.context)
-        val openableViewBinding = ComponentMateRequestOpenableBinding.inflate(layoutInflater, root, true)
+        val openableViewBinding = ComponentMateRequestOpenableBinding
+            .inflate(layoutInflater, root, true)
 
         recycleOpenableView(openableViewBinding.root, topMarginPx)
 
@@ -106,9 +107,7 @@ class MateRequestViewHolder(val binding: ComponentMateRequestBinding)
             scene.getConstraintSet(
                 context,
                 context.resources.getResourceName(R.id.mates_request_card_container_closed_state)
-            )
-                .getConstraint(R.id.mate_request_openable_content).layout.topMargin =
-                topMarginPx
+            ).getConstraint(R.id.mate_request_openable_content).layout.topMargin = topMarginPx
         }
     }
 }

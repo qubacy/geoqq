@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
 import com.example.carousel3dlib.view.Carousel3DOpenableView
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateRequestOpenableBinding
 
 class MateRequestCardOpenable(context: Context, attributeSet: AttributeSet)
@@ -56,7 +57,10 @@ class MateRequestCardOpenable(context: Context, attributeSet: AttributeSet)
             }
 
             override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
-                Log.d(TAG, "onTransitionCompleted()")
+                Log.d(TAG, "onTransitionCompleted(): currentId = $currentId")
+
+                innerMotionLayoutView.progress =
+                    if (currentId == R.id.mates_request_card_container_open_state) 0.999f else 0f
             }
 
             override fun onTransitionTrigger(
