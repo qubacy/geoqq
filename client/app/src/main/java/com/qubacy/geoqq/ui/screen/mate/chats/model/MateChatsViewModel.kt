@@ -28,13 +28,13 @@ import com.qubacy.geoqq.ui.screen.mate.chats.model.operation.UpdateUsersUiOperat
 import kotlinx.coroutines.flow.map
 
 open class MateChatsViewModel(
-    val mateChatsUseCase: MateChatsUseCase
+    private val mMateChatsUseCase: MateChatsUseCase
 ) : WaitingViewModel() {
     companion object {
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
     }
 
-    private var mMateChatsStateFlow = mateChatsUseCase.stateFlow
+    private var mMateChatsStateFlow = mMateChatsUseCase.stateFlow
 
     private val mMateChatsUiStateFlow = mMateChatsStateFlow.map { chatsStateToUiState(it) }
     val mateChatsUiStateFlow: LiveData<MateChatsUiState?> = mMateChatsUiStateFlow.asLiveData()
@@ -43,11 +43,10 @@ open class MateChatsViewModel(
     val isGettingChats get() = mIsGettingChats
 
     init {
-        mateChatsUseCase.setCoroutineScope(viewModelScope)
+        mMateChatsUseCase.setCoroutineScope(viewModelScope)
     }
 
     private fun chatsStateToUiState(mateChatsState: MateChatsState?): MateChatsUiState? {
-        if (mIsGettingChats) mIsGettingChats = false
         if (mateChatsState == null) return null
 
         val uiOperations = mutableListOf<UiOperation>()
@@ -73,6 +72,7 @@ open class MateChatsViewModel(
                 val setMateChatsOperation = operation as SetMateChatsOperation
 
                 mIsWaiting.value = false
+                mIsGettingChats = false
 
                 SetMateChatsUiOperation()
             }
@@ -84,8 +84,12 @@ open class MateChatsViewModel(
             AddPrecedingChatsOperation::class -> {
                 val addPrecedingChatsOperation = operation as AddPrecedingChatsOperation
 
+                mIsGettingChats = false
+
                 AddPrecedingChatsUiOperation(
-                    addPrecedingChatsOperation.precedingChats, addPrecedingChatsOperation.areUpdated)
+                    addPrecedingChatsOperation.precedingChats,
+                    addPrecedingChatsOperation.areUpdated
+                )
             }
             AddChatOperation::class -> {
                 val addChatOperation = operation as AddChatOperation
@@ -125,7 +129,7 @@ open class MateChatsViewModel(
         mIsWaiting.value = true
         mIsGettingChats = true
 
-        mateChatsUseCase.getMateChats(DEFAULT_CHAT_CHUNK_SIZE)
+        mMateChatsUseCase.getMateChats(DEFAULT_CHAT_CHUNK_SIZE)
     }
 
     fun chatListEndReached() {
@@ -140,11 +144,11 @@ open class MateChatsViewModel(
 
         if (nextChatCount % DEFAULT_CHAT_CHUNK_SIZE != 0) return
 
-        mateChatsUseCase.getMateChats(nextChatCount)
+        mMateChatsUseCase.getMateChats(nextChatCount)
     }
 
     override fun retrieveError(errorId: Long) {
-        TODO("Not yet implemented")
+        mMateChatsUseCase.getError(errorId)
     }
 }
 

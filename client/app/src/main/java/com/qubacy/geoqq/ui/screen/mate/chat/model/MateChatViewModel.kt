@@ -34,13 +34,13 @@ import kotlinx.coroutines.flow.map
 open class MateChatViewModel(
     val chatId: Long,
     val interlocutorUserId: Long,
-    val mateChatUseCase: MateChatUseCase
+    private val mMateChatUseCase: MateChatUseCase
 ) : WaitingViewModel(), ChatViewModel {
     companion object {
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }
 
-    private val mMateChatStateFlow = mateChatUseCase.stateFlow
+    private val mMateChatStateFlow = mMateChatUseCase.stateFlow
 
     private val mMateChatUiStateFlow = mMateChatStateFlow.map { chatStateToUiState(it) }
     val mateChatUiStateFlow: LiveData<MateChatUiState?> = mMateChatUiStateFlow.asLiveData()
@@ -51,7 +51,7 @@ open class MateChatViewModel(
     val isGettingChat get() = mIsGettingChat
 
     init {
-        mateChatUseCase.setCoroutineScope(viewModelScope)
+        mMateChatUseCase.setCoroutineScope(viewModelScope)
     }
 
     fun isMessageCorrect(text: String): Boolean {
@@ -65,7 +65,7 @@ open class MateChatViewModel(
     }
 
     fun sendMessage(text: String) {
-        mateChatUseCase.sendMessage(chatId, text)
+        mMateChatUseCase.sendMessage(chatId, text)
     }
 
     fun getMessages() {
@@ -74,14 +74,14 @@ open class MateChatViewModel(
         mIsWaiting.value = true
         mIsGettingChat = true
 
-        mateChatUseCase.getChat(chatId, interlocutorUserId, DEFAULT_MESSAGE_CHUNK_SIZE)
+        mMateChatUseCase.getChat(chatId, interlocutorUserId, DEFAULT_MESSAGE_CHUNK_SIZE)
     }
 
     override fun getUserDetails(userId: Long) {
         mIsWaiting.value = true
         mIsWaitingForInterlocutorDetails = true
 
-        mateChatUseCase.getInterlocutorUserDetails() // todo: this is ugly
+        mMateChatUseCase.getInterlocutorUserDetails() // todo: this is ugly
     }
 
     fun getMateUserDetails() {
@@ -100,13 +100,13 @@ open class MateChatViewModel(
 
         if (nextMessageCount % DEFAULT_MESSAGE_CHUNK_SIZE != 0) return
 
-        mateChatUseCase.getChat(chatId, interlocutorUserId, nextMessageCount)
+        mMateChatUseCase.getChat(chatId, interlocutorUserId, nextMessageCount)
     }
 
     override fun createMateRequest(userId: Long) {
         mIsWaiting.value = true
 
-        mateChatUseCase.createMateRequest(userId)
+        mMateChatUseCase.createMateRequest(userId)
     }
 
     private fun chatStateToUiState(chatState: MateChatState?): MateChatUiState? {
@@ -212,7 +212,7 @@ open class MateChatViewModel(
     }
 
     override fun retrieveError(errorId: Long) {
-        TODO("Not yet implemented")
+        mMateChatUseCase.getError(errorId)
     }
 }
 

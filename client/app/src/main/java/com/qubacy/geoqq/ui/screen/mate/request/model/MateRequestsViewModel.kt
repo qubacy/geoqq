@@ -23,13 +23,13 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
 import kotlinx.coroutines.flow.map
 
 open class MateRequestsViewModel(
-    val mateRequestsUseCase: MateRequestsUseCase
+    private val mMateRequestsUseCase: MateRequestsUseCase
 ) : WaitingViewModel() {
     companion object {
         const val DEFAULT_REQUEST_CHUNK_SIZE = 20
     }
 
-    private val mMateRequestsStateFlow = mateRequestsUseCase.stateFlow
+    private val mMateRequestsStateFlow = mMateRequestsUseCase.stateFlow
 
     private val mMateRequestsUiStateFlow = mMateRequestsStateFlow.map { stateToUiState(it) }
     val mateRequestFlow: LiveData<MateRequestsUiState?> = mMateRequestsUiStateFlow.asLiveData()
@@ -46,25 +46,25 @@ open class MateRequestsViewModel(
     private var mRequestChunkLoaded = 0
 
     init {
-        mateRequestsUseCase.setCoroutineScope(viewModelScope)
+        mMateRequestsUseCase.setCoroutineScope(viewModelScope)
     }
 
     fun acceptMateRequest(mateRequest: MateRequest) {
         mIsWaiting.value = true
 
-        mateRequestsUseCase.answerMateRequest(mateRequest.id, true)
+        mMateRequestsUseCase.answerMateRequest(mateRequest.id, true)
     }
 
     fun declineMateRequest(mateRequest: MateRequest) {
         mIsWaiting.value = true
 
-        mateRequestsUseCase.answerMateRequest(mateRequest.id, false)
+        mMateRequestsUseCase.answerMateRequest(mateRequest.id, false)
     }
 
     fun getMateRequests() {
         mIsWaiting.value = true
 
-        mateRequestsUseCase.getMateRequestCount()
+        mMateRequestsUseCase.getMateRequestCount()
     }
 
     fun mateRequestsListRolled(
@@ -87,13 +87,13 @@ open class MateRequestsViewModel(
         if (direction == Carousel3DContext.RollingDirection.UP) {
             mCurrentTopRequestOffset += DEFAULT_REQUEST_CHUNK_SIZE
 
-            mateRequestsUseCase.getMateRequests(
+            mMateRequestsUseCase.getMateRequests(
                 DEFAULT_REQUEST_CHUNK_SIZE, mCurrentTopRequestOffset, false)
 
         } else {
             mCurrentBottomRequestOffset -= DEFAULT_REQUEST_CHUNK_SIZE
 
-            mateRequestsUseCase.getMateRequests(
+            mMateRequestsUseCase.getMateRequests(
                 DEFAULT_REQUEST_CHUNK_SIZE, mCurrentBottomRequestOffset, false)
         }
     }
@@ -185,21 +185,21 @@ open class MateRequestsViewModel(
         mRequestChunkToLoad = 1
         mRequestChunkLoaded = 0
 
-        mateRequestsUseCase.getMateRequests(DEFAULT_REQUEST_CHUNK_SIZE, 0, true)
+        mMateRequestsUseCase.getMateRequests(DEFAULT_REQUEST_CHUNK_SIZE, 0, true)
 
         if (mTotalRequestCount > DEFAULT_REQUEST_CHUNK_SIZE) {
             val minChunkCount = (mTotalRequestCount / DEFAULT_REQUEST_CHUNK_SIZE)
             mCurrentBottomRequestOffset = minChunkCount * DEFAULT_REQUEST_CHUNK_SIZE
             val lastChunkSize = mTotalRequestCount - mCurrentBottomRequestOffset
 
-            mateRequestsUseCase.getMateRequests(lastChunkSize, mCurrentBottomRequestOffset, true)
+            mMateRequestsUseCase.getMateRequests(lastChunkSize, mCurrentBottomRequestOffset, true)
 
             ++mRequestChunkToLoad
         }
     }
 
     override fun retrieveError(errorId: Long) {
-        TODO("Not yet implemented")
+        mMateRequestsUseCase.getError(errorId)
     }
 }
 
