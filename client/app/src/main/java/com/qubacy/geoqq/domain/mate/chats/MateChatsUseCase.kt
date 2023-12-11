@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chats
 
+import android.util.Log
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -85,9 +86,14 @@ open class MateChatsUseCase(
 
         if (getUsersFromGetUsersByIdsResult is ErrorResult) return getUsersFromGetUsersByIdsResult
 
+        val getUsersFromGetUsersByIdsResultCast =
+            getUsersFromGetUsersByIdsResult as GetUsersFromGetUsersByIdsResult
+
+        val users = retrieveUsers(prevState, false, getUsersFromGetUsersByIdsResultCast.users)
+
         val state = MateChatsState(
             prevState!!.chats,
-            (getUsersFromGetUsersByIdsResult as GetUsersFromGetUsersByIdsResult).users,
+            users,
             prevState.mateRequestCount,
             listOf(SetUsersDetailsOperation(getUsersByIdsResult.users.map { it.id }, true))
         )
