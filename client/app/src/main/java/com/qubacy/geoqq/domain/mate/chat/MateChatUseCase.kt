@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chat
 
+import android.util.Log
 import com.qubacy.geoqq.data.common.repository.message.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -74,6 +75,8 @@ open class MateChatUseCase(
     override suspend fun processGetMessagesResult(getMessagesResult: GetMessagesResult): Result {
        val getMateMessagesResult = getMessagesResult as GetMateMessagesResult
 
+        Log.d(TAG, "processGetMessagesResult() is on running..")
+
         val prevState = lockLastState()
 
         val getAccessTokenResult = getAccessToken(tokenDataRepository)
@@ -111,6 +114,8 @@ open class MateChatUseCase(
             getUsersResultCast.users,
             operations
         )
+
+        Log.d(TAG, "processGetMessagesResult(): posting a new state...")
 
         postState(state)
 

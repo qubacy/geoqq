@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.mate.chat.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -37,6 +38,8 @@ open class MateChatViewModel(
     private val mMateChatUseCase: MateChatUseCase
 ) : WaitingViewModel(), ChatViewModel {
     companion object {
+        const val TAG = "MATE_CHAT_VIEW_MODEL"
+
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }
 
@@ -69,6 +72,8 @@ open class MateChatViewModel(
     }
 
     fun getMessages() {
+        Log.d(TAG, "getMessages() is on running..")
+
         if (mIsGettingChat) return
 
         mIsWaiting.value = true
@@ -89,16 +94,18 @@ open class MateChatViewModel(
     }
 
     fun messageListEndReached() {
+        Log.d(TAG, "messageListEndReached() is on running..")
+
         val curState = mateChatUiStateFlow.value
 
         if (curState == null || mIsGettingChat) return
-
-        mIsGettingChat = true
 
         val curMessageCount = curState.messages.size
         val nextMessageCount = curMessageCount + DEFAULT_MESSAGE_CHUNK_SIZE
 
         if (nextMessageCount % DEFAULT_MESSAGE_CHUNK_SIZE != 0) return
+
+        mIsGettingChat = true
 
         mMateChatUseCase.getChat(chatId, interlocutorUserId, nextMessageCount)
     }
@@ -128,6 +135,8 @@ open class MateChatViewModel(
     }
 
     private fun processOperation(operation: Operation): List<UiOperation> {
+        Log.d(TAG, "processOperation(): operation.class = ${operation::class.simpleName}")
+
         return when (operation::class) {
             SetMessagesOperation::class -> {
                 val setMessagesOperation = operation as SetMessagesOperation

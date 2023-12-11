@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.screen.mate.request.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +27,8 @@ open class MateRequestsViewModel(
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : WaitingViewModel() {
     companion object {
+        const val TAG = "MATE_REQ_VIEW_MODEL"
+
         const val DEFAULT_REQUEST_CHUNK_SIZE = 20
     }
 
@@ -80,6 +83,8 @@ open class MateRequestsViewModel(
         ) {
             return
         }
+
+        Log.d(TAG, "mateRequestsListRolled(): getting new chunk")
 
         mIsGettingRequests = true
         mRequestChunkToLoad++

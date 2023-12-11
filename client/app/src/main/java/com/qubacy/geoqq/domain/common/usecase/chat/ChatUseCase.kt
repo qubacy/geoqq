@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.common.usecase.chat
 
+import android.util.Log
 import com.qubacy.geoqq.data.common.repository.message.result.GetMessagesResult
 import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.common.repository.common.result.error.ErrorResult
@@ -27,6 +28,7 @@ import com.qubacy.geoqq.domain.common.usecase.util.extension.user.UserExtension
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersFromGetUsersByIdsResult
 import com.qubacy.geoqq.domain.common.usecase.util.extension.user.result.GetUsersResult
 import com.qubacy.geoqq.domain.common.operation.chat.ApproveNewMateRequestCreationOperation
+import com.qubacy.geoqq.domain.mate.chat.MateChatUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -74,6 +76,8 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
     protected open suspend fun processGetUsersByIdsResult(
         getUsersByIdsResult: GetUsersByIdsResult
     ): Result {
+        Log.d(MateChatUseCase.TAG, "processGetUsersByIdsResult() is on running..")
+
         val prevState = lockLastState()
 
         val getUsersFromGetUsersByIdsResult = getUsersFromGetUsersByIdsResult(
@@ -92,6 +96,8 @@ abstract class ChatUseCase<ChatStateType : ChatState> (
                 )
             )
         )
+
+        Log.d(MateChatUseCase.TAG, "processGetUsersByIdsResult(): posting a new state...")
 
         postState(state)
 
