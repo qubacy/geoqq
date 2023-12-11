@@ -93,7 +93,7 @@ class GeoChatFragment(
             layoutManager = AnimatedListLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = mGeoChatAdapter
-            itemAnimator = AnimatedListItemAnimator(mGeoChatAdapter)
+            //itemAnimator = AnimatedListItemAnimator(mGeoChatAdapter)
         }
 
         mBinding.messageSendingSection.sendingButton.setOnClickListener {
@@ -125,7 +125,17 @@ class GeoChatFragment(
 
 
     private fun initChat(chatUiState: ChatUiState) {
-        mGeoChatAdapter.setItems(chatUiState.messages)
+        setInitGeoChatMessages(chatUiState.messages)
+    }
+
+    private fun setInitGeoChatMessages(messages: List<Message>) {
+        mBinding.chatRecyclerView.itemAnimator = null
+        mGeoChatAdapter.setItems(messages)
+
+        // todo: is it ok?:
+        mBinding.chatRecyclerView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            mBinding.chatRecyclerView.itemAnimator = AnimatedListItemAnimator(mGeoChatAdapter)
+        }
     }
 
     private fun onChatUiStateGotten(chatUiState: ChatUiState) {
