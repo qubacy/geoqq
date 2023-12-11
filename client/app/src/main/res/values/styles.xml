@@ -24,7 +24,7 @@
     </style>
 
     <style name="MaterialTextAppearanceTitleSmall" parent="@style/TextAppearance.Material3.TitleSmall">
-
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="MaterialTextAppearanceBodyLarge" parent="@style/TextAppearance.Material3.BodyLarge">
@@ -45,6 +45,10 @@
 
     <style name="MaterialTextAppearanceLabelMedium" parent="@style/TextAppearance.Material3.LabelMedium">
         <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="MaterialTextAppearanceLabelSmall" parent="@style/TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">16sp</item>
     </style>
 
     <!-- Shapes: -->
@@ -198,23 +202,30 @@
         <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
 
-    <style name="ChatMessageMaterialTextView" parent="Widget.MaterialComponents.TextView">
+    <style name="ChatMaterialTextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <style name="ChatMessageMaterialTextView.Title" parent="ChatMessageMaterialTextView">
-        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    <style name="ChatMaterialTextView.Title" parent="ChatMaterialTextView">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
     </style>
 
-    <style name="ChatMessageMaterialTextView.Body" parent="ChatMessageMaterialTextView">
+    <style name="ChatMaterialTextView.Body" parent="ChatMaterialTextView">
         <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
     </style>
 
-    <style name="ChatMessageMaterialTextView.Detail" parent="ChatMessageMaterialTextView">
+    <style name="ChatMaterialTextView.Detail" parent="ChatMaterialTextView">
         <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="ChatMessageMaterialTextView.Body" parent="ChatMaterialTextView.Body">
+
+    </style>
+
+    <style name="ChatPreviewMaterialTextView.Body" parent="ChatMaterialTextView.Body">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <style name="ChatSendingMaterialCardShape" parent="">

@@ -23,10 +23,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="12dp"
+            android:paddingTop="8dp"
             android:paddingStart="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="12dp">
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp">
 
             <androidx.constraintlayout.utils.widget.ImageFilterView
                 android:id="@+id/user_avatar"
@@ -35,7 +35,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 style="@style/MaterialImageView"
                 tools:srcCompat="@drawable/geo_chat_background"/>
 
@@ -45,8 +45,8 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@id/user_avatar"
-                android:layout_marginStart="16dp"
-                style="@style/ChatMessageMaterialTextView.Title"
+                android:layout_marginStart="8dp"
+                style="@style/ChatMaterialTextView.Title"
                 tools:text="Username"/>
 
             <com.google.android.material.textview.MaterialTextView
@@ -57,7 +57,7 @@
                 app:layout_constraintStart_toStartOf="@id/name"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp"
-                style="@style/ChatMessageMaterialTextView.Body"
+                style="@style/ChatPreviewMaterialTextView.Body"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
             <com.google.android.material.textview.MaterialTextView
@@ -67,7 +67,7 @@
                 app:layout_constraintTop_toBottomOf="@id/last_message"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                style="@style/ChatMessageMaterialTextView.Detail"
+                style="@style/ChatMaterialTextView.Detail"
                 tools:text="00:00 pm"/>
 
             <include

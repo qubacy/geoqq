@@ -37,6 +37,7 @@
         <item name="textAppearanceTitleLarge">@style/MaterialTextAppearanceTitleLarge</item>
         <!-- For MyProfile's setting sections:?? -->
         <item name="textAppearanceTitleMedium">@style/MaterialTextAppearanceTitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/MaterialTextAppearanceTitleSmall</item>
         <!-- For descriptions: -->
         <item name="textAppearanceBodyLarge">@style/MaterialTextAppearanceBodyLarge</item>
         <!-- For TextFields' input & hint texts: -->
@@ -45,6 +46,7 @@
         <item name="textAppearanceLabelLarge">@style/MaterialTextAppearanceLabelLarge</item>
         <!-- For RadiusOption's label: -->
         <item name="textAppearanceLabelMedium">@style/MaterialTextAppearanceLabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/MaterialTextAppearanceLabelSmall</item>
         <!-- For Extended FABs: -->
         <item name="textAppearanceButton">@style/MaterialTextAppearanceButton</item>
 
