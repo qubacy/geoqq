@@ -158,14 +158,15 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
     }
 
     override fun onMateRequestSwiped(
+        position: Int,
         mateRequest: MateRequest,
         direction: Carousel3DContext.SwipeDirection
     ) {
         if (direction == Carousel3DContext.SwipeDirection.RIGHT) {
-            (mModel as MateRequestsViewModel).acceptMateRequest(mateRequest)
+            (mModel as MateRequestsViewModel).acceptMateRequest(position, mateRequest)
 
         } else {
-            (mModel as MateRequestsViewModel).declineMateRequest(mateRequest)
+            (mModel as MateRequestsViewModel).declineMateRequest(position, mateRequest)
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.carousel3dlib.general.Carousel3DContext
+import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.mate.request.MateRequestsUseCase
@@ -21,6 +22,7 @@ import com.qubacy.geoqq.ui.common.visual.fragment.waiting.model.WaitingViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.MateRequestAnswerProcessedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.screen.mate.request.model.util.IndexOffsetMap
 import kotlinx.coroutines.flow.map
 
 open class MateRequestsViewModel(
@@ -48,19 +50,23 @@ open class MateRequestsViewModel(
     private var mRequestChunkToLoad = 0
     private var mRequestChunkLoaded = 0
 
+    private val mMateRequestIndexOffsetMap = IndexOffsetMap()
+
     init {
         mMateRequestsUseCase.setCoroutineScope(viewModelScope)
     }
 
-    fun acceptMateRequest(mateRequest: MateRequest) {
+    fun acceptMateRequest(position: Int, mateRequest: MateRequest) {
         mIsWaiting.value = true
 
+        mMateRequestIndexOffsetMap.addIndex(position)
         mMateRequestsUseCase.answerMateRequest(mateRequest.id, true)
     }
 
-    fun declineMateRequest(mateRequest: MateRequest) {
+    fun declineMateRequest(position: Int, mateRequest: MateRequest) {
         mIsWaiting.value = true
 
+        mMateRequestIndexOffsetMap.addIndex(position)
         mMateRequestsUseCase.answerMateRequest(mateRequest.id, false)
     }
 
@@ -75,11 +81,12 @@ open class MateRequestsViewModel(
         direction: Carousel3DContext.RollingDirection
     ) {
         val curState = mateRequestFlow.value
+        val originalPosition = mMateRequestIndexOffsetMap.getIndexWithOffset(edgePosition)
 
         if (curState == null || mIsGettingRequests
         || mCurrentBottomRequestOffset - mCurrentTopRequestOffset <= DEFAULT_REQUEST_CHUNK_SIZE
-        || (edgePosition != mCurrentBottomRequestOffset
-            && edgePosition != mCurrentTopRequestOffset + DEFAULT_REQUEST_CHUNK_SIZE)
+        || (originalPosition != mCurrentBottomRequestOffset
+            && originalPosition != mCurrentTopRequestOffset + DEFAULT_REQUEST_CHUNK_SIZE)
         ) {
             return
         }
@@ -156,9 +163,16 @@ open class MateRequestsViewModel(
 
                 mIsWaiting.value = false
 
-                return ShowErrorUiOperation(handleErrorOperation.error)
+                ShowErrorUiOperation(handleErrorOperation.error)
+            }
+            InterruptionResult::class -> {
+                val interruptionOperation = operation as InterruptionResult
+
+                null
             }
             else -> {
+                Log.d(TAG, "processOperation(): unknown operation ${operation::class.simpleName}")
+
                 throw IllegalStateException()
             }
         }

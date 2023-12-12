@@ -30,11 +30,14 @@ open class GeoChatSettingsViewModel(
 
     private val mGeoChatStateFlow = mGeoChatSettingsUseCase.stateFlow
 
-    private val mGeoChatUiStateFlow = mGeoChatStateFlow.map { stateToUiState(it) }
-    val geoChatUiStateFlow: LiveData<GeoChatSettingsUiState?> = mGeoChatUiStateFlow.asLiveData()
+    private val mGeoChatSettingsUiStateFlow = mGeoChatStateFlow.map { stateToUiState(it) }
+    val geoChatSettingsUiStateFlow: LiveData<GeoChatSettingsUiState?> =
+        mGeoChatSettingsUiStateFlow.asLiveData()
 
     private val mCurRadiusOptionIndex = MutableLiveData<Int>(0)
     val curRadiusOptionIndex: LiveData<Int> = mCurRadiusOptionIndex
+
+    val isInitializing: Boolean get() = lastLocationPoint.isInitialized
 
     private fun stateToUiState(geoChatState: GeoChatSettingsState?): GeoChatSettingsUiState? {
         if (geoChatState == null) return null

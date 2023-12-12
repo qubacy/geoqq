@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.domain.common.operation.chat.AddMessageChatOperation
 import com.qubacy.geoqq.domain.mate.chat.operation.ChangeChatInfoOperation
 import com.qubacy.geoqq.data.common.model.message.validator.MessageTextValidator
+import com.qubacy.geoqq.data.common.repository.common.result.interruption.InterruptionResult
 import com.qubacy.geoqq.domain.common.model.user.User
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
@@ -186,6 +187,11 @@ open class MateChatViewModel(
                 mIsWaiting.value = false
 
                 listOf(ShowErrorUiOperation(handleErrorOperation.error))
+            }
+            InterruptionResult::class -> {
+                val interruptionOperation = operation as InterruptionResult
+
+                listOf()
             }
             else -> {
                 throw IllegalStateException()

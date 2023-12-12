@@ -7,6 +7,7 @@ import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 interface MateRequestsAdapterCallback {
     fun getUserById(userId: Long): User
     fun onMateRequestSwiped(
+        position: Int,
         mateRequest: MateRequest,
         direction: Carousel3DContext.SwipeDirection)
     fun onRequestListVerticalRoll(

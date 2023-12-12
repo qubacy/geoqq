@@ -194,7 +194,7 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
             drawCurLocationCircle((mModel as GeoChatSettingsViewModel).lastLocationPoint.value)
             setCameraPositionForCurCircle()
         }
-        (mModel as GeoChatSettingsViewModel).geoChatUiStateFlow.observe(viewLifecycleOwner) {
+        (mModel as GeoChatSettingsViewModel).geoChatSettingsUiStateFlow.observe(viewLifecycleOwner) {
             if (it == null) return@observe
 
             onUiStateGotten(it)
@@ -332,5 +332,11 @@ class GeoChatSettingsFragment() : LocationFragment(), MapLoadedListener {
         (mModel as GeoChatSettingsViewModel).onMapLoadingStopped()
 
         mBinding.goButton.isEnabled = true
+    }
+
+    override fun handleWaitingAbort() {
+        if ((mModel as GeoChatSettingsViewModel).isInitializing) return
+
+        super.handleWaitingAbort()
     }
 }

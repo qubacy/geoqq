@@ -48,7 +48,7 @@ open class MateRequestsAdapter(
         if (curItem == null)
             throw IllegalStateException("Current item hasn't been found!")
 
-        mCallback.onMateRequestSwiped(curItem, direction)
+        mCallback.onMateRequestSwiped(position, curItem, direction)
 
         // Providing an answer to the request by calling the following method on the handler:
 

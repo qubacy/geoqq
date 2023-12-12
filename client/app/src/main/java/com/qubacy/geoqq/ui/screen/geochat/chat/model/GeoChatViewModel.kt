@@ -13,6 +13,7 @@ import com.qubacy.geoqq.domain.common.operation.chat.SetMessagesOperation
 import com.qubacy.geoqq.domain.common.operation.chat.SetUsersDetailsOperation
 import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
+import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
 import com.qubacy.geoqq.domain.common.state.chat.ChatState
 import com.qubacy.geoqq.domain.geochat.chat.GeoChatUseCase
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -159,6 +160,11 @@ open class GeoChatViewModel(
                     operation as ApproveNewMateRequestCreationOperation
 
                 processApproveNewMateRequestCreationOperation(approveNewMateRequestCreationOperation)
+            }
+            InterruptOperation::class -> {
+                val interruptOperation = operation as InterruptOperation
+
+                listOf()
             }
             HandleErrorOperation::class -> {
                 val handleErrorOperation = operation as HandleErrorOperation
