@@ -9,6 +9,7 @@ import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain.common.usecase.common.UseCase
+import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveLogoutOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +68,20 @@ open class SignInUseCase(
             if (saveTokensResult is InterruptionResult) return@launch processInterruption()
 
             processSignInWithTokenResult(true)
+        }
+    }
+
+    open fun logout() {
+        mCoroutineScope.launch(Dispatchers.IO) {
+            mCurrentRepository = tokenDataRepository
+            val clearTokensResult = tokenDataRepository.clearTokens()
+
+            if (clearTokensResult is ErrorResult) return@launch processError(clearTokensResult.errorId)
+            if (clearTokensResult is InterruptionResult) return@launch processInterruption()
+
+            val state = generateState(listOf(ApproveLogoutOperation()))
+
+            mStateFlow.emit(state)
         }
     }
 

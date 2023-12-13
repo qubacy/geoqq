@@ -22,4 +22,5 @@
 
     <color name="red_primary">#F4070F</color>
     <color name="red_primary_alpha">#8DF4070F</color>
+    <color name="red_moody">#B1292D</color>
 </resources>

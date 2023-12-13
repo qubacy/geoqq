@@ -69,6 +69,9 @@ class MainMenuFragment() : StyleableFragment() {
         mBinding.profileMenuOption.menuOptionButton.setOnClickListener {
             onMyProfileMenuOptionClicked()
         }
+        mBinding.exitButton.setOnClickListener {
+            onExitButtonClicked()
+        }
     }
 
     private fun onGoMenuOptionClicked() {
@@ -81,5 +84,9 @@ class MainMenuFragment() : StyleableFragment() {
 
     private fun onMyProfileMenuOptionClicked() {
         findNavController().navigate(R.id.action_mainMenuFragment_to_myProfileFragment)
+    }
+
+    private fun onExitButtonClicked() {
+        findNavController().navigate(R.id.action_mainMenuFragment_to_signInFragment)
     }
 }

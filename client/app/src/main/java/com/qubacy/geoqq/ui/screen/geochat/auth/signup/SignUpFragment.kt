@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.activity.addCallback
 import androidx.core.view.doOnPreDraw
 import androidx.navigation.fragment.findNavController
 import androidx.transition.Slide
@@ -51,6 +52,13 @@ class SignUpFragment(
         reenterTransition = MaterialElevationScale(true).apply {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            clearFlowContainer()
+
+            remove()
+            findNavController().navigateUp()
         }
     }
 
@@ -141,6 +149,8 @@ class SignUpFragment(
     }
 
     private fun moveToMainMenu() {
+        clearFlowContainer()
+
         findNavController().navigate(R.id.action_signUpFragment_to_mainMenuFragment)
     }
 

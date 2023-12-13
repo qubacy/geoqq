@@ -32,6 +32,13 @@ class LocalTokenDataSource(
             .commit()
     }
 
+    fun clearTokens() {
+        mAccessToken = null
+        mRefreshToken = null
+
+        mTokenSharedPreferences.edit().clear().commit()
+    }
+
     fun loadRefreshToken(): String? {
         if (mRefreshToken == null) {
             val refreshToken = mTokenSharedPreferences.getString(REFRESH_TOKEN_PREFERENCE_KEY, null)

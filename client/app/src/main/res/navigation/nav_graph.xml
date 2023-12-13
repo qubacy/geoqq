@@ -36,6 +36,9 @@
         <action
             android:id="@+id/action_mainMenuFragment_to_mateChatsFragment"
             app:destination="@id/mateChatsFragment" />
+        <action
+            android:id="@+id/action_mainMenuFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/geoChatSettingsFragment"

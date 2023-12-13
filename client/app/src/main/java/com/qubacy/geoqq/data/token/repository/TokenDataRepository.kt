@@ -68,7 +68,7 @@ open class TokenDataRepository(
         return GetTokensWithNetworkResult(updatedRefreshToken, updatedAccessToken)
     }
 
-    suspend fun getTokens(): Result {
+    fun getTokens(): Result {
         val checkRefreshTokenExistenceResult = checkLocalRefreshTokenExistence()
 
         if (checkRefreshTokenExistenceResult is ErrorResult) return checkRefreshTokenExistenceResult
@@ -122,11 +122,17 @@ open class TokenDataRepository(
         return GetAccessTokenPayloadResult(payload)
     }
 
-    suspend fun saveTokens(
+    fun saveTokens(
         refreshToken: String,
         accessToken: String
     ): Result {
         localTokenDataSource.saveTokens(accessToken, refreshToken)
+
+        return Result()
+    }
+
+    fun clearTokens(): Result {
+        localTokenDataSource.clearTokens()
 
         return Result()
     }

@@ -1,10 +1,12 @@
 package com.qubacy.geoqq.domain.geochat.signin
 
+import com.qubacy.geoqq.data.common.repository.common.result.common.Result
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.signin.repository.SignInDataRepository
 import com.qubacy.geoqq.data.signin.repository.result.SignInWithLoginPasswordResult
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensResult
+import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveLogoutOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +20,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito
 import org.mockito.Mockito.anyString
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.doReturn
 import java.util.concurrent.atomic.AtomicReference
 
@@ -37,6 +40,7 @@ class SignInUseCaseTest {
             val tokenDataRepositoryMock = Mockito.mock(TokenDataRepository::class.java)
 
             doReturn(getTokensResult).`when`(tokenDataRepositoryMock).getTokens()
+            doReturn(Result()).`when`(tokenDataRepositoryMock).clearTokens()
 
             val signInDataRepositoryMock = Mockito.mock(SignInDataRepository::class.java)
 
@@ -105,6 +109,25 @@ class SignInUseCaseTest {
 
             Assert.assertNotNull(processSignInResultOperation)
             Assert.assertTrue(processSignInResultOperation.isSignedIn)
+        }
+    }
+
+    @Test
+    fun logoutTest() {
+        initSignInUseCase()
+
+        runBlocking {
+            mSignInUseCase.logout()
+
+            while (mSignInStateAtomicRef.get() == null) { }
+
+            val curSignInState = mSignInStateAtomicRef.get()
+
+            val approveLogoutOperation = curSignInState!!.newOperations.find {
+                it::class == ApproveLogoutOperation::class
+            } as ApproveLogoutOperation
+
+            Assert.assertNotNull(approveLogoutOperation)
         }
     }
 }

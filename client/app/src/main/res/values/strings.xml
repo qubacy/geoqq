@@ -71,5 +71,6 @@
 
     <string name="error_my_profile_data_incorrect">The provided data was incorrect!</string>
     <string name="component_new_message_count_label_prefix">+</string>
+    <string name="exit_button_caption">Exit</string>
 
 </resources>

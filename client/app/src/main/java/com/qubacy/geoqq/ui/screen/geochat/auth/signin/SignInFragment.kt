@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.screen.geochat.auth.signin
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,10 @@ import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.operation.PassSignIn
 import com.qubacy.geoqq.ui.screen.geochat.auth.signin.model.state.SignInUiState
 
 class SignInFragment : WaitingFragment() {
+    companion object {
+        const val TAG = "SIGN_IN_FRAGMENT"
+    }
+
     private lateinit var mBinding: FragmentSignInBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +40,13 @@ class SignInFragment : WaitingFragment() {
             interpolator = AccelerateDecelerateInterpolator()
             duration = resources.getInteger(R.integer.default_transition_duration).toLong()
         }
+
+        if (findNavController().previousBackStackEntry?.destination?.id == R.id.mainMenuFragment)
+            logout()
+    }
+
+    private fun logout() {
+        (mModel as SignInViewModel).logout()
     }
 
     override fun initFlowContainerIfNull() {
@@ -116,10 +128,14 @@ class SignInFragment : WaitingFragment() {
     }
 
     private fun moveToMainMenu() {
+        clearFlowContainer()
+
         findNavController().navigate(R.id.action_signInFragment_to_mainMenuFragment)
     }
 
     private fun onSignUpButtonClicked() {
+        clearFlowContainer()
+
         findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
     }
 

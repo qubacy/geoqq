@@ -11,6 +11,7 @@ import com.qubacy.geoqq.domain.common.operation.error.HandleErrorOperation
 import com.qubacy.geoqq.domain.common.operation.common.Operation
 import com.qubacy.geoqq.domain.common.operation.interrupt.InterruptOperation
 import com.qubacy.geoqq.domain.geochat.signin.SignInUseCase
+import com.qubacy.geoqq.domain.geochat.signin.operation.ApproveLogoutOperation
 import com.qubacy.geoqq.domain.geochat.signin.operation.ProcessSignInResultOperation
 import com.qubacy.geoqq.domain.geochat.signin.state.SignInState
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.operation.ShowErrorUiOperation
@@ -29,6 +30,8 @@ open class SignInViewModel(
 
     private var mSignInUiStateFlow = mSignInStateFlow.map { stateToUiState(it) }
     val signInUiStateFlow: LiveData<SignInUiState?> = mSignInUiStateFlow.asLiveData()
+
+    private var mIsLogoutRequired = false
 
     init {
         mSignInUseCase.setCoroutineScope(viewModelScope)
@@ -62,9 +65,18 @@ open class SignInViewModel(
     }
 
     fun signIn() {
+        if (mIsLogoutRequired) return
+
         mIsWaiting.value = true
 
         mSignInUseCase.signInWithLocalToken()
+    }
+
+    fun logout() {
+        mIsLogoutRequired = true
+        mIsWaiting.value = true
+
+        mSignInUseCase.logout()
     }
 
     fun interruptSignIn() {
@@ -98,6 +110,14 @@ open class SignInViewModel(
 
                 if (processSignInResultOperation.isSignedIn) PassSignInUiOperation()
                 else null
+            }
+            ApproveLogoutOperation::class -> {
+                val approveLogoutOperation = operation as ApproveLogoutOperation
+
+                mIsWaiting.value = false
+                mIsLogoutRequired = false
+
+                null
             }
             InterruptOperation::class -> {
                 val interruptOperation = operation as InterruptOperation

@@ -39,6 +39,23 @@ class LocalTokenDataSourceTest() {
     }
 
     @Test
+    fun clearTokensTest() {
+        val accessToken = "token"
+        val refreshToken = "token"
+
+        val localTokenDataSource = LocalTokenDataSource(mTokenSharedPreferences)
+
+        localTokenDataSource.saveTokens(accessToken, refreshToken)
+        localTokenDataSource.clearTokens()
+
+        val loadedRefreshToken = localTokenDataSource.loadRefreshToken()
+        val gottenAccessToken = localTokenDataSource.accessToken
+
+        Assert.assertNull(loadedRefreshToken)
+        Assert.assertNull(gottenAccessToken)
+    }
+
+    @Test
     fun getTokenPayloadTest() {
         val payloadFieldName = "test"
         val payloadFieldValue = "test"

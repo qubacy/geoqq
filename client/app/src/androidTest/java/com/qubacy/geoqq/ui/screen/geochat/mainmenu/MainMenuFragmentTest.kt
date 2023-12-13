@@ -7,6 +7,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -99,5 +100,13 @@ class MainMenuFragmentTest {
             .perform(SilentClickViewAction())
 
         Assert.assertEquals(R.id.mateChatsFragment, mNavHostController.currentDestination?.id)
+    }
+
+    @Test
+    fun exitButtonClickLeadsToTransitionToSignInFragmentTest() {
+        Espresso.onView(ViewMatchers.withId(R.id.exit_button))
+            .perform(ViewActions.click())
+
+        Assert.assertEquals(R.id.signInFragment, mNavHostController.currentDestination?.id)
     }
 }

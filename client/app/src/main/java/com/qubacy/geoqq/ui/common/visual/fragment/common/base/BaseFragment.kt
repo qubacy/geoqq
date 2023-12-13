@@ -24,6 +24,8 @@ abstract class BaseFragment() : StyleableFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        initFlowContainerIfNull()
+
         if (getPermissionsToRequest() == null) return
 
         when {
@@ -36,8 +38,6 @@ abstract class BaseFragment() : StyleableFragment() {
                 mPermissionRequestLauncher.launch(getPermissionsToRequest())
             }
         }
-
-        initFlowContainerIfNull()
     }
 
     override fun onDestroy() {
