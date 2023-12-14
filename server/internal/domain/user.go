@@ -9,6 +9,8 @@ type User struct {
 	UserOptions
 }
 
+type Users []User
+
 type UserEntry struct {
 	Id           uint64 // <--- bigserial
 	Username     string
@@ -20,8 +22,8 @@ type UserEntry struct {
 
 type UserLocation struct {
 	UserId    uint64
-	Longitude *float64
-	Latitude  *float64
+	Longitude float64
+	Latitude  float64
 	Time      *time.Time
 }
 
@@ -33,5 +35,5 @@ type UserDetails struct {
 
 type UserOptions struct {
 	UserId  uint64
-	Privacy int
+	HitMeUp int
 }

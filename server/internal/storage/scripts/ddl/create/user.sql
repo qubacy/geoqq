@@ -31,6 +31,6 @@ CREATE TABLE "UserDetails"
 CREATE TABLE "UserOptions"
 (
     "UserId" BIGINT NOT NULL,
-    "Privacy" INTEGER NOT NULL,
+    "HitMeUp" INTEGER NOT NULL,
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
