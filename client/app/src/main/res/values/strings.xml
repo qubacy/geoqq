@@ -2,7 +2,7 @@
     <string name="app_name">Geoqq</string>
 
     <string name="login_hint">Your login..</string>
-    <string name="app_logo_name">GEOqq</string>
+    <string name="app_logo_name" translatable="false">GEOqq</string>
     <string name="sign_in_button_caption">Sign In</string>
 
     <string name="sign_up_button_caption">Sign Up</string>
@@ -11,7 +11,7 @@
     <string name="sign_up_confirm_button_caption">Confirm</string>
     <string name="password_confirmation_hint">Password again..</string>
 
-    <string name="go_menu_option">GO</string>
+    <string name="go_menu_option" translatable="false">GO</string>
     <string name="go_menu_option_description">Chatting within the radius</string>
     <string name="profile_menu_option">Profile</string>
     <string name="profile_menu_option_description">View your data</string>
@@ -37,7 +37,7 @@
     <string name="profile_privacy_section_title">Privacy</string>
     <string name="profile_privacy_section_hit_up">Can anybody hit me up?</string>
     <string name="profile_data_saved">Your profile data has been saved!</string>
-    <string name="go_button_caption">GO</string>
+    <string name="go_button_caption" translatable="false">GO</string>
     <string name="sending_button_description">Send Button</string>
     <string name="friend_request_card_button_caption">Check</string>
     <string name="new_mates_requests">You have some new friends requests!</string>
@@ -57,7 +57,7 @@
 
     <!-- Transitions: -->
 
-    <string name="transition_mate_chats_to_mate_chat">mate_chats_to_mate_chat</string>
+    <string name="transition_mate_chats_to_mate_chat" translatable="false">mate_chats_to_mate_chat</string>
 
     <!--  Errors:  -->
 
@@ -70,7 +70,7 @@
     <string name="error_chat_message_incorrect">Incorrect message!</string>
 
     <string name="error_my_profile_data_incorrect">The provided data was incorrect!</string>
-    <string name="component_new_message_count_label_prefix">+</string>
+    <string name="component_new_message_count_label_prefix" translatable="false">+</string>
     <string name="exit_button_caption">Exit</string>
 
 </resources>

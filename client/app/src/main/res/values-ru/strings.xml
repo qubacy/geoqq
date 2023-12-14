@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Geoqq</string>
+    <string name="sign_in_button_caption">Войти</string>
+    <string name="sign_up_button_caption">Регистрация</string>
+    <string name="password_hint">Ваш пароль..</string>
+    <string name="sign_up_screen_header">Регистрация</string>
+    <string name="sign_up_confirm_button_caption">Подтвердить</string>
+    <string name="password_confirmation_hint">Пароль снова..</string>
+    <string name="go_menu_option_description">Общение в заданном радиусе</string>
+    <string name="profile_menu_option">Профиль</string>
+    <string name="profile_menu_option_description">Данные о вас</string>
+    <string name="mates_menu_option">Люди</string>
+    <string name="mates_menu_option_description">Ваши знакомства</string>
+    <string name="sending_message_hint">Введите текст..</string>
+    <string name="user_action_add_friend">Добавить в приятели</string>
+    <string name="user_action_remove_friend">Удалить приятеля</string>
+    <string name="user_action_user_added_message">Запрос на добавление в приятели был отправлен!</string>
+    <string name="profile_confirm_button">Сохранить</string>
+    <string name="profile_avatar_upload">Загрузить</string>
+    <string name="profile_personal_data_section_title">Персональные данные</string>
+    <string name="profile_personal_data_section_username">Юзернейм</string>
+    <string name="profile_personal_data_section_about_me">Обо мне</string>
+    <string name="profile_security_section_title">Защита</string>
+    <string name="profile_security_section_new_password">Новый пароль</string>
+    <string name="profile_security_section_password_hint">Новый пароль..</string>
+    <string name="profile_security_section_confirm_new_password">Повторите новый пароль..</string>
+    <string name="profile_security_section_confirm_password_hint">Подтвердите новый пароль..</string>
+    <string name="profile_privacy_section_title">Приватность</string>
+    <string name="profile_privacy_section_hit_up">Все могут достучаться до меня?</string>
+    <string name="profile_data_saved">Ваши данные профиля были сохранены!</string>
+    <string name="sending_button_description">Кнопка отправки</string>
+    <string name="friend_request_card_button_caption">Проверить</string>
+    <string name="new_mates_requests">У вас есть новые заявки в приятели!</string>
+    <string name="mate_chat_menu_show_user_info_action_title">О собеседнике..</string>
+    <string name="profile_security_section_current_password">Текущий пароль</string>
+    <string name="chat_mate_request_created_message">Запрос на добавление в приятели был создан!</string>
+    <string name="component_dialog_error_neutral_button_caption">Понял</string>
+    <string name="fragment_base_show_message_action_dismiss_text">Убрать</string>
+    <string name="error_dialog_title">Ошибка</string>
+    <string name="error_sign_in_data_incorrect">Некорректные данные авторизации!</string>
+    <string name="error_sign_up_data_incorrect">Некорректные данные регистрации!</string>
+    <string name="error_chat_message_incorrect">Некорректное сообщение!</string>
+    <string name="error_my_profile_data_incorrect">Введенная информация некорректна!</string>
+    <string name="exit_button_caption">Выход</string>
+    <string name="login_hint">Ваш логин..</string>
+</resources>
