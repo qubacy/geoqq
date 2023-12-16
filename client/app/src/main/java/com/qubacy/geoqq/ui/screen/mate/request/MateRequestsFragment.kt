@@ -8,10 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.doOnPreDraw
 import androidx.navigation.Navigation
 import androidx.transition.Slide
 import com.example.carousel3dlib.general.Carousel3DContext
+import com.example.carousel3dlib.layoutmanager.Carousel3DHorizontalScrollCallback
 import com.example.carousel3dlib.layoutmanager.Carousel3DLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.applicaion.common.Application
@@ -27,12 +29,21 @@ import com.qubacy.geoqq.ui.screen.mate.request.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.MateRequestAnswerProcessedUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.operation.SetMateRequestsUiOperation
 import com.qubacy.geoqq.ui.screen.mate.request.model.state.MateRequestsUiState
+import kotlin.math.abs
 
-class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
+class MateRequestsFragment(
+
+) : WaitingFragment(), MateRequestsAdapterCallback, Carousel3DHorizontalScrollCallback {
+    companion object {
+        const val MATE_REQUEST_CHOICE_INDICATOR_RECOVER_DURATION = 200L
+    }
+
     private lateinit var mBinding: FragmentMateRequestsBinding
     private lateinit var mAdapter: MateRequestsAdapter
 
     private var mInitRequestsRequested = false
+
+    private var mLastMateRequestChoiceIndicatorProgress = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +93,9 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         mAdapter = MateRequestsAdapter(this)
 
         mBinding.requestsRecyclerView.apply {
-            layoutManager = Carousel3DLayoutManager()
+            layoutManager = Carousel3DLayoutManager().apply {
+                addHorizontalScrollCallback(this@MateRequestsFragment)
+            }
             adapter = mAdapter
         }
 
@@ -162,6 +175,8 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         mateRequest: MateRequest,
         direction: Carousel3DContext.SwipeDirection
     ) {
+        animateRequestChoiceIndicatorRecovering()
+
         if (direction == Carousel3DContext.SwipeDirection.RIGHT) {
             (mModel as MateRequestsViewModel).acceptMateRequest(position, mateRequest)
 
@@ -207,5 +222,40 @@ class MateRequestsFragment() : WaitingFragment(), MateRequestsAdapterCallback {
         }
 
         getInitRequests()
+    }
+
+    override fun onHorizontalScroll(fraction: Float) {
+        changeBackgroundByProgress(fraction)
+    }
+
+    private fun changeBackgroundByProgress(progress: Float) {
+        mLastMateRequestChoiceIndicatorProgress = progress
+
+        val colorInt = if (progress >= 0) {
+            getColorIntById(R.color.accept_mate_request_color)
+        } else {
+            getColorIntById(R.color.reject_mate_request_color)
+        }
+
+        val alpha = abs(progress)
+        val resultColor = ColorUtils.setAlphaComponent(colorInt, (alpha * 255).toInt())
+
+        mBinding.mateRequestChoiceIndicator.setBackgroundColor(resultColor)
+    }
+
+    private fun animateRequestChoiceIndicatorRecovering() {
+        mBinding.mateRequestChoiceIndicator.animate().apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = MATE_REQUEST_CHOICE_INDICATOR_RECOVER_DURATION
+        }.setUpdateListener {
+            val curProgress = if (mLastMateRequestChoiceIndicatorProgress < 0) {
+                -1 + it.animatedFraction
+            } else {
+                1 - it.animatedFraction
+            }
+
+            changeBackgroundByProgress(curProgress)
+
+        }.start()
     }
 }

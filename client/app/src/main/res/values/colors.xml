@@ -23,4 +23,7 @@
     <color name="red_primary">#F4070F</color>
     <color name="red_primary_alpha">#8DF4070F</color>
     <color name="red_moody">#B1292D</color>
+
+    <color name="accept_mate_request_color">@color/green_primary</color>
+    <color name="reject_mate_request_color">@color/red_primary</color>
 </resources>

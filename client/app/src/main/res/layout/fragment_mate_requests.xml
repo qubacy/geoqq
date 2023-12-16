@@ -8,13 +8,17 @@
     android:layout_height="match_parent"
     android:theme="@style/Theme.Geoqq.Mates">
 
+    <FrameLayout
+        android:id="@+id/mate_request_choice_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/requests_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:overScrollMode="never"
+        android:clipToPadding="false"
         tools:listitem="@layout/component_mate_request"
         tools:itemCount="3"/>
 

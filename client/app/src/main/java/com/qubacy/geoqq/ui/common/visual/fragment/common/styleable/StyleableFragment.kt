@@ -23,11 +23,15 @@ abstract class StyleableFragment : Fragment() {
     @ColorInt
     private var mMessageSnackbarTextColor: Int = 0
 
-    protected fun setTransitionWindowBackgroundColorResId(@ColorRes colorResId: Int) {
-        val color = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+    protected fun getColorIntById(@ColorRes colorResId: Int): Int {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             resources.getColor(colorResId)
         else
             resources.getColor(colorResId, requireActivity().theme)
+    }
+
+    protected fun setTransitionWindowBackgroundColorResId(@ColorRes colorResId: Int) {
+        val color = getColorIntById(colorResId)
 
         requireActivity().window.setBackgroundDrawable(ColorDrawable(color))
     }
