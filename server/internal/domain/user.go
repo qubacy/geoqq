@@ -2,6 +2,13 @@ package domain
 
 import "time"
 
+const (
+	HitMeUpYes = 0
+	HitMeUpNo  = 1
+)
+
+// -----------------------------------------------------------------------
+
 type User struct {
 	UserEntry
 	UserLocation

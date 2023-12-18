@@ -6,9 +6,15 @@ output_filename = "all.sql"
 func_and_scripts = {
     "create/": 
     [
+        "database.sql",
         "resource.sql", "user.sql",
         "mate.sql", "mateChat.sql",
         "geoChat.sql"
+    ],
+    "delete/":
+    [
+        "database.sql",
+        "tables.sql"
     ]
 }
 

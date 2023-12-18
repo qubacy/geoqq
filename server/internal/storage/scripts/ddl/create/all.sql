@@ -1,3 +1,7 @@
+-- database
+-- ---------------------------------------------------------------------------
+CREATE DATABASE geoqq;
+
 -- resource
 -- ---------------------------------------------------------------------------
 CREATE TABLE "Avatar" 
@@ -11,26 +15,27 @@ CREATE TABLE "Avatar"
 CREATE TABLE "UserEntry"
 (
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
-    "Username" CHARACTER VARYING(128) UNIQUE,
+    "Username" CHARACTER VARYING(128) UNIQUE NOT NULL,
     "HashPassword" VARCHAR(512) NOT NULL,
     "HashUpdToken" VARCHAR(512) NOT NULL,
     "SignUpTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "SignInTime" TIMESTAMP WITHOUT TIME ZONE NULL
+    "SignInTime" TIMESTAMP WITHOUT TIME ZONE
 );
 
 CREATE TABLE "UserLocation"
 (
     "UserId" BIGINT NOT NULL,
-    "Longitude" double precision NOT NULL,
-    "Latitude" double precision NOT NULL,
+    "Longitude" double precision NULL,
+    "Latitude" double precision NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NULL,
+
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
 CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
-    "Description" CHARACTER VARYING(4096) UNIQUE,
+    "Description" CHARACTER VARYING(4096) UNIQUE NOT NULL,
     "AvatarId" BIGINT NULL,
 
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
@@ -40,7 +45,7 @@ CREATE TABLE "UserDetails"
 CREATE TABLE "UserOptions"
 (
     "UserId" BIGINT NOT NULL,
-    "Privacy" INTEGER NOT NULL,
+    "HitMeUp" INTEGER NOT NULL,
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
@@ -89,7 +94,7 @@ CREATE TABLE "MateMessage"
     "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Read" BOOLEAN,
+    "Read" BOOLEAN NOT NULL,
     
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
