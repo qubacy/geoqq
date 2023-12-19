@@ -1,4 +1,4 @@
-DROP TABLE 
+DROP TABLE IF EXISTS
 	"GeoMessage",
 	"DeletedMateChat",
 	"MateMessage",

@@ -1,10 +1,6 @@
--- database
--- ---------------------------------------------------------------------------
-DROP DATABASE geoqq;
-
 -- tables
 -- ---------------------------------------------------------------------------
-DROP TABLE 
+DROP TABLE IF EXISTS
 	"GeoMessage",
 	"DeletedMateChat",
 	"MateMessage",
@@ -16,4 +12,8 @@ DROP TABLE
 	"UserLocation",
 	"UserEntry",
 	"Avatar";
+
+-- database
+-- ---------------------------------------------------------------------------
+DROP DATABASE geoqq;
 
