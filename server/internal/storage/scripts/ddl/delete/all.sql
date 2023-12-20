@@ -13,7 +13,3 @@ DROP TABLE IF EXISTS
 	"UserEntry",
 	"Avatar";
 
--- database
--- ---------------------------------------------------------------------------
-DROP DATABASE geoqq;
-
