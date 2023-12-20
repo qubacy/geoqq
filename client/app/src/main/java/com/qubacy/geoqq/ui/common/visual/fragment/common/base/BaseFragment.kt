@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.qubacy.geoqq.common.error.common.Error
 import com.qubacy.geoqq.ui.common.visual.component.dialog.error.ErrorDialog
-import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.state.BaseUiState
 import com.qubacy.geoqq.ui.common.visual.fragment.common.base.model.BaseViewModel
 import com.qubacy.geoqq.ui.common.visual.fragment.common.styleable.StyleableFragment
 
@@ -64,14 +63,6 @@ abstract class BaseFragment() : StyleableFragment() {
 
     protected abstract fun initFlowContainerIfNull()
     protected abstract fun clearFlowContainer()
-
-    protected fun checkUiStateForErrors(uiState: BaseUiState): Boolean {
-        if (uiState.error == null) return false
-
-        onErrorOccurred(uiState.error)
-
-        return true
-    }
 
     open fun onErrorOccurred(error: Error, callback: (() -> Unit)? = null) {
         Log.d("TEST", "onErrorOccurred")
