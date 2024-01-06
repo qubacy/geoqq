@@ -1,5 +1,6 @@
 package domain
 
+// or User?
 type PublicUser struct {
 	Username    string
 	Description string

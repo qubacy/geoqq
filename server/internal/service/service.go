@@ -22,6 +22,19 @@ type UserService interface {
 }
 
 type MateService interface {
+	GetMateChatsForUser(ctx context.Context, userId uint64) (domain.MateChatList, error)
+	DeleteMateChatById(ctx context.Context, value uint64) error
+
+	GetMateChatMessagesByIdForUser(ctx context.Context,
+		chatId, userId uint64,
+		offset, count uint64) (domain.MateMessageList, error)
+	GetMateRequestsForUser(ctx context.Context,
+		userId uint64,
+		offset, count uint64) (domain.MateChatList, error)
+	GetMateRequestCountForUser(ctx context.Context, userId uint64) (uint64, error)
+
+	AddMateRequest(ctx context.Context, userId uint64)
+	UpdateMateRequestById()
 }
 
 type ImageService interface {
