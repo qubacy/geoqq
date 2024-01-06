@@ -1,4 +1,4 @@
-package domain
+package table
 
 import "time"
 

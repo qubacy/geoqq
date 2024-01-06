@@ -9,7 +9,8 @@ import (
 func Test_ResWithError_Marshal(t *testing.T) {
 	reqDto := ResWithError{
 		Error: Error{
-			Id: 100,
+			Id:   100,
+			Text: "Test",
 		},
 	}
 	bytes, err := json.Marshal(reqDto)
@@ -18,7 +19,7 @@ func Test_ResWithError_Marshal(t *testing.T) {
 	}
 	fmt.Println(string(bytes))
 
-	if string(bytes) != `{"error":{"id":100}}` {
+	if string(bytes) != `{"error":{"id":100,"text":"Test"}}` {
 		t.Error()
 	}
 }

@@ -4,6 +4,10 @@ package dto
 // -----------------------------------------------------------------------
 
 type MyProfileRes struct {
+	Profile
+}
+
+type Profile struct { // not equal struct user!
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
 	AvatarId    float64 `json:"avatar-id"`

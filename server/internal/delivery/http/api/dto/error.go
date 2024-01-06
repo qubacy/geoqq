@@ -5,5 +5,6 @@ type ResWithError struct {
 }
 
 type Error struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
+	Text string `json:"text"`
 }

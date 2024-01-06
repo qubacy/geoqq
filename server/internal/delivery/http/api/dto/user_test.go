@@ -8,11 +8,13 @@ import (
 
 func Test_MyProfileRes_Marshal(t *testing.T) {
 	resDto := MyProfileRes{
-		Username:    "Test",
-		Description: "Test",
-		AvatarId:    123,
-		Privacy: Privacy{
-			HitMeUp: 1,
+		Profile: Profile{
+			Username:    "Test",
+			Description: "Test",
+			AvatarId:    123,
+			Privacy: Privacy{
+				HitMeUp: 1,
+			},
 		},
 	}
 	bytes, err := json.Marshal(resDto)
