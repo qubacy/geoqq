@@ -15,7 +15,7 @@ Description
   - Source [here](./puml_diagrams/domain/models_p2.wsd)
   - Image [here](./out_diagrams/puml_diagrams/domain/models_p2.png)
 
-### Use Case (no versions)
+### Use Case
 
 - Part 1: 
   - Source [here](./puml_diagrams/usecase/uc_p1.wsd)

@@ -45,7 +45,7 @@
 
 <!-- -------------------------------------------- -->
 
-## GET /api/user/{`userId`}
+## GET /api/user/{`id`}
 
 ### Parameters
 #### Required
