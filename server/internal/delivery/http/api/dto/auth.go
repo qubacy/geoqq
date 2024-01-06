@@ -4,8 +4,8 @@ package dto
 // -----------------------------------------------------------------------
 
 type SignInPostReq struct {
-	Login        string `json:"login"`
-	HashPassword string `json:"password"`
+	Login        string
+	HashPassword string
 }
 
 type SignInPostRes struct {
@@ -16,8 +16,8 @@ type SignInPostRes struct {
 // -----------------------------------------------------------------------
 
 type SignUpPostReq struct {
-	Login        string `json:"login"`
-	HashPassword string `json:"password"`
+	Login        string
+	HashPassword string
 }
 
 type SignUpPostRes struct {
@@ -28,7 +28,7 @@ type SignUpPostRes struct {
 // -----------------------------------------------------------------------
 
 type SignUpPutReq struct {
-	RefreshToken string `json:"refresh-token"`
+	RefreshToken string
 }
 
 type SignUpPutRes struct {
