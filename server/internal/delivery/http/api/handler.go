@@ -25,6 +25,9 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 
 	handler.registerAuthRoutes()
 	handler.registerMateRoutes()
+	handler.registerUserRoutes()
+	handler.registerImageRoutes()
+	handler.registerGeoRoutes()
 	//...
 
 	return handler, nil

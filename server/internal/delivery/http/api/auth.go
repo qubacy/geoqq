@@ -11,16 +11,17 @@ func (h *Handler) registerAuthRoutes() {
 	}
 }
 
+// auth
 // -----------------------------------------------------------------------
 
-func (h *Handler) postSignIn(c *gin.Context) {
+func (h *Handler) postSignIn(ctx *gin.Context) {
 
 }
 
-func (h *Handler) postSignUp(c *gin.Context) {
+func (h *Handler) postSignUp(ctx *gin.Context) {
 
 }
 
-func (h *Handler) putSignIn(c *gin.Context) {
+func (h *Handler) putSignIn(ctx *gin.Context) {
 
 }
