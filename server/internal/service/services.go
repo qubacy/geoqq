@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/internal/domain/table"
 	"geoqq/internal/service/dto"
 )
 
@@ -12,32 +13,41 @@ type AuthService interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (dto.RefreshTokensOut, error)
 }
 
+// TODO: need to split?
 // work with profiles, public users, ...
 type UserService interface {
-	GetProfileById(ctx context.Context, value uint64) (domain.Profile, error)
-	GetUserById(ctx context.Context, value uint64) (domain.PublicUser, error)
+
+	// dangerous methods!
+	// TODO: need to check who is near user?
+	GetProfileById(ctx context.Context, srcUserId uint64) (domain.Profile, error)
+	GetUserById(ctx context.Context, srcUserId, targetUserId uint64) (domain.PublicUser, error)
 	GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
 
 	UpdateProfileById(ctx context.Context, input dto.UpdateProfileInp) error
 }
 
+// TODO: need to split?
+// work with mate chats, mate requests, ...
 type MateService interface {
-	GetMateChatsForUser(ctx context.Context, userId uint64) (domain.MateChatList, error)
+	GetMateChats(ctx context.Context, userId uint64) (domain.MateChatList, error)
 	DeleteMateChatById(ctx context.Context, value uint64) error
 
-	GetMateChatMessagesByIdForUser(ctx context.Context,
+	GetMessagesByMateChatId(ctx context.Context,
 		chatId, userId uint64,
 		offset, count uint64) (domain.MateMessageList, error)
-	GetMateRequestsForUser(ctx context.Context,
+	GetMateRequests(ctx context.Context,
 		userId uint64,
-		offset, count uint64) (domain.MateChatList, error)
-	GetMateRequestCountForUser(ctx context.Context, userId uint64) (uint64, error)
+		offset, count uint64) (domain.MateRequestList, error)
+	GetMateRequestCount(ctx context.Context, userId uint64) (uint64, error)
 
-	AddMateRequest(ctx context.Context, userId uint64)
-	UpdateMateRequestById()
+	AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
+	UpdateMateRequest(ctx context.Context,
+		userId, requestId uint64, accepted bool) error
 }
 
 type ImageService interface {
+	GetImageById(ctx context.Context, imageId, userId uint64) (table.Image, error)
+	GetImagesByIds(ctx context.Context, imageIds []uint64, userId uint64) ([]table.Image, error)
 }
 
 type GeoService interface {

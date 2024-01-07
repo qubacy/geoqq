@@ -2,6 +2,14 @@ package table
 
 import "time"
 
+type StatusMateRequest uint64
+
+const (
+	Waiting StatusMateRequest = iota
+	Accepted
+	Rejected
+)
+
 type Mate struct {
 	Id           uint64
 	FirstUserId  uint64
@@ -9,10 +17,12 @@ type Mate struct {
 }
 
 type MateRequest struct {
-	Id           uint64
-	FromUserId   uint64
-	ToUserId     uint64
+	Id         uint64
+	FromUserId uint64
+	ToUserId   uint64
+
 	RequestTime  time.Time
 	ResponseTime time.Time
-	Result       string
+
+	Result StatusMateRequest
 }

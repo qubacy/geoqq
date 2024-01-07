@@ -1,6 +1,6 @@
 -- tables
 -- ---------------------------------------------------------------------------
-DROP TABLE IF EXISTS
+DROP TABLE 
 	"GeoMessage",
 	"DeletedMateChat",
 	"MateMessage",
