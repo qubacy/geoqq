@@ -112,6 +112,19 @@ func Test_RandomString(t *testing.T) {
 	//...
 }
 
+func Test_RandomInt(t *testing.T) {
+	fmt.Println(RandomInt(10, 100))
+	fmt.Println(RandomInt(100, 1000))
+	//...
+
+	for i := 0; i < 100; i++ {
+		value := RandomInt(10, 100)
+		if value < 10 || value >= 100 {
+			t.Error("Random value out of range")
+		}
+	}
+}
+
 // benchmarks
 // -----------------------------------------------------------------------
 

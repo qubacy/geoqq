@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"geoqq/internal/delivery/http/api"
 	"geoqq/internal/service"
 	"geoqq/pkg/token"
@@ -23,10 +24,22 @@ type Dependencies struct {
 	TokenExtractor token.TokenExtractor
 }
 
+func (d *Dependencies) validate() error {
+	if d.TokenExtractor == nil {
+		return errors.New("Token extractor is nil")
+	}
+	if d.Services == nil {
+		return errors.New("Services is nil")
+	}
+	return nil
+}
+
 // ctor
 // -----------------------------------------------------------------------
 
 func NewHandler(deps Dependencies) (*Handler, error) {
+	// TODO: validate deps!
+
 	var engine *gin.Engine = gin.Default()
 	engine.Use(gin.Recovery()).
 		Use(gin.Logger())

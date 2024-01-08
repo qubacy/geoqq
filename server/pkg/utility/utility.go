@@ -54,3 +54,8 @@ func RandomString(n int) string {
 	}
 	return string(result)
 }
+
+// [min, max)
+func RandomInt(min, max int) int {
+	return min + rand.Intn(max-min)
+}
