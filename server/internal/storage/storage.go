@@ -8,6 +8,7 @@ type ResourceStorage interface {
 }
 
 type UserStorage interface {
+	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context, username,
 		hashPassword, hashUpdToken string) (uint64, error)
 

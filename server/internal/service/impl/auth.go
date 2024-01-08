@@ -17,8 +17,15 @@ type AuthService struct {
 	storage         storage.Storage
 }
 
-func NewAuthService() *AuthService {
-	return &AuthService{}
+// without check?
+func NewAuthService(deps Dependencies) *AuthService {
+	return &AuthService{
+		accessTokenTTL:  deps.AccessTokenTTL,
+		refreshTokenTTL: deps.RefreshTokenTTL,
+		tokenManager:    deps.TokenManager,
+		hashManager:     deps.HashManager,
+		storage:         deps.Storage,
+	}
 }
 
 // -----------------------------------------------------------------------

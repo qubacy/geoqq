@@ -23,5 +23,7 @@ type Dependencies struct {
 }
 
 func NewServices(deps Dependencies) (*Services, error) {
-	return &Services{}, nil
+	return &Services{
+		authService: NewAuthService(deps),
+	}, nil
 }

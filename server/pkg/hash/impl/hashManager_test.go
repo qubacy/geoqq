@@ -11,6 +11,9 @@ import (
 	"testing"
 )
 
+// tests
+// -----------------------------------------------------------------------
+
 func Test_HashManager_ctor(t *testing.T) {
 	_, err := NewHashManager(MD5)
 	if err != nil {
@@ -45,6 +48,9 @@ func Test_HashManager_SHA1_New(t *testing.T) {
 
 	fmt.Println(hashValue)
 }
+
+// benchmarks
+// -----------------------------------------------------------------------
 
 func Benchmark_HashManager_SHA1_New(b *testing.B) {
 	hashManager, err := NewHashManager(SHA1)
