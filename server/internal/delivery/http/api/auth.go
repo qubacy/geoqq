@@ -1,6 +1,11 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"geoqq/internal/delivery/http/api/dto"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) registerAuthRoutes() {
 	router := h.router.Group("/auth")
@@ -15,6 +20,12 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
+	reqDto := dto.SignInPostReq{}
+	err := ctx.ShouldBindJSON(&reqDto)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest,
+			dto.MakeResWithError(0, err))
+	}
 
 }
 

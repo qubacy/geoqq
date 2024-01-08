@@ -3,22 +3,28 @@ package http
 import (
 	"geoqq/internal/delivery/http/api"
 	"geoqq/internal/service"
+	"geoqq/pkg/token"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	services service.Services // <--- all services
-	engine   *gin.Engine      // <--- all other routes
+	tokenExtractor token.TokenExtractor
+	services       service.Services // <--- all services
 
+	engine     *gin.Engine // <--- all other routes
 	apiHandler *api.Handler
 	//...
 }
 
 type Dependencies struct {
-	Services service.Services
+	Services       service.Services
+	TokenExtractor token.TokenExtractor
 }
+
+// ctor
+// -----------------------------------------------------------------------
 
 func NewHandler(deps Dependencies) (*Handler, error) {
 	var engine *gin.Engine = gin.Default()
@@ -35,8 +41,10 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 	// ***
 
 	handler := &Handler{
-		services: deps.Services,
-		engine:   engine,
+		services:       deps.Services,
+		tokenExtractor: deps.TokenExtractor,
+
+		engine: engine,
 	}
 	err := handler.initApi()
 	if err != nil {
@@ -45,6 +53,9 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 
 	return handler, nil
 }
+
+// private
+// -----------------------------------------------------------------------
 
 func (h *Handler) initApi() error {
 	deps := api.Dependencies{
@@ -61,7 +72,7 @@ func (h *Handler) initApi() error {
 	return nil
 }
 
-// unsafe
+// unsafe public
 // -----------------------------------------------------------------------
 
 func (h *Handler) GetEngine() *gin.Engine {

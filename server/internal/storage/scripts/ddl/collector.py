@@ -4,8 +4,8 @@ output_filename = "all.sql"
 # ------------------------------------------------------------------------
 
 # for several functions (and that's the problem)!
-# |
-# V
+#     |
+#     V
 func_and_scripts = {
     "create/": 
     [
