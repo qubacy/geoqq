@@ -11,11 +11,13 @@ type UserStorage struct {
 	pool *pgxpool.Pool
 }
 
-// ctor
+// private ctor
 // -----------------------------------------------------------------------
 
-func NewUserStorage() (*UserStorage, error) {
-	return nil, nil
+func newUserStorage(pool *pgxpool.Pool) *UserStorage {
+	return &UserStorage{
+		pool: pool,
+	}
 }
 
 // public

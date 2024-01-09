@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -19,4 +20,12 @@ func Test_pgxpool_Connect(t *testing.T) {
 		t.Errorf("Acquire to database failed. Err: %v", err)
 	}
 	defer conn.Release()
+}
+
+func Test_createConnectionString(t *testing.T) {
+	connStr := createConnectionString(Dependencies{
+		User: "postgres", Password: "admin",
+		DbName: "geoqq", Host: "127.0.0.1", Port: 5432,
+	})
+	fmt.Println("conn str:", connStr)
 }

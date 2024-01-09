@@ -1,2 +1,18 @@
 storage:
-  
+  type: postgre
+
+  memory:
+    #...
+
+  sql:
+    postgre:
+      host: "127.0.0.1"
+      port: "5433"
+      user: "postgres"
+      password: "admin"
+    sqlite:
+      #...
+
+server:
+  http:
+    port: 57000
