@@ -15,6 +15,7 @@ def create_global_connection():
     global_connection = psycopg2.connect(
         user=connection_params["user"], password=connection_params["password"],
         host=connection_params["host"], port=connection_params["port"])
+    
     global_connection.set_isolation_level(
         ISOLATION_LEVEL_AUTOCOMMIT) 
     return global_connection
@@ -24,6 +25,7 @@ def create_geoqq_connection():
         user=connection_params["user"], password=connection_params["password"],
         host=connection_params["host"], port=connection_params["port"],
         database=connection_params["database"])
+    
     geoqq_connection.set_isolation_level(
         ISOLATION_LEVEL_AUTOCOMMIT) 
     return geoqq_connection

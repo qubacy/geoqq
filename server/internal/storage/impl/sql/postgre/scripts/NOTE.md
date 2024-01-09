@@ -11,3 +11,7 @@
 ### DML
 
 4. If you need a non-empty storage, then run `inflate.py`.
+
+# Useful links
+
+- Need some mock data to test your app? // mockaroo / URL: https://www.mockaroo.com/

@@ -3,7 +3,9 @@
         "datname",
         "datnames",
         "geoqq",
+        "mockaroo",
         "pgxpool",
-        "postgre"
+        "postgre",
+        "psycopg"
     ]
 }
