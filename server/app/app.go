@@ -4,9 +4,6 @@ import (
 	deliveryHttp "geoqq/internal/delivery/http"
 	"geoqq/internal/server"
 	"geoqq/internal/storage"
-	storagePostgre "geoqq/internal/storage/impl/sql/postgre"
-
-	"github.com/spf13/viper"
 )
 
 type App struct {
@@ -53,9 +50,9 @@ func (a *App) Run() error {
 // -----------------------------------------------------------------------
 
 func storageInstance() storage.Storage {
-	if viper.GetString("") == "postgre" {
-		return storagePostgre.NewStorage(storagePostgre.Dependencies{})
-	}
+	// if viper.GetString("") == "postgre" {
+	// 	return storagePostgre.NewStorage(storagePostgre.Dependencies{})
+	// }
 
 	return nil
 }
