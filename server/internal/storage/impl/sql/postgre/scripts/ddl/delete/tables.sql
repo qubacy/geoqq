@@ -1,6 +1,4 @@
--- tables
--- ---------------------------------------------------------------------------
-DROP TABLE 
+DROP TABLE IF EXISTS 
 	"GeoMessage",
 	"DeletedMateChat",
 	"MateMessage",
@@ -11,5 +9,5 @@ DROP TABLE
 	"UserDetails",
 	"UserLocation",
 	"UserEntry",
-	"Avatar";
-
+	"Avatar"
+	CASCADE;

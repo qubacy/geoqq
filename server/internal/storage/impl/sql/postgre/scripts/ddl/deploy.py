@@ -1,30 +1,20 @@
-create_catalog_path = "internal/storage/scripts/ddl/create/"
-delete_catalog_path = "internal/storage/scripts/ddl/delete/"
+root_path = "\\".join(__file__.split("\\")[:-2])
+print("root path with scripts:", root_path)
+
+create_catalog_path = root_path + "\\ddl\\create\\"
+delete_catalog_path = root_path + "\\ddl\\delete\\"
+print("create catalog path:", create_catalog_path)
+print("delete catalog path:", delete_catalog_path)
 
 # ------------------------------------------------------------------------
 
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
- 
+import sys
+sys.path.append(root_path)
+
+from connect import create_geoqq_connection
+from connect import create_global_connection
+
 # utils
-# ------------------------------------------------------------------------
-
-def create_global_connection():
-    global_connection = psycopg2.connect(
-        user="postgres", password="admin",
-        host="127.0.0.1", port="5432")
-    global_connection.set_isolation_level(
-        ISOLATION_LEVEL_AUTOCOMMIT) 
-    return global_connection
-
-def create_geoqq_connection():
-    geoqq_connection = psycopg2.connect(
-        user="postgres", password="admin",
-        host="127.0.0.1", port="5432", database="geoqq")
-    geoqq_connection.set_isolation_level(
-        ISOLATION_LEVEL_AUTOCOMMIT) 
-    return geoqq_connection
-
 # ------------------------------------------------------------------------
 
 def select_db_names() -> list:
@@ -102,6 +92,6 @@ geoqq_connection.close()
 
 # ------------------------------------------------------------------------
 
-print()
 print("db names after deploy:", select_db_names())
 print("geoqq tables after deploy:", select_geoqq_tables())
+print("[OK]")

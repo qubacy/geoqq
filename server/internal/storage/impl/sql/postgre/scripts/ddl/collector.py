@@ -1,6 +1,11 @@
-catalog_path = "internal/storage/scripts/ddl/"
+root_path = "\\".join(__file__.split("\\")[:-2])
+print("root path with scripts:", root_path)
+
+catalog_path = root_path + "\\ddl\\"
+print("catalog path:", catalog_path)
 output_filename = "all.sql"
 
+# main
 # ------------------------------------------------------------------------
 
 # for several functions (and that's the problem)!
@@ -31,4 +36,4 @@ for func, scripts in func_and_scripts.items():
         output_file.write(input_content + "\n")
         output_file.write("\n")
         
-# ------------------------------------------------------------------------
+print("[OK]")
