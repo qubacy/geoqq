@@ -24,6 +24,15 @@ type SignUpPostRes struct {
 	SignedTokens
 }
 
+func MakeSignUpPostRes(access, refresh string) SignUpPostRes {
+	return SignUpPostRes{
+		SignedTokens: SignedTokens{
+			AccessToken:  access,
+			RefreshToken: refresh,
+		},
+	}
+}
+
 // PUT /api/sign-in
 // -----------------------------------------------------------------------
 

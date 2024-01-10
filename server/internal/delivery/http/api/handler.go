@@ -4,6 +4,7 @@ import (
 	"errors"
 	"geoqq/internal/service"
 	"geoqq/pkg/token"
+	"geoqq/pkg/utility"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +39,9 @@ func (d *Dependencies) validate() error {
 // -----------------------------------------------------------------------
 
 func NewHandler(deps Dependencies) (*Handler, error) {
-	// TODO: validate deps!
+	if err := deps.validate(); err != nil {
+		return nil, utility.CreateCustomError(NewHandler, err)
+	}
 
 	handler := &Handler{
 		tokenExtractor: deps.TokenExtractor,

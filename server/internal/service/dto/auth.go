@@ -14,6 +14,13 @@ type SignUpInp struct {
 	Password string
 }
 
+func MakeSignUpInp(login, pass string) SignUpInp {
+	return SignUpInp{
+		Login:    login,
+		Password: pass,
+	}
+}
+
 type SignUpOut struct {
 	SignedTokens
 }

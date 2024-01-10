@@ -6,6 +6,7 @@ import (
 	"geoqq/internal/storage"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
+	"geoqq/pkg/utility"
 	"time"
 )
 
@@ -31,10 +32,18 @@ func newAuthService(deps Dependencies) *AuthService {
 // -----------------------------------------------------------------------
 
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (dto.SignInOut, error) {
+
 	return dto.SignInOut{}, nil
 }
 
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (dto.SignUpOut, error) {
+	hashPassword, err := a.hashManager.New(input.Password)
+	if err != nil {
+		return dto.SignUpOut{}, utility.CreateCustomError(a.SignIn, err)
+	}
+
+	a.storage.InsertUser(ctx, input.Login, hashPassword, "")
+
 	return dto.SignUpOut{}, nil
 }
 
