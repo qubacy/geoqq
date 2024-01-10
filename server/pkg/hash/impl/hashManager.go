@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
-	"geoqq/pkg/hash"
 	"geoqq/pkg/utility"
 	"strings"
 )
@@ -18,13 +17,26 @@ const (
 	//...
 )
 
+func StrToHashType(value string) (HashType, error) {
+	value = strings.ToUpper(value)
+	if value == "MD5" {
+		return MD5, nil
+	} else if value == "SHA1" {
+		return SHA1, nil
+	}
+
+	return 0, ErrUnknownHashType
+}
+
+// -----------------------------------------------------------------------
+
 type HashManager struct {
 	hashType HashType
 }
 
 func NewHashManager(hashType HashType) (*HashManager, error) {
 	if hashType != MD5 && hashType != SHA1 {
-		return nil, hash.ErrUnknownHashType
+		return nil, ErrUnknownHashType
 	}
 
 	return &HashManager{
@@ -57,5 +69,5 @@ func sum(hashType HashType, value string) ([]byte, error) {
 		return hashedFixedBytes[:], nil
 	}
 
-	return nil, hash.ErrUnknownHashType
+	return nil, ErrUnknownHashType
 }

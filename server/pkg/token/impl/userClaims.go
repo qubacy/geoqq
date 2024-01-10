@@ -15,7 +15,7 @@ type userClaims struct {
 
 func (self *userClaims) validate() error {
 	if !self.IsValidAt(time.Now()) {
-		return token.ErrTokenExpired
+		return ErrTokenExpired
 	}
 	return nil
 }

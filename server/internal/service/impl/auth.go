@@ -18,7 +18,7 @@ type AuthService struct {
 }
 
 // without check?
-func NewAuthService(deps Dependencies) *AuthService {
+func newAuthService(deps Dependencies) *AuthService {
 	return &AuthService{
 		accessTokenTTL:  deps.AccessTokenTTL,
 		refreshTokenTTL: deps.RefreshTokenTTL,

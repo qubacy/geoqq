@@ -1,20 +1,25 @@
 import unittest
 
-import os
-import sys
 import unittest
 
-class TestUtils(unittest.TestCase):
+class TestConnect(unittest.TestCase):
     def setUp(self):
         pass
 
+# tests
+# ------------------------------------------------------------------------
+
     def test_copy_connection_params(self):
         import connect
+        
+        without_db = connect.copy_connection_params(False)
+        self.assertFalse("database" in without_db)
+        
         print("conn params without database:", connect.copy_connection_params(False))
         print("conn params with database:", connect.copy_connection_params(True))
 
-        
 
+        
 # experiments
 # ------------------------------------------------------------------------
 

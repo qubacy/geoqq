@@ -1,4 +1,4 @@
-package token
+package impl
 
 import "errors"
 

@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"geoqq/internal/service"
 	"geoqq/internal/storage"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
@@ -9,7 +8,8 @@ import (
 )
 
 type Services struct {
-	authService service.AuthService
+	*AuthService
+	*UserService
 }
 
 type Dependencies struct {
@@ -24,6 +24,6 @@ type Dependencies struct {
 
 func NewServices(deps Dependencies) (*Services, error) {
 	return &Services{
-		authService: NewAuthService(deps),
+		AuthService: newAuthService(deps),
 	}, nil
 }

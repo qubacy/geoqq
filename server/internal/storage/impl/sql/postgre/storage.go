@@ -8,8 +8,13 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+// consists of concrete implementation types!
 type Storage struct {
-	userStorage *UserStorage
+	*ImageStorage
+	*UserStorage
+	*MateRequestStorage
+	*MateChatStorage
+	*GeoChatStorage
 }
 
 type Dependencies struct {
@@ -29,9 +34,11 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 		return nil, utility.CreateCustomError(NewStorage, err)
 	}
 
-	return &Storage{
-		userStorage: newUserStorage(pool),
-	}, nil
+	storage := &Storage{
+		UserStorage: newUserStorage(pool),
+	}
+
+	return storage, nil
 }
 
 func createConnectionString(deps Dependencies) string {

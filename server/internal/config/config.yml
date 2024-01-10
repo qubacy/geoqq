@@ -1,5 +1,16 @@
+delivery:
+  token:
+    access_ttl: 5m
+    refresh_ttl: 15m
+    signing_key: "signing_key"
+
+  http:
+    port:
+
 storage:
-  type: postgre
+  hash_type: "sha1"
+  max_init_time: 5s
+  type: "postgre"
 
   memory:
     #...
@@ -7,7 +18,7 @@ storage:
   sql:
     postgre:
       host: "127.0.0.1"
-      port: "5433"
+      port: 5432
       user: "postgres"
       password: "admin"
       database: "geoqq"

@@ -21,7 +21,7 @@ type TokenManager struct {
 
 func NewTokenManager(signingKey string) (*TokenManager, error) {
 	if len(signingKey) == 0 {
-		return nil, token.ErrSigningKeyIsEmpty
+		return nil, ErrSigningKeyIsEmpty
 	}
 
 	return &TokenManager{

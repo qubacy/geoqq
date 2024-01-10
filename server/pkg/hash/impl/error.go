@@ -1,4 +1,4 @@
-package hash
+package impl
 
 import "errors"
 
