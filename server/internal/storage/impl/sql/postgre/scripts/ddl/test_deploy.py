@@ -4,7 +4,7 @@ import os
 import sys
 import unittest
 
-class TestUtils(unittest.TestCase):
+class TestDeploy(unittest.TestCase):
     def setUp(self):
         pass
 

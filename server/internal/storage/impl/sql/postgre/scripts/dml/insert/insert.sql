@@ -4,7 +4,7 @@ INSERT INTO "UserEntry" (
     "SignUpTime", "SignInTime"
     )
 VALUES(
-    'Test2', 
+    'Test', 
     '878172e71ca3b32ad5acb7c2a9ffea20465f93e4',
     '12e63aa178b4aea553a7e9c0fa4d253405325109',
     '2023-05-22T00:17:06Z',

@@ -7,9 +7,10 @@ storage:
   sql:
     postgre:
       host: "127.0.0.1"
-      port: "5432"
+      port: "5433"
       user: "postgres"
       password: "admin"
+      database: "geoqq"
     sqlite:
       #...
 
