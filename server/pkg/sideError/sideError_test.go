@@ -1,19 +1,13 @@
 package sideError
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
 
-func Test_SideError(t *testing.T) {
-	err := NewSideError("Test error", Client)
-	fmt.Println(err)
-
-	fmt.Println(err.Text)
-	fmt.Println(err.Side)
-
-	// ***
-
-	var baseErr error = err
-	fmt.Println(baseErr)
+func Test_New(t *testing.T) {
+	err := New("Text error", Server)
+	sideErr := errors.Unwrap(err)
+	fmt.Println(sideErr) // !
 }

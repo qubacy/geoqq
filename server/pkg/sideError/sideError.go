@@ -1,26 +1,36 @@
 package sideError
 
-type Side uint
+import (
+	"errors"
+	"fmt"
+)
+
+type Side string
 
 const (
-	Server Side = iota
-	Client
+	Server Side = "server"
+	Client      = "client"
 
 	// other sides...
 )
 
-type SideError struct {
-	Text string
-	Side
+func New(text string, side Side) error {
+	err := errors.New(string(side))
+	return fmt.Errorf("on side: %w", err)
 }
 
-func NewSideError(text string, side Side) *SideError {
-	return &SideError{
-		Text: text,
-		Side: side,
+// -----------------------------------------------------------------------
+
+func UnwrapToLast(err error) error {
+	for errors.Unwrap(err) != nil {
+		err = errors.Unwrap(err)
 	}
+	return err
 }
 
-func (s *SideError) Error() string {
-	return s.Text
+func UnwrapToSide(err error) error {
+	for errors.Unwrap(err) != nil {
+		err = errors.Unwrap(err)
+	}
+	return err
 }

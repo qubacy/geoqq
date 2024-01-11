@@ -45,7 +45,6 @@ CREATE TABLE "UserOptions"
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
-
 -- mate
 -- ---------------------------------------------------------------------------
 CREATE TABLE "Mate"
@@ -118,5 +117,3 @@ CREATE TABLE "GeoMessage"
     
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
 );
-
-

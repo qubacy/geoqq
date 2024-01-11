@@ -31,15 +31,20 @@ func newAuthService(deps Dependencies) *AuthService {
 
 // -----------------------------------------------------------------------
 
-func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (dto.SignInOut, error) {
+func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
+	dto.SignInOut, error,
+) {
 
 	return dto.SignInOut{}, nil
 }
 
-func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (dto.SignUpOut, error) {
-	hashPassword, err := a.hashManager.New(input.Password)
+func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
+	dto.SignUpOut, error,
+) {
+	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
-		return dto.SignUpOut{}, utility.CreateCustomError(a.SignIn, err)
+		return dto.MakeSignUpOutEmpty(),
+			utility.CreateCustomError(a.SignUp, err)
 	}
 
 	a.storage.InsertUser(ctx, input.Login, hashPassword, "")
@@ -47,6 +52,8 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (dto.Sign
 	return dto.SignUpOut{}, nil
 }
 
-func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (dto.RefreshTokensOut, error) {
+func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
+	dto.RefreshTokensOut, error,
+) {
 	return dto.RefreshTokensOut{}, nil
 }

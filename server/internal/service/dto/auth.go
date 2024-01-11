@@ -25,6 +25,10 @@ type SignUpOut struct {
 	SignedTokens
 }
 
+func MakeSignUpOutEmpty() SignUpOut {
+	return SignUpOut{}
+}
+
 type RefreshTokensOut struct {
 	SignedTokens
 }
