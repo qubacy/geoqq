@@ -24,39 +24,41 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
-	reqDto := dto.SignInPostReq{}
-	err := ctx.ShouldBindJSON(&reqDto)
+	username, password, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err)
-		return
-	}
-
-}
-
-func (h *Handler) postSignUp(ctx *gin.Context) {
-	err := ctx.Request.ParseForm()
-	if err != nil {
-		resWithClientError(ctx, 0, err) // error may not be packaged!
-		return
-	}
-
-	var (
-		username = ctx.Request.FormValue("login")
-		password = ctx.Request.FormValue("password") // hash?
-	)
-	if len(username) == 0 || len(password) == 0 {
 		resWithClientError(ctx, 0, ErrEmptyParameter)
 		return
 	}
 
 	// ***
 
+	out, err := h.services.SignIn(ctx,
+		serviceDto.MakeSignInInp(username, password))
+
+	if err != nil {
+		side := se.UnwrapErrorsToSide(err)
+		resWithSideErr(ctx, side, 0, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.MakeSignInPostRes(
+		out.AccessToken, out.RefreshToken))
+}
+
+func (h *Handler) postSignUp(ctx *gin.Context) {
+	username, password, err := extractLoginAndPassword(ctx)
+	if err != nil {
+		resWithClientError(ctx, 0, ErrEmptyParameter)
+		return
+	}
+	// ***
+
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, password))
 
 	if err != nil { // error may belong to different sides!
-		sideErr := se.UnwrapErrorsToLastSide(err)
-		resWithSideErr(ctx, sideErr.Side(), 0, err)
+		side := se.UnwrapErrorsToSide(err)
+		resWithSideErr(ctx, side, 0, err)
 		return
 	}
 
@@ -68,4 +70,22 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 
 }
 
+// private
 // -----------------------------------------------------------------------
+
+func extractLoginAndPassword(ctx *gin.Context) (string, string, error) {
+	err := ctx.Request.ParseForm()
+	if err != nil {
+		return "", "", err
+	}
+
+	var (
+		username = ctx.Request.FormValue("login")
+		password = ctx.Request.FormValue("password") // hash?
+	)
+	if len(username) == 0 || len(password) == 0 {
+		return "", "", ErrEmptyParameter
+	}
+
+	return username, password, nil
+}

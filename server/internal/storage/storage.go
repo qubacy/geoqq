@@ -9,6 +9,9 @@ type ImageStorage interface {
 }
 
 type UserStorage interface {
+	GetUserIdByByCredentials(ctx context.Context,
+		username, hashPassword string) (uint64, error)
+
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context, username, hashPassword string) (uint64, error)
 

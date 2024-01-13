@@ -43,8 +43,25 @@ func newAuthService(deps Dependencies) *AuthService {
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
+	err := a.validateSingIn(input)
+	if err != nil {
+		return dto.MakeSignInOutEmpty(),
+			utl.NewFuncError(a.SignIn, se.New(err, se.Client))
+	}
 
-	return dto.SignInOut{}, nil
+	// ***
+
+	return dto.MakeSignInOutEmpty(), nil
+
+	// a.storage.HasUserByCredentials(ctx, input.Login, input.Password)
+
+	// accessToken, refreshToken, err := a.generateTokens(userId)
+	// if err != nil {
+	// 	return dto.MakeSignUpOutEmpty(),
+	// 		utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+	// }
+
+	// return dto.MakeSignUpOut(accessToken, refreshToken), nil
 }
 
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
@@ -111,17 +128,25 @@ func (a *AuthService) initializeValidators() error {
 	return nil
 }
 
-func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
+func (a *AuthService) validateLoginAndPassword(login, password string) error {
 	loginValidator := a.validators["login"]
 
-	if !loginValidator.Match([]byte(input.Login)) {
+	if !loginValidator.Match([]byte(login)) {
 		return ErrIncorrectUsernameWithPattern(
 			loginValidator.String())
 	}
-	if len(input.Password) == 0 {
+	if len(password) == 0 {
 		return ErrIncorrectPassword
 	}
 	return nil
+}
+
+func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
+	return a.validateLoginAndPassword(input.Login, input.Password)
+}
+
+func (a *AuthService) validateSingIn(input dto.SignInInp) error {
+	return a.validateLoginAndPassword(input.Login, input.Password)
 }
 
 // private

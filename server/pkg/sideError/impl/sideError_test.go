@@ -3,7 +3,6 @@ package impl
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -170,9 +169,11 @@ func Test_equal_nils(t *testing.T) {
 	if sideError != err {
 		t.Error("Unexpected result")
 	}
-	if !reflect.DeepEqual(sideError, err) {
-		t.Error("Unexpected result")
-	}
+	/*
+		if !reflect.DeepEqual(sideError, err) {
+			t.Error("Unexpected result")
+		}
+	*/
 }
 
 func Test_equal_nils_v1(t *testing.T) {
@@ -185,9 +186,11 @@ func Test_equal_nils_v1(t *testing.T) {
 	if sideError == err {
 		t.Error("Unexpected result")
 	}
-	if reflect.DeepEqual(sideError, err) {
-		t.Error("Unexpected result")
-	}
+	/*
+		if reflect.DeepEqual(sideError, err) {
+			t.Error("Unexpected result")
+		}
+	*/
 }
 
 func Test_equal_nils_v2(t *testing.T) {

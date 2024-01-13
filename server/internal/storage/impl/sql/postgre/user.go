@@ -25,6 +25,14 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
+func (self *UserStorage) GetUserIdByByCredentials(ctx context.Context,
+	username, hashPassword string) (uint64, error) {
+
+	// TODO:
+
+	return 0, nil
+}
+
 func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
 	bool, error,
 ) {

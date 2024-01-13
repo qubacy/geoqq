@@ -5,9 +5,24 @@ type SignInInp struct {
 	Password string
 }
 
+func MakeSignInInp(login, pass string) SignInInp {
+	return SignInInp{
+		Login:    login,
+		Password: pass,
+	}
+}
+
+// -----------------------------------------------------------------------
+
 type SignInOut struct {
 	SignedTokens
 }
+
+func MakeSignInOutEmpty() SignInOut {
+	return SignInOut{}
+}
+
+// -----------------------------------------------------------------------
 
 type SignUpInp struct {
 	Login    string
@@ -20,6 +35,8 @@ func MakeSignUpInp(login, pass string) SignUpInp {
 		Password: pass,
 	}
 }
+
+// -----------------------------------------------------------------------
 
 type SignUpOut struct {
 	SignedTokens

@@ -17,6 +17,8 @@ const (
 type SideError struct {
 	side uint
 	err  error // with text!
+
+	// clientId int
 }
 
 func NewSideError(err error, side uint) *SideError {
@@ -67,4 +69,13 @@ func UnwrapErrorsToLastSide(err error) *SideError {
 		err = errors.Unwrap(err)
 	}
 	return lastSideError
+}
+
+func UnwrapErrorsToSide(err error) uint {
+	sideErr := UnwrapErrorsToLastSide(err)
+	if sideErr == nil {
+		return Server
+	}
+
+	return sideErr.side
 }
