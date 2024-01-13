@@ -6,4 +6,5 @@ var (
 	ErrNoRows           error = errors.New("No rows")
 	ErrUnexpectedResult error = errors.New("Unexpected result")
 	ErrUpdateFailed     error = errors.New("Update failed")
+	ErrInsertFailed     error = errors.New("Insert failed")
 )

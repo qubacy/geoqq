@@ -62,16 +62,16 @@ func Test_IsFunction(t *testing.T) {
 }
 
 func Test_CreateCustomError(t *testing.T) {
-	err := CreateCustomError(GetFunctionName, fmt.Errorf("<some library error>"))
-	err = CreateCustomError(GetFunctionName, err)
-	err = CreateCustomError(strconv.Atoi, err)
-	err = CreateCustomError(IsFunction, err)
+	err := NewFuncError(GetFunctionName, fmt.Errorf("<some library error>"))
+	err = NewFuncError(GetFunctionName, err)
+	err = NewFuncError(strconv.Atoi, err)
+	err = NewFuncError(IsFunction, err)
 	//...
 	fmt.Println(err.Error())
 }
 
 func Test_CreateCustomError_v1(t *testing.T) {
-	err := CreateCustomError(GetFunctionName, fmt.Errorf("<some library error>"))
+	err := NewFuncError(GetFunctionName, fmt.Errorf("<some library error>"))
 	fmt.Println(err.Error())
 
 	err = errors.Unwrap(err)
@@ -80,10 +80,10 @@ func Test_CreateCustomError_v1(t *testing.T) {
 
 func Test_UnwrapErrorsToLast(t *testing.T) {
 	libraryErr := "<some library error>"
-	err := CreateCustomError(GetFunctionName, fmt.Errorf(libraryErr))
-	err = CreateCustomError(GetFunctionName, err)
-	err = CreateCustomError(strconv.Atoi, err)
-	err = CreateCustomError(IsFunction, err)
+	err := NewFuncError(GetFunctionName, fmt.Errorf(libraryErr))
+	err = NewFuncError(GetFunctionName, err)
+	err = NewFuncError(strconv.Atoi, err)
+	err = NewFuncError(IsFunction, err)
 	//...
 
 	lastErr := UnwrapErrorsToLast(err)

@@ -1,9 +1,9 @@
 package api
 
 import (
-	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	serviceDto "geoqq/internal/service/dto"
+	se "geoqq/pkg/sideError/impl"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,9 +53,11 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, password))
-	if err != nil { // error may belong to different sides.
-		ctx.JSON(http.StatusBadRequest,
-			dto.MakeResWithError(0, fmt.Errorf("TODO")))
+
+	if err != nil { // error may belong to different sides!
+		sideErr := se.UnwrapErrorsToLastSide(err)
+		resWithSideErr(ctx, sideErr.Side(), 0, err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, dto.MakeSignUpPostRes(

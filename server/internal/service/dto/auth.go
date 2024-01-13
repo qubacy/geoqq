@@ -25,6 +25,15 @@ type SignUpOut struct {
 	SignedTokens
 }
 
+func MakeSignUpOut(accessToken, refreshToken string) SignUpOut {
+	return SignUpOut{
+		SignedTokens: SignedTokens{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
+	}
+}
+
 func MakeSignUpOutEmpty() SignUpOut {
 	return SignUpOut{}
 }

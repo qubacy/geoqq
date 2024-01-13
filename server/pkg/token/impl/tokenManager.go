@@ -36,7 +36,7 @@ func (s *TokenManager) New(payload token.Payload, duration time.Duration) (strin
 	key := []byte(s.signingKey)
 	signer, err := jwt.NewSignerHS(jwt.HS256, key)
 	if err != nil {
-		return "", utility.CreateCustomError(s.New, err)
+		return "", utility.NewFuncError(s.New, err)
 	}
 
 	claims := &userClaims{
@@ -50,7 +50,7 @@ func (s *TokenManager) New(payload token.Payload, duration time.Duration) (strin
 	builder := jwt.NewBuilder(signer)
 	token, err := builder.Build(claims)
 	if err != nil {
-		return "", utility.CreateCustomError(s.New, err)
+		return "", utility.NewFuncError(s.New, err)
 	}
 	return token.String(), nil
 }
@@ -62,7 +62,7 @@ func (s *TokenManager) Parse(tokenValue string) (token.Payload, error) {
 	tokenObject, _, err := prepareAndCheck(s.signingKey, tokenValue)
 	if err != nil {
 		return token.Payload{},
-			utility.CreateCustomError(s.Parse, err)
+			utility.NewFuncError(s.Parse, err)
 	}
 
 	// ***
@@ -70,7 +70,7 @@ func (s *TokenManager) Parse(tokenValue string) (token.Payload, error) {
 	claims, err := extractAndCheck(tokenObject)
 	if err != nil {
 		return token.Payload{},
-			utility.CreateCustomError(s.Parse, err)
+			utility.NewFuncError(s.Parse, err)
 	}
 
 	// ***
@@ -81,18 +81,18 @@ func (s *TokenManager) Parse(tokenValue string) (token.Payload, error) {
 func (s *TokenManager) Validate(tokenValue string) error {
 	_, verifier, err := prepareAndCheck(s.signingKey, tokenValue)
 	if err != nil {
-		return utility.CreateCustomError(prepareAndCheck, err)
+		return utility.NewFuncError(prepareAndCheck, err)
 	}
 
 	// parse only claims!
 	var claims userClaims
 	err = jwt.ParseClaims([]byte(tokenValue), verifier, &claims)
 	if err != nil {
-		return utility.CreateCustomError(prepareAndCheck, err)
+		return utility.NewFuncError(prepareAndCheck, err)
 	}
 
 	if err = claims.validate(); err != nil {
-		return utility.CreateCustomError(prepareAndCheck, err)
+		return utility.NewFuncError(prepareAndCheck, err)
 	}
 	return nil
 }
@@ -106,19 +106,19 @@ func prepareAndCheck(signingKey, tokenValue string) (*jwt.Token, *jwt.HSAlg, err
 	//           V
 	verifierHs, err := jwt.NewVerifierHS(jwt.HS256, []byte(signingKey))
 	if err != nil {
-		return nil, nil, utility.CreateCustomError(prepareAndCheck, err)
+		return nil, nil, utility.NewFuncError(prepareAndCheck, err)
 	}
 
 	tokenObject, err := jwt.Parse([]byte(tokenValue), verifierHs)
 	if err != nil {
-		return nil, nil, utility.CreateCustomError(prepareAndCheck, err)
+		return nil, nil, utility.NewFuncError(prepareAndCheck, err)
 	}
 
 	// ***
 
 	err = verifierHs.Verify(tokenObject)
 	if err != nil {
-		return nil, nil, utility.CreateCustomError(prepareAndCheck, err)
+		return nil, nil, utility.NewFuncError(prepareAndCheck, err)
 	}
 	return tokenObject, verifierHs, nil
 }
@@ -128,14 +128,14 @@ func extractAndCheck(tokenObject *jwt.Token) (userClaims, error) {
 	err := json.Unmarshal(tokenObject.Claims(), &claims)
 	if err != nil {
 		return userClaims{},
-			utility.CreateCustomError(extractAndCheck, err)
+			utility.NewFuncError(extractAndCheck, err)
 	}
 
 	// ***
 
 	if err = claims.validate(); err != nil {
 		return userClaims{},
-			utility.CreateCustomError(extractAndCheck, err)
+			utility.NewFuncError(extractAndCheck, err)
 	}
 
 	return claims, nil

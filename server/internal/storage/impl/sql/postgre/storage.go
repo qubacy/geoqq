@@ -31,7 +31,7 @@ type Dependencies struct {
 func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 	pool, err := pgxpool.Connect(ctx, createConnectionString(deps))
 	if err != nil {
-		return nil, utility.CreateCustomError(NewStorage, err)
+		return nil, utility.NewFuncError(NewStorage, err)
 	}
 
 	storage := &Storage{

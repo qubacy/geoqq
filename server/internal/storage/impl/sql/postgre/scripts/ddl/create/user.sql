@@ -3,7 +3,7 @@ CREATE TABLE "UserEntry"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "Username" CHARACTER VARYING(128) UNIQUE NOT NULL,
     "HashPassword" VARCHAR(512) NOT NULL,
-    "HashUpdToken" VARCHAR(512) NOT NULL,
+    "HashUpdToken" VARCHAR(512) NOT NULL DEFAULT '',
     "SignUpTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "SignInTime" TIMESTAMP WITHOUT TIME ZONE
 );
@@ -11,8 +11,8 @@ CREATE TABLE "UserEntry"
 CREATE TABLE "UserLocation"
 (
     "UserId" BIGINT NOT NULL,
-    "Longitude" double precision NULL,
-    "Latitude" double precision NULL,
+    "Longitude" double precision NOT NULL,
+    "Latitude" double precision NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NULL,
 
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
@@ -21,7 +21,7 @@ CREATE TABLE "UserLocation"
 CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
-    "Description" CHARACTER VARYING(4096) UNIQUE NOT NULL,
+    "Description" CHARACTER VARYING(4096) UNIQUE NOT NULL DEFAULT '',
     "AvatarId" BIGINT NULL,
 
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),

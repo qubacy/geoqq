@@ -34,7 +34,7 @@ func GetFunctionName(i interface{}) string {
 }
 
 // creating a stack with errors!
-func CreateCustomError(i interface{}, err error) error {
+func NewFuncError(i interface{}, err error) error {
 	return fmt.Errorf(GetFunctionName(i)+"\n with an error/in: %w", err)
 }
 
@@ -44,6 +44,9 @@ func UnwrapErrorsToLast(err error) error {
 	}
 	return err
 }
+
+// generators
+// -----------------------------------------------------------------------
 
 func RandomString(n int) string {
 	chars := []rune("abcdefghijklmnopqrstuvwxyz0123456789")

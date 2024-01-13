@@ -47,7 +47,7 @@ func NewHashManager(hashType HashType) (*HashManager, error) {
 func (h *HashManager) New(value string) (string, error) {
 	bytes, err := sum(h.hashType, value)
 	if err != nil {
-		return "", utility.CreateCustomError(h.New, err)
+		return "", utility.NewFuncError(h.New, err)
 	}
 
 	hexHashValue := hex.EncodeToString(bytes)

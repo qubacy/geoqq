@@ -38,13 +38,17 @@ func (d *Dependencies) validate() error {
 // -----------------------------------------------------------------------
 
 func NewHandler(deps Dependencies) (*Handler, error) {
-	// TODO: validate deps!
+	if err := deps.validate(); err != nil {
+		return nil, err
+	}
+
+	// ***
 
 	var engine *gin.Engine = gin.Default()
 	engine.Use(gin.Recovery()).
 		Use(gin.Logger())
 
-	// TODO: add middlewares!
+	// TODO: add extra middlewares!
 
 	// TODO: remove debug route
 	engine.GET("/ping", func(ctx *gin.Context) {
@@ -72,8 +76,9 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 
 func (h *Handler) initApi() error {
 	deps := api.Dependencies{
-		Services: h.services,
-		Router:   h.engine.Group("/api"),
+		Services:       h.services,
+		Router:         h.engine.Group("/api"),
+		TokenExtractor: h.tokenExtractor,
 	}
 
 	apiHandler, err := api.NewHandler(deps)

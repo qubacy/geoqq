@@ -40,7 +40,7 @@ func (d *Dependencies) validate() error {
 
 func NewHandler(deps Dependencies) (*Handler, error) {
 	if err := deps.validate(); err != nil {
-		return nil, utility.CreateCustomError(NewHandler, err)
+		return nil, utility.NewFuncError(NewHandler, err)
 	}
 
 	handler := &Handler{

@@ -1,7 +1,9 @@
 package sideError
 
 type SideError interface {
-	Side() uint
 	Unwrap() error
+	UnwrapToLast() error
+
+	Side() uint
 	error
 }

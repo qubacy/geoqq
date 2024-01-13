@@ -26,25 +26,25 @@ type App struct {
 func NewApp() (*App, error) {
 	err := config.Initialize()
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** common deps!
 
 	tokenManager, err := tokenManagerInstance()
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 	hashManager, err := hashManagerInstance()
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** storage
 
 	storage, err := storageInstance()
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** service
@@ -52,7 +52,7 @@ func NewApp() (*App, error) {
 	services, err := servicesInstance(
 		tokenManager, hashManager, storage)
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** delivery with http
@@ -63,7 +63,7 @@ func NewApp() (*App, error) {
 	}
 	httpHandler, err := deliveryHttp.NewHandler(deliveryHttpDeps)
 	if err != nil {
-		return nil, utility.CreateCustomError(NewApp, err)
+		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** server
@@ -114,7 +114,7 @@ func storageInstance() (storage.Storage, error) {
 
 	if err != nil {
 		return nil,
-			utility.CreateCustomError(storageInstance, err) // <--- exception!
+			utility.NewFuncError(storageInstance, err) // <--- exception!
 	}
 	return storage, nil
 }
@@ -133,7 +133,7 @@ func servicesInstance(
 		Storage:         storage,
 	})
 	if err != nil {
-		return nil, utility.CreateCustomError(servicesInstance, err)
+		return nil, utility.NewFuncError(servicesInstance, err)
 	}
 
 	return services, err
@@ -146,12 +146,12 @@ func hashManagerInstance() (hash.HashManager, error) {
 		viper.GetString("storage.hash_type"))
 
 	if err != nil {
-		return nil, utility.CreateCustomError(hashManagerInstance, err)
+		return nil, utility.NewFuncError(hashManagerInstance, err)
 	}
 
 	hashManager, err := hashImpl.NewHashManager(hashType)
 	if err != nil {
-		return nil, utility.CreateCustomError(hashManagerInstance, err)
+		return nil, utility.NewFuncError(hashManagerInstance, err)
 	}
 
 	return hashManager, nil
@@ -161,7 +161,7 @@ func tokenManagerInstance() (token.TokenManager, error) {
 	signingKey := viper.GetString("delivery.token.signing_key")
 	tokenManager, err := tokenImpl.NewTokenManager(signingKey)
 	if err != nil {
-		return nil, utility.CreateCustomError(tokenManagerInstance, err)
+		return nil, utility.NewFuncError(tokenManagerInstance, err)
 	}
 
 	return tokenManager, nil
