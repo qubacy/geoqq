@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"testing"
@@ -8,6 +9,15 @@ import (
 
 // experiments
 // -----------------------------------------------------------------------
+
+func Test_errors_Join(t *testing.T) {
+	err := errors.Join(nil, nil, nil)
+	fmt.Println(err)
+
+	if err != nil {
+		t.Error("Unexpected behavior")
+	}
+}
 
 func Test_regexp_Compile_okk(t *testing.T) {
 	re, err := regexp.Compile(`\d_\d{3}_\d{3}_\d\d\d\d`)

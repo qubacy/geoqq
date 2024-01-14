@@ -9,8 +9,7 @@ type ImageStorage interface {
 }
 
 type UserStorage interface {
-	GetUserIdByByCredentials(ctx context.Context,
-		username, hashPassword string) (uint64, error)
+	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
 
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context, username, hashPassword string) (uint64, error)
@@ -20,7 +19,8 @@ type UserStorage interface {
 
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error
-	UpdateHashRefreshToken(value string) error
+
+	UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error
 }
 
 type MateRequestStorage interface {

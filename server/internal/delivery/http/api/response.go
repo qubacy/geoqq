@@ -10,9 +10,12 @@ import (
 )
 
 func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
-	err = utility.UnwrapErrorsToLast(err)
-	ctx.JSON(httpCode, dto.MakeResWithError(errorId, err))
+	shortErr := utility.UnwrapErrorsToLast(err) // <--- very first reason!
+	ctx.JSON(httpCode, dto.MakeResWithTraceError(
+		errorId, shortErr, err))
 }
+
+// -----------------------------------------------------------------------
 
 func resWithClientError(ctx *gin.Context, errorId int, err error) {
 	resWithErr(ctx, http.StatusBadRequest, errorId, err)

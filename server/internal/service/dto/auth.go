@@ -1,5 +1,8 @@
 package dto
 
+// sign-in
+// -----------------------------------------------------------------------
+
 type SignInInp struct {
 	Login    string
 	Password string
@@ -18,10 +21,20 @@ type SignInOut struct {
 	SignedTokens
 }
 
+func MakeSignInOut(accessToken, refreshToken string) SignInOut {
+	return SignInOut{
+		SignedTokens: SignedTokens{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
+	}
+}
+
 func MakeSignInOutEmpty() SignInOut {
 	return SignInOut{}
 }
 
+// sign-up
 // -----------------------------------------------------------------------
 
 type SignUpInp struct {
@@ -55,9 +68,15 @@ func MakeSignUpOutEmpty() SignUpOut {
 	return SignUpOut{}
 }
 
+// refresh
+// -----------------------------------------------------------------------
+
 type RefreshTokensOut struct {
 	SignedTokens
 }
+
+// parts
+// -----------------------------------------------------------------------
 
 type SignedTokens struct {
 	AccessToken  string

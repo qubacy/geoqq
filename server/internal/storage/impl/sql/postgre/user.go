@@ -25,12 +25,25 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
-func (self *UserStorage) GetUserIdByByCredentials(ctx context.Context,
-	username, hashPassword string) (uint64, error) {
+func (self *UserStorage) GetUserIdByByName(ctx context.Context,
+	value string) (uint64, error) {
+	conn, err := self.pool.Acquire(ctx)
+	if err != nil {
+		return 0, utility.NewFuncError(self.GetUserIdByByName, err)
+	}
+	defer conn.Release()
 
-	// TODO:
+	row := conn.QueryRow(ctx,
+		`SELECT "Id" FROM "UserEntry"
+			WHERE "Username" = $1;`,
+		value)
 
-	return 0, nil
+	var userId uint64 = 0
+	err = row.Scan(&userId)
+	if err != nil {
+		return 0, utility.NewFuncError(self.GetUserIdByByName, err)
+	}
+	return userId, nil
 }
 
 func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
@@ -126,8 +139,9 @@ func (self *UserStorage) HasUserByCredentials(ctx context.Context,
 	}
 	defer conn.Release()
 
-	row := conn.QueryRow(ctx, `SELECT COUNT(*) AS "Count" FROM "UserEntry"
-		WHERE "Username" = $1 AND "HashPassword" = $2;`)
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) AS "Count" FROM "UserEntry"
+			WHERE "Username" = $1 AND "HashPassword" = $2;`, username, hashPassword)
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
@@ -161,7 +175,25 @@ func (self *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	return nil
 }
 
-func (self *UserStorage) UpdateHashRefreshToken(value string) error {
+func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error {
+	conn, err := self.pool.Acquire(ctx)
+	if err != nil {
+		return utility.NewFuncError(self.UpdateHashRefreshToken, err)
+	}
+	defer conn.Release()
+
+	cmdTag, err := conn.Exec(ctx,
+		`UPDATE "UserEntry"
+    		SET "HashUpdToken" = $1,
+        		"SignInTime" = NOW()::timestamp
+    		WHERE "Id" = $2;`, value, id)
+	if err != nil {
+		return utility.NewFuncError(self.UpdateHashRefreshToken, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
 	return nil
 }
 

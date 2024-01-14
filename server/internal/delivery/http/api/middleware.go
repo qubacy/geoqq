@@ -7,3 +7,5 @@ func (h *Handler) userIdentity(ctx *gin.Context) {
 
 	// TODO: check token!
 }
+
+/// TODO: ADD DETAILS TO ERR

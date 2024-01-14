@@ -43,25 +43,53 @@ func newAuthService(deps Dependencies) *AuthService {
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
+	emptyWithErr := func(err error, side uint) (dto.SignInOut, error) {
+		return dto.MakeSignInOutEmpty(),
+			utl.NewFuncError(a.SignIn, se.New(err, side))
+	}
+
 	err := a.validateSingIn(input)
 	if err != nil {
-		return dto.MakeSignInOutEmpty(),
-			utl.NewFuncError(a.SignIn, se.New(err, se.Client))
+		return emptyWithErr(err, se.Client)
+	}
+
+	// *** work with database ***
+
+	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
+	if err != nil {
+		return emptyWithErr(err, se.Server)
+	}
+
+	exists, err := a.storage.HasUserByCredentials(ctx, input.Login, hashPassword)
+	if err != nil {
+		return emptyWithErr(err, se.Server)
+	}
+	if !exists {
+		return emptyWithErr(ErrIncorrectLoginOrPassword, se.Server)
 	}
 
 	// ***
 
-	return dto.MakeSignInOutEmpty(), nil
+	userId, err := a.storage.GetUserIdByByName(ctx, input.Login)
+	if err != nil {
+		return emptyWithErr(err, se.Server)
+	}
 
-	// a.storage.HasUserByCredentials(ctx, input.Login, input.Password)
+	// *** tokens ***
 
-	// accessToken, refreshToken, err := a.generateTokens(userId)
-	// if err != nil {
-	// 	return dto.MakeSignUpOutEmpty(),
-	// 		utl.NewFuncError(a.SignUp, se.New(err, se.Server))
-	// }
+	accessToken, refreshToken, err := a.generateTokens(userId)
+	if err != nil {
+		return emptyWithErr(err, se.Server)
+	}
 
-	// return dto.MakeSignUpOut(accessToken, refreshToken), nil
+	// ***
+
+	err = a.storage.UpdateHashRefreshToken(ctx, userId, refreshToken)
+	if err != nil {
+		return emptyWithErr(err, se.Server)
+	}
+
+	return dto.MakeSignInOut(accessToken, refreshToken), nil
 }
 
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
@@ -73,12 +101,23 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 			utl.NewFuncError(a.SignUp, se.New(err, se.Client)) // <--- guilty side!
 	}
 
-	// ***
+	// *** work with database ***
 
 	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
 		return dto.MakeSignUpOutEmpty(),
 			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+	}
+
+	exists, err := a.storage.HasUserWithName(ctx, input.Login)
+	if err != nil {
+		return dto.MakeSignUpOutEmpty(),
+			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+	}
+	if exists {
+		return dto.MakeSignUpOutEmpty(),
+			utl.NewFuncError(a.SignUp, se.New(
+				ErrUserWithThisLoginAlreadyExists, se.Client))
 	}
 
 	userId, err := a.storage.InsertUser(ctx, input.Login, hashPassword)
@@ -87,7 +126,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
 	}
 
-	// ***
+	// *** tokens ***
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
