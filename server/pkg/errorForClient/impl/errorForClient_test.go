@@ -7,55 +7,68 @@ import (
 )
 
 func Test_New(t *testing.T) {
-	err := New(errors.New("Module error"), Server)
+	err := New(errors.New("Module error"),
+		Server, ServerError)
 	fmt.Println(err)
 
 	lastErr := errors.Unwrap(err)
-	fmt.Println(lastErr) // !
+	fmt.Println("Last err:", lastErr) // !
 
 	// ***
 
-	sideErr, converted := err.(*SideError)
+	errForClient, converted := err.(*ErrorForClient)
 	if !converted {
 		t.Error("Unknown type")
 	}
 
-	fmt.Println("Side:",
-		sideErr.Side())
+	// ***
+
+	fmt.Println("Guilty side:", errForClient.GuiltySide())
+	fmt.Println("Client code:", errForClient.ClientCode())
 }
 
-func Test_Side(t *testing.T) {
-	err := NewSideError(errors.New("Text error"), Client)
+func Test_ReadSideAndCode(t *testing.T) {
+	err := NewErrorForClient(errors.New("Text error"),
+		Client, AuthError) // <--- example!
 	fmt.Println(err)
 
-	fmt.Println("side", err.Side())
+	fmt.Println("Guilty side:", err.GuiltySide())
+	fmt.Println("Client code:", err.ClientCode())
+
+	if err.GuiltySide() != Client {
+		t.Error()
+	}
+	if err.ClientCode() != AuthError {
+		t.Error()
+	}
 }
 
 func Test_Unwrap(t *testing.T) {
-	err := errors.New("External module error")
-	err = New(err, Client)
+	err := errors.New("Module error")
+	err = New(err, Server, ServerError)
 
 	fmt.Println(err)
 }
 
 func Test_Unwrap_v1(t *testing.T) {
-	err := errors.New("External module error")
-	err = fmt.Errorf("External up err with %w", err)
-
-	err = New(err, Client)
+	err := errors.New("Module error")
+	err = fmt.Errorf("Top module err with %w", err)
+	err = New(err, Server, ServerError)
 
 	fmt.Println(err)
 }
 
 func Test_Wrap(t *testing.T) {
-	err := New(errors.New("Test error"), Client)
+	err := New(errors.New("Test error"), Client, AuthError)
 	err = fmt.Errorf("Error wrapper %w", err)
 
-	sideErr, converted := err.(*SideError)
+	// ***
+
+	errForClient, converted := err.(*ErrorForClient)
 	if converted {
 		t.Error("Unexpected error type")
 	}
-	if sideErr != nil {
+	if errForClient != nil {
 		t.Error("Unexpected conversion")
 	}
 }
@@ -63,57 +76,59 @@ func Test_Wrap(t *testing.T) {
 // -----------------------------------------------------------------------
 
 func Test_UnwrapErrorToLastSide(t *testing.T) {
-	sideErr := NewSideError(
+	errForClient := NewErrorForClient(
 		fmt.Errorf("Module error\n with an error %w",
 			errors.New("Module error")),
-		Client,
+		Client, AuthError,
 	) // last!
 
-	err := fmt.Errorf("With side error %w", sideErr)
+	err := fmt.Errorf("With side error %w", errForClient)
 	err = fmt.Errorf("With error %w", err)
 	err = fmt.Errorf("With error %w", err)
 	err = fmt.Errorf("With error %w", err)
 
-	sideErr = UnwrapErrorsToLastSide(err)
-	if sideErr == nil {
+	errForClient = UnwrapErrorsToLastForClient(err)
+	if errForClient == nil {
 		t.Error("Unexpected error")
 	}
-
 	fmt.Println(err)
 
 	// ***
 
-	fmt.Println("Side:", sideErr.Side())
-	fmt.Println("Error:", sideErr.UnwrapToLast())
+	fmt.Println("Guilty side:", errForClient.GuiltySide())
+	fmt.Println("Client code:", errForClient.ClientCode())
+	fmt.Println("Error:", errForClient.UnwrapToLast())
 }
 
 func Test_UnwrapErrorToLastSide_v1(t *testing.T) {
 	err :=
 		fmt.Errorf("Basic error #0 with %w",
-			NewSideError(fmt.Errorf("Side error #0 with %w",
+			NewErrorForClient(fmt.Errorf("Side error #0 with %w",
 				fmt.Errorf("Basic error #1 with %w",
-					NewSideError(fmt.Errorf("Side error #1 with %w",
+					NewErrorForClient(fmt.Errorf("Side error #1 with %w",
 						errors.New("Module error")),
-						Server))), Client,
+						Server, ServerError),
+				)), Client, AuthError,
 			),
 		)
 	fmt.Println(err)
 
 	// ***
 
-	sideErr := UnwrapErrorsToLastSide(err)
-	fmt.Println(sideErr)
+	errForClient := UnwrapErrorsToLastForClient(err)
+	fmt.Println(errForClient)
 
 	// ***
 
-	if sideErr == nil {
+	if errForClient == nil {
 		t.Error("Unexpected result")
 	}
 
-	fmt.Println("Error:", sideErr.Error())
-	fmt.Println("Side:", sideErr.Side())
+	fmt.Println("Error:", errForClient.Error())
+	fmt.Println("Guilty side:", errForClient.GuiltySide())
+	fmt.Println("Client code:", errForClient.ClientCode())
 
-	err = sideErr.Unwrap()
+	err = errForClient.Unwrap()
 	fmt.Println("Internal error:", err)
 
 	// ***
@@ -138,20 +153,20 @@ func Test_UnwrapErrorToLastSide_v2(t *testing.T) {
 
 	// ***
 
-	sideErr := UnwrapErrorsToLastSide(err) // new variable!
+	errForClient := UnwrapErrorsToLastForClient(err) // new variable!
 	fmt.Println("Side error:", err)
 
-	if sideErr == nil {
+	if errForClient == nil {
 		fmt.Println("Side error not found!") // !
 	}
-	err = sideErr
+	err = errForClient
 	if err == nil {
 		t.Error("Unexpected result") // how so? nil is not the same?
 	}
 
 	// ***
 
-	if sideErr != nil {
+	if errForClient != nil {
 		t.Error("Unexpected result")
 	}
 }
@@ -160,34 +175,34 @@ func Test_UnwrapErrorToLastSide_v2(t *testing.T) {
 // -----------------------------------------------------------------------
 
 func Test_equal_nils(t *testing.T) {
-	var sideError *SideError = nil
-	var err error = sideError // <--- nil!
+	var errForClient *ErrorForClient = nil
+	var err error = errForClient // <--- nil!
 
-	fmt.Println("Side error:", sideError)
+	fmt.Println("Side error:", errForClient)
 	fmt.Println("Basic error:", err)
 
-	if sideError != err {
+	if errForClient != err {
 		t.Error("Unexpected result")
 	}
 	/*
-		if !reflect.DeepEqual(sideError, err) {
+		if !reflect.DeepEqual(errForClient, err) {
 			t.Error("Unexpected result")
 		}
 	*/
 }
 
 func Test_equal_nils_v1(t *testing.T) {
-	var sideError *SideError = nil
+	var errForClient *ErrorForClient = nil
 	var err error = nil
 
-	fmt.Println("Side error:", sideError)
+	fmt.Println("Side error:", errForClient)
 	fmt.Println("Basic error:", err)
 
-	if sideError == err {
+	if errForClient == err {
 		t.Error("Unexpected result")
 	}
 	/*
-		if reflect.DeepEqual(sideError, err) {
+		if reflect.DeepEqual(errForClient, err) {
 			t.Error("Unexpected result")
 		}
 	*/
@@ -196,7 +211,7 @@ func Test_equal_nils_v1(t *testing.T) {
 func Test_equal_nils_v2(t *testing.T) {
 	/*
 		var err error = nil
-		var sideError *SideError = err // cannot be assigned!
+		var errForClient *ErrorForClient = err // cannot be assigned!
 	*/
 }
 

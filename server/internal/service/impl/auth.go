@@ -4,8 +4,8 @@ import (
 	"context"
 	"geoqq/internal/service/dto"
 	"geoqq/internal/storage"
+	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/hash"
-	se "geoqq/pkg/sideError/impl"
 	"geoqq/pkg/token"
 	utl "geoqq/pkg/utility"
 	"regexp"
@@ -43,50 +43,51 @@ func newAuthService(deps Dependencies) *AuthService {
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
-	emptyWithErr := func(err error, side uint) (dto.SignInOut, error) {
+	emptyWithErr := func(err error, side, code int) (dto.SignInOut, error) {
 		return dto.MakeSignInOutEmpty(),
-			utl.NewFuncError(a.SignIn, se.New(err, side))
+			utl.NewFuncError(a.SignIn, ec.New(err, side, code))
 	}
 
 	err := a.validateSingIn(input)
 	if err != nil {
-		return emptyWithErr(err, se.Client)
+		return emptyWithErr(err, ec.Client, ec.InvalidInputParams) // <--- without details!
 	}
 
 	// *** work with database ***
 
 	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
-		return emptyWithErr(err, se.Server)
+		return emptyWithErr(err, ec.Server, ec.HashManagerError)
 	}
 
 	exists, err := a.storage.HasUserByCredentials(ctx, input.Login, hashPassword)
 	if err != nil {
-		return emptyWithErr(err, se.Server)
+		return emptyWithErr(err, ec.Server, ec.StorageError)
 	}
 	if !exists {
-		return emptyWithErr(ErrIncorrectLoginOrPassword, se.Server)
+		return emptyWithErr(ErrIncorrectLoginOrPassword,
+			ec.Client, ec.UserNotFound)
 	}
 
 	// ***
 
 	userId, err := a.storage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
-		return emptyWithErr(err, se.Server)
+		return emptyWithErr(err, ec.Server, ec.StorageError)
 	}
 
 	// *** tokens ***
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return emptyWithErr(err, se.Server)
+		return emptyWithErr(err, ec.Server, ec.TokenManagerError)
 	}
 
 	// ***
 
 	err = a.storage.UpdateHashRefreshToken(ctx, userId, refreshToken)
 	if err != nil {
-		return emptyWithErr(err, se.Server)
+		return emptyWithErr(err, ec.Server, ec.StorageError)
 	}
 
 	return dto.MakeSignInOut(accessToken, refreshToken), nil
@@ -95,43 +96,42 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	dto.SignUpOut, error,
 ) {
+	emptyWithErr := func(err error, side, code int) (dto.SignUpOut, error) {
+		return dto.MakeSignUpOutEmpty(),
+			utl.NewFuncError(a.SignUp, ec.New(err, side, code))
+	}
+
 	err := a.validateSingUp(input)
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(err, se.Client)) // <--- guilty side!
+		return emptyWithErr(err, ec.Client, ec.InvalidInputParams)
 	}
 
 	// *** work with database ***
 
 	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+		return emptyWithErr(err, ec.Server, ec.HashManagerError)
 	}
 
 	exists, err := a.storage.HasUserWithName(ctx, input.Login)
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+		return emptyWithErr(err, ec.Server, ec.StorageError)
 	}
 	if exists {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(
-				ErrUserWithThisLoginAlreadyExists, se.Client))
+		return emptyWithErr(ErrUserWithThisLoginAlreadyExists,
+			ec.Client, ec.UserAlreadyExist)
 	}
 
 	userId, err := a.storage.InsertUser(ctx, input.Login, hashPassword)
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+		return emptyWithErr(err, ec.Server, ec.StorageError)
 	}
 
 	// *** tokens ***
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, se.New(err, se.Server))
+		return emptyWithErr(err, ec.Server, ec.TokenManagerError)
 	}
 
 	return dto.MakeSignUpOut(accessToken, refreshToken), nil
@@ -140,6 +140,13 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	dto.RefreshTokensOut, error,
 ) {
+	// err := a.tokenManager.Validate(refreshToken)
+	// if err != nil {
+	// 	return emptyWithErr(err, ec.Server)
+	// }
+
+	// payload := a.tokenManager.Parse(refreshToken)
+
 	return dto.RefreshTokensOut{}, nil
 }
 
@@ -147,6 +154,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 // -----------------------------------------------------------------------
 
 func (a *AuthService) initializeValidators() error {
+
 	// can create global variables!
 	sourceRegexp := map[string]string{
 		"login":    "[A-Za-z0-9_]{5,64}",

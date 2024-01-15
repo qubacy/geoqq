@@ -3,7 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	serviceDto "geoqq/internal/service/dto"
-	se "geoqq/pkg/sideError/impl"
+	se "geoqq/pkg/errorForClient/impl"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -36,8 +36,8 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 		serviceDto.MakeSignInInp(username, password))
 
 	if err != nil {
-		side := se.UnwrapErrorsToSide(err)
-		resWithSideErr(ctx, side, 0, err)
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
 		return
 	}
 
@@ -57,8 +57,8 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 		serviceDto.MakeSignUpInp(username, password))
 
 	if err != nil { // error may belong to different sides!
-		side := se.UnwrapErrorsToSide(err)
-		resWithSideErr(ctx, side, 0, err)
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
 		return
 	}
 

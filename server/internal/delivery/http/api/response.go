@@ -2,7 +2,7 @@ package api
 
 import (
 	"geoqq/internal/delivery/http/api/dto"
-	se "geoqq/pkg/sideError/impl"
+	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/utility"
 	"net/http"
 
@@ -25,13 +25,13 @@ func resWithServerErr(ctx *gin.Context, errorId int, err error) {
 	resWithErr(ctx, http.StatusInternalServerError, errorId, err)
 }
 
-func resWithSideErr(ctx *gin.Context, side uint, errorId int, err error) {
+func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 	httpCode := http.StatusInternalServerError // ?
 
 	switch side {
-	case se.Client:
+	case ec.Client:
 		httpCode = http.StatusBadRequest
-	case se.Server:
+	case ec.Server:
 		httpCode = http.StatusInternalServerError
 	}
 

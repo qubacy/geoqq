@@ -3,6 +3,7 @@
         "datname",
         "datnames",
         "geoqq",
+        "gonic",
         "mockaroo",
         "pgxpool",
         "postgre",

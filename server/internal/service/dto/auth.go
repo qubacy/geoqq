@@ -75,6 +75,12 @@ type RefreshTokensOut struct {
 	SignedTokens
 }
 
+func RefreshTokensOutEmpty() RefreshTokensOut {
+	return RefreshTokensOut{
+		SignedTokens: SignedTokens{},
+	}
+}
+
 // parts
 // -----------------------------------------------------------------------
 
