@@ -197,7 +197,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="refresh-token" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMTY4NjIsInVzZXItaWQiOjF9.43Oz9N8AqRrJ2PYO7LIE-HfrH-z8KR_ziaMOGNaJsh</stringProp>
+                <stringProp name="Argument.value">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMjgwNjgsInVzZXItaWQiOjF9.cDfp2XP6IK7i1SyXFakH1wJzX1IC1AX-WijsmVXNrEk</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">refresh-token</stringProp>

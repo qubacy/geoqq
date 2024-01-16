@@ -3,8 +3,8 @@ package postgre
 import "errors"
 
 var (
-	ErrNoRows           error = errors.New("No rows")
-	ErrUnexpectedResult error = errors.New("Unexpected result")
-	ErrUpdateFailed     error = errors.New("Update failed")
-	ErrInsertFailed     error = errors.New("Insert failed")
+	ErrNoRows           = errors.New("No rows")
+	ErrUnexpectedResult = errors.New("Unexpected result")
+	ErrUpdateFailed     = errors.New("Update failed")
+	ErrInsertFailed     = errors.New("Insert failed")
 )

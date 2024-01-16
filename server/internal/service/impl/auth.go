@@ -274,7 +274,7 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 	// ***
 
 	if currentHash != storageHash {
-		return err, ec.InvalidRefreshToken
+		return ErrNotSameHashesForRefreshTokens, ec.InvalidRefreshToken
 	}
 	return nil, ec.NoError
 }
