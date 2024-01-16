@@ -28,3 +28,14 @@ SELECT "Id" FROM "UserEntry"
 
 -- 2024-01-14T18:34:08.411053
 -- 2024-01-14T18:35:04.848421
+
+-- -----------------------------------------------------------------------
+
+SELECT "HashUpdToken" FROM "UserEntry"
+    WHERE "Id" = 1;
+
+-- -----------------------------------------------------------------------
+
+SELECT COUNT(*) AS "Count" FROM "UserEntry"
+    WHERE "Id" = 1 
+        AND "HashUpdToken" = '1A455338CFA6D1D6AB3A92367769216706A673F4';

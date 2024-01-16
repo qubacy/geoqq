@@ -40,32 +40,32 @@ func newAuthService(deps Dependencies) *AuthService {
 
 // -----------------------------------------------------------------------
 
+func (a *AuthService) signInWithError(err error, side, code int) (dto.SignInOut, error) {
+	return dto.MakeSignInOutEmpty(),
+		utl.NewFuncError(a.SignIn, ec.New(err, side, code))
+}
+
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
-	emptyWithErr := func(err error, side, code int) (dto.SignInOut, error) {
-		return dto.MakeSignInOutEmpty(),
-			utl.NewFuncError(a.SignIn, ec.New(err, side, code))
-	}
-
 	err := a.validateSingIn(input)
 	if err != nil {
-		return emptyWithErr(err, ec.Client, ec.InvalidInputParams) // <--- without details!
+		return a.signInWithError(err, ec.Client, ec.InvalidInputParams) // <--- without details!
 	}
 
-	// *** work with database ***
+	// ***
 
 	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.HashManagerError)
+		return a.signInWithError(err, ec.Server, ec.HashManagerError)
 	}
 
 	exists, err := a.storage.HasUserByCredentials(ctx, input.Login, hashPassword)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.StorageError)
+		return a.signInWithError(err, ec.Server, ec.StorageError)
 	}
 	if !exists {
-		return emptyWithErr(ErrIncorrectLoginOrPassword,
+		return a.signInWithError(ErrIncorrectLoginOrPassword,
 			ec.Client, ec.UserNotFound)
 	}
 
@@ -73,81 +73,102 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 
 	userId, err := a.storage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.StorageError)
-	}
-
-	// *** tokens ***
-
-	accessToken, refreshToken, err := a.generateTokens(userId)
-	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.TokenManagerError)
+		return a.signInWithError(err, ec.Server, ec.StorageError)
 	}
 
 	// ***
 
-	err = a.storage.UpdateHashRefreshToken(ctx, userId, refreshToken)
+	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.StorageError)
+		return a.signInWithError(err, ec.Server, ec.TokenManagerError)
+	}
+	err, clientCode := a.updateHashRefreshToken(ctx, userId, refreshToken)
+	if err != nil {
+		return a.signInWithError(err, ec.Server, clientCode)
 	}
 
 	return dto.MakeSignInOut(accessToken, refreshToken), nil
 }
 
+func (a *AuthService) signUpWithError(err error, side, code int) (dto.SignUpOut, error) {
+	return dto.MakeSignUpOutEmpty(),
+		utl.NewFuncError(a.SignUp, ec.New(err, side, code))
+}
+
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	dto.SignUpOut, error,
 ) {
-	emptyWithErr := func(err error, side, code int) (dto.SignUpOut, error) {
-		return dto.MakeSignUpOutEmpty(),
-			utl.NewFuncError(a.SignUp, ec.New(err, side, code))
-	}
-
 	err := a.validateSingUp(input)
 	if err != nil {
-		return emptyWithErr(err, ec.Client, ec.InvalidInputParams)
+		return a.signUpWithError(err, ec.Client, ec.InvalidInputParams)
 	}
 
-	// *** work with database ***
+	// ***
 
 	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.HashManagerError)
+		return a.signUpWithError(err, ec.Server, ec.HashManagerError)
 	}
 
 	exists, err := a.storage.HasUserWithName(ctx, input.Login)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.StorageError)
+		return a.signUpWithError(err, ec.Server, ec.StorageError)
 	}
 	if exists {
-		return emptyWithErr(ErrUserWithThisLoginAlreadyExists,
+		return a.signUpWithError(ErrUserWithThisLoginAlreadyExists,
 			ec.Client, ec.UserAlreadyExist)
 	}
 
 	userId, err := a.storage.InsertUser(ctx, input.Login, hashPassword)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.StorageError)
+		return a.signUpWithError(err, ec.Server, ec.StorageError)
 	}
 
 	// *** tokens ***
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return emptyWithErr(err, ec.Server, ec.TokenManagerError)
+		return a.signUpWithError(err, ec.Server, ec.TokenManagerError)
+	}
+	err, clientCode := a.updateHashRefreshToken(ctx, userId, refreshToken)
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, clientCode)
 	}
 
 	return dto.MakeSignUpOut(accessToken, refreshToken), nil
 }
 
+// -----------------------------------------------------------------------
+
+func (a *AuthService) refreshTokensWithError(err error, side, code int) (dto.RefreshTokensOut, error) {
+	return dto.MakeRefreshTokensOutEmpty(),
+		utl.NewFuncError(a.RefreshTokens, ec.New(err, side, code))
+}
+
 func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	dto.RefreshTokensOut, error,
 ) {
-	// err := a.tokenManager.Validate(refreshToken)
-	// if err != nil {
-	// 	return emptyWithErr(err, ec.Server)
-	// }
+	payload, err := a.tokenManager.Parse(refreshToken) // with validation!
+	if err != nil {
+		return a.refreshTokensWithError(err, ec.Server, ec.StorageError)
+	}
+	err, clientCode := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
+	if err != nil {
+		return a.refreshTokensWithError(err, ec.Server, clientCode)
+	}
 
-	// payload := a.tokenManager.Parse(refreshToken)
+	// *** new tokens and hash ***
 
-	return dto.RefreshTokensOut{}, nil
+	accessToken, refreshToken, err := a.generateTokens(payload.UserId)
+	if err != nil {
+		return a.refreshTokensWithError(err, ec.Server, ec.TokenManagerError)
+	}
+	err, clientCode = a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
+	if err != nil {
+		return a.refreshTokensWithError(err, ec.Server, clientCode)
+	}
+
+	return dto.MakeRefreshTokensOut(accessToken, refreshToken), nil
 }
 
 // validators
@@ -157,8 +178,8 @@ func (a *AuthService) initializeValidators() error {
 
 	// can create global variables!
 	sourceRegexp := map[string]string{
-		"login":    "[A-Za-z0-9_]{5,64}",
-		"password": "", // <--- checked on client!
+		"login":    "^[A-Za-z0-9_]{5,64}$",
+		"password": "^.+$", // <--- checked on client!
 	}
 
 	// ***
@@ -177,14 +198,22 @@ func (a *AuthService) initializeValidators() error {
 
 func (a *AuthService) validateLoginAndPassword(login, password string) error {
 	loginValidator := a.validators["login"]
+	passwordValidator := a.validators["password"]
 
-	if !loginValidator.Match([]byte(login)) {
-		return ErrIncorrectUsernameWithPattern(
-			loginValidator.String())
+	// ***
+
+	if len(loginValidator.String()) != 0 {
+		if !loginValidator.MatchString(login) {
+			return ErrIncorrectUsernameWithPattern(
+				loginValidator.String())
+		}
 	}
-	if len(password) == 0 {
-		return ErrIncorrectPassword
+	if len(passwordValidator.String()) != 0 {
+		if !passwordValidator.MatchString(password) {
+			return ErrIncorrectPassword
+		}
 	}
+
 	return nil
 }
 
@@ -200,7 +229,8 @@ func (a *AuthService) validateSingIn(input dto.SignInInp) error {
 // -----------------------------------------------------------------------
 
 func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
-	access, err := a.tokenManager.New(token.MakePayload(userId), a.accessTokenTTL)
+	access, err := a.tokenManager.New(
+		token.MakePayload(userId), a.accessTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
@@ -211,4 +241,40 @@ func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
 	}
 
 	return access, refresh, nil
+}
+
+func (a *AuthService) updateHashRefreshToken(ctx context.Context,
+	userId uint64, refreshToken string) (error, int) { // <--- with client code!
+
+	hashRefreshToken, err := a.hashManager.New(refreshToken)
+	if err != nil {
+		return err, ec.HashManagerError
+	}
+
+	err = a.storage.UpdateHashRefreshToken(ctx, userId, hashRefreshToken)
+	if err != nil {
+		return err, ec.StorageError
+	}
+
+	return nil, ec.NoError
+}
+
+func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
+	userId uint64, refreshToken string) (error, int) {
+
+	currentHash, err := a.hashManager.New(refreshToken)
+	if err != nil {
+		return err, ec.HashManagerError
+	}
+	storageHash, err := a.storage.GetHashRefreshToken(ctx, userId)
+	if err != nil {
+		return err, ec.StorageError
+	}
+
+	// ***
+
+	if currentHash != storageHash {
+		return err, ec.InvalidRefreshToken
+	}
+	return nil, ec.NoError
 }

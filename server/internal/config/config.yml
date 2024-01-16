@@ -1,7 +1,7 @@
 delivery:
   token:
-    access_ttl: 5m
-    refresh_ttl: 15m
+    access_ttl: 30s
+    refresh_ttl: 876000h
     signing_key: "signing_key"
 
   http:

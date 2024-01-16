@@ -50,7 +50,7 @@ func setUpViper() error {
 	// mock config...
 
 	key := "token.secret"
-	viper.Set(key, "test_secret")
+	viper.Set(key, "signing_key")
 	if len(viper.GetString(key)) == 0 {
 		return fmt.Errorf("Value by key '%v' is empty", key)
 	}
@@ -106,11 +106,13 @@ func Test_New(t *testing.T) {
 	fmt.Println(string(payloadBytes))
 }
 
-func Test_Verify_okk(t *testing.T) {
+// -----------------------------------------------------------------------
+
+func Test_Validate_okk(t *testing.T) {
 	tokenExtractor := newTokenManagerWithChecks(t)
 
 	// used duration from viper!
-	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTgyOTY2MzksInVzZXItaWQiOjEyM30.p751ugJIbe6nOjPXg5XqlsUuCqKy0-UGfmqgqzgjVAw"
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMTYyMTIsInVzZXItaWQiOjEyM30.tDOdwyIK56SfLn8Ebji5Ma5SNnyv17ZFT_rB6XUpk3c"
 
 	err := tokenExtractor.Validate(tokenValue)
 	if err != nil {
@@ -118,7 +120,7 @@ func Test_Verify_okk(t *testing.T) {
 	}
 }
 
-func Test_Verify_ErrInvalidFormat(t *testing.T) {
+func Test_Validate_ErrInvalidFormat(t *testing.T) {
 	tokenExtractor := newTokenManagerWithChecks(t)
 
 	tokenValue := "123"
@@ -126,10 +128,64 @@ func Test_Verify_ErrInvalidFormat(t *testing.T) {
 	if err == nil {
 		t.Errorf("Invalid token successfully verified")
 	}
-
-	// extra check!
+	fmt.Println("Get error:", err)
 
 	if utility.UnwrapErrorsToLast(err) != jwt.ErrInvalidFormat {
+		t.Error()
+	}
+}
+
+func Test_Validate_ErrTokenExpired(t *testing.T) {
+	tokenExtractor := newTokenManagerWithChecks(t)
+
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU0MTU5MDcsInVzZXItaWQiOjF9.XhcWnxVPumSQ8Y8yo6ibzmDvHnL1fa8SUlxc_KZSBpE"
+	err := tokenExtractor.Validate(tokenValue)
+	if err == nil {
+		t.Errorf("Invalid token successfully verified")
+	}
+
+	if utility.UnwrapErrorsToLast(err) != ErrTokenExpired {
+		t.Error()
+	}
+}
+
+// -----------------------------------------------------------------------
+
+func Test_Parse_okk(t *testing.T) {
+	tokenManager := newTokenManagerWithChecks(t)
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMTYyMTIsInVzZXItaWQiOjEyM30.tDOdwyIK56SfLn8Ebji5Ma5SNnyv17ZFT_rB6XUpk3c"
+	payload, err := tokenManager.Parse(tokenValue)
+
+	if err != nil {
+		t.Errorf("Failed to validate valid token. Err: %v", err)
+	}
+
+	fmt.Println("Payload:", payload)
+}
+
+func Test_Parse_ErrInvalidFormat(t *testing.T) {
+	tokenManager := newTokenManagerWithChecks(t)
+	_, err := tokenManager.Parse("...")
+
+	if err == nil {
+		t.Errorf("Invalid token successfully verified")
+	}
+
+	if utility.UnwrapErrorsToLast(err) != jwt.ErrInvalidFormat {
+		t.Error()
+	}
+}
+
+func Test_Parse_ErrTokenExpired(t *testing.T) {
+	tokenManager := newTokenManagerWithChecks(t)
+
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDU0MTU5MDcsInVzZXItaWQiOjF9.XhcWnxVPumSQ8Y8yo6ibzmDvHnL1fa8SUlxc_KZSBpE"
+	_, err := tokenManager.Parse(tokenValue)
+	if err == nil {
+		t.Errorf("Invalid token successfully verified")
+	}
+
+	if utility.UnwrapErrorsToLast(err) != ErrTokenExpired {
 		t.Error()
 	}
 }

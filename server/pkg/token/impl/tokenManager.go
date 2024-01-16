@@ -84,7 +84,7 @@ func (s *TokenManager) Validate(tokenValue string) error {
 		return utility.NewFuncError(prepareAndCheck, err)
 	}
 
-	// parse only claims!
+	// parse claims!
 	var claims userClaims
 	err = jwt.ParseClaims([]byte(tokenValue), verifier, &claims)
 	if err != nil {

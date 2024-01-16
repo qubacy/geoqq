@@ -53,6 +53,15 @@ type SignUpPutRes struct {
 	SignedTokens
 }
 
+func MakeSignUpPutRes(access, refresh string) SignUpPutRes {
+	return SignUpPutRes{
+		SignedTokens: SignedTokens{
+			AccessToken:  access,
+			RefreshToken: refresh,
+		},
+	}
+}
+
 // -----------------------------------------------------------------------
 
 type SignedTokens struct {

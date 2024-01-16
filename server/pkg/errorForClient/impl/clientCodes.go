@@ -10,6 +10,7 @@ const (
 )
 
 const (
+	NoError            = 0
 	InvalidInputParams = 1100 + iota
 )
 
@@ -17,6 +18,8 @@ const (
 	AuthError = 1500 + iota
 	UserAlreadyExist
 	UserNotFound
+
+	InvalidRefreshToken
 )
 
 const (

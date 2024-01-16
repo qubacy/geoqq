@@ -75,7 +75,16 @@ type RefreshTokensOut struct {
 	SignedTokens
 }
 
-func RefreshTokensOutEmpty() RefreshTokensOut {
+func MakeRefreshTokensOut(accessToken, refreshToken string) RefreshTokensOut {
+	return RefreshTokensOut{
+		SignedTokens: SignedTokens{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
+	}
+}
+
+func MakeRefreshTokensOutEmpty() RefreshTokensOut {
 	return RefreshTokensOut{
 		SignedTokens: SignedTokens{},
 	}

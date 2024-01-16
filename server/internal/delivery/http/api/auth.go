@@ -26,7 +26,7 @@ func (h *Handler) registerAuthRoutes() {
 func (h *Handler) postSignIn(ctx *gin.Context) {
 	username, password, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, ErrEmptyParameter)
+		resWithClientError(ctx, 0, err)
 		return
 	}
 
@@ -35,7 +35,8 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 	out, err := h.services.SignIn(ctx,
 		serviceDto.MakeSignInInp(username, password))
 
-	if err != nil {
+	if err != nil { // error may belong to different sides!
+
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
@@ -48,15 +49,16 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 func (h *Handler) postSignUp(ctx *gin.Context) {
 	username, password, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, ErrEmptyParameter)
+		resWithClientError(ctx, 0, err)
 		return
 	}
+
 	// ***
 
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, password))
 
-	if err != nil { // error may belong to different sides!
+	if err != nil {
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
@@ -67,7 +69,21 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 }
 
 func (h *Handler) putSignIn(ctx *gin.Context) {
+	refreshToken, err := extractRefreshToken(ctx)
+	if err != nil {
+		resWithClientError(ctx, 0, err)
+		return
+	}
 
+	out, err := h.services.RefreshTokens(ctx, refreshToken)
+	if err != nil {
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.MakeSignUpPutRes(
+		out.AccessToken, out.RefreshToken))
 }
 
 // private
@@ -88,4 +104,20 @@ func extractLoginAndPassword(ctx *gin.Context) (string, string, error) {
 	}
 
 	return username, password, nil
+}
+
+func extractRefreshToken(ctx *gin.Context) (string, error) {
+	err := ctx.Request.ParseForm()
+	if err != nil {
+		return "", err
+	}
+
+	var (
+		refreshToken = ctx.Request.FormValue("refresh-token")
+	)
+	if len(refreshToken) == 0 {
+		return "", ErrEmptyParameter
+	}
+
+	return refreshToken, nil
 }
