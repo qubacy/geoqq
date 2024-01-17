@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"geoqq/internal/domain"
 	"geoqq/internal/service/dto"
 )
 
@@ -14,10 +15,7 @@ type AuthService interface {
 // TODO: need to split?
 // work with profiles, public users, ...
 type UserService interface {
-
-	// // dangerous methods!
-	// // TODO: need to check who is near user?
-	// GetProfileById(ctx context.Context, srcUserId uint64) (domain.Profile, error)
+	GetMyProfile(ctx context.Context) (domain.Profile, error)
 	// GetUserById(ctx context.Context, srcUserId, targetUserId uint64) (domain.PublicUser, error)
 	// GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
 

@@ -8,6 +8,8 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+// TODO: read from config!
+
 func Test_pgxpool_Connect(t *testing.T) {
 	connStr := "user=postgres password=admin database=geoqq host=127.0.0.1 port=5432"
 	pool, err := pgxpool.Connect(context.Background(), connStr)

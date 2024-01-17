@@ -39,3 +39,12 @@ SELECT "HashUpdToken" FROM "UserEntry"
 SELECT COUNT(*) AS "Count" FROM "UserEntry"
     WHERE "Id" = 1 
         AND "HashUpdToken" = '1A455338CFA6D1D6AB3A92367769216706A673F4';
+
+-- -----------------------------------------------------------------------
+
+SELECT
+    "Username", "Description", "AvatarId", "HitMeUp"
+FROM "UserEntry"
+    LEFT JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+    LEFT JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
+    WHERE "UserEntry"."Id" = 1;

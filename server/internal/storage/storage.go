@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"geoqq/internal/domain"
 )
 
 // currently working with pictures!
@@ -25,6 +26,10 @@ type UserStorage interface {
 	UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error
 }
 
+type ProfileStorage interface {
+	GetProfileById(ctx context.Context, id uint64) (domain.Profile, error)
+}
+
 type MateRequestStorage interface {
 }
 
@@ -39,6 +44,7 @@ type GeoChatStorage interface {
 type Storage interface {
 	ImageStorage
 	UserStorage
+	ProfileStorage
 	MateRequestStorage
 	MateChatStorage
 	GeoChatStorage

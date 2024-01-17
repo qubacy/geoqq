@@ -16,7 +16,6 @@ WHERE "UserId" = 1;
 --     "SignInTime" TIMESTAMP WITHOUT TIME ZONE
 -- );
 
-
 UPDATE "UserEntry"
     SET "HashUpdToken" = '878172e71ca3b32ad5acb7c2a9ffea20465f93e4',
         "SignInTime" = NOW()::timestamp
