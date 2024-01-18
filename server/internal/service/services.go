@@ -12,12 +12,16 @@ type AuthService interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (dto.RefreshTokensOut, error)
 }
 
+type UserProfileService interface {
+	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
+}
+
 // TODO: need to split?
 // work with profiles, public users, ...
 type UserService interface {
-	GetMyProfile(ctx context.Context) (domain.Profile, error)
-	// GetUserById(ctx context.Context, srcUserId, targetUserId uint64) (domain.PublicUser, error)
-	// GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
+
+	//GetUserById(ctx context.Context, srcUserId, targetUserId uint64) (domain.PublicUser, error)
+	//GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
 
 	// UpdateProfileById(ctx context.Context, input dto.UpdateProfileInp) error
 }

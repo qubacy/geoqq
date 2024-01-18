@@ -36,3 +36,6 @@ func (h *Handler) getUser(ctx *gin.Context) {
 func (h *Handler) getSomeUsers(ctx *gin.Context) {
 
 }
+
+// private
+// -----------------------------------------------------------------------

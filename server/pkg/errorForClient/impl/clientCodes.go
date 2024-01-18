@@ -10,8 +10,9 @@ const (
 )
 
 const (
-	NoError            = 0
-	InvalidInputParams = 1100 + iota
+	NoError              = 0
+	InvalidRequestParams = 1100 + iota // delivery
+	InvalidInputParams                 // service
 )
 
 const (

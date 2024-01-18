@@ -8,26 +8,26 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type ProfileStorage struct {
+type UserProfileStorage struct {
 	pool *pgxpool.Pool
 }
 
 // private ctor
 // -----------------------------------------------------------------------
 
-func newProfileStorage(pool *pgxpool.Pool) *ProfileStorage {
-	return &ProfileStorage{
+func newUserProfileStorage(pool *pgxpool.Pool) *UserProfileStorage {
+	return &UserProfileStorage{
 		pool: pool,
 	}
 }
 
-func (self *ProfileStorage) GetProfileById(ctx context.Context, id uint64) (
-	domain.Profile, error,
+func (self *UserProfileStorage) GetUserProfileById(ctx context.Context, id uint64) (
+	domain.UserProfile, error,
 ) {
 	conn, err := self.pool.Acquire(ctx)
 	if err != nil {
-		return domain.Profile{},
-			utility.NewFuncError(self.GetProfileById, err)
+		return domain.UserProfile{},
+			utility.NewFuncError(self.GetUserProfileById, err)
 	}
 	defer conn.Release()
 
@@ -39,14 +39,14 @@ func (self *ProfileStorage) GetProfileById(ctx context.Context, id uint64) (
 		WHERE "UserEntry"."Id" = $1;`, id,
 	)
 
-	profile := domain.Profile{}
-	err = row.Scan(&profile.Username, &profile.Description,
-		&profile.AvatarId, &profile.Privacy.HitMeUp)
+	userProfile := domain.UserProfile{}
+	err = row.Scan(&userProfile.Username, &userProfile.Description,
+		&userProfile.AvatarId, &userProfile.Privacy.HitMeUp)
 
 	if err != nil {
-		return domain.Profile{},
-			utility.NewFuncError(self.GetProfileById, err)
+		return domain.UserProfile{},
+			utility.NewFuncError(self.GetUserProfileById, err)
 	}
 
-	return profile, nil
+	return userProfile, nil
 }

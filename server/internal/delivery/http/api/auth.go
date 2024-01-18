@@ -26,7 +26,7 @@ func (h *Handler) registerAuthRoutes() {
 func (h *Handler) postSignIn(ctx *gin.Context) {
 	username, password, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err)
+		resWithClientError(ctx, se.InvalidRequestParams, err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 func (h *Handler) postSignUp(ctx *gin.Context) {
 	username, password, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err)
+		resWithClientError(ctx, 0, err) // TODO: какой код?
 		return
 	}
 

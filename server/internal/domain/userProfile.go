@@ -1,16 +1,17 @@
 package domain
 
-type Profile struct {
+// or Profile?
+type UserProfile struct {
 	Username    string
 	Description string
 	AvatarId    uint64
 	Privacy     Privacy
 }
 
-func MakeProfile(username, description string,
-	avatarId uint64, hitMeUp int) Profile {
+func MakeUserProfile(username, description string,
+	avatarId uint64, hitMeUp int) UserProfile {
 
-	return Profile{
+	return UserProfile{
 		Username:    username,
 		Description: description,
 		AvatarId:    avatarId,

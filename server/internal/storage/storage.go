@@ -26,8 +26,8 @@ type UserStorage interface {
 	UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error
 }
 
-type ProfileStorage interface {
-	GetProfileById(ctx context.Context, id uint64) (domain.Profile, error)
+type UserProfileStorage interface {
+	GetUserProfileById(ctx context.Context, id uint64) (domain.UserProfile, error)
 }
 
 type MateRequestStorage interface {
@@ -44,7 +44,7 @@ type GeoChatStorage interface {
 type Storage interface {
 	ImageStorage
 	UserStorage
-	ProfileStorage
+	UserProfileStorage
 	MateRequestStorage
 	MateChatStorage
 	GeoChatStorage

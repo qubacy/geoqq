@@ -10,6 +10,7 @@ import (
 type Services struct {
 	*AuthService
 	*UserService
+	*ProfileService
 }
 
 type Dependencies struct {
@@ -24,6 +25,7 @@ type Dependencies struct {
 
 func NewServices(deps Dependencies) (*Services, error) {
 	return &Services{
-		AuthService: newAuthService(deps),
+		AuthService:    newAuthService(deps),
+		ProfileService: newProfileService(deps),
 	}, nil
 }
