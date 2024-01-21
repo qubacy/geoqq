@@ -3,7 +3,9 @@
 CREATE TABLE "Avatar" 
 (
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
-    "Filename" VARCHAR(1024) NOT NULL
+    "GeneratedByServer" BOOLEAN NOT NULL,
+    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "Hash" VARCHAR(512) NOT NULL
 );
 
 -- user
@@ -23,7 +25,7 @@ CREATE TABLE "UserLocation"
     "UserId" BIGINT NOT NULL,
     "Longitude" double precision NOT NULL,
     "Latitude" double precision NOT NULL,
-    "Time" TIMESTAMP WITHOUT TIME ZONE NULL,
+    "Time" TIMESTAMP WITHOUT TIME ZONE, -- as usage flag!
 
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
@@ -32,7 +34,7 @@ CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
     "Description" CHARACTER VARYING(4096) UNIQUE NOT NULL DEFAULT '',
-    "AvatarId" BIGINT NULL,
+    "AvatarId" BIGINT NOT NULL,
 
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("AvatarId") REFERENCES "Avatar"("Id")
@@ -42,6 +44,7 @@ CREATE TABLE "UserOptions"
 (
     "UserId" BIGINT NOT NULL,
     "HitMeUp" INTEGER NOT NULL,
+    
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 

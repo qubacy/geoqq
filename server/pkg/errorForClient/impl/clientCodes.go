@@ -3,6 +3,10 @@ package impl
 // interpretation on client application!
 
 const (
+	NoError = 0
+)
+
+const (
 	ServerError = 1000 + iota
 	HashManagerError
 	TokenManagerError
@@ -10,10 +14,14 @@ const (
 )
 
 const (
-	NoError              = 0
-	InvalidRequestParams = 1100 + iota // delivery
-	InvalidInputParams                 // service
+	ParseRequestParamsFailed = 1100 + iota
+	ValidateInputParamsFailed
+
+	ParseAccessTokenFailed
+	ValidateAccessTokenFailed
 )
+
+// -----------------------------------------------------------------------
 
 const (
 	AuthError = 1500 + iota

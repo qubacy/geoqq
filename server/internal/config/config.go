@@ -5,8 +5,10 @@ import (
 )
 
 func Initialize() error {
-	viper.AddConfigPath("../internal/config")
+	viper.AddConfigPath("../internal/config") // ?
 	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()
 }
+
+// -----------------------------------------------------------------------

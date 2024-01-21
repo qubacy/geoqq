@@ -4,6 +4,7 @@ import (
 	"context"
 	"geoqq/internal/service/dto"
 	"geoqq/internal/storage"
+	"geoqq/pkg/avatar"
 	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
@@ -17,6 +18,7 @@ type AuthService struct {
 	refreshTokenTTL time.Duration
 	tokenManager    token.TokenManager
 	hashManager     hash.HashManager
+	avatarGenerator avatar.AvatarGenerator
 	storage         storage.Storage
 
 	validators map[string]*regexp.Regexp
@@ -29,6 +31,7 @@ func newAuthService(deps Dependencies) *AuthService {
 		refreshTokenTTL: deps.RefreshTokenTTL,
 		tokenManager:    deps.TokenManager,
 		hashManager:     deps.HashManager,
+		avatarGenerator: deps.AvatarGenerator,
 		storage:         deps.Storage,
 	}
 
@@ -50,7 +53,7 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 ) {
 	err := a.validateSingIn(input)
 	if err != nil {
-		return a.signInWithError(err, ec.Client, ec.InvalidInputParams) // <--- without details!
+		return a.signInWithError(err, ec.Client, ec.ValidateInputParamsFailed)
 	}
 
 	// ***
@@ -100,7 +103,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 ) {
 	err := a.validateSingUp(input)
 	if err != nil {
-		return a.signUpWithError(err, ec.Client, ec.InvalidInputParams)
+		return a.signUpWithError(err, ec.Client, ec.ValidateInputParamsFailed)
 	}
 
 	// ***

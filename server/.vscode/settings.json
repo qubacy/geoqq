@@ -4,6 +4,7 @@
         "datnames",
         "geoqq",
         "gonic",
+        "govatar",
         "mockaroo",
         "pgxpool",
         "postgre",

@@ -57,6 +57,7 @@ type GeoService interface {
 
 type Services interface {
 	AuthService
+	UserProfileService
 	UserService
 	MateService
 	ImageService

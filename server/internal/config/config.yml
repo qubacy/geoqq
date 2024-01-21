@@ -13,6 +13,12 @@ storage:
   type: "postgre"
 
   memory:
+    anytime:
+      resource:
+        avatar: "avatar"
+        #...
+
+    runtime:
     #...
 
   sql:

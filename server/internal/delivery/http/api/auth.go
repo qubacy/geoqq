@@ -24,9 +24,13 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
-	username, password, err := extractLoginAndPassword(ctx)
+	// err more important!
+
+	username, password, code, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, se.InvalidRequestParams, err)
+		// code, err can be combined!
+
+		resWithClientError(ctx, code, err)
 		return
 	}
 
@@ -42,14 +46,16 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 		return
 	}
 
+	// ***
+
 	ctx.JSON(http.StatusOK, dto.MakeSignInPostRes(
 		out.AccessToken, out.RefreshToken))
 }
 
 func (h *Handler) postSignUp(ctx *gin.Context) {
-	username, password, err := extractLoginAndPassword(ctx)
+	username, password, code, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err) // TODO: какой код?
+		resWithClientError(ctx, code, err)
 		return
 	}
 
@@ -64,14 +70,16 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 		return
 	}
 
+	// ***
+
 	ctx.JSON(http.StatusOK, dto.MakeSignUpPostRes(
 		out.AccessToken, out.RefreshToken))
 }
 
 func (h *Handler) putSignIn(ctx *gin.Context) {
-	refreshToken, err := extractRefreshToken(ctx)
+	refreshToken, code, err := extractRefreshToken(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err)
+		resWithClientError(ctx, code, err)
 		return
 	}
 
@@ -89,10 +97,12 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 // private
 // -----------------------------------------------------------------------
 
-func extractLoginAndPassword(ctx *gin.Context) (string, string, error) {
+func extractLoginAndPassword(ctx *gin.Context) (
+	string, string, int, error,
+) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		return "", "", err
+		return "", "", se.ParseRequestParamsFailed, err
 	}
 
 	var (
@@ -100,24 +110,26 @@ func extractLoginAndPassword(ctx *gin.Context) (string, string, error) {
 		password = ctx.Request.FormValue("password") // hash?
 	)
 	if len(username) == 0 || len(password) == 0 {
-		return "", "", ErrEmptyParameter
+		return "", "", se.ParseRequestParamsFailed, ErrEmptyRequestParameter
 	}
 
-	return username, password, nil
+	return username, password, se.NoError, nil
 }
 
-func extractRefreshToken(ctx *gin.Context) (string, error) {
+func extractRefreshToken(ctx *gin.Context) (
+	string, int, error,
+) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		return "", err
+		return "", se.ParseRequestParamsFailed, err
 	}
 
 	var (
 		refreshToken = ctx.Request.FormValue("refresh-token")
 	)
 	if len(refreshToken) == 0 {
-		return "", ErrEmptyParameter
+		return "", se.ParseRequestParamsFailed, ErrEmptyRequestParameter
 	}
 
-	return refreshToken, nil
+	return refreshToken, se.NoError, nil
 }

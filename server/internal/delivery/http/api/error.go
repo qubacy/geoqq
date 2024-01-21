@@ -3,5 +3,7 @@ package api
 import "errors"
 
 var (
-	ErrEmptyParameter = errors.New("Empty parameter")
+	ErrEmptyRequestParameter = errors.New("Empty parameter")
+	ErrEmptyContextParam     = errors.New("Empty context param")
+	ErrEmptyAccessToken      = errors.New("Empty access token")
 )

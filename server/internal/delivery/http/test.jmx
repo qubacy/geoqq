@@ -20,7 +20,7 @@
           <stringProp name="613376934">UserPassword</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-1432943014">
+          <collectionProp name="152907846">
             <stringProp name="1505998205">127.0.0.1</stringProp>
             <stringProp name="50632782">57000</stringProp>
             <stringProp name="-2070369658">Joshua</stringProp>
@@ -330,10 +330,10 @@
           <hashTree/>
           <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
             <stringProp name="RegexExtractor.useHeaders">false</stringProp>
-            <stringProp name="RegexExtractor.refname"></stringProp>
-            <stringProp name="RegexExtractor.regex"></stringProp>
-            <stringProp name="RegexExtractor.template"></stringProp>
-            <stringProp name="RegexExtractor.default"></stringProp>
+            <stringProp name="RegexExtractor.refname">accessToken</stringProp>
+            <stringProp name="RegexExtractor.regex">\{\s*\&quot;access-token\&quot;\s*:\s*\&quot;(.+?)\&quot;\s*,</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">&lt;Not Found&gt;</stringProp>
             <stringProp name="RegexExtractor.match_number"></stringProp>
           </RegexExtractor>
           <hashTree/>
@@ -343,7 +343,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="accessToken" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.value">${accessToken}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">accessToken</stringProp>

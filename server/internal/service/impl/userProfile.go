@@ -8,12 +8,12 @@ import (
 	utl "geoqq/pkg/utility"
 )
 
-type ProfileService struct {
+type UserProfileService struct {
 	storage storage.Storage
 }
 
-func newProfileService(deps Dependencies) *ProfileService {
-	instance := &ProfileService{
+func newUserProfileService(deps Dependencies) *UserProfileService {
+	instance := &UserProfileService{
 		storage: deps.Storage,
 	}
 	return instance
@@ -21,7 +21,7 @@ func newProfileService(deps Dependencies) *ProfileService {
 
 // -----------------------------------------------------------------------
 
-func (p *ProfileService) GetUserProfile(ctx context.Context, userId uint64) (
+func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) (
 	domain.UserProfile, error,
 ) {
 	userProfile, err := p.storage.GetUserProfileById(ctx, userId) // should be in storage!

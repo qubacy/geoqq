@@ -1,17 +1,26 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"geoqq/internal/delivery/http/api/dto"
+	se "geoqq/pkg/errorForClient/impl"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) registerUserRoutes() {
-	h.router.GET("/my-profile", h.getMyProfile)
-	h.router.PUT("/my-profile", h.putMyProfile)
+	myProfileRouter := h.router.Group("/my-profile", h.userIdentity)
+	{
+		myProfileRouter.GET("", h.getMyProfile)
+		myProfileRouter.PUT("", h.putMyProfile)
+	}
 
 	// ***
 
-	router := h.router.Group("/user", h.userIdentity)
+	userRouter := h.router.Group("/user", h.userIdentity)
 	{
-		router.GET("/:id", h.getUser)
-		router.GET("", h.getSomeUsers)
+		userRouter.GET("/:id", h.getUser)
+		userRouter.GET("", h.getSomeUsers)
 	}
 }
 
@@ -19,7 +28,21 @@ func (h *Handler) registerUserRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMyProfile(ctx *gin.Context) {
+	userId, clientCode, err := extractUserId(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	userProfile, err := h.services.GetUserProfile(ctx, userId)
+	if err != nil {
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK,
+		dto.MakeMyProfileRes(userProfile))
 }
 
 func (h *Handler) putMyProfile(ctx *gin.Context) {

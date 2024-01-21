@@ -2,6 +2,7 @@ package impl
 
 import (
 	"geoqq/internal/storage"
+	"geoqq/pkg/avatar"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
 	"time"
@@ -10,22 +11,21 @@ import (
 type Services struct {
 	*AuthService
 	*UserService
-	*ProfileService
+	*UserProfileService
 }
 
 type Dependencies struct {
 	TokenManager    token.TokenManager
+	HashManager     hash.HashManager
+	AvatarGenerator avatar.AvatarGenerator
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
-
-	HashManager hash.HashManager
-
-	Storage storage.Storage
+	Storage         storage.Storage
 }
 
 func NewServices(deps Dependencies) (*Services, error) {
 	return &Services{
-		AuthService:    newAuthService(deps),
-		ProfileService: newProfileService(deps),
+		AuthService:        newAuthService(deps),
+		UserProfileService: newUserProfileService(deps),
 	}, nil
 }

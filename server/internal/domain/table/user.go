@@ -24,7 +24,7 @@ type UserEntry struct {
 	HashPassword string
 	HashUpdToken string
 	SignUpTime   time.Time
-	SignInTime   time.Time
+	SignInTime   *time.Time
 }
 
 type UserLocation struct {

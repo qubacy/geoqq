@@ -21,6 +21,10 @@ func resWithClientError(ctx *gin.Context, errorId int, err error) {
 	resWithErr(ctx, http.StatusBadRequest, errorId, err)
 }
 
+func resWithAuthError(ctx *gin.Context, errorId int, err error) {
+	resWithErr(ctx, http.StatusUnauthorized, errorId, err)
+}
+
 func resWithServerErr(ctx *gin.Context, errorId int, err error) {
 	resWithErr(ctx, http.StatusInternalServerError, errorId, err)
 }

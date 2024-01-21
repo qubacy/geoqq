@@ -1,5 +1,7 @@
 package dto
 
+import "geoqq/internal/domain"
+
 // GET /api/my-profile
 // -----------------------------------------------------------------------
 
@@ -7,16 +9,33 @@ type MyProfileRes struct {
 	Profile
 }
 
+func MakeMyProfileRes(value domain.UserProfile) MyProfileRes {
+	return MyProfileRes{
+		Profile: Profile{
+			Username:    value.Username,
+			Description: value.Description,
+			AvatarId:    float64(value.AvatarId), // or null/optional?
+			Privacy:     MakePrivacy(value.Privacy),
+		},
+	}
+}
+
 type Profile struct { // not equal struct user!
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
-	AvatarId    float64 `json:"avatar-id"`
+	AvatarId    float64 `json:"omitempty,avatar-id"`
 
 	Privacy `json:"privacy"`
 }
 
 type Privacy struct {
 	HitMeUp int `json:"hit-me-up"`
+}
+
+func MakePrivacy(privacy domain.Privacy) Privacy {
+	return Privacy{
+		HitMeUp: privacy.HitMeUp,
+	}
 }
 
 // PUT /api/my-profile

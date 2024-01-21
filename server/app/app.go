@@ -9,6 +9,8 @@ import (
 	serviceImpl "geoqq/internal/service/impl"
 	"geoqq/internal/storage"
 	storagePostgre "geoqq/internal/storage/impl/sql/postgre"
+	"geoqq/pkg/avatar"
+	avatarImpl "geoqq/pkg/avatar/impl"
 	"geoqq/pkg/hash"
 	hashImpl "geoqq/pkg/hash/impl"
 	"geoqq/pkg/token"
@@ -35,10 +37,6 @@ func NewApp() (*App, error) {
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
-	hashManager, err := hashManagerInstance()
-	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
-	}
 
 	// *** storage
 
@@ -50,18 +48,17 @@ func NewApp() (*App, error) {
 	// *** service
 
 	services, err := servicesInstance(
-		tokenManager, hashManager, storage)
+		tokenManager, storage)
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
 
 	// *** delivery with http
 
-	deliveryHttpDeps := deliveryHttp.Dependencies{
+	httpHandler, err := deliveryHttp.NewHandler(deliveryHttp.Dependencies{
 		TokenExtractor: tokenManager,
 		Services:       services,
-	}
-	httpHandler, err := deliveryHttp.NewHandler(deliveryHttpDeps)
+	})
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
@@ -121,15 +118,29 @@ func storageInstance() (storage.Storage, error) {
 
 func servicesInstance(
 	tokenManager token.TokenManager,
-	hashManager hash.HashManager,
 	storage storage.Storage) (
 	service.Services, error,
 ) {
+
+	// deps only for services
+
+	hashManager, err := hashManagerInstance()
+	if err != nil {
+		return nil, utility.NewFuncError(servicesInstance, err)
+	}
+	avatarGenerator, err := avatarGeneratorInstance()
+	if err != nil {
+		return nil, utility.NewFuncError(servicesInstance, err)
+	}
+
+	// ***
+
 	services, err := serviceImpl.NewServices(serviceImpl.Dependencies{
+		HashManager:     hashManager,
 		TokenManager:    tokenManager,
 		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
-		HashManager:     hashManager,
+		AvatarGenerator: avatarGenerator,
 		Storage:         storage,
 	})
 	if err != nil {
@@ -165,4 +176,8 @@ func tokenManagerInstance() (token.TokenManager, error) {
 	}
 
 	return tokenManager, nil
+}
+
+func avatarGeneratorInstance() (avatar.AvatarGenerator, error) {
+	return avatarImpl.NewAvatarGenerator()
 }

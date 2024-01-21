@@ -1,40 +1,56 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	se "geoqq/pkg/errorForClient/impl"
 
-const ()
+	"github.com/gin-gonic/gin"
+)
 
-// TODO: заголовок или get параметр?
+const (
+	contextUserId = "user-id"
+)
 
+// only there are authorization errors!
 func (h *Handler) userIdentity(ctx *gin.Context) {
-	accessToken, err := extractAccessToken(ctx)
+	accessToken, clientCode, err := extractAccessToken(ctx)
 	if err != nil {
-		resWithClientError(ctx, 0, err)
+		resWithAuthError(ctx, clientCode, err)
 		return
 	}
 
-	payload, err := h.tokenExtractor.Parse(accessToken)
+	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
-		resWithClientError(ctx, 0, err)
+		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
 		return
 	}
 
-	ctx.Set("user-id", payload.UserId)
+	ctx.Set(contextUserId, payload.UserId)
 }
 
-// private
+// help
 // -----------------------------------------------------------------------
 
-func extractAccessToken(ctx *gin.Context) (string, error) {
+func extractAccessToken(ctx *gin.Context) (string, int, error) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		return "", err
+		return "", se.ParseRequestParamsFailed, err
 	}
 
+	// get-parameter!
 	accessToken := ctx.Request.Form.Get("accessToken")
 	if len(accessToken) == 0 {
-		return "", ErrEmptyParameter
+		return "", se.ParseAccessTokenFailed,
+			ErrEmptyAccessToken
 	}
 
-	return accessToken, nil
+	return accessToken, se.NoError, nil
+}
+
+func extractUserId(ctx *gin.Context) (uint64, int, error) {
+	_, exists := ctx.Get(contextUserId)
+	if !exists {
+		return 0, se.ServerError, ErrEmptyContextParam
+	}
+
+	return ctx.GetUint64(contextUserId), se.NoError, nil
 }
