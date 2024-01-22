@@ -1,6 +1,6 @@
-package table
+package resource
 
-// or image.go?
+// or user golang image...
 
 type Image struct {
 	Id      uint64 // <--- bigserial

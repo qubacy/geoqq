@@ -10,7 +10,7 @@ import (
 
 // consists of concrete implementation types!
 type Storage struct {
-	*ImageStorage
+	*AvatarStorage
 	*UserStorage
 	*UserProfileStorage
 	*MateRequestStorage

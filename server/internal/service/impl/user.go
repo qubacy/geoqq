@@ -1,9 +1,9 @@
 package impl
 
 import (
-	"geoqq/internal/storage"
+	domainStorage "geoqq/internal/storage/domain"
 )
 
 type UserService struct {
-	storage storage.Storage
+	storage domainStorage.Storage
 }

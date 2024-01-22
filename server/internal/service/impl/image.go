@@ -1,7 +1,9 @@
 package impl
 
-import "geoqq/internal/storage"
+import (
+	domainStorage "geoqq/internal/storage/domain"
+)
 
 type ImageService struct {
-	storage storage.Storage
+	storage domainStorage.Storage
 }

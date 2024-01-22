@@ -3,7 +3,7 @@ package impl
 import (
 	"context"
 	"geoqq/internal/service/dto"
-	"geoqq/internal/storage"
+	domainStorage "geoqq/internal/storage/domain"
 	"geoqq/pkg/avatar"
 	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/hash"
@@ -19,7 +19,7 @@ type AuthService struct {
 	tokenManager    token.TokenManager
 	hashManager     hash.HashManager
 	avatarGenerator avatar.AvatarGenerator
-	storage         storage.Storage
+	storage         domainStorage.Storage
 
 	validators map[string]*regexp.Regexp
 }

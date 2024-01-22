@@ -1,4 +1,4 @@
-package storage
+package domain
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 )
 
 // currently working with pictures!
-type ImageStorage interface {
+type AvatarStorage interface {
 }
 
 type UserStorage interface {
@@ -42,7 +42,7 @@ type GeoChatStorage interface {
 // -----------------------------------------------------------------------
 
 type Storage interface {
-	ImageStorage
+	AvatarStorage
 	UserStorage
 	UserProfileStorage
 	MateRequestStorage

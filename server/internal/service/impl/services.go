@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"geoqq/internal/storage"
+	domainStorage "geoqq/internal/storage/domain"
 	"geoqq/pkg/avatar"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
@@ -20,7 +20,7 @@ type Dependencies struct {
 	AvatarGenerator avatar.AvatarGenerator
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
-	Storage         storage.Storage
+	Storage         domainStorage.Storage
 }
 
 func NewServices(deps Dependencies) (*Services, error) {

@@ -3,13 +3,13 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain"
-	"geoqq/internal/storage"
+	domainStorage "geoqq/internal/storage/domain"
 	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 
 type UserProfileService struct {
-	storage storage.Storage
+	storage domainStorage.Storage
 }
 
 func newUserProfileService(deps Dependencies) *UserProfileService {

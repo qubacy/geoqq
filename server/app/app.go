@@ -7,8 +7,8 @@ import (
 	"geoqq/internal/server"
 	"geoqq/internal/service"
 	serviceImpl "geoqq/internal/service/impl"
-	"geoqq/internal/storage"
-	storagePostgre "geoqq/internal/storage/impl/sql/postgre"
+	domainStorage "geoqq/internal/storage/domain"
+	storagePostgre "geoqq/internal/storage/domain/impl/sql/postgre"
 	"geoqq/pkg/avatar"
 	avatarImpl "geoqq/pkg/avatar/impl"
 	"geoqq/pkg/hash"
@@ -86,15 +86,15 @@ func (a *App) Run() error {
 // private
 // -----------------------------------------------------------------------
 
-func storageInstance() (storage.Storage, error) {
+func storageInstance() (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
 	ctx, cancel := context.WithTimeout(context.Background(), maxInitTime)
 	defer cancel()
 
 	var err error = ErrStorageTypeIsNotDefined
-	var storage storage.Storage = nil
+	var storage domainStorage.Storage = nil
 
-	storageType := viper.GetString("storage.type")
+	storageType := viper.GetString("storage.domain.type")
 	if storageType == "postgre" {
 		storage, err = storagePostgre.NewStorage(ctx, storagePostgre.Dependencies{
 			Host:     viper.GetString("storage.sql.postgre.host"),
@@ -118,7 +118,7 @@ func storageInstance() (storage.Storage, error) {
 
 func servicesInstance(
 	tokenManager token.TokenManager,
-	storage storage.Storage) (
+	storage domainStorage.Storage) (
 	service.Services, error,
 ) {
 
