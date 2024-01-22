@@ -8,28 +8,32 @@ delivery:
     port:
 
 storage:
-  hash_type: "sha1"
+  hash_type: "sha1" # general parameter?
   max_init_time: 5s
-  type: "postgre"
 
-  memory:
-    anytime:
-      resource:
-        avatar: "avatar"
-        #...
-
-    runtime:
-    #...
-
-  sql:
-    postgre:
-      host: "127.0.0.1"
-      port: 5432
-      user: "postgres"
-      password: "admin"
-      database: "geoqq"
-    sqlite:
+  resource:
+    type: "anytime"
+    memory:
+      anytime:
+          avatar: "avatar"
+          #...
+      runtime:
       #...
+
+  domain:
+    type: "postgre"
+  
+    memory:
+
+    sql:
+      postgre:
+        host: "127.0.0.1"
+        port: 5432
+        user: "postgres"
+        password: "admin"
+        database: "geoqq"
+      sqlite:
+        #...
 
 server:
   http:
