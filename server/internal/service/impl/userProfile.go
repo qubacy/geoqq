@@ -14,7 +14,7 @@ type UserProfileService struct {
 
 func newUserProfileService(deps Dependencies) *UserProfileService {
 	instance := &UserProfileService{
-		storage: deps.Storage,
+		storage: deps.DomainStorage,
 	}
 	return instance
 }

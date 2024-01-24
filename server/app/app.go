@@ -141,7 +141,7 @@ func servicesInstance(
 		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
 		AvatarGenerator: avatarGenerator,
-		Storage:         storage,
+		DomainStorage:   storage,
 	})
 	if err != nil {
 		return nil, utility.NewFuncError(servicesInstance, err)

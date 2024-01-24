@@ -16,7 +16,12 @@ func NewAvatarGenerator() (*AvatarGenerator, error) {
 // -----------------------------------------------------------------------
 
 func (a *AvatarGenerator) New() (image.Image, error) {
-	return govatar.Generate(randomGender())
+	img, err := govatar.Generate(randomGender())
+	if err != nil {
+		return nil, err
+	}
+
+	return img, err
 }
 
 func (a *AvatarGenerator) NewFile(fileNameWithoutExt string) error {

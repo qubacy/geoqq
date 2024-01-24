@@ -32,7 +32,7 @@ func newAuthService(deps Dependencies) *AuthService {
 		tokenManager:    deps.TokenManager,
 		hashManager:     deps.HashManager,
 		avatarGenerator: deps.AvatarGenerator,
-		storage:         deps.Storage,
+		storage:         deps.DomainStorage,
 	}
 
 	// ***

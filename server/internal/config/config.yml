@@ -11,7 +11,7 @@ storage:
   hash_type: "sha1" # general parameter?
   max_init_time: 5s
 
-  resource:
+  resource: # or file/blob
     type: "anytime"
     memory:
       anytime:
@@ -20,7 +20,7 @@ storage:
       runtime:
       #...
 
-  domain:
+  domain: # or models/business
     type: "postgre"
   
     memory:
@@ -28,7 +28,7 @@ storage:
     sql:
       postgre:
         host: "127.0.0.1"
-        port: 5432
+        port: 5433
         user: "postgres"
         password: "admin"
         database: "geoqq"
