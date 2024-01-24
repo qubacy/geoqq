@@ -11,7 +11,7 @@ storage:
   hash_type: "sha1" # general parameter?
   max_init_time: 5s
 
-  resource: # or file/blob
+  file: # or resource/blob
     type: "anytime"
     memory:
       anytime:
