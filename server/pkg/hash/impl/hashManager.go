@@ -51,7 +51,7 @@ func (h *HashManager) New(value string) (string, error) {
 	}
 
 	hexHashValue := hex.EncodeToString(bytes)
-	return strings.ToUpper(hexHashValue), nil // !
+	return strings.ToLower(hexHashValue), nil // !
 }
 
 // private
