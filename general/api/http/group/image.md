@@ -11,6 +11,7 @@
 ```json
 {
     "id": "<id>",
+    "ext": "<int>",
     "content": "<base64-string>"
 }
 ```
@@ -38,6 +39,7 @@
     "images": [
         {
             "id": "<id>",
+            "ext": "<int>",
             "content": "<base64-string>"
         },
         ...

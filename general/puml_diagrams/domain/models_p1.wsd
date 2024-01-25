@@ -24,105 +24,107 @@ hide empty members
 ' models
 ' -----------------------------------------------
 
-package Resource {
+package Domain {
+    package User {
+        class UserEntry {
+            Id: Number
+            Username: String
+            HashPassword: String
+            HashUpdToken: String
+            SignUpTime: Datetime
+            SignInTime: Datetime
+        }
 
-class Image {
-    Id: Number
-    Content: String
+        class UserLocation {
+            UserId: Number
+            Lon: Number
+            Lat: Number
+            Time: Datetime
+        }
+
+        class UserDetails {
+            UserId: Number
+            Description: String
+            AvatarId: Number
+        }
+
+        class UserOptions {
+            UserId: Number
+            Privacy: Number
+        }
+
+        class Avatar {
+            Id: Number
+            GeneratedByServer: Bool
+            Time: Datetime
+            Hash: String
+        }
+    }
+
+    package Mate {
+        class Mate {
+            Id: Number
+            FirstUserId: Number
+            SecondUserId: Number
+        }
+        ' When deleted, a new one-way request is added
+
+        class MateRequest {
+            Id: Number
+            FromUserId: Number
+            ToUserId: Number
+            ReqTime: Datetime
+            ResTime: Datetime
+            Result: Number
+        }
+        ' Result from list: accepted, rejected, waiting
+        ' Cron to remove some requests
+    }
+
+    package Mate-chat {
+        class MateChat {
+            Id: Number
+            FirstUserId: Number
+            SecondUserId: Number
+        }
+        ' Created when created friendship
+        ' Hidden for user who deleted chat
+
+        class MateMessage {
+            Id: Number
+            MateChatId: Number
+            FromUserId: Number
+            Text: String
+            Time: Datetime
+            Read: Bool
+        }
+
+        class DeletedMateChat {
+            ChatId: Number
+            UserId: Number
+        }
+    }
+
+    package Geo-chat {
+        class GeoMessage {
+            Id: Number
+            FromUserId: Number
+            Text: String
+            Time: Datetime
+            Lon: Number
+            Lat: Number
+        }
+    }
 }
 
+package File {
+    class Image {
+        Id: Number
+        Ext: Number
+        Content: String
+    }
 }
 
-package User {
-
-class UserEntry {
-    Id: Number
-    Username: String
-    HashPassword: String
-    HashUpdToken: String
-    SignUpTime: Datetime
-    SignInTime: Datetime
-}
-
-class UserLocation {
-    UserId: Number
-    Lon: Number
-    Lat: Number
-    Time: Datetime
-}
-
-class UserDetails {
-    UserId: Number
-    Description: String
-    AvatarId: Number
-}
-
-class UserOptions {
-    UserId: Number
-    Privacy: Number
-}
-
-}
-
-package Mate {
-
-class Mate {
-    Id: Number
-    FirstUserId: Number
-    SecondUserId: Number
-}
-' When deleted, a new one-way request is added
-
-class MateRequest {
-    Id: Number
-    FromUserId: Number
-    ToUserId: Number
-    ReqTime: Datetime
-    ResTime: Datetime
-    Result: Number 
-}
-' Result from list: accepted, rejected, waiting
-' Cron to remove some requests
-
-}
-
-package Mate-chat {
-
-class MateChat {
-    Id: Number
-    FirstUserId: Number
-    SecondUserId: Number
-}
-' Created when created friendship
-' Hidden for user who deleted chat
-
-class MateMessage {
-    Id: Number
-    MateChatId: Number
-    FromUserId: Number
-    Text: String
-    Time: Datetime
-    Read: Bool
-}
-
-class DeletedMateChat {
-    ChatId: Number
-    UserId: Number
-}
-
-}
-
-package Geo-chat {
-
-class GeoMessage {
-    Id: Number
-    FromUserId: Number
-    Text: String
-    Time: Datetime
-    Lon: Number
-    Lat: Number
-}
-
-}
+Image -- Avatar
 
 @enduml

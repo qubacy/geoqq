@@ -18,11 +18,12 @@ hide empty members
 '                      | | |
 '                      V V V
 
-' Resource
+' File
 ' -----------------------------------------------
 
 class Image {
     Id: Number
+    Ext: Number
     Content: String
 }
 
@@ -54,6 +55,13 @@ class UserDetails {
 class UserOptions {
     UserId: Number
     Privacy: Number
+}
+
+class Avatar {
+    Id: Number
+    GeneratedByServer: Bool
+    Time: Datetime
+    Hash: String
 }
 
 ' Mate
@@ -114,6 +122,8 @@ class GeoMessage {
 UserLocation --> UserEntry
 UserOptions --> UserEntry
 UserDetails --> UserEntry
+UserDetails --> Avatar
+Avatar -- Image
 
 ' ***
 
@@ -122,16 +132,17 @@ GeoMessage -r-> UserEntry
 ' ***
 
 MateRequest -d-> UserEntry
-Mate -u-> UserEntry
+Mate -d- UserEntry
 
 ' ***
  
 MateChat -u-> UserEntry
 MateMessage -l-> UserEntry
+MateMessage -l-> MateChat
 
 ' ***
 
-DeletedMateChat -l-> MateChat
+DeletedMateChat -r-> MateChat
 DeletedMateChat -u-> UserEntry
 
 @enduml
