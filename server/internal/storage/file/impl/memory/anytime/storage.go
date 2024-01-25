@@ -58,14 +58,16 @@ func (s *Storage) LoadImage(ctx context.Context, id uint64, ext file.ImageExt) (
 		return nil, ErrImageDoesNotExists
 	}
 
-	imageFile, err := os.Open(fileName)
+	bytes, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, utility.NewFuncError(s.LoadImage, err)
 	}
 
-	// TODO: read and convert!
-
-	return nil, nil
+	return &file.Image{
+		Id:        id,
+		Extension: ext,
+		Content:   base64.StdEncoding.EncodeToString(bytes),
+	}, nil
 }
 
 func (s *Storage) SaveImage(ctx context.Context, image *file.Image) error {
@@ -120,7 +122,20 @@ func (s *Storage) SaveImage(ctx context.Context, image *file.Image) error {
 	return nil
 }
 
+// private
 // -----------------------------------------------------------------------
+
+func (s *Storage) fileAndDirNames(id uint64, ext file.ImageExt) (string, string, error) {
+	fileName, err := s.hashManager.New(strconv.FormatUint(id, 10))
+	if err != nil {
+		return "", "", utility.NewFuncError(s.fileAndDirNames, err)
+	}
+
+	dirName := strings.Join([]string{s.rootDirName, fileName[:2]}, "/")
+	fileName = strings.Join([]string{dirName, fileName + "." + ext.String()}, "/")
+
+	return fileName, dirName, nil
+}
 
 func existsFileOrDir(path string) (bool, error) {
 	_, err := os.Stat(path)
