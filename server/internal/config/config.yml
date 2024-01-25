@@ -15,7 +15,7 @@ storage:
     type: "anytime"
     memory:
       anytime:
-          avatar: "avatar"
+          avatar: "./avatar"
           #...
       runtime:
       #...

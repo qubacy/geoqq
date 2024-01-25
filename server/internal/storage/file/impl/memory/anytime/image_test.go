@@ -33,8 +33,8 @@ func Test_SaveImage(t *testing.T) {
 	}
 
 	storage, err := NewStorage(Dependencies{
-		RootDirName: ".",
-		HashManager: hashManager,
+		AvatarDirName: ".",
+		HashManager:   hashManager,
 	})
 	if err != nil {
 		t.Error(err)
@@ -59,8 +59,8 @@ func Test_LoadImage(t *testing.T) {
 	}
 
 	storage, err := NewStorage(Dependencies{
-		RootDirName: ".",
-		HashManager: hashManager,
+		AvatarDirName: ".",
+		HashManager:   hashManager,
 	})
 	if err != nil {
 		t.Error(err)

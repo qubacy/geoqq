@@ -8,7 +8,9 @@ import (
 	"geoqq/internal/service"
 	serviceImpl "geoqq/internal/service/impl"
 	domainStorage "geoqq/internal/storage/domain"
-	storagePostgre "geoqq/internal/storage/domain/impl/sql/postgre"
+	domainStorageImpl "geoqq/internal/storage/domain/impl/sql/postgre"
+	fileStorage "geoqq/internal/storage/file"
+	fileStorageImpl "geoqq/internal/storage/file/impl/memory/anytime"
 	"geoqq/pkg/avatar"
 	avatarImpl "geoqq/pkg/avatar/impl"
 	"geoqq/pkg/hash"
@@ -40,7 +42,7 @@ func NewApp() (*App, error) {
 
 	// *** storage
 
-	storage, err := storageInstance()
+	storage, err := domainStorageInstance()
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
@@ -86,7 +88,7 @@ func (a *App) Run() error {
 // private
 // -----------------------------------------------------------------------
 
-func storageInstance() (domainStorage.Storage, error) {
+func domainStorageInstance() (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
 	ctx, cancel := context.WithTimeout(context.Background(), maxInitTime)
 	defer cancel()
@@ -96,23 +98,42 @@ func storageInstance() (domainStorage.Storage, error) {
 
 	storageType := viper.GetString("storage.domain.type")
 	if storageType == "postgre" {
-		storage, err = storagePostgre.NewStorage(ctx, storagePostgre.Dependencies{
-			Host:     viper.GetString("storage.sql.postgre.host"),
-			Port:     viper.GetUint16("storage.sql.postgre.port"),
-			User:     viper.GetString("storage.sql.postgre.user"),
-			Password: viper.GetString("storage.sql.postgre.password"),
-			DbName:   viper.GetString("storage.sql.postgre.database"),
+		storage, err = domainStorageImpl.NewStorage(ctx, domainStorageImpl.Dependencies{
+			Host:     viper.GetString("storage.domain.sql.postgre.host"),
+			Port:     viper.GetUint16("storage.domain.sql.postgre.port"),
+			User:     viper.GetString("storage.domain.sql.postgre.user"),
+			Password: viper.GetString("storage.domain.sql.postgre.password"),
+			DbName:   viper.GetString("storage.domain.sql.postgre.database"),
 		})
-	} else if storageType == "memory" {
-		//...
 	} else if storageType == "sqlite" {
 		//...
 	}
 
 	if err != nil {
 		return nil,
-			utility.NewFuncError(storageInstance, err) // <--- exception!
+			utility.NewFuncError(domainStorageInstance, err) // <--- exception!
 	}
+	return storage, nil
+}
+
+func fileStorageInstance() (fileStorage.Storage, error) {
+	var err error = ErrStorageTypeIsNotDefined
+	var storage fileStorage.Storage = nil
+
+	storageType := viper.GetString("storage.file.type")
+	if storageType == "anytime" {
+		storage, err = fileStorageImpl.NewStorage(fileStorageImpl.Dependencies{
+			AvatarDirName: viper.GetString("storage.file.anytime.avatar"),
+		})
+	} else if storageType == "runtime" {
+		//...
+	}
+
+	if err != nil {
+		return nil,
+			utility.NewFuncError(domainStorageInstance, err) // <--- exception!
+	}
+
 	return storage, nil
 }
 
