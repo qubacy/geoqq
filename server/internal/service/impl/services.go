@@ -18,9 +18,9 @@ type Services struct {
 type Dependencies struct {
 	TokenManager    token.TokenManager
 	HashManager     hash.HashManager
-	AvatarGenerator avatar.AvatarGenerator
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+	AvatarGenerator avatar.AvatarGenerator
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage
 }

@@ -36,6 +36,7 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 	}
 
 	storage := &Storage{
+		AvatarStorage:      newAvatarStorage(pool),
 		UserStorage:        newUserStorage(pool),
 		UserProfileStorage: newUserProfileStorage(pool),
 	}

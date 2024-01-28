@@ -1,8 +1,11 @@
 package utility
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"image"
+	"image/png"
 	"math/rand"
 	"reflect"
 	"runtime"
@@ -61,4 +64,17 @@ func RandomString(n int) string {
 // [min, max)
 func RandomInt(min, max int) int {
 	return min + rand.Intn(max-min)
+}
+
+// converters
+// -----------------------------------------------------------------------
+
+func ImageToPngBytes(img image.Image) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	err := png.Encode(buf, img)
+	if err != nil {
+		return nil, NewFuncError(ImageToPngBytes, err)
+	}
+
+	return buf.Bytes(), nil
 }

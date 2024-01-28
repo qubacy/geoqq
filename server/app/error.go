@@ -3,5 +3,6 @@ package app
 import "errors"
 
 var (
-	ErrStorageTypeIsNotDefined error = errors.New("Storage type is not defined")
+	ErrDomainStorageTypeIsNotDefined error = errors.New("Domain storage type is not defined")
+	ErrFileStorageTypeIsNotDefined   error = errors.New("File storage type is not defined")
 )

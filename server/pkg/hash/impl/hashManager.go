@@ -44,10 +44,16 @@ func NewHashManager(hashType HashType) (*HashManager, error) {
 	}, nil
 }
 
-func (h *HashManager) New(value string) (string, error) {
-	bytes, err := sum(h.hashType, value)
+// -----------------------------------------------------------------------
+
+func (h *HashManager) NewFromString(value string) (string, error) {
+	return h.NewFromBytes([]byte(value))
+}
+
+func (h *HashManager) NewFromBytes(bytes []byte) (string, error) {
+	bytes, err := sum(h.hashType, bytes)
 	if err != nil {
-		return "", utility.NewFuncError(h.New, err)
+		return "", utility.NewFuncError(h.NewFromString, err)
 	}
 
 	hexHashValue := hex.EncodeToString(bytes)
@@ -57,9 +63,7 @@ func (h *HashManager) New(value string) (string, error) {
 // private
 // -----------------------------------------------------------------------
 
-func sum(hashType HashType, value string) ([]byte, error) {
-	valueBytes := []byte(value)
-
+func sum(hashType HashType, valueBytes []byte) ([]byte, error) {
 	switch hashType {
 	case MD5:
 		hashedFixedBytes := md5.Sum(valueBytes)

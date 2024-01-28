@@ -2,17 +2,51 @@ package anytime
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"geoqq/pkg/file"
 	hashImpl "geoqq/pkg/hash/impl"
 	"os"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
-// experiments
+func TestMain(m *testing.M) {
+	flag.Parse()
+
+	setUp()
+	exitCode := m.Run()
+	tearDown()
+
+	os.Exit(exitCode)
+}
+
+func setUp() {
+	const (
+		rootDirName   = "./testResult/"
+		avatarDirName = "./testResult/avatar"
+	)
+
+	viper.Set("storage.file.root", rootDirName)
+	viper.Set("storage.file.avatar", avatarDirName)
+
+	// ***
+
+	fmt.Println("Try remove all:", rootDirName)
+	err := os.RemoveAll(viper.GetString("storage.file.avatar"))
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func tearDown() {}
+
+// tests
+// -----------------------------------------------------------------------
 
 func Test_createDirsIfNeeded(t *testing.T) {
-	err := createDirsIfNeeded("./testResult/avatar/b1")
+	err := createDirsIfNeeded(viper.GetString("storage.file.avatar") + "/b1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -62,6 +96,10 @@ func Test_SaveImage(t *testing.T) {
 }
 
 func Test_LoadImage(t *testing.T) {
+	Test_SaveImage(t)
+
+	// ***
+
 	storage, err := createStorage()
 	if err != nil {
 		t.Error(err)
@@ -86,7 +124,7 @@ func createStorage() (*Storage, error) {
 	}
 
 	storage, err := NewStorage(Dependencies{
-		AvatarDirName: "./testResult/avatar",
+		AvatarDirName: viper.GetString("storage.file.avatar"),
 		HashManager:   hashManager,
 	})
 	if err != nil {

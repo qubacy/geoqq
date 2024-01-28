@@ -102,7 +102,7 @@ func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
 }
 
 func (self *UserStorage) InsertUser(ctx context.Context,
-	username, hashPassword string) (
+	username, hashPassword string, avatarId uint64) (
 	uint64, error,
 ) {
 	conn, err := self.pool.Acquire(ctx)
@@ -132,7 +132,7 @@ func (self *UserStorage) InsertUser(ctx context.Context,
 		tx.Rollback(ctx)
 		return 0, utility.NewFuncError(self.InsertUser, err)
 	}
-	err = insertUserDetails(ctx, tx, lastInsertedId)
+	err = insertUserDetails(ctx, tx, lastInsertedId, avatarId)
 	if err != nil {
 		tx.Rollback(ctx)
 		return 0, utility.NewFuncError(self.InsertUser, err)
@@ -270,11 +270,16 @@ func insertUserLocation(ctx context.Context, tx pgx.Tx,
 }
 
 func insertUserDetails(ctx context.Context, tx pgx.Tx,
-	userId uint64) error {
+	userId, avatarId uint64) error {
 
+	// Avatar id is required parameter!
 	cmdTag, err := tx.Exec(ctx,
-		`INSERT INTO "UserDetails" ("UserId") VALUES ($1);`,
-		userId)
+		`INSERT INTO "UserDetails" (
+			"UserId", "AvatarId"
+		) VALUES (
+			$1, $2
+		);`,
+		userId, avatarId)
 	if err != nil {
 		return utility.NewFuncError(insertUserDetails, err)
 	}

@@ -10,7 +10,9 @@ const (
 	ServerError = 1000 + iota
 	HashManagerError
 	TokenManagerError
-	StorageError
+	AvatarGeneratorError
+	DomainStorageError
+	FileStorageError
 )
 
 const (

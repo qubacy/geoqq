@@ -4,10 +4,13 @@ import (
 	"context"
 	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
+	fileStorage "geoqq/internal/storage/file"
 	"geoqq/pkg/avatar"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/file"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
+	"geoqq/pkg/utility"
 	utl "geoqq/pkg/utility"
 	"regexp"
 	"time"
@@ -19,7 +22,8 @@ type AuthService struct {
 	tokenManager    token.TokenManager
 	hashManager     hash.HashManager
 	avatarGenerator avatar.AvatarGenerator
-	storage         domainStorage.Storage
+	fileStorage     fileStorage.Storage
+	domainStorage   domainStorage.Storage
 
 	validators map[string]*regexp.Regexp
 }
@@ -32,7 +36,8 @@ func newAuthService(deps Dependencies) *AuthService {
 		tokenManager:    deps.TokenManager,
 		hashManager:     deps.HashManager,
 		avatarGenerator: deps.AvatarGenerator,
-		storage:         deps.DomainStorage,
+		fileStorage:     deps.FileStorage,
+		domainStorage:   deps.DomainStorage,
 	}
 
 	// ***
@@ -58,14 +63,14 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 
 	// ***
 
-	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
+	hashPassword, err := a.hashManager.NewFromString(input.Password) // <--- hash hash password!
 	if err != nil {
 		return a.signInWithError(err, ec.Server, ec.HashManagerError)
 	}
 
-	exists, err := a.storage.HasUserByCredentials(ctx, input.Login, hashPassword)
+	exists, err := a.domainStorage.HasUserByCredentials(ctx, input.Login, hashPassword)
 	if err != nil {
-		return a.signInWithError(err, ec.Server, ec.StorageError)
+		return a.signInWithError(err, ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
 		return a.signInWithError(ErrIncorrectLoginOrPassword,
@@ -74,9 +79,9 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 
 	// ***
 
-	userId, err := a.storage.GetUserIdByByName(ctx, input.Login)
+	userId, err := a.domainStorage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
-		return a.signInWithError(err, ec.Server, ec.StorageError)
+		return a.signInWithError(err, ec.Server, ec.DomainStorageError)
 	}
 
 	// ***
@@ -93,6 +98,8 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	return dto.MakeSignInOut(accessToken, refreshToken), nil
 }
 
+// -----------------------------------------------------------------------
+
 func (a *AuthService) signUpWithError(err error, side, code int) (dto.SignUpOut, error) {
 	return dto.MakeSignUpOutEmpty(),
 		utl.NewFuncError(a.SignUp, ec.New(err, side, code))
@@ -108,23 +115,49 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 
 	// ***
 
-	hashPassword, err := a.hashManager.New(input.Password) // <--- hash hash password!
+	hashPassword, err := a.hashManager.NewFromString(input.Password) // <--- hash hash password!
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, ec.HashManagerError)
 	}
 
-	exists, err := a.storage.HasUserWithName(ctx, input.Login)
+	exists, err := a.domainStorage.HasUserWithName(ctx, input.Login)
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.StorageError)
+		return a.signUpWithError(err, ec.Server, ec.DomainStorageError)
 	}
 	if exists {
 		return a.signUpWithError(ErrUserWithThisLoginAlreadyExists,
 			ec.Client, ec.UserAlreadyExist)
 	}
 
-	userId, err := a.storage.InsertUser(ctx, input.Login, hashPassword)
+	// ***
+
+	image, err := a.avatarGenerator.NewForUser(input.Login)
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.StorageError)
+		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
+	}
+	imageBytes, err := utility.ImageToPngBytes(image)
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
+	}
+
+	imageHash, err := a.hashManager.NewFromBytes(imageBytes)
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
+	}
+
+	avatarId, err := a.domainStorage.InsertGeneratedAvatar(ctx, imageHash)
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
+	}
+
+	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, ec.FileStorageError)
+	}
+
+	userId, err := a.domainStorage.InsertUser(ctx, input.Login, hashPassword, avatarId)
+	if err != nil {
+		return a.signUpWithError(err, ec.Server, ec.DomainStorageError)
 	}
 
 	// *** tokens ***
@@ -153,7 +186,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 ) {
 	payload, err := a.tokenManager.Parse(refreshToken) // with validation!
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, ec.StorageError)
+		return a.refreshTokensWithError(err, ec.Server, ec.DomainStorageError)
 	}
 	err, clientCode := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
 	if err != nil {
@@ -249,14 +282,14 @@ func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
 func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 	userId uint64, refreshToken string) (error, int) { // <--- with client code!
 
-	hashRefreshToken, err := a.hashManager.New(refreshToken)
+	hashRefreshToken, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
 		return err, ec.HashManagerError
 	}
 
-	err = a.storage.UpdateHashRefreshToken(ctx, userId, hashRefreshToken)
+	err = a.domainStorage.UpdateHashRefreshToken(ctx, userId, hashRefreshToken)
 	if err != nil {
-		return err, ec.StorageError
+		return err, ec.DomainStorageError
 	}
 
 	return nil, ec.NoError
@@ -265,13 +298,13 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 	userId uint64, refreshToken string) (error, int) {
 
-	currentHash, err := a.hashManager.New(refreshToken)
+	currentHash, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
 		return err, ec.HashManagerError
 	}
-	storageHash, err := a.storage.GetHashRefreshToken(ctx, userId)
+	storageHash, err := a.domainStorage.GetHashRefreshToken(ctx, userId)
 	if err != nil {
-		return err, ec.StorageError
+		return err, ec.DomainStorageError
 	}
 
 	// ***

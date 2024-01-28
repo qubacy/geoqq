@@ -1,5 +1,7 @@
 package file
 
+import "encoding/base64"
+
 type ImageExt int
 
 const (
@@ -35,4 +37,12 @@ type Image struct {
 	Id        uint64   `json:"id"`
 	Extension ImageExt `json:"ext"`
 	Content   string   `json:"content"`
+}
+
+func NewPngImageFromBytes(id uint64, bytes []byte) *Image {
+	return &Image{
+		Id:        id,
+		Extension: Png,
+		Content:   base64.StdEncoding.EncodeToString(bytes),
+	}
 }

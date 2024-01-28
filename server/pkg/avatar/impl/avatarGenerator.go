@@ -1,8 +1,10 @@
 package impl
 
 import (
+	"geoqq/pkg/utility"
 	"image"
 	"math/rand"
+	"os"
 
 	"github.com/o1egl/govatar"
 )
@@ -24,9 +26,35 @@ func (a *AvatarGenerator) New() (image.Image, error) {
 	return img, err
 }
 
-func (a *AvatarGenerator) NewFile(fileNameWithoutExt string) error {
-	fileName := fileNameWithoutExt + ".png"
+func (a *AvatarGenerator) NewFile(dirPath, fileNameWithoutExt string) error {
+	err := os.MkdirAll(dirPath, os.ModeDir)
+	if err != nil {
+		return utility.NewFuncError(a.NewFile, err)
+	}
+
+	fileName := dirPath + "/" + fileNameWithoutExt + ".png"
 	return govatar.GenerateFile(randomGender(), fileName)
+}
+
+// -----------------------------------------------------------------------
+
+func (a *AvatarGenerator) NewForUser(name string) (image.Image, error) {
+	img, err := govatar.GenerateForUsername(randomGender(), name)
+	if err != nil {
+		return nil, err
+	}
+
+	return img, err
+}
+
+func (a *AvatarGenerator) NewFileForUser(dirPath, fileNameWithoutExt, name string) error {
+	err := os.MkdirAll(dirPath, os.ModeDir)
+	if err != nil {
+		return utility.NewFuncError(a.NewFile, err)
+	}
+
+	fileName := dirPath + "/" + fileNameWithoutExt + ".png"
+	return govatar.GenerateFileForUsername(randomGender(), name, fileName)
 }
 
 // private

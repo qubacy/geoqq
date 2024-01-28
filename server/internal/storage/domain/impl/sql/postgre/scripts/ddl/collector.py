@@ -14,7 +14,7 @@ output_filename = "all.sql"
 func_and_scripts = {
     "create/": 
     [
-        "resource.sql", "user.sql",
+        "avatar.sql", "user.sql",
         "mate.sql", "mateChat.sql",
         "geoChat.sql"
     ],

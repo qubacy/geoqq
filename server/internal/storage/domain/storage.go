@@ -7,6 +7,7 @@ import (
 
 // currently working with pictures!
 type AvatarStorage interface {
+	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
 }
 
 type UserStorage interface {
@@ -15,7 +16,8 @@ type UserStorage interface {
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
 	HasUserWithName(ctx context.Context, value string) (bool, error)
-	InsertUser(ctx context.Context, username, hashPassword string) (uint64, error)
+	InsertUser(ctx context.Context,
+		username, hashPassword string, avatarId uint64) (uint64, error)
 
 	HasUserByCredentials(ctx context.Context,
 		username, hashPassword string) (bool, error)

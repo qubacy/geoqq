@@ -18,6 +18,7 @@ import (
 	"geoqq/pkg/token"
 	tokenImpl "geoqq/pkg/token/impl"
 	"geoqq/pkg/utility"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -39,10 +40,18 @@ func NewApp() (*App, error) {
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
+	hashManager, err := hashManagerInstance()
+	if err != nil {
+		return nil, utility.NewFuncError(servicesInstance, err)
+	}
 
 	// *** storage
 
-	storage, err := domainStorageInstance()
+	domainStorage, err := domainStorageInstance()
+	if err != nil {
+		return nil, utility.NewFuncError(NewApp, err)
+	}
+	fileStorage, err := fileStorageInstance(hashManager)
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
@@ -50,7 +59,9 @@ func NewApp() (*App, error) {
 	// *** service
 
 	services, err := servicesInstance(
-		tokenManager, storage)
+		tokenManager, hashManager,
+		domainStorage, fileStorage,
+	)
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
@@ -93,7 +104,7 @@ func domainStorageInstance() (domainStorage.Storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), maxInitTime)
 	defer cancel()
 
-	var err error = ErrStorageTypeIsNotDefined
+	var err error = ErrDomainStorageTypeIsNotDefined
 	var storage domainStorage.Storage = nil
 
 	storageType := viper.GetString("storage.domain.type")
@@ -116,14 +127,18 @@ func domainStorageInstance() (domainStorage.Storage, error) {
 	return storage, nil
 }
 
-func fileStorageInstance() (fileStorage.Storage, error) {
-	var err error = ErrStorageTypeIsNotDefined
+func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, error) {
+	var err error = ErrFileStorageTypeIsNotDefined
 	var storage fileStorage.Storage = nil
 
 	storageType := viper.GetString("storage.file.type")
 	if storageType == "anytime" {
 		storage, err = fileStorageImpl.NewStorage(fileStorageImpl.Dependencies{
-			AvatarDirName: viper.GetString("storage.file.anytime.avatar"),
+			AvatarDirName: strings.Join([]string{
+				viper.GetString("storage.file.memory.anytime.root"),
+				viper.GetString("storage.file.memory.anytime.avatar"),
+			}, "/"),
+			HashManager: hashManager,
 		})
 	} else if storageType == "runtime" {
 		//...
@@ -131,24 +146,24 @@ func fileStorageInstance() (fileStorage.Storage, error) {
 
 	if err != nil {
 		return nil,
-			utility.NewFuncError(domainStorageInstance, err) // <--- exception!
+			utility.NewFuncError(fileStorageInstance, err)
 	}
 
 	return storage, nil
 }
 
+// -----------------------------------------------------------------------
+
 func servicesInstance(
 	tokenManager token.TokenManager,
-	storage domainStorage.Storage) (
+	hashManager hash.HashManager,
+	domainStorage domainStorage.Storage,
+	fileStorage fileStorage.Storage) (
 	service.Services, error,
 ) {
 
 	// deps only for services
 
-	hashManager, err := hashManagerInstance()
-	if err != nil {
-		return nil, utility.NewFuncError(servicesInstance, err)
-	}
 	avatarGenerator, err := avatarGeneratorInstance()
 	if err != nil {
 		return nil, utility.NewFuncError(servicesInstance, err)
@@ -162,7 +177,8 @@ func servicesInstance(
 		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
 		AvatarGenerator: avatarGenerator,
-		DomainStorage:   storage,
+		DomainStorage:   domainStorage,
+		FileStorage:     fileStorage,
 	})
 	if err != nil {
 		return nil, utility.NewFuncError(servicesInstance, err)

@@ -117,7 +117,7 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 // -----------------------------------------------------------------------
 
 func (s *ImageStorage) fileNameFromId(id uint64) (string, error) {
-	fileName, err := s.hashManager.New(strconv.FormatUint(id, 10))
+	fileName, err := s.hashManager.NewFromString(strconv.FormatUint(id, 10))
 	if err != nil {
 		return "", utility.NewFuncError(s.SaveImage, err)
 	}

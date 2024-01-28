@@ -27,7 +27,7 @@ func Test_HashManager_MD5_New(t *testing.T) {
 		t.Error(err)
 	}
 
-	hashValue, err := hashManager.New("Test")
+	hashValue, err := hashManager.NewFromString("Test")
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,7 +41,7 @@ func Test_HashManager_SHA1_New(t *testing.T) {
 		t.Error(err)
 	}
 
-	hashValue, err := hashManager.New("Test")
+	hashValue, err := hashManager.NewFromString("Test")
 	if err != nil {
 		t.Error(err)
 	}
@@ -59,7 +59,7 @@ func Benchmark_HashManager_SHA1_New(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		_, err := hashManager.New(
+		_, err := hashManager.NewFromString(
 			utility.RandomString(
 				utility.RandomInt(5, 100)))
 
