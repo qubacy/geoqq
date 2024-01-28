@@ -21,6 +21,8 @@ func NewStorage(deps Dependencies) (*Storage, error) {
 		return nil, ErrHashManagerIsNil
 	}
 
+	// ***
+
 	return &Storage{
 		ImageStorage: newImageStorage(deps),
 	}, nil

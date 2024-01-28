@@ -14,7 +14,7 @@ import (
 
 type ImageStorage struct {
 	rwMx        sync.RWMutex
-	rootDirName string // "<catalog name>/avatar"
+	rootDirName string // "<few more catalogs>/avatar"
 	hashManager hash.HashManager
 }
 
@@ -27,16 +27,18 @@ func newImageStorage(deps Dependencies) *ImageStorage {
 
 // -----------------------------------------------------------------------
 
-func (s *ImageStorage) LoadImage(ctx context.Context, id uint64, ext file.ImageExt) (*file.Image, error) {
-	fileName, err := s.hashManager.New(strconv.FormatUint(id, 10))
+func (s *ImageStorage) LoadImage(ctx context.Context, id uint64, ext file.ImageExt) (
+	*file.Image, error,
+) {
+	fileName, _, err := s.fileAndDirNames(id, ext)
 	if err != nil {
 		return nil, utility.NewFuncError(s.LoadImage, err)
 	}
 
-	subDirName := strings.Join([]string{s.rootDirName, fileName[:2]}, "/")
-	fileName = strings.Join([]string{subDirName, fileName + "." + ext.String()}, "/")
-
 	// ***
+
+	s.rwMx.RLock()
+	defer s.rwMx.RUnlock()
 
 	exists, err := existsFileOrDir(fileName)
 	if err != nil {
@@ -45,6 +47,8 @@ func (s *ImageStorage) LoadImage(ctx context.Context, id uint64, ext file.ImageE
 	if !exists {
 		return nil, ErrImageDoesNotExists
 	}
+
+	// ***
 
 	bytes, err := os.ReadFile(fileName)
 	if err != nil {
@@ -62,6 +66,9 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 	if image == nil {
 		return ErrImageIsNil
 	}
+	if image.Extension.IsValid() {
+		return ErrUnknownImageExtension
+	}
 
 	// ***
 
@@ -69,19 +76,15 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
-	fileName, err := s.hashManager.New(strconv.FormatUint(image.Id, 10))
+	fileName, dirName, err := s.fileAndDirNames(image.Id, image.Extension)
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
 
 	// ***
 
-	if image.Extension.IsValid() {
-		return ErrUnknownImageExtension
-	}
-
-	subDirName := strings.Join([]string{s.rootDirName, fileName[:2]}, "/")
-	fileName = strings.Join([]string{subDirName, fileName + "." + image.Extension.String()}, "/")
+	s.rwMx.Lock()
+	defer s.rwMx.Unlock()
 
 	exists, err := existsFileOrDir(fileName)
 	if err != nil {
@@ -93,11 +96,11 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 
 	// ***
 
-	err = createDirIfNeeded(subDirName)
+	err = createDirsIfNeeded(dirName)
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
-	file, err := os.Create(fileName)
+	file, err := os.Create(fileName) // file descriptor has mode O_RDWR!
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
@@ -113,14 +116,23 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 // private
 // -----------------------------------------------------------------------
 
-func (s *Storage) fileAndDirNames(id uint64, ext file.ImageExt) (string, string, error) {
+func (s *ImageStorage) fileNameFromId(id uint64) (string, error) {
 	fileName, err := s.hashManager.New(strconv.FormatUint(id, 10))
+	if err != nil {
+		return "", utility.NewFuncError(s.SaveImage, err)
+	}
+	return fileName, err
+}
+
+func (s *ImageStorage) fileAndDirNames(id uint64, ext file.ImageExt) (string, string, error) {
+	fileName, err := s.fileNameFromId(id)
 	if err != nil {
 		return "", "", utility.NewFuncError(s.fileAndDirNames, err)
 	}
 
 	dirName := strings.Join([]string{s.rootDirName, fileName[:2]}, "/")
-	fileName = strings.Join([]string{dirName, fileName + "." + ext.String()}, "/")
+	fileName = strings.Join([]string{dirName,
+		fileName + "." + ext.String()}, "/")
 
 	return fileName, dirName, nil
 }
@@ -139,16 +151,16 @@ func existsFileOrDir(path string) (bool, error) {
 		existsFileOrDir, err)
 }
 
-func createDirIfNeeded(dirName string) error {
+func createDirsIfNeeded(dirName string) error {
 	exists, err := existsFileOrDir(dirName)
 	if err != nil {
-		return utility.NewFuncError(createDirIfNeeded, err)
+		return utility.NewFuncError(createDirsIfNeeded, err)
 	}
 
 	if !exists {
-		err = os.Mkdir(dirName, os.ModeDir)
+		err = os.MkdirAll(dirName, os.ModeDir) // or os.Perm?
 		if err != nil {
-			return utility.NewFuncError(createDirIfNeeded, err)
+			return utility.NewFuncError(createDirsIfNeeded, err)
 		}
 	}
 	return nil
