@@ -131,29 +131,12 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 
 	// ***
 
-	image, err := a.avatarGenerator.NewForUser(input.Login)
+	avatarId, err := a.generateAndSaveAvatarForUser(ctx, input.Login) // with error for client!
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
-	}
-	imageBytes, err := utility.ImageToPngBytes(image)
-	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
+		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
 	}
 
-	imageHash, err := a.hashManager.NewFromBytes(imageBytes)
-	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
-	}
-
-	avatarId, err := a.domainStorage.InsertGeneratedAvatar(ctx, imageHash)
-	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.AvatarGeneratorError)
-	}
-
-	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
-	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.FileStorageError)
-	}
+	// ***
 
 	userId, err := a.domainStorage.InsertUser(ctx, input.Login, hashPassword, avatarId)
 	if err != nil {
@@ -262,6 +245,55 @@ func (a *AuthService) validateSingIn(input dto.SignInInp) error {
 }
 
 // private
+// -----------------------------------------------------------------------
+
+func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error) {
+	image, err := a.avatarGenerator.NewForUser(login)
+	if err != nil {
+		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
+			ec.New(err, ec.Server, ec.AvatarGeneratorError))
+	}
+
+	imageBytes, err := utility.ImageToPngBytes(image)
+	if err != nil {
+		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
+			ec.New(err, ec.Server, ec.AvatarGeneratorError))
+	}
+
+	// ***
+
+	imageHash, err := a.hashManager.NewFromBytes(imageBytes)
+	if err != nil {
+		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
+			ec.New(err, ec.Server, ec.HashManagerError))
+	}
+
+	return imageBytes, imageHash, nil
+}
+
+func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login string) (uint64, error) {
+	imageBytes, imageHash, err := a.generateAvatarForUser(login)
+	if err != nil {
+		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser, err)
+	}
+
+	// ***
+
+	avatarId, err := a.domainStorage.InsertGeneratedAvatar(ctx, imageHash)
+	if err != nil {
+		return 0, utl.NewFuncError(a.generateAvatarForUser,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
+	if err != nil {
+		return 0, utl.NewFuncError(a.generateAvatarForUser,
+			ec.New(err, ec.Server, ec.FileStorageError))
+	}
+
+	return avatarId, nil
+}
+
 // -----------------------------------------------------------------------
 
 func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
