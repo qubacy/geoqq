@@ -4,6 +4,7 @@ import (
 	"context"
 	"geoqq/internal/domain"
 	"geoqq/internal/service/dto"
+	"geoqq/pkg/file"
 )
 
 type AuthService interface {
@@ -46,8 +47,8 @@ type MateService interface {
 }
 
 type ImageService interface {
-	// GetImageById(ctx context.Context, imageId, userId uint64) (table.Image, error)
-	// GetImagesByIds(ctx context.Context, imageIds []uint64, userId uint64) ([]table.Image, error)
+	GetImageById(ctx context.Context, imageId uint64) (file.Image, error)
+	GetImagesByIds(ctx context.Context, imageIds []uint64) ([]file.Image, error)
 }
 
 type GeoService interface {

@@ -2,6 +2,7 @@ package anytime
 
 import (
 	"geoqq/pkg/hash"
+	"geoqq/pkg/utility"
 )
 
 type Storage struct {
@@ -13,12 +14,21 @@ type Dependencies struct {
 	HashManager   hash.HashManager
 }
 
-func NewStorage(deps Dependencies) (*Storage, error) {
-	if len(deps.AvatarDirName) == 0 {
-		return nil, ErrRootDirNameIsEmpty
+func (d *Dependencies) Validate() error {
+	if len(d.AvatarDirName) == 0 {
+		return ErrRootDirNameIsEmpty
 	}
-	if deps.HashManager == nil {
-		return nil, ErrHashManagerIsNil
+	if d.HashManager == nil {
+		return ErrHashManagerIsNil
+	}
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func NewStorage(deps Dependencies) (*Storage, error) {
+	if err := deps.Validate(); err != nil {
+		return nil, utility.NewFuncError(NewStorage, err)
 	}
 
 	// ***

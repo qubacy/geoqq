@@ -14,7 +14,7 @@ func (h *Handler) registerImageRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getImage(ctx *gin.Context) {
-	_, clientCode, err := extractUserId(ctx)
+	userId, clientCode, err := extractUserId(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
 		return

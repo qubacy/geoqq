@@ -27,13 +27,10 @@ func newImageStorage(deps Dependencies) *ImageStorage {
 
 // -----------------------------------------------------------------------
 
-func (s *ImageStorage) LoadImage(ctx context.Context, id uint64, ext file.ImageExt) (
+func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 	*file.Image, error,
 ) {
-	fileName, _, err := s.fileAndDirNames(id, ext)
-	if err != nil {
-		return nil, utility.NewFuncError(s.LoadImage, err)
-	}
+	fileName := s.fileNameFromId(id)
 
 	// ***
 
@@ -57,7 +54,7 @@ func (s *ImageStorage) LoadImage(ctx context.Context, id uint64, ext file.ImageE
 
 	return &file.Image{
 		Id:        id,
-		Extension: ext,
+		Extension: file.Jpg,
 		Content:   base64.StdEncoding.EncodeToString(bytes),
 	}, nil
 }
@@ -66,7 +63,7 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 	if image == nil {
 		return ErrImageIsNil
 	}
-	if image.Extension.IsValid() {
+	if !image.Extension.IsValid() {
 		return ErrUnknownImageExtension
 	}
 
@@ -76,7 +73,7 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
-	fileName, dirName, err := s.fileAndDirNames(image.Id, image.Extension)
+	fileName, dirName, err := s.wholeFileWithExtAndDirNames(image.Id, image.Extension)
 	if err != nil {
 		return utility.NewFuncError(s.SaveImage, err)
 	}
@@ -116,26 +113,34 @@ func (s *ImageStorage) SaveImage(ctx context.Context, image *file.Image) error {
 // private
 // -----------------------------------------------------------------------
 
-func (s *ImageStorage) fileNameFromId(id uint64) (string, error) {
-	fileName, err := s.hashManager.NewFromString(strconv.FormatUint(id, 10))
-	if err != nil {
-		return "", utility.NewFuncError(s.SaveImage, err)
-	}
-	return fileName, err
+func (s *ImageStorage) fileNameFromId(id uint64) string {
+	fileName := strconv.FormatUint(id, 10)
+	return fileName
 }
 
-func (s *ImageStorage) fileAndDirNames(id uint64, ext file.ImageExt) (string, string, error) {
-	fileName, err := s.fileNameFromId(id)
+func (s *ImageStorage) wholeFileWithExtAndDirNames(id uint64, ext file.ImageExt) (string, string, error) {
+	fileName, dirName, err := s.wholeFileAndDirNames(id)
 	if err != nil {
-		return "", "", utility.NewFuncError(s.fileAndDirNames, err)
+		return "", "", utility.NewFuncError(s.wholeFileWithExtAndDirNames, err)
 	}
 
-	dirName := strings.Join([]string{s.rootDirName, fileName[:2]}, "/")
-	fileName = strings.Join([]string{dirName,
-		fileName + "." + ext.String()}, "/")
+	return fileName + "." + ext.String(), dirName, nil
+}
+
+func (s *ImageStorage) wholeFileAndDirNames(id uint64) (string, string, error) {
+	fileName := s.fileNameFromId(id)
+	fileNameHash, err := s.hashManager.NewFromString(fileName)
+	if err != nil {
+		return "", "", utility.NewFuncError(s.wholeFileAndDirNames, err)
+	}
+
+	dirName := strings.Join([]string{s.rootDirName, fileNameHash[:2]}, "/")
+	fileName = strings.Join([]string{dirName, fileName}, "/")
 
 	return fileName, dirName, nil
 }
+
+// -----------------------------------------------------------------------
 
 func existsFileOrDir(path string) (bool, error) {
 	_, err := os.Stat(path)

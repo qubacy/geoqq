@@ -29,6 +29,15 @@ func Test_govatar_GenerateFile(t *testing.T) {
 	}
 }
 
+func Test_govatar_GenerateFile_v1(t *testing.T) {
+	// works if the directory exists!
+	err := govatar.GenerateFile(randomGender(),
+		"./testResult/"+uuid.NewString()+".jpg") // !
+	if err != nil {
+		t.Error()
+	}
+}
+
 func Test_os_Getwd(t *testing.T) {
 	pwd, err := os.Getwd()
 	if err != nil {

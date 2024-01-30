@@ -11,6 +11,18 @@ const (
 	//...
 )
 
+// -----------------------------------------------------------------------
+
+func MakeImageExtFromString(value string) ImageExt {
+	switch value {
+	case "png":
+		return Png
+	case "jpg":
+		return Jpg
+	}
+	return Unknown
+}
+
 func (ie ImageExt) String() string {
 	switch ie {
 	case Png:
@@ -25,6 +37,7 @@ func (ie ImageExt) String() string {
 func (ie ImageExt) IsValid() bool {
 	switch ie {
 	case Png:
+		return true
 	case Jpg:
 		return true
 	}
@@ -33,6 +46,7 @@ func (ie ImageExt) IsValid() bool {
 
 // -----------------------------------------------------------------------
 
+// serializable?
 type Image struct {
 	Id        uint64   `json:"id"`
 	Extension ImageExt `json:"ext"`

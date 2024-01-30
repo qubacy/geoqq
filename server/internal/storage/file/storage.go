@@ -6,7 +6,7 @@ import (
 )
 
 type ImageStorage interface {
-	LoadImage(ctx context.Context, id uint64, ext file.ImageExt) (*file.Image, error)
+	LoadImage(ctx context.Context, id uint64) (*file.Image, error)
 	SaveImage(ctx context.Context, image *file.Image) error
 }
 

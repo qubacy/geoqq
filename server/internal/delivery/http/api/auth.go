@@ -28,7 +28,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	username, password, code, err := extractLoginAndPassword(ctx)
 	if err != nil {
-		// code, err can be combined!
+		// code, err can be combined?
 
 		resWithClientError(ctx, code, err)
 		return

@@ -7,6 +7,9 @@ import (
 	"geoqq/pkg/file"
 	hashImpl "geoqq/pkg/hash/impl"
 	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -45,6 +48,33 @@ func tearDown() {}
 // tests
 // -----------------------------------------------------------------------
 
+func Test_fileNameFromId(t *testing.T) {
+	storage, err := createStorage()
+	if err != nil {
+		t.Error(err)
+	}
+
+	fileName := storage.fileNameFromId(1) // calc hash
+	fmt.Println("File name:", fileName)
+}
+
+func Test_wholeFileAndDirNames(t *testing.T) {
+	storage, err := createStorage()
+	if err != nil {
+		t.Error(err)
+	}
+
+	fileName, dirName, err := storage.wholeFileAndDirNames(1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	fmt.Println("File name:", fileName)
+	fmt.Println("Dir name:", dirName)
+}
+
+// -----------------------------------------------------------------------
+
 func Test_createDirsIfNeeded(t *testing.T) {
 	err := createDirsIfNeeded(viper.GetString("storage.file.avatar") + "/b1")
 	if err != nil {
@@ -72,13 +102,15 @@ func Test_existsFileOrDirectory(t *testing.T) {
 	}
 }
 
-func Test_SaveImage(t *testing.T) {
+// -----------------------------------------------------------------------
+
+func Test_SaveImage_png(t *testing.T) {
 	storage, err := createStorage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	bytes, err := os.ReadFile("./testData/imageInBase64/png/1.txt")
+	bytes, err := os.ReadFile("./testData/imageInBase64/png/2.txt")
 	if err != nil {
 		t.Error(err)
 	}
@@ -95,8 +127,71 @@ func Test_SaveImage(t *testing.T) {
 	}
 }
 
+func Test_SaveImage_jpg(t *testing.T) {
+	storage, err := createStorage()
+	if err != nil {
+		t.Error(err)
+	}
+
+	bytes, err := os.ReadFile("./testData/imageInBase64/jpg/1.txt")
+	if err != nil {
+		t.Error(err)
+	}
+
+	image := file.Image{
+		Id:        1,
+		Extension: file.Jpg,
+		Content:   string(bytes),
+	}
+
+	err = storage.SaveImage(context.Background(), &image)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// work with some images
+// -----------------------------------------------------------------------
+
+func Test_SaveImages(t *testing.T) {
+	pathsToBase64Images := []string{
+		"./testData/imageInBase64/jpg/1.txt",
+		"./testData/imageInBase64/png/2.txt",
+		//...
+	}
+
+	for _, onePath := range pathsToBase64Images {
+		ext, id := extractImageExtAndId(t, onePath)
+		fmt.Printf("Image with ext %v has id %v", ext, id)
+
+		bytes, err := os.ReadFile(onePath)
+		if err != nil {
+			t.Error(err)
+		}
+
+		// ***
+
+		image := file.Image{
+			Id:        id,
+			Extension: ext,
+			Content:   string(bytes),
+		}
+
+		storage, err := createStorage()
+		if err != nil {
+			t.Error(err)
+		}
+		err = storage.SaveImage(context.Background(), &image)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+// -----------------------------------------------------------------------
+
 func Test_LoadImage(t *testing.T) {
-	Test_SaveImage(t)
+	Test_SaveImage_png(t)
 
 	// ***
 
@@ -106,7 +201,7 @@ func Test_LoadImage(t *testing.T) {
 	}
 
 	image, err := storage.LoadImage(
-		context.Background(), 1, file.Png)
+		context.Background(), 1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -132,4 +227,52 @@ func createStorage() (*Storage, error) {
 	}
 
 	return storage, nil
+}
+
+// TODO: make tests?
+func extractImageExtAndId(t *testing.T, imagePath string) (file.ImageExt, uint64) {
+	re, err := regexp.Compile(`\/(png|jpg)\/(\d+)\.txt$`)
+	if err != nil {
+		t.Error(err)
+	}
+
+	allStringSubs := re.FindAllStringSubmatch(imagePath, -1)[0]
+	id, err := strconv.ParseUint(allStringSubs[2], 10, 64)
+	if err != nil {
+		t.Error(err)
+	}
+
+	return file.MakeImageExtFromString(allStringSubs[1]), id
+}
+
+// experiments
+// -----------------------------------------------------------------------
+
+func Test_filepath_Glob(t *testing.T) {
+	files, err := filepath.Glob(`.\testData\imageInBase64\jpg\1.*`)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Printf("%v\n", files)
+}
+
+func Test_regexp_FindAllString(t *testing.T) {
+	re, err := regexp.Compile(`\/(png|jpg)\/(\d+)\.txt$`)
+	if err != nil {
+		t.Error(err)
+	}
+
+	allStrings := re.FindAllString(`./testData/imageInBase64/jpg/1.txt`, -1)
+	fmt.Println("All strings:", allStrings)
+}
+
+func Test_regexp_FindAllStringSubmatch(t *testing.T) {
+	re, err := regexp.Compile(`\/(png|jpg)\/(\d+)\.txt$`)
+	if err != nil {
+		t.Error(err)
+	}
+
+	allStringSubs := re.FindAllStringSubmatch(`./testData/imageInBase64/jpg/1.txt`, -1)
+	fmt.Println("String sub count:", len(allStringSubs[0]))
+	fmt.Println("All string subs:", allStringSubs[0]) // ?
 }
