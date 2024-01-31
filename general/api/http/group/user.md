@@ -29,7 +29,10 @@
        
     /* optional */
     "description": "<string>",
-    "avatar": "<base64-string>",
+    "avatar": {
+        "ext": "<int>",
+        "content": "<base64-string>"
+    },
     "privacy": {
         "hit-me-up": "<int>"
     },
