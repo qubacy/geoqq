@@ -21,7 +21,7 @@ CREATE TABLE "UserLocation"
 CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
-    "Description" CHARACTER VARYING(4096) UNIQUE NOT NULL DEFAULT '',
+    "Description" CHARACTER VARYING(4096) NOT NULL DEFAULT '',
     "AvatarId" BIGINT NOT NULL,
 
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),

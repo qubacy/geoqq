@@ -7,6 +7,7 @@ import (
 
 // currently working with pictures!
 type AvatarStorage interface {
+	HasAvatar(ctx context.Context, id uint64) (bool, error)
 	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
 }
 
@@ -29,7 +30,7 @@ type UserStorage interface {
 }
 
 type UserProfileStorage interface {
-	GetUserProfileById(ctx context.Context, id uint64) (domain.UserProfile, error)
+	GetUserProfile(ctx context.Context, id uint64) (domain.UserProfile, error)
 }
 
 type MateRequestStorage interface {

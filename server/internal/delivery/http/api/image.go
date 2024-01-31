@@ -1,6 +1,12 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	ec "geoqq/pkg/errorForClient/impl"
+	se "geoqq/pkg/errorForClient/impl"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) registerImageRoutes() {
 	router := h.router.Group("/image", h.userIdentity)
@@ -13,14 +19,33 @@ func (h *Handler) registerImageRoutes() {
 // image
 // -----------------------------------------------------------------------
 
+type uriParamsGetImage struct {
+	Id uint64 `uri:"id" binding:"required"` // ?
+}
+
 func (h *Handler) getImage(ctx *gin.Context) {
-	userId, clientCode, err := extractUserId(ctx)
+	_, clientCode, err := extractUserId(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
 		return
 	}
 
-	// TODO:
+	// ***
+
+	uriParams := uriParamsGetImage{}
+	if err := ctx.ShouldBindUri(&uriParams); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	image, err := h.services.GetImageById(ctx, uriParams.Id)
+	if err != nil {
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, image)
 }
 
 func (h *Handler) getSomeImages(ctx *gin.Context) {

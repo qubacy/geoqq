@@ -7,6 +7,7 @@ import (
 	"geoqq/pkg/hash"
 	"geoqq/pkg/utility"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -30,12 +31,30 @@ func newImageStorage(deps Dependencies) *ImageStorage {
 func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 	*file.Image, error,
 ) {
-	fileName := s.fileNameFromId(id)
+	fileName, _, err := s.wholeFileAndDirNames(id)
+	if err != nil {
+		return nil, utility.NewFuncError(s.LoadImage, err)
+	}
+	matches, err := filepath.Glob(fileName + ".?*") // will be more than 1 char
+	if err != nil {
+		return nil, utility.NewFuncError(s.LoadImage, err)
+	}
+
+	if len(matches) != 1 {
+		return nil, ErrImageCountNotEqualToOne
+	}
 
 	// ***
 
 	s.rwMx.RLock()
 	defer s.rwMx.RUnlock()
+
+	fileName = matches[0]
+	extStr := fileName[strings.LastIndex(fileName, ".")+1:]
+	ext := file.MakeImageExtFromString(extStr)
+	if !ext.IsValid() {
+		return nil, ErrUnknownImageExtension
+	}
 
 	exists, err := existsFileOrDir(fileName)
 	if err != nil {
@@ -54,7 +73,7 @@ func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 
 	return &file.Image{
 		Id:        id,
-		Extension: file.Jpg,
+		Extension: ext,
 		Content:   base64.StdEncoding.EncodeToString(bytes),
 	}, nil
 }

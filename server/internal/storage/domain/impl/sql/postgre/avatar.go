@@ -23,6 +23,34 @@ func newAvatarStorage(pool *pgxpool.Pool) *AvatarStorage {
 // public
 // -----------------------------------------------------------------------
 
+func (self *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
+	bool, error,
+) {
+	conn, err := self.pool.Acquire(ctx)
+	if err != nil {
+		return false, utility.NewFuncError(self.HasAvatar, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) 
+		FROM "Avatar" WHERE "Id" = $1;`,
+		id,
+	)
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utility.NewFuncError(self.HasAvatar, err)
+	}
+
+	if count > 1 {
+		return false, ErrUnexpectedResult
+	}
+
+	return count == 1, nil
+}
+
 func (self *AvatarStorage) InsertGeneratedAvatar(
 	ctx context.Context, hashValue string) (
 	uint64, error,

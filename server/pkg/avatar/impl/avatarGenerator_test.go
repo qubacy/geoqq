@@ -38,6 +38,8 @@ func Test_govatar_GenerateFile_v1(t *testing.T) {
 	}
 }
 
+// -----------------------------------------------------------------------
+
 func Test_os_Getwd(t *testing.T) {
 	pwd, err := os.Getwd()
 	if err != nil {

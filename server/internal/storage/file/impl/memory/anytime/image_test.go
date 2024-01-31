@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -249,12 +250,14 @@ func extractImageExtAndId(t *testing.T, imagePath string) (file.ImageExt, uint64
 // -----------------------------------------------------------------------
 
 func Test_filepath_Glob(t *testing.T) {
-	files, err := filepath.Glob(`.\testData\imageInBase64\jpg\1.*`)
+	files, err := filepath.Glob(`.\testData\imageInBase64\jpg\1.?*`)
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Printf("%v\n", files)
 }
+
+// -----------------------------------------------------------------------
 
 func Test_regexp_FindAllString(t *testing.T) {
 	re, err := regexp.Compile(`\/(png|jpg)\/(\d+)\.txt$`)
@@ -275,4 +278,17 @@ func Test_regexp_FindAllStringSubmatch(t *testing.T) {
 	allStringSubs := re.FindAllStringSubmatch(`./testData/imageInBase64/jpg/1.txt`, -1)
 	fmt.Println("String sub count:", len(allStringSubs[0]))
 	fmt.Println("All string subs:", allStringSubs[0]) // ?
+}
+
+// -----------------------------------------------------------------------
+
+func Test_strings_find(t *testing.T) {
+	value := `testData\imageInBase64\jpg\1.txt`
+	index := strings.LastIndex(value, ".")
+	fmt.Println(index)
+
+	ext := value[index+1:]
+	if ext != "txt" {
+		t.Error()
+	}
 }

@@ -27,7 +27,7 @@ func newUserProfileService(deps Dependencies) *UserProfileService {
 func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) (
 	domain.UserProfile, error,
 ) {
-	userProfile, err := p.domainStorage.GetUserProfileById(ctx, userId) // should be in storage!
+	userProfile, err := p.domainStorage.GetUserProfile(ctx, userId) // should be in storage!
 	if err != nil {
 		return domain.UserProfile{}, utl.NewFuncError(
 			p.GetUserProfile, ec.New(err, ec.Server, ec.DomainStorageError))

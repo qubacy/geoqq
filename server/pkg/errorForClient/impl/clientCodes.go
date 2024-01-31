@@ -39,6 +39,7 @@ const (
 
 const (
 	ImageError = 1700 + iota
+	ImageNotFound
 )
 
 const (
