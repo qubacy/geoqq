@@ -15,6 +15,7 @@ type AuthService interface {
 
 type UserProfileService interface {
 	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
+	UpdateUserProfile(ctx context.Context, userId uint64, input dto.UpdateProfileInp) error
 }
 
 // TODO: need to split?

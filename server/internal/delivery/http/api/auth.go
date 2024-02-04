@@ -105,7 +105,8 @@ func extractLoginAndPassword(ctx *gin.Context) (
 		password = ctx.Request.FormValue("password") // hash?
 	)
 	if len(username) == 0 || len(password) == 0 {
-		return "", "", se.ValidateRequestParamsFailed, ErrEmptyRequestParameter
+		return "", "",
+			se.ValidateRequestFailed, ErrEmptyRequestParameter
 	}
 
 	return username, password, se.NoError, nil
@@ -118,7 +119,7 @@ func extractRefreshToken(ctx *gin.Context) (
 		refreshToken = ctx.Request.FormValue("refresh-token")
 	)
 	if len(refreshToken) == 0 {
-		return "", se.ValidateRequestParamsFailed, ErrEmptyRequestParameter
+		return "", se.ValidateRequestFailed, ErrEmptyRequestParameter
 	}
 
 	return refreshToken, se.NoError, nil

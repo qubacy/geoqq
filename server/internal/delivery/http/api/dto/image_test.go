@@ -9,8 +9,9 @@ import (
 func Test_ImageByIdRes_Marshal(t *testing.T) {
 	resDto := ImageByIdRes{
 		Image{
-			Id:      123,
-			Content: "Test",
+			Id:        123,
+			Extension: 1,
+			Content:   "Test",
 		},
 	}
 	bytes, err := json.Marshal(resDto)

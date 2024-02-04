@@ -31,6 +31,7 @@ type UserStorage interface {
 
 type UserProfileStorage interface {
 	GetUserProfile(ctx context.Context, id uint64) (domain.UserProfile, error)
+	// TODO: обновление по кусочкам!
 }
 
 type MateRequestStorage interface {

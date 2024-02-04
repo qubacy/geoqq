@@ -23,11 +23,15 @@ func (self *ImagesReq) GetIdsAsSliceOfUint64() []uint64 {
 	return ids
 }
 
+// -----------------------------------------------------------------------
+// see pkg file... or new from?
+
 type ImagesRes struct {
-	Images []Image `json:"images"`
+	ImageList []*Image `json:"images"`
 }
 
 type Image struct {
-	Id      float64 `json:"id"`
-	Content string  `json:"content"` // <--- base64-string
+	Id        float64 `json:"id"`
+	Extension float64 `json:"ext"`
+	Content   string  `json:"content"` // <--- base64-string
 }

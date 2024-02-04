@@ -14,7 +14,7 @@ func (h *Handler) registerImageRoutes() {
 	{
 		router.GET("/:id", h.parseAnyForm, h.userIdentityForGetRequest, h.getImage)
 		router.GET("", h.parseAnyForm, h.extractBodyFromGetSomeImages,
-			h.userIdentityByContextData, h.getSomeImages)
+			h.userIdentityByContextData, h.getSomeImages) // can be done better!
 	}
 }
 
@@ -41,6 +41,8 @@ func (h *Handler) getImage(ctx *gin.Context) {
 		return
 	}
 
+	// ***
+
 	image, err := h.services.GetImageById(ctx, uriParams.Id)
 	if err != nil {
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)
@@ -56,7 +58,18 @@ func (h *Handler) getImage(ctx *gin.Context) {
 func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
 	requestDto := dto.ImagesReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
+		return
+	}
+
+	// ***
+
+	if len(requestDto.AccessToken) == 0 {
+		resWithClientError(ctx, se.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+	if len(requestDto.Ids) == 0 {
+		resWithClientError(ctx, se.ValidateRequestFailed, ErrEmptyBodyParameter)
 		return
 	}
 
@@ -73,19 +86,20 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 		return
 	}
 
-	// ***
+	// *** handler level checks
 
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
 	if !exists {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithServerErr(ctx, se.ServerError, ErrEmptyContextParam)
+		return
+	}
+	requestDto, converted := anyRequestDto.(dto.ImagesReq)
+	if !converted {
+		resWithServerErr(ctx, se.ServerError, ErrUnexpectedContextParam)
 		return
 	}
 
-	requestDto, converted := anyRequestDto.(dto.ImagesReq)
-	if !converted {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
-		return
-	}
+	// *** to service
 
 	images, err := h.services.GetImagesByIds(ctx, requestDto.GetIdsAsSliceOfUint64())
 	if err != nil {

@@ -52,7 +52,7 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 	for _, imageId := range imageIds {
 		image, err := s.GetImageById(ctx, imageId)
 		if err != nil {
-			return nil, utl.NewFuncError(s.GetImagesByIds, err)
+			return nil, utl.NewFuncError(s.GetImagesByIds, err) // already error for client!
 		}
 
 		images = append(images, image)

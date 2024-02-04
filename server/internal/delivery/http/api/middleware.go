@@ -51,7 +51,7 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 func (h *Handler) parseAnyForm(ctx *gin.Context) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		resWithAuthError(ctx, se.ParseRequestParamsFailed, err)
+		resWithAuthError(ctx, se.ParseRequestFailed, err)
 		return
 	}
 }
@@ -60,15 +60,18 @@ func (h *Handler) parseAnyForm(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
+
 	// as get-parameter!
 	accessToken := ctx.Request.Form.Get("accessToken")
 	if len(accessToken) == 0 {
-		return "", se.ParseAccessTokenFailed,
+		return "", se.ParseAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
 
 	return accessToken, se.NoError, nil
 }
+
+// -----------------------------------------------------------------------
 
 func extractUserIdFromContext(ctx *gin.Context) (uint64, int, error) {
 	_, exists := ctx.Get(contextUserId)

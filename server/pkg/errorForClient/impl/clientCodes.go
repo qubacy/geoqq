@@ -16,13 +16,17 @@ const (
 )
 
 const (
-	ParseRequestParamsFailed    = 1100 + iota
-	ValidateRequestParamsFailed // handler
-
-	ValidateInputParamsFailed // service
+	// handler
+	ParseRequestFailed       = 1100 + iota // form
+	ParseRequestParamsFailed               // uri, x-www-form-urlencoded
+	ParseRequestJsonBodyFailed
+	ValidateRequestFailed // any content
 
 	ParseAccessTokenFailed
 	ValidateAccessTokenFailed
+
+	// service
+	ValidateInputParamsFailed
 )
 
 // -----------------------------------------------------------------------

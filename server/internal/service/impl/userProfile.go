@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
 	fileStorage "geoqq/internal/storage/file"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -33,4 +34,10 @@ func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) 
 			p.GetUserProfile, ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	return userProfile, nil
+}
+
+func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint64,
+	input dto.UpdateProfileInp) error {
+
+	return nil
 }

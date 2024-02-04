@@ -2,7 +2,7 @@ package dto
 
 type UpdateProfileInp struct {
 	Description *string
-	Avatar      *string
+	Avatar      *Avatar
 
 	Privacy  *Privacy
 	Security *Security
@@ -16,4 +16,9 @@ type Privacy struct {
 type Security struct {
 	Password    string
 	NewPassword string
+}
+
+type Avatar struct {
+	Ext     int
+	Content string
 }
