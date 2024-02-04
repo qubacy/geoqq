@@ -48,7 +48,7 @@ type MateService interface {
 
 type ImageService interface {
 	GetImageById(ctx context.Context, imageId uint64) (*file.Image, error)
-	GetImagesByIds(ctx context.Context, imageIds []uint64) ([]*file.Image, error)
+	GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error)
 }
 
 type GeoService interface {

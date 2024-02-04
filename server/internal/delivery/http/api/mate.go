@@ -3,7 +3,7 @@ package api
 import "github.com/gin-gonic/gin"
 
 func (h *Handler) registerMateRoutes() {
-	router := h.router.Group("/mate", h.userIdentity)
+	router := h.router.Group("/mate", h.userIdentityForGetRequest)
 	{
 		// TODO: what is the priority of these routes?
 		chat := router.Group("/chat")

@@ -14,9 +14,9 @@ func (h *Handler) registerAuthRoutes() {
 
 	router := h.router
 	{
-		router.POST("/sign-in", h.postSignIn)
-		router.POST("/sign-up", h.postSignUp)
-		router.PUT("/sign-in", h.putSignIn)
+		router.POST("/sign-in", h.parseAnyForm, h.postSignIn)
+		router.POST("/sign-up", h.parseAnyForm, h.postSignUp)
+		router.PUT("/sign-in", h.parseAnyForm, h.putSignIn)
 	}
 }
 
@@ -100,17 +100,12 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 func extractLoginAndPassword(ctx *gin.Context) (
 	string, string, int, error,
 ) {
-	err := ctx.Request.ParseForm()
-	if err != nil {
-		return "", "", se.ParseRequestParamsFailed, err
-	}
-
 	var (
 		username = ctx.Request.FormValue("login")
 		password = ctx.Request.FormValue("password") // hash?
 	)
 	if len(username) == 0 || len(password) == 0 {
-		return "", "", se.ParseRequestParamsFailed, ErrEmptyRequestParameter
+		return "", "", se.ValidateRequestParamsFailed, ErrEmptyRequestParameter
 	}
 
 	return username, password, se.NoError, nil
@@ -119,16 +114,11 @@ func extractLoginAndPassword(ctx *gin.Context) (
 func extractRefreshToken(ctx *gin.Context) (
 	string, int, error,
 ) {
-	err := ctx.Request.ParseForm()
-	if err != nil {
-		return "", se.ParseRequestParamsFailed, err
-	}
-
 	var (
 		refreshToken = ctx.Request.FormValue("refresh-token")
 	)
 	if len(refreshToken) == 0 {
-		return "", se.ParseRequestParamsFailed, ErrEmptyRequestParameter
+		return "", se.ValidateRequestParamsFailed, ErrEmptyRequestParameter
 	}
 
 	return refreshToken, se.NoError, nil

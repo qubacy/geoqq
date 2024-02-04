@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) registerUserRoutes() {
-	myProfileRouter := h.router.Group("/my-profile", h.userIdentity)
+	myProfileRouter := h.router.Group("/my-profile", h.userIdentityForGetRequest)
 	{
 		myProfileRouter.GET("", h.getMyProfile)
 		myProfileRouter.PUT("", h.putMyProfile)
@@ -17,7 +17,7 @@ func (h *Handler) registerUserRoutes() {
 
 	// ***
 
-	userRouter := h.router.Group("/user", h.userIdentity)
+	userRouter := h.router.Group("/user", h.userIdentityForGetRequest)
 	{
 		userRouter.GET("/:id", h.getUser)
 		userRouter.GET("", h.getSomeUsers)
@@ -28,7 +28,7 @@ func (h *Handler) registerUserRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMyProfile(ctx *gin.Context) {
-	userId, clientCode, err := extractUserId(ctx)
+	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
 		return

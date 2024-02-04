@@ -16,8 +16,10 @@ const (
 )
 
 const (
-	ParseRequestParamsFailed = 1100 + iota
-	ValidateInputParamsFailed
+	ParseRequestParamsFailed    = 1100 + iota
+	ValidateRequestParamsFailed // handler
+
+	ValidateInputParamsFailed // service
 
 	ParseAccessTokenFailed
 	ValidateAccessTokenFailed

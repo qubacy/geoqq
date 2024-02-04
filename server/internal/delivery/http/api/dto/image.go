@@ -11,7 +11,16 @@ type ImageByIdRes struct {
 // -----------------------------------------------------------------------
 
 type ImagesReq struct {
-	Ids []float64 `json:"ids"`
+	AccessToken string    `json:"access-token"` // ?
+	Ids         []float64 `json:"ids"`
+}
+
+func (self *ImagesReq) GetIdsAsSliceOfUint64() []uint64 {
+	ids := []uint64{}
+	for i := range self.Ids {
+		ids = append(ids, uint64(self.Ids[i]))
+	}
+	return ids
 }
 
 type ImagesRes struct {

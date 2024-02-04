@@ -47,7 +47,7 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.
 	return image, nil
 }
 
-func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) ([]*file.Image, error) {
+func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error) {
 	images := []*file.Image{}
 	for _, imageId := range imageIds {
 		image, err := s.GetImageById(ctx, imageId)
@@ -58,5 +58,5 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) ([
 		images = append(images, image)
 	}
 
-	return images, nil
+	return file.NewImages(images), nil
 }
