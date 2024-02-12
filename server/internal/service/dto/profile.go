@@ -1,5 +1,9 @@
 package dto
 
+import (
+	dsDto "geoqq/internal/storage/domain/dto"
+)
+
 type UpdateProfileInp struct {
 	Description *string
 	Avatar      *Avatar
@@ -11,6 +15,12 @@ type UpdateProfileInp struct {
 // every field is optional...
 type Privacy struct {
 	HitMeUp *int
+}
+
+func (p *Privacy) ToDsInp() *dsDto.Privacy {
+	return &dsDto.Privacy{
+		HitMeUp: *p.HitMeUp,
+	}
 }
 
 type Security struct {

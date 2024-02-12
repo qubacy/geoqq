@@ -3,6 +3,7 @@ package postgre
 import (
 	"context"
 	"geoqq/internal/domain/table"
+	"geoqq/internal/storage/domain/dto"
 	"geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4"
@@ -197,7 +198,8 @@ func (self *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	return nil
 }
 
-func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error {
+func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context,
+	id uint64, value string) error {
 	conn, err := self.pool.Acquire(ctx)
 	if err != nil {
 		return utility.NewFuncError(self.UpdateHashRefreshToken, err)
@@ -217,6 +219,91 @@ func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context, id uint64, 
 	}
 
 	return nil
+}
+
+func (self *UserStorage) UpdateUserParts(ctx context.Context,
+	id uint64, input dto.UpdateUserPartsInp) error {
+	conn, err := self.pool.Acquire(ctx)
+	if err != nil {
+		return utility.NewFuncError(self.UpdateUserParts, err)
+	}
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel:       pgx.Serializable,
+		AccessMode:     pgx.ReadWrite,
+		DeferrableMode: pgx.NotDeferrable,
+	})
+	if err != nil {
+		return utility.NewFuncError(self.UpdateUserParts, err)
+	}
+
+	// ***
+
+	if input.Description != nil {
+		err = updateUserDescription(ctx, tx, id, *input.Description)
+		if err != nil {
+			tx.Rollback(ctx)
+			return utility.NewFuncError(self.UpdateUserParts, err)
+		}
+	}
+	if input.AvatarId != nil {
+		err = updateUserAvatarId(ctx, tx, id, *input.AvatarId)
+		if err != nil {
+			tx.Rollback(ctx)
+			return utility.NewFuncError(self.UpdateUserParts, err)
+		}
+	}
+	if input.Privacy != nil {
+		err = updateUserPrivacy(ctx, tx, id, *input.Privacy)
+		if err != nil {
+			tx.Rollback(ctx)
+			return utility.NewFuncError(self.UpdateUserParts, err)
+		}
+	}
+	if input.HashPassword != nil {
+		err = updateUserHashPassword(ctx, tx, id, *input.HashPassword)
+		if err != nil {
+			tx.Rollback(ctx)
+			return utility.NewFuncError(self.UpdateUserParts, err)
+		}
+	}
+
+	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return utility.NewFuncError(self.UpdateUserParts, err)
+	}
+
+	return nil
+}
+
+func (self *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
+	id uint64, hashPassword string) (
+	bool, error,
+) {
+	conn, err := self.pool.Acquire(ctx)
+	if err != nil {
+		return false, utility.NewFuncError(self.HasUserByIdAndHashPassword, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) FROM "UserEntry"
+			WHERE "Id" = $1 AND "HashPassword" = $2;`,
+		id, hashPassword)
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utility.NewFuncError(self.HasUserByIdAndHashPassword, err)
+	}
+
+	if count > 1 {
+		return false, ErrUnexpectedResult
+	}
+	return count == 1, nil
 }
 
 // private
@@ -303,6 +390,72 @@ func insertUserOptions(ctx context.Context, tx pgx.Tx,
 	}
 	if !cmdTag.Insert() {
 		return ErrInsertFailed
+	}
+
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func updateUserDescription(ctx context.Context, tx pgx.Tx,
+	id uint64, desc string) error {
+	cmdTag, err := tx.Exec(ctx,
+		`UPDATE "UserDetails" SET "Description" = $1
+			WHERE "UserId" = $2;`, desc, id,
+	)
+	if err != nil {
+		return utility.NewFuncError(updateUserDescription, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
+func updateUserAvatarId(ctx context.Context, tx pgx.Tx,
+	id uint64, avatarId uint64) error {
+	cmdTag, err := tx.Exec(ctx,
+		`UPDATE "UserDetails" SET "AvatarId" = $1
+			WHERE "UserId" = $2;`, avatarId, id,
+	)
+	if err != nil {
+		return utility.NewFuncError(updateUserAvatarId, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
+func updateUserPrivacy(ctx context.Context, tx pgx.Tx,
+	id uint64, privacy dto.Privacy) error {
+	cmdTag, err := tx.Exec(ctx,
+		`UPDATE "UserOptions" SET "HitMeUp" = $1
+			WHERE "UserId" = $2;`, privacy.HitMeUp, id,
+	)
+	if err != nil {
+		return utility.NewFuncError(updateUserPrivacy, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
+func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
+	id uint64, hashValue string) error {
+	cmdTag, err := tx.Exec(ctx,
+		`UPDATE "UserEntry" SET "HashPassword" = $1
+			WHERE "Id" = $2;`, hashValue, id,
+	)
+	if err != nil {
+		return utility.NewFuncError(updateUserHashPassword, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
 	}
 
 	return nil

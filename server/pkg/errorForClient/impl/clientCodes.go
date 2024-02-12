@@ -41,6 +41,7 @@ const (
 
 const (
 	UserError = 1600 + iota
+	IncorrectPassword
 )
 
 const (

@@ -48,3 +48,10 @@ FROM "UserEntry"
     LEFT JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
     LEFT JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
     WHERE "UserEntry"."Id" = 1;
+
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "UserEntry";
+
+SELECT COUNT(*) FROM "UserEntry"
+WHERE "Id" = 2 AND "HashPassword" = '7c4a8d09ca3762af61e59520943dc26494f8941b';

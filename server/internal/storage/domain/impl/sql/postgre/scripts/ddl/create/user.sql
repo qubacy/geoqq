@@ -23,6 +23,9 @@ CREATE TABLE "UserDetails"
     "UserId" BIGINT NOT NULL,
     "Description" CHARACTER VARYING(4096) NOT NULL DEFAULT '',
     "AvatarId" BIGINT NOT NULL,
+    
+    "Gender" INT NULL,
+    "Age" INT NULL,
 
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("AvatarId") REFERENCES "Avatar"("Id")

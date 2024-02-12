@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/internal/storage/domain/dto"
 )
 
 // currently working with pictures!
@@ -22,16 +23,20 @@ type UserStorage interface {
 
 	HasUserByCredentials(ctx context.Context,
 		username, hashPassword string) (bool, error)
+	HasUserByIdAndHashPassword(ctx context.Context,
+		id uint64, hashPassword string) (bool, error)
 
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error
 
 	UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error
+
+	UpdateUserParts(ctx context.Context, id uint64,
+		input dto.UpdateUserPartsInp) error
 }
 
 type UserProfileStorage interface {
 	GetUserProfile(ctx context.Context, id uint64) (domain.UserProfile, error)
-	// TODO: обновление по кусочкам!
 }
 
 type MateRequestStorage interface {
