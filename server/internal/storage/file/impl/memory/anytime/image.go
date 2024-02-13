@@ -28,6 +28,10 @@ func newImageStorage(deps Dependencies) *ImageStorage {
 
 // -----------------------------------------------------------------------
 
+func (s *ImageStorage) HasImage(ctx context.Context, id uint64) (bool, error) {
+	return false, nil
+}
+
 func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 	*file.Image, error,
 ) {

@@ -51,7 +51,16 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 		if err != nil {
 			return utl.NewFuncError(p.UpdateUserProfile, err)
 		}
-		domainDto.HashPassword = &input.Security.NewPassword
+
+		// hash hash...
+
+		hashPassword, err := p.hashManager.NewFromString(input.Security.NewPassword)
+		if err != nil {
+			return utl.NewFuncError(p.UpdateUserProfile,
+				ec.New(err, ec.Server, ec.HashManagerError))
+		}
+
+		domainDto.HashPassword = &hashPassword
 	}
 
 	if input.Privacy != nil {
@@ -85,7 +94,13 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 
 func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 	userId uint64, password string) error {
-	exists, err := p.domainStorage.HasUserByIdAndHashPassword(ctx, userId, password)
+	hashPassword, err := p.hashManager.NewFromString(password)
+	if err != nil {
+		return utl.NewFuncError(p.checkPasswordForUpdate,
+			ec.New(err, ec.Server, ec.HashManagerError))
+	}
+
+	exists, err := p.domainStorage.HasUserByIdAndHashPassword(ctx, userId, hashPassword)
 	if err != nil {
 		return utl.NewFuncError(p.checkPasswordForUpdate,
 			ec.New(err, ec.Server, ec.DomainStorageError))
