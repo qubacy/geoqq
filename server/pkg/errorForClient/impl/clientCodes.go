@@ -41,7 +41,10 @@ const (
 
 const (
 	UserError = 1600 + iota
-	IncorrectPassword
+	IncorrectPasswordWhenUpdate
+	UnknownAvatarExtension
+	AvatarBodyEmpty
+	AvatarBodyIsNotBase64
 )
 
 const (

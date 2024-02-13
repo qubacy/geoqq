@@ -10,6 +10,7 @@ import (
 type AvatarStorage interface {
 	HasAvatar(ctx context.Context, id uint64) (bool, error)
 	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
+	InsertAvatar(ctx context.Context, hashValue string) (uint64, error)
 }
 
 type UserStorage interface {

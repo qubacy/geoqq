@@ -53,7 +53,7 @@ func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 	extStr := fileName[strings.LastIndex(fileName, ".")+1:]
 	ext := file.MakeImageExtFromString(extStr)
 	if !ext.IsValid() {
-		return nil, ErrUnknownImageExtension
+		return nil, ErrUnknownImageExtension // unexpected!
 	}
 
 	exists, err := existsFileOrDir(fileName)

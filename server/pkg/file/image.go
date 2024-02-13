@@ -53,6 +53,13 @@ type Image struct {
 	Content   string   `json:"content"`
 }
 
+func NewImageForInsert(ext ImageExt, contentAsBase64 string) *Image {
+	return &Image{
+		Extension: ext,
+		Content:   contentAsBase64,
+	}
+}
+
 func NewPngImageFromBytes(id uint64, bytes []byte) *Image {
 	return &Image{
 		Id:        id,

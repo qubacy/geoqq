@@ -15,7 +15,9 @@ var (
 	ErrIncorrectLoginOrPassword       = errors.New("Incorrect login or password") // No details!
 	ErrNotSameHashesForRefreshTokens  = errors.New("Not same hashes for refresh tokens")
 
-	ErrImageNotFound = errors.New("Image not found")
+	ErrImageNotFound         = errors.New("Image not found")
+	ErrUnknownImageExtension = errors.New("Unknown image extension")
+	ErrImageBodyEmpty        = errors.New("Image body empty")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {
