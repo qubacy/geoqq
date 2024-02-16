@@ -3,6 +3,7 @@ CREATE TABLE "Mate"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
+    UNIQUE ("FirstUserId", "SecondUserId"),
     
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")

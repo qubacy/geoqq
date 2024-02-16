@@ -26,11 +26,11 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
-func (self *UserStorage) GetUserIdByByName(ctx context.Context,
+func (us *UserStorage) GetUserIdByByName(ctx context.Context,
 	value string) (uint64, error) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(self.GetUserIdByByName, err)
+		return 0, utility.NewFuncError(us.GetUserIdByByName, err)
 	}
 	defer conn.Release()
 
@@ -42,17 +42,17 @@ func (self *UserStorage) GetUserIdByByName(ctx context.Context,
 	var userId uint64 = 0
 	err = row.Scan(&userId)
 	if err != nil {
-		return 0, utility.NewFuncError(self.GetUserIdByByName, err)
+		return 0, utility.NewFuncError(us.GetUserIdByByName, err)
 	}
 	return userId, nil
 }
 
-func (self *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
+func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 	string, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return "", utility.NewFuncError(self.GetHashRefreshToken, err)
+		return "", utility.NewFuncError(us.GetHashRefreshToken, err)
 	}
 	defer conn.Release()
 
@@ -64,17 +64,17 @@ func (self *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 	var hashRefreshToken string
 	err = row.Scan(&hashRefreshToken)
 	if err != nil {
-		return "", utility.NewFuncError(self.GetHashRefreshToken, err)
+		return "", utility.NewFuncError(us.GetHashRefreshToken, err)
 	}
 	return hashRefreshToken, nil
 }
 
-func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
+func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 	bool, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserWithName, err)
+		return false, utility.NewFuncError(us.HasUserWithName, err)
 	}
 	defer conn.Release()
 
@@ -84,7 +84,7 @@ func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
 		value,
 	)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserWithName, err)
+		return false, utility.NewFuncError(us.HasUserWithName, err)
 	}
 	defer rows.Close()
 
@@ -102,13 +102,13 @@ func (self *UserStorage) HasUserWithName(ctx context.Context, value string) (
 	return count == 1, nil
 }
 
-func (self *UserStorage) InsertUser(ctx context.Context,
+func (us *UserStorage) InsertUser(ctx context.Context,
 	username, hashPassword string, avatarId uint64) (
 	uint64, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 	defer conn.Release()
 
@@ -118,7 +118,7 @@ func (self *UserStorage) InsertUser(ctx context.Context,
 		DeferrableMode: pgx.NotDeferrable,
 	})
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 
 	// *** transaction ***
@@ -126,39 +126,39 @@ func (self *UserStorage) InsertUser(ctx context.Context,
 	lastInsertedId, err := insertUserEntry(ctx, tx, username, hashPassword)
 	if err != nil {
 		tx.Rollback(ctx) // <--- ignore error!
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserLocation(ctx, tx, lastInsertedId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserDetails(ctx, tx, lastInsertedId, avatarId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserOptions(ctx, tx, lastInsertedId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertUser, err)
+		return 0, utility.NewFuncError(us.InsertUser, err)
 	}
 
 	return lastInsertedId, nil
 }
 
-func (self *UserStorage) HasUserByCredentials(ctx context.Context,
+func (us *UserStorage) HasUserByCredentials(ctx context.Context,
 	username, hashPassword string) (
 	bool, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserByCredentials, err)
+		return false, utility.NewFuncError(us.HasUserByCredentials, err)
 	}
 	defer conn.Release()
 
@@ -168,7 +168,7 @@ func (self *UserStorage) HasUserByCredentials(ctx context.Context,
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserByCredentials, err)
+		return false, utility.NewFuncError(us.HasUserByCredentials, err)
 	}
 
 	if count > 1 {
@@ -177,11 +177,11 @@ func (self *UserStorage) HasUserByCredentials(ctx context.Context,
 	return count == 1, nil
 }
 
-func (self *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
+func (us *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	longitude, latitude float64) error {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateUserLocation, err)
+		return utility.NewFuncError(us.UpdateUserLocation, err)
 	}
 	defer conn.Release()
 
@@ -189,7 +189,7 @@ func (self *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 		SET "Longitude" = $1, "Latitude" = $2
 		WHERE "UserId" = $3;`, longitude, latitude, id)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateUserLocation, err)
+		return utility.NewFuncError(us.UpdateUserLocation, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -198,11 +198,11 @@ func (self *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	return nil
 }
 
-func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context,
+func (us *UserStorage) UpdateHashRefreshToken(ctx context.Context,
 	id uint64, value string) error {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateHashRefreshToken, err)
+		return utility.NewFuncError(us.UpdateHashRefreshToken, err)
 	}
 	defer conn.Release()
 
@@ -212,7 +212,7 @@ func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context,
         		"SignInTime" = NOW()::timestamp
     		WHERE "Id" = $2;`, value, id)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateHashRefreshToken, err)
+		return utility.NewFuncError(us.UpdateHashRefreshToken, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -221,11 +221,11 @@ func (self *UserStorage) UpdateHashRefreshToken(ctx context.Context,
 	return nil
 }
 
-func (self *UserStorage) UpdateUserParts(ctx context.Context,
+func (us *UserStorage) UpdateUserParts(ctx context.Context,
 	id uint64, input dto.UpdateUserPartsInp) error {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateUserParts, err)
+		return utility.NewFuncError(us.UpdateUserParts, err)
 	}
 	defer conn.Release()
 
@@ -235,7 +235,7 @@ func (self *UserStorage) UpdateUserParts(ctx context.Context,
 		DeferrableMode: pgx.NotDeferrable,
 	})
 	if err != nil {
-		return utility.NewFuncError(self.UpdateUserParts, err)
+		return utility.NewFuncError(us.UpdateUserParts, err)
 	}
 
 	// ***
@@ -244,28 +244,28 @@ func (self *UserStorage) UpdateUserParts(ctx context.Context,
 		err = updateUserDescription(ctx, tx, id, *input.Description)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(self.UpdateUserParts, err)
+			return utility.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.AvatarId != nil {
 		err = updateUserAvatarId(ctx, tx, id, *input.AvatarId)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(self.UpdateUserParts, err)
+			return utility.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.Privacy != nil {
 		err = updateUserPrivacy(ctx, tx, id, *input.Privacy)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(self.UpdateUserParts, err)
+			return utility.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.HashPassword != nil {
 		err = updateUserHashPassword(ctx, tx, id, *input.HashPassword)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(self.UpdateUserParts, err)
+			return utility.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 
@@ -273,19 +273,19 @@ func (self *UserStorage) UpdateUserParts(ctx context.Context,
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return utility.NewFuncError(self.UpdateUserParts, err)
+		return utility.NewFuncError(us.UpdateUserParts, err)
 	}
 
 	return nil
 }
 
-func (self *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
+func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 	id uint64, hashPassword string) (
 	bool, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserByIdAndHashPassword, err)
+		return false, utility.NewFuncError(us.HasUserByIdAndHashPassword, err)
 	}
 	defer conn.Release()
 
@@ -297,7 +297,7 @@ func (self *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasUserByIdAndHashPassword, err)
+		return false, utility.NewFuncError(us.HasUserByIdAndHashPassword, err)
 	}
 
 	if count > 1 {

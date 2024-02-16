@@ -40,6 +40,11 @@ type UserProfileStorage interface {
 	GetUserProfile(ctx context.Context, id uint64) (domain.UserProfile, error)
 }
 
+type MateStorage interface {
+	AreMates(ctx context.Context,
+		firstUserId uint64, secondUserId uint64) (bool, error)
+}
+
 type MateRequestStorage interface {
 }
 
@@ -55,6 +60,7 @@ type Storage interface {
 	AvatarStorage
 	UserStorage
 	UserProfileStorage
+	MateStorage
 	MateRequestStorage
 	MateChatStorage
 	GeoChatStorage

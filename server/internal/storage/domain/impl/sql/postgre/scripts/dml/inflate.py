@@ -13,4 +13,9 @@ from connect import create_geoqq_connection
 # main
 # ------------------------------------------------------------------------
 
+from faker import Faker
+
+fk = Faker()
+
+print(fk.first_name())
 
