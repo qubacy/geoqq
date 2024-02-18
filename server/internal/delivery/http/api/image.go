@@ -3,7 +3,6 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
-	se "geoqq/pkg/errorForClient/impl"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +44,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 
 	image, err := h.services.GetImageById(ctx, uriParams.Id)
 	if err != nil {
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
 	}
@@ -65,11 +64,11 @@ func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
 	// ***
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, se.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
 		return
 	}
 	if len(requestDto.Ids) == 0 {
-		resWithClientError(ctx, se.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
 		return
 	}
 
@@ -90,12 +89,12 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
 	if !exists {
-		resWithServerErr(ctx, se.ServerError, ErrEmptyContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
 	requestDto, converted := anyRequestDto.(dto.ImagesReq)
 	if !converted {
-		resWithServerErr(ctx, se.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
 	}
 
@@ -103,7 +102,7 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 
 	images, err := h.services.GetImagesByIds(ctx, requestDto.GetIdsAsSliceOfUint64())
 	if err != nil {
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
 	}

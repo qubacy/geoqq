@@ -2,13 +2,35 @@ package table
 
 import "time"
 
-type StatusMateRequest int16
+type MateRequestResult int16
 
 const (
-	Waiting StatusMateRequest = iota
+	Waiting MateRequestResult = iota
 	Accepted
 	Rejected
 )
+
+func MakeMateResultFromBool(value bool) MateRequestResult {
+	if value {
+		return Accepted
+	}
+	return Rejected
+}
+
+func MakeMateResultFromInt(value int16) (MateRequestResult, error) {
+	switch value {
+	case int16(Waiting):
+		return Waiting, nil
+
+	case int16(Accepted):
+		return Accepted, nil
+
+	case int16(Rejected):
+		return Rejected, nil
+	}
+
+	return Waiting, ErrUnknownMateResult
+}
 
 type Mate struct {
 	Id           uint64
@@ -24,5 +46,5 @@ type MateRequest struct {
 	RequestTime  time.Time
 	ResponseTime time.Time
 
-	Result StatusMateRequest
+	Result MateRequestResult
 }

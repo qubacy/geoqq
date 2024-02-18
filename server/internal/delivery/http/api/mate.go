@@ -2,8 +2,10 @@ package api
 
 import (
 	"geoqq/internal/delivery/http/api/dto"
+	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,8 +31,7 @@ func (h *Handler) registerMateRoutes() {
 			request.POST("", h.extractBodyForPostMateRequest,
 				h.userIdentityByContextData, h.postMateRequest)
 
-			request.PUT("/:id", h.extractBodyForPutMateRequest,
-				h.userIdentityByContextData, h.putMateRequest)
+			request.PUT("/:id", h.userIdentityForFormRequest, h.putMateRequest)
 		}
 	}
 }
@@ -117,10 +118,40 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 // PUT /api/mate/request/{id}
 // -----------------------------------------------------------------------
 
-func (h *Handler) extractBodyForPutMateRequest(ctx *gin.Context) {
-
+type uriParamsPutMateRequest struct {
+	Id uint64 `uri:"id" binding:"required"` // ?
 }
 
 func (h *Handler) putMateRequest(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx) // current!
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	acceptedStr := ctx.Request.FormValue("accepted")
+	accepted, err := strconv.ParseBool(acceptedStr)
+	if err != nil {
+		resWithServerErr(ctx, ec.ParseRequestParamsFailed, err) // x-www-form-urlencoded
+		return
+	}
+
+	uriParams := uriParamsPutMateRequest{}
+	if err := ctx.ShouldBindUri(&uriParams); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err) // uri
+		return
+	}
+
+	// to services
+
+	mateRequestId := uriParams.Id
+	err = h.services.SetResultForMateRequest(ctx, userId, mateRequestId,
+		table.MakeMateResultFromBool(accepted))
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }

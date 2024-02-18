@@ -20,6 +20,24 @@ func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
 		return
 	}
 
+	// TODO: to func
+	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
+	if err != nil {
+		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
+		return
+	}
+
+	ctx.Set(contextUserId, payload.UserId)
+}
+
+// some put requests...
+func (h *Handler) userIdentityForFormRequest(ctx *gin.Context) {
+	accessToken, clientCode, err := extractAccessTokenAsFormParam(ctx)
+	if err != nil {
+		resWithAuthError(ctx, clientCode, err)
+		return
+	}
+
 	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
@@ -65,6 +83,17 @@ func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
 	accessToken := ctx.Request.Form.Get("accessToken")
 	if len(accessToken) == 0 {
 		return "", se.ParseAccessTokenFailed, // ?
+			ErrEmptyAccessToken
+	}
+
+	return accessToken, se.NoError, nil
+}
+
+func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
+
+	accessToken := ctx.Request.FormValue("access-token")
+	if len(accessToken) == 0 {
+		return "", se.ParseAccessTokenFailed,
 			ErrEmptyAccessToken
 	}
 

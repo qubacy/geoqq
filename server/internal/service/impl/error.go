@@ -19,8 +19,10 @@ var (
 	ErrUnknownImageExtension = errors.New("unknown image extension")
 	ErrImageBodyEmpty        = errors.New("image body empty")
 	ErrUserNotFound          = errors.New("user not found")
+	ErrMateRequestNotFound   = errors.New("mate request not found")
 
 	ErrMateRequestAlreadySent = errors.New("mate request already sent")
+	ErrMateRequestNotWaiting  = errors.New("mate request not waiting")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {

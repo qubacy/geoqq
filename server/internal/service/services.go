@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/internal/domain/table"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/file"
 )
@@ -48,6 +49,8 @@ type MateService interface {
 
 type MateRequestService interface {
 	AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
+	SetResultForMateRequest(ctx context.Context, userId, mateRequestId uint64,
+		value table.MateRequestResult) error
 }
 
 type ImageService interface {

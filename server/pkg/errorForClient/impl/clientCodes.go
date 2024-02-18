@@ -55,6 +55,8 @@ const (
 const (
 	MateError = 1800 + iota
 	MateRequestAlreadySent
+	MateRequestNotFound
+	MateRequestNotWaiting
 )
 
 const (

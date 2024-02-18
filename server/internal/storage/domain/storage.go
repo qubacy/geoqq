@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
 )
 
@@ -51,6 +52,11 @@ type MateRequestStorage interface {
 		fromUserId, toUserId uint64) (uint64, error)
 	HasWaitingMateRequest(ctx context.Context,
 		fromUserId, toUserId uint64) (bool, error)
+
+	HasMateRequestByIdAndToUser(ctx context.Context, id, toUserId uint64) (bool, error)
+	GetMateRequestResultById(ctx context.Context, id uint64) (table.MateRequestResult, error)
+	UpdateMateRequestResultById(ctx context.Context, id uint64,
+		value table.MateRequestResult) error
 }
 
 type MateChatStorage interface {
