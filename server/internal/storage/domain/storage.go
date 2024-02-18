@@ -18,6 +18,7 @@ type UserStorage interface {
 
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
+	HasUserWithId(ctx context.Context, id uint64) (bool, error)
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context,
 		username, hashPassword string, avatarId uint64) (uint64, error)
@@ -46,6 +47,10 @@ type MateStorage interface {
 }
 
 type MateRequestStorage interface {
+	AddMateRequest(ctx context.Context,
+		fromUserId, toUserId uint64) (uint64, error)
+	HasWaitingMateRequest(ctx context.Context,
+		fromUserId, toUserId uint64) (bool, error)
 }
 
 type MateChatStorage interface {

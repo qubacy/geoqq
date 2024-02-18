@@ -69,6 +69,32 @@ func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 	return hashRefreshToken, nil
 }
 
+func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
+	bool, error,
+) {
+	conn, err := us.pool.Acquire(ctx)
+	if err != nil {
+		return false, utility.NewFuncError(us.HasUserWithId, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) FROM "UserEntry"
+			WHERE "Id" = $1;`,
+		id)
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utility.NewFuncError(us.HasUserWithId, err)
+	}
+
+	if count > 1 {
+		return false, ErrUnexpectedResult
+	}
+	return count == 1, nil
+}
+
 func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 	bool, error,
 ) {

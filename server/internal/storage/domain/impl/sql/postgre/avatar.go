@@ -23,12 +23,12 @@ func newAvatarStorage(pool *pgxpool.Pool) *AvatarStorage {
 // public
 // -----------------------------------------------------------------------
 
-func (self *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
+func (s *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 	bool, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasAvatar, err)
+		return false, utility.NewFuncError(s.HasAvatar, err)
 	}
 	defer conn.Release()
 
@@ -41,7 +41,7 @@ func (self *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(self.HasAvatar, err)
+		return false, utility.NewFuncError(s.HasAvatar, err)
 	}
 
 	if count > 1 {
@@ -51,13 +51,13 @@ func (self *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 	return count == 1, nil
 }
 
-func (self *AvatarStorage) InsertGeneratedAvatar(
+func (s *AvatarStorage) InsertGeneratedAvatar(
 	ctx context.Context, hashValue string) (
 	uint64, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertGeneratedAvatar, err)
+		return 0, utility.NewFuncError(s.InsertGeneratedAvatar, err)
 	}
 	defer conn.Release()
 
@@ -74,19 +74,19 @@ func (self *AvatarStorage) InsertGeneratedAvatar(
 
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertGeneratedAvatar, err)
+		return 0, utility.NewFuncError(s.InsertGeneratedAvatar, err)
 	}
 
 	return lastInsertedId, nil
 }
 
-func (self *AvatarStorage) InsertAvatar(
+func (s *AvatarStorage) InsertAvatar(
 	ctx context.Context, hashValue string) (
 	uint64, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertAvatar, err)
+		return 0, utility.NewFuncError(s.InsertAvatar, err)
 	}
 	defer conn.Release()
 
@@ -103,7 +103,7 @@ func (self *AvatarStorage) InsertAvatar(
 
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(self.InsertAvatar, err)
+		return 0, utility.NewFuncError(s.InsertAvatar, err)
 	}
 
 	return lastInsertedId, nil

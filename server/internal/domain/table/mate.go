@@ -2,7 +2,7 @@ package table
 
 import "time"
 
-type StatusMateRequest uint64
+type StatusMateRequest int16
 
 const (
 	Waiting StatusMateRequest = iota

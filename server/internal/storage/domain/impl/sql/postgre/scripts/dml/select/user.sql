@@ -19,6 +19,11 @@ SELECT COUNT(*) AS "Count"
 FROM "UserEntry"
 WHERE "Username" = 'Test';
 
+
+SELECT COUNT(*) AS "Count"
+FROM "UserEntry"
+WHERE "Id" = 1;
+
 -- -----------------------------------------------------------------------
 
 SELECT COUNT(*) AS "Count"

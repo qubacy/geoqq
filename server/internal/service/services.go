@@ -42,9 +42,12 @@ type MateService interface {
 	// 	offset, count uint64) (domain.MateRequestList, error)
 	// GetMateRequestCount(ctx context.Context, userId uint64) (uint64, error)
 
-	// AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
 	// UpdateMateRequest(ctx context.Context,
 	// 	userId, requestId uint64, accepted bool) error
+}
+
+type MateRequestService interface {
+	AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
 }
 
 type ImageService interface {
@@ -61,6 +64,7 @@ type Services interface {
 	AuthService
 	UserProfileService
 	UserService
+	MateRequestService
 	MateService
 	ImageService
 	GeoService

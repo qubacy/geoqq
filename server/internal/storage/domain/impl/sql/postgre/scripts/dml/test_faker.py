@@ -18,9 +18,12 @@ class TestFaker(unittest.TestCase):
         print("first_name: " + self.fk.unique.first_name())
         print("latitude: " + str(self.fk.latitude()))
         print("longitude: " + str(self.fk.longitude()))
+        print("random_element (a, b, c):" + str(
+            self.fk.random_element(('a', 'b', 'b'))))
+        #...
         
-        print(self.fk.random_element(('a', 'b', 'b')))
-
-            
+    def test_faker_dir(self):
+        print(dir(self.fk.items))
+ 
 if __name__ == '__main__':
     unittest.main()

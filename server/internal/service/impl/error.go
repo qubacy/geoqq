@@ -6,21 +6,24 @@ import (
 )
 
 var (
-	ErrNotImplemented = errors.New("Not implemented")
+	ErrNotImplemented = errors.New("not implemented")
 
-	ErrIncorrectUsername = errors.New("Incorrect username")
-	ErrIncorrectPassword = errors.New("Incorrect password")
+	ErrIncorrectUsername = errors.New("incorrect username")
+	ErrIncorrectPassword = errors.New("incorrect password")
 
-	ErrUserWithThisLoginAlreadyExists = errors.New("User with this login already exists")
-	ErrIncorrectLoginOrPassword       = errors.New("Incorrect login or password") // No details!
-	ErrNotSameHashesForRefreshTokens  = errors.New("Not same hashes for refresh tokens")
+	ErrUserWithThisLoginAlreadyExists = errors.New("user with this login already exists")
+	ErrIncorrectLoginOrPassword       = errors.New("incorrect login or password") // No details!
+	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
 
-	ErrImageNotFound         = errors.New("Image not found")
-	ErrUnknownImageExtension = errors.New("Unknown image extension")
-	ErrImageBodyEmpty        = errors.New("Image body empty")
+	ErrImageNotFound         = errors.New("image not found")
+	ErrUnknownImageExtension = errors.New("unknown image extension")
+	ErrImageBodyEmpty        = errors.New("image body empty")
+	ErrUserNotFound          = errors.New("user not found")
+
+	ErrMateRequestAlreadySent = errors.New("mate request already sent")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {
-	return fmt.Errorf("Incorrect username. Pattern `%v`",
+	return fmt.Errorf("incorrect username. Pattern `%v`",
 		pattern)
 }

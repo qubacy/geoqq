@@ -21,13 +21,13 @@ func newUserProfileStorage(pool *pgxpool.Pool) *UserProfileStorage {
 	}
 }
 
-func (self *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
+func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	domain.UserProfile, error,
 ) {
-	conn, err := self.pool.Acquire(ctx)
+	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
 		return domain.UserProfile{},
-			utility.NewFuncError(self.GetUserProfile, err)
+			utility.NewFuncError(s.GetUserProfile, err)
 	}
 	defer conn.Release()
 
@@ -45,7 +45,7 @@ func (self *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 
 	if err != nil {
 		return domain.UserProfile{},
-			utility.NewFuncError(self.GetUserProfile, err)
+			utility.NewFuncError(s.GetUserProfile, err)
 	}
 
 	return userProfile, nil

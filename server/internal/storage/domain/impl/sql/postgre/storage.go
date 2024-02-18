@@ -13,6 +13,7 @@ type Storage struct {
 	*AvatarStorage
 	*UserStorage
 	*UserProfileStorage
+	*MateStorage
 	*MateRequestStorage
 	*MateChatStorage
 	*GeoChatStorage
@@ -39,6 +40,8 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 		AvatarStorage:      newAvatarStorage(pool),
 		UserStorage:        newUserStorage(pool),
 		UserProfileStorage: newUserProfileStorage(pool),
+		MateStorage:        newMateStorage(pool),
+		MateRequestStorage: newMateRequestStorage(pool),
 	}
 
 	return storage, nil
