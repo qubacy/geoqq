@@ -15,14 +15,17 @@ var (
 	ErrIncorrectLoginOrPassword       = errors.New("incorrect login or password") // No details!
 	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
 
-	ErrImageNotFound         = errors.New("image not found")
-	ErrUnknownImageExtension = errors.New("unknown image extension")
-	ErrImageBodyEmpty        = errors.New("image body empty")
-	ErrUserNotFound          = errors.New("user not found")
-	ErrMateRequestNotFound   = errors.New("mate request not found")
+	ErrImageNotFound            = errors.New("image not found")
+	ErrUnknownImageExtension    = errors.New("unknown image extension")
+	ErrImageBodyEmpty           = errors.New("image body empty")
+	ErrUserNotFound             = errors.New("user not found")
+	ErrMateRequestNotFound      = errors.New("mate request not found")
+	ErrUnknownMateRequestResult = errors.New("unknown mate request result")
 
-	ErrMateRequestAlreadySent = errors.New("mate request already sent")
-	ErrMateRequestNotWaiting  = errors.New("mate request not waiting")
+	ErrMateRequestAlreadySentFromYou = errors.New("mate request already sent from you")
+	ErrMateRequestAlreadySentToYou   = errors.New("mate request already sent to you")
+	ErrMateRequestNotWaiting         = errors.New("mate request not waiting")
+	ErrAlreadyAreMates               = errors.New("already are mates")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {

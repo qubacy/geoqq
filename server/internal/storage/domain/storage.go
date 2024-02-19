@@ -53,7 +53,9 @@ type MateRequestStorage interface {
 	HasWaitingMateRequest(ctx context.Context,
 		fromUserId, toUserId uint64) (bool, error)
 
+	IsMateRequestForUser(ctx context.Context, id, userId uint64) (bool, error)
 	HasMateRequestByIdAndToUser(ctx context.Context, id, toUserId uint64) (bool, error)
+
 	GetMateRequestResultById(ctx context.Context, id uint64) (table.MateRequestResult, error)
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error

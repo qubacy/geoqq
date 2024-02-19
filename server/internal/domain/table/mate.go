@@ -32,6 +32,17 @@ func MakeMateResultFromInt(value int16) (MateRequestResult, error) {
 	return Waiting, ErrUnknownMateResult
 }
 
+func (mrs MateRequestResult) IsAcceptedOrRejected() bool {
+	if mrs == Accepted || mrs == Rejected {
+		return true
+	}
+	return false
+}
+
+func (mrs MateRequestResult) IsAccepted() bool {
+	return mrs == Accepted
+}
+
 type Mate struct {
 	Id           uint64
 	FirstUserId  uint64

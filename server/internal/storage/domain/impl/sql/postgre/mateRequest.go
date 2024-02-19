@@ -75,6 +75,13 @@ func (s *MateRequestStorage) HasWaitingMateRequest(ctx context.Context,
 	return count >= 1, nil
 }
 
+func (s *MateRequestStorage) IsMateRequestForUser(ctx context.Context, id, userId uint64) (
+	bool, error,
+) {
+	return s.HasMateRequestByIdAndToUser(
+		ctx, id, userId)
+}
+
 func (s *MateRequestStorage) HasMateRequestByIdAndToUser(ctx context.Context, id, toUserId uint64) (
 	bool, error,
 ) {
@@ -132,8 +139,11 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	defer conn.Release()
 
 	cmdTag, err := conn.Exec(ctx,
-		`UPDATE "MateRequest" SET "Result" = $1 WHERE "Id" = $2;`,
-		int16(value), id,
+		`UPDATE "MateRequest" 
+			SET "Result" = $1, "ResponseTime" = NOW()::timestamp
+				WHERE "Id" = $2;`,
+		int16(value), // <--- smallint!
+		id,
 	)
 	if err != nil {
 		return utility.NewFuncError(s.UpdateMateRequestResultById, err)

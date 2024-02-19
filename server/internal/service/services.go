@@ -50,7 +50,7 @@ type MateService interface {
 type MateRequestService interface {
 	AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
 	SetResultForMateRequest(ctx context.Context, userId, mateRequestId uint64,
-		value table.MateRequestResult) error
+		mateRequestResult table.MateRequestResult) error
 }
 
 type ImageService interface {

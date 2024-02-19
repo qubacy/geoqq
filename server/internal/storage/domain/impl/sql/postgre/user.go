@@ -106,7 +106,7 @@ func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 
 	rows, err := conn.Query(ctx,
 		`SELECT COUNT(*) AS "Count"
-		FROM "UserEntry" WHERE "Username" = $1;`,
+			FROM "UserEntry" WHERE "Username" = $1;`,
 		value,
 	)
 	if err != nil {

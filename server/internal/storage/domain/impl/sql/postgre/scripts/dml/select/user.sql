@@ -24,6 +24,18 @@ SELECT COUNT(*) AS "Count"
 FROM "UserEntry"
 WHERE "Id" = 1;
 
+select
+    case when exists (select true
+    from "UserEntry"
+    where "Id" = 3)
+    then true
+    else false
+end;
+
+select true
+from "UserEntry"
+where "Id" = 2;
+
 -- -----------------------------------------------------------------------
 
 SELECT COUNT(*) AS "Count"
@@ -46,7 +58,7 @@ WHERE "Username" = 'Joshua';
 
 -- 2024-01-14T18:34:08.411053
 -- 2024-01-14T18:35:04.848421
- -- -----------------------------------------------------------------------
+-- -----------------------------------------------------------------------
 
 SELECT "HashUpdToken"
 FROM "UserEntry"
@@ -62,12 +74,12 @@ WHERE "Id" = 1
 -- -----------------------------------------------------------------------
 
 SELECT "Username",
-       "Description",
-       "AvatarId",
-       "HitMeUp"
+    "Description",
+    "AvatarId",
+    "HitMeUp"
 FROM "UserEntry"
-LEFT JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
-LEFT JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
+    LEFT JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+    LEFT JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
 WHERE "UserEntry"."Id" = 1;
 
 -- -----------------------------------------------------------------------

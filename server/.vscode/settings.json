@@ -9,6 +9,7 @@
         "mockaroo",
         "pgxpool",
         "postgre",
-        "psycopg"
+        "psycopg",
+        "smallint"
     ]
 }

@@ -1,3 +1,12 @@
 SELECT COUNT(*)
-WHERE "FirstUserId" = 1 AND "SecondUserId" = 1;
+FROM "Mate"
+WHERE "FirstUserId" = 1
+    AND "SecondUserId" = 1;
 
+select
+    case when exists (select true
+    from "Mate"
+    where "FirstUserId" = 1 AND "SecondUserId" = 1)
+    then 'true'
+    else 'false'
+end;

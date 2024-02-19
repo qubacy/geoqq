@@ -23,14 +23,28 @@ func newMateStorage(pool *pgxpool.Pool) *MateStorage {
 // public
 // -----------------------------------------------------------------------
 
-func (ms *MateStorage) AreMates(ctx context.Context,
+func (s *MateStorage) AreMates(ctx context.Context,
 	firstUserId uint64, secondUserId uint64) (bool, error) {
-	conn, err := ms.pool.Acquire(ctx)
+	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(ms.AreMates, err)
+		return false, utility.NewFuncError(s.AreMates, err)
 	}
 	defer conn.Release()
 
-	conn.QueryRow(ctx, ``, firstUserId, secondUserId)
-	return false, nil
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) FROM "Mate" 
+			WHERE "FirstUserId" = $1
+				AND "SecondUserId" = $2;`,
+		firstUserId, secondUserId)
+
+	var count = 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utility.NewFuncError(s.AreMates, err)
+	}
+	if count > 1 { // impossible!
+		return false, ErrUnexpectedResult
+	}
+
+	return count == 1, nil
 }
