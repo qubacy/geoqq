@@ -42,7 +42,7 @@ func (s *TokenManager) New(payload token.Payload, duration time.Duration) (strin
 	claims := &userClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
-				time.Now().UTC().Add(duration)), // !
+				time.Now().UTC().Add(duration)), // accuracy: second!
 		},
 		Payload: payload,
 	}

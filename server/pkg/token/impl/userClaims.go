@@ -13,8 +13,8 @@ type userClaims struct {
 	token.Payload
 }
 
-func (self *userClaims) validate() error {
-	if !self.IsValidAt(time.Now()) {
+func (s *userClaims) validate() error {
+	if !s.IsValidAt(time.Now()) {
 		return ErrTokenExpired
 	}
 	return nil

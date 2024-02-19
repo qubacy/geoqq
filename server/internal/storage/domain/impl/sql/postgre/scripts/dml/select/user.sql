@@ -13,6 +13,11 @@ FROM "UserOptions";
 SELECT *
 FROM "UserLocation";
 
+SELECT * FROM "UserEntry"
+INNER JOIN "UserDetails" ON "UserEntry"."Id" = "UserDetails"."UserId"
+INNER JOIN "UserOptions" ON "UserEntry"."Id" = "UserOptions"."UserId"
+INNER JOIN "UserLocation" ON "UserEntry"."Id" = "UserLocation"."UserId";
+
 -- -----------------------------------------------------------------------
 
 SELECT COUNT(*) AS "Count"
