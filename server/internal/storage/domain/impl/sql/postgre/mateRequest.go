@@ -105,6 +105,33 @@ func (s *MateRequestStorage) HasMateRequestByIdAndToUser(ctx context.Context, id
 	return count == 1, nil
 }
 
+func (s *MateRequestStorage) GetMateRequestById(ctx context.Context, id uint64) (
+	*table.MateRequest, error,
+) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utility.NewFuncError(s.GetMateRequestById, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT * FROM "MateRequest"
+			WHERE "Id" = $1;`, id,
+	)
+
+	mateRequest := table.NewMateRequest()
+	err = row.Scan(&mateRequest.Id,
+		&mateRequest.FromUserId, &mateRequest.ToUserId,
+		&mateRequest.RequestTime, mateRequest.ResponseTime,
+		&mateRequest.Result,
+	)
+	if err != nil {
+		return nil, utility.NewFuncError(s.GetMateRequestById, err)
+	}
+
+	return mateRequest, nil
+}
+
 func (s *MateRequestStorage) GetMateRequestResultById(ctx context.Context, id uint64) (
 	table.MateRequestResult, error) {
 	conn, err := s.pool.Acquire(ctx)

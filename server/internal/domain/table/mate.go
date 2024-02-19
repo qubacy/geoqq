@@ -55,7 +55,13 @@ type MateRequest struct {
 	ToUserId   uint64
 
 	RequestTime  time.Time
-	ResponseTime time.Time
+	ResponseTime *time.Time
 
 	Result MateRequestResult
+}
+
+func NewMateRequest() *MateRequest {
+	return &MateRequest{
+		ResponseTime: &time.Time{},
+	}
 }

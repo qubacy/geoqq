@@ -32,9 +32,9 @@ func (s *MateStorage) AreMates(ctx context.Context,
 	defer conn.Release()
 
 	row := conn.QueryRow(ctx,
-		`SELECT COUNT(*) FROM "Mate" 
-			WHERE "FirstUserId" = $1
-				AND "SecondUserId" = $2;`,
+		`SELECT COUNT(*) FROM "Mate"
+			WHERE ("FirstUserId" = $1 AND "SecondUserId" = $2)
+				OR ("FirstUserId" = $2 AND "SecondUserId" = $1);`,
 		firstUserId, secondUserId)
 
 	var count = 0
@@ -47,4 +47,27 @@ func (s *MateStorage) AreMates(ctx context.Context,
 	}
 
 	return count == 1, nil
+}
+
+func (s *MateStorage) InsertMate(ctx context.Context,
+	firstUserId uint64, secondUserId uint64) (uint64, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return 0, utility.NewFuncError(s.InsertMate, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
+			VALUES ($1, $2) RETURNING "Id";`,
+		firstUserId, secondUserId,
+	)
+
+	var lastInsertedId uint64
+	err = row.Scan(&lastInsertedId)
+	if err != nil {
+		return 0, utility.NewFuncError(s.InsertMate, err)
+	}
+
+	return lastInsertedId, nil
 }

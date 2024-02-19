@@ -61,7 +61,6 @@ func (s *AvatarStorage) InsertGeneratedAvatar(
 	}
 	defer conn.Release()
 
-	var lastInsertedId uint64
 	row := conn.QueryRow(ctx,
 		`INSERT INTO "Avatar" (
 			"GeneratedByServer", "Time", "Hash"
@@ -72,6 +71,7 @@ func (s *AvatarStorage) InsertGeneratedAvatar(
 		hashValue,
 	)
 
+	var lastInsertedId uint64
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
 		return 0, utility.NewFuncError(s.InsertGeneratedAvatar, err)

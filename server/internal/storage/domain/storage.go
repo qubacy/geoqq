@@ -45,6 +45,8 @@ type UserProfileStorage interface {
 type MateStorage interface {
 	AreMates(ctx context.Context,
 		firstUserId uint64, secondUserId uint64) (bool, error)
+	InsertMate(ctx context.Context,
+		firstUserId uint64, secondUserId uint64) (uint64, error)
 }
 
 type MateRequestStorage interface {
@@ -56,6 +58,7 @@ type MateRequestStorage interface {
 	IsMateRequestForUser(ctx context.Context, id, userId uint64) (bool, error)
 	HasMateRequestByIdAndToUser(ctx context.Context, id, toUserId uint64) (bool, error)
 
+	GetMateRequestById(ctx context.Context, id uint64) (*table.MateRequest, error)
 	GetMateRequestResultById(ctx context.Context, id uint64) (table.MateRequestResult, error)
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error

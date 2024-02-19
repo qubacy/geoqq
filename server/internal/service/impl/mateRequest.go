@@ -38,7 +38,8 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 	// ***
 
-	err = mrs.validateInputBeforeAddMateRequest(ctx, sourceUserId, targetUserId)
+	err = mrs.partialValidateInputBeforeAddMateRequest(ctx,
+		sourceUserId, targetUserId)
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
@@ -76,12 +77,12 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 
 	// ***
 
-	result, err := mrs.domainStorage.GetMateRequestResultById(ctx, mateRequestId)
+	mateRequest, err := mrs.domainStorage.GetMateRequestById(ctx, mateRequestId)
 	if err != nil {
 		return utl.NewFuncError(mrs.SetResultForMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
-	if result != table.Waiting { // incoming mate request for user?
+	if mateRequest.Result != table.Waiting { // incoming mate request for user?
 		return utl.NewFuncError(mrs.SetResultForMateRequest,
 			ec.New(ErrMateRequestNotWaiting, ec.Client, ec.MateRequestNotWaiting))
 	}
@@ -89,12 +90,19 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 	// ***
 
 	if mateRequestResult.IsAccepted() {
+		_, err = mrs.domainStorage.InsertMate(ctx,
+			mateRequest.FromUserId, mateRequest.ToUserId) // now mates!
 
+		if err != nil {
+			return utl.NewFuncError(mrs.SetResultForMateRequest,
+				ec.New(err, ec.Server, ec.DomainStorageError))
+		}
 	}
 
 	// ***
 
-	err = mrs.domainStorage.UpdateMateRequestResultById(ctx, mateRequestId, mateRequestResult)
+	err = mrs.domainStorage.UpdateMateRequestResultById(ctx,
+		mateRequestId, mateRequestResult)
 	if err != nil {
 		return utl.NewFuncError(mrs.SetResultForMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
@@ -106,7 +114,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-func (mrs *MateRequestService) validateInputBeforeAddMateRequest(ctx context.Context,
+func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
 
 	/*
@@ -119,11 +127,11 @@ func (mrs *MateRequestService) validateInputBeforeAddMateRequest(ctx context.Con
 
 	areMates, err := mrs.domainStorage.AreMates(ctx, sourceUserId, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	if areMates {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(ErrAlreadyAreMates, ec.Client, ec.AlreadyAreMates))
 	}
 
@@ -132,11 +140,11 @@ func (mrs *MateRequestService) validateInputBeforeAddMateRequest(ctx context.Con
 	exists, err := mrs.domainStorage.HasWaitingMateRequest(
 		ctx, sourceUserId, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	if exists {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(ErrMateRequestAlreadySentFromYou,
 				ec.Client, ec.MateRequestAlreadySentFromYou))
 	}
@@ -146,11 +154,11 @@ func (mrs *MateRequestService) validateInputBeforeAddMateRequest(ctx context.Con
 	exists, err = mrs.domainStorage.HasWaitingMateRequest(
 		ctx, targetUserId, sourceUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	if exists {
-		return utl.NewFuncError(mrs.validateInputBeforeAddMateRequest,
+		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
 			ec.New(ErrMateRequestAlreadySentToYou,
 				ec.Client, ec.MateRequestAlreadySentToYou))
 	}

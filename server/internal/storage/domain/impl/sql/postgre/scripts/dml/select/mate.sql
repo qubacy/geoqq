@@ -1,7 +1,7 @@
 SELECT COUNT(*)
 FROM "Mate"
-WHERE "FirstUserId" = 1
-    AND "SecondUserId" = 1;
+WHERE ("FirstUserId" = 1 AND "SecondUserId" = 2)
+    OR ("FirstUserId" = 2 AND "SecondUserId" = 1);
 
 select
     case when exists (select true

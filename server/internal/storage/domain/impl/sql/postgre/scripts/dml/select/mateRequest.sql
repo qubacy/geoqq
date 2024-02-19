@@ -1,6 +1,10 @@
 SELECT *
 FROM "MateRequest";
 
+SELECT *
+FROM "MateRequest"
+WHERE "Id" = 1;
+
 
 SELECT "Result"
 FROM "MateRequest"
