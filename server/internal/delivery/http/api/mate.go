@@ -58,8 +58,28 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 
 }
 
-func (h *Handler) getMateRequestCount(ctx *gin.Context) {
+// GET /api/mate/request/count
+// -----------------------------------------------------------------------
 
+func (h *Handler) getMateRequestCount(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx) // current!
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	count, err := h.services.GetIncomingMateRequestCountForUser(ctx, userId)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	responseDto := dto.MateRequestCountRes{
+		Count: float64(count),
+	}
+
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // POST /api/mate/request

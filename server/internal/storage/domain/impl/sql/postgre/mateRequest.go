@@ -35,10 +35,9 @@ func (s *MateRequestStorage) AddMateRequest(ctx context.Context,
 	var lastInsertedId uint64
 	row := conn.QueryRow(ctx,
 		`INSERT INTO "MateRequest" (
-			"FromUserId",
-			"ToUserId",
-			"RequestTime",
-			"Result")
+			"FromUserId", "ToUserId",
+			"RequestTime", "Result"
+		)
 		VALUES ($1, $2, NOW()::timestamp, $3) RETURNING "Id";`,
 		fromUserId, toUserId, int16(table.Waiting),
 	)
@@ -119,6 +118,7 @@ func (s *MateRequestStorage) GetMateRequestById(ctx context.Context, id uint64) 
 			WHERE "Id" = $1;`, id,
 	)
 
+	// TODO: do test this
 	mateRequest := table.NewMateRequest()
 	err = row.Scan(&mateRequest.Id,
 		&mateRequest.FromUserId, &mateRequest.ToUserId,
@@ -180,4 +180,27 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	}
 
 	return nil
+}
+
+func (s *MateRequestStorage) GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (
+	int, error,
+) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return 0, utility.NewFuncError(s.GetIncomingMateRequestCountForUser, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT COUNT(*) FROM "MateRequest"
+			WHERE "ToUserId" = $1 AND "Result" = $2;`,
+		userId, int16(table.Waiting))
+
+	var count = 0
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, utility.NewFuncError(s.GetIncomingMateRequestCountForUser, err)
+	}
+
+	return count, nil
 }

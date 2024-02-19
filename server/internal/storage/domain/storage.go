@@ -62,6 +62,8 @@ type MateRequestStorage interface {
 	GetMateRequestResultById(ctx context.Context, id uint64) (table.MateRequestResult, error)
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error
+
+	GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (int, error)
 }
 
 type MateChatStorage interface {

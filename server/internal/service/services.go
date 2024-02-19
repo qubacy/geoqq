@@ -48,6 +48,7 @@ type MateService interface {
 }
 
 type MateRequestService interface {
+	GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (int, error)
 	AddMateRequest(ctx context.Context, sourceUserId, targetUserId uint64) error
 	SetResultForMateRequest(ctx context.Context, userId, mateRequestId uint64,
 		mateRequestResult table.MateRequestResult) error

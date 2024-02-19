@@ -23,6 +23,17 @@ func newMateRequestService(deps Dependencies) *MateRequestService {
 // public
 // -----------------------------------------------------------------------
 
+func (mrs *MateRequestService) GetIncomingMateRequestCountForUser(
+	ctx context.Context, userId uint64) (int, error) {
+	count, err := mrs.domainStorage.GetIncomingMateRequestCountForUser(ctx, userId)
+	if err != nil {
+		return 0, utl.NewFuncError(mrs.GetIncomingMateRequestCountForUser,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	return count, nil
+}
+
 func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
 
