@@ -10,7 +10,6 @@ import (
 	"geoqq/pkg/file"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
-	"geoqq/pkg/utility"
 	utl "geoqq/pkg/utility"
 	"regexp"
 	"time"
@@ -90,7 +89,7 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	if err != nil {
 		return a.signInWithError(err, ec.Server, ec.TokenManagerError)
 	}
-	err, clientCode := a.updateHashRefreshToken(ctx, userId, refreshToken)
+	clientCode, err := a.updateHashRefreshToken(ctx, userId, refreshToken)
 	if err != nil {
 		return a.signInWithError(err, ec.Server, clientCode)
 	}
@@ -149,7 +148,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, ec.TokenManagerError)
 	}
-	err, clientCode := a.updateHashRefreshToken(ctx, userId, refreshToken)
+	clientCode, err := a.updateHashRefreshToken(ctx, userId, refreshToken)
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, clientCode)
 	}
@@ -169,9 +168,11 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 ) {
 	payload, err := a.tokenManager.Parse(refreshToken) // with validation!
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, ec.DomainStorageError)
+
+		// believe that module is working correctly!
+		return a.refreshTokensWithError(err, ec.Client, ec.DomainStorageError)
 	}
-	err, clientCode := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
+	clientCode, err := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
 	if err != nil {
 		return a.refreshTokensWithError(err, ec.Server, clientCode)
 	}
@@ -182,7 +183,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	if err != nil {
 		return a.refreshTokensWithError(err, ec.Server, ec.TokenManagerError)
 	}
-	err, clientCode = a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
+	clientCode, err = a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
 	if err != nil {
 		return a.refreshTokensWithError(err, ec.Server, clientCode)
 	}
@@ -254,7 +255,7 @@ func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error
 			ec.New(err, ec.Server, ec.AvatarGeneratorError))
 	}
 
-	imageBytes, err := utility.ImageToPngBytes(image)
+	imageBytes, err := utl.ImageToPngBytes(image)
 	if err != nil {
 		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
 			ec.New(err, ec.Server, ec.AvatarGeneratorError))
@@ -312,37 +313,37 @@ func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
 }
 
 func (a *AuthService) updateHashRefreshToken(ctx context.Context,
-	userId uint64, refreshToken string) (error, int) { // <--- with client code!
+	userId uint64, refreshToken string) (int, error) { // <--- with client code!
 
 	hashRefreshToken, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
-		return err, ec.HashManagerError
+		return ec.HashManagerError, err
 	}
 
 	err = a.domainStorage.UpdateHashRefreshToken(ctx, userId, hashRefreshToken)
 	if err != nil {
-		return err, ec.DomainStorageError
+		return ec.DomainStorageError, err
 	}
 
-	return nil, ec.NoError
+	return ec.NoError, nil
 }
 
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
-	userId uint64, refreshToken string) (error, int) {
+	userId uint64, refreshToken string) (int, error) {
 
 	currentHash, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
-		return err, ec.HashManagerError
+		return ec.HashManagerError, err
 	}
 	storageHash, err := a.domainStorage.GetHashRefreshToken(ctx, userId)
 	if err != nil {
-		return err, ec.DomainStorageError
+		return ec.DomainStorageError, err
 	}
 
 	// ***
 
 	if currentHash != storageHash {
-		return ErrNotSameHashesForRefreshTokens, ec.InvalidRefreshToken
+		return ec.InvalidRefreshToken, ErrNotSameHashesForRefreshTokens
 	}
-	return nil, ec.NoError
+	return ec.NoError, nil
 }

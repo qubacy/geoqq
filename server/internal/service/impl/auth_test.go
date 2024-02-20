@@ -43,7 +43,7 @@ func Test_regexp_Compile_okk(t *testing.T) {
 }
 
 func Test_regexp_Compile_err(t *testing.T) {
-	re, err := regexp.Compile(`\d_\d{3}_\d{3}_\d\d\d\d(???)`)
+	re, err := regexp.Compile(`\d_\d{3}_\d{3}_\d\d\d\d(???)`) // <--- with err!
 	if err == nil {
 		t.Error()
 	}
