@@ -34,7 +34,7 @@ func (s *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 
 	row := conn.QueryRow(ctx,
 		`SELECT COUNT(*) 
-		FROM "Avatar" WHERE "Id" = $1;`,
+			FROM "Avatar" WHERE "Id" = $1;`,
 		id,
 	)
 

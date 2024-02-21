@@ -112,6 +112,11 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	}
 
+	/*
+		if requestDto.Privacy != nil {
+		}
+	*/
+
 	// ***
 
 	ctx.Set(contextAccessToken, requestDto.AccessToken)

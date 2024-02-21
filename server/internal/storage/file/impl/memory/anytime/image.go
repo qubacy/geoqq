@@ -45,7 +45,7 @@ func (s *ImageStorage) LoadImage(ctx context.Context, id uint64) (
 	}
 
 	if len(matches) != 1 {
-		return nil, ErrImageCountNotEqualToOne
+		return nil, ErrImageCountNotEqualToOne // image not found!
 	}
 
 	// ***
