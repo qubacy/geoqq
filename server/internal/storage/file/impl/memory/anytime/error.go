@@ -5,11 +5,11 @@ import (
 )
 
 var (
-	ErrImageIsNil              = errors.New("Image is nil")
-	ErrImageAlreadyExists      = errors.New("Image already exists")
-	ErrImageDoesNotExists      = errors.New("Image does not exists")
-	ErrUnknownImageExtension   = errors.New("Unknown image extension")
-	ErrRootDirNameIsEmpty      = errors.New("Root directory name is empty")
-	ErrHashManagerIsNil        = errors.New("Hash manager is nil")
-	ErrImageCountNotEqualToOne = errors.New("Number of images not equal to one")
+	ErrImageIsNil              = errors.New("image is nil")
+	ErrImageAlreadyExists      = errors.New("image already exists")
+	ErrImageDoesNotExists      = errors.New("image does not exists")
+	ErrUnknownImageExtension   = errors.New("unknown image extension")
+	ErrRootDirNameIsEmpty      = errors.New("root directory name is empty")
+	ErrHashManagerIsNil        = errors.New("hash manager is nil")
+	ErrImageCountNotEqualToOne = errors.New("number of images not equal to one")
 )

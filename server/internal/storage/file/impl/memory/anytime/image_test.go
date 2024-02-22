@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"geoqq/pkg/file"
 	hashImpl "geoqq/pkg/hash/impl"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -290,5 +291,27 @@ func Test_strings_find(t *testing.T) {
 	ext := value[index+1:]
 	if ext != "txt" {
 		t.Error()
+	}
+}
+
+// -----------------------------------------------------------------------
+
+func Test_http_DetectContentType_nil(t *testing.T) {
+	contentType := http.DetectContentType(nil)
+	fmt.Println("Content type:", contentType)
+}
+
+func Test_http_DetectContentType(t *testing.T) {
+	fn := `testData\image\png\1.png`
+	content, err := os.ReadFile(fn)
+	if err != nil {
+		t.Error()
+	}
+
+	contentType := http.DetectContentType(content)
+	fmt.Println("Content type:", contentType)
+
+	if contentType != "image/png" {
+		t.Error("Unexpected content type")
 	}
 }

@@ -1,6 +1,14 @@
 SELECT *
 FROM "MateRequest";
 
+SELECT "Id", "FromUserId"
+FROM "MateRequest"
+WHERE "ToUserId" = 2 AND "Result" = 0;
+
+SELECT *
+FROM "MateRequest"
+WHERE "ToUserId" = 2 AND "Result" = 0;
+
 SELECT *
 FROM "MateRequest"
 WHERE "Id" = 1;

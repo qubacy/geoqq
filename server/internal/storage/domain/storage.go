@@ -63,6 +63,7 @@ type MateRequestStorage interface {
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error
 
+	GetIncomingMateRequestsForUser(ctx context.Context, userId uint64) ([]*table.MateRequest, error)
 	GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (int, error)
 }
 

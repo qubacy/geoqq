@@ -62,6 +62,6 @@ type MateRequest struct {
 
 func NewMateRequest() *MateRequest {
 	return &MateRequest{
-		ResponseTime: &time.Time{},
+		ResponseTime: &time.Time{}, // not necessary!
 	}
 }

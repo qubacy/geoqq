@@ -118,11 +118,10 @@ func (s *MateRequestStorage) GetMateRequestById(ctx context.Context, id uint64) 
 			WHERE "Id" = $1;`, id,
 	)
 
-	// TODO: do test this
 	mateRequest := table.NewMateRequest()
 	err = row.Scan(&mateRequest.Id,
 		&mateRequest.FromUserId, &mateRequest.ToUserId,
-		&mateRequest.RequestTime, mateRequest.ResponseTime,
+		&mateRequest.RequestTime, &mateRequest.ResponseTime,
 		&mateRequest.Result,
 	)
 	if err != nil {
@@ -180,6 +179,45 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	}
 
 	return nil
+}
+
+func (s *MateRequestStorage) GetIncomingMateRequestsForUser(ctx context.Context, userId uint64) (
+	[]*table.MateRequest, error,
+) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx,
+		`SELECT * FROM "MateRequest"
+			WHERE "ToUserId" = $1 AND "Result" = $2;`,
+		userId, int16(table.Waiting),
+	)
+	if err != nil {
+		return nil, utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
+	}
+
+	// ***
+
+	mateRequests := []*table.MateRequest{}
+	for rows.Next() {
+		mateRequest := table.NewMateRequest()
+		err := rows.Scan(
+			&mateRequest.Id,
+			&mateRequest.FromUserId, &mateRequest.ToUserId,
+			&mateRequest.RequestTime, &mateRequest.ResponseTime,
+			&mateRequest.Result,
+		)
+		if err != nil {
+			return nil,
+				utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
+		}
+
+		mateRequests = append(mateRequests, mateRequest)
+	}
+	return mateRequests, nil
 }
 
 func (s *MateRequestStorage) GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (
