@@ -17,7 +17,7 @@ const (
 
 const (
 	// handler
-	ParseRequestFailed       = 1100 + iota // form
+	ParseAnyFormFailed       = 1100 + iota // form
 	ParseRequestParamsFailed               // uri, x-www-form-urlencoded
 	ParseRequestJsonBodyFailed
 	ValidateRequestFailed // any content

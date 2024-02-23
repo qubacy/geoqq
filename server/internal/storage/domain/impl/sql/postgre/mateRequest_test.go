@@ -11,7 +11,7 @@ import (
 func Test_GetIncomingMateRequestsForUser(t *testing.T) {
 	connStr := createConnectionString(Dependencies{
 		User: "postgres", Password: "admin",
-		DbName: "geoqq", Host: "127.0.0.1", Port: 5433, // TODO: from config!
+		DbName: "geoqq", Host: "127.0.0.1", Port: 5432, // TODO: from config!
 	})
 
 	pool, err := pgxpool.Connect(context.Background(), connStr)
@@ -20,7 +20,7 @@ func Test_GetIncomingMateRequestsForUser(t *testing.T) {
 	}
 
 	storage := newMateRequestStorage(pool)
-	mateRequests, err := storage.GetIncomingMateRequestsForUser(
+	mateRequests, err := storage.GetAllWaitingMateRequestsForUser(
 		context.Background(), 2)
 	if err != nil {
 		t.Error(err)
@@ -34,7 +34,7 @@ func Test_GetIncomingMateRequestsForUser(t *testing.T) {
 func Test_GetMateRequestById(t *testing.T) {
 	connStr := createConnectionString(Dependencies{
 		User: "postgres", Password: "admin",
-		DbName: "geoqq", Host: "127.0.0.1", Port: 5433, // TODO: from config!
+		DbName: "geoqq", Host: "127.0.0.1", Port: 5432, // TODO: from config!
 	})
 
 	pool, err := pgxpool.Connect(context.Background(), connStr)

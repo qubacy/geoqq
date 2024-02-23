@@ -1,13 +1,28 @@
 SELECT *
 FROM "MateRequest";
 
-SELECT "Id", "FromUserId"
-FROM "MateRequest"
-WHERE "ToUserId" = 2 AND "Result" = 0;
 
 SELECT *
 FROM "MateRequest"
-WHERE "ToUserId" = 2 AND "Result" = 0;
+WHERE "ToUserId" = 2
+    AND "Result" = 0
+ORDER BY "Id"
+LIMIT 1
+OFFSET 1;
+
+
+SELECT "Id",
+       "FromUserId"
+FROM "MateRequest"
+WHERE "ToUserId" = 2
+    AND "Result" = 0;
+
+
+SELECT *
+FROM "MateRequest"
+WHERE "ToUserId" = 2
+    AND "Result" = 0;
+
 
 SELECT *
 FROM "MateRequest"
@@ -24,9 +39,12 @@ FROM "MateRequest"
 WHERE "ToUserId" = 2
     AND "Id" = 1;
 
+
 SELECT COUNT(*)
 FROM "MateRequest"
-WHERE "ToUserId" = 2 AND "Result" = 0;
+WHERE "ToUserId" = 2
+    AND "Result" = 0;
+
 
 SELECT COUNT(*)
 FROM "MateRequest"

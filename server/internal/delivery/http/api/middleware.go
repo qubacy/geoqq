@@ -20,7 +20,7 @@ func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: to func
+	// TODO: into a separate function?
 	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
@@ -69,7 +69,7 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 func (h *Handler) parseAnyForm(ctx *gin.Context) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		resWithAuthError(ctx, se.ParseRequestFailed, err)
+		resWithAuthError(ctx, se.ParseAnyFormFailed, err)
 		return
 	}
 }

@@ -51,11 +51,57 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 
 }
 
-// request
+// mate-request
+// -----------------------------------------------------------------------
+
+// GET /api/mate/request
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMateRequests(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	// ***
+
+	existsOffset := ctx.Request.Form.Has(dto.GetParameterOffset)
+	existsCount := ctx.Request.Form.Has(dto.GetParameterCount)
+
+	if !existsOffset || !existsCount {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed,
+			ErrSomeParametersAreMissing)
+		return
+	}
+
+	// from delivery
+
+	offsetStr := ctx.Request.Form.Get(dto.GetParameterOffset)
+	offset, err := strconv.ParseUint(offsetStr, 10, 64)
+	if err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+	countStr := ctx.Request.Form.Get(dto.GetParameterCount)
+	count, err := strconv.ParseUint(countStr, 10, 64)
+	if err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	// to services
+
+	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
+		userId, offset, count)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK,
+		dto.MakeRequestsResFromOutput(output))
 }
 
 // GET /api/mate/request/count

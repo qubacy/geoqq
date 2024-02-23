@@ -1,5 +1,7 @@
 package dto
 
+import "geoqq/internal/service/dto"
+
 // GET /api/mate/chat
 // -----------------------------------------------------------------------
 
@@ -32,13 +34,37 @@ type MessagesFromMateChatWithIdRes struct {
 // GET /api/mate/request
 // -----------------------------------------------------------------------
 
+const GetParameterCount = "count"
+const GetParameterOffset = "offset"
+
 type MateRequestsRes struct {
 	Requests []MateRequest `json:"requests"`
+}
+
+func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) MateRequestsRes {
+	result := MateRequestsRes{
+		Requests: make([]MateRequest, 0,
+			len(outputMateRequests.MateRequests)), // reserve?
+	}
+	mateRequests := outputMateRequests.MateRequests
+	for i := range mateRequests {
+		result.Requests = append(result.Requests,
+			MakeMateRequestFromOutput(mateRequests[i]))
+	}
+
+	return result
 }
 
 type MateRequest struct {
 	Id     float64 `json:"id"`
 	UserId float64 `json:"user-id"`
+}
+
+func MakeMateRequestFromOutput(outputMateRequest *dto.MateRequest) MateRequest {
+	return MateRequest{
+		Id:     float64(outputMateRequest.Id),
+		UserId: float64(outputMateRequest.SourceUserId),
+	}
 }
 
 // GET /api/mate/request/count

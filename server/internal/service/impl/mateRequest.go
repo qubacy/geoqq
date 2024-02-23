@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain/table"
+	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
 	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
@@ -23,9 +24,39 @@ func newMateRequestService(deps Dependencies) *MateRequestService {
 // public
 // -----------------------------------------------------------------------
 
+func (mrs *MateRequestService) GetAllIncomingMateRequestsForUser(ctx context.Context, userId uint64) (
+	*dto.MateRequestsForUserOut, error) {
+	mateRequests, err := mrs.domainStorage.GetAllWaitingMateRequestsForUser(
+		ctx, userId)
+	if err != nil {
+		return nil, utl.NewFuncError(mrs.GetAllIncomingMateRequestsForUser,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	// ***
+
+	return dto.NewMateRequestsForUserOutFromDomain(
+		mateRequests, userId), nil
+}
+
+func (mrs *MateRequestService) GetIncomingMateRequestsForUser(ctx context.Context, userId, offset, count uint64) (
+	*dto.MateRequestsForUserOut, error) {
+	mateRequests, err := mrs.domainStorage.GetWaitingMateRequestsForUser(
+		ctx, userId, offset, count)
+	if err != nil {
+		return nil, utl.NewFuncError(mrs.GetAllIncomingMateRequestsForUser,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	// ***
+
+	return dto.NewMateRequestsForUserOutFromDomain(
+		mateRequests, userId), nil
+}
+
 func (mrs *MateRequestService) GetIncomingMateRequestCountForUser(
 	ctx context.Context, userId uint64) (int, error) {
-	count, err := mrs.domainStorage.GetIncomingMateRequestCountForUser(ctx, userId)
+	count, err := mrs.domainStorage.GetWaitingMateRequestCountForUser(ctx, userId)
 	if err != nil {
 		return 0, utl.NewFuncError(mrs.GetIncomingMateRequestCountForUser,
 			ec.New(err, ec.Server, ec.DomainStorageError))

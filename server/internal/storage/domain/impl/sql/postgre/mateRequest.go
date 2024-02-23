@@ -3,8 +3,9 @@ package postgre
 import (
 	"context"
 	"geoqq/internal/domain/table"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -28,7 +29,7 @@ func (s *MateRequestStorage) AddMateRequest(ctx context.Context,
 	fromUserId, toUserId uint64) (uint64, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.AddMateRequest, err)
+		return 0, utl.NewFuncError(s.AddMateRequest, err)
 	}
 	defer conn.Release()
 
@@ -44,7 +45,7 @@ func (s *MateRequestStorage) AddMateRequest(ctx context.Context,
 
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(s.AddMateRequest, err)
+		return 0, utl.NewFuncError(s.AddMateRequest, err)
 	}
 
 	return lastInsertedId, nil
@@ -54,7 +55,7 @@ func (s *MateRequestStorage) HasWaitingMateRequest(ctx context.Context,
 	fromUserId, toUserId uint64) (bool, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasWaitingMateRequest, err)
+		return false, utl.NewFuncError(s.HasWaitingMateRequest, err)
 	}
 	defer conn.Release()
 
@@ -68,7 +69,7 @@ func (s *MateRequestStorage) HasWaitingMateRequest(ctx context.Context,
 	var count int = 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasWaitingMateRequest, err)
+		return false, utl.NewFuncError(s.HasWaitingMateRequest, err)
 	}
 
 	return count >= 1, nil
@@ -86,7 +87,7 @@ func (s *MateRequestStorage) HasMateRequestByIdAndToUser(ctx context.Context, id
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasMateRequestByIdAndToUser, err)
+		return false, utl.NewFuncError(s.HasMateRequestByIdAndToUser, err)
 	}
 	defer conn.Release()
 
@@ -98,7 +99,7 @@ func (s *MateRequestStorage) HasMateRequestByIdAndToUser(ctx context.Context, id
 	var count int = 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasMateRequestByIdAndToUser, err)
+		return false, utl.NewFuncError(s.HasMateRequestByIdAndToUser, err)
 	}
 
 	return count == 1, nil
@@ -109,7 +110,7 @@ func (s *MateRequestStorage) GetMateRequestById(ctx context.Context, id uint64) 
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil, utility.NewFuncError(s.GetMateRequestById, err)
+		return nil, utl.NewFuncError(s.GetMateRequestById, err)
 	}
 	defer conn.Release()
 
@@ -125,7 +126,7 @@ func (s *MateRequestStorage) GetMateRequestById(ctx context.Context, id uint64) 
 		&mateRequest.Result,
 	)
 	if err != nil {
-		return nil, utility.NewFuncError(s.GetMateRequestById, err)
+		return nil, utl.NewFuncError(s.GetMateRequestById, err)
 	}
 
 	return mateRequest, nil
@@ -135,7 +136,7 @@ func (s *MateRequestStorage) GetMateRequestResultById(ctx context.Context, id ui
 	table.MateRequestResult, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.GetMateRequestResultById, err)
+		return 0, utl.NewFuncError(s.GetMateRequestResultById, err)
 	}
 	defer conn.Release()
 
@@ -145,12 +146,12 @@ func (s *MateRequestStorage) GetMateRequestResultById(ctx context.Context, id ui
 	var resultNumber int16 = 0
 	err = row.Scan(&resultNumber)
 	if err != nil {
-		return 0, utility.NewFuncError(s.GetMateRequestResultById, err)
+		return 0, utl.NewFuncError(s.GetMateRequestResultById, err)
 	}
 
 	result, err := table.MakeMateResultFromInt(resultNumber)
 	if err != nil {
-		return 0, utility.NewFuncError(s.GetMateRequestResultById, err) // impossible!
+		return 0, utl.NewFuncError(s.GetMateRequestResultById, err) // impossible!
 	}
 
 	return result, nil
@@ -160,7 +161,7 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	value table.MateRequestResult) error {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(s.UpdateMateRequestResultById, err)
+		return utl.NewFuncError(s.UpdateMateRequestResultById, err)
 	}
 	defer conn.Release()
 
@@ -172,7 +173,7 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 		id,
 	)
 	if err != nil {
-		return utility.NewFuncError(s.UpdateMateRequestResultById, err)
+		return utl.NewFuncError(s.UpdateMateRequestResultById, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -181,14 +182,16 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	return nil
 }
 
-func (s *MateRequestStorage) GetIncomingMateRequestsForUser(ctx context.Context, userId uint64) (
+func (s *MateRequestStorage) GetAllWaitingMateRequestsForUser(ctx context.Context, userId uint64) (
 	[]*table.MateRequest, error,
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil, utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
+		return nil, utl.NewFuncError(s.GetAllWaitingMateRequestsForUser, err)
 	}
 	defer conn.Release()
+
+	// ***
 
 	rows, err := conn.Query(ctx,
 		`SELECT * FROM "MateRequest"
@@ -196,36 +199,56 @@ func (s *MateRequestStorage) GetIncomingMateRequestsForUser(ctx context.Context,
 		userId, int16(table.Waiting),
 	)
 	if err != nil {
-		return nil, utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
+		return nil, utl.NewFuncError(s.GetAllWaitingMateRequestsForUser, err)
 	}
 
 	// ***
 
-	mateRequests := []*table.MateRequest{}
-	for rows.Next() {
-		mateRequest := table.NewMateRequest()
-		err := rows.Scan(
-			&mateRequest.Id,
-			&mateRequest.FromUserId, &mateRequest.ToUserId,
-			&mateRequest.RequestTime, &mateRequest.ResponseTime,
-			&mateRequest.Result,
-		)
-		if err != nil {
-			return nil,
-				utility.NewFuncError(s.GetIncomingMateRequestsForUser, err)
-		}
-
-		mateRequests = append(mateRequests, mateRequest)
+	mateRequests, err := rowsToMateRequests(rows)
+	if err != nil {
+		return nil,
+			utl.NewFuncError(s.GetAllWaitingMateRequestsForUser, err)
 	}
 	return mateRequests, nil
 }
 
-func (s *MateRequestStorage) GetIncomingMateRequestCountForUser(ctx context.Context, userId uint64) (
+func (s *MateRequestStorage) GetWaitingMateRequestsForUser(ctx context.Context,
+	userId, offset, count uint64) ([]*table.MateRequest, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	rows, err := conn.Query(ctx,
+		`SELECT * FROM "MateRequest"
+			WHERE "ToUserId" = $1 AND "Result" = $2
+				ORDER BY "Id" LIMIT $3 OFFSET $4;`,
+		userId, int16(table.Waiting),
+		count, offset,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+	}
+
+	// ***
+
+	mateRequests, err := rowsToMateRequests(rows)
+	if err != nil {
+		return nil,
+			utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+	}
+	return mateRequests, nil
+}
+
+func (s *MateRequestStorage) GetWaitingMateRequestCountForUser(ctx context.Context, userId uint64) (
 	int, error,
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.GetIncomingMateRequestCountForUser, err)
+		return 0, utl.NewFuncError(s.GetWaitingMateRequestCountForUser, err)
 	}
 	defer conn.Release()
 
@@ -237,8 +260,32 @@ func (s *MateRequestStorage) GetIncomingMateRequestCountForUser(ctx context.Cont
 	var count = 0
 	err = row.Scan(&count)
 	if err != nil {
-		return 0, utility.NewFuncError(s.GetIncomingMateRequestCountForUser, err)
+		return 0, utl.NewFuncError(s.GetWaitingMateRequestCountForUser, err)
 	}
 
 	return count, nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func rowsToMateRequests(rows pgx.Rows) ([]*table.MateRequest, error) {
+	mateRequests := []*table.MateRequest{}
+	for rows.Next() {
+		mateRequest := table.NewMateRequest()
+		err := rows.Scan(
+			&mateRequest.Id,
+			&mateRequest.FromUserId, &mateRequest.ToUserId,
+			&mateRequest.RequestTime, &mateRequest.ResponseTime,
+			&mateRequest.Result,
+		)
+		if err != nil {
+			return nil,
+				utl.NewFuncError(rowsToMateRequests, err)
+		}
+
+		mateRequests = append(mateRequests, mateRequest)
+	}
+
+	return mateRequests, nil
 }
