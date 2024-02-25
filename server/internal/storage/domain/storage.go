@@ -69,6 +69,8 @@ type MateRequestStorage interface {
 }
 
 type MateChatStorage interface {
+	InsertMateChat(ctx context.Context,
+		firstUserId uint64, secondUserId uint64) (uint64, error)
 }
 
 type GeoChatStorage interface {

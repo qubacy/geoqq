@@ -100,8 +100,12 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK,
-		dto.MakeRequestsResFromOutput(output))
+	responseDto, err := dto.MakeRequestsResFromOutput(output)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // GET /api/mate/request/count

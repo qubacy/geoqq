@@ -1,6 +1,8 @@
 package dto
 
-import "geoqq/internal/service/dto"
+import (
+	"geoqq/internal/service/dto"
+)
 
 // GET /api/mate/chat
 // -----------------------------------------------------------------------
@@ -41,18 +43,27 @@ type MateRequestsRes struct {
 	Requests []MateRequest `json:"requests"`
 }
 
-func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) MateRequestsRes {
+func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) (MateRequestsRes, error) {
+	if outputMateRequests == nil {
+		return MateRequestsRes{}, ErrInputParameterIsNil
+	}
+
 	result := MateRequestsRes{
 		Requests: make([]MateRequest, 0,
 			len(outputMateRequests.MateRequests)), // reserve?
 	}
 	mateRequests := outputMateRequests.MateRequests
 	for i := range mateRequests {
-		result.Requests = append(result.Requests,
-			MakeMateRequestFromOutput(mateRequests[i]))
+		mateRequest, err := MakeMateRequestFromOutput(mateRequests[i])
+		if err != nil {
+			return MateRequestsRes{}, err
+		}
+
+		result.Requests = append(
+			result.Requests, mateRequest)
 	}
 
-	return result
+	return result, nil
 }
 
 type MateRequest struct {
@@ -60,11 +71,15 @@ type MateRequest struct {
 	UserId float64 `json:"user-id"`
 }
 
-func MakeMateRequestFromOutput(outputMateRequest *dto.MateRequest) MateRequest {
+func MakeMateRequestFromOutput(outputMateRequest *dto.MateRequest) (MateRequest, error) {
+	if outputMateRequest == nil {
+		return MateRequest{}, ErrInputParameterIsNil
+	}
+
 	return MateRequest{
 		Id:     float64(outputMateRequest.Id),
 		UserId: float64(outputMateRequest.SourceUserId),
-	}
+	}, nil
 }
 
 // GET /api/mate/request/count

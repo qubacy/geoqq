@@ -135,6 +135,8 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 		_, err = mrs.domainStorage.InsertMate(ctx,
 			mateRequest.FromUserId, mateRequest.ToUserId) // now mates!
 
+		// TODO: insert mate chat!
+
 		if err != nil {
 			return utl.NewFuncError(mrs.SetResultForMateRequest,
 				ec.New(err, ec.Server, ec.DomainStorageError))
