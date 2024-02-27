@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
 	"net/http"
@@ -20,7 +18,8 @@ func (h *Handler) registerUserRoutes() {
 
 	// ***
 
-	userRouter := h.router.Group("/user", h.parseAnyForm, h.userIdentityForGetRequest)
+	userRouter := h.router.Group("/user", h.parseAnyForm,
+		h.userIdentityForGetRequest)
 	{
 		userRouter.GET("/:id", h.getUser)
 		userRouter.GET("", h.getSomeUsers)
@@ -126,6 +125,9 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 // user
 // -----------------------------------------------------------------------
 
+// GET /api/user/{id}
+// -----------------------------------------------------------------------
+
 type uriParamsGetUser struct {
 	Id uint64 `uri:"id" binding:"required"`
 }
@@ -147,10 +149,25 @@ func (h *Handler) getUser(ctx *gin.Context) {
 
 	// ***
 
-	fmt.Println("Uri params:", uriParams)
 }
 
+// GET /api/user
+// -----------------------------------------------------------------------
+
 func (h *Handler) getSomeUsers(ctx *gin.Context) {
+	_, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	// ***
+
+	uriParams := uriParamsGetUser{}
+	if err := ctx.ShouldBindUri(&uriParams); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
 
 }
 

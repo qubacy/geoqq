@@ -23,6 +23,7 @@ func newImageService(deps Dependencies) *ImageService {
 	return instance
 }
 
+// public
 // -----------------------------------------------------------------------
 
 func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.Image, error) {

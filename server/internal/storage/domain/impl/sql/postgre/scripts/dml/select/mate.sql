@@ -1,3 +1,5 @@
+SELECT * FROM "Mate";
+
 SELECT COUNT(*)
 FROM "Mate"
 WHERE ("FirstUserId" = 1 AND "SecondUserId" = 2)

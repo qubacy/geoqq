@@ -45,6 +45,7 @@ func newAuthService(deps Dependencies) *AuthService {
 	return instance
 }
 
+// public
 // -----------------------------------------------------------------------
 
 func (a *AuthService) signInWithError(err error, side, code int) (dto.SignInOut, error) {
