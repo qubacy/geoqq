@@ -41,9 +41,9 @@ func MakePrivacy(privacy domain.Privacy) Privacy {
 	}
 }
 
-func (self *Privacy) ToInp() *serviceDto.Privacy {
+func (s *Privacy) ToInp() *serviceDto.Privacy {
 	return &serviceDto.Privacy{
-		HitMeUp: &self.HitMeUp,
+		HitMeUp: &s.HitMeUp,
 	}
 }
 
@@ -60,25 +60,25 @@ type MyProfilePutReq struct {
 	Security *Security `json:"security,omitempty"`
 }
 
-func (self *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
+func (s *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
 	var security *serviceDto.Security = nil
 	var privacy *serviceDto.Privacy = nil
 	var avatar *serviceDto.Avatar = nil
 
-	if self.Security != nil {
-		security = self.Security.ToInp()
+	if s.Security != nil {
+		security = s.Security.ToInp()
 	}
-	if self.Privacy != nil {
-		privacy = self.Privacy.ToInp()
+	if s.Privacy != nil {
+		privacy = s.Privacy.ToInp()
 	}
-	if self.Avatar != nil {
-		avatar = self.Avatar.ToInp()
+	if s.Avatar != nil {
+		avatar = s.Avatar.ToInp()
 	}
 
 	// ***
 
 	return serviceDto.UpdateProfileInp{
-		Description: self.Description,
+		Description: s.Description,
 		Security:    security,
 		Privacy:     privacy,
 		Avatar:      avatar,
@@ -92,10 +92,10 @@ type Security struct {
 	NewPassword string `json:"new-password"`
 }
 
-func (self *Security) ToInp() *serviceDto.Security {
+func (s *Security) ToInp() *serviceDto.Security {
 	return &serviceDto.Security{
-		Password:    self.Password,
-		NewPassword: self.NewPassword,
+		Password:    s.Password,
+		NewPassword: s.NewPassword,
 	}
 }
 
@@ -106,10 +106,10 @@ type Avatar struct {
 	Content string  `json:"content"` // <--- base64-string
 }
 
-func (self *Avatar) ToInp() *serviceDto.Avatar {
+func (s *Avatar) ToInp() *serviceDto.Avatar {
 	return &serviceDto.Avatar{
-		Ext:     int(self.Ext), // or special type (pkg file)?
-		Content: self.Content,
+		Ext:     int(s.Ext), // or special type (pkg file)?
+		Content: s.Content,
 	}
 }
 
@@ -118,6 +118,17 @@ func (self *Avatar) ToInp() *serviceDto.Avatar {
 
 type UserByIdRes struct {
 	User
+}
+
+func MakeUserByIdResFromDomain(publicUser domain.PublicUser) UserByIdRes {
+	return UserByIdRes{
+		User: User{
+			Username:    publicUser.Username,
+			Description: publicUser.Description,
+			AvatarId:    float64(publicUser.AvatarId),
+			IsMate:      publicUser.IsMate,
+		},
+	}
 }
 
 type User struct {

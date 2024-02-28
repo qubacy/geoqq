@@ -2,9 +2,10 @@ package postgre
 
 import (
 	"context"
+	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -26,11 +27,51 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
+func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
+	domain.PublicUser, error,
+) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return domain.PublicUser{},
+			utl.NewFuncError(s.GetPublicUserById, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		`SELECT "Username", "Description", "AvatarId",
+			case when "Mate"."Id" is null then false else true end as "IsMate"
+		FROM "UserEntry"
+		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+		LEFT JOIN "Mate" ON (
+			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = $2) OR
+			("Mate"."FirstUserId" = $2 AND "Mate"."SecondUserId" = $1)
+		)
+		WHERE "UserEntry"."Id" = $2;`, userId, targetUserId,
+	)
+
+	pubicUser := domain.PublicUser{}
+	err = row.Scan(
+		&pubicUser.Username,
+		&pubicUser.Description,
+		&pubicUser.AvatarId,
+		&pubicUser.IsMate,
+	)
+	if err != nil {
+		return domain.PublicUser{},
+			utl.NewFuncError(s.GetPublicUserById, err)
+	}
+	return pubicUser, nil
+}
+
+func (us *UserStorage) GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (domain.PublicUserList, error) {
+	return nil, nil
+}
+
 func (us *UserStorage) GetUserIdByByName(ctx context.Context,
 	value string) (uint64, error) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(us.GetUserIdByByName, err)
+		return 0, utl.NewFuncError(us.GetUserIdByByName, err)
 	}
 	defer conn.Release()
 
@@ -42,7 +83,7 @@ func (us *UserStorage) GetUserIdByByName(ctx context.Context,
 	var userId uint64 = 0
 	err = row.Scan(&userId)
 	if err != nil {
-		return 0, utility.NewFuncError(us.GetUserIdByByName, err)
+		return 0, utl.NewFuncError(us.GetUserIdByByName, err)
 	}
 	return userId, nil
 }
@@ -52,7 +93,7 @@ func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return "", utility.NewFuncError(us.GetHashRefreshToken, err)
+		return "", utl.NewFuncError(us.GetHashRefreshToken, err)
 	}
 	defer conn.Release()
 
@@ -64,7 +105,7 @@ func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 	var hashRefreshToken string
 	err = row.Scan(&hashRefreshToken)
 	if err != nil {
-		return "", utility.NewFuncError(us.GetHashRefreshToken, err)
+		return "", utl.NewFuncError(us.GetHashRefreshToken, err)
 	}
 	return hashRefreshToken, nil
 }
@@ -74,7 +115,7 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserWithId, err)
+		return false, utl.NewFuncError(us.HasUserWithId, err)
 	}
 	defer conn.Release()
 
@@ -86,7 +127,7 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserWithId, err)
+		return false, utl.NewFuncError(us.HasUserWithId, err)
 	}
 
 	if count > 1 {
@@ -100,7 +141,7 @@ func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserWithName, err)
+		return false, utl.NewFuncError(us.HasUserWithName, err)
 	}
 	defer conn.Release()
 
@@ -110,7 +151,7 @@ func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 		value,
 	)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserWithName, err)
+		return false, utl.NewFuncError(us.HasUserWithName, err)
 	}
 	defer rows.Close()
 
@@ -134,7 +175,7 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	defer conn.Release()
 
@@ -144,7 +185,7 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 		DeferrableMode: pgx.NotDeferrable,
 	})
 	if err != nil {
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 
 	// *** transaction ***
@@ -152,27 +193,27 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 	lastInsertedId, err := insertUserEntry(ctx, tx, username, hashPassword)
 	if err != nil {
 		tx.Rollback(ctx) // <--- ignore error!
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserLocation(ctx, tx, lastInsertedId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserDetails(ctx, tx, lastInsertedId, avatarId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserOptions(ctx, tx, lastInsertedId)
 	if err != nil {
 		tx.Rollback(ctx)
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(us.InsertUser, err)
+		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 
 	return lastInsertedId, nil
@@ -184,7 +225,7 @@ func (us *UserStorage) HasUserByCredentials(ctx context.Context,
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserByCredentials, err)
+		return false, utl.NewFuncError(us.HasUserByCredentials, err)
 	}
 	defer conn.Release()
 
@@ -194,7 +235,7 @@ func (us *UserStorage) HasUserByCredentials(ctx context.Context,
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserByCredentials, err)
+		return false, utl.NewFuncError(us.HasUserByCredentials, err)
 	}
 
 	if count > 1 {
@@ -207,7 +248,7 @@ func (us *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	longitude, latitude float64) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateUserLocation, err)
+		return utl.NewFuncError(us.UpdateUserLocation, err)
 	}
 	defer conn.Release()
 
@@ -215,7 +256,7 @@ func (us *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 		SET "Longitude" = $1, "Latitude" = $2
 		WHERE "UserId" = $3;`, longitude, latitude, id)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateUserLocation, err)
+		return utl.NewFuncError(us.UpdateUserLocation, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -228,7 +269,7 @@ func (us *UserStorage) UpdateHashRefreshToken(ctx context.Context,
 	id uint64, value string) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateHashRefreshToken, err)
+		return utl.NewFuncError(us.UpdateHashRefreshToken, err)
 	}
 	defer conn.Release()
 
@@ -238,7 +279,7 @@ func (us *UserStorage) UpdateHashRefreshToken(ctx context.Context,
         		"SignInTime" = NOW()::timestamp
     		WHERE "Id" = $2;`, value, id)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateHashRefreshToken, err)
+		return utl.NewFuncError(us.UpdateHashRefreshToken, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -251,7 +292,7 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 	id uint64, input dto.UpdateUserPartsInp) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateUserParts, err)
+		return utl.NewFuncError(us.UpdateUserParts, err)
 	}
 	defer conn.Release()
 
@@ -261,7 +302,7 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 		DeferrableMode: pgx.NotDeferrable,
 	})
 	if err != nil {
-		return utility.NewFuncError(us.UpdateUserParts, err)
+		return utl.NewFuncError(us.UpdateUserParts, err)
 	}
 
 	// ***
@@ -270,28 +311,28 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 		err = updateUserDescription(ctx, tx, id, *input.Description)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(us.UpdateUserParts, err)
+			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.AvatarId != nil {
 		err = updateUserAvatarId(ctx, tx, id, *input.AvatarId)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(us.UpdateUserParts, err)
+			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.Privacy != nil {
 		err = updateUserPrivacy(ctx, tx, id, *input.Privacy)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(us.UpdateUserParts, err)
+			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.HashPassword != nil {
 		err = updateUserHashPassword(ctx, tx, id, *input.HashPassword)
 		if err != nil {
 			tx.Rollback(ctx)
-			return utility.NewFuncError(us.UpdateUserParts, err)
+			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 
@@ -299,7 +340,7 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return utility.NewFuncError(us.UpdateUserParts, err)
+		return utl.NewFuncError(us.UpdateUserParts, err)
 	}
 
 	return nil
@@ -311,7 +352,7 @@ func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 ) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserByIdAndHashPassword, err)
+		return false, utl.NewFuncError(us.HasUserByIdAndHashPassword, err)
 	}
 	defer conn.Release()
 
@@ -323,7 +364,7 @@ func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(us.HasUserByIdAndHashPassword, err)
+		return false, utl.NewFuncError(us.HasUserByIdAndHashPassword, err)
 	}
 
 	if count > 1 {
@@ -353,7 +394,7 @@ func insertUserEntry(ctx context.Context, tx pgx.Tx,
 
 	err := row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(insertUserEntry, err)
+		return 0, utl.NewFuncError(insertUserEntry, err)
 	}
 
 	return lastInsertedId, nil
@@ -373,7 +414,7 @@ func insertUserLocation(ctx context.Context, tx pgx.Tx,
 		);`,
 		userId, 0.0, 0.0)
 	if err != nil {
-		return utility.NewFuncError(insertUserLocation, err)
+		return utl.NewFuncError(insertUserLocation, err)
 	}
 	if !cmdTag.Insert() {
 		return ErrInsertFailed
@@ -394,7 +435,7 @@ func insertUserDetails(ctx context.Context, tx pgx.Tx,
 		);`,
 		userId, avatarId)
 	if err != nil {
-		return utility.NewFuncError(insertUserDetails, err)
+		return utl.NewFuncError(insertUserDetails, err)
 	}
 	if !cmdTag.Insert() {
 		return ErrInsertFailed
@@ -412,7 +453,7 @@ func insertUserOptions(ctx context.Context, tx pgx.Tx,
 		VALUES ($1, $2);`,
 		userId, table.HitMeUpYes)
 	if err != nil {
-		return utility.NewFuncError(insertUserOptions, err)
+		return utl.NewFuncError(insertUserOptions, err)
 	}
 	if !cmdTag.Insert() {
 		return ErrInsertFailed
@@ -430,7 +471,7 @@ func updateUserDescription(ctx context.Context, tx pgx.Tx,
 			WHERE "UserId" = $2;`, desc, id,
 	)
 	if err != nil {
-		return utility.NewFuncError(updateUserDescription, err)
+		return utl.NewFuncError(updateUserDescription, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -446,7 +487,7 @@ func updateUserAvatarId(ctx context.Context, tx pgx.Tx,
 			WHERE "UserId" = $2;`, avatarId, id,
 	)
 	if err != nil {
-		return utility.NewFuncError(updateUserAvatarId, err)
+		return utl.NewFuncError(updateUserAvatarId, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -462,7 +503,7 @@ func updateUserPrivacy(ctx context.Context, tx pgx.Tx,
 			WHERE "UserId" = $2;`, privacy.HitMeUp, id,
 	)
 	if err != nil {
-		return utility.NewFuncError(updateUserPrivacy, err)
+		return utl.NewFuncError(updateUserPrivacy, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -478,7 +519,7 @@ func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
 			WHERE "Id" = $2;`, hashValue, id,
 	)
 	if err != nil {
-		return utility.NewFuncError(updateUserHashPassword, err)
+		return utl.NewFuncError(updateUserHashPassword, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed

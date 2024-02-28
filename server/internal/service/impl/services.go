@@ -14,6 +14,7 @@ type Services struct {
 	*UserProfileService
 	*ImageService
 	*MateRequestService
+	*UserService
 }
 
 type Dependencies struct {
@@ -32,5 +33,6 @@ func NewServices(deps Dependencies) (*Services, error) {
 		UserProfileService: newUserProfileService(deps),
 		ImageService:       newImageService(deps),
 		MateRequestService: newMateRequestService(deps),
+		UserService:        newUserService(deps),
 	}, nil
 }

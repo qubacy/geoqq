@@ -15,8 +15,10 @@ type AvatarStorage interface {
 }
 
 type UserStorage interface {
-	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
+	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (domain.PublicUser, error)
+	GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (domain.PublicUserList, error)
 
+	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
 	HasUserWithId(ctx context.Context, id uint64) (bool, error)
@@ -39,7 +41,7 @@ type UserStorage interface {
 }
 
 type UserProfileStorage interface {
-	GetUserProfile(ctx context.Context, id uint64) (domain.UserProfile, error)
+	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
 }
 
 type MateStorage interface {

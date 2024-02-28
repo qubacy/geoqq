@@ -35,6 +35,9 @@ BEGIN
     source_user_id := 1;
     target_user_id := 2;
 
+    RAISE INFO 'Source user ID: %', source_user_id;
+    RAISE INFO 'Target user ID: %', target_user_id;
+
 SELECT
     "Username",
     "Description",
@@ -46,4 +49,21 @@ FROM "UserEntry"
         "Mate"."SecondUserId" = target_user_id
 WHERE "UserEntry"."Id" = source_user_id;
 
-END $$
+END $$ 
+
+-- -----------------------------------------------------------------------
+
+SELECT *
+FROM "Mate";
+
+SELECT
+    "Username",
+    "Description",
+    "AvatarId",
+    case when "Mate"."Id" is null then false else true end as "IsMate"
+FROM "UserEntry"
+    INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+    LEFT JOIN "Mate" ON 
+        (("Mate"."FirstUserId" = 1 AND "Mate"."SecondUserId" = 2) OR
+        ("Mate"."FirstUserId" = 2 AND "Mate"."SecondUserId" = 1))
+WHERE "UserEntry"."Id" = 2;

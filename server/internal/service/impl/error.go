@@ -26,6 +26,7 @@ var (
 	ErrMateRequestAlreadySentToYou   = errors.New("mate request already sent to you")
 	ErrMateRequestNotWaiting         = errors.New("mate request not waiting")
 	ErrAlreadyAreMates               = errors.New("already are mates")
+	ErrMateRequestToSelf             = errors.New("mate request to self")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {

@@ -22,7 +22,7 @@ type UserProfileService interface {
 // TODO: need to split?
 // work with profiles, public users, ...
 type UserService interface {
-	GetPublicUserById(ctx context.Context, srcUserId, targetUserId uint64) (domain.PublicUser, error)
+	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (domain.PublicUser, error)
 	//GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
 
 	// UpdateProfileById(ctx context.Context, input dto.UpdateProfileInp) error

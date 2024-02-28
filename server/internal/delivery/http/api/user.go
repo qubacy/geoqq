@@ -133,13 +133,13 @@ type uriParamsGetUser struct {
 }
 
 func (h *Handler) getUser(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
+	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
 		return
 	}
 
-	// ***
+	// delivery --->
 
 	uriParams := uriParamsGetUser{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
@@ -147,8 +147,19 @@ func (h *Handler) getUser(ctx *gin.Context) {
 		return
 	}
 
-	// ***
+	// <---> service
 
+	publicUser, err := h.services.GetPublicUserById(ctx, userId, uriParams.Id)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// ---> delivery
+
+	responseDto := dto.MakeUserByIdResFromDomain(publicUser)
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // GET /api/user

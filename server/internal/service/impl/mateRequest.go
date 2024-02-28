@@ -68,6 +68,11 @@ func (mrs *MateRequestService) GetIncomingMateRequestCountForUser(
 func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
 
+	if sourceUserId == targetUserId {
+		return utl.NewFuncError(mrs.AddMateRequest,
+			ec.New(ErrMateRequestToSelf, ec.Client, ec.MateRequestToSelf))
+	}
+
 	exists, err := mrs.domainStorage.HasUserWithId(ctx, targetUserId)
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest,

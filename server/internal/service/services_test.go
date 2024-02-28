@@ -10,11 +10,13 @@ import (
 // -----------------------------------------------------------------------
 
 func Test_Context(t *testing.T) {
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, "name", "value")
+	type Key string
 
-	fmt.Println(ctx.Value("name"))
-	unknownValue := ctx.Value("unknownName")
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, Key("name"), "value")
+
+	fmt.Println(ctx.Value(Key("name")))
+	unknownValue := ctx.Value(Key("name"))
 
 	if unknownValue != nil {
 		fmt.Println("by unknownName get:", unknownValue)
