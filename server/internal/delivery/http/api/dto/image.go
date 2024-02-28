@@ -10,15 +10,15 @@ type ImageByIdRes struct {
 // GET /api/image
 // -----------------------------------------------------------------------
 
-type ImagesReq struct {
+type SomeImagesReq struct {
 	AccessToken string    `json:"access-token"` // ?
 	Ids         []float64 `json:"ids"`
 }
 
-func (self *ImagesReq) GetIdsAsSliceOfUint64() []uint64 {
+func (s *SomeImagesReq) GetIdsAsSliceOfUint64() []uint64 {
 	ids := []uint64{}
-	for i := range self.Ids {
-		ids = append(ids, uint64(self.Ids[i]))
+	for i := range s.Ids {
+		ids = append(ids, uint64(s.Ids[i]))
 	}
 	return ids
 }
@@ -26,7 +26,7 @@ func (self *ImagesReq) GetIdsAsSliceOfUint64() []uint64 {
 // -----------------------------------------------------------------------
 // see pkg file... or new from?
 
-type ImagesRes struct {
+type SomeImagesRes struct {
 	ImageList []*Image `json:"images"`
 }
 

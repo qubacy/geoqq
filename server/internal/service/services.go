@@ -19,13 +19,9 @@ type UserProfileService interface {
 	UpdateUserProfile(ctx context.Context, userId uint64, input dto.UpdateProfileInp) error
 }
 
-// TODO: need to split?
-// work with profiles, public users, ...
-type UserService interface {
-	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (domain.PublicUser, error)
-	//GetUsersByIds(ctx context.Context, values []uint64) (domain.PublicUserList, error)
-
-	// UpdateProfileById(ctx context.Context, input dto.UpdateProfileInp) error
+type PublicUserService interface {
+	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
+	GetPublicUserByIds(ctx context.Context, userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error)
 }
 
 // TODO: need to split?
@@ -69,7 +65,7 @@ type GeoService interface {
 type Services interface {
 	AuthService
 	UserProfileService
-	UserService
+	PublicUserService
 	MateRequestService
 	MateService
 	ImageService

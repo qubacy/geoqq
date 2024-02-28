@@ -27,24 +27,32 @@ func newUserService(deps Dependencies) *UserService {
 // -----------------------------------------------------------------------
 
 func (s *UserService) GetPublicUserById(ctx context.Context,
-	userId, targetUserId uint64) (domain.PublicUser, error) {
+	userId, targetUserId uint64) (*domain.PublicUser, error) {
+
+	// handler --->
 
 	exists, err := s.domainStorage.HasUserWithId(ctx, targetUserId)
 	if err != nil {
-		return domain.PublicUser{}, utl.NewFuncError(s.GetPublicUserById,
+		return nil, utl.NewFuncError(s.GetPublicUserById,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	if !exists {
-		return domain.PublicUser{}, utl.NewFuncError(s.GetPublicUserById,
+		return nil, utl.NewFuncError(s.GetPublicUserById,
 			ec.New(ErrUserNotFound, ec.Client, ec.UserNotFound))
 	}
 
-	// ***
+	// <---> storage
 
 	publicUser, err := s.domainStorage.GetPublicUserById(ctx, userId, targetUserId)
 	if err != nil {
-		return domain.PublicUser{}, utl.NewFuncError(s.GetPublicUserById,
+		return nil, utl.NewFuncError(s.GetPublicUserById,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
-	return publicUser, nil
+	return &publicUser, nil
+}
+
+func (s *UserService) GetPublicUserByIds(ctx context.Context,
+	userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error) {
+	targetUserIds = utl.RemoveDuplicatesFromSlice[uint64](targetUserIds)
+
 }

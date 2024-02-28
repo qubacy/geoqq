@@ -9,24 +9,27 @@ import (
 )
 
 func (h *Handler) registerUserRoutes() {
-	myProfileRouter := h.router.Group("/my-profile")
+	myProfileRouter := h.router.Group("/my-profile", h.parseAnyForm)
 	{
-		myProfileRouter.GET("", h.parseAnyForm, h.userIdentityForGetRequest, h.getMyProfile)
-		myProfileRouter.PUT("", h.parseAnyForm, h.extractBodyForPutMyProfile,
+		myProfileRouter.GET("", h.userIdentityForGetRequest, h.getMyProfile)
+		myProfileRouter.PUT("", h.extractBodyForPutMyProfile,
 			h.userIdentityByContextData, h.putMyProfile)
 	}
 
 	// ***
 
-	userRouter := h.router.Group("/user", h.parseAnyForm,
-		h.userIdentityForGetRequest)
+	userRouter := h.router.Group("/user", h.parseAnyForm)
 	{
-		userRouter.GET("/:id", h.getUser)
-		userRouter.GET("", h.getSomeUsers)
+		userRouter.GET("/:id", h.userIdentityForGetRequest, h.getUser)
+		userRouter.GET("", h.extractBodyForGetSomeUsers,
+			h.userIdentityByContextData, h.getSomeUsers)
 	}
 }
 
 // my-profile
+// -----------------------------------------------------------------------
+
+// GET /api/my-profile
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMyProfile(ctx *gin.Context) {
@@ -49,37 +52,8 @@ func (h *Handler) getMyProfile(ctx *gin.Context) {
 		dto.MakeMyProfileRes(userProfile))
 }
 
-func (h *Handler) putMyProfile(ctx *gin.Context) {
-	userId, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
-		return
-	}
-
-	// ***
-
-	anyRequestDto, exists := ctx.Get(contextRequestDto)
-	if !exists {
-		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
-		return
-	}
-	requestDto, converted := anyRequestDto.(dto.MyProfilePutReq)
-	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
-		return
-	}
-
-	// ***
-
-	err = h.services.UpdateUserProfile(ctx, userId, requestDto.ToInp())
-	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
-		return
-	}
-
-	ctx.Status(http.StatusOK)
-}
+// PUT /api/my-profile
+// -----------------------------------------------------------------------
 
 func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	requestDto := dto.MyProfilePutReq{}
@@ -122,6 +96,38 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	ctx.Set(contextRequestDto, requestDto)
 }
 
+func (h *Handler) putMyProfile(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	// ***
+
+	anyRequestDto, exists := ctx.Get(contextRequestDto)
+	if !exists {
+		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
+		return
+	}
+	requestDto, converted := anyRequestDto.(dto.MyProfilePutReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
+
+	// ***
+
+	err = h.services.UpdateUserProfile(ctx, userId, requestDto.ToInp())
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
 // user
 // -----------------------------------------------------------------------
 
@@ -158,29 +164,79 @@ func (h *Handler) getUser(ctx *gin.Context) {
 
 	// ---> delivery
 
-	responseDto := dto.MakeUserByIdResFromDomain(publicUser)
+	responseDto, err := dto.MakeUserByIdResFromDomain(publicUser)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
 	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // GET /api/user
 // -----------------------------------------------------------------------
 
-func (h *Handler) getSomeUsers(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
+func (h *Handler) extractBodyForGetSomeUsers(ctx *gin.Context) {
+	requestDto := dto.SomeUsersReq{}
+	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
 	}
 
 	// ***
 
-	uriParams := uriParamsGetUser{}
-	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+	if len(requestDto.AccessToken) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+	/*
+		if len(requestDto.Ids) == 0 {
+			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			return
+		}
+	*/
+
+	// ***
+
+	ctx.Set(contextAccessToken, requestDto.AccessToken)
+	ctx.Set(contextRequestDto, requestDto)
+}
+
+func (h *Handler) getSomeUsers(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
 		return
 	}
 
-}
+	// delivery --->
 
-// private
-// -----------------------------------------------------------------------
+	anyRequestDto, exists := ctx.Get(contextRequestDto)
+	if !exists {
+		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
+		return
+	}
+	requestDto, converted := anyRequestDto.(dto.SomeUsersReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
+
+	// <---> services
+
+	publicUsers, err := h.services.GetPublicUserByIds(ctx, userId,
+		requestDto.GetIdsAsSliceOfUint64())
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// ---> delivery
+
+	responseDto, err := dto.MakeSomeUsersResFromDomain(publicUsers)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
+}

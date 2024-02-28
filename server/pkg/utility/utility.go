@@ -9,8 +9,12 @@ import (
 	"math/rand"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 )
+
+// about error
+// -----------------------------------------------------------------------
 
 func IsFunction(i interface{}) bool {
 	funType := reflect.TypeOf(i)
@@ -77,4 +81,26 @@ func ImageToPngBytes(img image.Image) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func RemoveDuplicatesFromSlice[T comparable](sliceList []T) []T {
+	allKeys := make(map[T]bool)
+	list := []T{}
+	for _, item := range sliceList {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
+func NumbersToString[T uint64](numbers []T) string {
+	strNumbers := []string{}
+	for i := range numbers {
+		strNumbers = append(strNumbers,
+			strconv.FormatUint(uint64(numbers[i]), 10))
+	}
+
+	return strings.Join(strNumbers, ",")
 }

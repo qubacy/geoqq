@@ -301,3 +301,16 @@ func Test_Getwd(t *testing.T) {
 
 	fmt.Printf("path: %v\n", path)
 }
+
+func Test_RemoveDuplicate(t *testing.T) {
+	result := RemoveDuplicatesFromSlice[uint64](
+		[]uint64{1, 2, 1, 2, 4, 5, 6},
+	)
+
+	fmt.Println(result)
+}
+
+func Test_NumbersToString(t *testing.T) {
+	result := NumbersToString[uint64]([]uint64{1, 2, 3})
+	fmt.Printf(`'%v'`, result)
+}

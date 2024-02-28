@@ -136,6 +136,19 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	return count == 1, nil
 }
 
+// TODO: check config pool
+func (us *UserStorage) HasUserWithIds(ctx context.Context, ids []uint64) (
+	bool, error,
+) {
+	conn, err := us.pool.Acquire(ctx)
+	if err != nil {
+		return false, utl.NewFuncError(us.HasUserWithIds, err)
+	}
+	defer conn.Release()
+
+	// TODO:!!!
+}
+
 func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 	bool, error,
 ) {

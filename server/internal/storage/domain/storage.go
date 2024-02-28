@@ -22,6 +22,8 @@ type UserStorage interface {
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
 	HasUserWithId(ctx context.Context, id uint64) (bool, error)
+	HasUserWithIds(ctx context.Context, ids []uint64) (bool, error)
+
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context,
 		username, hashPassword string, avatarId uint64) (uint64, error)

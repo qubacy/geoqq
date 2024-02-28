@@ -49,6 +49,8 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.
 }
 
 func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error) {
+	imageIds = utl.RemoveDuplicatesFromSlice[uint64](imageIds)
+
 	images := []*file.Image{}
 	for _, imageId := range imageIds {
 		image, err := s.GetImageById(ctx, imageId)

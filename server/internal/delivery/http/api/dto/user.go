@@ -3,6 +3,7 @@ package dto
 import (
 	"geoqq/internal/domain"
 	serviceDto "geoqq/internal/service/dto"
+	"geoqq/pkg/utility"
 )
 
 // GET /api/my-profile
@@ -120,16 +121,25 @@ type UserByIdRes struct {
 	User
 }
 
-func MakeUserByIdResFromDomain(publicUser domain.PublicUser) UserByIdRes {
-	return UserByIdRes{
-		User: User{
-			Username:    publicUser.Username,
-			Description: publicUser.Description,
-			AvatarId:    float64(publicUser.AvatarId),
-			IsMate:      publicUser.IsMate,
-		},
+func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (
+	UserByIdRes, error,
+) {
+	if publicUser == nil {
+		return UserByIdRes{}, ErrInputParameterIsNil
 	}
+
+	user, err := MakeUserFromDomain(publicUser)
+	if err != nil {
+		return UserByIdRes{}, utility.NewFuncError(
+			MakeUserByIdResFromDomain, err)
+	}
+
+	return UserByIdRes{
+		User: user,
+	}, nil
 }
+
+// -----------------------------------------------------------------------
 
 type User struct {
 	Username    string  `json:"username"`
@@ -138,13 +148,58 @@ type User struct {
 	IsMate      bool    `json:"is-mate"`
 }
 
+func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
+	if publicUser == nil {
+		return User{}, ErrInputParameterIsNil
+	}
+
+	return User{
+		Username:    publicUser.Username,
+		Description: publicUser.Description,
+		AvatarId:    float64(publicUser.AvatarId),
+		IsMate:      publicUser.IsMate,
+	}, nil
+}
+
 // GET /api/user
 // -----------------------------------------------------------------------
 
 type SomeUsersReq struct {
-	Ids []float64 `json:"ids"`
+	AccessToken string    `json:"access-token"` // ?
+	Ids         []float64 `json:"ids"`
+}
+
+func (s *SomeUsersReq) GetIdsAsSliceOfUint64() []uint64 {
+	ids := []uint64{}
+	for i := range s.Ids {
+		ids = append(ids, uint64(s.Ids[i]))
+	}
+	return ids
 }
 
 type SomeUsersRes struct {
 	Users []User `json:"users"`
+}
+
+func MakeSomeUsersResFromDomain(publicUsers []*domain.PublicUser) (
+	SomeUsersRes, error,
+) {
+	if publicUsers == nil {
+		return SomeUsersRes{}, ErrInputParameterIsNil
+	}
+
+	users := []User{}
+	for i := range publicUsers {
+		user, err := MakeUserFromDomain(publicUsers[i])
+		if err != nil {
+			return SomeUsersRes{}, utility.NewFuncError(
+				MakeSomeUsersResFromDomain, err)
+		}
+
+		users = append(users, user)
+	}
+
+	return SomeUsersRes{
+		Users: users,
+	}, nil
 }

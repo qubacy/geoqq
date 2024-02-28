@@ -55,7 +55,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
-	requestDto := dto.ImagesReq{}
+	requestDto := dto.SomeImagesReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
@@ -92,7 +92,7 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.ImagesReq)
+	requestDto, converted := anyRequestDto.(dto.SomeImagesReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -106,6 +106,8 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 		resWithSideErr(ctx, side, code, err)
 		return
 	}
+
+	// to delivery
 
 	ctx.JSON(http.StatusOK, images)
 }
