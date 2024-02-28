@@ -67,13 +67,10 @@
 
 ## GET /api/user
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-
 ### Request body
 ```json
 {
+    "access-token": "<jwt-string>",
     "ids": [
         "<id>",
         ...

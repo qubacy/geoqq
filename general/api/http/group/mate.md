@@ -5,6 +5,8 @@
 ### Parameters
 #### Required
 - accessToken=`"<jwt-string>"`
+- offset=`"<int>"`
+- count=`"<int>"`
 
 ### Responses
 - *200*
