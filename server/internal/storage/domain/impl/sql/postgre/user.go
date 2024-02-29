@@ -27,6 +27,19 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
+const (
+	templateSelectPublicUsers = `
+		SELECT "Username", "Description", "AvatarId",
+			case when "Mate"."Id" is null then false else true end as "IsMate"
+		FROM "UserEntry"
+		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+		LEFT JOIN "Mate" ON (
+			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
+        	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
+		)
+		WHERE "UserEntry"."Id" `
+)
+
 func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
 	domain.PublicUser, error,
 ) {
@@ -37,16 +50,10 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 	}
 	defer conn.Release()
 
+	// ***
+
 	row := conn.QueryRow(ctx,
-		`SELECT "Username", "Description", "AvatarId",
-			case when "Mate"."Id" is null then false else true end as "IsMate"
-		FROM "UserEntry"
-		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
-		LEFT JOIN "Mate" ON (
-			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = $2) OR
-			("Mate"."FirstUserId" = $2 AND "Mate"."SecondUserId" = $1)
-		)
-		WHERE "UserEntry"."Id" = $2;`, userId, targetUserId,
+		templateSelectPublicUsers+`= $2;`, userId, targetUserId,
 	)
 
 	pubicUser := domain.PublicUser{}
@@ -63,9 +70,26 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 	return pubicUser, nil
 }
 
-func (us *UserStorage) GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (domain.PublicUserList, error) {
+func (s *UserStorage) GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (
+	domain.PublicUserList, error,
+) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil,
+			utl.NewFuncError(s.GetPublicUserById, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	row := conn.QueryRow(ctx,
+		templateSelectPublicUsers+`= $2;`, userId, targetUserId,
+	)
+
 	return nil, nil
 }
+
+// -----------------------------------------------------------------------
 
 func (us *UserStorage) GetUserIdByByName(ctx context.Context,
 	value string) (uint64, error) {
@@ -147,6 +171,7 @@ func (us *UserStorage) HasUserWithIds(ctx context.Context, ids []uint64) (
 	defer conn.Release()
 
 	// TODO:!!!
+	return false, ErrNotImplemented
 }
 
 func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (

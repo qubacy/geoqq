@@ -62,3 +62,19 @@ func Test_pgxpool_Conn_Query(t *testing.T) {
 	}
 	defer conn.Release()
 }
+
+// -----------------------------------------------------------------------
+
+func Test_pgxpool_Conn(t *testing.T) {
+	connStr := "user=postgres password=admin database=geoqq host=127.0.0.1 port=5433"
+	pool, err := pgxpool.Connect(context.Background(), connStr)
+	if err != nil {
+		t.Errorf("Connect to database failed. Err: %v", err)
+	}
+
+	poolConfig := pool.Config()
+	fmt.Println("Max conns:", poolConfig.MaxConns)
+	fmt.Println("Min conns:", poolConfig.MinConns)
+	fmt.Println("Health check period:", poolConfig.HealthCheckPeriod)
+	fmt.Println("Lazy connect:", poolConfig.LazyConnect)
+}

@@ -54,5 +54,5 @@ func (s *UserService) GetPublicUserById(ctx context.Context,
 func (s *UserService) GetPublicUserByIds(ctx context.Context,
 	userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error) {
 	targetUserIds = utl.RemoveDuplicatesFromSlice[uint64](targetUserIds)
-
+	return nil, ErrNotImplemented
 }
