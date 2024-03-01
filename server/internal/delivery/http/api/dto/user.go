@@ -165,8 +165,8 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 // -----------------------------------------------------------------------
 
 type SomeUsersReq struct {
-	AccessToken string    `json:"access-token"` // ?
-	Ids         []float64 `json:"ids"`
+	AccessToken string    `json:"access-token" binding:"required"` // ?
+	Ids         []float64 `json:"ids" binding:"required"`
 }
 
 func (s *SomeUsersReq) GetIdsAsSliceOfUint64() []uint64 {

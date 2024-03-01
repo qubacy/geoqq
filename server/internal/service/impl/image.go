@@ -49,7 +49,19 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.
 }
 
 func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error) {
-	imageIds = utl.RemoveDuplicatesFromSlice[uint64](imageIds)
+	imageIds = utl.RemoveDuplicatesFromSlice(imageIds)
+
+	exists, err := s.domainStorage.HasAvatars(ctx, imageIds)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetImagesByIds,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+	if !exists {
+		return nil, utl.NewFuncError(s.GetImagesByIds,
+			ec.New(ErrOneOrMoreImagesNotFound, ec.Client, ec.OneOrMoreImagesNotFound))
+	}
+
+	// ***
 
 	images := []*file.Image{}
 	for _, imageId := range imageIds {

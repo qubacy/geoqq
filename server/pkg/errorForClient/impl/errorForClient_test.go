@@ -159,7 +159,7 @@ func Test_UnwrapErrorToLastSide_v2(t *testing.T) {
 	if errForClient == nil {
 		fmt.Println("Side error not found!") // !
 	}
-	err = errForClient
+	err = errForClient // warning!
 	if err == nil {
 		t.Error("Unexpected result") // how so? nil is not the same?
 	}
@@ -198,7 +198,7 @@ func Test_equal_nils_v1(t *testing.T) {
 	fmt.Println("Side error:", errForClient)
 	fmt.Println("Basic error:", err)
 
-	if errForClient == err {
+	if errForClient == err { // warning!
 		t.Error("Unexpected result")
 	}
 	/*

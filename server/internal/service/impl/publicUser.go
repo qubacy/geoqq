@@ -48,11 +48,32 @@ func (s *UserService) GetPublicUserById(ctx context.Context,
 		return nil, utl.NewFuncError(s.GetPublicUserById,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
-	return &publicUser, nil
+	return publicUser, nil
 }
 
 func (s *UserService) GetPublicUserByIds(ctx context.Context,
 	userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error) {
-	targetUserIds = utl.RemoveDuplicatesFromSlice[uint64](targetUserIds)
-	return nil, ErrNotImplemented
+	targetUserIds = utl.RemoveDuplicatesFromSlice(targetUserIds)
+
+	// handler --->
+
+	exists, err := s.domainStorage.HasUserWithIds(ctx, targetUserIds)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetPublicUserByIds,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+	if !exists {
+		return nil, utl.NewFuncError(s.GetPublicUserById,
+			ec.New(ErrOneOrMoreUsersNotFound, ec.Client, ec.OneOrMoreUsersNotFound))
+	}
+
+	// <---> storage
+
+	publicUsers, err := s.domainStorage.GetPublicUsersByIds(ctx, userId, targetUserIds)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetPublicUserByIds,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	return publicUsers, nil
 }

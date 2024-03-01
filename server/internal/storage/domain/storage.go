@@ -10,19 +10,20 @@ import (
 // currently working with pictures!
 type AvatarStorage interface {
 	HasAvatar(ctx context.Context, id uint64) (bool, error)
+	HasAvatars(ctx context.Context, uniqueIds []uint64) (bool, error)
 	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
 	InsertAvatar(ctx context.Context, hashValue string) (uint64, error)
 }
 
 type UserStorage interface {
-	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (domain.PublicUser, error)
-	GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (domain.PublicUserList, error)
+	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
+	GetPublicUsersByIds(ctx context.Context, userId uint64, targetUserIds []uint64) (domain.PublicUserList, error)
 
 	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
 	HasUserWithId(ctx context.Context, id uint64) (bool, error)
-	HasUserWithIds(ctx context.Context, ids []uint64) (bool, error)
+	HasUserWithIds(ctx context.Context, uniqueIds []uint64) (bool, error)
 
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context,

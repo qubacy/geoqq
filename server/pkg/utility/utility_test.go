@@ -311,6 +311,22 @@ func Test_RemoveDuplicate(t *testing.T) {
 }
 
 func Test_NumbersToString(t *testing.T) {
-	result := NumbersToString[uint64]([]uint64{1, 2, 3})
-	fmt.Printf(`'%v'`, result)
+	type TestCase struct {
+		input []uint64
+		want  string
+	}
+	testCases := []TestCase{
+		{[]uint64{}, ""},
+		{[]uint64{1, 2, 3}, "1,2,3"},
+		{[]uint64{1, 2, 100, 1000}, "1,2,100,1000"},
+		//...
+	}
+
+	for i := range testCases {
+		got := NumbersToString(testCases[i].input)
+		if testCases[i].want != got {
+			t.Errorf("Error 'want' \"%s\" not eq 'got' \"%s\"",
+				testCases[i].want, got)
+		}
+	}
 }

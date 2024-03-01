@@ -8,4 +8,4 @@ type PublicUser struct {
 	IsMate      bool
 }
 
-type PublicUserList []PublicUser
+type PublicUserList []*PublicUser

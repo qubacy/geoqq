@@ -35,6 +35,7 @@ const (
 	AuthError = 1500 + iota
 	UserAlreadyExist
 	UserNotFound
+	OneOrMoreUsersNotFound
 
 	InvalidRefreshToken
 )
@@ -50,6 +51,7 @@ const (
 const (
 	ImageError = 1700 + iota
 	ImageNotFound
+	OneOrMoreImagesNotFound
 )
 
 const (

@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"fmt"
 	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
@@ -37,16 +38,15 @@ const (
 			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
         	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
 		)
-		WHERE "UserEntry"."Id" `
+		WHERE "UserEntry"."Id" ` // placeholders start with 2.
 )
 
 func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
-	domain.PublicUser, error,
+	*domain.PublicUser, error,
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return domain.PublicUser{},
-			utl.NewFuncError(s.GetPublicUserById, err)
+		return nil, utl.NewFuncError(s.GetPublicUserById, err)
 	}
 	defer conn.Release()
 
@@ -56,37 +56,62 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 		templateSelectPublicUsers+`= $2;`, userId, targetUserId,
 	)
 
-	pubicUser := domain.PublicUser{}
+	publicUser := domain.PublicUser{}
 	err = row.Scan(
-		&pubicUser.Username,
-		&pubicUser.Description,
-		&pubicUser.AvatarId,
-		&pubicUser.IsMate,
+		&publicUser.Username,
+		&publicUser.Description,
+		&publicUser.AvatarId,
+		&publicUser.IsMate,
 	)
 	if err != nil {
-		return domain.PublicUser{},
-			utl.NewFuncError(s.GetPublicUserById, err)
+		return nil, utl.NewFuncError(s.GetPublicUserById, err)
 	}
-	return pubicUser, nil
+	return &publicUser, nil
 }
 
-func (s *UserStorage) GetPublicUsersByIds(ctx context.Context, userId, targetUserIds []uint64) (
-	domain.PublicUserList, error,
-) {
+func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
+	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
+	if len(targetUserIds) == 0 {
+		return domain.PublicUserList{}, nil
+	}
+
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil,
-			utl.NewFuncError(s.GetPublicUserById, err)
+		return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
 	}
 	defer conn.Release()
 
 	// ***
 
-	row := conn.QueryRow(ctx,
-		templateSelectPublicUsers+`= $2;`, userId, targetUserId,
+	rows, err := conn.Query(ctx,
+		templateSelectPublicUsers+fmt.Sprintf(`IN (%v);`,
+			utl.NumbersToString(targetUserIds)),
+		userId,
 	)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
+	}
+	defer rows.Close()
 
-	return nil, nil
+	// ***
+
+	publicUsers := domain.PublicUserList{}
+	for rows.Next() {
+		publicUser := domain.PublicUser{}
+		err = rows.Scan(
+			&publicUser.Username,
+			&publicUser.Description,
+			&publicUser.AvatarId,
+			&publicUser.IsMate,
+		)
+		if err != nil {
+			return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
+		}
+
+		publicUsers = append(publicUsers, &publicUser)
+	}
+
+	return publicUsers, nil
 }
 
 // -----------------------------------------------------------------------
@@ -144,7 +169,7 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	defer conn.Release()
 
 	row := conn.QueryRow(ctx,
-		`SELECT COUNT(*) FROM "UserEntry"
+		`SELECT COUNT(*) AS "Count" FROM "UserEntry"
 			WHERE "Id" = $1;`,
 		id)
 
@@ -160,18 +185,34 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	return count == 1, nil
 }
 
-// TODO: check config pool
-func (us *UserStorage) HasUserWithIds(ctx context.Context, ids []uint64) (
+func (us *UserStorage) HasUserWithIds(ctx context.Context, uniqueIds []uint64) (
 	bool, error,
 ) {
+	if len(uniqueIds) == 0 {
+		return true, nil
+	}
+
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
 		return false, utl.NewFuncError(us.HasUserWithIds, err)
 	}
 	defer conn.Release()
 
-	// TODO:!!!
-	return false, ErrNotImplemented
+	row := conn.QueryRow(ctx,
+		fmt.Sprintf(
+			`SELECT COUNT(*) AS "Count"
+				FROM "UserEntry" WHERE "Id" IN (%v);`,
+			utl.NumbersToString(uniqueIds),
+		),
+	)
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utl.NewFuncError(us.HasUserWithId, err)
+	}
+
+	return count == len(uniqueIds), nil
 }
 
 func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (

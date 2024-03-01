@@ -2,7 +2,9 @@ package postgre
 
 import (
 	"context"
+	"fmt"
 	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -49,6 +51,36 @@ func (s *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 	}
 
 	return count == 1, nil
+}
+
+func (s *AvatarStorage) HasAvatars(ctx context.Context, uniqueIds []uint64) (
+	bool, error,
+) {
+	if len(uniqueIds) == 0 {
+		return true, nil
+	}
+
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return false, utility.NewFuncError(s.HasAvatars, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		fmt.Sprintf(
+			`SELECT COUNT(*) AS "Count"
+				FROM "Avatar" WHERE "Id" IN (%v);`,
+			utl.NumbersToString(uniqueIds),
+		),
+	)
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		return false, utl.NewFuncError(s.HasAvatars, err)
+	}
+
+	return count == len(uniqueIds), nil
 }
 
 func (s *AvatarStorage) InsertGeneratedAvatar(
