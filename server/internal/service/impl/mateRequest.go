@@ -110,7 +110,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 			ec.New(ErrUnknownMateRequestResult, ec.Client, ec.UnknownMateRequestResult))
 	}
 
-	// ***
+	// read from database
 
 	exists, err := mrs.domainStorage.IsMateRequestForUser(ctx, mateRequestId, userId)
 	if err != nil {
@@ -134,29 +134,20 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 			ec.New(ErrMateRequestNotWaiting, ec.Client, ec.MateRequestNotWaiting))
 	}
 
-	// ***
+	// write to database
 
 	if mateRequestResult.IsAccepted() {
-		_, err = mrs.domainStorage.InsertMate(ctx,
-			mateRequest.FromUserId, mateRequest.ToUserId) // now mates!
-
-		// TODO: insert mate chat!
-
-		if err != nil {
-			return utl.NewFuncError(mrs.SetResultForMateRequest,
-				ec.New(err, ec.Server, ec.DomainStorageError))
-		}
+		err = mrs.domainStorage.AcceptMateRequestById(ctx, mateRequestId,
+			mateRequest.FromUserId, mateRequest.ToUserId)
+	} else {
+		err = mrs.domainStorage.RejectMateRequestById(ctx, mateRequestId,
+			mateRequest.FromUserId, mateRequest.ToUserId)
 	}
 
-	// ***
-
-	err = mrs.domainStorage.UpdateMateRequestResultById(ctx,
-		mateRequestId, mateRequestResult)
 	if err != nil {
 		return utl.NewFuncError(mrs.SetResultForMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
-
 	return nil
 }
 

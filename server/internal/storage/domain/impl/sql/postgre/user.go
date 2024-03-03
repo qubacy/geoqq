@@ -41,6 +41,8 @@ const (
 		WHERE "UserEntry"."Id" ` // placeholders start with 2.
 )
 
+// -----------------------------------------------------------------------
+
 func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
 	*domain.PublicUser, error,
 ) {
@@ -158,6 +160,8 @@ func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 	}
 	return hashRefreshToken, nil
 }
+
+// -----------------------------------------------------------------------
 
 func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	bool, error,

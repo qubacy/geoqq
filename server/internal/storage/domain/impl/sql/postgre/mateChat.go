@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -22,7 +23,41 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 // public
 // -----------------------------------------------------------------------
 
+const (
+	templateInsertMateChat = `
+		INSERT INTO "MateChat"(
+			"FirstUserId", 
+			"SecondUserId"
+			)
+		VALUES($1, $2) RETURNING "Id";
+	`
+)
+
 func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 	firstUserId uint64, secondUserId uint64) (uint64, error) {
-	return 0, ErrNotImplemented
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return 0, utility.NewFuncError(s.InsertMateChat, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	row := conn.QueryRow(ctx, templateInsertMateChat,
+		firstUserId, secondUserId)
+
+	var lastInsertedId uint64
+	err = row.Scan(&lastInsertedId)
+	if err != nil {
+		return 0, utility.NewFuncError(s.InsertMateChat, err)
+	}
+
+	return lastInsertedId, nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func insertMateChatWithoutReturningId() {
+	// TODO:
 }

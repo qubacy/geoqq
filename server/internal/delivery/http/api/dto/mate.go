@@ -93,6 +93,6 @@ type MateRequestCountRes struct {
 // -----------------------------------------------------------------------
 
 type MateRequestPostReq struct {
-	AccessToken string  `json:"access-token"` // ?
-	UserId      float64 `json:"user-id"`
+	AccessToken string  `json:"access-token" binding:"required"` // ?
+	UserId      float64 `json:"user-id" binding:"required"`
 }

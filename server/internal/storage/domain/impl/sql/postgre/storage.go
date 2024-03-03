@@ -42,6 +42,7 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 		UserProfileStorage: newUserProfileStorage(pool),
 		MateStorage:        newMateStorage(pool),
 		MateRequestStorage: newMateRequestStorage(pool),
+		MateChatStorage:    newMateChatStorage(pool),
 	}
 
 	return storage, nil

@@ -68,6 +68,9 @@ type MateRequestStorage interface {
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error
 
+	AcceptMateRequestById(ctx context.Context, id, firstUserId, secondUserId uint64) error
+	RejectMateRequestById(ctx context.Context, id, firstUserId, secondUserId uint64) error
+
 	GetAllWaitingMateRequestsForUser(ctx context.Context, userId uint64) ([]*table.MateRequest, error)
 	GetWaitingMateRequestsForUser(ctx context.Context, userId, offset, count uint64) ([]*table.MateRequest, error)
 	GetWaitingMateRequestCountForUser(ctx context.Context, userId uint64) (int, error)

@@ -3,11 +3,21 @@ CREATE TABLE "MateChat"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
-    UNIQUE ("FirstUserId", "SecondUserId"),
+
+    -- if use an index, then don't need it!
+    -- UNIQUE ("FirstUserId", "SecondUserId"),
+
+    -- does not work..?
+    -- UNIQUE ("SecondUserId", "FirstUserId"), 
     
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
 );
+create unique index unique_mate_chat_ids_comb
+    on "MateChat"(
+        greatest("FirstUserId", "SecondUserId"),
+        least("FirstUserId", "SecondUserId")
+        );
 
 CREATE TABLE "MateMessage"
 (

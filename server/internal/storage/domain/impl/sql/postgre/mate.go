@@ -3,7 +3,9 @@ package postgre
 import (
 	"context"
 	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -21,6 +23,16 @@ func newMateStorage(pool *pgxpool.Pool) *MateStorage {
 }
 
 // public
+// -----------------------------------------------------------------------
+
+const (
+	templateInsertMateWithoutReturningId = `
+		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
+			VALUES ($1, $2)`
+	templateInsertMate = templateInsertMateWithoutReturningId +
+		` RETURNING "Id"`
+)
+
 // -----------------------------------------------------------------------
 
 func (s *MateStorage) AreMates(ctx context.Context,
@@ -57,11 +69,8 @@ func (s *MateStorage) InsertMate(ctx context.Context,
 	}
 	defer conn.Release()
 
-	row := conn.QueryRow(ctx,
-		`INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
-			VALUES ($1, $2) RETURNING "Id";`,
-		firstUserId, secondUserId,
-	)
+	row := conn.QueryRow(ctx, templateInsertMate+`;`,
+		firstUserId, secondUserId)
 
 	var lastInsertedId uint64
 	err = row.Scan(&lastInsertedId)
@@ -70,4 +79,23 @@ func (s *MateStorage) InsertMate(ctx context.Context,
 	}
 
 	return lastInsertedId, nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+// without returning an identifier?
+func insertMateWithoutReturningId(ctx context.Context, tx pgx.Tx,
+	firstUserId uint64, secondUserId uint64) error {
+	cmdTag, err := tx.Exec(ctx, templateInsertMateWithoutReturningId+`;`,
+		firstUserId, secondUserId)
+
+	if err != nil {
+		return utl.NewFuncError(insertMateWithoutReturningId, err)
+	}
+	if !cmdTag.Insert() {
+		return ErrInsertFailed
+	}
+
+	return nil
 }

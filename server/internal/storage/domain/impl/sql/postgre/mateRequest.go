@@ -182,6 +182,38 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
+func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
+	id, firstUserId, secondUserId uint64) error {
+	// update mate request result, insert mate, insert mate chat...
+
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return utl.NewFuncError(s.AcceptMateRequestById, err)
+	}
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel:       pgx.Serializable,
+		AccessMode:     pgx.ReadWrite,
+		DeferrableMode: pgx.NotDeferrable,
+	})
+	if err != nil {
+		return utl.NewFuncError(s.AcceptMateRequestById, err)
+	}
+
+	// ***
+}
+
+func (s *MateRequestStorage) RejectMateRequestById(ctx context.Context,
+	id, firstUserId, secondUserId uint64) error {
+	// update mate request result
+
+}
+
+// -----------------------------------------------------------------------
+
 func (s *MateRequestStorage) GetAllWaitingMateRequestsForUser(ctx context.Context, userId uint64) (
 	[]*table.MateRequest, error,
 ) {

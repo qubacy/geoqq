@@ -33,7 +33,7 @@ type Profile struct { // not equal struct user!
 }
 
 type Privacy struct {
-	HitMeUp int `json:"hit-me-up"`
+	HitMeUp int `json:"hit-me-up"` // without binding since zero is ignored!
 }
 
 func MakePrivacy(privacy domain.Privacy) Privacy {
@@ -52,7 +52,7 @@ func (s *Privacy) ToInp() *serviceDto.Privacy {
 // -----------------------------------------------------------------------
 
 type MyProfilePutReq struct {
-	AccessToken string `json:"access-token"` // ?
+	AccessToken string `json:"access-token" binding:"required"` // ?
 
 	Description *string `json:"description,omitempty"`
 	Avatar      *Avatar `json:"avatar,omitempty"`
@@ -89,8 +89,8 @@ func (s *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
 // -----------------------------------------------------------------------
 
 type Security struct {
-	Password    string `json:"password"`
-	NewPassword string `json:"new-password"`
+	Password    string `json:"password" binding:"required"`
+	NewPassword string `json:"new-password" binding:"required"`
 }
 
 func (s *Security) ToInp() *serviceDto.Security {
@@ -103,8 +103,8 @@ func (s *Security) ToInp() *serviceDto.Security {
 // -----------------------------------------------------------------------
 
 type Avatar struct {
-	Ext     float64 `json:"ext"`
-	Content string  `json:"content"` // <--- base64-string
+	Ext     float64 `json:"ext" binding:"required"`
+	Content string  `json:"content" binding:"required"` // <--- base64-string
 }
 
 func (s *Avatar) ToInp() *serviceDto.Avatar {
