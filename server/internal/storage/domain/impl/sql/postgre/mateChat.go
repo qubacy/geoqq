@@ -2,8 +2,9 @@ package postgre
 
 import (
 	"context"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -24,20 +25,21 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 // -----------------------------------------------------------------------
 
 const (
-	templateInsertMateChat = `
-		INSERT INTO "MateChat"(
+	templateInsertMateChatWithoutReturningId = `
+		INSERT INTO "MateChat" (
 			"FirstUserId", 
 			"SecondUserId"
-			)
-		VALUES($1, $2) RETURNING "Id";
-	`
+		)
+		VALUES($1, $2)`
+	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
+		` RETURNING "Id"`
 )
 
 func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 	firstUserId uint64, secondUserId uint64) (uint64, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertMateChat, err)
+		return 0, utl.NewFuncError(s.InsertMateChat, err)
 	}
 	defer conn.Release()
 
@@ -49,7 +51,7 @@ func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 	var lastInsertedId uint64
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertMateChat, err)
+		return 0, utl.NewFuncError(s.InsertMateChat, err)
 	}
 
 	return lastInsertedId, nil
@@ -58,6 +60,16 @@ func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-func insertMateChatWithoutReturningId() {
-	// TODO:
+func insertMateChatWithoutReturningId(ctx context.Context, tx pgx.Tx,
+	firstUserId uint64, secondUserId uint64) error {
+
+	err := insertForUserPairWithoutReturningId(ctx, tx,
+		templateInsertMateChatWithoutReturningId+`;`,
+		firstUserId, secondUserId,
+	)
+	if err != nil {
+		return utl.NewFuncError(insertMateChatWithoutReturningId, err)
+	}
+
+	return nil
 }

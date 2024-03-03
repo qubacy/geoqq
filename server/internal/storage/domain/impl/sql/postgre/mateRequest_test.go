@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -49,4 +50,14 @@ func Test_GetMateRequestById(t *testing.T) {
 	}
 
 	fmt.Println(mateRequest)
+}
+
+// -----------------------------------------------------------------------
+
+func Test_errors_Join(t *testing.T) {
+	err := errors.Join(errors.New("one"), errors.New("two"))
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }

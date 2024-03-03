@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"errors"
 	"geoqq/internal/domain/table"
 	utl "geoqq/pkg/utility"
 
@@ -23,6 +24,16 @@ func newMateRequestStorage(pool *pgxpool.Pool) *MateRequestStorage {
 }
 
 // public
+// -----------------------------------------------------------------------
+
+const (
+	templateUpdateMateRequestResultById = `
+		UPDATE "MateRequest" 
+		SET "Result" = $1,
+			"ResponseTime" = NOW()::timestamp
+		WHERE "Id" = $2`
+)
+
 // -----------------------------------------------------------------------
 
 func (s *MateRequestStorage) AddMateRequest(ctx context.Context,
@@ -166,9 +177,7 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	defer conn.Release()
 
 	cmdTag, err := conn.Exec(ctx,
-		`UPDATE "MateRequest" 
-			SET "Result" = $1, "ResponseTime" = NOW()::timestamp
-				WHERE "Id" = $2;`,
+		templateUpdateMateRequestResultById+`;`,
 		int16(value), // <--- smallint!
 		id,
 	)
@@ -186,30 +195,66 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 
 func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {
-	// update mate request result, insert mate, insert mate chat...
 
-	conn, err := s.pool.Acquire(ctx)
+	/*
+		1. Insert mate.
+		2. Insert mate chat.
+		3. Update mate request result.
+	*/
+
+	conn, tx, err := begunTransaction(s.pool, ctx)
 	if err != nil {
 		return utl.NewFuncError(s.AcceptMateRequestById, err)
 	}
 	defer conn.Release()
 
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
-		IsoLevel:       pgx.Serializable,
-		AccessMode:     pgx.ReadWrite,
-		DeferrableMode: pgx.NotDeferrable,
-	})
+	// ***
+
+	err = errors.Join(
+		insertMateWithoutReturningId(ctx, tx, firstUserId, secondUserId),
+		insertMateChatWithoutReturningId(ctx, tx, firstUserId, secondUserId),
+		updateMateRequestResultById(ctx, tx, id, table.Accepted),
+	)
 	if err != nil {
+		tx.Rollback(ctx) // <--- ignore error!
 		return utl.NewFuncError(s.AcceptMateRequestById, err)
 	}
 
 	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return utl.NewFuncError(s.AcceptMateRequestById, err)
+	}
+	return nil
 }
 
 func (s *MateRequestStorage) RejectMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {
-	// update mate request result
 
+	/*
+		1. Update mate request result.
+	*/
+
+	conn, tx, err := begunTransaction(s.pool, ctx)
+	if err != nil {
+		return utl.NewFuncError(s.RejectMateRequestById, err)
+	}
+	defer conn.Release()
+
+	err = updateMateRequestResultById(ctx, tx, id, table.Rejected)
+	if err != nil {
+		tx.Rollback(ctx)
+		return utl.NewFuncError(s.RejectMateRequestById, err)
+	}
+
+	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return utl.NewFuncError(s.RejectMateRequestById, err)
+	}
+	return nil
 }
 
 // -----------------------------------------------------------------------
@@ -320,4 +365,22 @@ func rowsToMateRequests(rows pgx.Rows) ([]*table.MateRequest, error) {
 	}
 
 	return mateRequests, nil
+}
+
+func updateMateRequestResultById(ctx context.Context, tx pgx.Tx,
+	id uint64, value table.MateRequestResult) error {
+
+	cmdTag, err := tx.Exec(ctx,
+		templateUpdateMateRequestResultById+`;`,
+		int16(value),
+		id,
+	)
+	if err != nil {
+		return utl.NewFuncError(updateMateRequestResultById, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
 }

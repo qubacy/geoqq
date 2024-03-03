@@ -38,7 +38,7 @@ const (
 			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
         	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
 		)
-		WHERE "UserEntry"."Id" ` // placeholders start with 2.
+		WHERE "UserEntry"."Id"` // placeholders start with 2.
 )
 
 // -----------------------------------------------------------------------
@@ -55,7 +55,7 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 	// ***
 
 	row := conn.QueryRow(ctx,
-		templateSelectPublicUsers+`= $2;`, userId, targetUserId,
+		templateSelectPublicUsers+` = $2;`, userId, targetUserId,
 	)
 
 	publicUser := domain.PublicUser{}
@@ -86,7 +86,7 @@ func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
 	// ***
 
 	rows, err := conn.Query(ctx,
-		templateSelectPublicUsers+fmt.Sprintf(`IN (%v);`,
+		templateSelectPublicUsers+fmt.Sprintf(` IN (%v);`,
 			utl.NumbersToString(targetUserIds)),
 		userId,
 	)

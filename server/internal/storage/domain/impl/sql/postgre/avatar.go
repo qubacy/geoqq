@@ -3,7 +3,6 @@ package postgre
 import (
 	"context"
 	"fmt"
-	"geoqq/pkg/utility"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -30,7 +29,7 @@ func (s *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasAvatar, err)
+		return false, utl.NewFuncError(s.HasAvatar, err)
 	}
 	defer conn.Release()
 
@@ -43,7 +42,7 @@ func (s *AvatarStorage) HasAvatar(ctx context.Context, id uint64) (
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasAvatar, err)
+		return false, utl.NewFuncError(s.HasAvatar, err)
 	}
 
 	if count > 1 {
@@ -62,7 +61,7 @@ func (s *AvatarStorage) HasAvatars(ctx context.Context, uniqueIds []uint64) (
 
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utility.NewFuncError(s.HasAvatars, err)
+		return false, utl.NewFuncError(s.HasAvatars, err)
 	}
 	defer conn.Release()
 
@@ -89,7 +88,7 @@ func (s *AvatarStorage) InsertGeneratedAvatar(
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertGeneratedAvatar, err)
+		return 0, utl.NewFuncError(s.InsertGeneratedAvatar, err)
 	}
 	defer conn.Release()
 
@@ -106,7 +105,7 @@ func (s *AvatarStorage) InsertGeneratedAvatar(
 	var lastInsertedId uint64
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertGeneratedAvatar, err)
+		return 0, utl.NewFuncError(s.InsertGeneratedAvatar, err)
 	}
 
 	return lastInsertedId, nil
@@ -118,7 +117,7 @@ func (s *AvatarStorage) InsertAvatar(
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertAvatar, err)
+		return 0, utl.NewFuncError(s.InsertAvatar, err)
 	}
 	defer conn.Release()
 
@@ -135,7 +134,7 @@ func (s *AvatarStorage) InsertAvatar(
 
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utility.NewFuncError(s.InsertAvatar, err)
+		return 0, utl.NewFuncError(s.InsertAvatar, err)
 	}
 
 	return lastInsertedId, nil
