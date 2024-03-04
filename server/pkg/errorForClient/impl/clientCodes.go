@@ -63,6 +63,8 @@ const (
 	MateRequestNotWaiting
 	MateRequestToSelf
 	AlreadyAreMates
+
+	MateChatNotFound
 )
 
 const (

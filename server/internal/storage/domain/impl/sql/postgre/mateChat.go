@@ -33,6 +33,24 @@ const (
 		VALUES($1, $2)`
 	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
 		` RETURNING "Id"`
+
+	templateInsertMateChatMessageWithoutReturningId = `
+		INSERT INTO "MateMessage" (
+			"MateChatId", "FromUserId",
+			"Text", "Time", "Read"
+		)
+		VALUES ($1, $2, $3, NOW()::timestamp, FALSE)`
+	templateInsertMateChatMessage = `` +
+		templateInsertMateChatMessageWithoutReturningId +
+		` RETURNING "Id"`
+
+	templateHasMateChatWithId = `` +
+		`SELECT case
+					when COUNT(*) = 1 then true
+					else false
+				end as "Has"
+		FROM "MateChat"
+		WHERE "Id" = $1`
 )
 
 func (s *MateChatStorage) InsertMateChat(ctx context.Context,
@@ -45,13 +63,56 @@ func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 
 	// ***
 
-	row := conn.QueryRow(ctx, templateInsertMateChat,
+	row := conn.QueryRow(ctx, templateInsertMateChat+`;`,
 		firstUserId, secondUserId)
 
 	var lastInsertedId uint64
 	err = row.Scan(&lastInsertedId)
 	if err != nil {
 		return 0, utl.NewFuncError(s.InsertMateChat, err)
+	}
+
+	return lastInsertedId, nil
+}
+
+func (s *MateChatStorage) HasMateChatWithId(ctx context.Context, id uint64) (bool, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return false, utl.NewFuncError(s.HasMateChatWithId, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	row := conn.QueryRow(ctx,
+		templateHasMateChatWithId+`;`, id)
+
+	var exists bool = false
+	err = row.Scan(&exists)
+	if err != nil {
+		return false, utl.NewFuncError(s.HasMateChatWithId, err)
+	}
+
+	return exists, nil
+}
+
+func (s *MateChatStorage) InsertMateChatMessage(ctx context.Context,
+	chatTd, fromUserId uint64, text string) (uint64, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return 0, utl.NewFuncError(s.InsertMateChatMessage, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	row := conn.QueryRow(ctx, templateInsertMateChatMessage+`;`,
+		chatTd, fromUserId, text)
+
+	var lastInsertedId uint64
+	err = row.Scan(&lastInsertedId)
+	if err != nil {
+		return 0, utl.NewFuncError(s.InsertMateChatMessage, err)
 	}
 
 	return lastInsertedId, nil

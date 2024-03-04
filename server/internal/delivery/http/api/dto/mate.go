@@ -26,6 +26,14 @@ type MateMessage struct {
 	UserId float64 `json:"user-id"`
 }
 
+// POST /api/mate/chat/{id}/message
+// -----------------------------------------------------------------------
+
+type MateChatMessagePostReq struct {
+	AccessToken string `json:"access-token" binding:"required"` // ?
+	Text        string `json:"text" binding:"required"`
+}
+
 // GET /api/mate/chat/{id}/message
 // -----------------------------------------------------------------------
 

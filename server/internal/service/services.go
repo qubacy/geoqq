@@ -42,6 +42,10 @@ type MateService interface {
 	// 	userId, requestId uint64, accepted bool) error
 }
 
+type MateChatService interface {
+	AddMessageToMateChat(ctx context.Context, userId, chatId uint64, text string) error
+}
+
 type MateRequestService interface {
 	GetAllIncomingMateRequestsForUser(ctx context.Context, userId uint64) (*dto.MateRequestsForUserOut, error)
 	GetIncomingMateRequestsForUser(ctx context.Context, userId, offset, count uint64) (*dto.MateRequestsForUserOut, error)
@@ -67,7 +71,7 @@ type Services interface {
 	UserProfileService
 	PublicUserService
 	MateRequestService
-	MateService
+	MateChatService
 	ImageService
 	GeoService
 }

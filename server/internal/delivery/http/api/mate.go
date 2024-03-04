@@ -19,6 +19,11 @@ func (h *Handler) registerMateRoutes() {
 			chat.GET("", h.userIdentityForGetRequest, h.getMateChats)
 			chat.DELETE("/:id", h.deleteMateChat)
 			chat.GET("/:id/message", h.userIdentityForGetRequest, h.getMateChatMessages) // maybe group?
+
+			// for debug?
+
+			chat.POST("/:id/message", h.extractBodyForPostMateChatMessage,
+				h.userIdentityByContextData, h.postMateChatMessage)
 		}
 
 		request := router.Group("/request")
@@ -49,6 +54,89 @@ func (h *Handler) deleteMateChat(ctx *gin.Context) {
 
 func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 
+}
+
+/*
+## POST /api/mate/chat/{id}/message
+
+### Request body
+```json
+
+	{
+	    "access-token": "<jwt-string>",
+	    "text": "<string>"
+	}
+
+```
+
+### Responses
+- *200*
+*/
+
+func (h *Handler) extractBodyForPostMateChatMessage(ctx *gin.Context) {
+	requestDto := dto.MateChatMessagePostReq{}
+	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
+		return
+	}
+
+	if len(requestDto.AccessToken) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+	if len(requestDto.Text) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+
+	ctx.Set(contextAccessToken, requestDto.AccessToken)
+	ctx.Set(contextRequestDto, requestDto) // all body with access token.
+}
+
+type uriParamsPostMateChatMessage struct {
+	Id uint64 `uri:"id" binding:"required"`
+}
+
+func (h *Handler) postMateChatMessage(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	// from delivery
+
+	uriParams := uriParamsPostMateChatMessage{} // or move to previous middleware?
+	if err := ctx.ShouldBindUri(&uriParams); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err) // uri
+		return
+	}
+
+	anyRequestDto, exists := ctx.Get(contextRequestDto)
+	//ctx.Set(contextRequestDto, nil)
+	if !exists {
+		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
+		return
+	}
+	requestDto, converted := anyRequestDto.(dto.MateChatMessagePostReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
+
+	// to services
+
+	mateChatId := uriParams.Id
+	err = h.services.AddMessageToMateChat(ctx,
+		userId, mateChatId, requestDto.Text)
+
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 // mate-request
@@ -163,6 +251,7 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 	// from delivery
 
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
+	ctx.Set(contextRequestDto, nil)
 	if !exists {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return

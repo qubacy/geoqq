@@ -77,8 +77,11 @@ type MateRequestStorage interface {
 }
 
 type MateChatStorage interface {
+	HasMateChatWithId(ctx context.Context, id uint64) (bool, error)
 	InsertMateChat(ctx context.Context,
 		firstUserId uint64, secondUserId uint64) (uint64, error)
+	InsertMateChatMessage(ctx context.Context,
+		chatTd, fromUserId uint64, text string) (uint64, error)
 }
 
 type GeoChatStorage interface {
