@@ -77,6 +77,7 @@ type MateRequestStorage interface {
 }
 
 type MateChatStorage interface {
+	AvailableMateChatWithIdForUser(ctx context.Context, chatId, userId uint64) (bool, error)
 	HasMateChatWithId(ctx context.Context, id uint64) (bool, error)
 	InsertMateChat(ctx context.Context,
 		firstUserId uint64, secondUserId uint64) (uint64, error)

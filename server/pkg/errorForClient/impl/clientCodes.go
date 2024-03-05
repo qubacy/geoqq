@@ -65,6 +65,7 @@ const (
 	AlreadyAreMates
 
 	MateChatNotFound
+	MateChatNotAvailable
 )
 
 const (

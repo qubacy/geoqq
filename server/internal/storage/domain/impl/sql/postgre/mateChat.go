@@ -51,7 +51,24 @@ const (
 				end as "Has"
 		FROM "MateChat"
 		WHERE "Id" = $1`
+
+	templateAvailableMateChatWithIdForUser = `` +
+		`SELECT case
+					when COUNT(*) = 1 then true
+					else false
+				end as "Available"
+		FROM "MateChat"
+		WHERE "Id" = $1
+			AND ("FirstUserId" = $2
+  				OR "SecondUserId" = $2)
+			AND NOT EXISTS
+ 				(SELECT
+  				FROM "DeletedMateChat"
+  				WHERE "ChatId" = "Id"
+	  				AND "UserId" = $2)`
 )
+
+// -----------------------------------------------------------------------
 
 func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 	firstUserId uint64, secondUserId uint64) (uint64, error) {
@@ -73,6 +90,28 @@ func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 	}
 
 	return lastInsertedId, nil
+}
+
+func (s *MateChatStorage) AvailableMateChatWithIdForUser(ctx context.Context,
+	chatId, userId uint64) (bool, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return false, utl.NewFuncError(s.AvailableMateChatWithIdForUser, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	row := conn.QueryRow(ctx, templateAvailableMateChatWithIdForUser+`;`,
+		chatId, userId)
+
+	var available bool = false
+	err = row.Scan(&available)
+	if err != nil {
+		return false, utl.NewFuncError(s.AvailableMateChatWithIdForUser, err)
+	}
+
+	return available, nil
 }
 
 func (s *MateChatStorage) HasMateChatWithId(ctx context.Context, id uint64) (bool, error) {

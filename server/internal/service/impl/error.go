@@ -25,7 +25,8 @@ var (
 	ErrMateRequestNotFound      = errors.New("mate request not found")
 	ErrUnknownMateRequestResult = errors.New("unknown mate request result")
 
-	ErrMateChatNotFound = errors.New("mate chat not found")
+	ErrMateChatNotFound     = errors.New("mate chat not found")
+	ErrMateChatNotAvailable = errors.New("mate chat not available for user")
 
 	ErrMateRequestAlreadySentFromYou = errors.New("mate request already sent from you")
 	ErrMateRequestAlreadySentToYou   = errors.New("mate request already sent to you")

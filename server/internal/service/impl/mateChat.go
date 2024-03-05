@@ -25,9 +25,6 @@ func newMateChatService(deps Dependencies) *MateChatService {
 func (s *MateChatService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
 
-	// TODO: Удален чат или нет?
-	// Пользователь принадлежит чату?
-
 	exists, err := s.domainStorage.HasMateChatWithId(ctx, chatId)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToMateChat,
@@ -39,6 +36,18 @@ func (s *MateChatService) AddMessageToMateChat(ctx context.Context,
 	}
 
 	// ***
+
+	available, err := s.domainStorage.AvailableMateChatWithIdForUser(ctx, userId, chatId)
+	if err != nil {
+		return utl.NewFuncError(s.AddMessageToMateChat,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+	if !available {
+		return utl.NewFuncError(s.AddMessageToMateChat,
+			ec.New(ErrMateChatNotAvailable, ec.Client, ec.MateChatNotAvailable))
+	}
+
+	// write to database!
 
 	_, err = s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
 	if err != nil {

@@ -36,6 +36,7 @@ CREATE TABLE "DeletedMateChat"
 (
     "ChatId" BIGINT NOT NULL,
     "UserId" BIGINT NOT NULL,
+    UNIQUE ("ChatId", "UserId"),
     
     FOREIGN KEY ("ChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
