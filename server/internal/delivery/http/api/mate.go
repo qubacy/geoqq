@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -45,7 +46,52 @@ func (h *Handler) registerMateRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMateChats(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	// ***
+
+	if !ctx.Request.Form.Has(dto.GetParameterCount) ||
+		!ctx.Request.Form.Has(dto.GetParameterOffset) {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed,
+			ErrSomeParametersAreMissing)
+		return
+	}
+
+	// <--- delivery
+
+	offsetStr := ctx.Request.Form.Get(dto.GetParameterOffset)
+	offset, offsetErr := strconv.ParseUint(offsetStr, 10, 64)
+
+	countStr := ctx.Request.Form.Get(dto.GetParameterCount)
+	count, countErr := strconv.ParseUint(countStr, 10, 64)
+
+	if errors.Join(offsetErr, countErr) != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	// <---> services
+
+	output, err := h.services.GetMateChatsForUser(ctx,
+		userId, offset, count)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// ---> delivery
+
+	responseDto, err := dto.MakeMateChatsResFromOutput(output)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 func (h *Handler) deleteMateChat(ctx *gin.Context) {
@@ -178,7 +224,7 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		return
 	}
 
-	// to services
+	// to-from services
 
 	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
 		userId, offset, count)
@@ -187,6 +233,8 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithSideErr(ctx, side, code, err)
 		return
 	}
+
+	// to delivery!
 
 	responseDto, err := dto.MakeRequestsResFromOutput(output)
 	if err != nil {

@@ -41,3 +41,5 @@ func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 
 	resWithErr(ctx, httpCode, errorId, err)
 }
+
+// -----------------------------------------------------------------------

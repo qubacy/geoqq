@@ -104,3 +104,12 @@ func NumbersToString[T uint64](numbers []T) string {
 
 	return strings.Join(strNumbers, ",")
 }
+
+func RemoveAdjacentSpacesFromString(text string) string {
+	fields := strings.Fields(text)
+	return strings.Join(fields, " ")
+}
+
+func RemoveAdjacentWs(text string) string {
+	return RemoveAdjacentSpacesFromString(text)
+}

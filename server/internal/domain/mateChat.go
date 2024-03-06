@@ -8,4 +8,10 @@ type MateChat struct {
 	LastMessage     *MateMessage
 }
 
-type MateChatList []MateChat
+func NewEmptyMateChat() *MateChat {
+	return &MateChat{
+		0, 0, 0, nil,
+	}
+}
+
+type MateChatList []*MateChat

@@ -79,11 +79,18 @@ type MateRequestStorage interface {
 type MateChatStorage interface {
 	AvailableMateChatWithIdForUser(ctx context.Context, chatId, userId uint64) (bool, error)
 	HasMateChatWithId(ctx context.Context, id uint64) (bool, error)
-	InsertMateChat(ctx context.Context,
-		firstUserId uint64, secondUserId uint64) (uint64, error)
-	InsertMateChatMessage(ctx context.Context,
-		chatTd, fromUserId uint64, text string) (uint64, error)
-	GetMateChatsForUser(ctx context.Context, userId, offset, count uint64) ([]*table.MateChat, error)
+	InsertMateChat(ctx context.Context, firstUserId uint64, secondUserId uint64) (uint64, error)
+	GetMateChatsForUser(ctx context.Context, userId, offset, count uint64) ([]*domain.MateChat, error)
+}
+
+type MateChatMessageStorage interface {
+	InsertMateChatMessage(ctx context.Context, chatTd, fromUserId uint64, text string) (uint64, error)
+	GetMateChatMessagesByChatId(ctx context.Context, chatId,
+		offset, count uint64) (domain.MateMessageList, error)
+
+	// Make messages read!
+	ReadMateChatMessagesByChatId(ctx context.Context, chatId,
+		offset, count uint64) (domain.MateMessageList, error)
 }
 
 type GeoChatStorage interface {
@@ -98,5 +105,6 @@ type Storage interface {
 	MateStorage
 	MateRequestStorage
 	MateChatStorage
+	MateChatMessageStorage
 	GeoChatStorage
 }

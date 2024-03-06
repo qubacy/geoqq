@@ -9,4 +9,10 @@ type MateMessage struct {
 	UserId uint64
 }
 
-type MateMessageList []MateMessage
+func NewEmptyMateMessage() *MateMessage {
+	return &MateMessage{
+		0, "", time.Time{}, 0,
+	}
+}
+
+type MateMessageList []*MateMessage

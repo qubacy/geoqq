@@ -26,7 +26,7 @@ WHERE "Id" = 1
          WHERE "ChatId" = "Id"
              AND "UserId" = 1);
 
--- Не оптимально!
+-- Not optimal!
 -- -----------------------------------------------------------------------
 
 SELECT "MateChat"."Id" AS "Id",

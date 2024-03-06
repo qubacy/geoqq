@@ -302,7 +302,7 @@ func (s *MateRequestStorage) GetWaitingMateRequestsForUser(ctx context.Context,
 	rows, err := conn.Query(ctx,
 		`SELECT * FROM "MateRequest"
 			WHERE "ToUserId" = $1 AND "Result" = $2
-				ORDER BY "Id" LIMIT $3 OFFSET $4;`,
+				ORDER BY "RequestTime" DESC LIMIT $3 OFFSET $4;`,
 		userId, int16(table.Waiting),
 		count, offset,
 	)

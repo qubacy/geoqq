@@ -107,3 +107,30 @@ func Test_pgxpool_Conn_Stat(t *testing.T) {
 	fmt.Println(utility.GetFunctionName(poolStat.TotalConns)+sep, poolStat.TotalConns())
 	//...
 }
+
+// experiments
+// -----------------------------------------------------------------------
+
+func Test_copy_slice_or_not(t *testing.T) {
+	numbers := []uint64{}
+	numbers = append(numbers, 10, 100, 1000)
+	fmt.Println(numbers)
+
+	edit_slice_elements(numbers)
+	fmt.Println(numbers)
+
+	copy_and_edit_slice_elements(numbers)
+	fmt.Println(numbers)
+}
+
+func edit_slice_elements(numbers []uint64) {
+	numbers[1] = 500
+}
+
+func copy_and_edit_slice_elements(numbers []uint64) {
+	copy_numbers := make([]uint64, len(numbers))
+	copy(copy_numbers, numbers)
+	copy_numbers[1] = 5000
+}
+
+// -----------------------------------------------------------------------

@@ -2,9 +2,8 @@ package postgre
 
 import (
 	"context"
-	"geoqq/internal/domain/table"
+	"geoqq/internal/domain"
 	utl "geoqq/pkg/utility"
-	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -36,16 +35,6 @@ var (
 	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
 		` RETURNING "Id"`
 
-	templateInsertMateChatMessageWithoutReturningId = `
-		INSERT INTO "MateMessage" (
-			"MateChatId", "FromUserId",
-			"Text", "Time", "Read"
-		)
-		VALUES ($1, $2, $3, NOW()::timestamp, FALSE)`
-	templateInsertMateChatMessage = `` +
-		templateInsertMateChatMessageWithoutReturningId +
-		` RETURNING "Id"`
-
 	templateHasMateChatWithId = `` +
 		`SELECT case
 					when COUNT(*) = 1 then true
@@ -54,8 +43,8 @@ var (
 		FROM "MateChat"
 		WHERE "Id" = $1`
 
-	templateAvailableMateChatWithIdForUser = `` +
-		`SELECT case
+	templateAvailableMateChatWithIdForUser = utl.RemoveAdjacentWs(`
+		SELECT case
 					when COUNT(*) = 1 then true
 					else false
 				end as "Available"
@@ -67,10 +56,10 @@ var (
  				(SELECT
   				FROM "DeletedMateChat"
   				WHERE "ChatId" = "Id"
-	  				AND "UserId" = $2)`
+	  				AND "UserId" = $2)`)
 
-	templateGetMateChatsForUser = strings.TrimSpace(`` +
-		`SELECT "MateChat"."Id" AS "Id",
+	templateGetMateChatsForUser = utl.RemoveAdjacentWs(`
+		SELECT "MateChat"."Id" AS "Id",
 			case
 				when "FirstUserId" = $1 
 				then "SecondUserId" else "FirstUserId"
@@ -170,30 +159,10 @@ func (s *MateChatStorage) HasMateChatWithId(ctx context.Context, id uint64) (boo
 	return exists, nil
 }
 
-func (s *MateChatStorage) InsertMateChatMessage(ctx context.Context,
-	chatTd, fromUserId uint64, text string) (uint64, error) {
-	conn, err := s.pool.Acquire(ctx)
-	if err != nil {
-		return 0, utl.NewFuncError(s.InsertMateChatMessage, err)
-	}
-	defer conn.Release()
-
-	// ***
-
-	row := conn.QueryRow(ctx, templateInsertMateChatMessage+`;`,
-		chatTd, fromUserId, text)
-
-	var lastInsertedId uint64
-	err = row.Scan(&lastInsertedId)
-	if err != nil {
-		return 0, utl.NewFuncError(s.InsertMateChatMessage, err)
-	}
-
-	return lastInsertedId, nil
-}
+// -----------------------------------------------------------------------
 
 func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
-	userId, offset, count uint64) ([]*table.MateChat, error) {
+	userId, offset, count uint64) ([]*domain.MateChat, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
@@ -207,10 +176,17 @@ func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
 	}
+	defer rows.Close()
 
-	mateChats := []*table.MateChat{}
+	mateChats := []*domain.MateChat{}
 	for rows.Next() {
-		// TODO:
+		mateChat, err := mateChatFromRows(rows)
+		if err != nil {
+			return nil, utl.NewFuncError(
+				s.GetMateChatsForUser, err)
+		}
+
+		mateChats = append(mateChats, mateChat)
 	}
 
 	return mateChats, nil
@@ -231,4 +207,48 @@ func insertMateChatWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	}
 
 	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func mateChatFromRows(rows pgx.Rows) (*domain.MateChat, error) {
+	mateChat := domain.NewEmptyMateChat()
+	lastMessageExists := false
+
+	err := rows.Scan(
+		&mateChat.Id, &mateChat.UserId,
+		&mateChat.NewMessageCount,
+		&lastMessageExists,
+		nil, nil, nil, nil, // <--- skip fields!
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(mateChatFromRows, err)
+	}
+
+	// ***
+
+	var lastMessage *domain.MateMessage = nil
+	if lastMessageExists {
+		lastMessage, err = lastMateChatMessageFromRows(rows)
+		if err != nil {
+			return nil, utl.NewFuncError(mateChatFromRows, err)
+		}
+	}
+
+	mateChat.LastMessage = lastMessage
+	return mateChat, nil
+}
+
+func lastMateChatMessageFromRows(rows pgx.Rows) (*domain.MateMessage, error) {
+	mateMessage := new(domain.MateMessage)
+	err := rows.Scan(
+		nil, nil, nil, nil,
+		&mateMessage.Id, &mateMessage.Text,
+		&mateMessage.Time, &mateMessage.UserId,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(lastMateChatMessageFromRows, err)
+	}
+
+	return mateMessage, nil
 }

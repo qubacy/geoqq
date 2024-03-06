@@ -125,6 +125,26 @@ func Test_RandomInt(t *testing.T) {
 	}
 }
 
+func Test_RemoveAdjacentSpacesFromString(t *testing.T) {
+	type TestCase struct {
+		input  string
+		output string
+	}
+	testCases := []TestCase{
+		{"123   123   123", "123 123 123"},
+		{"123\n\n\n\n\n\n\n123\n\n\n\n\n123", "123 123 123"},
+		{"123\t\t\t\t\n\n\n   123\t\t\n\n\n   123", "123 123 123"},
+		//...
+	}
+
+	for i := range testCases {
+		got := RemoveAdjacentSpacesFromString(testCases[i].input)
+		if got != testCases[i].output {
+			t.Error("Unexpected result")
+		}
+	}
+}
+
 // benchmarks
 // -----------------------------------------------------------------------
 

@@ -11,6 +11,15 @@ LIMIT 1
 OFFSET 1;
 
 
+SELECT *
+FROM "MateRequest"
+WHERE "ToUserId" = 2
+    AND "Result" = 0
+ORDER BY "RequestTime" DESC
+LIMIT 1
+OFFSET 1;
+
+
 SELECT "Id",
        "FromUserId"
 FROM "MateRequest"
