@@ -2,7 +2,9 @@ package postgre
 
 import (
 	"context"
+	"geoqq/internal/domain/table"
 	utl "geoqq/pkg/utility"
+	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -24,7 +26,7 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 // public
 // -----------------------------------------------------------------------
 
-const (
+var (
 	templateInsertMateChatWithoutReturningId = `
 		INSERT INTO "MateChat" (
 			"FirstUserId", 
@@ -66,6 +68,39 @@ const (
   				FROM "DeletedMateChat"
   				WHERE "ChatId" = "Id"
 	  				AND "UserId" = $2)`
+
+	templateGetMateChatsForUser = strings.TrimSpace(`` +
+		`SELECT "MateChat"."Id" AS "Id",
+			case
+				when "FirstUserId" = $1 
+				then "SecondUserId" else "FirstUserId"
+			end as "UserId",
+
+			(SELECT COUNT(*) FROM "MateMessage"
+			WHERE "MateChatId" = "MateChat"."Id"
+				AND "Read" = false) AS "NewMessageCount",
+
+			case
+				when "LastMessage"."Id" is NULL 
+				then false else true
+			end as "Exists",
+
+			"LastMessage"."Id" AS "LastMessageId",
+			"LastMessage"."Text" AS "LastMessageText",
+			"LastMessage"."Time" AS "LastMessageTime",
+			"LastMessage"."FromUserId" AS "LastMessageUserId"
+
+		FROM "MateChat"
+		LEFT JOIN LATERAL
+ 			(SELECT *
+  			FROM "MateMessage"
+  			WHERE "MateChatId" = "MateChat"."Id"
+			ORDER BY "Time" DESC
+  			LIMIT 1) "LastMessage" ON true
+		WHERE ("FirstUserId" = $1 OR
+			   "SecondUserId" = $1)
+		ORDER BY "Id" 
+		LIMIT $2 OFFSET $3`)
 )
 
 // -----------------------------------------------------------------------
@@ -155,6 +190,30 @@ func (s *MateChatStorage) InsertMateChatMessage(ctx context.Context,
 	}
 
 	return lastInsertedId, nil
+}
+
+func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
+	userId, offset, count uint64) ([]*table.MateChat, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	rows, err := conn.Query(ctx, templateGetMateChatsForUser+`;`,
+		userId, count, offset)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
+	}
+
+	mateChats := []*table.MateChat{}
+	for rows.Next() {
+		// TODO:
+	}
+
+	return mateChats, nil
 }
 
 // private

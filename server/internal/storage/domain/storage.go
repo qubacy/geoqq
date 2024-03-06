@@ -83,6 +83,7 @@ type MateChatStorage interface {
 		firstUserId uint64, secondUserId uint64) (uint64, error)
 	InsertMateChatMessage(ctx context.Context,
 		chatTd, fromUserId uint64, text string) (uint64, error)
+	GetMateChatsForUser(ctx context.Context, userId, offset, count uint64) ([]*table.MateChat, error)
 }
 
 type GeoChatStorage interface {
