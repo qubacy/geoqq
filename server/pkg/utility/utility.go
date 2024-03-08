@@ -113,3 +113,13 @@ func RemoveAdjacentSpacesFromString(text string) string {
 func RemoveAdjacentWs(text string) string {
 	return RemoveAdjacentSpacesFromString(text)
 }
+
+// -----------------------------------------------------------------------
+
+func ConvertSliceFloat64ToUint64(values []float64) []uint64 {
+	result := []uint64{}
+	for i := range values {
+		result = append(result, uint64(values[i]))
+	}
+	return result
+}

@@ -46,6 +46,9 @@ func (h *Handler) registerMateRoutes() {
 // chat
 // -----------------------------------------------------------------------
 
+// GET /api/mate/chat
+// -----------------------------------------------------------------------
+
 func (h *Handler) getMateChats(ctx *gin.Context) {
 	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
@@ -74,6 +77,9 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, responseDto)
 }
+
+// DELETE /api/mate/chat/{id}
+// -----------------------------------------------------------------------
 
 func (h *Handler) deleteMateChat(ctx *gin.Context) {
 
@@ -115,7 +121,7 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 /*
-Description:
+Desc:
 
 ## POST /api/mate/chat/{id}/message
 
@@ -173,7 +179,6 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 	}
 
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
-	//ctx.Set(contextRequestDto, nil)
 	if !exists {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return

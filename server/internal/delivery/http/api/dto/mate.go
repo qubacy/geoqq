@@ -81,7 +81,7 @@ func MakeMateMessageFromDomain(mateMessage *domain.MateMessage) (MateMessage, er
 	return MateMessage{
 		Id:     float64(mateMessage.Id),
 		Text:   mateMessage.Text,
-		Time:   float64(mateMessage.Time.Unix()), // utc ---> unix
+		Time:   float64(mateMessage.Time.Unix()), // utc ---> unix or not?
 		UserId: float64(mateMessage.UserId),
 	}, nil
 }

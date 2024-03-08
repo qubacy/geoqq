@@ -12,11 +12,12 @@ import (
 type Services struct {
 	*AuthService
 	*UserProfileService
-	*ImageService
+	*UserService
 	*MateRequestService
 	*MateChatService
 	*MateChatMessageService
-	*UserService
+	*GeoChatMessageService
+	*ImageService
 }
 
 type Dependencies struct {
@@ -37,6 +38,7 @@ func NewServices(deps Dependencies) (*Services, error) {
 		MateRequestService:     newMateRequestService(deps),
 		MateChatService:        newMateChatService(deps),
 		MateChatMessageService: newMateChatMessageService(deps),
+		GeoChatMessageService:  newGeoChatMessageService(deps),
 		UserService:            newUserService(deps),
 	}, nil
 }

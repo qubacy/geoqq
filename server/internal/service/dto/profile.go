@@ -17,7 +17,7 @@ type Privacy struct {
 	HitMeUp *int
 }
 
-func (p *Privacy) ToDsInp() *dsDto.Privacy {
+func (p *Privacy) ToDynamicDsInp() *dsDto.Privacy {
 	return &dsDto.Privacy{
 		HitMeUp: *p.HitMeUp,
 	}

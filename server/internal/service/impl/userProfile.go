@@ -64,7 +64,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 	}
 
 	if input.Privacy != nil {
-		domainDto.Privacy = input.Privacy.ToDsInp()
+		domainDto.Privacy = input.Privacy.ToDynamicDsInp()
 	}
 
 	domainDto.Description = input.Description

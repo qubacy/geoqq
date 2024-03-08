@@ -3,6 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -224,7 +225,7 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 	// <---> services
 
 	publicUsers, err := h.services.GetPublicUserByIds(ctx, userId,
-		requestDto.GetIdsAsSliceOfUint64())
+		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)

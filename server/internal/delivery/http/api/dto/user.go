@@ -42,7 +42,7 @@ func MakePrivacy(privacy domain.Privacy) Privacy {
 	}
 }
 
-func (s *Privacy) ToInp() *serviceDto.Privacy {
+func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
 	return &serviceDto.Privacy{
 		HitMeUp: &s.HitMeUp,
 	}
@@ -67,13 +67,13 @@ func (s *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
 	var avatar *serviceDto.Avatar = nil
 
 	if s.Security != nil {
-		security = s.Security.ToInp()
+		security = s.Security.ToDynamicInp()
 	}
 	if s.Privacy != nil {
-		privacy = s.Privacy.ToInp()
+		privacy = s.Privacy.ToDynamicInp()
 	}
 	if s.Avatar != nil {
-		avatar = s.Avatar.ToInp()
+		avatar = s.Avatar.ToDynamicInp()
 	}
 
 	// ***
@@ -93,7 +93,7 @@ type Security struct {
 	NewPassword string `json:"new-password" binding:"required"`
 }
 
-func (s *Security) ToInp() *serviceDto.Security {
+func (s *Security) ToDynamicInp() *serviceDto.Security {
 	return &serviceDto.Security{
 		Password:    s.Password,
 		NewPassword: s.NewPassword,
@@ -107,7 +107,7 @@ type Avatar struct {
 	Content string  `json:"content" binding:"required"` // <--- base64-string
 }
 
-func (s *Avatar) ToInp() *serviceDto.Avatar {
+func (s *Avatar) ToDynamicInp() *serviceDto.Avatar {
 	return &serviceDto.Avatar{
 		Ext:     int(s.Ext), // or special type (pkg file)?
 		Content: s.Content,
@@ -121,8 +121,7 @@ type UserByIdRes struct {
 	User
 }
 
-func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (
-	UserByIdRes, error,
+func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, error,
 ) {
 	if publicUser == nil {
 		return UserByIdRes{}, ErrInputParameterIsNil
@@ -167,14 +166,6 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 type SomeUsersReq struct {
 	AccessToken string    `json:"access-token" binding:"required"` // ?
 	Ids         []float64 `json:"ids" binding:"required"`
-}
-
-func (s *SomeUsersReq) GetIdsAsSliceOfUint64() []uint64 {
-	ids := []uint64{}
-	for i := range s.Ids {
-		ids = append(ids, uint64(s.Ids[i]))
-	}
-	return ids
 }
 
 type SomeUsersRes struct {

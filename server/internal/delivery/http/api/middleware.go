@@ -12,8 +12,13 @@ const (
 	contextUserId      = "user-id"
 	contextAccessToken = "access-token"
 	contextRequestDto  = "dto"
-	contextOffset      = "offset"
-	contextCount       = "count"
+
+	contextOffset = "offset"
+	contextCount  = "count"
+
+	contextLongitude = "longitude"
+	contextLatitude  = "latitude"
+	contextRadius    = "radius"
 )
 
 // only there are authorization errors!
@@ -113,6 +118,60 @@ func requireOffsetAndCount(ctx *gin.Context) {
 
 	ctx.Set(contextOffset, offset)
 	ctx.Set(contextCount, count)
+}
+
+// -----------------------------------------------------------------------
+
+const GetParameterLon = "lon"
+const GetParameterLat = "lat"
+
+func requireLonAndLat(ctx *gin.Context) {
+	if !ctx.Request.Form.Has(GetParameterLat) ||
+		!ctx.Request.Form.Has(GetParameterLon) {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed,
+			ErrSomeParametersAreMissing)
+		return
+	}
+
+	// ***
+
+	latStr := ctx.Request.Form.Get(GetParameterLat)
+	lat, latErr := strconv.ParseFloat(latStr, 64)
+
+	lonStr := ctx.Request.Form.Get(GetParameterLon)
+	lon, lonErr := strconv.ParseFloat(lonStr, 64)
+
+	if err := errors.Join(latErr, lonErr); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	// ***
+
+	ctx.Set(contextLongitude, lon)
+	ctx.Set(contextLatitude, lat)
+}
+
+// -----------------------------------------------------------------------
+
+const GetParameterRadius = "radius"
+
+func requireRadius(ctx *gin.Context) {
+	if !ctx.Request.Form.Has(GetParameterRadius) {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed,
+			ErrSomeParametersAreMissing)
+		return
+	}
+
+	radiusStr := ctx.Request.Form.Get(GetParameterRadius)
+	radius, err := strconv.ParseUint(radiusStr, 10, 64)
+
+	if err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	ctx.Set(contextRadius, radius)
 }
 
 // help

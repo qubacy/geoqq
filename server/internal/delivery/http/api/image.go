@@ -3,6 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/utility"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,9 @@ func (h *Handler) registerImageRoutes() {
 }
 
 // image
+// -----------------------------------------------------------------------
+
+// GET /api/image/{id}
 // -----------------------------------------------------------------------
 
 // or move to dto?
@@ -52,6 +56,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, image)
 }
 
+// GET /api/image
 // -----------------------------------------------------------------------
 
 func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
@@ -100,7 +105,8 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 
 	// *** to service
 
-	images, err := h.services.GetImagesByIds(ctx, requestDto.GetIdsAsSliceOfUint64())
+	images, err := h.services.GetImagesByIds(ctx,
+		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)

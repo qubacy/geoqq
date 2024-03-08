@@ -15,14 +15,6 @@ type SomeImagesReq struct {
 	Ids         []float64 `json:"ids" binding:"required"`
 }
 
-func (s *SomeImagesReq) GetIdsAsSliceOfUint64() []uint64 {
-	ids := []uint64{}
-	for i := range s.Ids {
-		ids = append(ids, uint64(s.Ids[i]))
-	}
-	return ids
-}
-
 // -----------------------------------------------------------------------
 // see pkg file... or new from?
 
