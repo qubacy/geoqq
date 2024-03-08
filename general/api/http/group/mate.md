@@ -127,3 +127,20 @@
 
 ### Responses
 - *200*
+
+<!-- -------------------------------------------- -->
+
+# For debug
+
+## POST /api/mate/chat/{id}/message
+
+### Request body
+```json
+{
+    "access-token": "<jwt-string>",
+    "text": "<string>"
+}
+```
+
+### Responses
+- *200*
