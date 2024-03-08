@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -17,9 +16,10 @@ func (h *Handler) registerMateRoutes() {
 		// TODO: what is the priority of these routes?
 		chat := router.Group("/chat")
 		{
-			chat.GET("", h.userIdentityForGetRequest, h.getMateChats)
+			chat.GET("", h.userIdentityForGetRequest, requireOffsetAndCount, h.getMateChats)
 			chat.DELETE("/:id", h.deleteMateChat)
-			chat.GET("/:id/message", h.userIdentityForGetRequest, h.getMateChatMessages) // maybe group?
+			chat.GET("/:id/message", h.userIdentityForGetRequest,
+				requireOffsetAndCount, h.getMateChatMessages) // maybe group?
 
 			// for debug?
 
@@ -29,7 +29,8 @@ func (h *Handler) registerMateRoutes() {
 
 		request := router.Group("/request")
 		{
-			request.GET("", h.userIdentityForGetRequest, h.getMateRequests)
+			request.GET("", h.userIdentityForGetRequest,
+				requireOffsetAndCount, h.getMateRequests)
 			request.GET("/count", h.userIdentityForGetRequest, h.getMateRequestCount)
 
 			// ***
@@ -51,28 +52,8 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 		resWithServerErr(ctx, clientCode, err)
 		return
 	}
-
-	// ***
-
-	if !ctx.Request.Form.Has(dto.GetParameterCount) ||
-		!ctx.Request.Form.Has(dto.GetParameterOffset) {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed,
-			ErrSomeParametersAreMissing)
-		return
-	}
-
-	// <--- delivery
-
-	offsetStr := ctx.Request.Form.Get(dto.GetParameterOffset)
-	offset, offsetErr := strconv.ParseUint(offsetStr, 10, 64)
-
-	countStr := ctx.Request.Form.Get(dto.GetParameterCount)
-	count, countErr := strconv.ParseUint(countStr, 10, 64)
-
-	if errors.Join(offsetErr, countErr) != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
-		return
-	}
+	offset := ctx.GetUint64(contextOffset)
+	count := ctx.GetUint64(contextCount)
 
 	// <---> services
 
@@ -98,11 +79,44 @@ func (h *Handler) deleteMateChat(ctx *gin.Context) {
 
 }
 
-func (h *Handler) getMateChatMessages(ctx *gin.Context) {
+// GET /api/mate/chat/{id}/message
+// -----------------------------------------------------------------------
 
+func (h *Handler) getMateChatMessages(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+	offset := ctx.GetUint64(contextOffset)
+	count := ctx.GetUint64(contextCount)
+
+	// to-from services
+
+	output, err := h.services.ReadMateChatMessagesByChatId(ctx,
+		userId, offset, count)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// to delivery!
+
+	responseDto, err := dto.MakeMateChatMessagesResFromDomain(output)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
+// POST /api/mate/chat/{id}/message
+// -----------------------------------------------------------------------
+
 /*
+Description:
+
 ## POST /api/mate/chat/{id}/message
 
 ### Request body
@@ -197,32 +211,8 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithServerErr(ctx, clientCode, err)
 		return
 	}
-
-	// ***
-
-	existsOffset := ctx.Request.Form.Has(dto.GetParameterOffset)
-	existsCount := ctx.Request.Form.Has(dto.GetParameterCount)
-
-	if !existsOffset || !existsCount {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed,
-			ErrSomeParametersAreMissing)
-		return
-	}
-
-	// from delivery
-
-	offsetStr := ctx.Request.Form.Get(dto.GetParameterOffset)
-	offset, err := strconv.ParseUint(offsetStr, 10, 64)
-	if err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
-		return
-	}
-	countStr := ctx.Request.Form.Get(dto.GetParameterCount)
-	count, err := strconv.ParseUint(countStr, 10, 64)
-	if err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
-		return
-	}
+	offset := ctx.GetUint64(contextOffset) // no checks
+	count := ctx.GetUint64(contextCount)
 
 	// to-from services
 
@@ -241,6 +231,7 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, responseDto)
 }
 

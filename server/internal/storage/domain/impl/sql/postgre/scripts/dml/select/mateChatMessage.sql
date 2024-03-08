@@ -21,4 +21,3 @@ ORDER BY "Time" DESC
 LIMIT 1
 OFFSET 0;
 
-

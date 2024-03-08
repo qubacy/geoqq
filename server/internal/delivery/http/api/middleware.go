@@ -1,7 +1,9 @@
 package api
 
 import (
-	se "geoqq/pkg/errorForClient/impl"
+	"errors"
+	ec "geoqq/pkg/errorForClient/impl"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +12,8 @@ const (
 	contextUserId      = "user-id"
 	contextAccessToken = "access-token"
 	contextRequestDto  = "dto"
+	contextOffset      = "offset"
+	contextCount       = "count"
 )
 
 // only there are authorization errors!
@@ -23,7 +27,7 @@ func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
 	// TODO: into a separate function?
 	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
-		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
+		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
 
@@ -40,7 +44,7 @@ func (h *Handler) userIdentityForFormRequest(ctx *gin.Context) {
 
 	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
-		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
+		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
 
@@ -56,7 +60,7 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 
 	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
 	if err != nil {
-		resWithAuthError(ctx, se.ValidateAccessTokenFailed, err)
+		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
 
@@ -69,9 +73,46 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 func (h *Handler) parseAnyForm(ctx *gin.Context) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		resWithAuthError(ctx, se.ParseAnyFormFailed, err)
+		resWithAuthError(ctx, ec.ParseAnyFormFailed, err)
 		return
 	}
+}
+
+// -----------------------------------------------------------------------
+
+const GetParameterCount = "count"
+const GetParameterOffset = "offset"
+
+func requireOffsetAndCount(ctx *gin.Context) {
+
+	// check availability
+
+	existsCount := ctx.Request.Form.Has(GetParameterCount)
+	existsOffset := ctx.Request.Form.Has(GetParameterOffset)
+
+	if !existsOffset || !existsCount {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed,
+			ErrSomeParametersAreMissing)
+		return
+	}
+
+	// extract from get-parameters
+
+	offsetStr := ctx.Request.Form.Get(GetParameterOffset)
+	offset, offsetErr := strconv.ParseUint(offsetStr, 10, 64)
+
+	countStr := ctx.Request.Form.Get(GetParameterCount)
+	count, countErr := strconv.ParseUint(countStr, 10, 64)
+
+	if err := errors.Join(offsetErr, countErr); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	// save for next handlers
+
+	ctx.Set(contextOffset, offset)
+	ctx.Set(contextCount, count)
 }
 
 // help
@@ -82,22 +123,22 @@ func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
 	// as get-parameter!
 	accessToken := ctx.Request.Form.Get("accessToken")
 	if len(accessToken) == 0 {
-		return "", se.ParseAccessTokenFailed, // ?
+		return "", ec.ParseAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
 
-	return accessToken, se.NoError, nil
+	return accessToken, ec.NoError, nil
 }
 
 func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
 
 	accessToken := ctx.Request.FormValue("access-token")
 	if len(accessToken) == 0 {
-		return "", se.ParseAccessTokenFailed,
+		return "", ec.ParseAccessTokenFailed,
 			ErrEmptyAccessToken
 	}
 
-	return accessToken, se.NoError, nil
+	return accessToken, ec.NoError, nil
 }
 
 // -----------------------------------------------------------------------
@@ -105,17 +146,17 @@ func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
 func extractUserIdFromContext(ctx *gin.Context) (uint64, int, error) {
 	_, exists := ctx.Get(contextUserId)
 	if !exists {
-		return 0, se.ServerError, ErrEmptyContextParam
+		return 0, ec.ServerError, ErrEmptyContextParam
 	}
 
-	return ctx.GetUint64(contextUserId), se.NoError, nil
+	return ctx.GetUint64(contextUserId), ec.NoError, nil
 }
 
 func extractAccessTokenFromContext(ctx *gin.Context) (string, int, error) {
 	_, exists := ctx.Get(contextAccessToken)
 	if !exists {
-		return "", se.ServerError, ErrEmptyContextParam
+		return "", ec.ServerError, ErrEmptyContextParam
 	}
 
-	return ctx.GetString(contextAccessToken), se.NoError, nil
+	return ctx.GetString(contextAccessToken), ec.NoError, nil
 }

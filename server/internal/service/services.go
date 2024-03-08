@@ -14,6 +14,8 @@ type AuthService interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (dto.RefreshTokensOut, error)
 }
 
+// -----------------------------------------------------------------------
+
 type UserProfileService interface {
 	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
 	UpdateUserProfile(ctx context.Context, userId uint64, input dto.UpdateProfileInp) error
@@ -24,27 +26,15 @@ type PublicUserService interface {
 	GetPublicUserByIds(ctx context.Context, userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error)
 }
 
-// TODO: need to split?
-// work with mate chats, mate requests, ...
-type MateService interface {
-	// GetMateChats(ctx context.Context, userId uint64) (domain.MateChatList, error)
-	// DeleteMateChatById(ctx context.Context, value uint64) error
-
-	// GetMessagesByMateChatId(ctx context.Context,
-	// 	chatId, userId uint64,
-	// 	offset, count uint64) (domain.MateMessageList, error)
-	// GetMateRequests(ctx context.Context,
-	// 	userId uint64,
-	// 	offset, count uint64) (domain.MateRequestList, error)
-	// GetMateRequestCount(ctx context.Context, userId uint64) (uint64, error)
-
-	// UpdateMateRequest(ctx context.Context,
-	// 	userId, requestId uint64, accepted bool) error
-}
+// -----------------------------------------------------------------------
 
 type MateChatService interface {
-	AddMessageToMateChat(ctx context.Context, userId, chatId uint64, text string) error
 	GetMateChatsForUser(ctx context.Context, userId, offset, count uint64) (domain.MateChatList, error)
+}
+
+type MateChatMessageService interface {
+	ReadMateChatMessagesByChatId(ctx context.Context, chatId, offset, count uint64) (domain.MateMessageList, error)
+	AddMessageToMateChat(ctx context.Context, userId, chatId uint64, text string) error
 }
 
 type MateRequestService interface {
@@ -57,10 +47,14 @@ type MateRequestService interface {
 		mateRequestResult table.MateRequestResult) error
 }
 
+// -----------------------------------------------------------------------
+
 type ImageService interface {
 	GetImageById(ctx context.Context, imageId uint64) (*file.Image, error)
 	GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error)
 }
+
+// -----------------------------------------------------------------------
 
 type GeoService interface {
 }
@@ -70,9 +64,13 @@ type GeoService interface {
 type Services interface {
 	AuthService
 	UserProfileService
+
 	PublicUserService
+
 	MateRequestService
 	MateChatService
+	MateChatMessageService
+
 	ImageService
 	GeoService
 }

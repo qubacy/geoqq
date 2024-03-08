@@ -15,6 +15,7 @@ type Services struct {
 	*ImageService
 	*MateRequestService
 	*MateChatService
+	*MateChatMessageService
 	*UserService
 }
 
@@ -30,11 +31,12 @@ type Dependencies struct {
 
 func NewServices(deps Dependencies) (*Services, error) {
 	return &Services{
-		AuthService:        newAuthService(deps),
-		UserProfileService: newUserProfileService(deps),
-		ImageService:       newImageService(deps),
-		MateRequestService: newMateRequestService(deps),
-		MateChatService:    newMateChatService(deps),
-		UserService:        newUserService(deps),
+		AuthService:            newAuthService(deps),
+		UserProfileService:     newUserProfileService(deps),
+		ImageService:           newImageService(deps),
+		MateRequestService:     newMateRequestService(deps),
+		MateChatService:        newMateChatService(deps),
+		MateChatMessageService: newMateChatMessageService(deps),
+		UserService:            newUserService(deps),
 	}, nil
 }

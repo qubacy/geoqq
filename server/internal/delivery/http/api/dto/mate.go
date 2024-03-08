@@ -98,14 +98,33 @@ type MateChatMessagePostReq struct {
 // -----------------------------------------------------------------------
 
 type MessagesFromMateChatWithIdRes struct {
-	MateMessage []MateMessage `json:"messages"`
+	MateMessages []MateMessage `json:"messages"`
+}
+
+func MakeMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList) (
+	MessagesFromMateChatWithIdRes, error,
+) {
+	if domainMateMessages == nil {
+		return MessagesFromMateChatWithIdRes{},
+			ErrInputParameterIsNil
+	}
+
+	res := MessagesFromMateChatWithIdRes{}
+	for i := range domainMateMessages {
+		mateMessage, err := MakeMateMessageFromDomain(domainMateMessages[i])
+		if err != nil {
+			return MessagesFromMateChatWithIdRes{},
+				utility.NewFuncError(MakeMateChatFromOutput, err)
+		}
+
+		res.MateMessages = append(res.MateMessages, mateMessage)
+	}
+
+	return res, nil
 }
 
 // GET /api/mate/request
 // -----------------------------------------------------------------------
-
-const GetParameterCount = "count"
-const GetParameterOffset = "offset"
 
 type MateRequestsRes struct {
 	Requests []MateRequest `json:"requests"`
