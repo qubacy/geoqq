@@ -22,7 +22,7 @@ func newMateChatMessageStorage(pool *pgxpool.Pool) *MateChatMessageStorage {
 	}
 }
 
-// public
+// templates
 // -----------------------------------------------------------------------
 
 var (
@@ -66,6 +66,7 @@ var (
     		RETURNING "MateChatMessages".*`)
 )
 
+// public
 // -----------------------------------------------------------------------
 
 func (s *MateChatMessageStorage) InsertMateChatMessage(ctx context.Context,

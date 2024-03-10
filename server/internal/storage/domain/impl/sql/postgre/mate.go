@@ -21,17 +21,18 @@ func newMateStorage(pool *pgxpool.Pool) *MateStorage {
 	}
 }
 
-// public
+// templates
 // -----------------------------------------------------------------------
 
-const (
-	templateInsertMateWithoutReturningId = `
+var (
+	templateInsertMateWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
-			VALUES ($1, $2)`
+			VALUES ($1, $2)`)
 	templateInsertMate = templateInsertMateWithoutReturningId +
 		` RETURNING "Id"`
 )
 
+// public
 // -----------------------------------------------------------------------
 
 func (s *MateStorage) AreMates(ctx context.Context,

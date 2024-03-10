@@ -70,4 +70,6 @@ const (
 
 const (
 	GeoError = 1900 + iota
+	WrongLatitude
+	WrongLongitude
 )

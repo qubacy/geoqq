@@ -93,7 +93,9 @@ type MateChatMessageStorage interface {
 		offset, count uint64) (domain.MateMessageList, error)
 }
 
-type GeoChatStorage interface {
+type GeoChatMessageStorage interface {
+	InsertGeoChatMessage(ctx context.Context, fromUserId uint64, text string,
+		latitude, longitude float64) (uint64, error)
 }
 
 // -----------------------------------------------------------------------
@@ -106,5 +108,5 @@ type Storage interface {
 	MateRequestStorage
 	MateChatStorage
 	MateChatMessageStorage
-	GeoChatStorage
+	GeoChatMessageStorage
 }

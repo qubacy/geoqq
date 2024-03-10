@@ -22,16 +22,16 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 	}
 }
 
-// public
+// templates
 // -----------------------------------------------------------------------
 
 var (
-	templateInsertMateChatWithoutReturningId = `
+	templateInsertMateChatWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "MateChat" (
 			"FirstUserId", 
 			"SecondUserId"
 		)
-		VALUES($1, $2)`
+		VALUES($1, $2)`)
 	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
 		` RETURNING "Id"`
 
@@ -92,6 +92,7 @@ var (
 		LIMIT $2 OFFSET $3`)
 )
 
+// public
 // -----------------------------------------------------------------------
 
 func (s *MateChatStorage) InsertMateChat(ctx context.Context,

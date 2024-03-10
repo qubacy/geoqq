@@ -17,7 +17,7 @@ type Storage struct {
 	*MateRequestStorage
 	*MateChatStorage
 	*MateChatMessageStorage
-	*GeoChatStorage
+	*GeoChatMessageStorage
 }
 
 type Dependencies struct {
@@ -45,6 +45,7 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 		MateRequestStorage:     newMateRequestStorage(pool),
 		MateChatStorage:        newMateChatStorage(pool),
 		MateChatMessageStorage: newMateChatMessageStorage(pool),
+		GeoChatMessageStorage:  newGeoChatMessageStorage(pool),
 	}
 
 	return storage, nil

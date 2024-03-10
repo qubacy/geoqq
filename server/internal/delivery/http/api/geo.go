@@ -38,39 +38,6 @@ func (h *Handler) registerGeoRoutes() {
 // GET /api/geo/chat/message
 // -----------------------------------------------------------------------
 
-/*
-Desc:
-
-## GET /api/geo/chat/message
-
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-- radius=`"<int>"`
-- lon=`"<real>"`
-- lat=`"<real>"`
-- offset=`"<int>"`
-- count=`"<int>"`
-
-### Responses
-- *200*
-```json
-
-	{
-	    "messages":
-	    [
-	        {
-	            "id": "<id>",
-	            "user-id": "<id>",
-	            "text": "<string>",
-	            "time": "<int>"
-	        },
-	        ...
-	    ]
-	}
-
-```
-*/
 func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 
 }
@@ -78,37 +45,6 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 // GET /api/geo/chat/message/all
 // -----------------------------------------------------------------------
 
-/*
-Desc:
-
-## GET /api/geo/chat/message/all
-
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-- radius=`"<int>"`
-- lon=`"<real>"`
-- lat=`"<real>"`
-
-### Responses
-- *200*
-```json
-
-	{
-	    "messages":
-	    [
-	        {
-	            "id": "<id>",
-	            "user-id": "<id>",
-	            "text": "<string>",
-	            "time": "<int>"
-	        },
-	        ...
-	    ]
-	}
-
-```
-*/
 func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 
 }

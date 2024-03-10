@@ -33,6 +33,9 @@ var (
 	ErrMateRequestNotWaiting         = errors.New("mate request not waiting")
 	ErrAlreadyAreMates               = errors.New("already are mates")
 	ErrMateRequestToSelf             = errors.New("mate request to self")
+
+	ErrWrongLongitude = errors.New("wrong longitude")
+	ErrWrongLatitude  = errors.New("wrong latitude")
 )
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {
