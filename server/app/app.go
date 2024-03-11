@@ -13,6 +13,7 @@ import (
 	fileStorageImpl "geoqq/internal/storage/file/impl/memory/anytime"
 	"geoqq/pkg/avatar"
 	avatarImpl "geoqq/pkg/avatar/impl"
+	geoDistanceImpl "geoqq/pkg/geoDistance/impl/haversine"
 	"geoqq/pkg/hash"
 	hashImpl "geoqq/pkg/hash/impl"
 	"geoqq/pkg/token"
@@ -172,13 +173,14 @@ func servicesInstance(
 	// ***
 
 	services, err := serviceImpl.NewServices(serviceImpl.Dependencies{
-		HashManager:     hashManager,
-		TokenManager:    tokenManager,
-		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
-		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
-		AvatarGenerator: avatarGenerator,
-		DomainStorage:   domainStorage,
-		FileStorage:     fileStorage,
+		HashManager:           hashManager,
+		TokenManager:          tokenManager,
+		AccessTokenTTL:        viper.GetDuration("delivery.token.access_ttl"),
+		RefreshTokenTTL:       viper.GetDuration("delivery.token.refresh_ttl"),
+		AvatarGenerator:       avatarGenerator,
+		DomainStorage:         domainStorage,
+		FileStorage:           fileStorage,
+		GeoDistanceCalculator: geoDistanceImpl.NewCalculator(),
 	})
 	if err != nil {
 		return nil, utility.NewFuncError(servicesInstance, err)

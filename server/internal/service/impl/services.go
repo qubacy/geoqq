@@ -4,6 +4,7 @@ import (
 	domainStorage "geoqq/internal/storage/domain"
 	fileStorage "geoqq/internal/storage/file"
 	"geoqq/pkg/avatar"
+	"geoqq/pkg/geoDistance"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
 	"time"
@@ -21,13 +22,17 @@ type Services struct {
 }
 
 type Dependencies struct {
-	TokenManager    token.TokenManager
-	HashManager     hash.HashManager
+	TokenManager token.TokenManager
+	HashManager  hash.HashManager
+
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
-	AvatarGenerator avatar.AvatarGenerator
+
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage
+	AvatarGenerator avatar.AvatarGenerator
+
+	GeoDistanceCalculator geoDistance.Calculator
 }
 
 func NewServices(deps Dependencies) (*Services, error) {

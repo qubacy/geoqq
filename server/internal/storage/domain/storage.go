@@ -96,6 +96,13 @@ type MateChatMessageStorage interface {
 type GeoChatMessageStorage interface {
 	InsertGeoChatMessage(ctx context.Context, fromUserId uint64, text string,
 		latitude, longitude float64) (uint64, error)
+
+	GetGeoChatAllMessages(ctx context.Context, distance uint64,
+		latitude, longitude float64) (domain.GeoMessageList, error)
+
+	GetGeoChatMessages(ctx context.Context, distance uint64,
+		latitude, longitude float64,
+		offset, count uint64) (domain.GeoMessageList, error)
 }
 
 // -----------------------------------------------------------------------

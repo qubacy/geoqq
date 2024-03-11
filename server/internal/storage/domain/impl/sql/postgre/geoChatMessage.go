@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"geoqq/internal/domain"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -33,7 +34,7 @@ var (
 // public
 // -----------------------------------------------------------------------
 
-func (s *MateChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
+func (s *GeoChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
 	fromUserId uint64, text string, latitude, longitude float64) (uint64, error) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
@@ -53,4 +54,17 @@ func (s *MateChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
 	}
 
 	return lastInsertedId, nil
+}
+
+func (s *GeoChatMessageStorage) GetGeoChatAllMessages(ctx context.Context, distance uint64,
+	latitude, longitude float64) (domain.GeoMessageList, error) {
+
+	return nil, ErrNotImplemented
+}
+
+func (s *GeoChatMessageStorage) GetGeoChatMessages(ctx context.Context, distance uint64,
+	latitude, longitude float64,
+	offset, count uint64) (domain.GeoMessageList, error) {
+
+	return nil, ErrNotImplemented
 }

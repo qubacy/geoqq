@@ -4,16 +4,19 @@ import (
 	"context"
 	domainStorage "geoqq/internal/storage/domain"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/geoDistance"
 	utl "geoqq/pkg/utility"
 )
 
 type GeoChatMessageService struct {
-	domainStorage domainStorage.Storage
+	domainStorage         domainStorage.Storage
+	geoDistanceCalculator geoDistance.Calculator
 }
 
 func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 	instance := &GeoChatMessageService{
-		domainStorage: deps.DomainStorage,
+		domainStorage:         deps.DomainStorage,
+		geoDistanceCalculator: deps.GeoDistanceCalculator,
 	}
 
 	return instance
@@ -51,7 +54,7 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
-	// TODO: send the push message to users!
+	// TODO: send the push message to users?
 
 	return nil
 }
