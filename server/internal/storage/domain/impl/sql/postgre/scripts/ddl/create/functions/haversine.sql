@@ -13,6 +13,3 @@ SELECT asin(
   )
 ) * 2 * 6371 AS distance;
 $BODY$ LANGUAGE sql IMMUTABLE COST 100;
-
-
-DROP FUNCTION geodistance;

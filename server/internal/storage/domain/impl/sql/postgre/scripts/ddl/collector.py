@@ -14,24 +14,27 @@ output_filename = "all.sql"
 func_and_scripts = {
     "create/": 
     [
-        "avatar.sql", "user.sql",
-        "mate.sql", "mateChat.sql",
-        "geoChat.sql"
+        "avatar", "user",
+        "mate", "mateChat",
+        "geoChat",
+        
+        "functions/haversine" 
     ],
+
     "delete/":
     [
-        "tables.sql"
+        "tables"
     ]
 }
 
 for func, scripts in func_and_scripts.items():
     output_file = open(catalog_path + func + output_filename, "w")
     
-    for script in scripts:
-        input_file = open(catalog_path + func + script, "r")
+    for script_name in scripts:
+        input_file = open(catalog_path + func + script_name + ".sql", "r")
         input_content = input_file.read()
         
-        output_file.write("-- " + script.split(".")[0] + "\n")
+        output_file.write("-- " + script_name + "\n")
         output_file.write("-- " + ("-" * 75) + "\n")
         output_file.write(input_content + "\n")
         output_file.write("\n")

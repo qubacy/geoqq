@@ -5,6 +5,7 @@ import (
 	"geoqq/internal/domain"
 	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -29,6 +30,21 @@ var (
 		)
 		VALUES ($1, $2, NOW()::timestamp, $3, $4) 
 			RETURNING "Id"`)
+
+	templateGetGeoChatMessages = utl.RemoveAdjacentWs(`
+		SELECT 
+			"Id",
+			"Text",
+			"Time",
+			"FromUserId" AS "UserId"
+		FROM "GeoMessage"
+		WHERE geodistance(
+			"Latitude", "Longitude",
+			$1, $2) < $3
+		ORDER BY "Time" DESC`)
+
+	templateGetGeoChatMessagesWithLimitAndOffset = templateGetGeoChatMessages +
+		` LIMIT $4 OFFSET $5`
 )
 
 // public
@@ -44,7 +60,7 @@ func (s *GeoChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
 
 	// ***
 
-	row := conn.QueryRow(ctx, templateInsertGeoChatMessage,
+	row := conn.QueryRow(ctx, templateInsertGeoChatMessage+`;`,
 		fromUserId, text, latitude, longitude)
 
 	var lastInsertedId uint64
@@ -56,15 +72,92 @@ func (s *GeoChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
 	return lastInsertedId, nil
 }
 
-func (s *GeoChatMessageStorage) GetGeoChatAllMessages(ctx context.Context, distance uint64,
+// -----------------------------------------------------------------------
+
+func (s *GeoChatMessageStorage) GetGeoChatAllMessages(ctx context.Context,
+	distance uint64,
 	latitude, longitude float64) (domain.GeoMessageList, error) {
 
-	return nil, ErrNotImplemented
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatAllMessages, err)
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx,
+		templateGetGeoChatMessages+";",
+		latitude, longitude, distance, // 1, 2, 3
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatAllMessages, err)
+	}
+	defer rows.Close()
+
+	geoMessages, err := rowsToGeoMessages(rows)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatAllMessages, err)
+	}
+
+	return geoMessages, nil
 }
 
-func (s *GeoChatMessageStorage) GetGeoChatMessages(ctx context.Context, distance uint64,
+func (s *GeoChatMessageStorage) GetGeoChatMessages(ctx context.Context,
+	distance uint64,
 	latitude, longitude float64,
 	offset, count uint64) (domain.GeoMessageList, error) {
 
-	return nil, ErrNotImplemented
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx,
+		templateGetGeoChatMessagesWithLimitAndOffset+";",
+		latitude, longitude, distance,
+		count, offset, // 4, 5
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
+	}
+	defer rows.Close()
+
+	geoMessages, err := rowsToGeoMessages(rows)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
+	}
+
+	return geoMessages, nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func rowsToGeoMessages(rows pgx.Rows) (domain.GeoMessageList, error) {
+	geoMessages := domain.GeoMessageList{}
+	for rows.Next() {
+		geoMessage, err := rowsToGeoMessage(rows)
+		if err != nil {
+			return nil, utl.NewFuncError(rowsToGeoMessages, err)
+		}
+
+		geoMessages = append(geoMessages, geoMessage)
+	}
+
+	return geoMessages, nil
+}
+
+func rowsToGeoMessage(rows pgx.Rows) (*domain.GeoMessage, error) {
+	geoMessage := &domain.GeoMessage{}
+	err := rows.Scan(
+		&geoMessage.Id,
+		&geoMessage.Text,
+		&geoMessage.Time,
+		&geoMessage.UserId,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(rowsToGeoMessage, err)
+	}
+
+	return geoMessage, nil
 }

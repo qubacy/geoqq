@@ -52,6 +52,11 @@ type MateRequestService interface {
 type GeoChatMessageService interface {
 	AddMessageToGeoChat(ctx context.Context, userId uint64,
 		text string, longitude, latitude float64) error
+
+	GetGeoChatAllMessages(ctx context.Context, distance uint64,
+		latitude, longitude float64) (domain.GeoMessageList, error)
+	GetGeoChatMessages(ctx context.Context, distance uint64,
+		latitude, longitude float64, offset, count uint64) (domain.GeoMessageList, error)
 }
 
 // -----------------------------------------------------------------------

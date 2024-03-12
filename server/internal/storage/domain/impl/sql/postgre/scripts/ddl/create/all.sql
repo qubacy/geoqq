@@ -8,6 +8,7 @@ CREATE TABLE "Avatar"
     "Hash" VARCHAR(512) NOT NULL
 );
 
+
 -- user
 -- ---------------------------------------------------------------------------
 CREATE TABLE "UserEntry"
@@ -70,8 +71,10 @@ CREATE TABLE "Mate"
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
 );
 create unique index unique_mate_ids_comb
-    on "Mate"(greatest("FirstUserId", "SecondUserId"),
-              least("FirstUserId", "SecondUserId"));
+    on "Mate"(
+        greatest("FirstUserId", "SecondUserId"),
+        least("FirstUserId", "SecondUserId")
+        );
 
 CREATE TABLE "MateRequest"
 (
@@ -86,6 +89,7 @@ CREATE TABLE "MateRequest"
     FOREIGN KEY ("ToUserId") REFERENCES "UserEntry"("Id")
 );
 
+
 -- mateChat
 -- ---------------------------------------------------------------------------
 CREATE TABLE "MateChat"
@@ -93,7 +97,9 @@ CREATE TABLE "MateChat"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
-    UNIQUE ("FirstUserId", "SecondUserId"),
+
+    -- if use an index, then don't need it!
+    -- UNIQUE ("FirstUserId", "SecondUserId"),
 
     -- does not work..?
     -- UNIQUE ("SecondUserId", "FirstUserId"), 
@@ -101,6 +107,11 @@ CREATE TABLE "MateChat"
     FOREIGN KEY ("FirstUserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("SecondUserId") REFERENCES "UserEntry"("Id")
 );
+create unique index unique_mate_chat_ids_comb
+    on "MateChat"(
+        greatest("FirstUserId", "SecondUserId"),
+        least("FirstUserId", "SecondUserId")
+        );
 
 CREATE TABLE "MateMessage"
 (
@@ -109,7 +120,7 @@ CREATE TABLE "MateMessage"
     "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Read" BOOLEAN NOT NULL,
+    "Read" BOOLEAN NOT NULL DEFAULT FALSE,
     
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
@@ -119,10 +130,12 @@ CREATE TABLE "DeletedMateChat"
 (
     "ChatId" BIGINT NOT NULL,
     "UserId" BIGINT NOT NULL,
+    UNIQUE ("ChatId", "UserId"),
     
     FOREIGN KEY ("ChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
+
 
 -- geoChat
 -- ---------------------------------------------------------------------------
@@ -138,5 +151,24 @@ CREATE TABLE "GeoMessage"
     
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
 );
+
+
+-- functions/haversine
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION geodistance( 
+    alat double precision, 
+    alng double precision, 
+    blat double precision, 
+    blng double precision
+    ) RETURNS double precision AS $BODY$
+SELECT asin(
+  sqrt(
+    sin(radians($3-$1)/2)^2 +
+    sin(radians($4-$2)/2)^2 *
+    cos(radians($1)) *
+    cos(radians($3))
+  )
+) * 2 * 6371 AS distance;
+$BODY$ LANGUAGE sql IMMUTABLE COST 100;
 
 

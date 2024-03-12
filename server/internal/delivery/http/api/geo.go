@@ -39,14 +39,70 @@ func (h *Handler) registerGeoRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
+	_, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	offset := ctx.GetUint64(contextOffset) // no checks
+	count := ctx.GetUint64(contextCount)
+	lat := ctx.GetFloat64(contextLatitude)
+	lon := ctx.GetFloat64(contextLongitude)
+	radius := ctx.GetUint64(contextRadius)
+
+	// <---> services
+
+	geoMessages, err := h.services.GetGeoChatMessages(ctx,
+		radius, lat, lon, offset, count)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// ---> delivery
+
+	responseDto, err := dto.MakeGeoChatMessagesResFromDomain(geoMessages)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // GET /api/geo/chat/message/all
 // -----------------------------------------------------------------------
 
 func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
+	_, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
 
+	lat := ctx.GetFloat64(contextLatitude)
+	lon := ctx.GetFloat64(contextLongitude)
+	radius := ctx.GetUint64(contextRadius)
+
+	// <---> services
+
+	geoMessages, err := h.services.GetGeoChatAllMessages(ctx,
+		radius, lat, lon)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	// ---> delivery
+
+	responseDto, err := dto.MakeGeoChatMessagesResFromDomain(geoMessages)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // POST /api/geo/chat/message
