@@ -30,7 +30,7 @@ func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, p
 
 // -----------------------------------------------------------------------
 
-func insertForUserPairWithoutReturningId(
+func insertForUserPairWithoutReturningIdInsideTx(
 	ctx context.Context, tx pgx.Tx, templateQueryText string,
 	firstUserId, secondUserId uint64) error {
 
@@ -39,7 +39,7 @@ func insertForUserPairWithoutReturningId(
 	)
 
 	if err != nil {
-		return utl.NewFuncError(insertForUserPairWithoutReturningId, err)
+		return utl.NewFuncError(insertForUserPairWithoutReturningIdInsideTx, err)
 	}
 	if !cmdTag.Insert() {
 		return ErrInsertFailed
@@ -50,7 +50,7 @@ func insertForUserPairWithoutReturningId(
 
 // -----------------------------------------------------------------------
 
-func insertGeoChatMessage(ctx context.Context, tx pgx.Tx,
+func insertGeoChatMessageInsideTx(ctx context.Context, tx pgx.Tx,
 	fromUserId uint64, text string,
 	latitude, longitude float64) (uint64, error) {
 
@@ -61,13 +61,13 @@ func insertGeoChatMessage(ctx context.Context, tx pgx.Tx,
 	var lastInsertedId uint64
 	err := row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utl.NewFuncError(insertGeoChatMessage, err)
+		return 0, utl.NewFuncError(insertGeoChatMessageInsideTx, err)
 	}
 
 	return lastInsertedId, nil
 }
 
-func updateUserLocation(ctx context.Context, tx pgx.Tx, id uint64,
+func updateUserLocationInsideTx(ctx context.Context, tx pgx.Tx, id uint64,
 	longitude, latitude float64) error {
 
 	cmdTag, err := tx.Exec(ctx, templateUpdateUserLocation+`;`,
@@ -75,7 +75,7 @@ func updateUserLocation(ctx context.Context, tx pgx.Tx, id uint64,
 	)
 
 	if err != nil {
-		return utl.NewFuncError(updateUserLocation, err)
+		return utl.NewFuncError(updateUserLocationInsideTx, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed

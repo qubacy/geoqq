@@ -88,7 +88,7 @@ func (s *MateStorage) InsertMate(ctx context.Context,
 func insertMateWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
 
-	err := insertForUserPairWithoutReturningId(ctx, tx,
+	err := insertForUserPairWithoutReturningIdInsideTx(ctx, tx,
 		templateInsertMateWithoutReturningId,
 		firstUserId, secondUserId,
 	)

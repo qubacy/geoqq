@@ -199,7 +199,7 @@ func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 func insertMateChatWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
 
-	err := insertForUserPairWithoutReturningId(ctx, tx,
+	err := insertForUserPairWithoutReturningIdInsideTx(ctx, tx,
 		templateInsertMateChatWithoutReturningId,
 		firstUserId, secondUserId,
 	)

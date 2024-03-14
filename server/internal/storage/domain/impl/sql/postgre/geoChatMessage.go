@@ -86,12 +86,12 @@ func (s *GeoChatMessageStorage) InsertGeoChatMessageWithUpdateUserLocation(ctx c
 
 	// ***
 
-	lastInsertedId, err := insertGeoChatMessage(ctx, tx,
+	lastInsertedId, err := insertGeoChatMessageInsideTx(ctx, tx,
 		fromUserId, text, latitude, longitude)
 
 	err = errors.Join(
 		err,
-		updateUserLocation(ctx, tx, fromUserId, longitude, latitude),
+		updateUserLocationInsideTx(ctx, tx, fromUserId, longitude, latitude),
 	)
 	if err != nil {
 		tx.Rollback(ctx) // <--- ignore error!
