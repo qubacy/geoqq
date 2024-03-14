@@ -37,8 +37,8 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 
 	// ***
 
-	_, err = s.domainStorage.InsertGeoChatMessage(ctx, userId, text,
-		latitude, longitude)
+	_, err = s.domainStorage.InsertGeoChatMessageWithUpdateUserLocation(
+		ctx, userId, text, latitude, longitude)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToGeoChat,
 			ec.New(err, ec.Server, ec.DomainStorageError))

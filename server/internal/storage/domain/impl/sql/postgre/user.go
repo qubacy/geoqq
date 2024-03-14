@@ -28,7 +28,7 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // public
 // -----------------------------------------------------------------------
 
-const (
+var (
 	templateSelectPublicUsers = `
 		SELECT "Username", "Description", "AvatarId",
 			case when "Mate"."Id" is null then false else true end as "IsMate"
@@ -39,6 +39,12 @@ const (
         	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
 		)
 		WHERE "UserEntry"."Id"` // placeholders start with 2.
+
+	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
+		UPDATE "UserLocation" 
+			SET "Longitude" = $1,
+			    "Latitude" = $2
+		WHERE "UserId" = $3`)
 )
 
 // -----------------------------------------------------------------------
@@ -335,9 +341,8 @@ func (us *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	}
 	defer conn.Release()
 
-	cmdTag, err := conn.Exec(ctx, `UPDATE "UserLocation" 
-		SET "Longitude" = $1, "Latitude" = $2
-		WHERE "UserId" = $3;`, longitude, latitude, id)
+	cmdTag, err := conn.Exec(ctx, templateUpdateUserLocation+`;`,
+		longitude, latitude, id)
 	if err != nil {
 		return utl.NewFuncError(us.UpdateUserLocation, err)
 	}

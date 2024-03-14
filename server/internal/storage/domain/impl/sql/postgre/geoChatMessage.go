@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"errors"
 	"geoqq/internal/domain"
 	utl "geoqq/pkg/utility"
 
@@ -69,6 +70,42 @@ func (s *GeoChatMessageStorage) InsertGeoChatMessage(ctx context.Context,
 		return 0, utl.NewFuncError(s.InsertGeoChatMessage, err)
 	}
 
+	return lastInsertedId, nil
+}
+
+func (s *GeoChatMessageStorage) InsertGeoChatMessageWithUpdateUserLocation(ctx context.Context,
+	fromUserId uint64, text string,
+	latitude, longitude float64) (uint64, error) {
+
+	conn, tx, err := begunTransaction(s.pool, ctx)
+	if err != nil {
+		return 0, utl.NewFuncError(
+			s.InsertGeoChatMessageWithUpdateUserLocation, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	lastInsertedId, err := insertGeoChatMessage(ctx, tx,
+		fromUserId, text, latitude, longitude)
+
+	err = errors.Join(
+		err,
+		updateUserLocation(ctx, tx, fromUserId, longitude, latitude),
+	)
+	if err != nil {
+		tx.Rollback(ctx) // <--- ignore error!
+		return 0, utl.NewFuncError(
+			s.InsertGeoChatMessageWithUpdateUserLocation, err)
+	}
+
+	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return 0, utl.NewFuncError(
+			s.InsertGeoChatMessageWithUpdateUserLocation, err)
+	}
 	return lastInsertedId, nil
 }
 

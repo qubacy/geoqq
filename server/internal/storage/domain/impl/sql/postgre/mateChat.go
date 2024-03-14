@@ -200,7 +200,7 @@ func insertMateChatWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
 
 	err := insertForUserPairWithoutReturningId(ctx, tx,
-		templateInsertMateChatWithoutReturningId+`;`,
+		templateInsertMateChatWithoutReturningId,
 		firstUserId, secondUserId,
 	)
 	if err != nil {

@@ -89,7 +89,7 @@ func insertMateWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
 
 	err := insertForUserPairWithoutReturningId(ctx, tx,
-		templateInsertMateWithoutReturningId+`;`,
+		templateInsertMateWithoutReturningId,
 		firstUserId, secondUserId,
 	)
 	if err != nil {
