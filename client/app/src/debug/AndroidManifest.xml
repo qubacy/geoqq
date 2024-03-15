@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:exported="true"
+            android:name=".ui.application.activity._common.HiltTestActivity"/>
+    </application>
+
+</manifest>

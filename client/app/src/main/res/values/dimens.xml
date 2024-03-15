@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  Common:  -->
+
+    <dimen name="default_gap_between_components">8dp</dimen>
+    <dimen name="medium_gap_between_components">16dp</dimen>
+
+    <!-- Fragment: -->
+
+    <integer name="navigation_transition_animation_duration">300</integer>
+
+    <!-- Component: -->
+
+
+
+</resources>

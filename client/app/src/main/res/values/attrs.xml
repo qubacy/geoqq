@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorCustomColor1" format="color"/>
+    <attr name="colorOnCustomColor1" format="color"/>
+    <attr name="colorCustomColor1Container" format="color"/>
+    <attr name="colorOnCustomColor1Container" format="color"/>
+    <attr name="harmonizeCustomColor1" format="boolean"/>
+
+    <declare-styleable name="SettingView">
+        <attr name="settingIcon" format="reference"/>
+        <attr name="settingTitle" format="string"/>
+        <attr name="settingButtonIcon" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="SettingsTopBarView">
+        <attr name="settingsTopBarNavigationButtonIcon" format="reference"/>
+        <attr name="settingsTopBarTitle" format="string"/>
+    </declare-styleable>
+</resources>

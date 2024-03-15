@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">GeoQQ</string>
+
+    <!--  Fragments:  -->
+
+
+
+    <!--  Components:  -->
+
+    <string name="component_error_dialog_title_text">Error</string>
+    <string name="component_error_dialog_button_neutral_caption">OK</string>
+
+</resources>
