@@ -5,7 +5,7 @@
 
     <gradient
         android:angle="135"
-        android:startColor="#89D11E"
-        android:endColor="#D0ECA7"/>
+        android:startColor="?attr/fragmentLoginBackgroundStartColor"
+        android:endColor="?attr/fragmentLoginBackgroundEndColor"/>
 
 </shape>

@@ -5,6 +5,9 @@
     <attr name="colorCustomColor1Container" format="color"/>
     <attr name="colorOnCustomColor1Container" format="color"/>
     <attr name="harmonizeCustomColor1" format="boolean"/>
+    
+    <attr name="fragmentLoginBackgroundStartColor" format="color"/>
+    <attr name="fragmentLoginBackgroundEndColor" format="color"/>
 
     <declare-styleable name="SettingView">
         <attr name="settingIcon" format="reference"/>

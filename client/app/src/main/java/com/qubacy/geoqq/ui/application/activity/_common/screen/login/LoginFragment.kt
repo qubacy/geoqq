@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.annotation.StringRes
 import androidx.core.graphics.Insets
 import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
