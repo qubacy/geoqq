@@ -68,6 +68,7 @@
             android:id="@+id/fragment_login_text_input_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textPassword"
             style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
             android:hint="@string/fragment_login_text_input_password_hint_text"/>
 
@@ -83,13 +84,16 @@
         android:layout_marginEnd="@dimen/big_gap_between_components"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         app:startIconDrawable="@drawable/ic_lock"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:alpha="0"
+        android:scaleY="0">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fragment_login_text_input_repeat_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:inputType="textPassword"
             android:hint="@string/fragment_login_text_input_repeat_password_hint_text"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -102,7 +106,7 @@
         android:layout_marginTop="@dimen/medium_gap_between_components"
         android:layout_marginStart="@dimen/big_gap_between_components"
         android:layout_marginEnd="@dimen/big_gap_between_components"
-        android:text="@string/fragment_login_button_login_text"/>
+        android:text="@string/fragment_login_button_login_text_sign_in_mode"/>
 
     <LinearLayout
         android:id="@+id/fragment_login_change_login_type_wrapper"
@@ -119,7 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:text="@string/fragment_login_text_change_login_type_text"/>
+            android:text="@string/fragment_login_text_change_login_type_text_sign_in_mode"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fragment_login_button_change_login_type"
@@ -131,7 +135,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:paddingStart="@dimen/tiny_gap_between_components"
             android:paddingEnd="@dimen/tiny_gap_between_components"
-            android:text="@string/fragment_login_button_change_login_type_text"/>
+            android:text="@string/fragment_login_button_change_login_type_text_sign_in_mode"/>
 
     </LinearLayout>
 

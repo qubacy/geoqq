@@ -12,6 +12,9 @@
 
     <integer name="navigation_transition_animation_duration">300</integer>
 
+    <integer name="fragment_login_repeat_password_visibility_change_animation_duration">350</integer>
+
+
     <!-- Component: -->
 
 
