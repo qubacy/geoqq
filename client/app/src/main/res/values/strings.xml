@@ -3,6 +3,14 @@
 
     <!--  Fragments:  -->
 
+    <string name="fragment_login_text_logo_text">GeoQQ</string>
+    <string name="fragment_login_text_input_login_hint_text">Login</string>
+    <string name="fragment_login_text_input_password_hint_text">Password</string>
+    <string name="fragment_login_text_input_repeat_password_hint_text">Password again</string>
+    <string name="fragment_login_button_login_text">SIGN IN</string>
+    <string name="fragment_login_text_change_login_type_text">Don’t have an account? Just</string>
+    <string name="fragment_login_button_change_login_type_text">Sign Up</string>
+
 
 
     <!--  Components:  -->
