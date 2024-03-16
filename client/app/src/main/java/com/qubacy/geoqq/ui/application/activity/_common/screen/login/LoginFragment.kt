@@ -88,39 +88,44 @@ class LoginFragment(
     }
 
     private fun setControlsWithLoginMode(loginMode: LoginUiState.LoginMode) {
-        var repeatPasswordVisibility = false
-        @StringRes var fragmentLoginButtonLoginTextRes: Int = 0
-        @StringRes var fragmentLoginTextChangeLoginTypeTextRes: Int = 0
-        @StringRes var fragmentLoginButtonChangeLoginTypeTextRes: Int = 0
+        setRepeatPasswordWithLoginMode(loginMode)
+        setLoginButtonWithLoginMode(loginMode)
+        setChangeLoginTypeTextWithLoginMode(loginMode)
+        setChangeLoginTypeButtonWithLoginMode(loginMode)
+    }
 
-        when (loginMode) {
-            LoginUiState.LoginMode.SIGN_IN -> {
-                repeatPasswordVisibility = false
+    private fun setRepeatPasswordWithLoginMode(loginMode: LoginUiState.LoginMode) {
+        changeRepeatPasswordVisibility(loginMode == LoginUiState.LoginMode.SIGN_UP)
+    }
 
-                fragmentLoginButtonLoginTextRes =
-                    R.string.fragment_login_button_login_text_sign_in_mode
-                fragmentLoginTextChangeLoginTypeTextRes =
-                    R.string.fragment_login_text_change_login_type_text_sign_in_mode
-                fragmentLoginButtonChangeLoginTypeTextRes =
-                    R.string.fragment_login_button_change_login_type_text_sign_in_mode
-            }
-            LoginUiState.LoginMode.SIGN_UP -> {
-                repeatPasswordVisibility = true
+    private fun setLoginButtonWithLoginMode(loginMode: LoginUiState.LoginMode) {
+        val loginButtonText =
+            if (loginMode == LoginUiState.LoginMode.SIGN_IN)
+                R.string.fragment_login_button_login_text_sign_in_mode
+            else
+                R.string.fragment_login_button_login_text_sign_up_mode
 
-                fragmentLoginButtonLoginTextRes =
-                    R.string.fragment_login_button_login_text_sign_up_mode
-                fragmentLoginTextChangeLoginTypeTextRes =
-                    R.string.fragment_login_text_change_login_type_text_sign_up_mode
-                fragmentLoginButtonChangeLoginTypeTextRes =
-                    R.string.fragment_login_button_change_login_type_text_sign_up_mode
-            }
-        }
+        mBinding.fragmentLoginButtonLogin.setText(loginButtonText)
+    }
 
-        changeRepeatPasswordVisibility(repeatPasswordVisibility)
+    private fun setChangeLoginTypeTextWithLoginMode(loginMode: LoginUiState.LoginMode) {
+        val changeLoginTypeText =
+            if (loginMode == LoginUiState.LoginMode.SIGN_IN)
+                R.string.fragment_login_text_change_login_type_text_sign_in_mode
+            else
+                R.string.fragment_login_text_change_login_type_text_sign_up_mode
 
-        mBinding.fragmentLoginButtonLogin.setText(fragmentLoginButtonLoginTextRes)
-        mBinding.fragmentLoginTextChangeLoginType.setText(fragmentLoginTextChangeLoginTypeTextRes)
-        mBinding.fragmentLoginButtonChangeLoginType.setText(fragmentLoginButtonChangeLoginTypeTextRes)
+        mBinding.fragmentLoginTextChangeLoginType.setText(changeLoginTypeText)
+    }
+
+    private fun setChangeLoginTypeButtonWithLoginMode(loginMode: LoginUiState.LoginMode) {
+        val changeLoginTypeText =
+            if (loginMode == LoginUiState.LoginMode.SIGN_IN)
+                R.string.fragment_login_button_change_login_type_text_sign_in_mode
+            else
+                R.string.fragment_login_button_change_login_type_text_sign_up_mode
+
+        mBinding.fragmentLoginButtonChangeLoginType.setText(changeLoginTypeText)
     }
 
     private fun changeRepeatPasswordVisibility(toVisible: Boolean) {
