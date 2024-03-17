@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.token.repository
 
+import android.util.Log
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
@@ -17,9 +18,15 @@ class TokenDataRepository @Inject constructor(
     val localTokenDataSource: LocalTokenDataSource,
     val httpTokenDataSource: HttpTokenDataSource
 ) : DataRepository {
+    companion object {
+        const val TAG = "TokenDataRepository"
+    }
+
     suspend fun getTokens(): GetTokensDataResult {
         val localAccessToken = localTokenDataSource.lastAccessToken
         val localRefreshToken = localTokenDataSource.getRefreshToken()
+
+        Log.d(TAG, "getTokens(): localAccessToken = $localAccessToken; localRefreshToken = $localRefreshToken;")
 
         if (localRefreshToken == null)
             throw ErrorAppException(errorDataRepository.getError(

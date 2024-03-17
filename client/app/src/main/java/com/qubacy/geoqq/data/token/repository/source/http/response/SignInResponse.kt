@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-class SignInResponse(
+data class SignInResponse(
     @Json(name = "access-token") val accessToken: String,
     @Json(name = "refresh-token") val refreshToken: String
 ) {

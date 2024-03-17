@@ -4,7 +4,6 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import retrofit2.Call
-import java.net.SocketTimeoutException
 
 fun <ResponseBodyType>executeNetworkRequest(
     errorDataRepository: ErrorDataRepository,
@@ -16,9 +15,7 @@ fun <ResponseBodyType>executeNetworkRequest(
         if (response.errorBody() != null)
             throw ErrorAppException(
                 errorDataRepository.getError(
-                    NetworkErrorType.RESPONSE_ERROR.getErrorCode()
-                )
-            )
+                    NetworkErrorType.RESPONSE_ERROR.getErrorCode()))
 
         val responseBody = response.body()
 
@@ -30,6 +27,8 @@ fun <ResponseBodyType>executeNetworkRequest(
         return responseBody as ResponseBodyType
 
     } catch (e: Exception) {
+        e.printStackTrace()
+
         throw ErrorAppException(
             errorDataRepository.getError(
                 NetworkErrorType.REQUEST_FAILED.getErrorCode()))

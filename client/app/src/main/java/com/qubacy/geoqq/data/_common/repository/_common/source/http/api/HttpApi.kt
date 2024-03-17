@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.http.api
 
 import android.os.Build
 import android.os.LocaleList
+import android.util.Log
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -32,9 +33,14 @@ class HttpApi {
     }
 
     companion object {
+        const val TAG = "HttpApi"
+
         const val BASE_URL = "http://10.0.2.2:3001"
     }
 
+    /**
+     * NOTE: uncomment the logging interceptor ONLY for debugging purposes.
+     */
     private val mOkHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())
 //        .addInterceptor {

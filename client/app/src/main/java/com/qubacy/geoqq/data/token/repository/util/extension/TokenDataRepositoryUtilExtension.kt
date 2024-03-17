@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.token.repository.util.extension
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.util.base64.Base64Util
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
@@ -11,6 +12,8 @@ suspend fun TokenDataRepository.signIn(
 ) {
     val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
     val passwordHash = Base64Util.bytesToString(passwordHashBytes)
+
+    Log.d(TokenDataRepository.TAG, "signIn(): passwordHash = $passwordHash;")
 
     val signInRequest = httpTokenDataSource.signIn(login, passwordHash)
     val signInResponse = executeNetworkRequest(errorDataRepository, signInRequest)

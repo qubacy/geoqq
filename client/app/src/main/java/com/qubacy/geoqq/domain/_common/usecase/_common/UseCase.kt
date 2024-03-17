@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain._common.usecase._common
 
+import android.util.Log
 import com.qubacy.geoqq._common.coroutine.CoroutineUser
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -17,6 +18,10 @@ abstract class UseCase(
     mCoroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     mCoroutineScope: CoroutineScope = CoroutineScope(mCoroutineDispatcher)
 ) : CoroutineUser(mCoroutineDispatcher, mCoroutineScope) {
+    companion object {
+        const val TAG = "UseCase"
+    }
+
     protected val mResultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
     val resultFlow: SharedFlow<DomainResult> get() = mResultFlow
 
@@ -25,8 +30,12 @@ abstract class UseCase(
             try {
                 logicAction()
 
+                Log.d(TAG, "executeLogic(): success")
+
             } catch (e: ErrorAppException) {
                 mResultFlow.emit(ErrorDomainResult(e.error))
+
+                Log.d(TAG, "executeLogic(): exception = ${e.error.message}")
 
             } catch (e: Exception) {
                 e.printStackTrace()

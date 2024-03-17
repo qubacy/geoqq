@@ -8,7 +8,5 @@ enum class TokenErrorType(
     override val domain: ErrorDomain = ErrorDomain.TOKEN
 ) : ErrorType {
     LOCAL_REFRESH_TOKEN_NOT_FOUND(0),
-    INVALID_TOKEN_PAYLOAD(1),
-    //LOCAL_REFRESH_TOKEN_INVALID(1),
-    //INVALID_TOKEN(2);
+    INVALID_TOKEN_PAYLOAD(1);
 }
