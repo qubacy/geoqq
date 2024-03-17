@@ -26,8 +26,8 @@ open class LoginViewModel @Inject constructor(
     companion object {
         const val TAG = "LoginViewModel"
 
-        val LOGIN_REGEX = Regex("^\\S.*$")
-        val PASSWORD_REGEX = Regex("^\\S.*$")
+        val LOGIN_REGEX = Regex("^\\S{8,32}$")
+        val PASSWORD_REGEX = Regex("^\\S{8,32}$")
     }
 
     override fun generateDefaultUiState(): LoginUiState {
