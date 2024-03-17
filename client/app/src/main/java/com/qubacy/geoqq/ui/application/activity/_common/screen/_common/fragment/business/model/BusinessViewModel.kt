@@ -11,6 +11,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
@@ -28,9 +30,28 @@ abstract class BusinessViewModel<UiStateType: BusinessUiState>(
         mUiOperationFlow,
         mUseCase.resultFlow.map { mapDomainResultFlow(it) }
     )
+    private lateinit var mBusinessScope: CoroutineScope
 
     init {
-        mUseCase.setCoroutineScope(viewModelScope)
+        resetBusinessScope()
+    }
+
+    private fun resetBusinessScope() {
+        mBusinessScope = CoroutineScope(viewModelScope.coroutineContext)
+
+        mUseCase.setCoroutineScope(mBusinessScope)
+    }
+
+    override fun onCleared() {
+        mBusinessScope.cancel()
+
+        super.onCleared()
+    }
+
+    fun interrupt() {
+        mBusinessScope.cancel()
+
+        resetBusinessScope()
     }
 
     private fun mapDomainResultFlow(domainResult: DomainResult): UiOperation {

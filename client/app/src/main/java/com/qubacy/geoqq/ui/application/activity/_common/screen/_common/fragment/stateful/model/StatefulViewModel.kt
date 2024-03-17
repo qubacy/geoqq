@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq._common.error.type._common.ErrorType
+import com.qubacy.geoqq._common.error.type.ErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
@@ -43,7 +43,7 @@ abstract class StatefulViewModel<UiStateType: BaseUiState>(
 
     open fun retrieveError(errorType: ErrorType) {
         viewModelScope.launch(Dispatchers.IO) {
-            val error = mErrorDataRepository.getError(errorType.id)
+            val error = mErrorDataRepository.getError(errorType.getErrorCode())
 
             mUiOperationFlow.emit(ErrorUiOperation(error))
         }

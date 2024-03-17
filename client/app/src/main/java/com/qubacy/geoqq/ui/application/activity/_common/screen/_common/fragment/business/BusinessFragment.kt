@@ -28,7 +28,6 @@ abstract class BusinessFragment<
         when (uiOperation::class) {
             SetLoadingStateUiOperation::class ->
                 processSetLoadingOperation(uiOperation as SetLoadingStateUiOperation)
-
             else -> return false
         }
 

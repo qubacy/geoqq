@@ -18,8 +18,12 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.LoginFragmentErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -58,11 +62,53 @@ class LoginFragment(
 
         initViewValues()
 
+        mBinding.fragmentLoginButtonLogin.apply {
+            setOnClickListener { onLoginClicked() }
+        }
         mBinding.fragmentLoginButtonChangeLoginType.apply {
             setOnClickListener { onChangeLoginTypeClicked() }
         }
 
         setupHeaderAnimation()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        mModel.signIn()
+    }
+
+    override fun runInitWithUiState(uiState: LoginUiState) {
+        super.runInitWithUiState(uiState)
+
+        setControlsWithLoginMode(uiState.loginMode)
+    }
+
+    override fun processUiOperation(uiOperation: UiOperation): Boolean {
+        if (super.processUiOperation(uiOperation)) return true
+
+        when (uiOperation::class) {
+            SignInUiOperation::class -> processSignInOperation(uiOperation as SignInUiOperation)
+            else -> return false
+        }
+
+        return true
+    }
+
+    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
+        val isEnabled = !loadingOperation.isLoading
+
+        mBinding.fragmentLoginTextInputLogin.isEnabled = isEnabled
+        mBinding.fragmentLoginTextInputPassword.isEnabled = isEnabled
+        mBinding.fragmentLoginTextInputRepeatPassword.isEnabled = isEnabled
+        mBinding.fragmentLoginButtonLogin.isEnabled = isEnabled
+        mBinding.fragmentLoginButtonChangeLoginType.isEnabled = isEnabled
+    }
+
+    private fun processSignInOperation(signInOperation: SignInUiOperation) {
+        // todo: implement..
+
+
     }
 
     private fun initViewValues() {
@@ -72,13 +118,51 @@ class LoginFragment(
         mControlComponentGap = mBinding.fragmentLoginTextInputPasswordWrapper.marginTop
     }
 
+    private fun onLoginClicked() {
+        val login = mBinding.fragmentLoginTextInputLogin.text.toString()
+        val password = mBinding.fragmentLoginTextInputPassword.text.toString()
+
+        if (!mModel.isLoginValid(login) || !mModel.isPasswordValid(password)) {
+            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
+
+            return
+        }
+
+        when (mModel.uiState.loginMode) {
+            LoginUiState.LoginMode.SIGN_IN -> launchSignIn(login, password)
+            LoginUiState.LoginMode.SIGN_UP -> launchSignUp(login, password)
+        }
+    }
+
+    private fun launchSignIn(login: String, password: String) {
+        mModel.signIn(login, password)
+        clearLoginInputs()
+    }
+
+    private fun launchSignUp(login: String, password: String) {
+        val repeatPassword = mBinding.fragmentLoginTextInputRepeatPassword.text.toString()
+
+        if (repeatPassword != password) {
+            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
+
+            return
+        }
+
+        mModel.signUp(login, password)
+        clearLoginInputs()
+    }
+
+    private fun clearLoginInputs() {
+        mBinding.fragmentLoginTextInputLogin.text?.clear()
+        mBinding.fragmentLoginTextInputPassword.text?.clear()
+        mBinding.fragmentLoginTextInputRepeatPassword.text?.clear()
+    }
+
     private fun onChangeLoginTypeClicked() {
         changeLoginMode()
     }
 
     private fun changeLoginMode() {
-        // todo: implement..
-
         val curLoginMode = mModel.uiState.loginMode
         val newLoginMode = LoginUiState.LoginMode.getNextLoginMode(curLoginMode)
 

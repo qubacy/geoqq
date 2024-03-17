@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data._common.repository.producing
 
 import com.qubacy.geoqq.data._common.repository.adjustable.AdjustableDataRepository
-import com.qubacy.geoqq.data._common.repository.producing.result.DataResult
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow

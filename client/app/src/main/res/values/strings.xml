@@ -14,8 +14,8 @@
     <string name="fragment_login_text_change_login_type_text_sign_in_mode">Don’t have an account? Just</string>
     <string name="fragment_login_text_change_login_type_text_sign_up_mode">Or just</string>
 
-    <string name="fragment_login_button_change_login_type_text_sign_in_mode">Sign In</string>
-    <string name="fragment_login_button_change_login_type_text_sign_up_mode">Sign Up</string>
+    <string name="fragment_login_button_change_login_type_text_sign_in_mode">Sign Up</string>
+    <string name="fragment_login_button_change_login_type_text_sign_up_mode">Sign In</string>
 
 
     <!--  Components:  -->
