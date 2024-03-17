@@ -30,6 +30,30 @@
 }
 ```
 
+## GET /api/mate/chat/{`id`}
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Responses
+- *200*
+```json
+{
+    "user-id": "<id>",
+
+    "new-message-count": "<int>",
+    "last-message": {
+        "id": "<id>",
+        "text": "<string>",
+        "time": "<int>",
+        "user-id": "<id>"
+    }
+}
+```
+
+<!-- -------------------------------------------- -->
+
 ## DELETE /api/mate/chat/{`id`}
 
 ### Parameters
@@ -62,6 +86,20 @@
         },
         ...
     ]
+}
+```
+
+## GET /api/mate/chat/{`id`}/new-message/count
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Responses
+- *200*
+```json
+{
+    "count": "<int>"
 }
 ```
 

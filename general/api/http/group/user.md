@@ -48,6 +48,17 @@
 
 <!-- -------------------------------------------- -->
 
+## DELETE /api/my-profile
+
+### Parameters
+#### Required
+- accessToken=`"<jwt-string>"`
+
+### Responses
+- *200*
+  
+<!-- -------------------------------------------- -->
+
 ## GET /api/user/{`id`}
 
 ### Parameters
