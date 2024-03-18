@@ -75,7 +75,7 @@ class LoginFragment(
     override fun onStart() {
         super.onStart()
 
-        mModel.signIn()
+        if (mModel.uiState.autoSignInAllowed) mModel.signIn()
     }
 
     override fun runInitWithUiState(uiState: LoginUiState) {

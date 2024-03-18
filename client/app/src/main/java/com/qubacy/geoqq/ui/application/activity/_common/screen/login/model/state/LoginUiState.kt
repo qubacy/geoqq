@@ -6,7 +6,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 class LoginUiState(
     isLoading: Boolean = false,
     error: Error? = null,
-    var loginMode: LoginMode = LoginMode.SIGN_IN
+    var loginMode: LoginMode = LoginMode.SIGN_IN,
+    var autoSignInAllowed: Boolean = true
 ) : BusinessUiState(isLoading, error) {
     enum class LoginMode(val id: Int) {
         SIGN_IN(0), SIGN_UP(1);
@@ -25,6 +26,6 @@ class LoginUiState(
     }
 
     override fun copy(): LoginUiState {
-        return LoginUiState(isLoading, error?.copy(), loginMode)
+        return LoginUiState(isLoading, error?.copy(), loginMode, autoSignInAllowed)
     }
 }

@@ -88,7 +88,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     protected open fun onErrorHandled() { }
 
     open fun onErrorOccurred(error: Error) {
-        val onDismiss = Runnable {
+        val onDismissedWithButton = {
             onErrorDismissed(error)
             onErrorHandled()
         }
@@ -96,13 +96,10 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         mErrorDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.component_error_dialog_title_text)
             .setMessage(error.message)
-            .setNeutralButton(R.string.component_error_dialog_button_neutral_caption) { _, _ ->
-                onDismiss.run()
-            }
-            .setOnDismissListener {
-                onDismiss.run()
-            }
-            .show()
+            .setNeutralButton(R.string.component_error_dialog_button_neutral_caption) { _, _ -> onDismissedWithButton() }
+            .create()
+
+        mErrorDialog!!.show()
     }
 
     open fun onErrorDismissed(error: Error) {

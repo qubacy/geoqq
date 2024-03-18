@@ -35,6 +35,8 @@ open class LoginViewModel @Inject constructor(
     }
 
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
+        if (mUiState.autoSignInAllowed) changeAutoSignInAllowedState(false) // todo: is it ok?
+
         val uiOperation = super.processDomainResultFlow(domainResult)
 
         if (uiOperation != null) return uiOperation
@@ -50,6 +52,10 @@ open class LoginViewModel @Inject constructor(
         changeLoadingState(false)
 
         return SignInUiOperation()
+    }
+
+    private fun changeAutoSignInAllowedState(isAllowed: Boolean) {
+        mUiState.autoSignInAllowed = isAllowed
     }
 
     open fun setLoginMode(loginMode: LoginUiState.LoginMode) {
