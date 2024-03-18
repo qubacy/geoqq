@@ -193,6 +193,19 @@ func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 	return mateChats, nil
 }
 
+func (s *MateChatStorage) GetMateChatWithIdForUser(ctx context.Context,
+	userId, chatId uint64) (*domain.MateChat, error) {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(s.GetMateChatWithIdForUser, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	return nil, ErrNotImplemented
+}
+
 // private
 // -----------------------------------------------------------------------
 

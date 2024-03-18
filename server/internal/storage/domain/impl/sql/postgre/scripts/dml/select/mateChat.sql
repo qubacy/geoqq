@@ -102,4 +102,41 @@ LEFT JOIN LATERAL
 WHERE ("FirstUserId" = (table "srcUserId")
        OR "SecondUserId" = (table "srcUserId"))
 ORDER BY "Id" 
-    LIMIT 1 OFFSET 0;
+    LIMIT 10 OFFSET 0;
+
+-- -----------------------------------------------------------------------
+
+WITH "srcUserId" AS (VALUES (2)),
+     "chatId" AS (VALUES (1))
+SELECT "MateChat"."Id" AS "Id",
+       case
+           when "FirstUserId" = (table "srcUserId") 
+                then "SecondUserId"
+           else "FirstUserId"
+       end as "UserId",
+
+    (SELECT COUNT(*)
+     FROM "MateMessage"
+     WHERE "MateChatId" = "MateChat"."Id"
+         AND "Read" = false) AS "NewMessageCount",
+
+       case
+           when "LastMessage"."Id" is NULL then false
+           else true
+       end as "Exists",
+
+       "LastMessage"."Id" AS "LastMessageId",
+       "LastMessage"."Text" AS "LastMessageText",
+       "LastMessage"."Time" AS "LastMessageTime",
+       "LastMessage"."FromUserId" AS "LastMessageUserId"
+
+FROM "MateChat"
+LEFT JOIN LATERAL
+    (SELECT *
+     FROM "MateMessage"
+     WHERE "MateChatId" = "MateChat"."Id"
+     ORDER BY "Time" DESC
+     LIMIT 1) "LastMessage" ON true
+WHERE ("FirstUserId" = (table "srcUserId")
+        OR "SecondUserId" = (table "srcUserId")) 
+            AND "MateChat"."Id" = (table "chatId");

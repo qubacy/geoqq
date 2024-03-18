@@ -19,6 +19,8 @@ const (
 	contextLongitude = "longitude"
 	contextLatitude  = "latitude"
 	contextRadius    = "radius"
+
+	contextRouteItemId = "routeItemId"
 )
 
 // only there are authorization errors!
@@ -172,6 +174,22 @@ func requireRadius(ctx *gin.Context) {
 	}
 
 	ctx.Set(contextRadius, radius)
+}
+
+// -----------------------------------------------------------------------
+
+type routeItemId struct { // or uri params!
+	Id uint64 `uri:"id" binding:"required"`
+}
+
+func requireRouteItemId(ctx *gin.Context) {
+	uriParams := routeItemId{}
+	if err := ctx.ShouldBindUri(&uriParams); err != nil {
+		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		return
+	}
+
+	ctx.Set(contextRouteItemId, uriParams.Id)
 }
 
 // help

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -17,6 +18,9 @@ func (h *Handler) registerMateRoutes() {
 		chat := router.Group("/chat")
 		{
 			chat.GET("", h.userIdentityForGetRequest, requireOffsetAndCount, h.getMateChats)
+			chat.GET("/:id", h.userIdentityForGetRequest, requireRouteItemId,
+				h.getMateChat)
+
 			chat.DELETE("/:id", h.deleteMateChat)
 			chat.GET("/:id/message", h.userIdentityForGetRequest,
 				requireOffsetAndCount, h.getMateChatMessages) // maybe group?
@@ -78,6 +82,23 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, responseDto)
 }
 
+// GET /api/mate/chat/{id}
+// -----------------------------------------------------------------------
+
+func (h *Handler) getMateChat(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+	chatId := ctx.GetUint64(contextRouteItemId)
+
+	// ***
+
+	fmt.Println(userId)
+	fmt.Println(chatId)
+}
+
 // DELETE /api/mate/chat/{id}
 // -----------------------------------------------------------------------
 
@@ -100,7 +121,7 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 	// to-from services
 
 	output, err := h.services.ReadMateChatMessagesByChatId(ctx,
-		userId, offset, count)
+		userId, offset, count) // TODO:ошибка!
 	if err != nil {
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
