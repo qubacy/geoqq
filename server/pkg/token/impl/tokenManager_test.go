@@ -8,6 +8,7 @@ import (
 	"geoqq/pkg/token"
 	"geoqq/pkg/utility"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -67,13 +68,24 @@ func setUpViper() error {
 // tests
 // -----------------------------------------------------------------------
 
+func Test_Payload_GetJsonFieldNames(t *testing.T) {
+	p := token.Payload{}
+
+	wantNames := []string{"user-id", "purpose"}
+	gotNames := p.GetJsonFieldNames()
+
+	if !reflect.DeepEqual(wantNames, gotNames) {
+		t.Error()
+	}
+}
+
 func Test_New(t *testing.T) {
 	manager := newTokenManagerWithChecks(t)
 
 	// ***
 
 	tokenValue, err := manager.New(
-		token.Payload{UserId: 123},
+		token.MakePayload(123, token.ForRefresh),
 		viper.GetDuration("any_token.duration"),
 	)
 	if err != nil {
@@ -91,15 +103,13 @@ func Test_New(t *testing.T) {
 	// *** view token parts ***
 
 	encoding := base64.StdEncoding.WithPadding(base64.NoPadding) // ?
-	headerBytes, err := encoding.DecodeString(tokenParts[0])
+	headerBytes, err := encoding.DecodeString(tokenParts[0])     // header
 	if err != nil {
 		t.Errorf("Decode header failed. Err: %v", err)
 	}
 	fmt.Println(string(headerBytes))
 
-	// ***
-
-	payloadBytes, err := encoding.DecodeString(tokenParts[1])
+	payloadBytes, err := encoding.DecodeString(tokenParts[1]) // payload
 	if err != nil {
 		t.Errorf("Decode payload failed. Err: %v", err)
 	}
@@ -112,12 +122,19 @@ func Test_Validate_okk(t *testing.T) {
 	tokenExtractor := newTokenManagerWithChecks(t)
 
 	// used duration from viper!
-	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMTYyMTIsInVzZXItaWQiOjEyM30.tDOdwyIK56SfLn8Ebji5Ma5SNnyv17ZFT_rB6XUpk3c"
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NjQzNTYxMzEsInVzZXItaWQiOjEyMywicHVycG9zZSI6MX0.7PPBknnlyap1RviqNVA3DY72KW6H1WIQmKHvv05Y1bc"
 
 	err := tokenExtractor.Validate(tokenValue)
 	if err != nil {
 		t.Errorf("Failed to validate valid token. Err: %v", err)
 	}
+
+	payload, err := tokenExtractor.Parse(tokenValue)
+	if err != nil {
+		t.Errorf("Failed to validate valid token. Err: %v", err)
+	}
+
+	fmt.Println(payload)
 }
 
 func Test_Validate_ErrInvalidFormat(t *testing.T) {
@@ -153,7 +170,7 @@ func Test_Validate_ErrTokenExpired(t *testing.T) {
 
 func Test_Parse_okk(t *testing.T) {
 	tokenManager := newTokenManagerWithChecks(t)
-	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NTkwMTYyMTIsInVzZXItaWQiOjEyM30.tDOdwyIK56SfLn8Ebji5Ma5SNnyv17ZFT_rB6XUpk3c"
+	tokenValue := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NjQzNTYxMzEsInVzZXItaWQiOjEyMywicHVycG9zZSI6MX0.7PPBknnlyap1RviqNVA3DY72KW6H1WIQmKHvv05Y1bc"
 	payload, err := tokenManager.Parse(tokenValue)
 
 	if err != nil {

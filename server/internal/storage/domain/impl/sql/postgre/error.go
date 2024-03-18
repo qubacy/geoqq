@@ -7,5 +7,6 @@ var (
 	ErrUnexpectedResult = errors.New("unexpected result")
 	ErrUpdateFailed     = errors.New("update failed")
 	ErrInsertFailed     = errors.New("insert failed")
+	ErrDeleteFailed     = errors.New("delete failed")
 	ErrNotImplemented   = errors.New("not implemented")
 )

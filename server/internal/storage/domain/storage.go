@@ -13,6 +13,7 @@ type AvatarStorage interface {
 	HasAvatars(ctx context.Context, uniqueIds []uint64) (bool, error)
 	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
 	InsertAvatar(ctx context.Context, hashValue string) (uint64, error)
+	DeleteAvatarWithId(ctx context.Context, id uint64) error
 }
 
 type UserStorage interface {

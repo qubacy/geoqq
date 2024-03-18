@@ -25,6 +25,7 @@ const (
 	ParseAccessTokenFailed
 	ValidateAccessTokenFailed
 	ValidateRefreshTokenFailed
+	TokenIsNotPurposedForAccess
 
 	// service
 	ValidateInputParamsFailed

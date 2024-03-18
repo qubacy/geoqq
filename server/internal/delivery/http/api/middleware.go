@@ -23,6 +23,8 @@ const (
 	contextRouteItemId = "routeItemId"
 )
 
+// -----------------------------------------------------------------------
+
 // only there are authorization errors!
 func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
 	accessToken, clientCode, err := extractAccessTokenAsGetParam(ctx)
@@ -32,7 +34,7 @@ func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
 	}
 
 	// TODO: into a separate function?
-	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
+	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
@@ -49,7 +51,7 @@ func (h *Handler) userIdentityForFormRequest(ctx *gin.Context) {
 		return
 	}
 
-	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
+	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
@@ -65,13 +67,12 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 		return
 	}
 
-	payload, err := h.tokenExtractor.Parse(accessToken) // and validate!
+	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
 
-	ctx.Set(contextAccessToken, nil) // and now it exists?
 	ctx.Set(contextUserId, payload.UserId)
 }
 

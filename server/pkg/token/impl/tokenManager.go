@@ -78,6 +78,20 @@ func (s *TokenManager) Parse(tokenValue string) (token.Payload, error) {
 	return claims.Payload, nil
 }
 
+func (s *TokenManager) ParseAccess(tokenValue string) (token.Payload, error) {
+	payload, err := s.Parse(tokenValue)
+	if err != nil {
+		return token.Payload{},
+			utility.NewFuncError(s.ParseAccess, err)
+	}
+
+	if payload.Purpose != token.ForAccess {
+		return token.Payload{}, ErrTokenIsNotPurposedForAccess
+	}
+
+	return payload, nil
+}
+
 func (s *TokenManager) Validate(tokenValue string) error {
 	_, verifier, err := prepareAndCheck(s.signingKey, tokenValue)
 	if err != nil {
@@ -85,6 +99,7 @@ func (s *TokenManager) Validate(tokenValue string) error {
 	}
 
 	// parse claims!
+
 	var claims userClaims
 	err = jwt.ParseClaims([]byte(tokenValue), verifier, &claims)
 	if err != nil {

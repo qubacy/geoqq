@@ -2,7 +2,8 @@ package impl
 
 // affects http status!
 const (
-	Server int = iota
+	Unknown int = iota
+	Server
 	Client
 
 	// other sides...

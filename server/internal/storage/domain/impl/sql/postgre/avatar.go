@@ -21,6 +21,15 @@ func newAvatarStorage(pool *pgxpool.Pool) *AvatarStorage {
 	}
 }
 
+// templates
+// -----------------------------------------------------------------------
+
+var (
+	templateDeleteAvatarWithId = utl.RemoveAdjacentWs(`
+		DELETE FROM "Avatar"
+			WHERE "Id" = $1`)
+)
+
 // public
 // -----------------------------------------------------------------------
 
@@ -138,4 +147,24 @@ func (s *AvatarStorage) InsertAvatar(
 	}
 
 	return lastInsertedId, nil
+}
+
+func (s *AvatarStorage) DeleteAvatarWithId(
+	ctx context.Context, id uint64) error {
+	conn, err := s.pool.Acquire(ctx)
+	if err != nil {
+		return utl.NewFuncError(s.DeleteAvatarWithId, err)
+	}
+	defer conn.Release()
+
+	cmdTag, err := conn.Exec(ctx,
+		templateDeleteAvatarWithId+`;`, id)
+	if err != nil {
+		return utl.NewFuncError(s.DeleteAvatarWithId, err)
+	}
+	if !cmdTag.Delete() {
+		return ErrDeleteFailed
+	}
+
+	return nil
 }

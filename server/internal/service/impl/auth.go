@@ -238,7 +238,7 @@ func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login st
 
 	// ***
 
-	// TODO: combine into a transaction!
+	// TODO: combine into a transaction?
 	avatarId, err := a.domainStorage.InsertGeneratedAvatar(ctx, imageHash)
 	if err != nil {
 		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
@@ -247,6 +247,8 @@ func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login st
 
 	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
 	if err != nil {
+		_ = a.domainStorage.DeleteAvatarWithId(ctx, avatarId) // ignore err.
+
 		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
 			ec.New(err, ec.Server, ec.FileStorageError))
 	}
@@ -282,12 +284,12 @@ func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error
 
 func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
 	access, err := a.tokenManager.New(
-		token.MakePayload(userId), a.accessTokenTTL)
+		token.MakePayload(userId, token.ForAccess), a.accessTokenTTL)
 	if err != nil {
 		return "", "", utl.NewFuncError(a.generateTokens, err) // or just return an error?
 	}
 	refresh, err := a.tokenManager.New(
-		token.MakePayload(userId), a.refreshTokenTTL)
+		token.MakePayload(userId, token.ForRefresh), a.refreshTokenTTL)
 	if err != nil {
 		return "", "", utl.NewFuncError(a.generateTokens, err)
 	}
@@ -330,10 +332,8 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 	// ***
 
 	if currentHash != storageHash {
-		err = ErrNotSameHashesForRefreshTokens
-
 		return ec.InvalidRefreshToken,
-			utl.NewFuncError(a.identicalHashesForRefreshTokens, err)
+			ErrNotSameHashesForRefreshTokens
 	}
 	return ec.NoError, nil
 }
