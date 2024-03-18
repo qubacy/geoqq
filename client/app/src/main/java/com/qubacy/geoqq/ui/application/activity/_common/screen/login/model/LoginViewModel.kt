@@ -9,6 +9,7 @@ import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +36,7 @@ open class LoginViewModel @Inject constructor(
     }
 
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        if (mUiState.autoSignInAllowed) changeAutoSignInAllowedState(false) // todo: is it ok?
+        //if (mUiState.autoSignInAllowed) changeAutoSignInAllowedState(false) // todo: is it ok?
 
         val uiOperation = super.processDomainResultFlow(domainResult)
 
@@ -50,8 +51,13 @@ open class LoginViewModel @Inject constructor(
 
     private fun processSignedInDomainResult(signedInResult: SignedInDomainResult): UiOperation {
         changeLoadingState(false)
+        changeAutoSignInAllowedState(false)
 
-        return SignInUiOperation()
+        val uiOperation =
+            if (signedInResult.isSuccessful()) SignInUiOperation()
+            else processErrorDomainResult(signedInResult.error!!)
+
+        return uiOperation
     }
 
     private fun changeAutoSignInAllowedState(isAllowed: Boolean) {

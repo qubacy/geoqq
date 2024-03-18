@@ -13,23 +13,23 @@ class LoginUseCase @Inject constructor(
     private var mTokenDataRepository: TokenDataRepository
 ) : UseCase(mErrorDataRepository) {
     fun signIn() {
-        executeLogic {
+        executeLogic({
             mTokenDataRepository.getTokens()
             mResultFlow.emit(SignedInDomainResult())
-        }
+        }) { SignedInDomainResult(it) }
     }
 
     fun signIn(login: String, password: String) {
-        executeLogic {
+        executeLogic({
             mTokenDataRepository.signIn(login, password)
             mResultFlow.emit(SignedInDomainResult())
-        }
+        }) { SignedInDomainResult(it) }
     }
 
     fun signUp(login: String, password: String) {
-        executeLogic {
+        executeLogic({
             mTokenDataRepository.signUp(login, password)
             mResultFlow.emit(SignedInDomainResult())
-        }
+        }) { SignedInDomainResult(it) }
     }
 }

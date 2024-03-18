@@ -2,10 +2,10 @@ package com.qubacy.geoqq.domain._common.usecase._common
 
 import android.util.Log
 import com.qubacy.geoqq._common.coroutine.CoroutineUser
+import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase._common.result.error.ErrorDomainResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,10 @@ abstract class UseCase(
     protected val mResultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
     val resultFlow: SharedFlow<DomainResult> get() = mResultFlow
 
-    protected fun executeLogic(logicAction: suspend () -> Unit) {
+    protected fun <ResultType : DomainResult>executeLogic(
+        logicAction: suspend () -> Unit,
+        errorResultProducer: (error: Error) -> ResultType
+    ) {
         mCoroutineScope.launch(mCoroutineDispatcher) {
             try {
                 logicAction()
@@ -33,7 +36,7 @@ abstract class UseCase(
                 Log.d(TAG, "executeLogic(): success")
 
             } catch (e: ErrorAppException) {
-                mResultFlow.emit(ErrorDomainResult(e.error))
+                mResultFlow.emit(errorResultProducer(e.error))
 
                 Log.d(TAG, "executeLogic(): exception = ${e.error.message}")
 

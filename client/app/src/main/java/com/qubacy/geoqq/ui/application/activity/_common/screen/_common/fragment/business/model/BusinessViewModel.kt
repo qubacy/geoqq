@@ -2,10 +2,10 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase._common.result.error.ErrorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
@@ -59,18 +59,18 @@ abstract class BusinessViewModel<UiStateType: BusinessUiState>(
     }
 
     protected open fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        return when (domainResult::class) {
-            ErrorDomainResult::class -> processErrorDomainResult(domainResult as ErrorDomainResult)
-            else -> null
-        }
+//        return when (domainResult::class) {
+//            ErrorDomainResult::class -> processErrorDomainResult(domainResult as ErrorDomainResult)
+//            else -> null
+//        }
+
+        return null
     }
 
-    private fun processErrorDomainResult(errorResult: ErrorDomainResult): ErrorUiOperation {
-        changeLoadingState(false)
+    protected fun processErrorDomainResult(error: Error): ErrorUiOperation {
+        mUiState.error = error
 
-        mUiState.error = errorResult.error
-
-        return ErrorUiOperation(errorResult.error)
+        return ErrorUiOperation(error)
     }
 
     protected fun changeLoadingState(isLoading: Boolean) {
