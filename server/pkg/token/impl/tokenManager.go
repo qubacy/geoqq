@@ -92,6 +92,22 @@ func (s *TokenManager) ParseAccess(tokenValue string) (token.Payload, error) {
 	return payload, nil
 }
 
+func (s *TokenManager) ParseRefresh(tokenValue string) (token.Payload, error) {
+	payload, err := s.Parse(tokenValue)
+	if err != nil {
+		return token.Payload{},
+			utility.NewFuncError(s.ParseRefresh, err)
+	}
+
+	if payload.Purpose != token.ForRefresh {
+		return token.Payload{}, ErrTokenIsNotPurposedForRefresh
+	}
+
+	return payload, nil
+}
+
+// -----------------------------------------------------------------------
+
 func (s *TokenManager) Validate(tokenValue string) error {
 	_, verifier, err := prepareAndCheck(s.signingKey, tokenValue)
 	if err != nil {

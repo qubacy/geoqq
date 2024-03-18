@@ -13,6 +13,8 @@ func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
 	shortErr := utility.UnwrapErrorsToLast(err) // <--- very first reason!
 	ctx.JSON(httpCode, dto.MakeResWithTraceError(
 		errorId, shortErr, err))
+
+	ctx.Abort() // ?
 }
 
 // -----------------------------------------------------------------------

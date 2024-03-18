@@ -129,7 +129,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	dto.RefreshTokensOut, error,
 ) {
-	payload, err := a.tokenManager.Parse(refreshToken) // with validation!
+	payload, err := a.tokenManager.ParseRefresh(refreshToken) // with validation!
 	if err != nil {
 
 		// believe that module is working correctly!

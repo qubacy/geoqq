@@ -9,6 +9,8 @@ type TokenCreator interface {
 type TokenExtractor interface {
 	Parse(string) (Payload, error)
 	ParseAccess(string) (Payload, error)
+	ParseRefresh(string) (Payload, error)
+
 	Validate(string) error
 }
 
