@@ -10,12 +10,15 @@ import com.qubacy.geoqq.data._common.repository._common.source._common.DataSourc
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore("token")
+val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(
+    LocalTokenDataSource.TOKEN_DATASTORE_NAME)
 
 class LocalTokenDataSource @Inject constructor(
     private val mTokenDataStore: DataStore<Preferences>
 ) : DataSource {
     companion object {
+        const val TOKEN_DATASTORE_NAME = "token"
+
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refreshToken")
     }
 
