@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.domain._common.usecase._common
 
-import android.util.Log
 import com.qubacy.geoqq._common.coroutine.CoroutineUser
 import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
@@ -33,12 +32,8 @@ abstract class UseCase(
             try {
                 logicAction()
 
-                Log.d(TAG, "executeLogic(): success")
-
             } catch (e: ErrorAppException) {
                 mResultFlow.emit(errorResultProducer(e.error))
-
-                Log.d(TAG, "executeLogic(): exception = ${e.error.message}")
 
             } catch (e: Exception) {
                 e.printStackTrace()

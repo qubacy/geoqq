@@ -6,6 +6,7 @@ import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import kotlinx.coroutines.Dispatchers
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.mockito.Mockito
@@ -21,6 +22,11 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
     @Before
     open fun setup() {
         init()
+    }
+
+    @After
+    open fun clear() {
+        mGetErrorResult = null
     }
 
     private fun init() {

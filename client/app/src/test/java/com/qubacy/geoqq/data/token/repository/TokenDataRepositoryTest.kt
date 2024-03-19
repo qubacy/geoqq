@@ -12,8 +12,6 @@ import com.qubacy.geoqq.data.token.repository.source.http.response.SignInRespons
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignUpResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
-import com.qubacy.geoqq.data.token.repository.util.extension.signIn
-import com.qubacy.geoqq.data.token.repository.util.extension.signUp
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
