@@ -69,17 +69,16 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 
 	domainDto.Description = input.Description
 
-	// *** save to file and domain storages!
+	// *** save to file and domain storages! ***
 
 	if input.Avatar != nil {
 		avatarId, err := p.updateAvatar(ctx, *input.Avatar)
 		if err != nil {
 			return utl.NewFuncError(p.UpdateUserProfile, err)
 		}
+
 		domainDto.AvatarId = &avatarId
 	}
-
-	// ***
 
 	err := p.domainStorage.UpdateUserParts(ctx, userId, domainDto)
 	if err != nil {
@@ -151,6 +150,8 @@ func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar
 
 	err = p.fileStorage.SaveImage(ctx, image)
 	if err != nil {
+		_ = p.domainStorage.DeleteAvatarWithId(ctx, avatarId)
+
 		return 0, utl.NewFuncError(p.updateAvatar,
 			ec.New(err, ec.Server, ec.FileStorageError))
 	}

@@ -86,6 +86,11 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	}
 
+	if requestDto.Description == nil {
+		requestDto.Description = new(string)
+		*requestDto.Description = ""
+	}
+
 	/*
 		if requestDto.Privacy != nil {
 		}

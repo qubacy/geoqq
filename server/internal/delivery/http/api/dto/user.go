@@ -79,7 +79,7 @@ func (s *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
 	// ***
 
 	return serviceDto.UpdateProfileInp{
-		Description: s.Description,
+		Description: s.Description, // mb nil?
 		Security:    security,
 		Privacy:     privacy,
 		Avatar:      avatar,
