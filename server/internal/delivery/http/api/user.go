@@ -86,7 +86,7 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	}
 
-	if requestDto.Description == nil {
+	if requestDto.Description == nil { // as reset description!
 		requestDto.Description = new(string)
 		*requestDto.Description = ""
 	}
