@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.data.token.repository
 
-import android.util.Log
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
@@ -26,20 +25,22 @@ class TokenDataRepository @Inject constructor(
         val localAccessToken = localTokenDataSource.lastAccessToken
         val localRefreshToken = localTokenDataSource.getRefreshToken()
 
-        Log.d(TAG, "getTokens(): localAccessToken = $localAccessToken; localRefreshToken = $localRefreshToken;")
+        val isRefreshTokenValid =
+            if (localRefreshToken != null) checkTokenForValidity(localRefreshToken)
+            else false
 
-        if (localRefreshToken == null)
+        if (!isRefreshTokenValid)
             throw ErrorAppException(errorDataRepository.getError(
-                TokenErrorType.LOCAL_REFRESH_TOKEN_NOT_FOUND.getErrorCode()))
+                TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
 
         val isLocalAccessTokenValid =
             if (localAccessToken != null) checkTokenForValidity(localAccessToken)
             else false
 
         if (isLocalAccessTokenValid)
-            return GetTokensDataResult(localAccessToken!!, localRefreshToken)
+            return GetTokensDataResult(localAccessToken!!, localRefreshToken!!)
 
-        val updateTokensCall = httpTokenDataSource.updateTokens(localRefreshToken)
+        val updateTokensCall = httpTokenDataSource.updateTokens(localRefreshToken!!)
         val updateTokensResponse = executeNetworkRequest(errorDataRepository, updateTokensCall)
 
         localTokenDataSource.saveTokens(
@@ -73,7 +74,11 @@ class TokenDataRepository @Inject constructor(
         var jwtToken: JWT? = null
 
         try { jwtToken = JWT(token) }
-        catch (e: Exception) { return false }
+        catch (e: Exception) {
+            e.printStackTrace()
+
+            return false
+        }
 
         return !jwtToken.isExpired(0)
     }
@@ -82,7 +87,11 @@ class TokenDataRepository @Inject constructor(
         var jwtToken: JWT? = null
 
         try { jwtToken = JWT(token) }
-        catch (e: Exception) { return null }
+        catch (e: Exception) {
+            e.printStackTrace()
+
+            return null
+        }
 
         return jwtToken.claims
     }
