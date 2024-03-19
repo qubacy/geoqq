@@ -4,11 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test._common.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.error.type.TestErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -23,6 +25,8 @@ abstract class StatefulViewModelTest<
 
     protected lateinit var mModel: ViewModelType
 
+    protected var mGetErrorResult: Error? = null
+
     protected open fun setUiState(uiState: UiStateType) {
         StatefulViewModel::class.java.getDeclaredField("mUiState")
             .apply { isAccessible = true }
@@ -33,6 +37,11 @@ abstract class StatefulViewModelTest<
     fun setup() {
         preInit()
         init()
+    }
+
+    @After
+    open fun clear() {
+        mGetErrorResult = null
     }
 
     protected open fun preInit() { }
@@ -49,11 +58,7 @@ abstract class StatefulViewModelTest<
         val errorDataRepositoryMock = Mockito.mock(ErrorDataRepository::class.java)
 
         Mockito.`when`(errorDataRepositoryMock.getError(Mockito.anyLong()))
-            .thenAnswer {
-                val errorTypeId = it.arguments[0] as Long
-
-                return@thenAnswer Error(errorTypeId, "", false)
-            }
+            .thenAnswer { mGetErrorResult }
 
         mModel = createViewModel(savedStateHandleMock, errorDataRepositoryMock)
     }
@@ -65,10 +70,12 @@ abstract class StatefulViewModelTest<
 
     @Test
     fun retrieveErrorTest() = runTest {
-        val expectedErrorType = TestErrorType.TEST
+        val expectedError = TestError.normal
+
+        mGetErrorResult = expectedError
 
         mModel.uiOperationFlow.test {
-            mModel.retrieveError(expectedErrorType)
+            mModel.retrieveError(TestErrorType.TEST)
 
             val errorOperation = awaitItem()
 
@@ -76,7 +83,7 @@ abstract class StatefulViewModelTest<
 
             val error = (errorOperation as ErrorUiOperation).error
 
-            Assert.assertEquals(expectedErrorType.id, error.id)
+            Assert.assertEquals(expectedError.id, error.id)
         }
     }
 }

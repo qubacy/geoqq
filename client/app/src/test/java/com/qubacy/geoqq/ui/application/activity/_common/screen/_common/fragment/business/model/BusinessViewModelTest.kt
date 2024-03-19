@@ -1,15 +1,11 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model
 
 import app.cash.turbine.test
-import com.qubacy.geoqq._common.error.Error
-import com.qubacy.geoqq._common.error.type.TestErrorType
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -17,9 +13,9 @@ import org.junit.Test
 import org.mockito.Mockito
 
 abstract class BusinessViewModelTest<
-    UiStateType : BaseUiState,
+    UiStateType : BusinessUiState,
     UseCaseType: UseCase,
-    ViewModelType : StatefulViewModel<UiStateType>
+    ViewModelType : BusinessViewModel<UiStateType>
 >(
     private val mUseCaseClass: Class<UseCaseType>
 ) : StatefulViewModelTest<UiStateType, ViewModelType>() {
@@ -44,27 +40,56 @@ abstract class BusinessViewModelTest<
         return Mockito.mock(mUseCaseClass)
     }
 
-    // todo: update:
+    @Test
+    fun changeLoadingStateTest() = runTest {
+        val expectedInitIsLoading = false
+        val expectedFinalIsLoading = true
+
+        mModel.uiOperationFlow.test {
+            mModel.changeLoadingState(expectedInitIsLoading)
+
+            val initOperation = awaitItem()
+
+            Assert.assertEquals(SetLoadingStateUiOperation::class, initOperation::class)
+            Assert.assertEquals(expectedInitIsLoading, mModel.uiState.isLoading)
+
+            val initSetLoadingOperation = initOperation as SetLoadingStateUiOperation
+
+            Assert.assertEquals(expectedInitIsLoading, initSetLoadingOperation.isLoading)
+
+            mModel.changeLoadingState(expectedFinalIsLoading)
+
+            val finalOperation = awaitItem()
+
+            Assert.assertEquals(SetLoadingStateUiOperation::class, finalOperation::class)
+            Assert.assertEquals(expectedFinalIsLoading, mModel.uiState.isLoading)
+
+            val finalSetLoadingOperation = finalOperation as SetLoadingStateUiOperation
+
+            Assert.assertEquals(expectedFinalIsLoading, finalSetLoadingOperation.isLoading)
+        }
+    }
+
+    /**
+     * There is no opportunity to test it like this for now. We need a shared DomainResult in order
+     * to accomplish it;
+     */
 //    @Test
 //    fun processErrorDomainResultTest() = runTest {
-//        val expectedError = Error(TestErrorType.TEST.id, "test error", false)
-//        val errorResult = ErrorDomainResult(expectedError)
-//        val expectedLoadingState = false
+//        val expectedError = TestError.normal
+//        val errorDomainResult = TestDomainResult(expectedError)
 //
 //        mModel.uiOperationFlow.test {
-//            mResultFlow.emit(errorResult)
+//            mResultFlow.emit(errorDomainResult)
 //
-//            val gottenErrorOperation = awaitItem()
-//            val gottenEndLoadingOperation = awaitItem()
+//            val operation = awaitItem()
 //
-//            Assert.assertEquals(ErrorUiOperation::class, gottenErrorOperation::class)
-//            Assert.assertEquals(SetLoadingStateUiOperation::class, gottenEndLoadingOperation::class)
+//            Assert.assertEquals(ErrorUiOperation::class, operation::class)
+//            Assert.assertEquals(expectedError, mModel.uiState.error)
 //
-//            val gottenError = (gottenErrorOperation as ErrorUiOperation).error
-//            val gottenLoadingState = (gottenEndLoadingOperation as SetLoadingStateUiOperation).isLoading
+//            val errorOperation = operation as ErrorUiOperation
 //
-//            Assert.assertEquals(expectedError, gottenError)
-//            Assert.assertEquals(expectedLoadingState, gottenLoadingState)
+//            Assert.assertEquals(expectedError, errorOperation.error)
 //        }
 //    }
 }

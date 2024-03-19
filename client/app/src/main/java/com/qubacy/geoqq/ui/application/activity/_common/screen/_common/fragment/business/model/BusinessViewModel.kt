@@ -73,7 +73,7 @@ abstract class BusinessViewModel<UiStateType: BusinessUiState>(
         return ErrorUiOperation(error)
     }
 
-    protected fun changeLoadingState(isLoading: Boolean) {
+    fun changeLoadingState(isLoading: Boolean) {
         mUiState.isLoading = isLoading
 
         viewModelScope.launch {
