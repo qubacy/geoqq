@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class LoginFragmentTest : BusinessFragmentTest<
     FragmentLoginBinding, LoginUiState, LoginViewModel, LoginViewModelMockContext, LoginFragment
 >() {
-    override fun createViewModelMockContext(): LoginViewModelMockContext {
+    override fun createDefaultViewModelMockContext(): LoginViewModelMockContext {
         return LoginViewModelMockContext(LoginUiState())
     }
 
@@ -234,10 +234,7 @@ class LoginFragmentTest : BusinessFragmentTest<
     fun inputsClearedAfterSuccessfulSigningUpTest() {
         val initUiState = LoginUiState(loginMode = LoginUiState.LoginMode.SIGN_UP)
 
-        mViewModelMockContext = LoginViewModelMockContext(initUiState)
-
-        attachViewModelMockContext()
-        init()
+        initWithModelContext(LoginViewModelMockContext(initUiState))
 
         val login = "testtest"
         val password = "password"

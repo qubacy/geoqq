@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelLazy
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoActivityResumedException
@@ -10,8 +9,6 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
@@ -19,14 +16,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 import java.lang.reflect.Field
 
 abstract class StatefulFragmentTest<
@@ -46,28 +39,40 @@ abstract class StatefulFragmentTest<
 
     @After
     open fun clear() {
-        // todo: there's no need to call .reset(). the context is recreated on every launch.
-        //mViewModelMockContext.reset()
-    }
 
-    override fun defaultInit() {
-        setupViewModelContext()
+    }
+    
+    /**
+     * Meant to be called BEFORE any manipulations on mViewModelMockContext when it's necessary
+     * to provide a custom ViewModelMockContext.
+     */
+    fun initWithModelContext(viewModelMockContext: ViewModelMockContextType) {
+        setupViewModelContext(viewModelMockContext)
         init()
     }
 
     /**
      * Meant to be called BEFORE any manipulations on mViewModelMockContext.
      */
-    protected fun setupViewModelContext() {
-        initViewModelContext()
+    override fun defaultInit() {
+        setupViewModelContext()
+        init()
+    }
+
+    private fun setupViewModelContext(
+        viewModelMockContext: ViewModelMockContextType? = null
+    ) {
+        initViewModelContext(viewModelMockContext)
         attachViewModelMockContext()
     }
 
-    private fun initViewModelContext() {
-        mViewModelMockContext = createViewModelMockContext()
+    private fun initViewModelContext(
+        viewModelMockContext: ViewModelMockContextType? = null
+    ) {
+        mViewModelMockContext = viewModelMockContext ?: createDefaultViewModelMockContext()
     }
 
-    protected abstract fun createViewModelMockContext(): ViewModelMockContextType
+    protected abstract fun createDefaultViewModelMockContext(): ViewModelMockContextType
 
     /**
      * This method is meant to be used for attaching mViewModelMockContext to
