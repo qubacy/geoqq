@@ -4,45 +4,48 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.TestLoginUiState
 import org.mockito.Mockito
 
 class FakeLoginViewModelFactory(
-
-) : FakeStatefulViewModelFactory<LoginUiState>() {
+    mockContext: LoginViewModelMockContext
+) : FakeStatefulViewModelFactory<
+    LoginUiState, LoginViewModel, LoginViewModelMockContext
+>(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModel = super.create(modelClass) as LoginViewModel
-        val uiState = TestLoginUiState()
+        val viewModelMock = super.create(modelClass) as LoginViewModel
 
-        Mockito.`when`(viewModel.uiState).thenReturn(uiState)
-        Mockito.`when`(viewModel.isLoginValid(Mockito.anyString())).thenCallRealMethod()
-        Mockito.`when`(viewModel.isPasswordValid(Mockito.anyString())).thenCallRealMethod()
-        Mockito.`when`(viewModel.setLoginMode(AnyMockUtil.anyObject())).thenAnswer {
-            uiState.setLoginModeCallFlag = true
+        Mockito.`when`(viewModelMock.isLoginValid(Mockito.anyString())).thenCallRealMethod()
+        Mockito.`when`(viewModelMock.isPasswordValid(Mockito.anyString())).thenCallRealMethod()
+        Mockito.`when`(viewModelMock.setLoginMode(AnyMockUtil.anyObject())).thenAnswer {
+            val loginMode = it.arguments[0] as LoginUiState.LoginMode
 
-            Unit
-        }
-        Mockito.`when`(viewModel.signIn()).thenAnswer {
-            uiState.signInWithTokenCallFlag = true
+            mockContext.uiState.loginMode = loginMode
+            mockContext.setLoginModeCallFlag = true
 
             Unit
         }
-        Mockito.`when`(viewModel.signIn(
+        Mockito.`when`(viewModelMock.signIn()).thenAnswer {
+            mockContext.signInWithTokenCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(viewModelMock.signIn(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
-            uiState.signInWithLoginDataCallFlag = true
+            mockContext.signInWithLoginDataCallFlag = true
 
             Unit
         }
-        Mockito.`when`(viewModel.signUp(
+        Mockito.`when`(viewModelMock.signUp(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
-            uiState.signUpCallFlag = true
+            mockContext.signUpCallFlag = true
 
             Unit
         }
 
-        return viewModel as T
+        return viewModelMock as T
     }
 }

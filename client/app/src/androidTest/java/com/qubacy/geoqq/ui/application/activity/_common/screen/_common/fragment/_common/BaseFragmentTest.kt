@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.testing.TestNavHostController
@@ -39,23 +40,28 @@ abstract class BaseFragmentTest<
 
     @Before
     open fun setup() {
-        init()
+
     }
 
     abstract fun getFragmentClass(): Class<FragmentType>
     @IdRes
     abstract fun getCurrentDestination(): Int
 
+    /**
+     * Meant to be called BEFORE any manipulations on mFragment;
+     */
     protected fun init() {
-        mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
-
+        initMockedVars()
         initFragment()
     }
 
-    private fun retrieveModelFieldReflection(): Field {
-        return getFragmentClass()
-            .getDeclaredField("mModel\$delegate")
-            .apply { isAccessible = true }
+    protected open fun defaultInit() {
+        init()
+    }
+
+    @CallSuper
+    protected open fun initMockedVars() {
+        mNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
     }
 
     protected open fun getFragmentArgs(): Bundle? {
@@ -95,6 +101,8 @@ abstract class BaseFragmentTest<
 
     @Test
     open fun showMessageTest() = runTest {
+        defaultInit()
+
         val onPopupMessageOccurredMethodReflection = BaseFragment::class.java
             .getDeclaredMethod(
                 "onPopupMessageOccurred", String::class.java, Int::class.java)

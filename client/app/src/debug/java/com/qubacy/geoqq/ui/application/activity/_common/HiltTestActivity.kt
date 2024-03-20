@@ -1,8 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common
 
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
+import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -10,6 +9,12 @@ class HiltTestActivity : MainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (findViewById<View>(android.R.id.content) as ViewGroup).removeAllViews()
+        val navHostFragment = supportFragmentManager.fragments[0] as NavHostFragment
+        val startFragment = navHostFragment.childFragmentManager.fragments[0]
+
+        navHostFragment.childFragmentManager
+            .beginTransaction()
+            .remove(startFragment)
+            .commitNow()
     }
 }
