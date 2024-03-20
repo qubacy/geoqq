@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
@@ -25,7 +26,7 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 	}
 }
 
-// public
+// templates
 // -----------------------------------------------------------------------
 
 var (
@@ -45,8 +46,12 @@ var (
 			SET "Longitude" = $1,
 			    "Latitude" = $2
 		WHERE "UserId" = $3`)
+
+	templateUpdateOnlyHashRefreshTokenById = utl.RemoveAdjacentWs(`
+		UPDATE "UserEntry" SET "HashUpdToken" = $1 WHERE "Id" = $2`)
 )
 
+// public
 // -----------------------------------------------------------------------
 
 func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
@@ -353,11 +358,32 @@ func (us *UserStorage) UpdateUserLocation(ctx context.Context, id uint64,
 	return nil
 }
 
-func (us *UserStorage) UpdateHashRefreshToken(ctx context.Context,
+func (us *UserStorage) ResetHashRefreshToken(ctx context.Context, id uint64) error {
+	conn, err := us.pool.Acquire(ctx)
+	if err != nil {
+		return utl.NewFuncError(us.ResetHashRefreshToken, err)
+	}
+	defer conn.Release()
+
+	cmdTag, err := conn.Exec(ctx,
+		templateUpdateOnlyHashRefreshTokenById+`;`,
+		"", id,
+	)
+	if err != nil {
+		return utl.NewFuncError(us.ResetHashRefreshToken, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
+func (us *UserStorage) UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
 	id uint64, value string) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utl.NewFuncError(us.UpdateHashRefreshToken, err)
+		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
 	}
 	defer conn.Release()
 
@@ -367,7 +393,7 @@ func (us *UserStorage) UpdateHashRefreshToken(ctx context.Context,
         		"SignInTime" = NOW()::timestamp
     		WHERE "Id" = $2;`, value, id)
 	if err != nil {
-		return utl.NewFuncError(us.UpdateHashRefreshToken, err)
+		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -417,7 +443,11 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 		}
 	}
 	if input.HashPassword != nil {
-		err = updateUserHashPassword(ctx, tx, id, *input.HashPassword)
+		err = errors.Join(
+			updateUserHashPassword(ctx, tx, id, *input.HashPassword),
+			updateHashRefreshToken(ctx, tx, id, ""), // reset!
+		)
+
 		if err != nil {
 			tx.Rollback(ctx)
 			return utl.NewFuncError(us.UpdateUserParts, err)
@@ -604,11 +634,31 @@ func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
 	id uint64, hashValue string) error {
 	cmdTag, err := tx.Exec(ctx,
 		`UPDATE "UserEntry" SET "HashPassword" = $1
-			WHERE "Id" = $2;`, hashValue, id,
+			WHERE "Id" = $2;`, hashValue, id, // hash-hash-password!
 	)
 	if err != nil {
 		return utl.NewFuncError(updateUserHashPassword, err)
 	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
+	id uint64, hashValue string) error {
+
+	cmdTag, err := tx.Exec(ctx,
+		templateUpdateOnlyHashRefreshTokenById+`;`,
+		hashValue, id,
+	)
+	if err != nil {
+		return utl.NewFuncError(updateHashRefreshToken, err)
+	}
+
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
 	}

@@ -21,7 +21,8 @@ func NewErrorForClient(err error, guiltySide, clientCode int) *ErrorForClient {
 }
 
 func New(err error, guiltySide, clientCode int) error {
-	return NewErrorForClient(err,
+	return NewErrorForClient(
+		err,
 		guiltySide,
 		clientCode,
 	)

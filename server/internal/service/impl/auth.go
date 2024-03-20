@@ -137,7 +137,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	}
 	clientCode, err := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, clientCode)
+		return a.refreshTokensWithError(err, ec.Server, clientCode) // or client?
 	}
 
 	// *** new tokens and hash ***
@@ -306,7 +306,7 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 			utl.NewFuncError(a.updateHashRefreshToken, err)
 	}
 
-	err = a.domainStorage.UpdateHashRefreshToken(ctx, userId, hashRefreshToken)
+	err = a.domainStorage.UpdateHashRefreshTokenAndEntryTime(ctx, userId, hashRefreshToken)
 	if err != nil {
 		return ec.DomainStorageError,
 			utl.NewFuncError(a.updateHashRefreshToken, err)
@@ -331,7 +331,7 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 
 	// ***
 
-	if currentHash != storageHash {
+	if currentHash != storageHash { // client side...
 		return ec.InvalidRefreshToken,
 			ErrNotSameHashesForRefreshTokens
 	}

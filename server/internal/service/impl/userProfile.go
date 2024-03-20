@@ -67,7 +67,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 		domainDto.Privacy = input.Privacy.ToDynamicDsInp()
 	}
 
-	domainDto.Description = input.Description
+	domainDto.Description = input.Description // maybe nil
 
 	// *** save to file and domain storages! ***
 
@@ -113,38 +113,42 @@ func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
+func (p *UserProfileService) avatarIdWithError(err error, side, code int) (uint64, error) {
+	return 0, utl.NewFuncError(
+		p.updateAvatar, ec.New(
+			err, side, code),
+	)
+}
+
 func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar) (uint64, error) {
 	imageExt := file.ImageExt(avatar.Ext)
 	if !imageExt.IsValid() {
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(ErrUnknownImageExtension, ec.Client, ec.UnknownAvatarExtension))
+		return p.avatarIdWithError(ErrUnknownImageExtension, ec.Client, ec.UnknownAvatarExtension)
 	}
-	if len(avatar.Content) == 0 {
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(ErrImageBodyEmpty, ec.Client, ec.AvatarBodyEmpty)) // check also on delivery layout!
+	if len(avatar.Content) == 0 { // avatar body check also on delivery layout!
+		return p.avatarIdWithError(ErrImageBodyEmpty, ec.Client, ec.AvatarBodyEmpty)
 	}
 
 	// ***
 
-	image := file.NewImageForInsert(imageExt, avatar.Content)
+	image := file.NewImageWithoutId(imageExt, avatar.Content)
 	avatarContentBytes, err := base64.StdEncoding.DecodeString(avatar.Content)
 	if err != nil {
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(err, ec.Client, ec.AvatarBodyIsNotBase64)) // or server?
+		return p.avatarIdWithError(err, ec.Client, ec.AvatarBodyIsNotBase64) // or server?
 	}
 
 	avatarHash, err := p.hashManager.NewFromBytes(avatarContentBytes)
 	if err != nil {
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(err, ec.Server, ec.HashManagerError))
+		return p.avatarIdWithError(err, ec.Server, ec.HashManagerError)
 	}
 
 	// ***
 
 	avatarId, err := p.domainStorage.InsertAvatar(ctx, avatarHash)
 	if err != nil {
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return p.avatarIdWithError(err, ec.Server, ec.DomainStorageError)
 	}
 	image.Id = avatarId
 
@@ -152,8 +156,7 @@ func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar
 	if err != nil {
 		_ = p.domainStorage.DeleteAvatarWithId(ctx, avatarId)
 
-		return 0, utl.NewFuncError(p.updateAvatar,
-			ec.New(err, ec.Server, ec.FileStorageError))
+		return p.avatarIdWithError(err, ec.Server, ec.FileStorageError)
 	}
 	return avatarId, nil
 }

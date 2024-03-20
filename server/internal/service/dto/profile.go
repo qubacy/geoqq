@@ -12,7 +12,7 @@ type UpdateProfileInp struct {
 	Security *Security
 }
 
-// every field is optional...
+// Each field can be optional..?
 type Privacy struct {
 	HitMeUp *int
 }

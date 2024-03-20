@@ -50,10 +50,10 @@ func (ie ImageExt) IsValid() bool {
 type Image struct {
 	Id        uint64   `json:"id"`
 	Extension ImageExt `json:"ext"`
-	Content   string   `json:"content"`
+	Content   string   `json:"content"` // base64!
 }
 
-func NewImageForInsert(ext ImageExt, contentAsBase64 string) *Image {
+func NewImageWithoutId(ext ImageExt, contentAsBase64 string) *Image {
 	return &Image{
 		Extension: ext,
 		Content:   contentAsBase64,

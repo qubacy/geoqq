@@ -38,7 +38,9 @@ type UserStorage interface {
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error
 
-	UpdateHashRefreshToken(ctx context.Context, id uint64, value string) error
+	ResetHashRefreshToken(ctx context.Context, id uint64) error
+	UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
+		id uint64, value string) error
 
 	UpdateUserParts(ctx context.Context, id uint64,
 		input dto.UpdateUserPartsInp) error
