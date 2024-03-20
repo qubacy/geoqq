@@ -61,31 +61,31 @@ open class LoginViewModel @Inject constructor(
         mUiState.autoSignInAllowed = isAllowed
     }
 
-    fun setLoginMode(loginMode: LoginUiState.LoginMode) {
+    open fun setLoginMode(loginMode: LoginUiState.LoginMode) {
         mUiState.loginMode = loginMode
     }
 
-    fun isLoginValid(login: String): Boolean {
+    open fun isLoginValid(login: String): Boolean {
         return LOGIN_REGEX.matches(login)
     }
 
-    fun isPasswordValid(password: String): Boolean {
+    open fun isPasswordValid(password: String): Boolean {
         return PASSWORD_REGEX.matches(password)
     }
 
-    fun signIn() {
+    open fun signIn() {
         changeLoadingState(true)
 
         mLoginUseCase.signIn()
     }
 
-    fun signIn(login: String, password: String) {
+    open fun signIn(login: String, password: String) {
         changeLoadingState(true)
 
         mLoginUseCase.signIn(login, password)
     }
 
-    fun signUp(login: String, password: String) {
+    open fun signUp(login: String, password: String) {
         changeLoadingState(true)
 
         mLoginUseCase.signUp(login, password)

@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.stat
 import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
 
-class LoginUiState(
+open class LoginUiState(
     isLoading: Boolean = false,
     error: Error? = null,
     var loginMode: LoginMode = LoginMode.SIGN_IN,
