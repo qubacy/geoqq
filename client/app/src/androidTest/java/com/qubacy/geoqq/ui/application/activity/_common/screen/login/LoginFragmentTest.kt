@@ -210,7 +210,52 @@ class LoginFragmentTest : BusinessFragmentTest<
         //Assert.assertEquals(R.id., currentDestination)
     }
 
-    override fun handleNormalErrorTest() {
-        super.handleNormalErrorTest()
+    @Test
+    fun inputsClearedAfterSuccessfulSigningInTest() {
+        defaultInit()
+
+        val login = "testtest"
+        val password = "password"
+
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .perform(ViewActions.typeText(login), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.fragment_login_button_login))
+            .perform(ViewActions.click())
+
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .check(ViewAssertions.matches(withText(String())))
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .check(ViewAssertions.matches(withText(String())))
+    }
+
+    @Test
+    fun inputsClearedAfterSuccessfulSigningUpTest() {
+        val initUiState = LoginUiState(loginMode = LoginUiState.LoginMode.SIGN_UP)
+
+        mViewModelMockContext = LoginViewModelMockContext(initUiState)
+
+        attachViewModelMockContext()
+        init()
+
+        val login = "testtest"
+        val password = "password"
+
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .perform(ViewActions.typeText(login), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.fragment_login_text_input_repeat_password))
+            .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.fragment_login_button_login))
+            .perform(ViewActions.click())
+
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .check(ViewAssertions.matches(withText(String())))
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .check(ViewAssertions.matches(withText(String())))
+        Espresso.onView(withId(R.id.fragment_login_text_input_repeat_password))
+            .check(ViewAssertions.matches(withText(String())))
     }
 }
