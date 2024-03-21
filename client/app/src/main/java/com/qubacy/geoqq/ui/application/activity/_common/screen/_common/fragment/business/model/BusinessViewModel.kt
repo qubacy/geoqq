@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
-abstract class BusinessViewModel<UiStateType: BusinessUiState>(
+abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : UseCase>(
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
-    protected val mUseCase: UseCase
+    protected val mUseCase: UseCaseType
 ) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository) {
     companion object {
         const val TAG = "BusinessViewModel"

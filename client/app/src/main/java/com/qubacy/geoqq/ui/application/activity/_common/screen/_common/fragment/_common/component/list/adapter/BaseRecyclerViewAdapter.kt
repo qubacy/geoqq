@@ -27,7 +27,7 @@ abstract class BaseRecyclerViewAdapter<
     where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,
           RecyclerViewItemViewType : View
 {
-    class ViewHolder<
+    open class ViewHolder<
         RecyclerViewItemDataType : RecyclerViewItemData,
         RecyclerViewItemViewType
     >(

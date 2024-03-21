@@ -10,7 +10,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 abstract class BusinessFragment<
     ViewBindingType : ViewBinding,
     UiStateType : BusinessUiState,
-    ViewModelType : BusinessViewModel<UiStateType>
+    ViewModelType : BusinessViewModel<UiStateType, *>
 >() : StatefulFragment<ViewBindingType, UiStateType, ViewModelType>() {
     companion object {
         const val TAG = "BusinessFragment"

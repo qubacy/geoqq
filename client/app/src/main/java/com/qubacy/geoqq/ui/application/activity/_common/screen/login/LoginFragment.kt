@@ -14,6 +14,7 @@ import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
@@ -31,7 +32,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LoginFragment(
 
-) : BusinessFragment<FragmentLoginBinding, LoginUiState, LoginViewModel>() {
+) : BusinessFragment<
+    FragmentLoginBinding,
+    LoginUiState,
+    LoginViewModel
+>() {
     @Inject
     @LoginViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -106,9 +111,8 @@ class LoginFragment(
     }
 
     private fun processSignInOperation(signInOperation: SignInUiOperation) {
-        // todo: implement..
-
-
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_loginFragment_to_mateChatsFragment)
     }
 
     private fun initViewValues() {

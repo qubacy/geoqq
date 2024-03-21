@@ -19,9 +19,9 @@ import javax.inject.Qualifier
 open class LoginViewModel @Inject constructor(
     mSavedInstanceState: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
-    private val mLoginUseCase: LoginUseCase
-) : BusinessViewModel<LoginUiState>(
-    mSavedInstanceState, mErrorDataRepository, mLoginUseCase
+    mUseCase: LoginUseCase
+) : BusinessViewModel<LoginUiState, LoginUseCase>(
+    mSavedInstanceState, mErrorDataRepository, mUseCase
 ) {
     companion object {
         const val TAG = "LoginViewModel"
@@ -76,19 +76,19 @@ open class LoginViewModel @Inject constructor(
     open fun signIn() {
         changeLoadingState(true)
 
-        mLoginUseCase.signIn()
+        mUseCase.signIn()
     }
 
     open fun signIn(login: String, password: String) {
         changeLoadingState(true)
 
-        mLoginUseCase.signIn(login, password)
+        mUseCase.signIn(login, password)
     }
 
     open fun signUp(login: String, password: String) {
         changeLoadingState(true)
 
-        mLoginUseCase.signUp(login, password)
+        mUseCase.signUp(login, password)
     }
 }
 

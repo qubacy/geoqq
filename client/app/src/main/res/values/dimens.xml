@@ -2,7 +2,8 @@
 <resources>
     <!--  Common:  -->
 
-    <dimen name="tiny_gap_between_components">8dp</dimen>
+    <dimen name="tiny_gap_between_components">4dp</dimen>
+    <dimen name="very_small_gap_between_components">8dp</dimen>
     <dimen name="small_gap_between_components">16dp</dimen>
     <dimen name="medium_gap_between_components">24dp</dimen>
     <dimen name="big_gap_between_components">32dp</dimen>

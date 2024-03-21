@@ -17,10 +17,17 @@
     <string name="fragment_login_button_change_login_type_text_sign_in_mode">Sign Up</string>
     <string name="fragment_login_button_change_login_type_text_sign_up_mode">Sign In</string>
 
+    <string name="fragment_mate_chats_top_bar_title_text">Mate Chats</string>
 
     <!--  Components:  -->
 
     <string name="component_error_dialog_title_text">Error</string>
     <string name="component_error_dialog_button_neutral_caption">OK</string>
+    
+    <string name="component_main_top_bar_option_my_profile_title">My profile</string>
+    
+    <string name="component_main_navigation_drawer_option_geo_chat_title">Geo chat</string>
+    <string name="component_main_navigation_drawer_option_mate_chats_title">Mate chats</string>
+    <string name="component_main_navigation_drawer_option_mate_requests_title">Mate requests</string>
 
 </resources>

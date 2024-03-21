@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/main_navigation_drawer_group_geo">
+
+        <item
+            android:id="@+id/main_navigation_drawer_option_geo_chat"
+            android:icon="@drawable/ic_earth"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:title="@string/component_main_navigation_drawer_option_geo_chat_title"
+            android:checkable="true"
+            app:showAsAction="ifRoom"/>
+
+    </group>
+
+    <group
+        android:id="@+id/main_navigation_drawer_group_mate">
+
+        <item
+            android:id="@+id/main_navigation_drawer_option_mate_chats"
+            android:icon="@drawable/ic_people"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:title="@string/component_main_navigation_drawer_option_mate_chats_title"
+            android:checkable="true"
+            app:showAsAction="ifRoom"/>
+
+        <item
+            android:id="@+id/main_navigation_drawer_option_mate_requests"
+            android:icon="@drawable/ic_mate_request"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:title="@string/component_main_navigation_drawer_option_mate_requests_title"
+            android:checkable="true"
+            app:showAsAction="ifRoom" />
+
+    </group>
+
+</menu>
