@@ -10,6 +10,7 @@
 - *200*
 ```json
 {
+    "id": "<id>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<id>",
@@ -50,9 +51,12 @@
 
 ## DELETE /api/my-profile
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
+### Request body
+```json
+{
+    "access-token": "<jwt-string>",
+}
+```
 
 ### Responses
 - *200*
@@ -69,6 +73,7 @@
 - *200*
 ```json
 {
+    "id": "<id>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<id>",
@@ -95,6 +100,7 @@
 {
     "users": [
         {
+            "id": "<id>",
             "username": "<string>",
             "description": "<string>",
             "avatar-id": "<id>",

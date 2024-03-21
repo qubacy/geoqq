@@ -56,9 +56,12 @@
 
 ## DELETE /api/mate/chat/{`id`}
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
+### Request body
+```json
+{
+    "access-token": "<jwt-string>",
+}
+```
 
 ### Responses
 - *200*
