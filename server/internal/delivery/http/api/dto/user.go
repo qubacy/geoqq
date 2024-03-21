@@ -16,6 +16,7 @@ type MyProfileRes struct {
 func MakeMyProfileRes(value domain.UserProfile) MyProfileRes {
 	return MyProfileRes{
 		Profile: Profile{
+			Id:          float64(value.Id),
 			Username:    value.Username,
 			Description: value.Description,
 			AvatarId:    float64(value.AvatarId), // or null/optional?
@@ -25,6 +26,7 @@ func MakeMyProfileRes(value domain.UserProfile) MyProfileRes {
 }
 
 type Profile struct { // not equal struct user!
+	Id          float64 `json:"id"`
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
 	AvatarId    float64 `json:"avatar-id"`
@@ -141,6 +143,7 @@ func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, erro
 // -----------------------------------------------------------------------
 
 type User struct {
+	Id          float64 `json:"id"`
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
 	AvatarId    float64 `json:"avatar-id"`
@@ -153,6 +156,7 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 	}
 
 	return User{
+		Id:          float64(publicUser.Id),
 		Username:    publicUser.Username,
 		Description: publicUser.Description,
 		AvatarId:    float64(publicUser.AvatarId),

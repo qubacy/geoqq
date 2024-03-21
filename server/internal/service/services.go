@@ -23,7 +23,7 @@ type UserProfileService interface {
 
 type PublicUserService interface {
 	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
-	GetPublicUserByIds(ctx context.Context, userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error)
+	GetPublicUserByIds(ctx context.Context, userId uint64, targetUserIds []uint64) (domain.PublicUserList, error)
 }
 
 // -----------------------------------------------------------------------

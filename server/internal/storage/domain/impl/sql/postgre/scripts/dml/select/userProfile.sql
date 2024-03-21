@@ -1,10 +1,11 @@
 SELECT 
+	"UserEntry"."Id" AS "Id",
 	"Username", 
 	"Description",
 	"AvatarId",
 	"HitMeUp"
 FROM "UserEntry"
-LEFT JOIN "UserDetails"
+INNER JOIN "UserDetails"
 	ON "UserDetails"."UserId" = "UserEntry"."Id"
-LEFT JOIN "UserOptions" 
+INNER JOIN "UserOptions" 
 	ON "UserOptions"."UserId" = "UserEntry"."Id";

@@ -31,7 +31,9 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 
 var (
 	templateSelectPublicUsers = `
-		SELECT "Username", "Description", "AvatarId",
+		SELECT 
+			"UserEntry"."Id" AS "Id",
+			"Username", "Description", "AvatarId",
 			case when "Mate"."Id" is null then false else true end as "IsMate"
 		FROM "UserEntry"
 		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
@@ -39,7 +41,7 @@ var (
 			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
         	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
 		)
-		WHERE "UserEntry"."Id"` // placeholders start with 2.
+		WHERE "UserEntry"."Id"` // next placeholders start with 2.
 
 	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
 		UPDATE "UserLocation" 
@@ -71,6 +73,7 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 
 	publicUser := domain.PublicUser{}
 	err = row.Scan(
+		&publicUser.Id,
 		&publicUser.Username,
 		&publicUser.Description,
 		&publicUser.AvatarId,
@@ -112,6 +115,7 @@ func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
 	for rows.Next() {
 		publicUser := domain.PublicUser{}
 		err = rows.Scan(
+			&publicUser.Id,
 			&publicUser.Username,
 			&publicUser.Description,
 			&publicUser.AvatarId,

@@ -21,6 +21,26 @@ func newUserProfileStorage(pool *pgxpool.Pool) *UserProfileStorage {
 	}
 }
 
+// template
+// -----------------------------------------------------------------------
+
+var (
+	templateGetUserProfile = utility.RemoveAdjacentWs(`
+		SELECT 
+			"UserEntry"."Id" AS "Id",
+			"Username", "Description",
+			"AvatarId", "HitMeUp"
+		FROM "UserEntry"
+		INNER JOIN "UserDetails"
+			ON "UserDetails"."UserId" = "UserEntry"."Id"
+		INNER JOIN "UserOptions" 
+			ON "UserOptions"."UserId" = "UserEntry"."Id"
+		WHERE "UserEntry"."Id" = $1`)
+)
+
+// public
+// -----------------------------------------------------------------------
+
 func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	domain.UserProfile, error,
 ) {
@@ -32,16 +52,13 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	defer conn.Release()
 
 	row := conn.QueryRow(ctx,
-		`SELECT "Username", "Description", "AvatarId", "HitMeUp"
-			FROM "UserEntry"
-		LEFT JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
-		LEFT JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
-		WHERE "UserEntry"."Id" = $1;`, id,
+		templateGetUserProfile+`;`, id,
 	)
 
 	userProfile := domain.UserProfile{}
-	err = row.Scan(&userProfile.Username, &userProfile.Description,
-		&userProfile.AvatarId, &userProfile.Privacy.HitMeUp)
+	err = row.Scan(&userProfile.Id, &userProfile.Username, &userProfile.Description,
+		&userProfile.AvatarId, &userProfile.Privacy.HitMeUp,
+	)
 
 	if err != nil {
 		return domain.UserProfile{},

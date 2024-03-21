@@ -52,7 +52,7 @@ func (s *UserService) GetPublicUserById(ctx context.Context,
 }
 
 func (s *UserService) GetPublicUserByIds(ctx context.Context,
-	userId uint64, targetUserIds []uint64) ([]*domain.PublicUser, error) {
+	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
 	targetUserIds = utl.RemoveDuplicatesFromSlice(targetUserIds)
 
 	// handler --->

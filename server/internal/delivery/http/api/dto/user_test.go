@@ -9,6 +9,7 @@ import (
 func Test_MyProfileRes_Marshal(t *testing.T) {
 	resDto := MyProfileRes{
 		Profile: Profile{
+			Id:          123,
 			Username:    "Test",
 			Description: "Test",
 			AvatarId:    123,
