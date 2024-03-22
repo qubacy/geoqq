@@ -5,8 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.qubacy.geoqq.data._common.repository._common.source.http.api.HttpApi
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.Database
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.api.HttpApi
+import com.qubacy.geoqq.data._common.repository._common.source.local._common.database.Database
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp

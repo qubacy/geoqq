@@ -4,13 +4,14 @@ import com.qubacy.geoqq.data._common.repository.adjustable.AdjustableDataReposit
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 abstract class ProducingDataRepository(
-    coroutineScope: CoroutineScope,
-    coroutineDispatcher: CoroutineDispatcher
-) : AdjustableDataRepository(coroutineScope, coroutineDispatcher) {
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
+) : AdjustableDataRepository(coroutineDispatcher, coroutineScope) {
     protected val mResultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
     val resultFlow: SharedFlow<DataResult> get() = mResultFlow
 

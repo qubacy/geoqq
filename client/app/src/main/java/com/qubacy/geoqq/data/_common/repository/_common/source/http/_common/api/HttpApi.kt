@@ -1,8 +1,9 @@
-package com.qubacy.geoqq.data._common.repository._common.source.http.api
+package com.qubacy.geoqq.data._common.repository._common.source.http._common.api
 
 import android.os.Build
 import android.os.LocaleList
 import android.util.Log
+import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -64,4 +65,6 @@ class HttpApi {
         .build()
 
     val tokenApi: HttpTokenDataSource = retrofit.create(HttpTokenDataSource::class.java)
+    val mateMessageApi: HttpMateMessageDataSource =
+        retrofit.create(HttpMateMessageDataSource::class.java)
 }
