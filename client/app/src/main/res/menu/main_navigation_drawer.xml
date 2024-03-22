@@ -7,7 +7,7 @@
         android:id="@+id/main_navigation_drawer_group_geo">
 
         <item
-            android:id="@+id/main_navigation_drawer_option_geo_chat"
+            android:id="@+id/geoChatFragment"
             android:icon="@drawable/ic_earth"
             app:iconTint="?attr/colorOnSurfaceVariant"
             android:title="@string/component_main_navigation_drawer_option_geo_chat_title"
@@ -20,7 +20,7 @@
         android:id="@+id/main_navigation_drawer_group_mate">
 
         <item
-            android:id="@+id/main_navigation_drawer_option_mate_chats"
+            android:id="@+id/mateChatsFragment"
             android:icon="@drawable/ic_people"
             app:iconTint="?attr/colorOnSurfaceVariant"
             android:title="@string/component_main_navigation_drawer_option_mate_chats_title"
@@ -28,7 +28,7 @@
             app:showAsAction="ifRoom"/>
 
         <item
-            android:id="@+id/main_navigation_drawer_option_mate_requests"
+            android:id="@+id/mateRequestsFragment"
             android:icon="@drawable/ic_mate_request"
             app:iconTint="?attr/colorOnSurfaceVariant"
             android:title="@string/component_main_navigation_drawer_option_mate_requests_title"

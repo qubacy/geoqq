@@ -5,6 +5,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.appbar.MaterialToolbar
+import com.qubacy.geoqq.ui.application.activity._common.MainActivity
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -30,4 +34,22 @@ fun <T>BaseFragment<*>.getNavigationResult(key: String = "result"): MutableLiveD
 fun <T>BaseFragment<*>.setNavigationResult(result: T, key: String = "result") {
     Navigation.findNavController(requireView())
         .previousBackStackEntry?.savedStateHandle?.set(key, result)
+}
+
+/**
+ * Should be called in order to bind a screen's Toolbar and the Main Activity's NavigationView.
+ */
+fun BaseFragment<*>.setupNavigationUI(toolbar: MaterialToolbar) {
+    val mainActivity = requireActivity() as MainActivity
+    val navController = Navigation.findNavController(requireView())
+
+    val appBarConfiguration = AppBarConfiguration(
+        mainActivity.topDestinations, mainActivity.navigationDrawerLayout)
+
+    toolbar.setupWithNavController(navController, appBarConfiguration)
+
+    mainActivity.navigationDrawer.apply {
+        setupWithNavController(navController)
+        setHeaderTitle(toolbar.title.toString())
+    }
 }

@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
@@ -16,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 
 abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     companion object {
@@ -44,7 +44,8 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        catchViewInsets(view)
+        // todo: mb it's the time to get rid of this in the base class?:
+        view.catchViewInsets(viewInsetsToCatch()) { adjustViewToInsets(it) }
     }
 
     override fun onStop() {
@@ -56,16 +57,6 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     protected open fun viewInsetsToCatch(): Int {
         return WindowInsetsCompat.Type.statusBars() or
                WindowInsetsCompat.Type.navigationBars()
-    }
-
-    private fun catchViewInsets(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insetsRes: WindowInsetsCompat? ->
-            val insets = insetsRes?.getInsets(viewInsetsToCatch())
-
-            if (insets != null) adjustViewToInsets(insets)
-
-            WindowInsetsCompat.CONSUMED
-        }
     }
 
     protected open fun adjustViewToInsets(insets: Insets) { }

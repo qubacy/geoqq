@@ -17,10 +17,7 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             app:menu="@menu/main_top_bar"
-            app:navigationIcon="@drawable/ic_menu"
-            app:navigationIconTint="?attr/colorOnSurface"
-            app:titleCentered="true"
-            app:title="@string/fragment_mate_chats_top_bar_title_text"/>
+            app:titleCentered="true"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
