@@ -1,7 +1,7 @@
-package com.qubacy.geoqq.data.mate.message.repository.source.local.module
+package com.qubacy.geoqq.data.user.repository.source.http.module
 
 import android.content.Context
-import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
+import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.ui.application.CustomApplication
 import dagger.Module
 import dagger.Provides
@@ -11,13 +11,13 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class LocalMateMessageDataSource {
+object HttpUserDataSourceModule {
     @Provides
-    fun provideLocalMateMessageDataSource(
+    fun provideHttpUserDataSource(
         @ApplicationContext context: Context
-    ): LocalMateMessageDataSource {
-        val db = (context as CustomApplication).db
+    ): HttpUserDataSource {
+        val httpApi = (context as CustomApplication).httpApi
 
-        return db.mateMessageDao()
+        return httpApi.userApi
     }
 }

@@ -5,6 +5,7 @@ import android.os.LocaleList
 import android.util.Log
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
+import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor
@@ -67,4 +68,5 @@ class HttpApi {
     val tokenApi: HttpTokenDataSource = retrofit.create(HttpTokenDataSource::class.java)
     val mateMessageApi: HttpMateMessageDataSource =
         retrofit.create(HttpMateMessageDataSource::class.java)
+    val userApi: HttpUserDataSource = retrofit.create(HttpUserDataSource::class.java)
 }

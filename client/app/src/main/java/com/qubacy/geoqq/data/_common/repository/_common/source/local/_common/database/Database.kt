@@ -7,12 +7,15 @@ import com.qubacy.geoqq.data.error.repository.source.local.model.ErrorEntity
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
+import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
+import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 
 @Database(
     entities = [
         ErrorEntity::class,
         MateMessageEntity::class,
-        MateChatEntity::class
+        MateChatEntity::class,
+        UserEntity::class
    ],
     version = 2
 )
@@ -23,4 +26,5 @@ abstract class Database : RoomDatabase() {
 
     abstract fun errorDao(): LocalErrorDataSource
     abstract fun mateMessageDao(): LocalMateMessageDataSource
+    abstract fun userDao(): LocalUserDataSource
 }

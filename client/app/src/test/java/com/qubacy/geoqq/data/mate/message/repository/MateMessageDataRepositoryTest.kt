@@ -193,7 +193,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
             Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
-            Assert.assertEquals(GetMessagesDataResult::class, gottenLocalResult::class)
+            Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
 
