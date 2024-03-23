@@ -9,7 +9,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 abstract class BusinessFragmentTest<
     ViewBindingType : ViewBinding,
     UiStateType : BusinessUiState,
-    ViewModelType : BusinessViewModel<UiStateType>,
+    ViewModelType : BusinessViewModel<UiStateType, *>,
     ViewModelMockContextType : ViewModelMockContext<UiStateType>,
     FragmentType : BusinessFragment<ViewBindingType, UiStateType, ViewModelType>
 >(

@@ -6,7 +6,9 @@ import com.qubacy.geoqq._common._test._common.util.mock.Base64MockUtil.mockBase6
 import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignUpResponse
@@ -21,7 +23,7 @@ import org.mockito.Mockito
 import retrofit2.Call
 import retrofit2.Response
 
-class TokenDataRepositoryTest {
+class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     companion object {
         const val VALID_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
                 "eyJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MzUxNjIzOTAyMn0." +
@@ -35,9 +37,7 @@ class TokenDataRepositoryTest {
         }
     }
 
-    private lateinit var mTokenDataRepository: TokenDataRepository
-
-    private var mErrorDataRepositoryGetError: Error? = null
+    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
 
     private var mLocalSourceLastAccessToken: String? = null
     private var mLocalSourceRefreshToken: String? = null
@@ -62,7 +62,6 @@ class TokenDataRepositoryTest {
 
     @After
     fun clear() {
-        mErrorDataRepositoryGetError = null
         mLocalSourceLastAccessToken = null
         mLocalSourceRefreshToken = null
         mLocalSourceGetRefreshTokenCallFlag = false
@@ -78,11 +77,7 @@ class TokenDataRepositoryTest {
     }
 
     private fun initTokenDataRepository() = runTest {
-        val errorDataRepositoryMock = Mockito.mock(ErrorDataRepository::class.java)
-
-        Mockito.`when`(errorDataRepositoryMock.getError(Mockito.anyLong())).thenAnswer {
-            mErrorDataRepositoryGetError
-        }
+        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
 
         val localTokenDataSourceMock = Mockito.mock(LocalTokenDataSource::class.java)
 
@@ -171,8 +166,8 @@ class TokenDataRepositoryTest {
             signUpRequestMock
         }
 
-        mTokenDataRepository = TokenDataRepository(
-            errorDataRepositoryMock,
+        mDataRepository = TokenDataRepository(
+            mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
             localTokenDataSourceMock,
             httpTokenDataSourceMock
         )
@@ -186,7 +181,7 @@ class TokenDataRepositoryTest {
         mLocalSourceLastAccessToken = expectedAccessToken
         mLocalSourceRefreshToken = expectedRefreshToken
 
-        val gottenGetTokensResult = mTokenDataRepository.getTokens()
+        val gottenGetTokensResult = mDataRepository.getTokens()
 
         Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
         Assert.assertEquals(expectedAccessToken, gottenGetTokensResult.accessToken)
@@ -204,7 +199,7 @@ class TokenDataRepositoryTest {
         mLocalSourceRefreshToken = VALID_TOKEN
         mHttpSourceUpdateTokensResponse = expectedUpdateTokensResponse
 
-        val gottenGetTokensResult = mTokenDataRepository.getTokens()
+        val gottenGetTokensResult = mDataRepository.getTokens()
 
         Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
         Assert.assertTrue(mHttpSourceUpdateTokensCallFlag)
@@ -220,10 +215,10 @@ class TokenDataRepositoryTest {
 
         mLocalSourceLastAccessToken = null
         mLocalSourceRefreshToken = null
-        mErrorDataRepositoryGetError = expectedError
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         try {
-            mTokenDataRepository.getTokens()
+            mDataRepository.getTokens()
 
         } catch (e: ErrorAppException) {
             Assert.assertEquals(expectedError, e.error)
@@ -241,7 +236,7 @@ class TokenDataRepositoryTest {
 
         mHttpSourceSignInResponse = expectedTokenSignInResponse
 
-        mTokenDataRepository.signIn(login, password)
+        mDataRepository.signIn(login, password)
 
         Assert.assertEquals(expectedTokenSignInResponse.accessToken, mLocalSourceSaveTokensAccessToken)
         Assert.assertEquals(expectedTokenSignInResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
@@ -258,7 +253,7 @@ class TokenDataRepositoryTest {
 
         mHttpSourceSignUpResponse = expectedTokenSignUpResponse
 
-        mTokenDataRepository.signUp(login, password)
+        mDataRepository.signUp(login, password)
 
         Assert.assertEquals(expectedTokenSignUpResponse.accessToken, mLocalSourceSaveTokensAccessToken)
         Assert.assertEquals(expectedTokenSignUpResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
@@ -266,7 +261,7 @@ class TokenDataRepositoryTest {
 
     @Test
     fun clearTokensTest() = runTest {
-        mTokenDataRepository.clearTokens()
+        mDataRepository.clearTokens()
 
         Assert.assertTrue(mLocalSourceClearTokensCallFlag)
     }
@@ -274,7 +269,7 @@ class TokenDataRepositoryTest {
     @Test
     fun checkTokenForValidityTest() {
         val expectedIsTokenValid = true
-        val gottenIsTokenValid = mTokenDataRepository.checkTokenForValidity(VALID_TOKEN)
+        val gottenIsTokenValid = mDataRepository.checkTokenForValidity(VALID_TOKEN)
 
         Assert.assertEquals(expectedIsTokenValid, gottenIsTokenValid)
     }
@@ -284,7 +279,7 @@ class TokenDataRepositoryTest {
         val token = VALID_TOKEN
         val expectedTokenPayload = VALID_TOKEN_PAYLOAD
 
-        val gottenTokenPayload = mTokenDataRepository.getTokenPayload(token)!!
+        val gottenTokenPayload = mDataRepository.getTokenPayload(token)!!
 
         assertTokenPayload(expectedTokenPayload, gottenTokenPayload)
     }
@@ -295,7 +290,7 @@ class TokenDataRepositoryTest {
 
         mLocalSourceLastAccessToken = VALID_TOKEN
 
-        val gottenTokenPayload = mTokenDataRepository.getAccessTokenPayload()
+        val gottenTokenPayload = mDataRepository.getAccessTokenPayload()
 
         assertTokenPayload(expectedTokenPayload, gottenTokenPayload)
     }

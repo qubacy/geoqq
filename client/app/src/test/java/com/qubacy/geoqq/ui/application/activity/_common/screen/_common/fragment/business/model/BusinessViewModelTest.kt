@@ -15,7 +15,7 @@ import org.mockito.Mockito
 abstract class BusinessViewModelTest<
     UiStateType : BusinessUiState,
     UseCaseType: UseCase,
-    ViewModelType : BusinessViewModel<UiStateType>
+    ViewModelType : BusinessViewModel<UiStateType, *>
 >(
     private val mUseCaseClass: Class<UseCaseType>
 ) : StatefulViewModelTest<UiStateType, ViewModelType>() {

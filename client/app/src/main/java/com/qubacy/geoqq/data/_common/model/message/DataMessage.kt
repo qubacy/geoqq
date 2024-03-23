@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.model.message
 
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 
-class DataMessage(
+data class DataMessage(
     val id: Long = DEFAULT_ID,
     val userId: Long = DEFAULT_ID,
     val text: String,
