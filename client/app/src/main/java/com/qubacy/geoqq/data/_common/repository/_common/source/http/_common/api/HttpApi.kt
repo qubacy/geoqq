@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.http._common.api
 import android.os.Build
 import android.os.LocaleList
 import android.util.Log
+import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -69,4 +70,5 @@ class HttpApi {
     val mateMessageApi: HttpMateMessageDataSource =
         retrofit.create(HttpMateMessageDataSource::class.java)
     val userApi: HttpUserDataSource = retrofit.create(HttpUserDataSource::class.java)
+    val imageApi: HttpImageDataSource = retrofit.create(HttpImageDataSource::class.java)
 }
