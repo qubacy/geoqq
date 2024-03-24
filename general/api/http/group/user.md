@@ -71,7 +71,7 @@
 ```json
 {
     "id": "<id>",
-    "deleted": "<bool>",
+    "is-deleted": "<bool>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<id>",
@@ -99,7 +99,7 @@
     "users": [
         {
             "id": "<id>",
-            "deleted": "<bool>",
+            "is-deleted": "<bool>",
             "username": "<string>",
             "description": "<string>",
             "avatar-id": "<id>",
