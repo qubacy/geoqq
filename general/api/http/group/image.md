@@ -52,7 +52,7 @@
 ```json
 {
     "access-token": "<jwt-string>",
-    "avatar": {
+    "image": {
         "ext": "<int>",
         "content": "<base64-string>"
     }

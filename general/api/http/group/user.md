@@ -13,7 +13,7 @@
     "id": "<id>",
     "username": "<string>",
     "description": "<string>",
-    "avatar-id": "<id>",
+    "avatar-id": "<image-id>",
     "privacy": {
         "hit-me-up": "<int>"
     }
@@ -30,7 +30,7 @@
        
     /* optional */
     "description": "<string>",
-    "avatar-id": "<id>",
+    "avatar-id": "<image-id>",
     "privacy": {
         "hit-me-up": "<int>"
     },

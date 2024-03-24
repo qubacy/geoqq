@@ -22,6 +22,7 @@ usecase "Sign Up" as SignUp
 
 usecase "View my profile" as ViewMyProfile
 usecase "Edit my profile" as EditMyProfile
+usecase "Upload image" as UploadImage
 usecase "Delete my profile" as DeleteMyProfile
 
 usecase "View mates" as ViewMates
@@ -32,7 +33,7 @@ usecase "Accept/Cancel\na mate's request" as AccCanMateReq
 usecase "View an expanded\nuser's profile" as ViewExpandedUserProfile
 
 ' see uc2.wsd diagram...
-usecase "Go geo chat" as GoGeoChat
+usecase "Go geo chat" as GoGeoChat #LightGreen
 
 ' -----------------------------------------------
 
@@ -44,10 +45,12 @@ User --> SignUp
 User --> ViewMyProfile
 ViewMyProfile <-u- EditMyProfile : <<extend>>
 ViewMyProfile <-u- DeleteMyProfile : <<extend>>
+EditMyProfile <-u- UploadImage : <<extend>>
 
 User -u-> ViewMates
+User -d-> ViewMatesReqs
+
 ViewMates <-- ChatWithMate : <<extend>>
-ViewMates <-- ViewMatesReqs : <<extend>>
 ViewMatesReqs <-- AccCanMateReq : <<extend>>
 ViewMatesReqs <-- ViewExpandedUserProfile : <<extend>>
 

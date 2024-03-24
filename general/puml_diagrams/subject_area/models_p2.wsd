@@ -21,11 +21,15 @@ hide empty members
 ' File
 ' -----------------------------------------------
 
-class Image {
-    Id: Number
-    Ext: Number
-    Content: String
+package FileStorage {
+
+    class Image #LightGray {
+        Id: Number
+        Extension: Number
+        Content: String
+    }
 }
+
 
 ' User
 ' -----------------------------------------------
@@ -56,12 +60,13 @@ class UserDetails {
 
 class UserOptions {
     UserId: Number
-    Privacy: Number
+    HitMeUp: Number
 }
 
 class Avatar {
     Id: Number
-    GeneratedByServer: Bool
+    UserId: Number
+    Label: String
     Time: Datetime
     Hash: String
 }
@@ -128,15 +133,16 @@ class GeoMessage {
 ' -----------------------------------------------
 
 UserLocation --> UserEntry
-UserOptions --> UserEntry
+UserOptions ---> UserEntry
 UserDetails --> UserEntry
-DeletedUser --> UserEntry
+DeletedUser ---> UserEntry
 UserDetails --> Avatar
-Avatar -- Image
+Avatar -d- Image
+Avatar -- UserEntry
 
 ' ***
 
-GeoMessage -r-> UserEntry
+GeoMessage --> UserEntry
 
 ' ***
 

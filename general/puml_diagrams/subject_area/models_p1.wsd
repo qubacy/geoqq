@@ -52,12 +52,13 @@ package Domain {
 
         class UserOptions {
             UserId: Number
-            Privacy: Number
+            HitMeUp: Number
         }
 
         class Avatar {
             Id: Number
-            GeneratedByServer: Bool
+            UserId: Number
+            Label: String
             Time: Datetime
             Hash: String
         }
@@ -125,10 +126,11 @@ package Domain {
     }
 }
 
-package File {
-    class Image {
+package FileStorage {
+
+    class Image #LightGray {
         Id: Number
-        Ext: Number
+        Extension: Number
         Content: String
     }
 }

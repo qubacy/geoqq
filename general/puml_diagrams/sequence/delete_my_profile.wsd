@@ -1,0 +1,58 @@
+@startuml delete_my_profile
+
+!include styles.wsd
+
+' -----------------------------------------------
+
+actor "User" as user
+boundary "Client App\n(Some Windows)" as someWindowsClientApp
+control "Confirmation\nWindow" as confWindow
+participant "Http Server\n(Delivery, Services)" as httpServer
+entity "Domain\nStorage" as domainStorage
+entity "Avatar\nStorage" as avatarStorage
+
+' -----------------------------------------------
+
+ref over user, someWindowsClientApp
+    SignIn
+end ref
+
+user -> someWindowsClientApp : "Delete Profile"\nbutton pressed
+create confWindow
+someWindowsClientApp -> confWindow : display
+
+confWindow --> user
+user -> confWindow : "Ok"\nbutton pressed
+confWindow --> someWindowsClientApp : return\npositive status
+destroy confWindow
+
+someWindowsClientApp -> httpServer : send request\n"DELETE /api/my-profile"
+httpServer -> httpServer : validate request data
+httpServer -> httpServer : identify the user
+
+group Transaction 1
+    httpServer -> domainStorage : add to deleted list
+
+    httpServer -> domainStorage : delete outgoing\nmate requests
+    httpServer -> domainStorage : delete mate chats
+    httpServer -> domainStorage : delete mates
+
+    httpServer -> domainStorage : change username\nto "deleted_<uuid>"
+    httpServer -> domainStorage : set an avatar\nfor deleted users
+
+    httpServer -> domainStorage : reset hashes\n(password and refresh token)
+    httpServer -> domainStorage : reset "hit-me-up" in options
+    httpServer -> domainStorage : reset "description" in details?
+end
+note right : For this user.
+
+group Transaction 2 
+    httpServer -> domainStorage : delete avatars
+    httpServer -> avatarStorage : delete added images
+end
+
+httpServer --> someWindowsClientApp : return\n"HTTP 200 - OK"
+someWindowsClientApp -> someWindowsClientApp : exit to sign-in window
+someWindowsClientApp --> user : return
+
+@enduml

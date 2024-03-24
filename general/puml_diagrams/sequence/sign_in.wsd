@@ -1,3 +1,69 @@
 @startuml sign_in
 
+!include styles.wsd
+
+' -----------------------------------------------
+
+actor "User" as user
+
+box "Client App" #LightGreen
+    boundary "Client App\n(Sign-In Window)" as signInWindowClientApp
+    boundary "Client App\n(Next Window)" as mateChatsWindowClientApp
+    control "Client App\n(Error Popup)" as errPopupClientApp #Red
+end box
+
+box "Backend App" #WhiteSmoke
+    participant "Http Server\n(Delivery, Services)" as httpServer
+    participant "Token\nGenerator" as tokenGenerator
+    participant "Password\nHasher" as passHasher
+    entity "Domain\nStorage" as domainStorage
+end box
+
+' -----------------------------------------------
+
+group Business logic for\n   Sign-In
+
+    user -> signInWindowClientApp : enter\nlogin and password
+    user -> signInWindowClientApp : "Sign In"\nbutton pressed
+
+    signInWindowClientApp -> httpServer : send request\n"POST /api/sign-in"
+
+    httpServer -> httpServer : validate request data
+    httpServer -> httpServer : validate username
+
+    httpServer -> passHasher : generate for password string
+    passHasher --> httpServer : return password hash
+
+    httpServer -> domainStorage : check that\nuser exists by credentials
+    domainStorage --> httpServer : return status
+    httpServer -> httpServer : check status
+
+    alt status is true
+        httpServer -> domainStorage : get user-id by name
+        domainStorage --> httpServer : return value
+
+        httpServer -> tokenGenerator : generate
+        tokenGenerator --> httpServer : return tokens
+
+        httpServer -> domainStorage : update hash for\nrefresh token
+        domainStorage --> httpServer : return\npositive status
+
+        httpServer --> signInWindowClientApp : return\n"HTTP 200 - OK"
+
+        signInWindowClientApp -> mateChatsWindowClientApp : show
+        mateChatsWindowClientApp --> user : return
+
+    else status is false
+        httpServer --> signInWindowClientApp : return\n"HTTP 400 - User Not Found By Credentials"
+        signInWindowClientApp -> errPopupClientApp : show
+        errPopupClientApp --> user : return 
+        
+    end
+    ...
+
+end
+
+... next use cases ...
+
 @enduml
+

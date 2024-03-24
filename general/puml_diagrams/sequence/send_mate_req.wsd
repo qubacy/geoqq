@@ -1,0 +1,5 @@
+@startuml send_mate_req
+
+!include styles.wsd
+
+@enduml

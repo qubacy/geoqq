@@ -1,3 +1,64 @@
 @startuml sign_up
 
+!include styles.wsd
+
+' -----------------------------------------------
+
+actor "User" as user
+
+boundary "Client App\n(Sign-Up Window)" as signUpWindowClientApp
+boundary "Client App\n(Mate Chats Window)" as mateChatsWindowClientApp
+
+participant "Http Server\n(Delivery, Services)" as httpServer
+participant "Avatar\nGenerator" as avaGenerator
+participant "Token\nGenerator" as tokenGenerator
+participant "Password\nHasher" as passHasher
+
+entity "Domain\nStorage" as domainStorage
+entity "Avatar\nStorage" as avatarStorage
+
+' -----------------------------------------------
+
+user -> signUpWindowClientApp : fill form
+user -> signUpWindowClientApp : "Sign Up"\nbutton pressed
+
+signUpWindowClientApp -> httpServer : send request\n"POST /api/sign-up"
+
+group Business logic?
+
+    httpServer -> httpServer : validate request data
+    httpServer -> httpServer : validate username
+
+    httpServer -> domainStorage : check that username is free
+    domainStorage --> httpServer : return true
+
+    group Transaction 1
+        httpServer -> avaGenerator : generate for new user
+        avaGenerator --> httpServer : return avatar
+        httpServer -> domainStorage : insert about avatar
+        httpServer -> avatarStorage : add avatar image
+    end
+
+    httpServer -> passHasher : generate for password string
+    note right : Or generate the hash\nbefore saving the image?
+    passHasher --> httpServer : return password hash
+
+    group Transaction 2
+        httpServer -> domainStorage : insert user data for entry
+        httpServer -> domainStorage : insert user options
+        httpServer -> domainStorage : insert user details
+        httpServer -> domainStorage : insert user location
+    end
+
+    group Transaction 3
+        httpServer -> tokenGenerator : generate
+        httpServer -> domainStorage : update hash for\nrefresh token
+    end
+
+end
+
+httpServer --> signUpWindowClientApp : return\n"HTTP 200 - OK"
+signUpWindowClientApp -> mateChatsWindowClientApp : show
+mateChatsWindowClientApp --> user : return
+
 @enduml
