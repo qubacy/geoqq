@@ -46,6 +46,8 @@ package Domain {
             UserId: Number
             Description: String
             AvatarId: Number
+            Gender: Number
+            Age: Number
         }
 
         class UserOptions {
@@ -58,6 +60,12 @@ package Domain {
             GeneratedByServer: Bool
             Time: Datetime
             Hash: String
+        }
+
+        class DeletedUser {
+            Id: Number
+            UserId: Number
+            Time: Datetime
         }
     }
 

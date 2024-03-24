@@ -30,10 +30,7 @@
        
     /* optional */
     "description": "<string>",
-    "avatar": {
-        "ext": "<int>",
-        "content": "<base64-string>"
-    },
+    "avatar-id": "<id>",
     "privacy": {
         "hit-me-up": "<int>"
     },
@@ -74,6 +71,7 @@
 ```json
 {
     "id": "<id>",
+    "deleted": "<bool>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<id>",
@@ -101,6 +99,7 @@
     "users": [
         {
             "id": "<id>",
+            "deleted": "<bool>",
             "username": "<string>",
             "description": "<string>",
             "avatar-id": "<id>",

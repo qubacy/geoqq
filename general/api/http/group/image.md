@@ -43,3 +43,26 @@
     ]
 }
 ```
+
+<!-- -------------------------------------------- -->
+
+## POST /api/image
+
+### Request body
+```json
+{
+    "access-token": "<jwt-string>",
+    "avatar": {
+        "ext": "<int>",
+        "content": "<base64-string>"
+    }
+}
+```
+
+### Responses
+- *200*
+```json
+{
+    "id": "<id>"
+}
+```

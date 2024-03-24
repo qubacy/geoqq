@@ -50,6 +50,8 @@ class UserDetails {
     UserId: Number
     Description: String
     AvatarId: Number
+    Gender: Number
+    Age: Number
 }
 
 class UserOptions {
@@ -62,6 +64,12 @@ class Avatar {
     GeneratedByServer: Bool
     Time: Datetime
     Hash: String
+}
+
+class DeletedUser {
+    Id: Number
+    UserId: Number
+    Time: Datetime
 }
 
 ' Mate
@@ -122,6 +130,7 @@ class GeoMessage {
 UserLocation --> UserEntry
 UserOptions --> UserEntry
 UserDetails --> UserEntry
+DeletedUser --> UserEntry
 UserDetails --> Avatar
 Avatar -- Image
 

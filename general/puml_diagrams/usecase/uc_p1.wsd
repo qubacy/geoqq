@@ -22,6 +22,7 @@ usecase "Sign Up" as SignUp
 
 usecase "View my profile" as ViewMyProfile
 usecase "Edit my profile" as EditMyProfile
+usecase "Delete my profile" as DeleteMyProfile
 
 usecase "View mates" as ViewMates
 usecase "Chat with a mate" as ChatWithMate
@@ -42,6 +43,7 @@ User --> SignUp
 
 User --> ViewMyProfile
 ViewMyProfile <-u- EditMyProfile : <<extend>>
+ViewMyProfile <-u- DeleteMyProfile : <<extend>>
 
 User -u-> ViewMates
 ViewMates <-- ChatWithMate : <<extend>>
