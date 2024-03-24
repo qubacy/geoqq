@@ -59,6 +59,6 @@ end
 
 httpServer --> signUpWindowClientApp : return\n"HTTP 200 - OK"
 signUpWindowClientApp -> mateChatsWindowClientApp : show
-mateChatsWindowClientApp --> user : return
+mateChatsWindowClientApp --> user : return positive
 
 @enduml

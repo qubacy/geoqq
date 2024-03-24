@@ -2,4 +2,60 @@
 
 !include styles.wsd
 
+' -----------------------------------------------
+
+actor "User" as user
+
+box "Client App" #LightGreen
+    boundary "Client App\n(Geo Chat Window)" as geoChatWindowClientApp
+    boundary "Client App\n(Info Popup)" as infoPopupClientApp #Orange
+end box
+
+box "Backend App" #WhiteSmoke
+    participant "Http Server\n(Delivery, Services)" as httpServer
+    entity "Domain\nStorage" as domainStorage
+end box
+
+' -----------------------------------------------
+
+ref over user, geoChatWindowClientApp
+    SignIn
+    ViewGeoChat
+    ViewShortedUserProfile
+end ref
+
+group Business logic for\n   Send Mate Request
+
+    user -> geoChatWindowClientApp : "Add as a mate"\nbutton pressed
+    geoChatWindowClientApp -> httpServer : send request\n"POST /api/mate/request"
+
+    httpServer -> httpServer : validate request data
+    httpServer -> httpServer : identify the user
+
+    httpServer -> domainStorage : check that\ntarget user exists with id
+    note left
+        Source - user who sends the request
+        Target - user that the source user
+            wants to add as a mate
+    end note
+    domainStorage --> httpServer : return positive
+
+    httpServer -> domainStorage : check that\ntarget user not marked as deleted
+    domainStorage --> httpServer : return positive
+
+    httpServer -> domainStorage : check that\nno waiting request from target
+    httpServer -> domainStorage : check that\nno waiting request from source
+
+    ...
+
+    httpServer -> domainStorage : add mate request
+    domainStorage --> httpServer : return id
+
+    httpServer --> geoChatWindowClientApp : return\n"HTTP 200 - OK"
+
+    geoChatWindowClientApp -> infoPopupClientApp : show
+    infoPopupClientApp --> user : return
+
+end
+
 @enduml

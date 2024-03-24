@@ -8,8 +8,8 @@ actor "User" as user
 
 box "Client App" #LightGreen
     boundary "Client App\n(Sign-In Window)" as signInWindowClientApp
-    boundary "Client App\n(Next Window)" as mateChatsWindowClientApp
-    control "Client App\n(Error Popup)" as errPopupClientApp #Red
+    boundary "Client App\n(Mate Chats Window)" as mateChatsWindowClientApp
+    control "Client App\n(Error Dialog)" as errDialogClientApp #Red
 end box
 
 box "Backend App" #WhiteSmoke
@@ -46,7 +46,7 @@ group Business logic for\n   Sign-In
         tokenGenerator --> httpServer : return tokens
 
         httpServer -> domainStorage : update hash for\nrefresh token
-        domainStorage --> httpServer : return\npositive status
+        domainStorage --> httpServer : return positive
 
         httpServer --> signInWindowClientApp : return\n"HTTP 200 - OK"
 
@@ -55,9 +55,9 @@ group Business logic for\n   Sign-In
 
     else status is false
         httpServer --> signInWindowClientApp : return\n"HTTP 400 - User Not Found By Credentials"
-        signInWindowClientApp -> errPopupClientApp : show
-        errPopupClientApp --> user : return 
-        
+        signInWindowClientApp -> errDialogClientApp : show
+        errDialogClientApp --> user : return 
+
     end
     ...
 

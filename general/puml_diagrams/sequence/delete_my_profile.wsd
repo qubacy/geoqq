@@ -23,7 +23,7 @@ someWindowsClientApp -> confWindow : display
 
 confWindow --> user
 user -> confWindow : "Ok"\nbutton pressed
-confWindow --> someWindowsClientApp : return\npositive status
+confWindow --> someWindowsClientApp : return positive
 destroy confWindow
 
 someWindowsClientApp -> httpServer : send request\n"DELETE /api/my-profile"
