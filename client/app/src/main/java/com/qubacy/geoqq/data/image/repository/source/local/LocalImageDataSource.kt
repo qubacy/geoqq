@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.net.Uri
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image._common.util.resolver.extension.getFileExtensionByUri
@@ -18,7 +19,6 @@ class LocalImageDataSource(
     companion object {
         const val TAG = "LocalImageDataSource"
 
-        const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
         const val DEFAULT_IMAGE_QUALITY = 100
 
         val IMAGE_COLUMNS_TO_LOAD = arrayOf(
@@ -67,7 +67,10 @@ class LocalImageDataSource(
 
     fun saveImage(rawImage: RawImage): ImageEntity? {
         val title = getImageTitleFromImageId(rawImage.id!!)
-        val imageContentValues = createImageContentValues(title)
+        val extension = ImageExtension.getStringByFormat(rawImage.extension)
+        val mimeType = getMimeTypeFromExtension(extension)
+
+        val imageContentValues = createImageContentValues(title, mimeType)
 
         try {
             val contentUri = contentResolver.insert(
@@ -143,13 +146,17 @@ class LocalImageDataSource(
         return (IMAGE_PREFIX + imageId.toString())
     }
 
-    private fun createImageContentValues(title: String): ContentValues {
+    private fun getMimeTypeFromExtension(extension: String): String {
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)!!
+    }
+
+    private fun createImageContentValues(title: String, mimeType: String): ContentValues {
         val imageContentValues = ContentValues()
 
         imageContentValues.put(MediaStore.Images.Media.TITLE, title)
         imageContentValues.put(MediaStore.Images.Media.DISPLAY_NAME, title)
         imageContentValues.put(MediaStore.Images.Media.DESCRIPTION, String())
-        imageContentValues.put(MediaStore.Images.Media.MIME_TYPE, DEFAULT_IMAGE_MIME_TYPE)
+        imageContentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
 
         val curDate = System.currentTimeMillis()
 

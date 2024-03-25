@@ -48,7 +48,7 @@ class LocalImageDataSourceTest {
         val drawable = context.getDrawable(R.drawable.ic_launcher_background)!!
         val bitmap = drawable.toBitmap(TEST_ICON_SIZE, TEST_ICON_SIZE)
 
-        mTestRawImage = RawImage(0, Bitmap.CompressFormat.JPEG, bitmap)
+        mTestRawImage = RawImage(0, Bitmap.CompressFormat.PNG, bitmap)
     }
 
     private fun initLocalImageDataSource(context: Context) {
@@ -70,6 +70,27 @@ class LocalImageDataSourceTest {
     }
 
     @Test
+    fun saveImagesTest() {
+        val imagesToSave = listOf(mTestRawImage, mTestRawImage)
+
+        val gottenImageEntities = mLocalImageDataSource.saveImages(imagesToSave)
+
+        Assert.assertNotNull(gottenImageEntities)
+
+        mImageEntitiesToDelete.addAll(gottenImageEntities!!)
+
+        Assert.assertEquals(imagesToSave.size, gottenImageEntities.size)
+
+        for (i in imagesToSave.indices) {
+            val imageToSave = imagesToSave[i]
+            val gottenImageEntity = gottenImageEntities[i]
+
+            Assert.assertEquals(imageToSave.id, gottenImageEntity.id)
+            Assert.assertTrue(mContext.checkUriValidity(gottenImageEntity.uri))
+        }
+    }
+
+    @Test
     fun loadImageTest() {
         val initImage = mTestRawImage
         val expectedImageEntity = mLocalImageDataSource.saveImage(initImage)!!
@@ -81,7 +102,23 @@ class LocalImageDataSourceTest {
         Assert.assertEquals(expectedImageEntity, gottenImageEntity)
     }
 
-    // todo: debug it.
+    @Test
+    fun loadImagesTest() {
+        val initImages = listOf(mTestRawImage, mTestRawImage)
+        val expectedImageEntities = mLocalImageDataSource.saveImages(initImages)!!
+
+        mImageEntitiesToDelete.addAll(expectedImageEntities)
+
+        val gottenImageEntities = mLocalImageDataSource
+            .loadImages(expectedImageEntities.map { it.id })
+
+        Assert.assertNotNull(gottenImageEntities)
+        Assert.assertEquals(expectedImageEntities.size, gottenImageEntities!!.size)
+
+        for (expectedImageEntity in expectedImageEntities)
+            Assert.assertTrue(gottenImageEntities.contains(expectedImageEntity))
+    }
+
     @Test
     fun getImageDataByUriTest() {
         val expectedImageData = mTestRawImage
