@@ -21,6 +21,7 @@ end box
 ref over user, geoChatWindowClientApp
     SignIn
     ViewGeoChat
+    
     ViewShortedUserProfile
 end ref
 

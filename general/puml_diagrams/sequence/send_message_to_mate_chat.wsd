@@ -1,0 +1,52 @@
+@startuml send_message_to_mate_chat
+' chat with a mate
+
+!include styles.wsd
+
+' -----------------------------------------------
+
+actor "User" as user
+
+box "Client App" #LightGreen
+    boundary "Client App\n(Mate Chat Window)" as mateChatWindowClientApp
+end box
+
+box "Backend App" #WhiteSmoke
+    participant "Http Server\n(Delivery, Services)" as httpServer
+    entity "Domain\nStorage" as domainStorage
+    entity "File\nStorage" as fileStorage
+end box
+
+' -----------------------------------------------
+
+ref over user, mateChatWindowClientApp
+    ChatWithMate
+end ref
+
+group Business logic for\n   Send Message To Mate Chat
+
+    user -> mateChatWindowClientApp : enter message text
+    user -> mateChatWindowClientApp : "Send message"\nbutton pressed
+
+    mateChatWindowClientApp -> httpServer : send request\n"POST /api/mate/chat/{id}/message"
+    httpServer -> httpServer : validate request data
+    httpServer -> httpServer : identify the user
+
+    httpServer -> domainStorage : check that\nmate chat exists with id
+    domainStorage --> httpServer : return positive
+
+    httpServer -> domainStorage : check that\nmate chat available for user
+    domainStorage --> httpServer : return positive
+
+    ...
+
+    httpServer -> domainStorage : insert message to mate chat
+    domainStorage --> httpServer : return positive
+
+    httpServer --> mateChatWindowClientApp : return\n"HTTP 200 - OK"
+    mateChatWindowClientApp -> mateChatWindowClientApp : update
+    mateChatWindowClientApp --> user : return
+
+end
+
+@enduml

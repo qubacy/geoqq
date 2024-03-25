@@ -1,0 +1,48 @@
+@startuml accept_mate_req
+
+!include styles.wsd
+
+' -----------------------------------------------
+
+actor "User" as user
+
+box "Client App" #LightGreen
+    boundary "Client App\n(Mate Requests Window)" as mateReqsWindowClientApp
+end box
+
+box "Backend App" #WhiteSmoke
+    participant "Http Server\n(Delivery, Services)" as httpServer
+    entity "Domain\nStorage" as domainStorage
+end box
+
+' -----------------------------------------------
+
+ref over user, mateReqsWindowClientApp
+    ViewMatesReqs
+end ref
+
+user -> mateReqsWindowClientApp : move selected\nmate request right
+mateReqsWindowClientApp -> httpServer : send request\n"PUT /api/mate/request/{id}"
+
+httpServer -> httpServer : validate request data
+httpServer -> httpServer : identify the user
+
+httpServer -> domainStorage : check that\nmate request for user exists
+domainStorage --> httpServer : return positive
+httpServer -> domainStorage : get mate request by id
+domainStorage --> httpServer : return mate request
+
+httpServer -> httpServer : check that\nmate request result is waiting
+httpServer -> domainStorage : accept mate request by id
+group Transaction 1
+    domainStorage -> domainStorage : insert mate
+    domainStorage -> domainStorage : insert mate chat
+    domainStorage -> domainStorage : update mate request\nresult by id
+end
+domainStorage --> httpServer : return positive
+
+httpServer --> mateReqsWindowClientApp : return\n"HTTP 200 - OK"
+mateReqsWindowClientApp -> mateReqsWindowClientApp : update
+mateReqsWindowClientApp --> user : return
+
+@enduml

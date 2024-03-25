@@ -6,7 +6,7 @@
 
 actor "User" as user
 boundary "Client App\n(Some Windows)" as someWindowsClientApp
-control "Confirmation\nWindow" as confWindow
+control "Client App\n(Confirmation Dialog)" as confDialogClientApp
 participant "Http Server\n(Delivery, Services)" as httpServer
 entity "Domain\nStorage" as domainStorage
 entity "Avatar\nStorage" as avatarStorage
@@ -17,14 +17,14 @@ ref over user, someWindowsClientApp
     SignIn
 end ref
 
-user -> someWindowsClientApp : "Delete Profile"\nbutton pressed
-create confWindow
-someWindowsClientApp -> confWindow : display
+user -> someWindowsClientApp : "Delete profile"\nbutton pressed
+create confDialogClientApp
+someWindowsClientApp -> confDialogClientApp : display
 
-confWindow --> user
-user -> confWindow : "Ok"\nbutton pressed
-confWindow --> someWindowsClientApp : return positive
-destroy confWindow
+confDialogClientApp --> user
+user -> confDialogClientApp : "Ok"\nbutton pressed
+confDialogClientApp --> someWindowsClientApp : return positive
+destroy confDialogClientApp
 
 someWindowsClientApp -> httpServer : send request\n"DELETE /api/my-profile"
 httpServer -> httpServer : validate request data
@@ -34,6 +34,10 @@ group Transaction 1
     httpServer -> domainStorage : add to deleted list
 
     httpServer -> domainStorage : delete outgoing\nmate requests
+    httpServer -> domainStorage : delete incoming\nmate requests
+
+    ...
+
     httpServer -> domainStorage : delete mate chats
     httpServer -> domainStorage : delete mates
 

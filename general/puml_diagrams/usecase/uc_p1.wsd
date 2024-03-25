@@ -26,7 +26,7 @@ usecase "Upload image" as UploadImage
 usecase "Delete my profile" as DeleteMyProfile
 
 usecase "View mates" as ViewMates
-usecase "Chat with a mate" as ChatWithMate
+usecase "Chat with a mate" as ChatWithMate #LightGreen
 usecase "View mates' requests" as ViewMatesReqs
 usecase "Accept/Cancel\na mate's request" as AccCanMateReq
 
