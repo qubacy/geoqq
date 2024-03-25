@@ -7,9 +7,13 @@ import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
 class TokenDataRepositoryMockContainer {
+    companion object {
+        val DEFAULT_GET_TOKENS_DATA_RESULT = GetTokensDataResult(String(), String())
+    }
+
     val tokenDataRepositoryMock: TokenDataRepository
 
-    var getTokensDataResult: GetTokensDataResult? = null
+    var getTokensDataResult: GetTokensDataResult? = DEFAULT_GET_TOKENS_DATA_RESULT
     var getAccessTokenPayload: Map<String, Claim>? = null
 
     private var mGetTokensCallFlag = false
@@ -64,7 +68,7 @@ class TokenDataRepositoryMockContainer {
     }
 
     fun reset() {
-        getTokensDataResult = null
+        getTokensDataResult = DEFAULT_GET_TOKENS_DATA_RESULT
         getAccessTokenPayload = null
 
         mGetTokensCallFlag = false

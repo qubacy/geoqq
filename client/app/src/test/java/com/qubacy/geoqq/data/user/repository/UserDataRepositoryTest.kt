@@ -5,7 +5,6 @@ import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
-import com.qubacy.geoqq.data.token.repository.source.result.GetTokensDataResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -68,9 +67,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
     private fun initUserDataRepository() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer().apply {
-            getTokensDataResult = GetTokensDataResult(String(), String())
-        }
+        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
 
         val localUserDataSourceMock = mockLocalUserDataSource()
         val httpUserDataSourceMock = mockHttpUserDataSource()

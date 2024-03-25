@@ -30,10 +30,10 @@ class ImageDataRepository @Inject constructor(
 
         val accessToken = tokenDataRepository.getTokens().accessToken
 
-        val getImagesCall = httpImageDataSource.getImage(imageId, accessToken)
-        val getImagesResponse = executeNetworkRequest(errorDataRepository, getImagesCall)
+        val getImageCall = httpImageDataSource.getImage(imageId, accessToken)
+        val getImageResponse = executeNetworkRequest(errorDataRepository, getImageCall)
 
-        val httpImageToSave =  getImagesResponse.toRawImage()
+        val httpImageToSave = getImageResponse.toRawImage()
 
         val savedImage = localImageDataSource.saveImage(httpImageToSave)
 

@@ -14,7 +14,6 @@ import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessa
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.toDataMessage
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
-import com.qubacy.geoqq.data.token.repository.source.result.GetTokensDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -68,9 +67,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
     private fun initMateMessageRepository() = runTest {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer().apply {
-            getTokensDataResult = GetTokensDataResult(String(), String())
-        }
+        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
 
         val localMateMessageDataSourceMock = mockLocalMateMessageDataSource()
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
