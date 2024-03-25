@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 data class DataUser(
     val id: Long,
     val username: String,
-    val description: String,
+    val description: String?,
     val avatarId: Long,
     val isMate: Boolean,
     val isDeleted: Boolean

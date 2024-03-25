@@ -4,10 +4,13 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.forEach
 import androidx.core.view.updatePadding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ActivityMainBinding
@@ -45,15 +48,8 @@ open class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(mBinding.root)
-
-        mBinding.root.catchViewInsets(
-            WindowInsetsCompat.Type.statusBars() or
-            WindowInsetsCompat.Type.navigationBars()
-        ) {
-            mBinding.activityMainNavigationDrawer.updatePadding(top = it.top)
-        }
+        setupWindowInsetsListener()
     }
-
     private fun setupEdgeToEdge() {
         // todo: think about this:
         enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(
@@ -63,4 +59,33 @@ open class MainActivity : AppCompatActivity() {
             window.isNavigationBarContrastEnforced = false
         }
     }
+
+    private fun setupWindowInsetsListener() {
+        mBinding.root.catchViewInsets(
+            WindowInsetsCompat.Type.statusBars() or
+                    WindowInsetsCompat.Type.navigationBars()
+        ) {
+            mBinding.activityMainNavigationDrawer.updatePadding(top = it.top)
+        }
+
+//        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { view, insetsRes ->
+//            var isConsumed = false
+//
+//            processInsetsForActivity(insetsRes)
+//
+//            (view as ViewGroup).forEach { child ->
+//                val childResult = ViewCompat.dispatchApplyWindowInsets(child, insetsRes)
+//
+//                if (childResult.isConsumed) isConsumed = true
+//            }
+//
+//            if (isConsumed) WindowInsetsCompat.CONSUMED else insetsRes
+//        }
+    }
+
+//    private fun processInsetsForActivity(insetsRes: WindowInsetsCompat) {
+//        val insets = insetsRes.getInsets(WindowInsetsCompat.Type.statusBars())
+//
+//        mBinding.activityMainNavigationDrawer.updatePadding(top = insets.top)
+//    }
 }

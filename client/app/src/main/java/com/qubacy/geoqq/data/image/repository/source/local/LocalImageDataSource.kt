@@ -3,8 +3,6 @@ package com.qubacy.geoqq.data.image.repository.source.local
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
@@ -21,7 +19,7 @@ class LocalImageDataSource(
         const val TAG = "LocalImageDataSource"
 
         const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
-        const val DEFAULT_IMAGE_QUALITY = 50
+        const val DEFAULT_IMAGE_QUALITY = 100
 
         val IMAGE_COLUMNS_TO_LOAD = arrayOf(
             MediaStore.Images.ImageColumns._ID,

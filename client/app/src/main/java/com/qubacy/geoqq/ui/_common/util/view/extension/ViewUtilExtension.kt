@@ -10,10 +10,12 @@ fun View.catchViewInsets(
     onInsetsCaught: View.(Insets) -> Unit
 ) {
     ViewCompat.setOnApplyWindowInsetsListener(this) { _, insetsRes: WindowInsetsCompat? ->
-        val insets = insetsRes?.getInsets(insetsToCatch)
+        if (insetsRes == null)
+            return@setOnApplyWindowInsetsListener WindowInsetsCompat.CONSUMED
 
-        if (insets != null) onInsetsCaught(insets)
+        val insets = insetsRes.getInsets(insetsToCatch)
 
-        insetsRes!!
+        onInsetsCaught(insets)
+        insetsRes
     }
 }
