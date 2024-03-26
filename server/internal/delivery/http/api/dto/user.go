@@ -56,6 +56,19 @@ func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
 type MyProfilePutReq struct {
 	AccessToken string `json:"access-token" binding:"required"` // ?
 
+	Description *string  `json:"description,omitempty"`
+	AvatarId    *float64 `json:"avatar-id,omitempty"`
+
+	Privacy  *Privacy  `json:"privacy,omitempty"`
+	Security *Security `json:"security,omitempty"`
+}
+
+// PUT /api/my-profile/with-attached-avatar
+// -----------------------------------------------------------------------
+
+type MyProfileWithAttachedAvatarPutReq struct {
+	AccessToken string `json:"access-token" binding:"required"` // ?
+
 	Description *string `json:"description,omitempty"`
 	Avatar      *Avatar `json:"avatar,omitempty"`
 
@@ -63,7 +76,7 @@ type MyProfilePutReq struct {
 	Security *Security `json:"security,omitempty"`
 }
 
-func (s *MyProfilePutReq) ToInp() serviceDto.UpdateProfileInp {
+func (s *MyProfileWithAttachedAvatarPutReq) ToInp() serviceDto.UpdateProfileInp {
 	var security *serviceDto.Security = nil
 	var privacy *serviceDto.Privacy = nil
 	var avatar *serviceDto.Avatar = nil

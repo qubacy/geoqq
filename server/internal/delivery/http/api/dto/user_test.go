@@ -26,7 +26,7 @@ func Test_MyProfileRes_Marshal(t *testing.T) {
 }
 
 func Test_MyProfilePutReq_Marshal(t *testing.T) {
-	reqDto := MyProfilePutReq{
+	reqDto := MyProfileWithAttachedAvatarPutReq{
 		AccessToken: "Access",
 	}
 	bytes, err := json.Marshal(reqDto)
@@ -37,7 +37,7 @@ func Test_MyProfilePutReq_Marshal(t *testing.T) {
 }
 
 func Test_MyProfilePutReq_Unmarshal(t *testing.T) {
-	reqDto := MyProfilePutReq{}
+	reqDto := MyProfileWithAttachedAvatarPutReq{}
 	bytes := []byte(`{
 		"access-token":"Access",
 		"avatar": "Test",

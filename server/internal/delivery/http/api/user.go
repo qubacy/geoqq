@@ -13,8 +13,13 @@ func (h *Handler) registerUserRoutes() {
 	myProfileRouter := h.router.Group("/my-profile", h.parseAnyForm)
 	{
 		myProfileRouter.GET("", h.userIdentityForGetRequest, h.getMyProfile)
-		myProfileRouter.PUT("", h.extractBodyForPutMyProfile,
+
+		myProfileRouter.PUT("", h.extractBodyForPutMyProfileWithAttachedAvatar,
 			h.userIdentityByContextData, h.putMyProfile)
+
+		myProfileRouter.PUT("/with-attached-avatar",
+			h.extractBodyForPutMyProfileWithAttachedAvatar,
+			h.userIdentityByContextData, h.putMyProfileWithAttachedAvatar)
 	}
 
 	// ***
@@ -53,11 +58,12 @@ func (h *Handler) getMyProfile(ctx *gin.Context) {
 		dto.MakeMyProfileRes(userProfile))
 }
 
-// PUT /api/my-profile
+// PUT /api/my-profile/with-attached-avatar
 // -----------------------------------------------------------------------
 
-func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
-	requestDto := dto.MyProfilePutReq{}
+func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context) {
+	requestDto := dto.MyProfileWithAttachedAvatarPutReq{}
+
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
@@ -102,7 +108,7 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	ctx.Set(contextRequestDto, requestDto)
 }
 
-func (h *Handler) putMyProfile(ctx *gin.Context) {
+func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
@@ -116,7 +122,7 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.MyProfilePutReq)
+	requestDto, converted := anyRequestDto.(dto.MyProfileWithAttachedAvatarPutReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -132,6 +138,13 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+// PUT /api/my-profile
+// -----------------------------------------------------------------------
+
+func (h *Handler) putMyProfile(ctx *gin.Context) {
+
 }
 
 // user
