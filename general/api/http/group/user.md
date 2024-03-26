@@ -46,6 +46,35 @@
 
 <!-- -------------------------------------------- -->
 
+## PUT /api/my-profile/with-attached-avatar
+
+### Request body
+```json
+{
+    /* required */
+    "access-token": "<jwt-string>",
+       
+    /* optional */
+    "description": "<string>",
+    "avatar": {
+        "ext": "<int>",
+        "content": "<base64-string>"
+    },
+    "privacy": {
+        "hit-me-up": "<int>"
+    },
+    "security": {
+        "password": "<hash-string>",
+        "new-password": "<hash-string>"
+    }
+}
+```
+
+### Responses
+- *200*
+
+<!-- -------------------------------------------- -->
+
 ## DELETE /api/my-profile
 
 ### Request body

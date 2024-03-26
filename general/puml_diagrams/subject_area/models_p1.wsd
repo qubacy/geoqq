@@ -64,7 +64,6 @@ package Domain {
         }
 
         class DeletedUser {
-            Id: Number
             UserId: Number
             Time: Datetime
         }

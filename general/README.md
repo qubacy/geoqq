@@ -9,11 +9,11 @@ Description
 ### Models
 
 - Part 1: 
-  - Source [here](./puml_diagrams/domain/models_p1.wsd)
-  - Image [here](./out_diagrams/puml_diagrams/domain/models_p1.png)
+  - Source [here](./puml_diagrams/subject_area/models_p1.wsd)
+  - Image [here](./out_diagrams/puml_diagrams/subject_area/models_p1.png)
 - Part 2:
-  - Source [here](./puml_diagrams/domain/models_p2.wsd)
-  - Image [here](./out_diagrams/puml_diagrams/domain/models_p2.png)
+  - Source [here](./puml_diagrams/subject_area/models_p2.wsd)
+  - Image [here](./out_diagrams/puml_diagrams/subject_area/models_p2.png)
 
 ### Use Case
 

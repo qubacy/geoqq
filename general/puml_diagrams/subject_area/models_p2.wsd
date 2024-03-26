@@ -72,7 +72,6 @@ class Avatar {
 }
 
 class DeletedUser {
-    Id: Number
     UserId: Number
     Time: Datetime
 }
