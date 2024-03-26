@@ -15,30 +15,34 @@ interface LocalMateMessageDataSource : DataSource {
             "WHERE ${MateMessageEntity.ID_PROP_NAME} = :messageId " +
             "AND ${MateMessageEntity.CHAT_ID_PROP_NAME} = :chatId"
     )
-    fun getMateMessage(chatId: Long, messageId: Long): MateMessageEntity?
+    fun getMessage(chatId: Long, messageId: Long): MateMessageEntity?
 
     @Query("SELECT * FROM ${MateMessageEntity.TABLE_NAME} " +
             "WHERE ${MateMessageEntity.CHAT_ID_PROP_NAME} = :chatId " +
             "ORDER BY ${MateMessageEntity.ID_PROP_NAME} DESC " +
             "LIMIT :offset, :count"
     )
-    fun getMateMessages(chatId: Long, offset: Int, count: Int): List<MateMessageEntity>
+    fun getMessages(chatId: Long, offset: Int, count: Int): List<MateMessageEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMateMessage(mateMessage: MateMessageEntity)
+    fun insertMessage(mateMessage: MateMessageEntity)
 
     @Update()
-    fun updateMateMessage(mateMessage: MateMessageEntity)
+    fun updateMessage(mateMessage: MateMessageEntity)
 
     @Delete()
-    fun deleteMateMessage(mateMessage: MateMessageEntity)
+    fun deleteMessage(mateMessage: MateMessageEntity)
+
+    fun saveMessage(message: MateMessageEntity) {
+        val localMessage = getMessage(message.chatId, message.id)
+
+        if(message == localMessage) return
+
+        if (localMessage == null) insertMessage(message)
+        else updateMessage(message)
+    }
 
     fun saveMessages(messages: List<MateMessageEntity>) {
-        for (message in messages) {
-            val localMessage = getMateMessage(message.chatId, message.id)
-
-            if (localMessage == null) insertMateMessage(message)
-            else updateMateMessage(message)
-        }
+        for (message in messages) saveMessage(message)
     }
 }

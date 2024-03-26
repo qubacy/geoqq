@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.data.user.repository.source.http.response
 
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -21,8 +20,4 @@ class GetUserResponse(
         const val IS_MATE_PROP_NAME = "is-mate"
         const val IS_DELETED_PROP_NAME = "is-deleted"
     }
-}
-
-fun GetUserResponse.toDataUser(): DataUser {
-    return DataUser(id, username, description, avatarId, isMate, isDeleted)
 }

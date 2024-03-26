@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
 import com.qubacy.geoqq.data._common.model.message.DataMessage
+import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -26,7 +26,7 @@ class MateMessageDataRepository @Inject constructor(
     // todo: provide a websocket data source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     suspend fun getMessages(chatId: Long, offset: Int, count: Int) {
-        val localMessages = localMateMessageDataSource.getMateMessages(chatId, offset, count)
+        val localMessages = localMateMessageDataSource.getMessages(chatId, offset, count)
 
         if (localMessages.isNotEmpty()) {
             val localDataMessages = localMessages.map { it.toDataMessage() }

@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.qubacy.geoqq.data.error.repository.source.local.LocalErrorDataSource
 import com.qubacy.geoqq.data.error.repository.source.local.model.ErrorEntity
+import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
@@ -26,5 +27,6 @@ abstract class Database : RoomDatabase() {
 
     abstract fun errorDao(): LocalErrorDataSource
     abstract fun mateMessageDao(): LocalMateMessageDataSource
+    abstract fun mateChatDao(): LocalMateChatDataSource
     abstract fun userDao(): LocalUserDataSource
 }

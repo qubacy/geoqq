@@ -3,10 +3,10 @@ package com.qubacy.geoqq.data.mate.message.repository
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.model.message.DataMessage
+import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.toDataMessage
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
@@ -83,33 +83,33 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private fun mockLocalMateMessageDataSource(): LocalMateMessageDataSource {
         val localMateMessageDataSourceMock = Mockito.mock(LocalMateMessageDataSource::class.java)
 
-        Mockito.`when`(localMateMessageDataSourceMock.getMateMessages(
+        Mockito.`when`(localMateMessageDataSourceMock.getMessages(
             Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
         )).thenAnswer {
             mLocalSourceGetMateMessagesCallFlag = true
             mLocalSourceGetMateMessages
         }
-        Mockito.`when`(localMateMessageDataSourceMock.getMateMessage(
+        Mockito.`when`(localMateMessageDataSourceMock.getMessage(
             Mockito.anyLong(), Mockito.anyLong()
         )).thenAnswer {
             mLocalSourceGetMateMessageCallFlag = true
             mLocalSourceGetMateMessage
         }
-        Mockito.`when`(localMateMessageDataSourceMock.insertMateMessage(
+        Mockito.`when`(localMateMessageDataSourceMock.insertMessage(
             AnyMockUtil.anyObject()
         )).thenAnswer {
             mLocalSourceInsertMateMessageCallFlag = true
 
             Unit
         }
-        Mockito.`when`(localMateMessageDataSourceMock.updateMateMessage(
+        Mockito.`when`(localMateMessageDataSourceMock.updateMessage(
             AnyMockUtil.anyObject()
         )).thenAnswer {
             mLocalSourceUpdateMateMessageCallFlag = true
 
             Unit
         }
-        Mockito.`when`(localMateMessageDataSourceMock.deleteMateMessage(
+        Mockito.`when`(localMateMessageDataSourceMock.deleteMessage(
             AnyMockUtil.anyObject()
         )).thenAnswer {
             mLocalSourceDeleteMateMessageCallFlag = true

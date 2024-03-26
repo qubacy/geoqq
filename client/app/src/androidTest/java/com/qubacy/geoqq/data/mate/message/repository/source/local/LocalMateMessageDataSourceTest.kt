@@ -39,10 +39,10 @@ class LocalMateMessageDataSourceTest :
     fun insertMateMessageThenGetItTest() {
         val expectedMessageEntity = generateMessages(count = 1).first()
 
-        mLocalMateMessageDataSource.insertMateMessage(expectedMessageEntity)
+        mLocalMateMessageDataSource.insertMessage(expectedMessageEntity)
 
         val gottenMessageEntity =
-            mLocalMateMessageDataSource.getMateMessage(
+            mLocalMateMessageDataSource.getMessage(
                 expectedMessageEntity.chatId, expectedMessageEntity.id)
 
         Assert.assertEquals(expectedMessageEntity, gottenMessageEntity)
@@ -62,22 +62,12 @@ class LocalMateMessageDataSourceTest :
             firstMessageChunkOffset, messageChunkSize).reversed()
 
         for (message in expectedSecondMessageChunk + expectedFirstMessageChunk)
-            mLocalMateMessageDataSource.insertMateMessage(message)
+            mLocalMateMessageDataSource.insertMessage(message)
 
-        val gottenFirstMessageChunk = mLocalMateMessageDataSource.getMateMessages(
+        val gottenFirstMessageChunk = mLocalMateMessageDataSource.getMessages(
             DEFAULT_MATE_CHAT.id, expectedFirstMessageChunkOffset, messageChunkSize)
-        val gottenSecondMessageChunk = mLocalMateMessageDataSource.getMateMessages(
+        val gottenSecondMessageChunk = mLocalMateMessageDataSource.getMessages(
             DEFAULT_MATE_CHAT.id, expectedSecondMessageChunkOffset, messageChunkSize)
-
-        val assertMessageChunk = {
-            expectedMessageChunk: List<MateMessageEntity>,
-            gottenMessageChunk: List<MateMessageEntity> ->
-
-            Assert.assertEquals(expectedMessageChunk.size, gottenMessageChunk.size)
-
-            for (expectedMessage in expectedMessageChunk)
-                Assert.assertTrue(gottenMessageChunk.contains(expectedMessage))
-        }
 
         assertMessageChunk(expectedFirstMessageChunk, gottenFirstMessageChunk)
         assertMessageChunk(expectedSecondMessageChunk, gottenSecondMessageChunk)
@@ -88,11 +78,11 @@ class LocalMateMessageDataSourceTest :
         val initMessageEntity = generateMessages(count = 1).first()
         val expectedUpdatedMessageEntity = initMessageEntity.copy(text = "updated text")
 
-        mLocalMateMessageDataSource.insertMateMessage(initMessageEntity)
-        mLocalMateMessageDataSource.updateMateMessage(expectedUpdatedMessageEntity)
+        mLocalMateMessageDataSource.insertMessage(initMessageEntity)
+        mLocalMateMessageDataSource.updateMessage(expectedUpdatedMessageEntity)
 
         val gottenUpdatedMessageEntity = mLocalMateMessageDataSource
-            .getMateMessage(expectedUpdatedMessageEntity.chatId, expectedUpdatedMessageEntity.id)
+            .getMessage(expectedUpdatedMessageEntity.chatId, expectedUpdatedMessageEntity.id)
 
         Assert.assertEquals(expectedUpdatedMessageEntity, gottenUpdatedMessageEntity)
     }
@@ -101,11 +91,11 @@ class LocalMateMessageDataSourceTest :
     fun deleteMateMessageTest() {
         val messageToDelete = generateMessages(count = 1).first()
 
-        mLocalMateMessageDataSource.insertMateMessage(messageToDelete)
-        mLocalMateMessageDataSource.deleteMateMessage(messageToDelete)
+        mLocalMateMessageDataSource.insertMessage(messageToDelete)
+        mLocalMateMessageDataSource.deleteMessage(messageToDelete)
 
         val gottenUpdatedMessageEntity = mLocalMateMessageDataSource
-            .getMateMessage(messageToDelete.chatId, messageToDelete.id)
+            .getMessage(messageToDelete.chatId, messageToDelete.id)
 
         Assert.assertNull(gottenUpdatedMessageEntity)
     }
@@ -121,19 +111,19 @@ class LocalMateMessageDataSourceTest :
         }
 
         for (message in initMessages)
-            mLocalMateMessageDataSource.insertMateMessage(message)
+            mLocalMateMessageDataSource.insertMessage(message)
 
         mLocalMateMessageDataSource.saveMessages(messagesToSave)
 
         val gottenMessages = mLocalMateMessageDataSource
-            .getMateMessages(DEFAULT_MATE_CHAT.id, 0, expectedMessages.size)
+            .getMessages(DEFAULT_MATE_CHAT.id, 0, expectedMessages.size)
 
         assertMessageChunk(expectedMessages, gottenMessages)
     }
 
     override fun packEntityContent(itemEntity: MateChatEntity): ContentValues {
         return ContentValues().apply {
-            put(MateChatEntity.CHAT_ID_PROP_NAME, DEFAULT_MATE_CHAT.id)
+            put(MateChatEntity.ID_PROP_NAME, DEFAULT_MATE_CHAT.id)
             put(MateChatEntity.USER_ID_PROP_NAME, DEFAULT_MATE_CHAT.userId)
             put(MateChatEntity.NEW_MESSAGE_COUNT_PROP_NAME, DEFAULT_MATE_CHAT.newMessageCount)
             put(MateChatEntity.LAST_MESSAGE_ID_PROP_NAME, DEFAULT_MATE_CHAT.lastMessageId)

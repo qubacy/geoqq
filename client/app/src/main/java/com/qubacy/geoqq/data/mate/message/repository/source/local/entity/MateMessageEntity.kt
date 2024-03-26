@@ -11,7 +11,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEn
     foreignKeys = [
         ForeignKey(
             entity = MateChatEntity::class,
-            parentColumns = arrayOf(MateChatEntity.CHAT_ID_PROP_NAME),
+            parentColumns = arrayOf(MateChatEntity.ID_PROP_NAME),
             childColumns = arrayOf(MateMessageEntity.CHAT_ID_PROP_NAME),
             onDelete = ForeignKey.CASCADE
         )

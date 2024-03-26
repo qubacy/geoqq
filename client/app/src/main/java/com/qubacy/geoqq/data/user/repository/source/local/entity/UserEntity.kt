@@ -3,7 +3,6 @@ package com.qubacy.geoqq.data.user.repository.source.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.qubacy.geoqq.data.user.model.DataUser
 
 @Entity(tableName = UserEntity.TABLE_NAME)
 data class UserEntity(
@@ -30,8 +29,4 @@ data class UserEntity(
         const val IS_MATE_PARAM_DEFAULT_VALUE = "0"
         const val IS_DELETED_PARAM_DEFAULT_VALUE = "0"
     }
-}
-
-fun UserEntity.toDataUser(): DataUser {
-    return DataUser(id, username, description, avatarId, isMate == 1, isDeleted == 1)
 }

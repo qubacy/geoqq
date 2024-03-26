@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     foreignKeys = [])
 data class MateChatEntity(
     @PrimaryKey()
-    @ColumnInfo(name = CHAT_ID_PROP_NAME) val id: Long,
+    @ColumnInfo(name = ID_PROP_NAME) val id: Long,
     @ColumnInfo(name = USER_ID_PROP_NAME) val userId: Long,
     @ColumnInfo(
         name = NEW_MESSAGE_COUNT_PROP_NAME,
@@ -20,7 +20,7 @@ data class MateChatEntity(
     companion object {
         const val TABLE_NAME = "MateChat"
 
-        const val CHAT_ID_PROP_NAME = "id"
+        const val ID_PROP_NAME = "id"
         const val USER_ID_PROP_NAME = "user_id"
         const val NEW_MESSAGE_COUNT_PROP_NAME = "new_message_count"
         const val LAST_MESSAGE_ID_PROP_NAME = "last_message_id"

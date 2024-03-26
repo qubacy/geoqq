@@ -6,14 +6,13 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
+import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.response.GetUserResponse
 import com.qubacy.geoqq.data.user.repository.source.http.response.GetUsersResponse
-import com.qubacy.geoqq.data.user.repository.source.http.response.toDataUser
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
-import com.qubacy.geoqq.data.user.repository.source.local.entity.toDataUser
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert

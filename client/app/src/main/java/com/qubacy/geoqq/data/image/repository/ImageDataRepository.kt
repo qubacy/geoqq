@@ -7,11 +7,11 @@ import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.error.type.ImageErrorType
 import com.qubacy.geoqq.data.image.model.DataImage
+import com.qubacy.geoqq.data.image.repository._common.toRawImage
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.http.request.GetImagesRequest
 import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequest
 import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequestImage
-import com.qubacy.geoqq.data.image.repository.source.http.response.toRawImage
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.local.entity.toDataImage
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository

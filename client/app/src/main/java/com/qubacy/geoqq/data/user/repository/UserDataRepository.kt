@@ -4,13 +4,12 @@ import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepositor
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.request.GetUsersRequest
-import com.qubacy.geoqq.data.user.repository.source.http.response.toDataUser
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.local.entity.toDataUser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

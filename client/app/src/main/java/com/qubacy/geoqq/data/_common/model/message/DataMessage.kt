@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.model.message
 
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 
 data class DataMessage(
@@ -15,4 +16,8 @@ data class DataMessage(
 
 fun DataMessage.toMateMessageEntity(chatId: Long): MateMessageEntity {
     return MateMessageEntity(id, chatId, userId, text, time / 1000)
+}
+
+fun GetMessageResponse.toDataMessage(): DataMessage {
+    return DataMessage(id, userId, text, time)
 }
