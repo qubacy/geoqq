@@ -13,20 +13,6 @@ import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMes
 @Dao
 interface LocalMateChatDataSource : LocalMateMessageDataSource {
     @Query(
-//        "SELECT ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} " +
-//        "as ${MateChatEntity.ID_PROP_NAME}, " +
-//        "${MateChatEntity.TABLE_NAME}.${MateChatEntity.USER_ID_PROP_NAME} " +
-//        "as ${MateChatEntity.USER_ID_PROP_NAME}, " +
-//        "${MateChatEntity.NEW_MESSAGE_COUNT_PROP_NAME}, " +
-//        "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
-//        "FROM ${MateChatEntity.TABLE_NAME} " +
-//        "LEFT JOIN ${MateMessageEntity.TABLE_NAME} " +
-//        "ON ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.ID_PROP_NAME} = " +
-//        "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
-//        "AND ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} = " +
-//        "${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} " +
-//        "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC " +
-//        "LIMIT :offset, :count"
         "SELECT *" +
         "FROM ${MateChatEntity.TABLE_NAME} " +
         "LEFT JOIN ${MateMessageEntity.TABLE_NAME} " +

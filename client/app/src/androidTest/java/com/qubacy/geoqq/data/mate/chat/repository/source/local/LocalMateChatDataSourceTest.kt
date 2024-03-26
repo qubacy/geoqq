@@ -31,7 +31,7 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
 
     @Test
     fun insertChatThenGetItTest() {
-        val expectedChat = generateChats(count = 1).first()
+        val expectedChat = generateChats(1).first()
 
         mLocalMateChatDataSource.insertChat(expectedChat)
 
@@ -50,7 +50,7 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
         mLocalMateChatDataSource.insertChatWithLastMessage(expectedChatLastMessageEntityPair)
 
         val gottenChatWithLastMessage = mLocalMateChatDataSource
-            .getChatById(expectedChatLastMessageEntityPair.first.id).entries.first().toPair()//!!
+            .getChatById(expectedChatLastMessageEntityPair.first.id).entries.first().toPair()
 
         Assert.assertEquals(expectedChatLastMessageEntityPair, gottenChatWithLastMessage)
     }
@@ -82,22 +82,71 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
 
     @Test
     fun updateChatTest() {
+        val initChatEntry = generateChats(1).first()
+        val expectedChatEntity = initChatEntry.copy(lastMessageId = 1)
 
+        mLocalMateChatDataSource.insertChat(initChatEntry)
+        mLocalMateChatDataSource.updateChat(expectedChatEntity)
+
+        val gottenChat = mLocalMateChatDataSource
+            .getChatById(expectedChatEntity.id).entries.first().toPair().first
+
+        Assert.assertEquals(expectedChatEntity, gottenChat)
     }
 
     @Test
     fun updateChatWithLastMessageTest() {
+        val initChatLastMessageEntityPair = Pair(
+            MateChatEntity(0, 0, 0, 0),
+            MateMessageEntity(0, 0, 0, "", 100)
+        )
+        val expectedChatLastMessageEntityPair = Pair(
+            initChatLastMessageEntityPair.first.copy(lastMessageId = 1),
+            initChatLastMessageEntityPair.second.copy(id = 1, text = "updated text")
+        )
 
+        mLocalMateChatDataSource.insertChatWithLastMessage(initChatLastMessageEntityPair)
+        mLocalMateChatDataSource.updateChatWithLastMessage(expectedChatLastMessageEntityPair)
+
+        val gottenChatWithLastMessage = mLocalMateChatDataSource
+            .getChatById(expectedChatLastMessageEntityPair.first.id).entries.first().toPair()
+
+        Assert.assertEquals(expectedChatLastMessageEntityPair, gottenChatWithLastMessage)
     }
 
     @Test
     fun deleteChatTest() {
+        val chatToDelete = generateChats(1).first()
 
+        mLocalMateChatDataSource.insertChat(chatToDelete)
+        mLocalMateChatDataSource.deleteChat(chatToDelete)
+
+        val gottenChats = mLocalMateChatDataSource.getChatById(chatToDelete.id)
+
+        Assert.assertTrue(gottenChats.isEmpty())
     }
 
     @Test
     fun saveChatsTest() {
+        val initChats = generateChatLastMessageMap(3)
+        val chatToUpdate = initChats.entries.last().key
+        val chatsToSave = generateChatLastMessageMap(3, 1).toMutableMap().apply {
+            this[chatToUpdate] = this[chatToUpdate]!!.copy(text = "updated text")
+        }
+        val expectedChats = chatsToSave.toMutableMap().apply {
+            val firstChatEntry = initChats.entries.first()
 
+            this[firstChatEntry.key] = firstChatEntry.value
+        }
+
+        for (chatWithLastMessage in initChats)
+            mLocalMateChatDataSource.insertChatWithLastMessage(chatWithLastMessage.toPair())
+
+        mLocalMateChatDataSource.saveChats(chatsToSave.toList())
+
+        val gottenChats = mLocalMateChatDataSource.getChats(0, expectedChats.size)
+
+        assertChatWithLastMessageChunk(expectedChats, gottenChats)
     }
 
     private fun assertChatWithLastMessageChunk(
@@ -128,7 +177,7 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
         IntRange(offset, offset + count - 1)
             .let { if (isReversed) it.reversed() else it }
             .forEach {
-                val chatEntity = generateChats(it, 1).first()
+                val chatEntity = generateChats(1, it).first()
                 val lastMessageEntity = MateMessageEntity(
                     DEFAULT_LAST_MESSAGE_ID, chatEntity.id, DEFAULT_USER_ID,
                     "test ${chatEntity.id}", DEFAULT_LAST_MESSAGE_TIME
@@ -141,8 +190,8 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
     }
 
     private fun generateChats(
-        offset: Int = 0,
-        count: Int
+        count: Int,
+        offset: Int = 0
     ): List<MateChatEntity> {
         return IntRange(offset, offset + count - 1).map {
             val id = it.toLong()

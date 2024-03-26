@@ -32,23 +32,6 @@ fun Map.Entry<MateChatEntity, MateMessageEntity?>.toDataMateChat(): DataMateChat
     )
 }
 
-//fun DataMateChat.toMateChatWithLastMessageProjection(): MateChatWithLastMessageProjection {
-//    val mateChatEntity = MateChatEntity(id, userId, newMessageCount, lastMessage?.id)
-//
-//    return MateChatWithLastMessageProjection(
-//        mateChatEntity, lastMessage?.toMateMessageEntity(id)
-//    )
-//}
-
-//fun MateChatWithLastMessageProjection.toDataMateChat(): DataMateChat {
-//    return DataMateChat(
-//        mateChatEntity.id,
-//        mateChatEntity.userId,
-//        mateChatEntity.newMessageCount,
-//        lastMessage?.toDataMessage()
-//    )
-//}
-
 fun GetChatResponse.toDataMateChat(): DataMateChat {
     val lastDataMessage = lastMessage?.toDataMessage()
 
