@@ -8,6 +8,18 @@ CREATE TABLE "UserEntry"
     "SignInTime" TIMESTAMP WITHOUT TIME ZONE
 );
 
+CREATE TABLE "Avatar" 
+(
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "UserId" BIGINT NULL, -- who added the image
+    
+    "Label" VARCHAR(128) NULL, -- to search for special images
+    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "Hash" VARCHAR(512) NOT NULL,
+
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
+);
+
 CREATE TABLE "UserLocation"
 (
     "UserId" BIGINT NOT NULL,
@@ -37,4 +49,13 @@ CREATE TABLE "UserOptions"
     "HitMeUp" INTEGER NOT NULL,
     
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
+);
+
+CREATE TABLE "DeletedUser"
+(
+    -- "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "UserId" BIGINT NOT NULL,
+    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );

@@ -30,6 +30,32 @@ func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, p
 
 // -----------------------------------------------------------------------
 
+type rowQueryWrapper = func(conn *pgxpool.Conn) pgx.Row
+
+func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
+	f rowQueryWrapper) (pgx.Row, error) {
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(queryRowWithConnectionAcquire, err)
+	}
+	defer conn.Release()
+
+	return f(conn), nil
+}
+
+func scanLastInsertedId(row pgx.Row, sourceFunc any) (uint64, error) {
+	var lastInsertedId uint64
+	err := row.Scan(&lastInsertedId)
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return lastInsertedId, nil
+}
+
+// -----------------------------------------------------------------------
+
 func insertForUserPairWithoutReturningIdInsideTx(
 	ctx context.Context, tx pgx.Tx, templateQueryText string,
 	firstUserId, secondUserId uint64) error {

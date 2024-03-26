@@ -1,6 +1,8 @@
 CREATE TABLE "Mate"
 (
+    -- why is there an identifier here?
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
 

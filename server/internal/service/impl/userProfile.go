@@ -72,7 +72,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context, userId uint6
 	// *** save to file and domain storages! ***
 
 	if input.Avatar != nil {
-		avatarId, err := p.updateAvatar(ctx, *input.Avatar)
+		avatarId, err := p.updateAvatar(ctx, *input.Avatar, userId)
 		if err != nil {
 			return utl.NewFuncError(p.UpdateUserProfile, err)
 		}
@@ -122,7 +122,7 @@ func (p *UserProfileService) avatarIdWithError(err error, side, code int) (uint6
 	)
 }
 
-func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar) (uint64, error) {
+func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar, userId uint64) (uint64, error) {
 	imageExt := file.ImageExt(avatar.Ext)
 	if !imageExt.IsValid() {
 		return p.avatarIdWithError(ErrUnknownImageExtension, ec.Client, ec.UnknownAvatarExtension)
@@ -146,7 +146,7 @@ func (p *UserProfileService) updateAvatar(ctx context.Context, avatar dto.Avatar
 
 	// ***
 
-	avatarId, err := p.domainStorage.InsertAvatar(ctx, avatarHash)
+	avatarId, err := p.domainStorage.InsertAvatar(ctx, userId, avatarHash)
 	if err != nil {
 		return p.avatarIdWithError(err, ec.Server, ec.DomainStorageError)
 	}

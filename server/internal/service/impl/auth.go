@@ -239,7 +239,7 @@ func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login st
 	// ***
 
 	// TODO: combine into a transaction?
-	avatarId, err := a.domainStorage.InsertGeneratedAvatar(ctx, imageHash)
+	avatarId, err := a.domainStorage.InsertServerGeneratedAvatar(ctx, imageHash)
 	if err != nil {
 		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
 			ec.New(err, ec.Server, ec.DomainStorageError))

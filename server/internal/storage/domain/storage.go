@@ -11,8 +11,12 @@ import (
 type AvatarStorage interface {
 	HasAvatar(ctx context.Context, id uint64) (bool, error)
 	HasAvatars(ctx context.Context, uniqueIds []uint64) (bool, error)
-	InsertGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
-	InsertAvatar(ctx context.Context, hashValue string) (uint64, error)
+
+	InsertServerGeneratedAvatar(ctx context.Context, hashValue string) (uint64, error)
+	InsertServerGeneratedAvatarWithLabel(ctx context.Context,
+		hashValue, label string) (uint64, error)
+
+	InsertAvatar(ctx context.Context, userId uint64, hashValue string) (uint64, error)
 	DeleteAvatarWithId(ctx context.Context, id uint64) error
 }
 

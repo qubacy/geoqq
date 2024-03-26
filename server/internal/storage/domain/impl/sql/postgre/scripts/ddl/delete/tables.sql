@@ -5,9 +5,10 @@ DROP TABLE IF EXISTS
 	"MateChat",
 	"MateRequest",
 	"Mate",
+	"DeletedUser",
 	"UserOptions",
 	"UserDetails",
 	"UserLocation",
-	"UserEntry",
-	"Avatar"
+	"Avatar",
+	"UserEntry"
 	CASCADE;

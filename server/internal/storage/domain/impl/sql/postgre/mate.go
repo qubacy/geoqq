@@ -84,7 +84,6 @@ func (s *MateStorage) InsertMate(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-// without returning an identifier?
 func insertMateWithoutReturningId(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
 

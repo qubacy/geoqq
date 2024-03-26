@@ -1,15 +1,4 @@
--- avatar
--- ---------------------------------------------------------------------------
-CREATE TABLE "Avatar" 
-(
-    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
-    "GeneratedByServer" BOOLEAN NOT NULL,
-    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Hash" VARCHAR(512) NOT NULL
-);
-
-
--- user
+-- user_and_avatar
 -- ---------------------------------------------------------------------------
 CREATE TABLE "UserEntry"
 (
@@ -19,6 +8,18 @@ CREATE TABLE "UserEntry"
     "HashUpdToken" VARCHAR(512) NOT NULL DEFAULT '',
     "SignUpTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "SignInTime" TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE "Avatar" 
+(
+    "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "UserId" BIGINT NULL, -- who added the image
+    
+    "Label" VARCHAR(128) NULL, -- to search for special images
+    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "Hash" VARCHAR(512) NOT NULL,
+
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
 CREATE TABLE "UserLocation"
@@ -52,12 +53,22 @@ CREATE TABLE "UserOptions"
 	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
+CREATE TABLE "DeletedUser"
+(
+    -- "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+    "UserId" BIGINT NOT NULL,
+    "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
+);
 
 -- mate
 -- ---------------------------------------------------------------------------
 CREATE TABLE "Mate"
 (
+    -- why is there an identifier here?
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
+
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
 

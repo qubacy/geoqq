@@ -5,6 +5,7 @@ import (
 	"fmt"
 	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -28,6 +29,37 @@ var (
 	templateDeleteAvatarWithId = utl.RemoveAdjacentWs(`
 		DELETE FROM "Avatar"
 			WHERE "Id" = $1`)
+
+	templateInsertSvrGeneratedAvatar = utl.RemoveAdjacentWs(`
+		INSERT INTO "Avatar" (
+			"UserId", 
+			"Time",
+			"Hash"
+		)
+		VALUES (
+			NULL, NOW()::timestamp, $1
+		) RETURNING "Id"`)
+
+	templateInsertSvrGeneratedAvatarWithLbl = utl.RemoveAdjacentWs(`
+		INSERT INTO "Avatar" ( 
+			"UserId",
+			"Label",
+    		"Time", 
+			"Hash"
+		)
+		VALUES (
+			NULL, $1, NOW()::timestamp, $2
+		) RETURNING "Id"`)
+
+	templateInsertAvatar = utl.RemoveAdjacentWs(`
+		INSERT INTO "Avatar" ( 
+			"UserId",
+			"Time",
+			"Hash"
+		)
+		VALUES (
+			$1, NOW()::timestamp, $2
+		) RETURNING "Id"`)
 )
 
 // public
@@ -91,63 +123,76 @@ func (s *AvatarStorage) HasAvatars(ctx context.Context, uniqueIds []uint64) (
 	return count == len(uniqueIds), nil
 }
 
-func (s *AvatarStorage) InsertGeneratedAvatar(
+// work with generated avatar
+// -----------------------------------------------------------------------
+
+func (s *AvatarStorage) InsertServerGeneratedAvatar(
 	ctx context.Context, hashValue string) (
 	uint64, error,
 ) {
-	conn, err := s.pool.Acquire(ctx)
-	if err != nil {
-		return 0, utl.NewFuncError(s.InsertGeneratedAvatar, err)
-	}
-	defer conn.Release()
+	sourceFunc := s.InsertServerGeneratedAvatar
 
-	row := conn.QueryRow(ctx,
-		`INSERT INTO "Avatar" (
-			"GeneratedByServer", "Time", "Hash"
-		)
-		VALUES (
-			TRUE, NOW()::timestamp, $1
-		) RETURNING "Id";`,
-		hashValue,
+	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateInsertSvrGeneratedAvatar+`;`,
+				hashValue,
+			)
+		},
 	)
 
-	var lastInsertedId uint64
-	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utl.NewFuncError(s.InsertGeneratedAvatar, err)
+		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return lastInsertedId, nil
+	return scanLastInsertedId(row, sourceFunc)
 }
+
+func (s *AvatarStorage) InsertServerGeneratedAvatarWithLabel(ctx context.Context,
+	hashValue, label string) (uint64, error) {
+	sourceFunc := s.InsertServerGeneratedAvatarWithLabel
+
+	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateInsertSvrGeneratedAvatarWithLbl+`;`,
+				label, hashValue,
+			)
+		},
+	)
+
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return scanLastInsertedId(row, sourceFunc)
+}
+
+// -----------------------------------------------------------------------
 
 func (s *AvatarStorage) InsertAvatar(
-	ctx context.Context, hashValue string) (
+	ctx context.Context, userId uint64, hashValue string) (
 	uint64, error,
 ) {
-	conn, err := s.pool.Acquire(ctx)
-	if err != nil {
-		return 0, utl.NewFuncError(s.InsertAvatar, err)
-	}
-	defer conn.Release()
+	sourceFunc := s.InsertAvatar
 
-	var lastInsertedId uint64
-	row := conn.QueryRow(ctx,
-		`INSERT INTO "Avatar" (
-			"GeneratedByServer", "Time", "Hash"
-		)
-		VALUES (
-			FALSE, NOW()::timestamp, $1
-		) RETURNING "Id";`,
-		hashValue,
+	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateInsertAvatar+`;`,
+				userId, hashValue,
+			)
+		},
 	)
 
-	err = row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utl.NewFuncError(s.InsertAvatar, err)
+		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return lastInsertedId, nil
+	return scanLastInsertedId(row, s.InsertAvatar)
 }
+
+// -----------------------------------------------------------------------
 
 func (s *AvatarStorage) DeleteAvatarWithId(
 	ctx context.Context, id uint64) error {
