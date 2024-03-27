@@ -7,9 +7,9 @@ import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
-    mErrorDataRepository: ErrorDataRepository,
+    errorDataRepository: ErrorDataRepository,
     private var mTokenDataRepository: TokenDataRepository
-) : UseCase(mErrorDataRepository) {
+) : UseCase(mErrorDataRepository = errorDataRepository) {
     fun signIn() {
         executeLogic({
             mTokenDataRepository.getTokens()

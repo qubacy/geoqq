@@ -73,10 +73,10 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
 
         mDataRepository = MateMessageDataRepository(
-            errorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            tokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
-            localMateMessageDataSource = localMateMessageDataSourceMock,
-            httpMateMessageDataSource = httpMateMessageDataSourceMock
+            mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mLocalMateMessageDataSource = localMateMessageDataSourceMock,
+            mHttpMateMessageDataSource = httpMateMessageDataSourceMock
         )
     }
 

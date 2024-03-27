@@ -34,7 +34,3 @@ data class MateMessageEntity(
         const val TIME_PROP_NAME = "time"
     }
 }
-
-fun MateMessageEntity.toDataMessage(): DataMessage {
-    return DataMessage(id, userId, text, timeInSec * 1000)
-}

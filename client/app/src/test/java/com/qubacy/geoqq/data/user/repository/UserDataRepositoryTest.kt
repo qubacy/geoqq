@@ -72,10 +72,10 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val httpUserDataSourceMock = mockHttpUserDataSource()
 
         mDataRepository = UserDataRepository(
-            errorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            tokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
-            localUserDataSource = localUserDataSourceMock,
-            httpUserDataSource = httpUserDataSourceMock
+            mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mLocalUserDataSource = localUserDataSourceMock,
+            mHttpUserDataSource = httpUserDataSourceMock
         )
     }
 

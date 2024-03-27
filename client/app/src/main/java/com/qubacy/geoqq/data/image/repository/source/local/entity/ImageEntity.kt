@@ -9,7 +9,3 @@ data class ImageEntity(
 ) {
 
 }
-
-fun ImageEntity.toDataImage(): DataImage {
-    return DataImage(id, uri)
-}

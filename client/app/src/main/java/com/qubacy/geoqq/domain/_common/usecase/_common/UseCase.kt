@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 abstract class UseCase(
-    protected val mErrorDataRepository: ErrorDataRepository,
-    mCoroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    mCoroutineScope: CoroutineScope = CoroutineScope(mCoroutineDispatcher)
-) : CoroutineUser(mCoroutineDispatcher, mCoroutineScope) {
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
+    protected val mErrorDataRepository: ErrorDataRepository
+) : CoroutineUser(coroutineDispatcher, coroutineScope) {
     companion object {
         const val TAG = "UseCase"
     }

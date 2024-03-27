@@ -21,10 +21,10 @@ class MateMessageDataRepositoryModule {
         httpMateMessageDataSource: HttpMateMessageDataSource
     ): MateMessageDataRepository {
         return MateMessageDataRepository(
-            errorDataRepository = errorDataRepository,
-            tokenDataRepository = tokenDataRepository,
-            localMateMessageDataSource = localMateMessageDataSource,
-            httpMateMessageDataSource = httpMateMessageDataSource
+            mErrorDataRepository = errorDataRepository,
+            mTokenDataRepository = tokenDataRepository,
+            mLocalMateMessageDataSource = localMateMessageDataSource,
+            mHttpMateMessageDataSource = httpMateMessageDataSource
         )
     }
 }

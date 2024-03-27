@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data.user.repository.module
 
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -17,14 +18,16 @@ object UserDataRepositoryModule {
     fun provideUserDataRepository(
         errorDataRepository: ErrorDataRepository,
         tokenDataRepository: TokenDataRepository,
+        imageDataRepository: ImageDataRepository,
         localUserDataSource: LocalUserDataSource,
         httpUserDataSource: HttpUserDataSource
     ): UserDataRepository {
         return UserDataRepository(
-            errorDataRepository = errorDataRepository,
-            tokenDataRepository = tokenDataRepository,
-            localUserDataSource = localUserDataSource,
-            httpUserDataSource = httpUserDataSource
+            mErrorDataRepository = errorDataRepository,
+            mTokenDataRepository = tokenDataRepository,
+            mImageDataRepository = imageDataRepository,
+            mLocalUserDataSource = localUserDataSource,
+            mHttpUserDataSource = httpUserDataSource
         )
     }
 }
