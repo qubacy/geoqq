@@ -15,6 +15,9 @@ func (h *Handler) registerImageRoutes() {
 		router.GET("/:id", h.userIdentityForGetRequest, h.getImage)
 		router.GET("", h.extractBodyFromGetSomeImages,
 			h.userIdentityByContextData, h.getSomeImages) // can be done better!
+
+		router.POST("", h.extractBodyFromPostImage,
+			h.userIdentityByContextData, h.postImage)
 	}
 }
 
@@ -116,4 +119,56 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 	// to delivery
 
 	ctx.JSON(http.StatusOK, images)
+}
+
+// POST /api/image
+// -----------------------------------------------------------------------
+
+func (h *Handler) extractBodyFromPostImage(ctx *gin.Context) {
+	requestDto := dto.ImagePostReq{}
+	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
+		return
+	}
+
+	// ***
+
+	if len(requestDto.AccessToken) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+	if len(requestDto.Image.Content) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+
+	// to next handler!
+
+	ctx.Set(contextAccessToken, requestDto.AccessToken)
+	ctx.Set(contextRequestDto, requestDto)
+}
+
+func (h *Handler) postImage(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	anyRequestDto, _ := ctx.Get(contextRequestDto) // always exists!
+	requestDto, converted := anyRequestDto.(dto.ImagePostReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
+
+	imageId, err := h.services.AddImageToUser(ctx,
+		userId, requestDto.ToInp())
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.MakeImagePostRes(imageId))
 }

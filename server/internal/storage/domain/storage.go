@@ -7,7 +7,8 @@ import (
 	"geoqq/internal/storage/domain/dto"
 )
 
-// currently working with pictures!
+// avatar == image
+
 type AvatarStorage interface {
 	HasAvatar(ctx context.Context, id uint64) (bool, error)
 	HasAvatars(ctx context.Context, uniqueIds []uint64) (bool, error)
@@ -19,6 +20,8 @@ type AvatarStorage interface {
 	InsertAvatar(ctx context.Context, userId uint64, hashValue string) (uint64, error)
 	DeleteAvatarWithId(ctx context.Context, id uint64) error
 }
+
+// -----------------------------------------------------------------------
 
 type UserStorage interface {
 	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
@@ -61,6 +64,8 @@ type MateStorage interface {
 		firstUserId uint64, secondUserId uint64) (uint64, error)
 }
 
+// -----------------------------------------------------------------------
+
 type MateRequestStorage interface {
 	AddMateRequest(ctx context.Context,
 		fromUserId, toUserId uint64) (uint64, error)
@@ -102,6 +107,8 @@ type MateChatMessageStorage interface {
 		offset, count uint64) (domain.MateMessageList, error)
 }
 
+// -----------------------------------------------------------------------
+
 type GeoChatMessageStorage interface {
 	InsertGeoChatMessage(ctx context.Context,
 		fromUserId uint64, text string,
@@ -124,11 +131,14 @@ type GeoChatMessageStorage interface {
 
 type Storage interface {
 	AvatarStorage
+
 	UserStorage
 	UserProfileStorage
+
 	MateStorage
 	MateRequestStorage
 	MateChatStorage
 	MateChatMessageStorage
+
 	GeoChatMessageStorage
 }

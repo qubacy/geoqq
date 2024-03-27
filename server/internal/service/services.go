@@ -18,7 +18,11 @@ type AuthService interface {
 
 type UserProfileService interface {
 	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
-	UpdateUserProfile(ctx context.Context, userId uint64, input dto.UpdateProfileInp) error
+	UpdateUserProfileWithAvatar(ctx context.Context,
+		userId uint64, input dto.ProfileWithAvatarForUpdateInp) error
+
+	UpdateUserProfile(ctx context.Context,
+		userId uint64, input dto.ProfileForUpdateInp) error
 }
 
 type PublicUserService interface {
@@ -64,6 +68,9 @@ type GeoChatMessageService interface {
 type ImageService interface {
 	GetImageById(ctx context.Context, imageId uint64) (*file.Image, error)
 	GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error)
+
+	AddImageToUser(ctx context.Context, userId uint64,
+		input dto.ImageForAddToUserInp) (uint64, error)
 }
 
 // -----------------------------------------------------------------------

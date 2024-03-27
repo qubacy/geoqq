@@ -47,3 +47,12 @@ func NewServices(deps Dependencies) (*Services, error) {
 		UserService:            newUserService(deps),
 	}, nil
 }
+
+// base?
+// -----------------------------------------------------------------------
+
+type HasherAndStorages struct {
+	fileStorage   fileStorage.Storage
+	domainStorage domainStorage.Storage
+	hashManager   hash.HashManager
+}

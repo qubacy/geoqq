@@ -53,33 +53,18 @@ func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
 // PUT /api/my-profile
 // -----------------------------------------------------------------------
 
-type MyProfilePutReq struct {
-	AccessToken string `json:"access-token" binding:"required"` // ?
-
-	Description *string  `json:"description,omitempty"`
-	AvatarId    *float64 `json:"avatar-id,omitempty"`
-
-	Privacy  *Privacy  `json:"privacy,omitempty"`
-	Security *Security `json:"security,omitempty"`
-}
-
-// PUT /api/my-profile/with-attached-avatar
-// -----------------------------------------------------------------------
-
-type MyProfileWithAttachedAvatarPutReq struct {
+type PartMyProfileForPutReq struct {
 	AccessToken string `json:"access-token" binding:"required"` // ?
 
 	Description *string `json:"description,omitempty"`
-	Avatar      *Avatar `json:"avatar,omitempty"`
 
 	Privacy  *Privacy  `json:"privacy,omitempty"`
 	Security *Security `json:"security,omitempty"`
 }
 
-func (s *MyProfileWithAttachedAvatarPutReq) ToInp() serviceDto.UpdateProfileInp {
+func (s *PartMyProfileForPutReq) ToPartProfileForUpdate() serviceDto.PartProfileForUpdate {
 	var security *serviceDto.Security = nil
 	var privacy *serviceDto.Privacy = nil
-	var avatar *serviceDto.Avatar = nil
 
 	if s.Security != nil {
 		security = s.Security.ToDynamicInp()
@@ -87,18 +72,68 @@ func (s *MyProfileWithAttachedAvatarPutReq) ToInp() serviceDto.UpdateProfileInp 
 	if s.Privacy != nil {
 		privacy = s.Privacy.ToDynamicInp()
 	}
+
+	return serviceDto.PartProfileForUpdate{
+		Description: s.Description,
+		Security:    security,
+		Privacy:     privacy,
+	}
+}
+
+func (s *PartMyProfileForPutReq) ToPartProfileForUpdateInp() serviceDto.ProfileForUpdateInp {
+	return serviceDto.ProfileForUpdateInp{
+		PartProfileForUpdate: s.ToPartProfileForUpdate(),
+		AvatarId:             nil,
+	}
+}
+
+func (s *PartMyProfileForPutReq) ToPartProfileForUpdateWithAvatarInp() serviceDto.ProfileWithAvatarForUpdateInp {
+	return serviceDto.ProfileWithAvatarForUpdateInp{
+		PartProfileForUpdate: s.ToPartProfileForUpdate(),
+		Avatar:               nil,
+	}
+}
+
+// -----------------------------------------------------------------------
+
+type MyProfilePutReq struct {
+	PartMyProfileForPutReq
+	AvatarId *float64 `json:"avatar-id,omitempty"`
+}
+
+func (s *MyProfilePutReq) ToInp() serviceDto.ProfileForUpdateInp {
+	var avatarId *uint64 = nil
+	if s.AvatarId != nil {
+		avatarId = new(uint64)
+		*avatarId = uint64(*s.AvatarId)
+	}
+
+	// ***
+
+	input := s.ToPartProfileForUpdateInp()
+	input.AvatarId = avatarId
+	return input
+}
+
+// PUT /api/my-profile/with-attached-avatar
+// -----------------------------------------------------------------------
+
+type MyProfileWithAttachedAvatarPutReq struct {
+	PartMyProfileForPutReq
+	Avatar *Avatar `json:"avatar,omitempty"`
+}
+
+func (s *MyProfileWithAttachedAvatarPutReq) ToInp() serviceDto.ProfileWithAvatarForUpdateInp {
+	var avatar *serviceDto.Avatar = nil
 	if s.Avatar != nil {
 		avatar = s.Avatar.ToDynamicInp()
 	}
 
 	// ***
 
-	return serviceDto.UpdateProfileInp{
-		Description: s.Description, // mb nil?
-		Security:    security,
-		Privacy:     privacy,
-		Avatar:      avatar,
-	}
+	input := s.ToPartProfileForUpdateWithAvatarInp()
+	input.Avatar = avatar
+	return input
 }
 
 // -----------------------------------------------------------------------
@@ -116,6 +151,8 @@ func (s *Security) ToDynamicInp() *serviceDto.Security {
 }
 
 // -----------------------------------------------------------------------
+
+// type Avatar ImageWithoutId
 
 type Avatar struct {
 	Ext     float64 `json:"ext" binding:"required"`

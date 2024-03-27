@@ -25,17 +25,6 @@ func Test_MyProfileRes_Marshal(t *testing.T) {
 	fmt.Println(string(bytes))
 }
 
-func Test_MyProfilePutReq_Marshal(t *testing.T) {
-	reqDto := MyProfileWithAttachedAvatarPutReq{
-		AccessToken: "Access",
-	}
-	bytes, err := json.Marshal(reqDto)
-	if err != nil {
-		t.Error()
-	}
-	fmt.Println(string(bytes))
-}
-
 func Test_MyProfilePutReq_Unmarshal(t *testing.T) {
 	reqDto := MyProfileWithAttachedAvatarPutReq{}
 	bytes := []byte(`{

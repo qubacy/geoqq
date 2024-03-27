@@ -4,13 +4,24 @@ import (
 	dsDto "geoqq/internal/storage/domain/dto"
 )
 
-type UpdateProfileInp struct {
+type PartProfileForUpdate struct {
 	Description *string
-	Avatar      *Avatar
-
-	Privacy  *Privacy
-	Security *Security
+	Privacy     *Privacy
+	Security    *Security
 }
+
+type ProfileForUpdateInp struct {
+	PartProfileForUpdate
+	AvatarId *uint64
+}
+
+type ProfileWithAvatarForUpdateInp struct {
+	PartProfileForUpdate
+	Avatar *Avatar
+}
+
+// parts
+// -----------------------------------------------------------------------
 
 // Each field can be optional..?
 type Privacy struct {

@@ -1,5 +1,7 @@
 package dto
 
+import serviceDto "geoqq/internal/service/dto"
+
 // GET /api/image/{id}
 // -----------------------------------------------------------------------
 
@@ -26,4 +28,36 @@ type Image struct {
 	Id        float64 `json:"id"`
 	Extension float64 `json:"ext"`
 	Content   string  `json:"content"` // <--- base64-string
+
+	// or composition with struct `ImageWithoutId`?
+}
+
+// POST /api/image
+// -----------------------------------------------------------------------
+
+type ImagePostReq struct {
+	AccessToken string         `json:"access-token" binding:"required"`
+	Image       ImageWithoutId `json:"image,omitempty"`
+}
+
+func (s *ImagePostReq) ToInp() serviceDto.ImageForAddToUserInp {
+	return serviceDto.ImageForAddToUserInp{
+		Ext:     int(s.Image.Ext),
+		Content: s.Image.Content,
+	}
+}
+
+type ImageWithoutId struct {
+	Ext     float64 `json:"ext" binding:"required"`
+	Content string  `json:"content" binding:"required"`
+}
+
+type ImagePostRes struct {
+	Id float64 `json:"id"`
+}
+
+func MakeImagePostRes(id uint64) ImagePostRes {
+	return ImagePostRes{
+		Id: float64(id),
+	}
 }

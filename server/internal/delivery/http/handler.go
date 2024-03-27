@@ -26,10 +26,10 @@ type Dependencies struct {
 
 func (d *Dependencies) validate() error {
 	if d.TokenExtractor == nil {
-		return errors.New("Token extractor is nil")
+		return errors.New("token extractor is nil")
 	}
 	if d.Services == nil {
-		return errors.New("Services is nil")
+		return errors.New("services is nil")
 	}
 	return nil
 }

@@ -14,9 +14,11 @@ func (h *Handler) registerUserRoutes() {
 	{
 		myProfileRouter.GET("", h.userIdentityForGetRequest, h.getMyProfile)
 
-		myProfileRouter.PUT("", h.extractBodyForPutMyProfileWithAttachedAvatar,
+		myProfileRouter.PUT("",
+			h.extractBodyForPutMyProfile,
 			h.userIdentityByContextData, h.putMyProfile)
 
+		// deprecated!
 		myProfileRouter.PUT("/with-attached-avatar",
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
 			h.userIdentityByContextData, h.putMyProfileWithAttachedAvatar)
@@ -80,6 +82,8 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
 			return
 		}
+
+		// validate avatar extension?
 	}
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
@@ -130,7 +134,7 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 
 	// ***
 
-	err = h.services.UpdateUserProfile(ctx, userId, requestDto.ToInp())
+	err = h.services.UpdateUserProfileWithAvatar(ctx, userId, requestDto.ToInp())
 	if err != nil {
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
@@ -143,8 +147,67 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 // PUT /api/my-profile
 // -----------------------------------------------------------------------
 
-func (h *Handler) putMyProfile(ctx *gin.Context) {
+func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
+	requestDto := dto.MyProfilePutReq{}
+	// *** validate json body
 
+	if len(requestDto.AccessToken) == 0 {
+		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		return
+	}
+	if requestDto.Security != nil {
+		if len(requestDto.Security.Password) == 0 {
+			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			return
+		}
+		if len(requestDto.Security.NewPassword) == 0 {
+			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			return
+		}
+	}
+
+	if requestDto.Description == nil { // as reset description!
+		requestDto.Description = new(string)
+		*requestDto.Description = ""
+	}
+
+	/*
+		if requestDto.Privacy != nil {
+		}
+	*/
+
+	// ***
+
+	ctx.Set(contextAccessToken, requestDto.AccessToken)
+	ctx.Set(contextRequestDto, requestDto)
+}
+
+func (h *Handler) putMyProfile(ctx *gin.Context) {
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	// ***
+
+	anyRequestDto, _ := ctx.Get(contextRequestDto)
+	requestDto, converted := anyRequestDto.(dto.MyProfilePutReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
+
+	// ***
+
+	err = h.services.UpdateUserProfile(ctx, userId, requestDto.ToInp())
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 // user
