@@ -20,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "$applicationName._common._test._common.runner.CustomTestRunner"
+        testInstrumentationRunner = "$applicationName._common._test.runner.CustomTestRunner"
     }
 
     buildTypes {

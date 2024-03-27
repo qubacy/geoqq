@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common._test._common.rule.dispatcher
+package com.qubacy.geoqq._common._test.rule.dispatcher
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.mate.message.repository.source.local
 
 import android.content.ContentValues
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.qubacy.geoqq._common._test._common.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
 import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
@@ -69,8 +70,8 @@ class LocalMateMessageDataSourceTest :
         val gottenSecondMessageChunk = mLocalMateMessageDataSource.getMessages(
             DEFAULT_MATE_CHAT.id, expectedSecondMessageChunkOffset, messageChunkSize)
 
-        assertMessageChunk(expectedFirstMessageChunk, gottenFirstMessageChunk)
-        assertMessageChunk(expectedSecondMessageChunk, gottenSecondMessageChunk)
+        AssertUtils.assertEqualContent(expectedFirstMessageChunk, gottenFirstMessageChunk)
+        AssertUtils.assertEqualContent(expectedSecondMessageChunk, gottenSecondMessageChunk)
     }
 
     @Test
@@ -118,7 +119,7 @@ class LocalMateMessageDataSourceTest :
         val gottenMessages = mLocalMateMessageDataSource
             .getMessages(DEFAULT_MATE_CHAT.id, 0, expectedMessages.size)
 
-        assertMessageChunk(expectedMessages, gottenMessages)
+        AssertUtils.assertEqualContent(expectedMessages, gottenMessages)
     }
 
     override fun packEntityContent(itemEntity: MateChatEntity): ContentValues {
@@ -128,16 +129,6 @@ class LocalMateMessageDataSourceTest :
             put(MateChatEntity.NEW_MESSAGE_COUNT_PROP_NAME, DEFAULT_MATE_CHAT.newMessageCount)
             put(MateChatEntity.LAST_MESSAGE_ID_PROP_NAME, DEFAULT_MATE_CHAT.lastMessageId)
         }
-    }
-
-    private fun assertMessageChunk(
-        expectedMessageChunk: List<MateMessageEntity>,
-        gottenMessageChunk: List<MateMessageEntity>
-    ) {
-        Assert.assertEquals(expectedMessageChunk.size, gottenMessageChunk.size)
-
-        for (expectedMessage in expectedMessageChunk)
-            Assert.assertTrue(gottenMessageChunk.contains(expectedMessage))
     }
 
     private fun generateMessages(

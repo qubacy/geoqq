@@ -2,8 +2,9 @@ package com.qubacy.geoqq.data.image.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
-import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common._test._common.util.mock.BitmapFactoryMockUtil
+import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common._test.util.mock.BitmapFactoryMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
@@ -249,7 +250,7 @@ class ImageDataRepositoryTest(
         val gottenDataImages = mDataRepository.getImagesByIds(expectedDataImages.map { it.id })
 
         Assert.assertTrue(mLocalSourceLoadImagesCallFlag)
-        assertDataImages(expectedDataImages, gottenDataImages)
+        AssertUtils.assertEqualContent(expectedDataImages, gottenDataImages)
     }
 
     @Test
@@ -297,16 +298,6 @@ class ImageDataRepositoryTest(
         Assert.assertTrue(mHttpSourceUploadImageResponseCallFlag)
         Assert.assertTrue(mLocalSourceSaveImageCallFlag)
         Assert.assertEquals(expectedDataImage, gottenDataImage)
-    }
-
-    private fun assertDataImages(
-        expectedDataImages: List<DataImage>,
-        gottenDataImages: List<DataImage>
-    ) {
-        Assert.assertEquals(expectedDataImages.size, gottenDataImages.size)
-
-        for (expectedDataImage in expectedDataImages)
-            Assert.assertTrue(gottenDataImages.contains(expectedDataImage))
     }
 
     private fun generateImageEntities(

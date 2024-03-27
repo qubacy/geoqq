@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import android.view.View
 import android.view.ViewGroup
-import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter.producer.BaseItemViewProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.RecyclerViewItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.data.RecyclerViewItemData

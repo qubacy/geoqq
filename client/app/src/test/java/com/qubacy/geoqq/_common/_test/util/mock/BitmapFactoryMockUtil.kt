@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common._test._common.util.mock
+package com.qubacy.geoqq._common._test.util.mock
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

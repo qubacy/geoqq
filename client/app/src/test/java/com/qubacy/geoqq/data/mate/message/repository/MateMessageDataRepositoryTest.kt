@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
 import app.cash.turbine.test
-import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
-import com.qubacy.geoqq.data._common.model.message.DataMessage
+import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
@@ -182,7 +182,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             val gottenLocalDataMessages = (gottenLocalResult as GetMessagesDataResult).messages
 
-            assertDataMessages(expectedLocalDataMessages, gottenLocalDataMessages)
+            AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
 
             Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
 
@@ -194,17 +194,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
 
-            assertDataMessages(expectedHttpDataMessages, gottenHttpDataMessages)
+            AssertUtils.assertEqualContent(expectedHttpDataMessages, gottenHttpDataMessages)
         }
-    }
-
-    private fun assertDataMessages(
-        expectedMessages: List<DataMessage>,
-        gottenMessages: List<DataMessage>
-    ) {
-        Assert.assertEquals(expectedMessages.size, gottenMessages.size)
-
-        for (expectedMessage in expectedMessages)
-            Assert.assertTrue(gottenMessages.contains(expectedMessage))
     }
 }

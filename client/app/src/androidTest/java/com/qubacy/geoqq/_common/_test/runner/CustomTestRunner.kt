@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common._test._common.runner
+package com.qubacy.geoqq._common._test.runner
 
 import android.app.Application
 import android.content.Context

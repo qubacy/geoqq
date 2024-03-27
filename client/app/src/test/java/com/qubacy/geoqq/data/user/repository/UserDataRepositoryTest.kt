@@ -1,11 +1,11 @@
 package com.qubacy.geoqq.data.user.repository
 
 import app.cash.turbine.test
-import com.qubacy.geoqq._common._test._common.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -166,7 +166,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
             val gottenLocalDataUsers = (gottenLocalResult as GetUsersByIdsDataResult).users
 
-            assertDataUsers(expectedLocalDataUsers, gottenLocalDataUsers)
+            AssertUtils.assertEqualContent(expectedLocalDataUsers, gottenLocalDataUsers)
 
             Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
 
@@ -178,17 +178,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
             val gottenHttpDataUsers = (gottenHttpResult as GetUsersByIdsDataResult).users
 
-            assertDataUsers(expectedHttpDataUsers, gottenHttpDataUsers)
+            AssertUtils.assertEqualContent(expectedHttpDataUsers, gottenHttpDataUsers)
         }
-    }
-
-    private fun assertDataUsers(
-        expectedDataUsers: List<DataUser>,
-        gottenDataUsers: List<DataUser>
-    ) {
-        Assert.assertEquals(expectedDataUsers.size, gottenDataUsers.size)
-
-        for (expectedUser in expectedDataUsers)
-            Assert.assertTrue(gottenDataUsers.contains(expectedUser))
     }
 }

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain._common.usecase
 
-import com.qubacy.geoqq._common._test._common.rule.dispatcher.MainDispatcherRule
+import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository

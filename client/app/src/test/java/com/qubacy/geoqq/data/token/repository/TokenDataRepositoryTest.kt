@@ -2,12 +2,10 @@ package com.qubacy.geoqq.data.token.repository
 
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
-import com.qubacy.geoqq._common._test._common.util.mock.Base64MockUtil.mockBase64
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil.mockBase64
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
