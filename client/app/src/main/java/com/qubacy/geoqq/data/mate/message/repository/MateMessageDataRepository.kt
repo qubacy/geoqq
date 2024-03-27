@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.mate.message.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.await
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity

@@ -1,7 +1,7 @@
-package com.qubacy.geoqq.data.mate.message.repository.source.local.module
+package com.qubacy.geoqq.data.mate.chat.repository.source.local.module
 
 import android.content.Context
-import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.ui.application.CustomApplication
 import dagger.Module
 import dagger.Provides
@@ -11,13 +11,13 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class LocalMateMessageDataSource {
+object LocalMateChatDataSourceModule {
     @Provides
-    fun provideLocalMateMessageDataSource(
+    fun provideLocalMateChatDataSource(
         @ApplicationContext context: Context
-    ): LocalMateMessageDataSource {
+    ): LocalMateChatDataSource {
         val db = (context as CustomApplication).db
 
-        return db.mateMessageDao()
+        return db.mateChatDao()
     }
 }

@@ -1,12 +1,12 @@
 package com.qubacy.geoqq.domain._common.model.user
 
-import android.net.Uri
+import com.qubacy.geoqq.domain._common.model.image.Image
 
 data class User(
     val id: Long,
     val username: String,
     val description: String?,
-    val avatarUri: Uri,
+    val avatar: Image,
     val isMate: Boolean,
     val isDeleted: Boolean
 ) {

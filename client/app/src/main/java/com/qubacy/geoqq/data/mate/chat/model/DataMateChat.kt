@@ -5,12 +5,13 @@ import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
+import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.toDataMessage
+import com.qubacy.geoqq.data.user.model.DataUser
 
 data class DataMateChat(
     val id: Long,
-    val userId: Long,
+    val user: DataUser,
     val newMessageCount: Int,
     val lastMessage: DataMessage?
 ) {
@@ -18,22 +19,25 @@ data class DataMateChat(
 }
 
 fun DataMateChat.toMateChatLastMessageEntityPair(): Pair<MateChatEntity, MateMessageEntity?> {
-    val mateChatEntity = MateChatEntity(id, userId, newMessageCount, lastMessage?.id)
+    val mateChatEntity = MateChatEntity(id, user.id, newMessageCount, lastMessage?.id)
 
     return Pair(mateChatEntity, lastMessage?.toMateMessageEntity(id))
 }
 
-fun Map.Entry<MateChatEntity, MateMessageEntity?>.toDataMateChat(): DataMateChat {
+fun Map.Entry<MateChatEntity, MateMessageEntity?>.toDataMateChat(
+    user: DataUser,
+    lastMessageUser: DataUser?
+): DataMateChat {
     return DataMateChat(
         key.id,
-        key.userId,
+        user,
         key.newMessageCount,
-        value?.toDataMessage()
+        value?.toDataMessage(lastMessageUser!!)
     )
 }
 
-fun GetChatResponse.toDataMateChat(): DataMateChat {
-    val lastDataMessage = lastMessage?.toDataMessage()
+fun GetChatResponse.toDataMateChat(user: DataUser, lastMessageUser: DataUser?): DataMateChat {
+    val lastDataMessage = lastMessage?.toDataMessage(lastMessageUser!!)
 
-    return DataMateChat(id, userId, newMessageCount, lastDataMessage)
+    return DataMateChat(id, user, newMessageCount, lastDataMessage)
 }

@@ -84,10 +84,10 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val httpMateChatDataSourceMock = mockHttpMateChatDataSource()
 
         mDataRepository = MateChatDataRepository(
-            errorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            tokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
-            localMateChatDataSource = localMateChatDataSourceMock,
-            httpMateChatDataSource = httpMateChatDataSourceMock
+            mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mLocalMateChatDataSource = localMateChatDataSourceMock,
+            mHttpMateChatDataSource = httpMateChatDataSourceMock
         )
     }
 
