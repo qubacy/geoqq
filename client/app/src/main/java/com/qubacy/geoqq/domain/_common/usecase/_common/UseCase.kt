@@ -6,11 +6,14 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 abstract class UseCase(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -28,18 +31,19 @@ abstract class UseCase(
         logicAction: suspend () -> Unit,
         errorResultProducer: (error: Error) -> ResultType
     ) {
-        mCoroutineScope.launch(mCoroutineDispatcher) {
-            try {
-                logicAction()
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            runBlocking {
+                if (exception is ErrorAppException)
+                    return@runBlocking mResultFlow.emit(errorResultProducer(exception.error))
 
-            } catch (e: ErrorAppException) {
-                mResultFlow.emit(errorResultProducer(e.error))
+                exception.printStackTrace()
 
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-                throw e
+                throw exception
             }
+        }
+
+        mCoroutineScope.launch(mCoroutineDispatcher.plus(exceptionHandler)) {
+            logicAction()
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +14,12 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -52,11 +53,25 @@ class MateChatsFragment(
     override fun onStart() {
         super.onStart()
 
-        mAdapter.addPreviousMateChats(listOf(
-            MateChatItemData(0, Uri.EMPTY, "test 1", "Hiiii", 0),
-            MateChatItemData(1, Uri.EMPTY, "test 2", "Hiiii", 45),
-            MateChatItemData(2, Uri.EMPTY, "test 3", "Hiiii", 105),
-        ))
+        if (mModel.uiState.chatChunks.isEmpty()) mModel.getNextChatChunk()
+    }
+
+    override fun processUiOperation(uiOperation: UiOperation): Boolean {
+        if (super.processUiOperation(uiOperation)) return true
+
+        when (uiOperation::class) {
+            InsertChatsUiOperation::class ->
+                processInsertChatsUiOperation(uiOperation as InsertChatsUiOperation)
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun processInsertChatsUiOperation(insertChatsUiOperation: InsertChatsUiOperation) {
+        val chatItems = insertChatsUiOperation.chats.map { it.toMateChatItemData() }
+
+        mAdapter.insertMateChats(chatItems, insertChatsUiOperation.position)
     }
 
     override fun createBinding(

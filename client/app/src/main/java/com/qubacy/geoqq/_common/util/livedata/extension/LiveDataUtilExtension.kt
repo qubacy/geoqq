@@ -3,6 +3,7 @@ package com.qubacy.geoqq._common.util.livedata.extension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -20,7 +21,9 @@ suspend fun <T>LiveData<T>.await(): T {
             observeForever(observer)
 
             continuation.invokeOnCancellation {
-                removeObserver(observer)
+                launch(Dispatchers.Main.immediate) {
+                    removeObserver(observer)
+                }
             }
         }
     }

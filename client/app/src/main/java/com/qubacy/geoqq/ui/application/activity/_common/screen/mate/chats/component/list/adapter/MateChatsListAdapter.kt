@@ -38,6 +38,13 @@ class MateChatsListAdapter(
     }
 
     @UiThread
+    fun insertMateChats(mateChats: List<MateChatItemData>, position: Int) {
+        mItems.addAll(position, mateChats)
+
+        wrappedNotifyItemRangeInserted(position, mItems.size)
+    }
+
+    @UiThread
     fun addNewMateChat(mateChat: MateChatItemData) {
         mItems.add(0, mateChat)
 
