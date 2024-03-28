@@ -60,3 +60,32 @@ LEFT JOIN "Mate" ON (
     ("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = 1)
 )
 WHERE "UserEntry"."Id" = 5;
+
+-- -----------------------------------------------------------------------
+
+WITH "srcUserId" AS (VALUES (1)),
+     "targetUserId" AS (VALUES (3))
+SELECT 
+    "UserEntry"."Id" AS "Id",
+    case 
+        when "DeletedUser"."UserId" is null then false
+        else true
+    end as "IsDeleted",
+    "Username",
+    "Description",
+    "AvatarId",
+    case
+        when "Mate"."Id" is null then false
+        else true
+    end as "IsMate"
+FROM "UserEntry"
+INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+LEFT JOIN "Mate" ON "Mate"."FirstUserId" = (table "srcUserId")
+    AND "Mate"."SecondUserId" = (table "targetUserId")
+LEFT JOIN "DeletedUser" ON "DeletedUser"."UserId" = "UserEntry"."Id"
+WHERE "UserEntry"."Id" = (table "srcUserId");
+
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "DeletedUser";
+SELECT * FROM "Mate";

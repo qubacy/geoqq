@@ -30,18 +30,30 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateSelectPublicUsers = `
+	templateSelectPublicUsers = utl.RemoveAdjacentWs(`
 		SELECT 
 			"UserEntry"."Id" AS "Id",
-			"Username", "Description", "AvatarId",
-			case when "Mate"."Id" is null then false else true end as "IsMate"
+			case
+	        	when "DeletedUser"."UserId" is null 
+					then false
+	        		else true
+	     	end as "IsDeleted",
+			"Username", 
+			"Description", 
+			"AvatarId",
+			case 
+				when "Mate"."Id" is null 
+					then false 
+					else true
+			end as "IsMate"
 		FROM "UserEntry"
 		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
 		LEFT JOIN "Mate" ON (
 			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
         	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
 		)
-		WHERE "UserEntry"."Id"` // next placeholders start with 2.
+		LEFT JOIN "DeletedUser" ON "DeletedUser"."UserId" = "UserEntry"."Id"
+			WHERE "UserEntry"."Id"`)  // next placeholders start with 2.
 
 	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
 		UPDATE "UserLocation" 
@@ -74,6 +86,7 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 	publicUser := domain.PublicUser{}
 	err = row.Scan(
 		&publicUser.Id,
+		&publicUser.IsDeleted,
 		&publicUser.Username,
 		&publicUser.Description,
 		&publicUser.AvatarId,
@@ -116,6 +129,7 @@ func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
 		publicUser := domain.PublicUser{}
 		err = rows.Scan(
 			&publicUser.Id,
+			&publicUser.IsDeleted,
 			&publicUser.Username,
 			&publicUser.Description,
 			&publicUser.AvatarId,

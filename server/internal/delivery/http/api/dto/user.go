@@ -194,6 +194,7 @@ func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, erro
 
 type User struct {
 	Id          float64 `json:"id"`
+	IsDeleted   bool    `json:"is-deleted"`
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
 	AvatarId    float64 `json:"avatar-id"`
@@ -207,6 +208,7 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 
 	return User{
 		Id:          float64(publicUser.Id),
+		IsDeleted:   publicUser.IsDeleted,
 		Username:    publicUser.Username,
 		Description: publicUser.Description,
 		AvatarId:    float64(publicUser.AvatarId),
