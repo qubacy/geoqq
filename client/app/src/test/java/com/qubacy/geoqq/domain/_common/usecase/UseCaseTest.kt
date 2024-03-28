@@ -1,23 +1,22 @@
 package com.qubacy.geoqq.domain._common.usecase
 
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import kotlinx.coroutines.Dispatchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.mockito.Mockito
+import org.junit.rules.RuleChain
 
 abstract class UseCaseTest<UseCaseType : UseCase>() {
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    open val rule = RuleChain.outerRule(MainDispatcherRule())
 
     protected lateinit var mUseCase: UseCaseType
 
-    protected var mGetErrorResult: Error? = null
+    protected lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
 
     @Before
     open fun setup() {
@@ -26,7 +25,7 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
 
     @After
     open fun clear() {
-        mGetErrorResult = null
+        mErrorDataRepositoryMockContainer.reset()
     }
 
     private fun init() {
@@ -38,12 +37,9 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
     }
 
     protected open fun initRepositories(): List<DataRepository> {
-        val errorDataRepositoryMock = Mockito.mock(ErrorDataRepository::class.java)
+        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
 
-        Mockito.`when`(errorDataRepositoryMock.getError(Mockito.anyLong()))
-            .thenAnswer{ mGetErrorResult }
-
-        return listOf(errorDataRepositoryMock)
+        return listOf(mErrorDataRepositoryMockContainer.errorDataRepositoryMock)
     }
 
     protected abstract fun initUseCase(repositories: List<DataRepository>)

@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.domain.login.usecase
 
 import app.cash.turbine.test
-import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
@@ -16,8 +15,8 @@ import org.junit.Test
 import org.mockito.Mockito
 
 class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
-    private var mDataRepositoryError: Error? = null
     private var mGetTokensDataResult: GetTokensDataResult? = null
+
     private var mTokenDataRepositoryGetTokensCallFlag = false
     private var mTokenDataRepositorySignInCallFlag = false
     private var mTokenDataRepositorySignUpCallFlag = false
@@ -25,8 +24,8 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     override fun clear() {
         super.clear()
 
-        mDataRepositoryError = null
         mGetTokensDataResult = null
+
         mTokenDataRepositoryGetTokensCallFlag = false
         mTokenDataRepositorySignInCallFlag = false
         mTokenDataRepositorySignUpCallFlag = false
@@ -40,7 +39,8 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
             Mockito.`when`(tokenDataRepositoryMock.getTokens()).thenAnswer {
                 mTokenDataRepositoryGetTokensCallFlag = true
 
-                if (mDataRepositoryError != null) throw ErrorAppException(mDataRepositoryError!!)
+                if (mErrorDataRepositoryMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
 
                 mGetTokensDataResult
             }
@@ -49,14 +49,16 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
             )).thenAnswer {
                 mTokenDataRepositorySignInCallFlag = true
 
-                if (mDataRepositoryError != null) throw ErrorAppException(mDataRepositoryError!!)
+                if (mErrorDataRepositoryMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
             }
             Mockito.`when`(tokenDataRepositoryMock.signUp(
                 Mockito.anyString(), Mockito.anyString()
             )).thenAnswer {
                 mTokenDataRepositorySignUpCallFlag = true
 
-                if (mDataRepositoryError != null) throw ErrorAppException(mDataRepositoryError!!)
+                if (mErrorDataRepositoryMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
             }
         }
 
@@ -94,7 +96,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     fun signInWithTokenFailedTest() = runTest {
         val expectedError = TestError.normal
 
-        mDataRepositoryError = expectedError
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn()
@@ -130,7 +132,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
         val login = "login"
         val password = "password"
 
-        mDataRepositoryError = expectedError
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn(login, password)
@@ -166,7 +168,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
         val login = "login"
         val password = "password"
 
-        mDataRepositoryError = expectedError
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signUp(login, password)

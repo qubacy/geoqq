@@ -41,7 +41,7 @@ class MateChatDataRepository @Inject constructor(
             val localDataChats = resolveChatWithLastMessageMap(localChats)
 
             if (localChats.isNotEmpty())
-                resultLiveData.value = GetChatsDataResult(localDataChats)
+                resultLiveData.value = GetChatsDataResult(offset, localDataChats)
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
@@ -51,8 +51,9 @@ class MateChatDataRepository @Inject constructor(
 
             if (localDataChats.containsAll(httpDataChats)) return@launch
 
-            if (localDataChats.isNotEmpty()) mResultFlow.emit(GetChatsDataResult(httpDataChats))
-            else resultLiveData.value = GetChatsDataResult(httpDataChats)
+            if (localDataChats.isNotEmpty())
+                mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
+            else resultLiveData.value = GetChatsDataResult(offset, httpDataChats)
 
             val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
 

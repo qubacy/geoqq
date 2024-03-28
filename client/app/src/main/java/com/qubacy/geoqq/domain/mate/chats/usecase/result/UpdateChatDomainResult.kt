@@ -4,8 +4,9 @@ import com.qubacy.geoqq._common.error.Error
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 
-class GetChatsDomainResult(
+class UpdateChatDomainResult(
     error: Error? = null,
-    val chats: List<MateChat>? = null
+    val chat: MateChat? = null
 ) : DomainResult(error) {
+
 }
