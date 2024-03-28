@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common.util.livedata
+package com.qubacy.geoqq._common.util.livedata.extension
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

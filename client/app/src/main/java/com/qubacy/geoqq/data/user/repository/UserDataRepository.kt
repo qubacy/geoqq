@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.user.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -63,6 +64,13 @@ class UserDataRepository @Inject constructor(
         }
 
         return resultLiveData
+    }
+
+    suspend fun resolveUsers(userIds: List<Long>): Map<Long, DataUser> {
+        val getUsersByIdsLiveData = getUsersByIds(userIds)
+        val getUsersByIdsResult = getUsersByIdsLiveData.await()
+
+        return getUsersByIdsResult.users.associateBy { it.id }
     }
 
     private suspend fun resolveUserEntities(userEntities: List<UserEntity>): List<DataUser> {

@@ -10,6 +10,7 @@ import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMock
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image._common.util.bitmap.extension.toBase64
 import com.qubacy.geoqq.data.image.model.DataImage
+import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.RawImage
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.http.response.GetImageResponse
@@ -17,7 +18,6 @@ import com.qubacy.geoqq.data.image.repository.source.http.response.GetImagesResp
 import com.qubacy.geoqq.data.image.repository.source.http.response.UploadImageResponse
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
-import com.qubacy.geoqq.data.image.repository.source.local.entity.toDataImage
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After

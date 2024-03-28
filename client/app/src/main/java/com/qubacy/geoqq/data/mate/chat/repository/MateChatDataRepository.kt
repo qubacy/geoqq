@@ -2,7 +2,6 @@ package com.qubacy.geoqq.data.mate.chat.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq._common.util.livedata.await
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -16,7 +15,6 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatData
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +68,7 @@ class MateChatDataRepository @Inject constructor(
         val userIds = chatWithLastMessageMap.flatMap {
             mutableListOf(it.key.userId).also { _ -> it.value?.userId ?: return@also }
         }.toSet().toList()
-        val users = resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsers(userIds)
 
         return chatWithLastMessageMap.map {
             val chatUser = users[it.key.userId]!!
@@ -86,7 +84,7 @@ class MateChatDataRepository @Inject constructor(
         val userIds = getChatsResponse.chats.flatMap {
             mutableListOf(it.userId).also { _ -> it.lastMessage?.userId ?: return@also }
         }.toSet().toList()
-        val users = resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsers(userIds)
 
         return getChatsResponse.chats.map {
             val chatUser = users[it.userId]!!
@@ -94,9 +92,5 @@ class MateChatDataRepository @Inject constructor(
 
             it.toDataMateChat(chatUser, lastMessageUser)
         }
-    }
-
-    private suspend fun resolveUsers(userIds: List<Long>): Map<Long, DataUser> {
-        return mUserDataRepository.getUsersByIds(userIds).await().users.associateBy { it.id }
     }
 }

@@ -2,7 +2,6 @@ package com.qubacy.geoqq.data.mate.message.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq._common.util.livedata.await
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
@@ -16,7 +15,6 @@ import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessage
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -77,7 +75,7 @@ class MateMessageDataRepository @Inject constructor(
         messageEntities: List<MateMessageEntity>
     ): List<DataMessage> {
         val userIds = messageEntities.map { it.userId }
-        val users = resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsers(userIds)
 
         return messageEntities.map { it.toDataMessage(users[it.userId]!!) }
     }
@@ -86,12 +84,8 @@ class MateMessageDataRepository @Inject constructor(
         getMessagesResponse: GetMessagesResponse
     ): List<DataMessage> {
         val userIds = getMessagesResponse.messages.map { it.userId }
-        val users = resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsers(userIds)
 
         return getMessagesResponse.messages.map { it.toDataMessage(users[it.userId]!!) }
-    }
-
-    private suspend fun resolveUsers(userIds: List<Long>): Map<Long, DataUser> {
-        return mUserDataRepository.getUsersByIds(userIds).await().users.associateBy { it.id }
     }
 }

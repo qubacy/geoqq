@@ -1,8 +1,11 @@
 package com.qubacy.geoqq.data.mate.chat.repository
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
@@ -15,18 +18,27 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatData
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.mockito.Mockito
 import retrofit2.Call
 import retrofit2.Response
 
 class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() {
+    @get:Rule
+    val rule = RuleChain
+        .outerRule(InstantTaskExecutorRule())
+        .around(MainDispatcherRule())
+
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
 
     private var mLocalSourceGetChats: Map<MateChatEntity, MateMessageEntity?>? = null
     private var mLocalSourceGetChatById: Map<MateChatEntity, MateMessageEntity?>? = null
@@ -79,6 +91,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
     private fun initMateChatDataRepository() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
         val localMateChatDataSourceMock = mockLocalMateChatDataSource()
         val httpMateChatDataSourceMock = mockHttpMateChatDataSource()
@@ -86,6 +99,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         mDataRepository = MateChatDataRepository(
             mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
             mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
             mLocalMateChatDataSource = localMateChatDataSourceMock,
             mHttpMateChatDataSource = httpMateChatDataSourceMock
         )
@@ -194,30 +208,32 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val offset = 0
         val count = 5
 
+        val user = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val localChats = mapOf(
-            MateChatEntity(0, 0, 0, 0)
-                to MateMessageEntity(0, 0, 0, "local message", 0)
+            MateChatEntity(0, user.id, 0, 0)
+                to MateMessageEntity(0, 0, user.id, "local message", 0)
         )
         val httpChats = GetChatsResponse(listOf(
-            GetChatResponse(0, 0, 0,
-                GetMessageResponse(1, 0, "http message", 20))
+            GetChatResponse(0, user.id, 0,
+                GetMessageResponse(1, user.id, "http message", 20))
         ))
 
         mLocalSourceGetChats = localChats
         mHttpSourceGetChatsResponse = httpChats
 
-        val expectedLocalDataChats = localChats.map { it.toDataMateChat() }
-        val expectedHttpDataChats = httpChats.chats.map { it.toDataMateChat() }
+        val expectedLocalDataChats = localChats.map {
+            it.toDataMateChat(user, user)
+        }
+        val expectedHttpDataChats = httpChats.chats.map {
+            it.toDataMateChat(user, user)
+        }
 
         mDataRepository.resultFlow.test {
-            mDataRepository.getChats(offset, count)
-
-            val gottenLocalResult = awaitItem()
+            val gottenLocalResult = mDataRepository.getChats(offset, count).await()
 
             Assert.assertTrue(mLocalSourceGetChatsCallFlag)
-            Assert.assertEquals(GetChatsDataResult::class, gottenLocalResult::class)
 
-            val gottenLocalDataChats = (gottenLocalResult as GetChatsDataResult).chats
+            val gottenLocalDataChats = gottenLocalResult.chats
 
             AssertUtils.assertEqualContent(expectedLocalDataChats, gottenLocalDataChats)
 
