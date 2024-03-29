@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.user.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
@@ -10,6 +11,7 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -27,8 +29,24 @@ import org.junit.rules.RuleChain
 import org.mockito.Mockito
 import retrofit2.Call
 import retrofit2.Response
+import java.util.Date
 
 class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
+    companion object {
+        val DEFAULT_LOCAL_USER_ID = 0L
+        val DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM = object : Claim {
+            override fun asBoolean(): Boolean? = null
+            override fun asInt(): Int? = null
+            override fun asLong(): Long = DEFAULT_LOCAL_USER_ID
+            override fun asDouble(): Double? = null
+            override fun asString(): String? = null
+            override fun asDate(): Date? = null
+            override fun <T : Any?> asArray(tClazz: Class<T>?): Array<T> = null as Array<T>
+            override fun <T : Any?> asList(tClazz: Class<T>?): MutableList<T> = mutableListOf()
+            override fun <T : Any?> asObject(tClazz: Class<T>?): T? = null
+        }
+    }
+
     @get:Rule
     val rule = RuleChain
         .outerRule(InstantTaskExecutorRule())
@@ -200,5 +218,71 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
             AssertUtils.assertEqualContent(expectedHttpDataUsers, gottenHttpDataUsers)
         }
+    }
+
+    @Test
+    fun resolveUsersTest() = runTest {
+        val localUsers = listOf(
+            UserEntity(0, "local user", String(), 0L, 0, 0)
+        )
+        val avatars = listOf(
+            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
+                .copy(id = localUsers.first().avatarId)
+        )
+        val userIds = localUsers.map { it.id }
+
+        mLocalSourceGetUsersByIds = localUsers
+        mImageDataRepositoryMockContainer.getImagesByIds = avatars
+        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+
+        val expectedResolvedUsers = localUsers.map {
+            it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
+        }.associateBy { it.id }
+
+        mDataRepository.resultFlow.test {
+            val gottenResolvedUsers = mDataRepository.resolveUsers(userIds)
+
+            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+            AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
+        }
+    }
+
+    @Test
+    fun resolveLocalUserTest() = runTest {
+        val localUsers = listOf(
+            UserEntity(0, "local user", String(), 0L, 0, 0)
+        )
+        val localUser = localUsers.first()
+            .toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
+        val avatars = listOf(
+            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
+                .copy(id = localUsers.first().avatarId)
+        )
+        val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
+        val getAccessTokenPayload = mapOf(
+            UserDataRepository.ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME to accessTokenUserIdClaim
+        )
+
+        mLocalSourceGetUsersByIds = localUsers
+        mImageDataRepositoryMockContainer.getImagesByIds = avatars
+        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+        mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
+
+        val expectedLocalUser = localUser
+
+        mDataRepository.resultFlow.test {
+            val gottenLocalUser = mDataRepository.resolveLocalUser()
+
+            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.getAccessTokenPayloadCallFlag)
+            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+            Assert.assertEquals(expectedLocalUser, gottenLocalUser)
+        }
+    }
+
+    @Test
+    fun resolveUsersWithLocalUserTest() {
+
     }
 }

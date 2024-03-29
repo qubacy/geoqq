@@ -9,4 +9,13 @@ object AssertUtils {
         for (expectedItem in expectedList)
             Assert.assertTrue(gottenList.contains(expectedItem))
     }
+
+    fun assertEqualMaps(expectedMap: Map<*, *>, gottenMap: Map<*, *>) {
+        Assert.assertEquals(expectedMap.size, gottenMap.size)
+
+        for (expectedEntry in expectedMap) {
+            Assert.assertTrue(gottenMap.contains(expectedEntry.key))
+            Assert.assertEquals(expectedEntry.value, gottenMap[expectedEntry.key])
+        }
+    }
 }
