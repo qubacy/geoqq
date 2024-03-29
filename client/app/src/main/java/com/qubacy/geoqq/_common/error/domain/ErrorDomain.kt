@@ -6,7 +6,8 @@ enum class ErrorDomain(val id: Long) {
     TOKEN(2),
     IMAGE(3),
     LOCATION(4),
-    UI(5);
+    UI(5),
+    USER(6);
 
     companion object {
         const val DOMAIN_SIZE = 200

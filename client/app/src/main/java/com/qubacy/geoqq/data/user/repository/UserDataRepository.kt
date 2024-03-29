@@ -11,6 +11,7 @@ import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.user.error.type.UserErrorType
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
@@ -57,7 +58,9 @@ class UserDataRepository @Inject constructor(
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
             val getUsersResponse = executeNetworkRequest(mErrorDataRepository, getUsersCall)
 
-            if (getUsersResponse.users.isEmpty()) return@launch
+            if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
+                throw ErrorAppException(mErrorDataRepository
+                    .getError(UserErrorType.USERS_GETTING_FAILURE.getErrorCode()))
 
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 

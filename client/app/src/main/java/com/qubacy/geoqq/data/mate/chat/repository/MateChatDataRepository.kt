@@ -33,8 +33,8 @@ class MateChatDataRepository @Inject constructor(
     private val mHttpMateChatDataSource: HttpMateChatDataSource,
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
-    suspend fun getChats(offset: Int, count: Int): LiveData<GetChatsDataResult> {
-        val resultLiveData = MutableLiveData<GetChatsDataResult>()
+    suspend fun getChats(offset: Int, count: Int): LiveData<GetChatsDataResult?> {
+        val resultLiveData = MutableLiveData<GetChatsDataResult?>()
 
         CoroutineScope(coroutineContext).launch {
             val localChats = mLocalMateChatDataSource.getChats(offset, count)
@@ -47,7 +47,10 @@ class MateChatDataRepository @Inject constructor(
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
             val getChatsResponse = executeNetworkRequest(mErrorDataRepository, getChatsCall)
 
-            if (getChatsResponse.chats.isEmpty()) return@launch
+            if (getChatsResponse.chats.isEmpty()) {
+                if (localDataChats.isNotEmpty()) return@launch
+                else resultLiveData.postValue(null)
+            }
 
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 

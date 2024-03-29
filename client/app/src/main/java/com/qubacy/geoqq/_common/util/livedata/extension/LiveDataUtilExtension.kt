@@ -8,8 +8,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
-// todo: it should await for a fixed amount of time. then it has to be continued with a timeout
-//  exception:
 suspend fun <T>LiveData<T>.await(): T {
     return withContext(Dispatchers.Main.immediate) {
         suspendCancellableCoroutine { continuation ->
