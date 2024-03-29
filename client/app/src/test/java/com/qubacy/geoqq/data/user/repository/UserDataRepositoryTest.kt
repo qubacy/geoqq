@@ -11,7 +11,6 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -282,7 +281,39 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     }
 
     @Test
-    fun resolveUsersWithLocalUserTest() {
+    fun resolveUsersWithLocalUserTest() = runTest {
+        val localUsers = listOf(
+            UserEntity(
+                DEFAULT_LOCAL_USER_ID,
+                "local user", String(),
+                0L, 0, 0
+            )
+        )
+        val avatars = listOf(
+            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
+                .copy(id = localUsers.first().avatarId)
+        )
+        val userIds = localUsers.map { it.id }
+        val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
+        val getAccessTokenPayload = mapOf(
+            UserDataRepository.ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME to accessTokenUserIdClaim
+        )
 
+        mLocalSourceGetUsersByIds = localUsers
+        mImageDataRepositoryMockContainer.getImagesByIds = avatars
+        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+        mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
+
+        val expectedResolvedUsers = localUsers.map {
+            it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
+        }.associateBy { it.id }
+
+        mDataRepository.resultFlow.test {
+            val gottenResolvedUsers = mDataRepository.resolveUsersWithLocalUser(userIds)
+
+            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+            AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
+        }
     }
 }
