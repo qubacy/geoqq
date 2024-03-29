@@ -79,4 +79,13 @@ class MateChatsListAdapter(
 
         wrappedNotifyItemMoved(mateChatPosition, 0)
     }
+
+    @UiThread
+    fun deleteMateChats(position: Int, count: Int) {
+        val itemsToRemove = mItems.subList(position, position + count)
+
+        mItems.removeAll(itemsToRemove)
+
+        wrappedNotifyItemRangeRemoved(position, count)
+    }
 }

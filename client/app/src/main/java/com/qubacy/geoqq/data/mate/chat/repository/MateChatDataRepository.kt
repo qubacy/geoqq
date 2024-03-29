@@ -47,6 +47,8 @@ class MateChatDataRepository @Inject constructor(
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
             val getChatsResponse = executeNetworkRequest(mErrorDataRepository, getChatsCall)
 
+            if (getChatsResponse.chats.isEmpty()) return@launch
+
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 
             if (localDataChats.containsAll(httpDataChats)) return@launch
@@ -55,12 +57,26 @@ class MateChatDataRepository @Inject constructor(
                 mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
             else resultLiveData.postValue(GetChatsDataResult(offset, httpDataChats))
 
+            if (localDataChats.size - httpDataChats.size > 0)
+                deleteOverdueChats(localDataChats, httpDataChats)
+
             val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
 
             mLocalMateChatDataSource.saveChats(chatsToSave)
         }
 
         return resultLiveData
+    }
+
+    private fun deleteOverdueChats(
+        localDataChats: List<DataMateChat>,
+        httpDataChats: List<DataMateChat>
+    ) {
+        val chatsToDelete = localDataChats.filter { localChat ->
+            httpDataChats.find { httpChat -> httpChat.id == localChat.id } == null
+        }
+
+        mLocalMateChatDataSource.deleteChatsByIds(chatsToDelete.map { it.id })
     }
 
     private suspend fun resolveChatWithLastMessageMap(

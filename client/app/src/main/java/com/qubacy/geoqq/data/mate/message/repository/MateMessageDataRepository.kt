@@ -49,6 +49,8 @@ class MateMessageDataRepository @Inject constructor(
                 .getMateMessages(chatId, offset, count, accessToken)
             val getMessagesResponse = executeNetworkRequest(mErrorDataRepository, getMessagesCall)
 
+            if (getMessagesResponse.messages.isEmpty()) return@launch
+
             val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
 
             if (localDataMessages.containsAll(httpDataMessages)) return@launch

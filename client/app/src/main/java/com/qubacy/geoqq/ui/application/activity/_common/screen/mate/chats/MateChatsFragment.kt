@@ -101,7 +101,27 @@ class MateChatsFragment(
     ) {
         val chatItems = updateChatChunkUiOperation.chats.map { it.toMateChatItemData() }
 
-        mAdapter.updateMateChatsChunk(chatItems, updateChatChunkUiOperation.position)
+        if (updateChatChunkUiOperation.chatChunkSizeDelta < 0) {
+            val itemsToInsertCount = -updateChatChunkUiOperation.chatChunkSizeDelta
+            val itemsToUpdateCount = updateChatChunkUiOperation.chats.size - itemsToInsertCount
+
+            val itemsToInsert = chatItems.subList(
+                itemsToUpdateCount, updateChatChunkUiOperation.chats.size)
+            val itemsToUpdate = chatItems.subList(0, itemsToUpdateCount)
+
+            mAdapter.insertMateChats(itemsToInsert, itemsToUpdateCount)
+            mAdapter.updateMateChatsChunk(itemsToUpdate, 0)
+
+        } else {
+            mAdapter.updateMateChatsChunk(chatItems, updateChatChunkUiOperation.position)
+
+            if (updateChatChunkUiOperation.chatChunkSizeDelta > 0) {
+                mAdapter.deleteMateChats(
+                    updateChatChunkUiOperation.position + updateChatChunkUiOperation.chats.size,
+                    updateChatChunkUiOperation.chatChunkSizeDelta
+                )
+            }
+        }
     }
 
     override fun createBinding(

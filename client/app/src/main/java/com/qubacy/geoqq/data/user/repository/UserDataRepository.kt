@@ -57,6 +57,8 @@ class UserDataRepository @Inject constructor(
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
             val getUsersResponse = executeNetworkRequest(mErrorDataRepository, getUsersCall)
 
+            if (getUsersResponse.users.isEmpty()) return@launch
+
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 
             if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,7 @@ class MateChatsViewModel @Inject constructor(
     }
 
     private var mLastChatChunkIndex: Int = 0
+    private var mIsGettingNextChatChunk: Boolean = false
 
     init {
         mLastChatChunkIndex = mSavedStateHandle[LAST_CHAT_CHUNK_INDEX_KEY] ?: 0
@@ -67,11 +69,14 @@ class MateChatsViewModel @Inject constructor(
     private fun processGetChatChunkDomainResult(
         getChatChunkResult: GetChatChunkDomainResult
     ): UiOperation {
-        changeLoadingState(false)
-        changeLastChatChunkIndex(mLastChatChunkIndex + 1)
+        if (mUiState.isLoading) changeLoadingState(false)
+
+        mIsGettingNextChatChunk = false
 
         if (!getChatChunkResult.isSuccessful())
             return processErrorDomainResult(getChatChunkResult.error!!)
+
+        changeLastChatChunkIndex(mLastChatChunkIndex + 1)
 
         val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk!!)
         val chatChunkPosition = getChatChunkPositionByChunkIndex(getChatChunkResult.chunk.index)
@@ -84,13 +89,22 @@ class MateChatsViewModel @Inject constructor(
     ): UiOperation {
         if (mUiState.isLoading) changeLoadingState(false)
 
+        mIsGettingNextChatChunk = false
+
         if (!updateChatChunkResult.isSuccessful())
             return processErrorDomainResult(updateChatChunkResult.error!!)
 
-        val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk!!)
+        val prevChatChunkSize = mUiState.chatChunks[updateChatChunkResult.chunk!!.index]!!.size
+        val curChatChunkSize = updateChatChunkResult.chunk.chats.size
+
+        val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
         val chatChunkPosition = getChatChunkPositionByChunkIndex(updateChatChunkResult.chunk.index)
 
-        return UpdateChatChunkUiOperation(chatChunkPosition, chatPresentationChunk)
+        return UpdateChatChunkUiOperation(
+            chatChunkPosition,
+            chatPresentationChunk,
+            prevChatChunkSize - curChatChunkSize
+        )
     }
 
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
@@ -109,10 +123,31 @@ class MateChatsViewModel @Inject constructor(
         mLastChatChunkIndex = newValue
     }
 
+    // todo: reconsider this (mb there is another optimal way?): DOESNT WORK
     fun getNextChatChunk() {
+        if (!isNextChatChunkGettingAllowed()) return
+
+        mIsGettingNextChatChunk = true
+
         changeLoadingState(true)
 
         mUseCase.getChatChunk(mLastChatChunkIndex)
+    }
+
+    fun isNextChatChunkGettingAllowed(): Boolean {
+        val prevChatChunkIndex = mLastChatChunkIndex - 1
+        val prevChunkSize = mUiState.chatChunks[prevChatChunkIndex]?.size
+
+        val chunkSizeCheck = (prevChatChunkIndex < 0 || (prevChunkSize != null
+                && prevChunkSize >= MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE))
+
+        Log.d(TAG, "isNextChatChunkGettingAllowed(): " +
+                "prevChatChunkIndex = $prevChatChunkIndex; " +
+                "prevChunkSize = $prevChunkSize; " +
+                "chunkSizeCheck = $chunkSizeCheck;"
+        )
+
+        return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }
 }
 

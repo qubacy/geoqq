@@ -5,7 +5,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._commo
 
 class UpdateChatChunkUiOperation(
     val position: Int,
-    val chats: List<MateChatPresentation>
+    val chats: List<MateChatPresentation>,
+    val chatChunkSizeDelta: Int = 0
 ) : UiOperation {
 
 }

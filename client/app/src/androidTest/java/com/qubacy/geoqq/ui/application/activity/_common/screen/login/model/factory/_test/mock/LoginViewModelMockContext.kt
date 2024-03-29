@@ -19,6 +19,7 @@ class LoginViewModelMockContext(
         super.reset()
 
         uiState = LoginUiState()
+
         setLoginModeCallFlag = false
         signInWithTokenCallFlag = false
         signInWithLoginDataCallFlag = false
