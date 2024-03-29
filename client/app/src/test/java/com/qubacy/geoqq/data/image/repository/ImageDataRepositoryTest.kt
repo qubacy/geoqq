@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.image.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.ContactsContract.CommonDataKinds.Im
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.BitmapFactoryMockUtil
@@ -218,7 +219,7 @@ class ImageDataRepositoryTest(
     @Test
     fun getImageByIdFromHttpSourceTest() = runTest {
         val imageId = 0L
-        val extension = "png"
+        val extension = ImageExtension.PNG_EXTENSION.id
         val base64Content = ""
         val uriMock = Mockito.mock(Uri::class.java)
 
@@ -256,7 +257,7 @@ class ImageDataRepositoryTest(
     @Test
     fun getImagesByIdsFromHttpSourceTest() = runTest {
         val getImagesResponse = GetImagesResponse(generateGetImageResponse(
-            2, extension = ImageExtension.PNG_EXTENSION.strings.first()))
+            2, extension = ImageExtension.PNG_EXTENSION.id))
         val saveImages = generateImageEntities(getImagesResponse.images.size)
 
         mHttpSourceGetImagesResponse = getImagesResponse
@@ -311,7 +312,7 @@ class ImageDataRepositoryTest(
 
     private fun generateGetImageResponse(
         count: Int,
-        extension: String = String(),
+        extension: Int = ImageExtension.PNG_EXTENSION.id,
         content: String = String()
     ): List<GetImageResponse> {
         return IntRange(0, count - 1).map {

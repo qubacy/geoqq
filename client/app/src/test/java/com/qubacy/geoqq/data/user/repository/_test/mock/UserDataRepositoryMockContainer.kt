@@ -20,17 +20,21 @@ class UserDataRepositoryMockContainer {
 
         val DEFAULT_GET_USERS_BY_IDS = GetUsersByIdsDataResult(listOf(DEFAULT_DATA_USER))
         val DEFAULT_RESOLVE_USERS = DEFAULT_GET_USERS_BY_IDS.users.associateBy { it.id }
+        val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = DEFAULT_RESOLVE_USERS
     }
 
     val userDataRepository: UserDataRepository
 
     var getUsersByIds: GetUsersByIdsDataResult = DEFAULT_GET_USERS_BY_IDS
     var resolveUsers: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS
+    var resolveUsersWithLocalUser: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
 
     private var mGetUsersByIdsCallFlag = false
     val getUsersByIdsCallFlag get() = mGetUsersByIdsCallFlag
     private var mResolveUsersCallFlag = false
     val resolveUsersCallFlag get() = mResolveUsersCallFlag
+    private var mResolveUsersWithLocalUserCallFlag = false
+    val resolveUsersWithLocalUserCallFlag get() = mResolveUsersWithLocalUserCallFlag
 
     init {
         userDataRepository = mockUserDataRepository()
@@ -51,6 +55,12 @@ class UserDataRepositoryMockContainer {
             )).thenAnswer {
                 mResolveUsersCallFlag = true
                 resolveUsers
+            }
+            Mockito.`when`(userDataRepositoryMock.resolveUsersWithLocalUser(
+                AnyMockUtil.anyObject()
+            )).thenAnswer {
+                mResolveUsersWithLocalUserCallFlag = true
+                resolveUsersWithLocalUser
             }
         }
 

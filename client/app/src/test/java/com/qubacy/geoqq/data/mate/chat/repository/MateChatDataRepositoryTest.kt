@@ -208,7 +208,9 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val offset = 0
         val count = 5
 
-        val user = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
+        val resolveUsersWithLocalUser = UserDataRepositoryMockContainer
+            .DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = resolveUsersWithLocalUser.entries.last().value
         val localChats = mapOf(
             MateChatEntity(0, user.id, 0, 0)
                 to MateMessageEntity(0, 0, user.id, "local message", 0)
@@ -220,6 +222,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
         mLocalSourceGetChats = localChats
         mHttpSourceGetChatsResponse = httpChats
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataChats = localChats.map {
             it.toDataMateChat(user, user)

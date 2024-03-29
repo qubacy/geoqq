@@ -180,7 +180,7 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
                 val chatEntity = generateChats(1, it).first()
                 val lastMessageEntity = MateMessageEntity(
                     DEFAULT_LAST_MESSAGE_ID, chatEntity.id, DEFAULT_USER_ID,
-                    "test ${chatEntity.id}", DEFAULT_LAST_MESSAGE_TIME
+                    "test ${chatEntity.id}", DEFAULT_LAST_MESSAGE_TIME + it
                 )
 
                 map[chatEntity] = lastMessageEntity

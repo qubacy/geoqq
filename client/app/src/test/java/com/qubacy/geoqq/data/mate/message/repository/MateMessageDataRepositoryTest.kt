@@ -173,10 +173,9 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val offset = 0
         val count = 5
 
-        val user = UserDataRepositoryMockContainer.DEFAULT_DATA_USER.copy(username = "test user")
-        val resolveUsers = mapOf(
-            user.id to user
-        )
+        val resolveUsersWithLocalUser = UserDataRepositoryMockContainer
+            .DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = resolveUsersWithLocalUser.entries.last().value
         val localMessages = listOf(
             MateMessageEntity(0, chatId, user.id, "local one", 1)
         )
@@ -186,7 +185,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
         mLocalSourceGetMateMessages = localMessages
         mHttpSourceGetMateMessagesResponse = httpMessages
-        mUserDataRepositoryMockContainer.resolveUsers = resolveUsers
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
         val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
