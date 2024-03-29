@@ -20,7 +20,7 @@ interface LocalMateChatDataSource : LocalMateMessageDataSource {
         "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
         "AND ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} = " +
         "${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} " +
-        "ORDER BY ${MateMessageEntity.ID_PROP_NAME} DESC " +
+        "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC " +
         "LIMIT :offset, :count"
     )
     fun getChats(offset: Int, count: Int): Map<MateChatEntity, MateMessageEntity?>

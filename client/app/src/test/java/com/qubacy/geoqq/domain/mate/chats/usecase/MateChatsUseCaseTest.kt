@@ -17,7 +17,7 @@ import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule

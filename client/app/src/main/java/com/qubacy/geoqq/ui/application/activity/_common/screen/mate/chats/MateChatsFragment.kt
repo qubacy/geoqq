@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +11,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -31,7 +35,7 @@ class MateChatsFragment(
     FragmentMateChatsBinding,
     MateChatsUiState,
     MateChatsViewModel
->(), PermissionRunnerCallback {
+>(), PermissionRunnerCallback, BaseRecyclerViewCallback {
     @Inject
     @MateChatsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -50,9 +54,25 @@ class MateChatsFragment(
         initMateChatListView()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun runInitWithUiState(uiState: MateChatsUiState) {
+        super.runInitWithUiState(uiState)
 
+        if (uiState.chatChunks.isNotEmpty()) initMateChatsWithChatChunks(uiState.chatChunks)
+    }
+
+    private fun initMateChatsWithChatChunks(chatChunks: Map<Int, List<MateChatPresentation>>) {
+        val chats = chatChunks.flatMap {
+            it.value.map { chatList -> chatList.toMateChatItemData() }
+        }
+
+        mAdapter.setMateChats(chats)
+    }
+
+    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+        initMateChats()
+    }
+
+    private fun initMateChats() {
         if (mModel.uiState.chatChunks.isEmpty()) mModel.getNextChatChunk()
     }
 
@@ -62,6 +82,8 @@ class MateChatsFragment(
         when (uiOperation::class) {
             InsertChatsUiOperation::class ->
                 processInsertChatsUiOperation(uiOperation as InsertChatsUiOperation)
+            UpdateChatChunkUiOperation::class ->
+                processUpdateChatChunkUiOperation(uiOperation as UpdateChatChunkUiOperation)
             else -> return false
         }
 
@@ -72,6 +94,14 @@ class MateChatsFragment(
         val chatItems = insertChatsUiOperation.chats.map { it.toMateChatItemData() }
 
         mAdapter.insertMateChats(chatItems, insertChatsUiOperation.position)
+    }
+
+    private fun processUpdateChatChunkUiOperation(
+        updateChatChunkUiOperation: UpdateChatChunkUiOperation
+    ) {
+        val chatItems = updateChatChunkUiOperation.chats.map { it.toMateChatItemData() }
+
+        mAdapter.updateMateChatsChunk(chatItems, updateChatChunkUiOperation.position)
     }
 
     override fun createBinding(
@@ -87,6 +117,9 @@ class MateChatsFragment(
         mBinding.fragmentMateChatsTopBarWrapper.apply {
             updatePadding(top = insets.top)
         }
+        mBinding.fragmentMateChatsList.apply {
+            updatePadding(bottom = insets.bottom)
+        }
     }
 
     private fun initMateChatListView() {
@@ -97,6 +130,7 @@ class MateChatsFragment(
 
         mBinding.fragmentMateChatsList.apply {
             addItemDecoration(itemDivider)
+            setCallback(this@MateChatsFragment)
 
             adapter = mAdapter
         }
@@ -108,4 +142,11 @@ class MateChatsFragment(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
+    override fun onEndReached() {
+        launchPrevChatsLoading()
+    }
+
+    private fun launchPrevChatsLoading() {
+        mModel.getNextChatChunk()
+    }
 }

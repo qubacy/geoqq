@@ -67,6 +67,13 @@ abstract class BaseRecyclerViewAdapter<
         return mItems.size
     }
 
+    /**
+     * Used for detecting reaching the end of the list;
+     */
+    open fun getEndPosition(): Int {
+        return mItems.size - 1
+    }
+
     protected fun replaceItems(items: List<RecyclerViewItemDataType>) {
         mItems.apply {
             clear()

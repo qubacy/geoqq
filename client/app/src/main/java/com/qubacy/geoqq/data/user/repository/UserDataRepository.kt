@@ -88,7 +88,8 @@ class UserDataRepository @Inject constructor(
     suspend fun resolveUsersWithLocalUser(userIds: List<Long>): Map<Long, DataUser> {
         val localUserId = getLocalUserId()
 
-        return resolveUsers(userIds.plus(localUserId))
+        return if (userIds.contains(localUserId)) resolveUsers(userIds)
+        else resolveUsers(userIds.plus(localUserId))
     }
 
     private suspend fun getLocalUserId(): Long {

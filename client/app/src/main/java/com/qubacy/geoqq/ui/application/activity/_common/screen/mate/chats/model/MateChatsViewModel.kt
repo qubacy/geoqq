@@ -5,12 +5,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -54,6 +58,8 @@ class MateChatsViewModel @Inject constructor(
         return when (domainResult::class) {
             GetChatChunkDomainResult::class ->
                 processGetChatChunkDomainResult(domainResult as GetChatChunkDomainResult)
+            UpdateChatChunkDomainResult::class ->
+                processUpdateChatChunkDomainResult(domainResult as UpdateChatChunkDomainResult)
             else -> null
         }
     }
@@ -67,14 +73,36 @@ class MateChatsViewModel @Inject constructor(
         if (!getChatChunkResult.isSuccessful())
             return processErrorDomainResult(getChatChunkResult.error!!)
 
-        val chatChunk = getChatChunkResult.chunk!!
-
-        val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
-        val chatChunkPosition = chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
-
-        mUiState.chatChunks[getChatChunkResult.chunk.index] = chatPresentationChunk
+        val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk!!)
+        val chatChunkPosition = getChatChunkPositionByChunkIndex(getChatChunkResult.chunk.index)
 
         return InsertChatsUiOperation(chatChunkPosition, chatPresentationChunk)
+    }
+
+    private fun processUpdateChatChunkDomainResult(
+        updateChatChunkResult: UpdateChatChunkDomainResult
+    ): UiOperation {
+        if (mUiState.isLoading) changeLoadingState(false)
+
+        if (!updateChatChunkResult.isSuccessful())
+            return processErrorDomainResult(updateChatChunkResult.error!!)
+
+        val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk!!)
+        val chatChunkPosition = getChatChunkPositionByChunkIndex(updateChatChunkResult.chunk.index)
+
+        return UpdateChatChunkUiOperation(chatChunkPosition, chatPresentationChunk)
+    }
+
+    private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
+        val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
+
+        mUiState.chatChunks[chatChunk.index] = chatPresentationChunk
+
+        return chatPresentationChunk
+    }
+
+    private fun getChatChunkPositionByChunkIndex(index: Int): Int {
+        return index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
     }
 
     private fun changeLastChatChunkIndex(newValue: Int) {

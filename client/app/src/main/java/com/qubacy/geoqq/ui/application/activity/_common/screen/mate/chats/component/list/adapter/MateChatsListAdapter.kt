@@ -29,12 +29,12 @@ class MateChatsListAdapter(
     }
 
     @UiThread
-    fun addPreviousMateChats(mateChats: List<MateChatItemData>) {
-        val prevSize = mItems.size
+    fun setMateChats(mateChats: List<MateChatItemData>) {
+        resetItems()
 
         mItems.addAll(mateChats)
 
-        wrappedNotifyItemRangeInserted(prevSize, mItems.size)
+        wrappedNotifyItemRangeInserted(0, mItems.size)
     }
 
     @UiThread
@@ -60,6 +60,14 @@ class MateChatsListAdapter(
         wrappedNotifyItemChanged(mateChatPosition)
 
         return mateChatPosition
+    }
+
+    @UiThread
+    fun updateMateChatsChunk(mateChats: List<MateChatItemData>, position: Int) {
+        for (i in position until position + mateChats.size)
+            mItems[i] = mateChats[i - position]
+
+        wrappedNotifyItemRangeChanged(position, mateChats.size)
     }
 
     @UiThread

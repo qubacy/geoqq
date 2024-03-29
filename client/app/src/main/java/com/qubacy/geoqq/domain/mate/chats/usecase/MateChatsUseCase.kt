@@ -8,8 +8,8 @@ import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import kotlinx.coroutines.launch
 
 class MateChatsUseCase(
@@ -62,6 +62,6 @@ class MateChatsUseCase(
         val chats = getChatsResult.chats.map { it.toMateChat() }
         val chatChunk = MateChatChunk(chunkIndex, chats)
 
-        mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk)) // todo: or Update..Result?
+        mResultFlow.emit(UpdateChatChunkDomainResult(chunk = chatChunk))
     }
 }
