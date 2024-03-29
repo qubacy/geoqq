@@ -33,6 +33,12 @@ interface LocalMateMessageDataSource : DataSource {
     @Delete()
     fun deleteMessage(mateMessage: MateMessageEntity)
 
+    @Query(
+        "DELETE FROM ${MateMessageEntity.TABLE_NAME} " +
+        "WHERE ${MateMessageEntity.ID_PROP_NAME} IN (:messageIds)"
+    )
+    fun deleteMessagesByIds(messageIds: List<Long>)
+
     fun saveMessage(message: MateMessageEntity) {
         val localMessage = getMessage(message.chatId, message.id)
 

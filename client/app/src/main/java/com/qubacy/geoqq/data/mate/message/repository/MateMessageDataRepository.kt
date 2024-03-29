@@ -59,12 +59,26 @@ class MateMessageDataRepository @Inject constructor(
                 mResultFlow.emit(GetMessagesDataResult(httpDataMessages))
             else resultLiveData.postValue(GetMessagesDataResult(httpDataMessages))
 
+            if (localDataMessages.size - httpDataMessages.size > 0)
+                deleteOverdueMessages(localDataMessages, httpDataMessages)
+
             val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
 
             mLocalMateMessageDataSource.saveMessages(messagesToSave)
         }
 
         return resultLiveData
+    }
+
+    private fun deleteOverdueMessages(
+        localDataMessages: List<DataMessage>,
+        httpDataMessages: List<DataMessage>
+    ) {
+        val messagesToDelete = localDataMessages.filter { localMessage ->
+            httpDataMessages.find { httpMessage -> httpMessage.id == localMessage.id } == null
+        }
+
+        mLocalMateMessageDataSource.deleteMessagesByIds(messagesToDelete.map { it.id })
     }
 
     suspend fun sendMessage(chatId: Long, message: DataMessage) {
