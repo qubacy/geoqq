@@ -22,7 +22,7 @@ data class RawImage(
 }
 
 fun GetImageResponse.toRawImage(): RawImage {
-    val extension = ImageExtension.getFormatByString(extension)
+    val extension = ImageExtension.getFormatById(extension)
     val bitmap = base64Content.base64ToBitmap()
 
     return RawImage(id, extension, bitmap)

@@ -62,6 +62,6 @@ class MateChatsUseCase(
         val chats = getChatsResult.chats.map { it.toMateChat() }
         val chatChunk = MateChatChunk(chunkIndex, chats)
 
-        mResultFlow.emit(UpdateChatChunkDomainResult(chunk = chatChunk))
+        mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk)) // todo: or Update..Result?
     }
 }

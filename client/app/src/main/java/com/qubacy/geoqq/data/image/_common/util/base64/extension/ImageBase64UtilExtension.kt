@@ -7,5 +7,5 @@ import com.qubacy.geoqq.data._common.util.base64.Base64Util
 fun String.base64ToBitmap(): Bitmap {
     val bitmapBytes = Base64Util.stringToBytes(this)
 
-    return BitmapFactory.decodeByteArray(bitmapBytes, 0, length)
+    return BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.size)
 }

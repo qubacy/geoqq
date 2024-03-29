@@ -41,7 +41,7 @@ class MateMessageDataRepository @Inject constructor(
             val localDataMessages = resolveMessageEntities(localMessages)
 
             if (localMessages.isNotEmpty())
-                resultLiveData.value = GetMessagesDataResult(localDataMessages)
+                resultLiveData.postValue(GetMessagesDataResult(localDataMessages))
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
 
@@ -55,7 +55,7 @@ class MateMessageDataRepository @Inject constructor(
 
             if (localDataMessages.isNotEmpty())
                 mResultFlow.emit(GetMessagesDataResult(httpDataMessages))
-            else resultLiveData.value = GetMessagesDataResult(httpDataMessages)
+            else resultLiveData.postValue(GetMessagesDataResult(httpDataMessages))
 
             val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
 
@@ -75,7 +75,7 @@ class MateMessageDataRepository @Inject constructor(
         messageEntities: List<MateMessageEntity>
     ): List<DataMessage> {
         val userIds = messageEntities.map { it.userId }
-        val users = mUserDataRepository.resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return messageEntities.map { it.toDataMessage(users[it.userId]!!) }
     }
@@ -84,7 +84,7 @@ class MateMessageDataRepository @Inject constructor(
         getMessagesResponse: GetMessagesResponse
     ): List<DataMessage> {
         val userIds = getMessagesResponse.messages.map { it.userId }
-        val users = mUserDataRepository.resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return getMessagesResponse.messages.map { it.toDataMessage(users[it.userId]!!) }
     }

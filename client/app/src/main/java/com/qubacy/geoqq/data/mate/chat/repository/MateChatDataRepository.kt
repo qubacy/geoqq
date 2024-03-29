@@ -41,7 +41,7 @@ class MateChatDataRepository @Inject constructor(
             val localDataChats = resolveChatWithLastMessageMap(localChats)
 
             if (localChats.isNotEmpty())
-                resultLiveData.value = GetChatsDataResult(offset, localDataChats)
+                resultLiveData.postValue(GetChatsDataResult(offset, localDataChats))
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
@@ -53,7 +53,7 @@ class MateChatDataRepository @Inject constructor(
 
             if (localDataChats.isNotEmpty())
                 mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
-            else resultLiveData.value = GetChatsDataResult(offset, httpDataChats)
+            else resultLiveData.postValue(GetChatsDataResult(offset, httpDataChats))
 
             val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
 
@@ -69,7 +69,7 @@ class MateChatDataRepository @Inject constructor(
         val userIds = chatWithLastMessageMap.flatMap {
             mutableListOf(it.key.userId).also { _ -> it.value?.userId ?: return@also }
         }.toSet().toList()
-        val users = mUserDataRepository.resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return chatWithLastMessageMap.map {
             val chatUser = users[it.key.userId]!!
@@ -85,7 +85,7 @@ class MateChatDataRepository @Inject constructor(
         val userIds = getChatsResponse.chats.flatMap {
             mutableListOf(it.userId).also { _ -> it.lastMessage?.userId ?: return@also }
         }.toSet().toList()
-        val users = mUserDataRepository.resolveUsers(userIds)
+        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return getChatsResponse.chats.map {
             val chatUser = users[it.userId]!!

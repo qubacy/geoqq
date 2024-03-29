@@ -2,12 +2,14 @@ package com.qubacy.geoqq.data.user.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
+import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
@@ -35,6 +37,10 @@ class UserDataRepository @Inject constructor(
     private val mHttpUserDataSource: HttpUserDataSource
     // todo: add a websocket source..
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME = "user-id"
+    }
+
     suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
         val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
 
@@ -43,7 +49,7 @@ class UserDataRepository @Inject constructor(
             val localDataUsers = localUsers?.let { resolveUserEntities(it) }
 
             if (localUsers != null)
-                resultLiveData.value = GetUsersByIdsDataResult(localDataUsers!!)
+                resultLiveData.postValue(GetUsersByIdsDataResult(localDataUsers!!))
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
 
@@ -55,7 +61,7 @@ class UserDataRepository @Inject constructor(
 
             if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch
 
-            if (localUsers == null) resultLiveData.value = GetUsersByIdsDataResult(httpDataUsers)
+            if (localUsers == null) resultLiveData.postValue(GetUsersByIdsDataResult(httpDataUsers))
             else mResultFlow.emit(GetUsersByIdsDataResult(httpDataUsers))
 
             val usersToSave = httpDataUsers.map { it.toUserEntity() }
@@ -71,6 +77,31 @@ class UserDataRepository @Inject constructor(
         val getUsersByIdsResult = getUsersByIdsLiveData.await()
 
         return getUsersByIdsResult.users.associateBy { it.id }
+    }
+
+    suspend fun resolveLocalUser(): DataUser {
+        val localUserId = getLocalUserId()
+
+        return getUsersByIds(listOf(localUserId)).await().users.first()
+    }
+
+    suspend fun resolveUsersWithLocalUser(userIds: List<Long>): Map<Long, DataUser> {
+        val localUserId = getLocalUserId()
+
+        return resolveUsers(userIds.plus(localUserId))
+    }
+
+    private suspend fun getLocalUserId(): Long {
+        mTokenDataRepository.getTokens() // todo: is it necessary to be placed here?
+
+        val accessTokenPayload = mTokenDataRepository.getAccessTokenPayload()
+        val localUserIdClaim = accessTokenPayload[ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME]
+
+        if (localUserIdClaim?.asLong() == null)
+            throw ErrorAppException(mErrorDataRepository.getError(
+                TokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
+
+        return localUserIdClaim.asLong()!!
     }
 
     private suspend fun resolveUserEntities(userEntities: List<UserEntity>): List<DataUser> {

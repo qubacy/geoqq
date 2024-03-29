@@ -19,12 +19,12 @@ interface HttpImageDataSource {
         @Query("access-token") accessToken: String
     ): Call<GetImageResponse>
 
-    @GET("/api/image")
+    @POST("/api/image")
     fun getImages(
         @Body getImagesRequestBody: GetImagesRequest
     ): Call<GetImagesResponse>
 
-    @POST("/api/image")
+    @POST("/api/image/new")
     fun uploadImage(
         @Body uploadImageRequestBody: UploadImageRequest
     ): Call<UploadImageResponse>
