@@ -29,7 +29,7 @@ func (h *Handler) registerUserRoutes() {
 	userRouter := h.router.Group("/user", h.parseAnyForm)
 	{
 		userRouter.GET("/:id", h.userIdentityForGetRequest, h.getUser)
-		userRouter.GET("", h.extractBodyForGetSomeUsers,
+		userRouter.POST("", h.extractBodyForGetSomeUsers,
 			h.userIdentityByContextData, h.getSomeUsers)
 	}
 }

@@ -10,6 +10,8 @@ SET "HashUpdToken" = '878172e71ca3b32ad5acb7c2a9ffea20465f93e4',
     "SignInTime" = NOW()::timestamp
 WHERE "Id" = 1;
 
+SELECT * FROM "UserEntry";
+
 -- -----------------------------------------------------------------------
 
 UPDATE "UserDetails"
@@ -32,6 +34,15 @@ WHERE "UserId" = 1;
 
 -- -----------------------------------------------------------------------
 
+SELECT * FROM "UserEntry";
+
+UPDATE "UserEntry"
+SET "Username" = 'test_user'
+WHERE "Id" = 13;
+
+
+-- -----------------------------------------------------------------------
+
 SELECT *
 FROM "UserOptions";
 
@@ -47,8 +58,8 @@ FROM "UserEntry";
 
 
 UPDATE "UserEntry"
-SET "HashPassword" = '7c4a8d09ca3762af61e59520943dc26494f8941b'
-WHERE "Id" = 1;
+SET "HashPassword" = '648b5cdceb22b83601efc41b8f692f62288fcd4c'
+WHERE "Id" = 13;
 
 -- -----------------------------------------------------------------------
 

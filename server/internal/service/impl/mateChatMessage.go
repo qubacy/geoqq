@@ -24,9 +24,14 @@ func newMateChatMessageService(deps Dependencies) *MateChatMessageService {
 // -----------------------------------------------------------------------
 
 func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Context,
-	chatId, offset, count uint64) (domain.MateMessageList, error) {
+	userId, chatId, offset, count uint64) (domain.MateMessageList, error) {
 
-	err := mateChatMustExist(ctx, s.domainStorage, chatId)
+	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	if err != nil {
+		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
+	}
+
+	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
 	}
@@ -34,7 +39,9 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 	// ***
 
 	mateMessages, err := s.domainStorage.ReadMateChatMessagesByChatId(
-		ctx, chatId, offset, count)
+		ctx, userId, chatId,
+		count, offset,
+	)
 
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId,
@@ -46,21 +53,14 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
 
-	err := mateChatMustExist(ctx, s.domainStorage, chatId)
+	err := assertMateChatExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
-	// ***
-
-	available, err := s.domainStorage.AvailableMateChatWithIdForUser(ctx, userId, chatId)
+	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToMateChat,
-			ec.New(err, ec.Server, ec.DomainStorageError))
-	}
-	if !available {
-		return utl.NewFuncError(s.AddMessageToMateChat,
-			ec.New(ErrMateChatNotAvailable, ec.Client, ec.MateChatNotAvailable))
+		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
 	// write to database!
@@ -77,17 +77,33 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 // constraints
 // -----------------------------------------------------------------------
 
-func mateChatMustExist(ctx context.Context,
+func assertMateChatExists(ctx context.Context,
 	domainStorage domainStorage.Storage, chatId uint64) error {
 
 	exists, err := domainStorage.HasMateChatWithId(ctx, chatId)
 	if err != nil {
-		return utl.NewFuncError(mateChatMustExist,
+		return utl.NewFuncError(assertMateChatExists,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 	if !exists {
-		return utl.NewFuncError(mateChatMustExist,
+		return utl.NewFuncError(assertMateChatExists,
 			ec.New(ErrMateChatNotFound, ec.Client, ec.MateChatNotFound))
+	}
+
+	return nil
+}
+
+func assertMateChatAvailableForUser(ctx context.Context,
+	domainStorage domainStorage.Storage, userId, chatId uint64) error {
+
+	available, err := domainStorage.AvailableMateChatWithIdForUser(ctx, chatId, userId)
+	if err != nil {
+		return utl.NewFuncError(assertMateChatAvailableForUser,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+	if !available {
+		return utl.NewFuncError(assertMateChatAvailableForUser,
+			ec.New(ErrMateChatNotAvailable, ec.Client, ec.MateChatNotAvailable))
 	}
 
 	return nil

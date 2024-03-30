@@ -99,12 +99,14 @@ type MateChatStorage interface {
 
 type MateChatMessageStorage interface {
 	InsertMateChatMessage(ctx context.Context, chatTd, fromUserId uint64, text string) (uint64, error)
-	GetMateChatMessagesByChatId(ctx context.Context, chatId,
-		offset, count uint64) (domain.MateMessageList, error)
+	GetMateChatMessagesByChatId(ctx context.Context,
+		userId, chatId uint64,
+		count, offset uint64) (domain.MateMessageList, error)
 
 	// Make messages read!
-	ReadMateChatMessagesByChatId(ctx context.Context, chatId,
-		offset, count uint64) (domain.MateMessageList, error)
+	ReadMateChatMessagesByChatId(ctx context.Context,
+		userId, chatId uint64,
+		count, offset uint64) (domain.MateMessageList, error)
 }
 
 // -----------------------------------------------------------------------

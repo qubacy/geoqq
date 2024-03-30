@@ -5,7 +5,7 @@ delivery:
     signing_key: "signing_key"
 
   http:
-    port:
+    port: 57000
 
 storage:
   hash_type: "sha1" # general parameter?

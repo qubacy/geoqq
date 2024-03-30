@@ -2,6 +2,8 @@ package impl
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
 	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
 	fileStorage "geoqq/internal/storage/file"
@@ -87,7 +89,6 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	if err != nil {
 		return a.signUpWithError(err, ec.Client, ec.ValidateInputParamsFailed)
 	}
-
 	err = a.assertUserWithNameNotExists(ctx, input)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
@@ -102,12 +103,21 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 
 	// ***
 
-	hashPassword, err := a.hashManager.NewFromString(input.Password) // <--- make hash hash-password!
+	passwordHash, err := base64.StdEncoding.DecodeString(input.PasswordHashInBase64)
+	if err != nil {
+		return a.signUpWithError(err, ec.Client, ec.PasswordHashIsNotBase64)
+	}
+
+	fmt.Println("passwordHash: ", passwordHash)
+
+	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash) // <--- make hash hash-password!
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, ec.HashManagerError)
 	}
 
-	userId, err := a.domainStorage.InsertUser(ctx, input.Login, hashPassword, avatarId)
+	fmt.Println("passwordDoubleHash: ", passwordDoubleHash)
+
+	userId, err := a.domainStorage.InsertUser(ctx, input.Login, passwordDoubleHash, avatarId)
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, ec.DomainStorageError)
 	}
@@ -199,7 +209,7 @@ func (a *AuthService) initializeValidators() error {
 
 func (a *AuthService) validateLoginAndPassword(login, password string) error {
 	loginValidator := a.validators["login"]
-	passwordValidator := a.validators["password"]
+	base64Validator := a.validators["password"] // TODO: !!!
 
 	// ***
 
@@ -210,8 +220,8 @@ func (a *AuthService) validateLoginAndPassword(login, password string) error {
 		}
 	}
 
-	if len(passwordValidator.String()) != 0 {
-		if !passwordValidator.MatchString(password) {
+	if len(base64Validator.String()) != 0 {
+		if !base64Validator.MatchString(password) {
 			return ErrIncorrectPassword // just an error with no func name!
 		}
 	}
@@ -220,11 +230,13 @@ func (a *AuthService) validateLoginAndPassword(login, password string) error {
 }
 
 func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
-	return a.validateLoginAndPassword(input.Login, input.Password)
+	return a.validateLoginAndPassword(
+		input.Login, input.PasswordHashInBase64)
 }
 
 func (a *AuthService) validateSingIn(input dto.SignInInp) error {
-	return a.validateLoginAndPassword(input.Login, input.Password)
+	return a.validateLoginAndPassword(
+		input.Login, input.PasswordHashInBase64)
 }
 
 // private
@@ -345,13 +357,23 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 func (a *AuthService) assertUserByCredentialsExists(
 	ctx context.Context, input dto.SignInInp) error {
 
-	hashPassword, err := a.hashManager.NewFromString(input.Password) // <--- make hash hash-password!
+	passwordHash, err := base64.StdEncoding.DecodeString(input.PasswordHashInBase64)
+	if err != nil {
+		return utl.NewFuncError(a.assertUserByCredentialsExists,
+			ec.New(err, ec.Client, ec.PasswordHashIsNotBase64))
+	}
+
+	fmt.Println("passwordHash: ", passwordHash)
+
+	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash) // <--- make hash hash-password!
 	if err != nil {
 		return utl.NewFuncError(a.assertUserByCredentialsExists,
 			ec.New(err, ec.Server, ec.HashManagerError))
 	}
 
-	exists, err := a.domainStorage.HasUserByCredentials(ctx, input.Login, hashPassword)
+	fmt.Println("passwordDoubleHash: ", passwordDoubleHash)
+
+	exists, err := a.domainStorage.HasUserByCredentials(ctx, input.Login, passwordDoubleHash)
 	if err != nil {
 		return utl.NewFuncError(a.assertUserByCredentialsExists,
 			ec.New(err, ec.Server, ec.DomainStorageError))

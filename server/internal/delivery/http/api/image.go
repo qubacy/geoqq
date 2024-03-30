@@ -13,10 +13,10 @@ func (h *Handler) registerImageRoutes() {
 	router := h.router.Group("/image", h.parseAnyForm)
 	{
 		router.GET("/:id", h.userIdentityForGetRequest, h.getImage)
-		router.GET("", h.extractBodyFromGetSomeImages,
+		router.POST("", h.extractBodyFromGetSomeImages,
 			h.userIdentityByContextData, h.getSomeImages) // can be done better!
 
-		router.POST("", h.extractBodyFromPostImage,
+		router.POST("/new", h.extractBodyFromPostImage,
 			h.userIdentityByContextData, h.postImage)
 	}
 }

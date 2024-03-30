@@ -1,6 +1,9 @@
 SELECT *
 FROM "MateChat";
 
+UPDATE "MateChat" SET "FirstUserId" = 13
+WHERE "Id" = 1;
+
 -- -----------------------------------------------------------------------
 
 SELECT case
@@ -18,13 +21,13 @@ SELECT case
        end as "Available"
 FROM "MateChat"
 WHERE "Id" = 1
-    AND ("FirstUserId" = 1
-         OR "SecondUserId" = 1)
+    AND ("FirstUserId" = 13
+         OR "SecondUserId" = 13)
     AND NOT EXISTS
         (SELECT
          FROM "DeletedMateChat"
          WHERE "ChatId" = "Id"
-             AND "UserId" = 1);
+             AND "UserId" = 13);
 
 -- Not optimal!
 -- -----------------------------------------------------------------------
@@ -105,6 +108,10 @@ ORDER BY "Id"
     LIMIT 10 OFFSET 0;
 
 -- -----------------------------------------------------------------------
+
+-- TODO: 
+
+SELECT * FROM "MateMessage";
 
 WITH "srcUserId" AS (VALUES (2)),
      "chatId" AS (VALUES (1))

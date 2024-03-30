@@ -28,6 +28,8 @@ CREATE TABLE "MateMessage"
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "Read" BOOLEAN NOT NULL DEFAULT FALSE,
     
+    -- ReadTime TIMESTAMP WITHOUT TIME ZONE NULL,
+    
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")
 );

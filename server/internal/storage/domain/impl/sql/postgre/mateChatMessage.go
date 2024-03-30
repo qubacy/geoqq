@@ -37,33 +37,69 @@ var (
 		templateInsertMateChatMessageWithoutReturningId +
 		` RETURNING "Id"`
 
+	/*
+		Order:
+			1. userId
+			2. chatId
+			3. count
+			4. offset
+	*/
 	templateGetMateChatMessagesByChatId = utl.RemoveAdjacentWs(`
 		SELECT 
-			"Id",
-       		"Text",
-       		"Time",
-       		"FromUserId" AS "UserId"
+			"MateMessage"."Id" AS "Id",
+			"Text",
+			"Time",
+			"FromUserId" AS "UserId",
+			"Read"
 		FROM "MateMessage"
-		WHERE "MateChatId" = $1
+		INNER JOIN "MateChat" ON (
+			"MateChat"."Id" = "MateMessage"."MateChatId" 
+			AND "MateMessage"."MateChatId" = $2
+			AND ( 
+				"FirstUserId" = $1 OR
+				"SecondUserId" = $1
+			)
+		)
 		ORDER BY "Time" DESC
-		LIMIT $2 OFFSET $3`)
+		LIMIT $3 OFFSET $4`)
 
+	/*
+		Order:
+			1. userId
+			2. chatId
+			3. count
+			4. offset
+	*/
 	templateReadMateChatMessagesByChatId = utl.RemoveAdjacentWs(`
 		WITH "MateChatMessages" AS
-    		(SELECT 
-				"Id",
-            	"Text",
-            	"Time",
-            	"FromUserId" AS "UserId"
-     		FROM "MateMessage"
-     		WHERE "MateChatId" = $1
-     		ORDER BY "Time" DESC
-			LIMIT $2 OFFSET $3)
-		UPDATE "MateMessage"
-		SET "Read" = TRUE
+			(SELECT 
+				"MateMessage"."Id" AS "Id",
+				"Text",
+				"Time",
+				"FromUserId" AS "UserId",
+				"Read" -- will return value before update
+			FROM "MateMessage"
+			INNER JOIN "MateChat" ON (
+				"MateChat"."Id" = "MateMessage"."MateChatId" 
+				AND "MateMessage"."MateChatId" = $2
+				AND ( 
+					"FirstUserId" = $1 OR 
+					"SecondUserId" = $1
+				) -- access check, without returning obvious errors
+			)
+			ORDER BY "Time" DESC
+			LIMIT $3 OFFSET $4
+			)
+		UPDATE "MateMessage" 
+			SET "Read" = 
+				CASE "MateMessage"."FromUserId"
+					WHEN $1 THEN TRUE
+					ELSE "MateMessage"."Read" -- already set value
+				END
 		FROM "MateChatMessages"
-		WHERE "MateMessage"."Id" = "MateChatMessages"."Id" 
-    		RETURNING "MateChatMessages".*`)
+		WHERE (
+			"MateMessage"."Id" = "MateChatMessages"."Id"
+		) RETURNING "MateChatMessages".*;`)
 )
 
 // public
@@ -93,12 +129,16 @@ func (s *MateChatMessageStorage) InsertMateChatMessage(ctx context.Context,
 
 // -----------------------------------------------------------------------
 
-func (s *MateChatMessageStorage) GetMateChatMessagesByChatId(ctx context.Context, chatId,
-	offset, count uint64) (domain.MateMessageList, error) {
+func (s *MateChatMessageStorage) GetMateChatMessagesByChatId(ctx context.Context,
+	userId, chatId uint64, count, offset uint64) (domain.MateMessageList, error) {
+
+	/*
+		Who get the messages here is not important!
+	*/
 
 	mateMessages, err := s.queryMateChatMessagesByChatId(
 		ctx, templateGetMateChatMessagesByChatId,
-		chatId, offset, count,
+		userId, chatId, count, offset,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetMateChatMessagesByChatId, err)
@@ -107,12 +147,12 @@ func (s *MateChatMessageStorage) GetMateChatMessagesByChatId(ctx context.Context
 	return mateMessages, nil
 }
 
-func (s *MateChatMessageStorage) ReadMateChatMessagesByChatId(ctx context.Context, chatId,
-	offset, count uint64) (domain.MateMessageList, error) {
+func (s *MateChatMessageStorage) ReadMateChatMessagesByChatId(ctx context.Context,
+	userId, chatId uint64, count, offset uint64) (domain.MateMessageList, error) {
 
 	mateMessages, err := s.queryMateChatMessagesByChatId(
 		ctx, templateReadMateChatMessagesByChatId,
-		chatId, offset, count,
+		userId, chatId, count, offset,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
@@ -125,7 +165,8 @@ func (s *MateChatMessageStorage) ReadMateChatMessagesByChatId(ctx context.Contex
 // -----------------------------------------------------------------------
 
 func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
-	ctx context.Context, templateQuery string, chatId, offset, count uint64) (
+	ctx context.Context, templateQuery string, // template for read or get!
+	userId, chatId, count, offset uint64) (
 	domain.MateMessageList, error) {
 
 	conn, err := s.pool.Acquire(ctx)
@@ -137,7 +178,7 @@ func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
 	// ***
 
 	rows, err := conn.Query(ctx, templateQuery+`;`,
-		chatId, count, offset)
+		userId, chatId, count, offset)
 	if err != nil {
 		return nil, utl.NewFuncError(s.queryMateChatMessagesByChatId, err)
 	}
@@ -161,8 +202,11 @@ func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
 func mateChatMessageFromRows(rows pgx.Rows) (*domain.MateMessage, error) {
 	mateMessage := new(domain.MateMessage)
 	err := rows.Scan(
-		&mateMessage.Id, &mateMessage.Text,
-		&mateMessage.Time, &mateMessage.UserId,
+		&mateMessage.Id,
+		&mateMessage.Text,
+		&mateMessage.Time,
+		&mateMessage.UserId,
+		&mateMessage.Read,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(mateChatMessageFromRows, err)

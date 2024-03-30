@@ -26,7 +26,7 @@ func (h *Handler) registerAuthRoutes() {
 func (h *Handler) postSignIn(ctx *gin.Context) {
 	// err more important!
 
-	username, password, code, err := extractLoginAndPassword(ctx)
+	username, passwordHashInBase64, code, err := extractLoginAndPassword(ctx)
 	if err != nil {
 		// code, err can be combined?
 
@@ -37,7 +37,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 	// ***
 
 	out, err := h.services.SignIn(ctx,
-		serviceDto.MakeSignInInp(username, password))
+		serviceDto.MakeSignInInp(username, passwordHashInBase64))
 
 	if err != nil { // error may belong to different sides!
 
@@ -53,7 +53,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 }
 
 func (h *Handler) postSignUp(ctx *gin.Context) {
-	username, password, code, err := extractLoginAndPassword(ctx)
+	username, passwordHashInBase64, code, err := extractLoginAndPassword(ctx)
 	if err != nil {
 		resWithClientError(ctx, code, err)
 		return
@@ -62,7 +62,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 	// ***
 
 	out, err := h.services.SignUp(ctx,
-		serviceDto.MakeSignUpInp(username, password))
+		serviceDto.MakeSignUpInp(username, passwordHashInBase64))
 
 	if err != nil {
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)

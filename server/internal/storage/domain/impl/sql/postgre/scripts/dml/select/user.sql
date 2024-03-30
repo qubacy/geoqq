@@ -1,6 +1,9 @@
 SELECT *
 FROM "UserEntry";
 
+UPDATE "UserEntry" 
+SET "HashPassword" = 'adf20ec5664499c609ad141057e9bf94212eb337' WHERE "Id" = 1;
+
 
 SELECT *
 FROM "UserDetails";

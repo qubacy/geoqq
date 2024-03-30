@@ -1,5 +1,8 @@
 SELECT * FROM "Mate";
 
+UPDATE "Mate" SET "FirstUserId" = 13
+WHERE "Id" = 1;
+
 SELECT COUNT(*)
 FROM "Mate"
 WHERE ("FirstUserId" = 1 AND "SecondUserId" = 2)

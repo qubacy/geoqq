@@ -1,6 +1,10 @@
 SELECT *
 FROM "MateMessage";
 
+SELECT * FROM "MateChat";
+
+UPDATE "MateMessage" SET "FromUserId" = 2
+WHERE "Id" = 2;
 
 SELECT "Id",
        "Text",

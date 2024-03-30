@@ -23,7 +23,8 @@ func (h *Handler) registerMateRoutes() {
 
 			chat.DELETE("/:id", h.deleteMateChat)
 			chat.GET("/:id/message", h.userIdentityForGetRequest,
-				requireOffsetAndCount, h.getMateChatMessages) // maybe group?
+				requireRouteItemId, requireOffsetAndCount,
+				h.getMateChatMessages) // maybe group?
 
 			// for debug?
 
@@ -117,11 +118,12 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 	}
 	offset := ctx.GetUint64(contextOffset)
 	count := ctx.GetUint64(contextCount)
+	chatId := ctx.GetUint64(contextRouteItemId)
 
-	// to-from services
+	// to services!
 
 	output, err := h.services.ReadMateChatMessagesByChatId(ctx,
-		userId, offset, count) // TODO:ошибка!
+		userId, chatId, offset, count)
 	if err != nil {
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)

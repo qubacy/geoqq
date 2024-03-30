@@ -10,15 +10,23 @@ import (
 // -----------------------------------------------------------------------
 
 type MateChatsRes struct {
-	Chats []MateChat `json:"chats"`
+	Chats []MateChat `json:"chats" binding:"required"` // TODO: new empty array!!
 }
+
+// TODO: test empty array!!
+// TODO: test request empty ids for user and images!!
+//!!func make
 
 func MakeMateChatsResFromOutput(outputMateChats domain.MateChatList) (MateChatsRes, error) {
 	if outputMateChats == nil {
-		return MateChatsRes{}, ErrInputParameterIsNil
+		return MateChatsRes{
+			Chats: make([]MateChat, 0),
+		}, ErrInputParameterIsNil
 	}
 
-	responseDto := MateChatsRes{}
+	responseDto := MateChatsRes{
+		Chats: make([]MateChat, 0),
+	}
 	for i := range outputMateChats {
 		mateChat, err := MakeMateChatFromOutput(outputMateChats[i])
 		if err != nil {
@@ -71,6 +79,7 @@ type MateMessage struct {
 	Text   string  `json:"text"`
 	Time   float64 `json:"time"`
 	UserId float64 `json:"user-id"`
+	Read   bool    `json:"read"`
 }
 
 func MakeMateMessageFromDomain(mateMessage *domain.MateMessage) (MateMessage, error) {
@@ -83,6 +92,7 @@ func MakeMateMessageFromDomain(mateMessage *domain.MateMessage) (MateMessage, er
 		Text:   mateMessage.Text,
 		Time:   float64(mateMessage.Time.Unix()), // utc ---> unix or not?
 		UserId: float64(mateMessage.UserId),
+		Read:   mateMessage.Read,
 	}, nil
 }
 

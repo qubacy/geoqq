@@ -7,11 +7,13 @@ type MateMessage struct {
 	Text   string
 	Time   time.Time
 	UserId uint64
+	Read   bool
 }
 
+// such a constructor needed?
 func NewEmptyMateMessage() *MateMessage {
 	return &MateMessage{
-		0, "", time.Time{}, 0,
+		0, "", time.Time{}, 0, false,
 	}
 }
 

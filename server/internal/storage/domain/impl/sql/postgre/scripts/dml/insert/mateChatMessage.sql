@@ -7,8 +7,8 @@ INSERT INTO "MateMessage" ("MateChatId",
                            "Text",
                            "Time",
                            "Read")
-VALUES (1,
-        1,
+VALUES (2,
+        3,
         'Hello!',
         NOW()::timestamp,
         FALSE) RETURNING "Id";

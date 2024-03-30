@@ -37,7 +37,9 @@ type MateChatService interface {
 }
 
 type MateChatMessageService interface {
-	ReadMateChatMessagesByChatId(ctx context.Context, chatId, offset, count uint64) (domain.MateMessageList, error)
+	ReadMateChatMessagesByChatId(ctx context.Context,
+		userId, chatId uint64,
+		offset, count uint64) (domain.MateMessageList, error)
 	AddMessageToMateChat(ctx context.Context, userId, chatId uint64, text string) error
 }
 
