@@ -112,7 +112,7 @@ class LoginFragment(
 
     private fun processSignInOperation(signInOperation: SignInUiOperation) {
         Navigation.findNavController(requireView())
-            .navigate(R.id.action_loginFragment_to_mateChatsFragment)
+            .navigate(LoginFragmentDirections.actionLoginFragmentToMateChatsFragment())
     }
 
     private fun initViewValues() {
