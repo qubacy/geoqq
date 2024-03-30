@@ -12,6 +12,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.rule.GrantPermissionRule
 import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common._test.util.launcher.launchFragmentInHiltContainer
@@ -21,7 +22,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.lang.reflect.Field
+import org.junit.rules.RuleChain
 
 abstract class BaseFragmentTest<
     ViewBindingType : ViewBinding,
@@ -32,7 +33,9 @@ abstract class BaseFragmentTest<
     }
 
     @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+    open val rule = RuleChain
+        .outerRule(HiltAndroidRule(this))
+        .around(GrantPermissionRule.grant(*getPermissionsToGrant()))
 
     protected lateinit var mActivityScenario: ActivityScenario<HiltTestActivity>
     protected lateinit var mFragment: FragmentType
@@ -46,6 +49,11 @@ abstract class BaseFragmentTest<
     abstract fun getFragmentClass(): Class<FragmentType>
     @IdRes
     abstract fun getCurrentDestination(): Int
+
+    @CallSuper
+    open fun getPermissionsToGrant(): Array<String> {
+        return arrayOf()
+    }
 
     /**
      * Meant to be called BEFORE any manipulations on mFragment;

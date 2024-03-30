@@ -22,7 +22,7 @@ import javax.inject.Inject
 import javax.inject.Qualifier
 
 @HiltViewModel
-class MateChatsViewModel @Inject constructor(
+open class MateChatsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
     mUseCase: MateChatsUseCase
@@ -124,7 +124,7 @@ class MateChatsViewModel @Inject constructor(
     }
 
     // todo: reconsider this (mb there is another optimal way?): DOESNT WORK
-    fun getNextChatChunk() {
+    open fun getNextChatChunk() {
         if (!isNextChatChunkGettingAllowed()) return
 
         mIsGettingNextChatChunk = true
@@ -134,7 +134,7 @@ class MateChatsViewModel @Inject constructor(
         mUseCase.getChatChunk(mLastChatChunkIndex)
     }
 
-    fun isNextChatChunkGettingAllowed(): Boolean {
+    open fun isNextChatChunkGettingAllowed(): Boolean {
         val prevChatChunkIndex = mLastChatChunkIndex - 1
         val prevChunkSize = mUiState.chatChunks[prevChatChunkIndex]?.size
 

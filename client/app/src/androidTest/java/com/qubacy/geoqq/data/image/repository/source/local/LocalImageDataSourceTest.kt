@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.qubacy.geoqq.data.image.repository._common.RawImage
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.util.context.extension.checkUriValidity
@@ -12,6 +13,7 @@ import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -20,6 +22,12 @@ class LocalImageDataSourceTest {
     companion object {
         const val TEST_ICON_SIZE = 48
     }
+
+    @get:Rule
+    val rule = GrantPermissionRule.grant(
+        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     private lateinit var mContext: Context
     private lateinit var mTestRawImage: RawImage
@@ -104,7 +112,7 @@ class LocalImageDataSourceTest {
 
     @Test
     fun loadImagesTest() {
-        val initImages = listOf(mTestRawImage, mTestRawImage)
+        val initImages = listOf(mTestRawImage.copy(id = 0), mTestRawImage.copy(id = 1))
         val expectedImageEntities = mLocalImageDataSource.saveImages(initImages)!!
 
         mImageEntitiesToDelete.addAll(expectedImageEntities)
