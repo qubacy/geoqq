@@ -95,10 +95,24 @@ class LocalMateMessageDataSourceTest :
         mLocalMateMessageDataSource.insertMessage(messageToDelete)
         mLocalMateMessageDataSource.deleteMessage(messageToDelete)
 
-        val gottenUpdatedMessageEntity = mLocalMateMessageDataSource
+        val gottenDeletedMessageEntity = mLocalMateMessageDataSource
             .getMessage(messageToDelete.chatId, messageToDelete.id)
 
-        Assert.assertNull(gottenUpdatedMessageEntity)
+        Assert.assertNull(gottenDeletedMessageEntity)
+    }
+
+    @Test
+    fun deleteMateMessagesByIdsTest() {
+        val messagesToDelete = generateMessages(count = 2)
+
+        messagesToDelete.forEach { mLocalMateMessageDataSource.insertMessage(it) }
+
+        mLocalMateMessageDataSource.deleteMessagesByIds(messagesToDelete.map { it.id })
+
+        val gottenDeletedMessageEntities = mLocalMateMessageDataSource
+            .getMessages(messagesToDelete.first().chatId, 0, messagesToDelete.size)
+
+        Assert.assertTrue(gottenDeletedMessageEntities.isEmpty())
     }
 
     @Test

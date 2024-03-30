@@ -6,6 +6,8 @@ import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
@@ -18,6 +20,7 @@ import com.qubacy.geoqq.data.user.repository.source.http.response.GetUserRespons
 import com.qubacy.geoqq.data.user.repository.source.http.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -32,7 +35,8 @@ import java.util.Date
 
 class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     companion object {
-        val DEFAULT_LOCAL_USER_ID = 0L
+        const val DEFAULT_LOCAL_USER_ID = 0L
+
         val DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM = object : Claim {
             override fun asBoolean(): Boolean? = null
             override fun asInt(): Int? = null
@@ -44,6 +48,18 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
             override fun <T : Any?> asList(tClazz: Class<T>?): MutableList<T> = mutableListOf()
             override fun <T : Any?> asObject(tClazz: Class<T>?): T? = null
         }
+
+        val DEFAULT_USER_ENTITY = UserEntity(
+            DEFAULT_LOCAL_USER_ID,
+            "local user", String(),
+            0L, 0, 0
+        )
+        val DEFAULT_GET_USER_RESPONSE = GetUserResponse(
+            DEFAULT_LOCAL_USER_ID, "http user", "desc",
+            0L, false, false
+        )
+        val DEFAULT_AVATAR = ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
+            .copy(id = DEFAULT_USER_ENTITY.avatarId)
     }
 
     @get:Rule
@@ -171,18 +187,9 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
     @Test
     fun getUsersByIdsTest() = runTest {
-        val localUsers = listOf(
-            UserEntity(0, "local user", String(), 0L, 0, 0)
-        )
-        val httpUsers = GetUsersResponse(listOf(
-            GetUserResponse(
-                0, "http user", "desc", 0L, false, false
-            )
-        ))
-        val avatars = listOf(
-            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
-                .copy(id = localUsers.first().avatarId)
-        )
+        val localUsers = listOf(DEFAULT_USER_ENTITY)
+        val httpUsers = GetUsersResponse(listOf(DEFAULT_GET_USER_RESPONSE))
+        val avatars = listOf(DEFAULT_AVATAR)
         val userIds = httpUsers.users.map { it.id }
 
         mLocalSourceGetUsersByIds = localUsers
@@ -220,44 +227,58 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     }
 
     @Test
+    fun getUsersByIdsThrowsExceptionOnNoUsersGottenTest() = runTest {
+        val httpUsers = GetUsersResponse(listOf())
+        val userIds = listOf(DEFAULT_LOCAL_USER_ID)
+        val expectedError = Error(0, String(), false)
+
+        mLocalSourceGetUsersByIds = listOf()
+        mHttpSourceGetUsersResponse = httpUsers
+        mErrorDataRepositoryMockContainer.getError = expectedError
+
+        val exception = Assert.assertThrows(ErrorAppException::class.java) {
+            runBlocking {
+                mDataRepository.getUsersByIds(userIds)
+            }
+        }
+
+        Assert.assertTrue(mHttpSourceGetUsersCallFlag)
+        Assert.assertEquals(ErrorAppException::class, exception::class)
+
+        val gottenError = (exception as ErrorAppException).error
+
+        Assert.assertEquals(expectedError, gottenError)
+    }
+
+    @Test
     fun resolveUsersTest() = runTest {
-        val localUsers = listOf(
-            UserEntity(0, "local user", String(), 0L, 0, 0)
-        )
-        val avatars = listOf(
-            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
-                .copy(id = localUsers.first().avatarId)
-        )
+        val localUsers = listOf(DEFAULT_USER_ENTITY)
+        val httpUsers = GetUsersResponse(listOf(DEFAULT_GET_USER_RESPONSE))
+        val avatars = listOf(DEFAULT_AVATAR)
         val userIds = localUsers.map { it.id }
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+        mHttpSourceGetUsersResponse = httpUsers
 
         val expectedResolvedUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }.associateBy { it.id }
 
-        mDataRepository.resultFlow.test {
-            val gottenResolvedUsers = mDataRepository.resolveUsers(userIds)
+        val gottenResolvedUsers = mDataRepository.resolveUsers(userIds)
 
-            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
-            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-            AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
-        }
+        Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+        Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+        AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
     }
 
     @Test
     fun resolveLocalUserTest() = runTest {
-        val localUsers = listOf(
-            UserEntity(0, "local user", String(), 0L, 0, 0)
-        )
+        val localUsers = listOf(DEFAULT_USER_ENTITY)
+        val httpUsers = GetUsersResponse(listOf(DEFAULT_GET_USER_RESPONSE))
+        val avatars = listOf(DEFAULT_AVATAR)
         val localUser = localUsers.first()
             .toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
-        val avatars = listOf(
-            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
-                .copy(id = localUsers.first().avatarId)
-        )
         val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
         val getAccessTokenPayload = mapOf(
             UserDataRepository.ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME to accessTokenUserIdClaim
@@ -265,34 +286,24 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+        mHttpSourceGetUsersResponse = httpUsers
         mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
 
         val expectedLocalUser = localUser
 
-        mDataRepository.resultFlow.test {
-            val gottenLocalUser = mDataRepository.resolveLocalUser()
+        val gottenLocalUser = mDataRepository.resolveLocalUser()
 
-            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.getAccessTokenPayloadCallFlag)
-            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-            Assert.assertEquals(expectedLocalUser, gottenLocalUser)
-        }
+        Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.getAccessTokenPayloadCallFlag)
+        Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+        Assert.assertEquals(expectedLocalUser, gottenLocalUser)
     }
 
     @Test
     fun resolveUsersWithLocalUserTest() = runTest {
-        val localUsers = listOf(
-            UserEntity(
-                DEFAULT_LOCAL_USER_ID,
-                "local user", String(),
-                0L, 0, 0
-            )
-        )
-        val avatars = listOf(
-            ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
-                .copy(id = localUsers.first().avatarId)
-        )
+        val localUsers = listOf(DEFAULT_USER_ENTITY)
+        val httpUsers = GetUsersResponse(listOf(DEFAULT_GET_USER_RESPONSE))
+        val avatars = listOf(DEFAULT_AVATAR)
         val userIds = localUsers.map { it.id }
         val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
         val getAccessTokenPayload = mapOf(
@@ -301,19 +312,17 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpSourceGetUsersResponse = GetUsersResponse(listOf())
+        mHttpSourceGetUsersResponse = httpUsers
         mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
 
         val expectedResolvedUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }.associateBy { it.id }
 
-        mDataRepository.resultFlow.test {
-            val gottenResolvedUsers = mDataRepository.resolveUsersWithLocalUser(userIds)
+        val gottenResolvedUsers = mDataRepository.resolveUsersWithLocalUser(userIds)
 
-            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
-            Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-            AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
-        }
+        Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+        Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
+        AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
     }
 }

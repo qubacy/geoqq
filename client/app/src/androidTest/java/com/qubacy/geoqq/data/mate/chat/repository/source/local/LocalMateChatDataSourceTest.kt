@@ -127,6 +127,19 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
     }
 
     @Test
+    fun deleteChatsByIdsTest() {
+        val chatsToDelete = generateChats(2)
+
+        chatsToDelete.forEach { mLocalMateChatDataSource.insertChat(it) }
+
+        mLocalMateChatDataSource.deleteChatsByIds(chatsToDelete.map { it.id })
+
+        val gottenChatEntities = mLocalMateChatDataSource.getChats(0, chatsToDelete.size)
+
+        Assert.assertTrue(gottenChatEntities.isEmpty())
+    }
+
+    @Test
     fun saveChatsTest() {
         val initChats = generateChatLastMessageMap(3)
         val chatToUpdate = initChats.entries.last().key

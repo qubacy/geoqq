@@ -34,7 +34,7 @@ abstract class StatefulViewModelTest<
     }
 
     @Before
-    fun setup() {
+    open fun setup() {
         preInit()
         init()
     }

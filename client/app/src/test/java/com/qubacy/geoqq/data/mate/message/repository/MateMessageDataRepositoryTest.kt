@@ -30,6 +30,16 @@ import retrofit2.Call
 import retrofit2.Response
 
 class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataRepository>() {
+    companion object {
+        val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
+        val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = mapOf(DEFAULT_DATA_USER.id to DEFAULT_DATA_USER)
+
+        val DEFAULT_MESSAGE_ENTITY = MateMessageEntity(
+            0, 0, DEFAULT_DATA_USER.id, "local message", 0)
+        val DEFAULT_GET_MESSAGE_RESPONSE =
+            GetMessageResponse(0, DEFAULT_DATA_USER.id, "remote one", 0)
+    }
+
     @get:Rule
     val rule = RuleChain
         .outerRule(InstantTaskExecutorRule())
@@ -47,6 +57,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private var mLocalSourceInsertMateMessageCallFlag = false
     private var mLocalSourceUpdateMateMessageCallFlag = false
     private var mLocalSourceDeleteMateMessageCallFlag = false
+    private var mLocalSourceDeleteMateMessagesByIdsCallFlag = false
     private var mLocalSourceSaveMateMessageCallFlag = false
 
     private var mHttpSourceGetMateMessagesResponse: GetMessagesResponse? = null
@@ -69,6 +80,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mLocalSourceInsertMateMessageCallFlag = false
         mLocalSourceUpdateMateMessageCallFlag = false
         mLocalSourceDeleteMateMessageCallFlag = false
+        mLocalSourceDeleteMateMessagesByIdsCallFlag = false
         mLocalSourceSaveMateMessageCallFlag = false
 
         mHttpSourceGetMateMessagesResponse = null
@@ -130,6 +142,13 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Unit
         }
+        Mockito.`when`(localMateMessageDataSourceMock.deleteMessagesByIds(
+            AnyMockUtil.anyObject()
+        )).thenAnswer {
+            mLocalSourceDeleteMateMessagesByIdsCallFlag = true
+
+            Unit
+        }
         Mockito.`when`(localMateMessageDataSourceMock.saveMessages(
             AnyMockUtil.anyObject()
         )).thenAnswer {
@@ -173,15 +192,10 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = UserDataRepositoryMockContainer
-            .DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = resolveUsersWithLocalUser.entries.last().value
-        val localMessages = listOf(
-            MateMessageEntity(0, chatId, user.id, "local one", 1)
-        )
-        val httpMessages = GetMessagesResponse(listOf(
-            GetMessageResponse(0, user.id, "remote one", 2)
-        ))
+        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = DEFAULT_DATA_USER
+        val localMessages = listOf(DEFAULT_MESSAGE_ENTITY)
+        val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
         mHttpSourceGetMateMessagesResponse = httpMessages
@@ -195,7 +209,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
 
-            val gottenLocalDataMessages = gottenLocalResult.messages
+            val gottenLocalDataMessages = gottenLocalResult!!.messages
 
             AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
 
@@ -205,6 +219,48 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
             Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
+            Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
+
+            val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
+
+            AssertUtils.assertEqualContent(expectedHttpDataMessages, gottenHttpDataMessages)
+        }
+    }
+
+    @Test
+    fun getMessagesWithOverdueMessagesTest() = runTest {
+        val chatId = 0L
+        val offset = 0
+        val count = 5
+
+        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = DEFAULT_DATA_USER
+        val localMessages = listOf(DEFAULT_MESSAGE_ENTITY, DEFAULT_MESSAGE_ENTITY.copy(id = 1L))
+        val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
+
+        mLocalSourceGetMateMessages = localMessages
+        mHttpSourceGetMateMessagesResponse = httpMessages
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+
+        val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
+        val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
+
+        mDataRepository.resultFlow.test {
+            val gottenLocalResult = mDataRepository.getMessages(chatId, offset, count).await()
+
+            Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
+
+            val gottenLocalDataMessages = gottenLocalResult!!.messages
+
+            AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
+
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+
+            val gottenHttpResult = awaitItem()
+
+            Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
+            Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
+            Assert.assertTrue(mLocalSourceDeleteMateMessagesByIdsCallFlag)
             Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages

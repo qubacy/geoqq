@@ -31,6 +31,23 @@ import retrofit2.Call
 import retrofit2.Response
 
 class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() {
+    companion object {
+        val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
+        val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = mapOf(
+            DEFAULT_DATA_USER.id to DEFAULT_DATA_USER
+        )
+
+        val DEFAULT_LAST_MESSAGE_ENTITY = MateMessageEntity(
+            0, 0, DEFAULT_DATA_USER.id, "local message", 0)
+        val DEFAULT_MATE_CHAT_ENTITY = MateChatEntity(
+            0, DEFAULT_DATA_USER.id, 0, DEFAULT_LAST_MESSAGE_ENTITY.id)
+
+        val DEFAULT_GET_MESSAGE_RESPONSE = GetMessageResponse(
+            1, DEFAULT_DATA_USER.id, "http message", 20)
+        val DEFAULT_GET_CHAT_RESPONSE = GetChatResponse(
+            0, DEFAULT_DATA_USER.id, 0, DEFAULT_GET_MESSAGE_RESPONSE)
+    }
+
     @get:Rule
     val rule = RuleChain
         .outerRule(InstantTaskExecutorRule())
@@ -50,6 +67,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
     private var mLocalSourceUpdateChatCallFlag = false
     private var mLocalSourceUpdateChatWithLastMessageCallFlag = false
     private var mLocalSourceDeleteChatCallFlag = false
+    private var mLocalSourceDeleteChatsByIdsCallFlag = false
     private var mLocalSourceSaveChatsCallFlag = false
 
     private var mHttpSourceGetChatResponse: GetChatResponse? = null
@@ -77,6 +95,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         mLocalSourceUpdateChatCallFlag = false
         mLocalSourceUpdateChatWithLastMessageCallFlag = false
         mLocalSourceDeleteChatCallFlag = false
+        mLocalSourceDeleteChatsByIdsCallFlag = false
         mLocalSourceSaveChatsCallFlag = false
 
         mHttpSourceGetChatResponse = null
@@ -147,6 +166,13 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
             Unit
         }
+        Mockito.`when`(localMateChatDataSourceMock.deleteChatsByIds(
+            AnyMockUtil.anyObject()
+        )).thenAnswer {
+            mLocalSourceDeleteChatsByIdsCallFlag = true
+
+            Unit
+        }
         Mockito.`when`(localMateChatDataSourceMock.saveChats(AnyMockUtil.anyObject())).thenAnswer {
             mLocalSourceSaveChatsCallFlag = true
 
@@ -208,17 +234,10 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = UserDataRepositoryMockContainer
-            .DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = resolveUsersWithLocalUser.entries.last().value
-        val localChats = mapOf(
-            MateChatEntity(0, user.id, 0, 0)
-                to MateMessageEntity(0, 0, user.id, "local message", 0)
-        )
-        val httpChats = GetChatsResponse(listOf(
-            GetChatResponse(0, user.id, 0,
-                GetMessageResponse(1, user.id, "http message", 20))
-        ))
+        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = DEFAULT_DATA_USER
+        val localChats = mapOf(DEFAULT_MATE_CHAT_ENTITY to DEFAULT_LAST_MESSAGE_ENTITY)
+        val httpChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
 
         mLocalSourceGetChats = localChats
         mHttpSourceGetChatsResponse = httpChats
@@ -236,7 +255,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
             Assert.assertTrue(mLocalSourceGetChatsCallFlag)
 
-            val gottenLocalDataChats = gottenLocalResult.chats
+            val gottenLocalDataChats = gottenLocalResult!!.chats
 
             AssertUtils.assertEqualContent(expectedLocalDataChats, gottenLocalDataChats)
 
@@ -246,6 +265,54 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
             Assert.assertTrue(mHttpSourceGetChatsCallFlag)
             Assert.assertTrue(mHttpSourceGetChatsResponseCallFlag)
+            Assert.assertEquals(GetChatsDataResult::class, gottenHttpResult::class)
+
+            val gottenHttpDataChats = (gottenHttpResult as GetChatsDataResult).chats
+
+            AssertUtils.assertEqualContent(expectedHttpDataChats, gottenHttpDataChats)
+        }
+    }
+
+    @Test
+    fun getChatsWithOverdueChatsTest() = runTest {
+        val offset = 0
+        val count = 5
+
+        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        val user = DEFAULT_DATA_USER
+        val localChats = mapOf(
+            DEFAULT_MATE_CHAT_ENTITY to DEFAULT_LAST_MESSAGE_ENTITY,
+            DEFAULT_MATE_CHAT_ENTITY.copy(id = 1L) to DEFAULT_LAST_MESSAGE_ENTITY.copy(id = 1L)
+        )
+        val httpChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
+
+        mLocalSourceGetChats = localChats
+        mHttpSourceGetChatsResponse = httpChats
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+
+        val expectedLocalDataChats = localChats.map {
+            it.toDataMateChat(user, user)
+        }
+        val expectedHttpDataChats = httpChats.chats.map {
+            it.toDataMateChat(user, user)
+        }
+
+        mDataRepository.resultFlow.test {
+            val gottenLocalResult = mDataRepository.getChats(offset, count).await()
+
+            Assert.assertTrue(mLocalSourceGetChatsCallFlag)
+
+            val gottenLocalDataChats = gottenLocalResult!!.chats
+
+            AssertUtils.assertEqualContent(expectedLocalDataChats, gottenLocalDataChats)
+
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+
+            val gottenHttpResult = awaitItem()
+
+            Assert.assertTrue(mHttpSourceGetChatsCallFlag)
+            Assert.assertTrue(mHttpSourceGetChatsResponseCallFlag)
+            Assert.assertTrue(mLocalSourceDeleteChatsByIdsCallFlag)
             Assert.assertEquals(GetChatsDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataChats = (gottenHttpResult as GetChatsDataResult).chats
