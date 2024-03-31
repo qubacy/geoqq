@@ -101,8 +101,10 @@ class MateChatDataRepository @Inject constructor(
     private suspend fun resolveGetChatsResponse(
         getChatsResponse: GetChatsResponse
     ): List<DataMateChat> {
-        val userIds = getChatsResponse.chats.flatMap {
-            mutableListOf(it.userId).also { _ -> it.lastMessage?.userId ?: return@also }
+        val userIds = getChatsResponse.chats.flatMap { chat ->
+            mutableListOf(chat.userId).apply {
+                chat.lastMessage?.also { add(it.userId) } ?: return@apply
+            }
         }.toSet().toList()
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
