@@ -18,6 +18,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
@@ -65,6 +66,7 @@ class MateChatsFragment(
         super.runInitWithUiState(uiState)
 
         if (uiState.chatChunks.isNotEmpty()) initMateChatsWithChatChunks(uiState.chatChunks)
+        if (uiState.isLoading) changeLoadingIndicatorState(true)
     }
 
     private fun initMateChatsWithChatChunks(chatChunks: Map<Int, List<MateChatPresentation>>) {
@@ -147,6 +149,17 @@ class MateChatsFragment(
         mBinding.fragmentMateChatsList.apply {
             updatePadding(bottom = insets.bottom)
         }
+    }
+
+    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
+        super.processSetLoadingOperation(loadingOperation)
+
+        changeLoadingIndicatorState(loadingOperation.isLoading)
+    }
+
+    private fun changeLoadingIndicatorState(isVisible: Boolean) {
+        mBinding.fragmentMateChatsProgressBar.visibility =
+            if (isVisible) View.VISIBLE else View.GONE
     }
 
     private fun initMateChatListView() {

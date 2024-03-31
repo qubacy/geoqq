@@ -21,6 +21,15 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_mate_chats_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_anchor="@id/fragment_mate_chats_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
     <com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.view.BaseRecyclerView
         android:id="@+id/fragment_mate_chats_list"
         android:layout_width="match_parent"

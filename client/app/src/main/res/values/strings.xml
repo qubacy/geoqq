@@ -34,5 +34,10 @@
 
     <string name="component_my_profile_top_bar_popup_option_logout_title">Logout</string>
     <string name="component_my_profile_top_bar_popup_option_delete_profile_title">Delete profile</string>
+    <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
+    <string name="fragment_my_profile_input_password_hint_text">Password</string>
+    <string name="fragment_my_profile_input_new_password_hint_text">New password</string>
+    <string name="fragment_my_profile_input_new_password_again_hint_text">New password again</string>
+    <string name="fragment_my_profile_text_hit_me_up_text">Anybody can hit me up</string>
 
 </resources>

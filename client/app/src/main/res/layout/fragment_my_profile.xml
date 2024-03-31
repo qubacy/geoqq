@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -21,6 +22,213 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_my_profile_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_anchor="@id/fragment_my_profile_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
+    <ScrollView
+        android:id="@+id/fragment_my_profile_scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_top_bar_wrapper"
+        app:layout_constraintBottom_toTopOf="@id/fragment_my_profile_button_upload"
+        android:layout_marginStart="@dimen/big_gap_between_components"
+        android:layout_marginEnd="@dimen/big_gap_between_components"
+        android:layout_marginBottom="@dimen/small_gap_between_components"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/fragment_my_profile_avatar"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.4"
+                app:layout_constraintDimensionRatio="1"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+                app:srcCompat="@drawable/avatar_placeholder"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/fragment_my_profile_button_avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBaseline_toBottomOf="@id/fragment_my_profile_avatar"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_avatar"
+                app:layout_constraintEnd_toEndOf="@id/fragment_my_profile_avatar"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                app:icon="@drawable/ic_add_photo"
+                app:iconTint="?attr/colorOnPrimary"/>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/fragment_my_profile_text_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_avatar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/medium_gap_between_components"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                tools:text="Username"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/fragment_my_profile_icon_about_me"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="@dimen/smaller_gap_between_components"
+                app:layout_constraintTop_toTopOf="@id/fragment_my_profile_input_wrapper_about_me"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_input_wrapper_about_me"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/ic_person"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_my_profile_input_wrapper_about_me"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_text_username"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_icon_about_me"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_my_profile_input_about_me"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"
+                    android:hint="@string/fragment_my_profile_input_about_me_hint_text"
+                    android:lines="1"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/fragment_my_profile_icon_password"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="@dimen/smaller_gap_between_components"
+                app:layout_constraintTop_toTopOf="@id/fragment_my_profile_input_wrapper_password"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_input_wrapper_password"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/ic_lock"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_my_profile_input_wrapper_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_input_wrapper_about_me"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_icon_password"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_my_profile_input_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"
+                    android:hint="@string/fragment_my_profile_input_password_hint_text"
+                    android:lines="1"
+                    android:inputType="textPassword"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_my_profile_input_wrapper_new_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_input_wrapper_password"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_icon_password"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_my_profile_input_new_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"
+                    android:hint="@string/fragment_my_profile_input_new_password_hint_text"
+                    android:lines="1"
+                    android:inputType="textPassword"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_my_profile_input_wrapper_new_password_again"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_input_wrapper_new_password"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_icon_password"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_my_profile_input_new_password_again"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"
+                    android:hint="@string/fragment_my_profile_input_new_password_again_hint_text"
+                    android:lines="1"
+                    android:inputType="textPassword"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/fragment_my_profile_icon_privacy"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="@dimen/smaller_gap_between_components"
+                app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_input_wrapper_new_password_again"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="@dimen/big_gap_between_components"
+                android:layout_marginTop="@dimen/small_gap_between_components"
+                app:srcCompat="@drawable/ic_shield"/>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/fragment_my_profile_text_hit_me_up"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/fragment_my_profile_icon_privacy"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_icon_privacy"
+                app:layout_constraintStart_toEndOf="@id/fragment_my_profile_icon_privacy"
+                app:layout_constraintEnd_toStartOf="@id/fragment_my_profile_switch_hit_me_up"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:text="@string/fragment_my_profile_text_hit_me_up_text"/>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/fragment_my_profile_switch_hit_me_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/fragment_my_profile_icon_privacy"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_icon_privacy"
+                app:layout_constraintEnd_toEndOf="@id/fragment_my_profile_input_wrapper_new_password_again"
+                tools:checked="true"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/fragment_my_profile_button_upload"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/fragment_my_profile_scroll_content"
+        app:layout_constraintEnd_toEndOf="@id/fragment_my_profile_scroll_content"
+        android:layout_marginTop="@dimen/small_gap_between_components"
+        android:layout_marginBottom="@dimen/medium_gap_between_components"
+        android:text="UPDATE"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

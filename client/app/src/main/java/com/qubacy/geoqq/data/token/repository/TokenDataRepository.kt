@@ -56,12 +56,14 @@ class TokenDataRepository @Inject constructor(
         )
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     suspend fun signIn(
         login: String,
         password: String
     ) {
         val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
-        val passwordHash = Base64Util.bytesToString(passwordHashBytes)
+        val passwordHash = passwordHashBytes.toHexString()
+        //val passwordHash = Base64Util.bytesToString(passwordHashBytes)
 
         val signInRequest = mHttpTokenDataSource.signIn(login, passwordHash)
         val signInResponse = executeNetworkRequest(mErrorDataRepository, signInRequest)
@@ -72,12 +74,14 @@ class TokenDataRepository @Inject constructor(
         )
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     suspend fun signUp(
         login: String,
         password: String
     ) {
         val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
-        val passwordHash = Base64Util.bytesToString(passwordHashBytes)
+        val passwordHash = passwordHashBytes.toHexString()
+        //val passwordHash = Base64Util.bytesToString(passwordHashBytes)
 
         val signUpRequest = mHttpTokenDataSource.signUp(login, passwordHash)
         val signUpResponse = executeNetworkRequest(mErrorDataRepository, signUpRequest)
