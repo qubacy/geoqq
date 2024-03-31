@@ -1,4 +1,4 @@
-# Image ⬛️
+# Image (eq Avatar?) ⬛️
 
 ## GET /api/image/{`id`}
 
@@ -15,8 +15,8 @@
     "content": "<base64-string>"
 }
 ```
-
-## GET /api/image
+<!-- post for get some images -->
+## POST /api/image
 
 ### Request body
 ```json
@@ -46,7 +46,7 @@
 
 <!-- -------------------------------------------- -->
 
-## POST /api/image
+## POST /api/image/new
 
 ### Request body
 ```json

@@ -6,8 +6,8 @@
 #### Type: *application/x-www-form-urlencoded*
 | Key | Value Type |
 |-----|------------|
-| login    | `string`      | 
-| password | `hash-string` | 
+| login    | `string` | 
+| password | `hash-in-base64-string` | 
 
 ### Responses
 - *200*
@@ -34,8 +34,8 @@
 #### Type: *application/x-www-form-urlencoded*
 | Key | Value Type |
 |-----|------------|
-| login    | `string`      | 
-| password | `hash-string` | 
+| login    | `string` | 
+| password | `hash-in-base64-string` | 
 
 ### Responses
 - *200*

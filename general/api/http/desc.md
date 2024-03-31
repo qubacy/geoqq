@@ -10,7 +10,7 @@
 ## Some details
 
 - `"<id>"` is a special unsigned type for keys.
-- Time field is in UTC format.
+- Time field is in UTC (Unix Time Stamp) format.
 - `"<base64-string>"` is the standard base64 encoding, as defined in RFC 4648. 
 
 ### Error response
@@ -19,7 +19,10 @@
 ```json
 {
     "error": {
-        "id": "<int>"
+        "id": "<int>",
+        "text": "<string>",
+
+        "trace": "<string>"
     }
 }
 ```

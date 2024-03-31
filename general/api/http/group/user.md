@@ -100,11 +100,13 @@
 ```json
 {
     "id": "<id>",
-    "is-deleted": "<bool>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<id>",
-    "is-mate": "<bool>"
+    "last-action-time": "<int>",
+    "is-mate": "<bool>",
+    "is-deleted": "<bool>",
+    "hit-me-up": "<int>"
 }
 ```
 
@@ -128,11 +130,13 @@
     "users": [
         {
             "id": "<id>",
-            "is-deleted": "<bool>",
             "username": "<string>",
             "description": "<string>",
             "avatar-id": "<id>",
-            "is-mate": "<bool>"
+            "last-action-time": "<int>",
+            "is-mate": "<bool>",
+            "is-deleted": "<bool>",
+            "hit-me-up": "<int>"
         },
         ...
     ]
