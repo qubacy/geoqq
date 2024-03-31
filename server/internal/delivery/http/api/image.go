@@ -59,7 +59,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, image)
 }
 
-// GET /api/image
+// POST /api/image
 // -----------------------------------------------------------------------
 
 func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
@@ -124,7 +124,7 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, images)
 }
 
-// POST /api/image
+// POST /api/image/new
 // -----------------------------------------------------------------------
 
 func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {

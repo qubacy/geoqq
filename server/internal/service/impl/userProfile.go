@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"geoqq/internal/domain"
 	"geoqq/internal/service/dto"
 	dsDto "geoqq/internal/storage/domain/dto"
@@ -99,6 +100,8 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 			return dsDto.UpdateUserPartsInp{},
 				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
 		}
+
+		fmt.Println(input.Security.NewPasswordHashInBase64)
 
 		passwordDoubleHash, err := p.passwordHashInBase64ToPasswordDoubleHash(
 			input.Security.NewPasswordHashInBase64)

@@ -16,12 +16,14 @@ func (h *Handler) registerUserRoutes() {
 
 		myProfileRouter.PUT("",
 			h.extractBodyForPutMyProfile,
-			h.userIdentityByContextData, h.putMyProfile)
+			h.userIdentityByContextData,
+			h.putMyProfile)
 
 		// deprecated!
 		myProfileRouter.PUT("/with-attached-avatar",
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
-			h.userIdentityByContextData, h.putMyProfileWithAttachedAvatar)
+			h.userIdentityByContextData,
+			h.putMyProfileWithAttachedAvatar)
 	}
 
 	// ***

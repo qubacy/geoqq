@@ -57,10 +57,10 @@ func (a *AuthService) validateLoginAndPassword(
 
 func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
 	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHashInBase64)
+		input.Login, input.PasswordHashInHex)
 }
 
 func (a *AuthService) validateSingIn(input dto.SignInInp) error {
 	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHashInBase64)
+		input.Login, input.PasswordHashInHex)
 }

@@ -15,7 +15,7 @@ func (a *AuthService) assertUserByCredentialsExists(
 	ctx context.Context, input dto.SignInInp) error {
 
 	passwordDoubleHash, err := a.passwordHashInBase64ToPasswordDoubleHash(
-		input.PasswordHashInBase64)
+		input.PasswordHashInHex)
 	if err != nil {
 		return utl.NewFuncError(a.assertUserByCredentialsExists, err)
 	}

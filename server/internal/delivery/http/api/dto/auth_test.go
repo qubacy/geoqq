@@ -3,6 +3,7 @@ package dto
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -64,4 +65,26 @@ func Test_StringToSha256ToBase64(t *testing.T) {
 	// password hash in base64
 
 	fmt.Println(string(base64Value))
+}
+
+func Test_StringToSha256ToHex(t *testing.T) {
+	//sourceValue := "test_user124reg"
+	sourceValue := "test_user124reg_"
+
+	// to sha256
+
+	h := sha256.New()
+	h.Write([]byte(sourceValue))
+	sha256Value := h.Sum(nil)
+
+	fmt.Printf("%x\n", sha256Value)
+
+	// to base64
+
+	hexValue := make([]byte, 256)
+	hex.Encode(hexValue, sha256Value)
+
+	// password hash in base64
+
+	fmt.Println(string(hexValue))
 }

@@ -34,10 +34,10 @@ func (h *Handler) registerAuthRoutes() {
 func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	username := ctx.GetString(contextUsername)
-	passwordHashInBase64 := ctx.GetString(contextPassword)
+	passwordHashInHex := ctx.GetString(contextPassword)
 
 	out, err := h.services.SignIn(ctx,
-		serviceDto.MakeSignInInp(username, passwordHashInBase64))
+		serviceDto.MakeSignInInp(username, passwordHashInHex))
 
 	if err != nil { // error may belong to different sides!
 
@@ -95,7 +95,7 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 func extractLoginAndPassword(ctx *gin.Context) {
 	var (
 		username = ctx.Request.FormValue("login")
-		password = ctx.Request.FormValue("password") // password hash in base64!
+		password = ctx.Request.FormValue("password") // password hash in hex!
 	)
 	if len(username) == 0 || len(password) == 0 {
 		resWithClientError(ctx,

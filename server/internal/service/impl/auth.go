@@ -97,7 +97,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
 	}
 	passwordDoubleHash, err := a.passwordHashInBase64ToPasswordDoubleHash(
-		input.PasswordHashInBase64)
+		input.PasswordHashInHex)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
 	}
@@ -284,11 +284,11 @@ func (a *HasherAndStorages) passwordHashInBase64ToPasswordDoubleHash(val string)
 
 	// believe that the module works correctly!
 	passwordHash, err := base64.StdEncoding.DecodeString(val)
-
 	if err != nil {
 		return "", utl.NewFuncError(a.passwordHashInBase64ToPasswordDoubleHash,
 			ec.New(err, ec.Client, ec.PasswordHashIsNotBase64))
 	}
+
 	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash)
 	if err != nil {
 		return "", utl.NewFuncError(a.passwordHashInBase64ToPasswordDoubleHash,
