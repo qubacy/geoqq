@@ -101,21 +101,18 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
 	}
 
+	// TODO: для хеша пароля дать нормальные имена!
+
 	// ***
 
 	passwordHash, err := base64.StdEncoding.DecodeString(input.PasswordHashInBase64)
 	if err != nil {
 		return a.signUpWithError(err, ec.Client, ec.PasswordHashIsNotBase64)
 	}
-
-	fmt.Println("passwordHash: ", passwordHash)
-
 	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash) // <--- make hash hash-password!
 	if err != nil {
 		return a.signUpWithError(err, ec.Server, ec.HashManagerError)
 	}
-
-	fmt.Println("passwordDoubleHash: ", passwordDoubleHash)
 
 	userId, err := a.domainStorage.InsertUser(ctx, input.Login, passwordDoubleHash, avatarId)
 	if err != nil {

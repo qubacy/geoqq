@@ -235,7 +235,7 @@ func MakeSomeUsersResFromDomain(publicUsers []*domain.PublicUser) (
 		return SomeUsersRes{}, ErrInputParameterIsNil
 	}
 
-	users := []User{}
+	users := make([]User, 0, len(publicUsers))
 	for i := range publicUsers {
 		user, err := MakeUserFromDomain(publicUsers[i])
 		if err != nil {

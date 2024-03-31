@@ -65,7 +65,7 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 
 	// ***
 
-	images := []*file.Image{}
+	images := make([]*file.Image, 0, len(imageIds)) // reserver mem
 	for _, imageId := range imageIds {
 		image, err := s.GetImageById(ctx, imageId)
 		if err != nil {

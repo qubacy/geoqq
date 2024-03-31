@@ -13,11 +13,11 @@ func (h *Handler) registerImageRoutes() {
 	router := h.router.Group("/image", h.parseAnyForm)
 	{
 		router.GET("/:id", h.userIdentityForGetRequest, h.getImage)
-		router.POST("", h.extractBodyFromGetSomeImages,
-			h.userIdentityByContextData, h.getSomeImages) // can be done better!
+		router.POST("", h.extractBodyFromPostForGetSomeImages,
+			h.userIdentityByContextData, h.postForGetSomeImages) // can be done better!
 
-		router.POST("/new", h.extractBodyFromPostImage,
-			h.userIdentityByContextData, h.postImage)
+		router.POST("/new", h.extractBodyFromPostNewImage,
+			h.userIdentityByContextData, h.postNewImage)
 	}
 }
 
@@ -62,7 +62,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 // GET /api/image
 // -----------------------------------------------------------------------
 
-func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
+func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
 	requestDto := dto.SomeImagesReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
@@ -86,7 +86,7 @@ func (h *Handler) extractBodyFromGetSomeImages(ctx *gin.Context) {
 	ctx.Set(contextRequestDto, requestDto)
 }
 
-func (h *Handler) getSomeImages(ctx *gin.Context) {
+func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 	_, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
@@ -118,13 +118,16 @@ func (h *Handler) getSomeImages(ctx *gin.Context) {
 
 	// to delivery
 
+	// may need to be converted
+	// 		to a struct `SomeImagesRes`?
+
 	ctx.JSON(http.StatusOK, images)
 }
 
 // POST /api/image
 // -----------------------------------------------------------------------
 
-func (h *Handler) extractBodyFromPostImage(ctx *gin.Context) {
+func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 	requestDto := dto.ImagePostReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
@@ -148,7 +151,7 @@ func (h *Handler) extractBodyFromPostImage(ctx *gin.Context) {
 	ctx.Set(contextRequestDto, requestDto)
 }
 
-func (h *Handler) postImage(ctx *gin.Context) {
+func (h *Handler) postNewImage(ctx *gin.Context) {
 	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)

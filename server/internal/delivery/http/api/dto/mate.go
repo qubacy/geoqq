@@ -10,22 +10,24 @@ import (
 // -----------------------------------------------------------------------
 
 type MateChatsRes struct {
-	Chats []MateChat `json:"chats" binding:"required"` // TODO: new empty array!!
+	Chats []MateChat `json:"chats"`
 }
 
-// TODO: test empty array!!
-// TODO: test request empty ids for user and images!!
-//!!func make
+func MakeMateChatsRes() MateChatsRes {
+	return MateChatsRes{
+		Chats: make([]MateChat, 0),
+	}
+}
 
-func MakeMateChatsResFromOutput(outputMateChats domain.MateChatList) (MateChatsRes, error) {
+func MakeMateChatsResFromOutput(outputMateChats domain.MateChatList) (
+	MateChatsRes, error,
+) {
 	if outputMateChats == nil {
-		return MateChatsRes{
-			Chats: make([]MateChat, 0),
-		}, ErrInputParameterIsNil
+		return MateChatsRes{}, ErrInputParameterIsNil
 	}
 
 	responseDto := MateChatsRes{
-		Chats: make([]MateChat, 0),
+		Chats: make([]MateChat, 0, len(outputMateChats)),
 	}
 	for i := range outputMateChats {
 		mateChat, err := MakeMateChatFromOutput(outputMateChats[i])
@@ -145,10 +147,9 @@ func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) (
 		return MateRequestsRes{}, ErrInputParameterIsNil
 	}
 
-	result := MateRequestsRes{
-		Requests: make([]MateRequest, 0,
-			len(outputMateRequests.MateRequests)), // reserve?
-	}
+	requests := make([]MateRequest, 0,
+		len(outputMateRequests.MateRequests))
+
 	mateRequests := outputMateRequests.MateRequests
 	for i := range mateRequests {
 		mateRequest, err := MakeMateRequestFromOutput(mateRequests[i])
@@ -156,11 +157,12 @@ func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) (
 			return MateRequestsRes{}, err
 		}
 
-		result.Requests = append(
-			result.Requests, mateRequest)
+		requests = append(requests, mateRequest)
 	}
 
-	return result, nil
+	return MateRequestsRes{
+		Requests: requests,
+	}, nil
 }
 
 type MateRequest struct {
