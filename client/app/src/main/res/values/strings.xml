@@ -30,4 +30,9 @@
     <string name="component_main_navigation_drawer_option_mate_chats_title">Mate chats</string>
     <string name="component_main_navigation_drawer_option_mate_requests_title">Mate requests</string>
 
+    <string name="component_my_profile_top_bar_menu_title">Additional settings</string>
+
+    <string name="component_my_profile_top_bar_popup_option_logout_title">Logout</string>
+    <string name="component_my_profile_top_bar_popup_option_delete_profile_title">Delete profile</string>
+
 </resources>
