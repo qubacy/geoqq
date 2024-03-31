@@ -15,8 +15,11 @@
     "content": "<base64-string>"
 }
 ```
-<!-- post for get some images -->
+
 ## POST /api/image
+
+> [!TIP]
+> POST request to get some images.
 
 ### Request body
 ```json
