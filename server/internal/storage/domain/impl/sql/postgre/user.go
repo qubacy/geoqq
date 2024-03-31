@@ -30,27 +30,75 @@ func newUserStorage(pool *pgxpool.Pool) *UserStorage {
 // -----------------------------------------------------------------------
 
 var (
+	/*
+		Order:
+			1. username
+			2. passwordDoubleHash
+	*/
+	templateInsertUserEntryWithoutHashUpdToken = utl.RemoveAdjacentWs(`
+		INSERT INTO "UserEntry" (
+			"Username", "HashPassword",
+			"SignUpTime", "SignInTime",
+			"LastActionTime"
+			)
+		VALUES (
+			$1, $2,
+			NOW()::timestamp, 
+			NOW()::timestamp,
+			NOW()::timestamp
+		) RETURNING "Id"`)
+
+	/*
+		Order:
+			1. userId
+	*/
+	templateUpdateLastActivityTimeForUser = utl.RemoveAdjacentWs(`
+		UPDATE "UserEntry" 
+			SET "LastActionTime" = NOW()::timestamp
+		WHERE "Id" = $1`)
+
+	/*
+		Order:
+			1. userId
+	*/
+	templateWasUserDeleted = utl.RemoveAdjacentWs(`
+		SELECT 
+			case
+				when COUNT(*) > 0 then TRUE
+				else FALSE
+			end as "IsDeleted"
+		FROM "DeletedUser"
+		WHERE "UserId" = $1`)
+
+	/*
+		Order:
+			1. source userId
+			2. target userId (or some ids)
+	*/
 	templateSelectPublicUsers = utl.RemoveAdjacentWs(`
 		SELECT 
 			"UserEntry"."Id" AS "Id",
-			case
-	        	when "DeletedUser"."UserId" is null 
-					then false
-	        		else true
-	     	end as "IsDeleted",
-			"Username", 
-			"Description", 
+			"Username",
+			"Description",
 			"AvatarId",
+			"LastActionTime",
+			case
+				when "Mate"."Id" is null then false
+				else true
+			end as "IsMate",
 			case 
-				when "Mate"."Id" is null 
-					then false 
-					else true
-			end as "IsMate"
+				when "DeletedUser"."UserId" is null then false
+				else true
+			end as "IsDeleted",
+			"UserOptions"."HitMeUp" AS "HitMeUp"
 		FROM "UserEntry"
 		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
+		INNER JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
 		LEFT JOIN "Mate" ON (
-			("Mate"."FirstUserId" = $1 AND "Mate"."SecondUserId" = "UserEntry"."Id") OR
-        	("Mate"."FirstUserId" = "UserEntry"."Id" AND "Mate"."SecondUserId" = $1)
+			("Mate"."FirstUserId" = $1 AND
+				"Mate"."SecondUserId" = "UserEntry"."Id") OR
+        	("Mate"."FirstUserId" = "UserEntry"."Id" AND
+				"Mate"."SecondUserId" = $1)
 		)
 		LEFT JOIN "DeletedUser" ON "DeletedUser"."UserId" = "UserEntry"."Id"
 			WHERE "UserEntry"."Id"`)  // next placeholders start with 2.
@@ -80,18 +128,11 @@ func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserI
 	// ***
 
 	row := conn.QueryRow(ctx,
-		templateSelectPublicUsers+` = $2;`, userId, targetUserId,
+		templateSelectPublicUsers+` = $2;`,
+		userId, targetUserId,
 	)
 
-	publicUser := domain.PublicUser{}
-	err = row.Scan(
-		&publicUser.Id,
-		&publicUser.IsDeleted,
-		&publicUser.Username,
-		&publicUser.Description,
-		&publicUser.AvatarId,
-		&publicUser.IsMate,
-	)
+	publicUser, err := publicUserFromQueryResult(row)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetPublicUserById, err)
 	}
@@ -114,8 +155,8 @@ func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
 
 	rows, err := conn.Query(ctx,
 		templateSelectPublicUsers+fmt.Sprintf(` IN (%v);`,
-			utl.NumbersToString(targetUserIds)),
-		userId,
+			utl.NumbersToString(targetUserIds),
+		), userId,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
@@ -126,15 +167,7 @@ func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
 
 	publicUsers := domain.PublicUserList{}
 	for rows.Next() {
-		publicUser := domain.PublicUser{}
-		err = rows.Scan(
-			&publicUser.Id,
-			&publicUser.IsDeleted,
-			&publicUser.Username,
-			&publicUser.Description,
-			&publicUser.AvatarId,
-			&publicUser.IsMate,
-		)
+		publicUser, err := publicUserFromQueryResult(rows)
 		if err != nil {
 			return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
 		}
@@ -282,9 +315,8 @@ func (us *UserStorage) HasUserWithName(ctx context.Context, value string) (
 }
 
 func (us *UserStorage) InsertUser(ctx context.Context,
-	username, hashPassword string, avatarId uint64) (
-	uint64, error,
-) {
+	username, passwordDoubleHash string,
+	avatarId uint64) (uint64, error) {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
 		return 0, utl.NewFuncError(us.InsertUser, err)
@@ -302,7 +334,8 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 
 	// *** transaction ***
 
-	lastInsertedId, err := insertUserEntry(ctx, tx, username, hashPassword)
+	lastInsertedId, err := insertUserEntryWithoutHashUpdToken(
+		ctx, tx, username, passwordDoubleHash)
 	if err != nil {
 		tx.Rollback(ctx) // <--- ignore error!
 		return 0, utl.NewFuncError(us.InsertUser, err)
@@ -332,7 +365,7 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 }
 
 func (us *UserStorage) HasUserByCredentials(ctx context.Context,
-	username, hashPassword string) (
+	username, passwordDoubleHash string) (
 	bool, error,
 ) {
 	conn, err := us.pool.Acquire(ctx)
@@ -343,7 +376,9 @@ func (us *UserStorage) HasUserByCredentials(ctx context.Context,
 
 	row := conn.QueryRow(ctx,
 		`SELECT COUNT(*) AS "Count" FROM "UserEntry"
-			WHERE "Username" = $1 AND "HashPassword" = $2;`, username, hashPassword)
+			WHERE "Username" = $1 AND "HashPassword" = $2;`,
+		username, passwordDoubleHash,
+	)
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
@@ -398,7 +433,7 @@ func (us *UserStorage) ResetHashRefreshToken(ctx context.Context, id uint64) err
 }
 
 func (us *UserStorage) UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
-	id uint64, value string) error {
+	id uint64, refreshTokenHash string) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
 		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
@@ -409,7 +444,9 @@ func (us *UserStorage) UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
 		`UPDATE "UserEntry"
     		SET "HashUpdToken" = $1,
         		"SignInTime" = NOW()::timestamp
-    		WHERE "Id" = $2;`, value, id)
+    		WHERE "Id" = $2;`,
+		refreshTokenHash, id,
+	)
 	if err != nil {
 		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
 	}
@@ -460,9 +497,9 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
-	if input.HashPassword != nil {
+	if input.PasswordDoubleHash != nil {
 		err = errors.Join(
-			updateUserHashPassword(ctx, tx, id, *input.HashPassword),
+			updateUserHashPassword(ctx, tx, id, *input.PasswordDoubleHash),
 			updateHashRefreshToken(ctx, tx, id, ""), // reset!
 		)
 
@@ -482,8 +519,28 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 	return nil
 }
 
+func (us *UserStorage) UpdateLastActivityTimeForUser(
+	ctx context.Context, id uint64) error {
+	conn, err := us.pool.Acquire(ctx)
+	if err != nil {
+		return utl.NewFuncError(us.UpdateLastActivityTimeForUser, err)
+	}
+	defer conn.Release()
+
+	cmdTag, err := conn.Exec(ctx,
+		templateUpdateLastActivityTimeForUser+`;`, id)
+	if err != nil {
+		return utl.NewFuncError(us.UpdateLastActivityTimeForUser, err)
+	}
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+
+	return nil
+}
+
 func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
-	id uint64, hashPassword string) (
+	id uint64, passwordDoubleHash string) (
 	bool, error,
 ) {
 	conn, err := us.pool.Acquire(ctx)
@@ -495,7 +552,7 @@ func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 	row := conn.QueryRow(ctx,
 		`SELECT COUNT(*) FROM "UserEntry"
 			WHERE "Id" = $1 AND "HashPassword" = $2;`,
-		id, hashPassword)
+		id, passwordDoubleHash)
 
 	count := 0
 	err = row.Scan(&count)
@@ -509,28 +566,42 @@ func (us *UserStorage) HasUserByIdAndHashPassword(ctx context.Context,
 	return count == 1, nil
 }
 
+func (us *UserStorage) WasUserDeleted(ctx context.Context, id uint64) (bool, error) {
+	conn, err := us.pool.Acquire(ctx)
+	if err != nil {
+		return false, utl.NewFuncError(us.WasUserDeleted, err)
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx,
+		templateWasUserDeleted+`;`, id)
+
+	isDeleted := false
+	err = row.Scan(&isDeleted)
+	if err != nil {
+		return false, utl.NewFuncError(us.WasUserDeleted, err)
+	}
+
+	return isDeleted, nil
+}
+
 // private
 // -----------------------------------------------------------------------
 
-func insertUserEntry(ctx context.Context, tx pgx.Tx,
-	username, hashPassword string) (
+func insertUserEntryWithoutHashUpdToken(ctx context.Context, tx pgx.Tx,
+	username, passwordDoubleHash string) (
 	uint64, error,
 ) {
 	var lastInsertedId uint64
 	row := tx.QueryRow(ctx,
-		`INSERT INTO "UserEntry" (
-			"Username", "HashPassword", 
-			"SignUpTime", "SignInTime")
-		VALUES(
-			$1, $2,
-			NOW()::timestamp, NULL
-		) RETURNING "Id";`,
-		username, hashPassword,
+		templateInsertUserEntryWithoutHashUpdToken+`;`,
+		username, passwordDoubleHash,
 	)
 
 	err := row.Scan(&lastInsertedId)
 	if err != nil {
-		return 0, utl.NewFuncError(insertUserEntry, err)
+		return 0, utl.NewFuncError(
+			insertUserEntryWithoutHashUpdToken, err)
 	}
 
 	return lastInsertedId, nil
@@ -541,14 +612,18 @@ func insertUserLocation(ctx context.Context, tx pgx.Tx,
 
 	cmdTag, err := tx.Exec(ctx,
 		`INSERT INTO "UserLocation" (
-			"UserId", "Longitude", "Latitude",
+			"UserId", 
+			"Longitude",
+			"Latitude",
 			"Time"
 		) 
 		VALUES (
 			$1, $2, $3,
 			NOW()::timestamp
 		);`,
-		userId, 0.0, 0.0)
+		userId, 0.0, 0.0,
+	)
+
 	if err != nil {
 		return utl.NewFuncError(insertUserLocation, err)
 	}
@@ -562,14 +637,16 @@ func insertUserLocation(ctx context.Context, tx pgx.Tx,
 func insertUserDetails(ctx context.Context, tx pgx.Tx,
 	userId, avatarId uint64) error {
 
-	// Avatar id is required parameter!
+	// `AvatarId` is required parameter!
 	cmdTag, err := tx.Exec(ctx,
 		`INSERT INTO "UserDetails" (
 			"UserId", "AvatarId"
 		) VALUES (
 			$1, $2
 		);`,
-		userId, avatarId)
+		userId, avatarId,
+	)
+
 	if err != nil {
 		return utl.NewFuncError(insertUserDetails, err)
 	}
@@ -585,7 +662,8 @@ func insertUserOptions(ctx context.Context, tx pgx.Tx,
 
 	cmdTag, err := tx.Exec(ctx,
 		`INSERT INTO "UserOptions" (
-			"UserId", "HitMeUp") 
+			"UserId", "HitMeUp"
+		) 
 		VALUES ($1, $2);`,
 		userId, table.HitMeUpYes)
 	if err != nil {
@@ -649,10 +727,10 @@ func updateUserPrivacy(ctx context.Context, tx pgx.Tx,
 }
 
 func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
-	id uint64, hashValue string) error {
+	id uint64, passwordDoubleHash string) error {
 	cmdTag, err := tx.Exec(ctx,
 		`UPDATE "UserEntry" SET "HashPassword" = $1
-			WHERE "Id" = $2;`, hashValue, id, // hash-hash-password!
+			WHERE "Id" = $2;`, passwordDoubleHash, id, // hash-hash-password!
 	)
 	if err != nil {
 		return utl.NewFuncError(updateUserHashPassword, err)
@@ -667,11 +745,11 @@ func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
 // -----------------------------------------------------------------------
 
 func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
-	id uint64, hashValue string) error {
+	id uint64, refreshTokenHash string) error {
 
 	cmdTag, err := tx.Exec(ctx,
 		templateUpdateOnlyHashRefreshTokenById+`;`,
-		hashValue, id,
+		refreshTokenHash, id,
 	)
 	if err != nil {
 		return utl.NewFuncError(updateHashRefreshToken, err)
@@ -682,4 +760,31 @@ func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
 	}
 
 	return nil
+}
+
+// convert
+// -----------------------------------------------------------------------
+
+type QueryResultScanner interface {
+	Scan(dest ...interface{}) error
+}
+
+func publicUserFromQueryResult(row QueryResultScanner) (domain.PublicUser, error) {
+	publicUser := domain.PublicUser{}
+	err := row.Scan(
+		&publicUser.Id,
+		&publicUser.Username,
+		&publicUser.Description,
+		&publicUser.AvatarId,
+		&publicUser.LastActionTime,
+		&publicUser.IsMate,
+		&publicUser.IsDeleted,
+		&publicUser.HitMeUp,
+	)
+	if err != nil {
+		return domain.PublicUser{},
+			utl.NewFuncError(publicUserFromQueryResult, err)
+	}
+
+	return publicUser, nil
 }

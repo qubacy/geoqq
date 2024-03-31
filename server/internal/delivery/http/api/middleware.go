@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	contextUserId      = "user-id"
-	contextAccessToken = "access-token"
-	contextRequestDto  = "dto"
+	contextUserId       = "user-id"
+	contextAccessToken  = "access-token"
+	contextRefreshToken = "refresh-token"
+	contextRequestDto   = "dto"
 
 	contextOffset = "offset"
 	contextCount  = "count"
@@ -21,6 +22,9 @@ const (
 	contextRadius    = "radius"
 
 	contextRouteItemId = "routeItemId"
+
+	contextUsername = "username"
+	contextPassword = "password"
 )
 
 // -----------------------------------------------------------------------

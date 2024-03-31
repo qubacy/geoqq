@@ -6,8 +6,11 @@ CREATE TABLE "UserEntry"
     "Username" CHARACTER VARYING(128) UNIQUE NOT NULL,
     "HashPassword" VARCHAR(512) NOT NULL,
     "HashUpdToken" VARCHAR(512) NOT NULL DEFAULT '',
-    "SignUpTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "SignInTime" TIMESTAMP WITHOUT TIME ZONE
+
+    "SignUpTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL, -- sign-up is same as sign-in!
+    "SignInTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+
+    "LastActionTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 
 CREATE TABLE "Avatar" 
@@ -58,6 +61,7 @@ CREATE TABLE "DeletedUser"
     -- "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "UserId" BIGINT NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    UNIQUE ("UserId"),
 
     FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
@@ -131,7 +135,7 @@ CREATE TABLE "MateMessage"
     "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Read" BOOLEAN NOT NULL DEFAULT FALSE,
+    "Read" BOOLEAN NOT NULL DEFAULT FALSE, -- read by the person to whom it is addressed!
     
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")

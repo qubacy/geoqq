@@ -35,12 +35,15 @@ type UserStorage interface {
 
 	HasUserWithName(ctx context.Context, value string) (bool, error)
 	InsertUser(ctx context.Context,
-		username, hashPassword string, avatarId uint64) (uint64, error)
+		username, passwordDoubleHash string,
+		avatarId uint64) (uint64, error)
 
 	HasUserByCredentials(ctx context.Context,
-		username, hashPassword string) (bool, error)
+		username, passwordDoubleHash string) (bool, error)
 	HasUserByIdAndHashPassword(ctx context.Context,
-		id uint64, hashPassword string) (bool, error)
+		id uint64, passwordDoubleHash string) (bool, error)
+
+	WasUserDeleted(ctx context.Context, id uint64) (bool, error)
 
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error
@@ -51,6 +54,10 @@ type UserStorage interface {
 
 	UpdateUserParts(ctx context.Context, id uint64,
 		input dto.UpdateUserPartsInp) error
+
+	// ***
+
+	UpdateLastActivityTimeForUser(ctx context.Context, id uint64) error
 }
 
 type UserProfileStorage interface {

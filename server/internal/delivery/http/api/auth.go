@@ -14,9 +14,17 @@ func (h *Handler) registerAuthRoutes() {
 
 	router := h.router
 	{
-		router.POST("/sign-in", h.parseAnyForm, h.postSignIn)
-		router.POST("/sign-up", h.parseAnyForm, h.postSignUp)
-		router.PUT("/sign-in", h.parseAnyForm, h.putSignIn)
+		router.POST("/sign-in", h.parseAnyForm,
+			extractLoginAndPassword,
+			h.postSignIn)
+
+		router.POST("/sign-up", h.parseAnyForm,
+			extractLoginAndPassword,
+			h.postSignUp)
+
+		router.PUT("/sign-in", h.parseAnyForm,
+			extractRefreshToken,
+			h.putSignIn)
 	}
 }
 
@@ -24,17 +32,9 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
-	// err more important!
 
-	username, passwordHashInBase64, code, err := extractLoginAndPassword(ctx)
-	if err != nil {
-		// code, err can be combined?
-
-		resWithClientError(ctx, code, err)
-		return
-	}
-
-	// ***
+	username := ctx.GetString(contextUsername)
+	passwordHashInBase64 := ctx.GetString(contextPassword)
 
 	out, err := h.services.SignIn(ctx,
 		serviceDto.MakeSignInInp(username, passwordHashInBase64))
@@ -53,13 +53,9 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 }
 
 func (h *Handler) postSignUp(ctx *gin.Context) {
-	username, passwordHashInBase64, code, err := extractLoginAndPassword(ctx)
-	if err != nil {
-		resWithClientError(ctx, code, err)
-		return
-	}
 
-	// ***
+	username := ctx.GetString(contextUsername)
+	passwordHashInBase64 := ctx.GetString(contextPassword)
 
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, passwordHashInBase64))
@@ -77,12 +73,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 }
 
 func (h *Handler) putSignIn(ctx *gin.Context) {
-	refreshToken, code, err := extractRefreshToken(ctx)
-	if err != nil {
-		resWithClientError(ctx, code, err)
-		return
-	}
-
+	refreshToken := ctx.GetString(contextRefreshToken)
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
 	if err != nil {
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)
@@ -90,37 +81,45 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 		return
 	}
 
+	// ***
+
 	ctx.JSON(http.StatusOK, dto.MakeSignUpPutRes(
 		out.AccessToken, out.RefreshToken))
 }
 
-// private
+// middlewares
 // -----------------------------------------------------------------------
 
-func extractLoginAndPassword(ctx *gin.Context) (
-	string, string, int, error,
-) {
+// application/x-www-form-urlencoded
+
+func extractLoginAndPassword(ctx *gin.Context) {
 	var (
 		username = ctx.Request.FormValue("login")
-		password = ctx.Request.FormValue("password") // hash?
+		password = ctx.Request.FormValue("password") // password hash in base64!
 	)
 	if len(username) == 0 || len(password) == 0 {
-		return "", "",
-			se.ValidateRequestFailed, ErrEmptyRequestParameter
+		resWithClientError(ctx,
+			se.ValidateRequestFailed,
+			ErrEmptyRequestParameter,
+		)
+		return
 	}
 
-	return username, password, se.NoError, nil
+	ctx.Set(contextPassword, password)
+	ctx.Set(contextUsername, username)
 }
 
-func extractRefreshToken(ctx *gin.Context) (
-	string, int, error,
-) {
+func extractRefreshToken(ctx *gin.Context) {
 	var (
 		refreshToken = ctx.Request.FormValue("refresh-token")
 	)
 	if len(refreshToken) == 0 {
-		return "", se.ValidateRequestFailed, ErrEmptyRequestParameter
+		resWithClientError(ctx,
+			se.ValidateRequestFailed,
+			ErrEmptyRequestParameter,
+		)
+		return
 	}
 
-	return refreshToken, se.NoError, nil
+	ctx.Set(contextRefreshToken, refreshToken)
 }

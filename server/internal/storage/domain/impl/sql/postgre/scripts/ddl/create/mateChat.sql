@@ -26,9 +26,7 @@ CREATE TABLE "MateMessage"
     "FromUserId" BIGINT NOT NULL,
     "Text" VARCHAR(4096) NOT NULL,
     "Time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "Read" BOOLEAN NOT NULL DEFAULT FALSE,
-    
-    -- ReadTime TIMESTAMP WITHOUT TIME ZONE NULL,
+    "Read" BOOLEAN NOT NULL DEFAULT FALSE, -- read by the person to whom it is addressed!
     
     FOREIGN KEY ("MateChatId") REFERENCES "MateChat"("Id"),
     FOREIGN KEY ("FromUserId") REFERENCES "UserEntry"("Id")

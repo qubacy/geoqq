@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -38,4 +40,28 @@ func Test_SignInPostRes_Marshal(t *testing.T) {
 	if string(bytes) != `{"access-token":"Access","refresh-token":"Refresh"}` {
 		t.Error()
 	}
+}
+
+// experiments
+
+func Test_StringToSha256ToBase64(t *testing.T) {
+	//sourceValue := "test_user124reg"
+	sourceValue := "test_user124reg_"
+
+	// to sha256
+
+	h := sha256.New()
+	h.Write([]byte(sourceValue))
+	sha256Value := h.Sum(nil)
+
+	fmt.Printf("%x\n", sha256Value)
+
+	// to base64
+
+	base64Value := make([]byte, 256)
+	base64.StdEncoding.Encode(base64Value, sha256Value)
+
+	// password hash in base64
+
+	fmt.Println(string(base64Value))
 }

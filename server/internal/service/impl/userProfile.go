@@ -40,31 +40,12 @@ func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) 
 func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, userId uint64,
 	input dto.ProfileWithAvatarForUpdateInp) error {
 
-	domainDto := dsDto.UpdateUserPartsInp{}
-	if input.Security != nil {
-		err := p.checkPasswordForUpdate(ctx, userId, input.Security.Password) // hash?
-		if err != nil {
-			return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
-		}
-
-		// hash hash...
-
-		hashPassword, err := p.hashManager.NewFromString(input.Security.NewPassword)
-		if err != nil {
-			return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
-				ec.New(err, ec.Server, ec.HashManagerError))
-		}
-
-		domainDto.HashPassword = &hashPassword
+	storageDto, err := p.preparePartUpdateUserPartsInp(ctx, userId, input.PartProfileForUpdate)
+	if err != nil {
+		return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
 	}
 
-	if input.Privacy != nil {
-		domainDto.Privacy = input.Privacy.ToDynamicDsInp()
-	}
-
-	domainDto.Description = input.Description // maybe nil
-
-	// *** save to file and domain storages! ***
+	// ***
 
 	if input.Avatar != nil {
 		avatarId, err := p.addImageToUser(ctx,
@@ -73,10 +54,12 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 			return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
 		}
 
-		domainDto.AvatarId = &avatarId
+		storageDto.AvatarId = &avatarId
 	}
 
-	err := p.domainStorage.UpdateUserParts(ctx, userId, domainDto)
+	// ***
+
+	err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto)
 	if err != nil {
 		return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
 			ec.New(err, ec.Server, ec.DomainStorageError))
@@ -86,32 +69,16 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 
 func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	userId uint64, input dto.ProfileForUpdateInp) error {
-	domainDto := dsDto.UpdateUserPartsInp{}
-	if input.Security != nil {
-		err := p.checkPasswordForUpdate(ctx, userId, input.Security.Password) // hash?
-		if err != nil {
-			return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
-		}
 
-		// hash hash...
-
-		hashPassword, err := p.hashManager.NewFromString(input.Security.NewPassword)
-		if err != nil {
-			return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
-				ec.New(err, ec.Server, ec.HashManagerError))
-		}
-
-		domainDto.HashPassword = &hashPassword
+	storageDto, err := p.preparePartUpdateUserPartsInp(ctx, userId, input.PartProfileForUpdate)
+	if err != nil {
+		return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
 	}
+	storageDto.AvatarId = input.AvatarId
 
-	if input.Privacy != nil {
-		domainDto.Privacy = input.Privacy.ToDynamicDsInp()
-	}
+	// ***
 
-	domainDto.Description = input.Description // maybe nil
-	domainDto.AvatarId = input.AvatarId
-
-	err := p.domainStorage.UpdateUserParts(ctx, userId, domainDto)
+	err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto)
 	if err != nil {
 		return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
 			ec.New(err, ec.Server, ec.DomainStorageError))
@@ -122,15 +89,48 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
-	userId uint64, password string) error {
-	hashPassword, err := p.hashManager.NewFromString(password)
-	if err != nil {
-		return utl.NewFuncError(p.checkPasswordForUpdate,
-			ec.New(err, ec.Server, ec.HashManagerError))
+func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
+	userId uint64, input dto.PartProfileForUpdate) (dsDto.UpdateUserPartsInp, error) {
+
+	storageDto := dsDto.UpdateUserPartsInp{}
+	if input.Security != nil {
+		err := p.checkPasswordForUpdate(ctx, userId, input.Security.PasswordHashInBase64)
+		if err != nil {
+			return dsDto.UpdateUserPartsInp{},
+				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
+		}
+
+		passwordDoubleHash, err := p.passwordHashInBase64ToPasswordDoubleHash(
+			input.Security.NewPasswordHashInBase64)
+		if err != nil {
+			return dsDto.UpdateUserPartsInp{},
+				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
+		}
+		storageDto.PasswordDoubleHash = &passwordDoubleHash // new!
 	}
 
-	exists, err := p.domainStorage.HasUserByIdAndHashPassword(ctx, userId, hashPassword)
+	if input.Privacy != nil {
+		storageDto.Privacy = input.Privacy.ToDynamicDsInp()
+	}
+
+	storageDto.Description = input.Description // maybe nil
+	storageDto.AvatarId = nil
+
+	return storageDto, nil
+}
+
+func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
+	userId uint64, passwordHashInBase64 string) error {
+
+	passwordDoubleHash, err := p.passwordHashInBase64ToPasswordDoubleHash(
+		passwordHashInBase64)
+	if err != nil {
+		return utl.NewFuncError(p.checkPasswordForUpdate, err)
+	}
+
+	// ***
+
+	exists, err := p.domainStorage.HasUserByIdAndHashPassword(ctx, userId, passwordDoubleHash)
 	if err != nil {
 		return utl.NewFuncError(p.checkPasswordForUpdate,
 			ec.New(err, ec.Server, ec.DomainStorageError))

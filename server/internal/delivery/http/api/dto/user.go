@@ -35,18 +35,21 @@ type Profile struct { // not equal struct user!
 }
 
 type Privacy struct {
-	HitMeUp int `json:"hit-me-up"` // without binding since zero is ignored!
+	HitMeUp float64 `json:"hit-me-up"` // without binding since zero is ignored!
 }
 
 func MakePrivacy(privacy domain.Privacy) Privacy {
 	return Privacy{
-		HitMeUp: privacy.HitMeUp,
+		HitMeUp: float64(privacy.HitMeUp),
 	}
 }
 
 func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
+	hitMeUp := new(int)
+	*hitMeUp = int(s.HitMeUp)
+
 	return &serviceDto.Privacy{
-		HitMeUp: &s.HitMeUp,
+		HitMeUp: hitMeUp,
 	}
 }
 
@@ -139,14 +142,14 @@ func (s *MyProfileWithAttachedAvatarPutReq) ToInp() serviceDto.ProfileWithAvatar
 // -----------------------------------------------------------------------
 
 type Security struct {
-	Password    string `json:"password" binding:"required"`
+	Password    string `json:"password" binding:"required"` // password hash in base64
 	NewPassword string `json:"new-password" binding:"required"`
 }
 
 func (s *Security) ToDynamicInp() *serviceDto.Security {
 	return &serviceDto.Security{
-		Password:    s.Password,
-		NewPassword: s.NewPassword,
+		PasswordHashInBase64:    s.Password,
+		NewPasswordHashInBase64: s.NewPassword,
 	}
 }
 
@@ -193,12 +196,14 @@ func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, erro
 // -----------------------------------------------------------------------
 
 type User struct {
-	Id          float64 `json:"id"`
-	IsDeleted   bool    `json:"is-deleted"`
-	Username    string  `json:"username"`
-	Description string  `json:"description"`
-	AvatarId    float64 `json:"avatar-id"`
-	IsMate      bool    `json:"is-mate"`
+	Id             float64 `json:"id"`
+	Username       string  `json:"username"`
+	Description    string  `json:"description"`
+	AvatarId       float64 `json:"avatar-id"`
+	LastActionTime float64 `json:"last-action-time"`
+	IsMate         bool    `json:"is-mate"`
+	IsDeleted      bool    `json:"is-deleted"`
+	HitMeUp        float64 `json:"hit-me-up"`
 }
 
 func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
@@ -207,12 +212,14 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 	}
 
 	return User{
-		Id:          float64(publicUser.Id),
-		IsDeleted:   publicUser.IsDeleted,
-		Username:    publicUser.Username,
-		Description: publicUser.Description,
-		AvatarId:    float64(publicUser.AvatarId),
-		IsMate:      publicUser.IsMate,
+		Id:             float64(publicUser.Id),
+		Username:       publicUser.Username,
+		Description:    publicUser.Description,
+		AvatarId:       float64(publicUser.AvatarId),
+		LastActionTime: float64(publicUser.LastActionTime.Unix()),
+		IsMate:         publicUser.IsMate,
+		IsDeleted:      publicUser.IsDeleted,
+		HitMeUp:        float64(publicUser.HitMeUp),
 	}, nil
 }
 
