@@ -35,8 +35,8 @@ func (p *Privacy) ToDynamicDsInp() *dsDto.Privacy {
 }
 
 type Security struct {
-	PasswordHashInBase64    string
-	NewPasswordHashInBase64 string
+	PasswordHash    string
+	NewPasswordHash string
 }
 
 type Avatar struct {

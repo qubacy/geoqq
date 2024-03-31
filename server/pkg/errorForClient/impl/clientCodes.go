@@ -40,7 +40,7 @@ const (
 	OneOrMoreUsersNotFound
 
 	InvalidRefreshToken
-	PasswordHashIsNotBase64
+	PasswordHashIsNotHex
 )
 
 const (

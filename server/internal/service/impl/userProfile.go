@@ -95,16 +95,16 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 
 	storageDto := dsDto.UpdateUserPartsInp{}
 	if input.Security != nil {
-		err := p.checkPasswordForUpdate(ctx, userId, input.Security.PasswordHashInBase64)
+		err := p.checkPasswordForUpdate(ctx, userId, input.Security.PasswordHash)
 		if err != nil {
 			return dsDto.UpdateUserPartsInp{},
 				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
 		}
 
-		fmt.Println(input.Security.NewPasswordHashInBase64)
+		fmt.Println(input.Security.NewPasswordHash)
 
-		passwordDoubleHash, err := p.passwordHashInBase64ToPasswordDoubleHash(
-			input.Security.NewPasswordHashInBase64)
+		passwordDoubleHash, err := p.passwordHashInHexToPasswordDoubleHash(
+			input.Security.NewPasswordHash)
 		if err != nil {
 			return dsDto.UpdateUserPartsInp{},
 				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
@@ -123,10 +123,9 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 }
 
 func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
-	userId uint64, passwordHashInBase64 string) error {
+	userId uint64, passwordHash string) error {
 
-	passwordDoubleHash, err := p.passwordHashInBase64ToPasswordDoubleHash(
-		passwordHashInBase64)
+	passwordDoubleHash, err := p.passwordHashInHexToPasswordDoubleHash(passwordHash)
 	if err != nil {
 		return utl.NewFuncError(p.checkPasswordForUpdate, err)
 	}

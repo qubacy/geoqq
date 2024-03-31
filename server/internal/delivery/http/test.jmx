@@ -47,10 +47,10 @@
           <stringProp name="-1083884698">UserNewPass</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-1500073671">
+          <collectionProp name="-82424874">
             <stringProp name="-1180079272">test_user</stringProp>
-            <stringProp name="866938990">MEwyhGyEOzTBjKpshIOyA/6TOk5m8HNdQk46GTLKVaU=</stringProp>
-            <stringProp name="-1725866707">s6JVdY/KtCHyAUBSnVM+Sx3P9qPvI8BZ/2Hww021ZcU=</stringProp>
+            <stringProp name="1476167027">304c32846c843b34c18caa6c8483b203fe933a4e66f0735d424e3a1932ca55a5</stringProp>
+            <stringProp name="806656256">b3a255758fcab421f20140529d533e4b1dcff6a3ef23c059ff61f0c34db565c5</stringProp>
           </collectionProp>
         </collectionProp>
         <boolProp name="UserParameters.per_iteration">false</boolProp>
@@ -8283,7 +8283,7 @@
         </hashTree>
         <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="okk (for default user | work with security)" enabled="true"/>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/sign-in [okk]" enabled="false">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/sign-in [okk]" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="login" elementType="HTTPArgument">
@@ -8346,7 +8346,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: new pass]" enabled="false">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: new pass]" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -8411,7 +8411,7 @@
                 </elementProp>
                 <elementProp name="password" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">s6JVdY/KtCHyAUBSnVM+Sx3P9qPvI8BZ/2Hww021ZcU=</stringProp>
+                  <stringProp name="Argument.value">${UserNewPass}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                   <boolProp name="HTTPArgument.use_equals">true</boolProp>
                   <stringProp name="Argument.name">password</stringProp>

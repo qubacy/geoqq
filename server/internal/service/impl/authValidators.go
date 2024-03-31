@@ -29,7 +29,7 @@ func (a *AuthService) initializeValidators() error {
 }
 
 func (a *AuthService) validateLoginAndPassword(
-	login, passwordHashInBase64 string) error {
+	login, passwordHash string) error {
 
 	loginValidator := a.validators["login"]
 	passwordValidator := a.validators["password"]
@@ -44,7 +44,7 @@ func (a *AuthService) validateLoginAndPassword(
 	}
 
 	if len(passwordValidator.String()) != 0 {
-		if !passwordValidator.MatchString(passwordHashInBase64) {
+		if !passwordValidator.MatchString(passwordHash) {
 			return ErrIncorrectPassword // just an error with no func name!
 		}
 	}
@@ -57,10 +57,10 @@ func (a *AuthService) validateLoginAndPassword(
 
 func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
 	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHashInHex)
+		input.Login, input.PasswordHash)
 }
 
 func (a *AuthService) validateSingIn(input dto.SignInInp) error {
 	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHashInHex)
+		input.Login, input.PasswordHash)
 }

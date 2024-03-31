@@ -11,8 +11,8 @@ import (
 
 func Test_SignInPostReq_Marshal(t *testing.T) {
 	reqDto := SignInPostReq{
-		Login:                "Test",
-		PasswordHashInBase64: "Test",
+		Login:        "Test",
+		PasswordHash: "Test",
 	}
 	bytes, err := json.Marshal(reqDto)
 	if err != nil {

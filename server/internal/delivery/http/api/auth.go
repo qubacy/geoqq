@@ -34,10 +34,10 @@ func (h *Handler) registerAuthRoutes() {
 func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	username := ctx.GetString(contextUsername)
-	passwordHashInHex := ctx.GetString(contextPassword)
+	passwordHash := ctx.GetString(contextPassword)
 
 	out, err := h.services.SignIn(ctx,
-		serviceDto.MakeSignInInp(username, passwordHashInHex))
+		serviceDto.MakeSignInInp(username, passwordHash))
 
 	if err != nil { // error may belong to different sides!
 
@@ -55,10 +55,10 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 func (h *Handler) postSignUp(ctx *gin.Context) {
 
 	username := ctx.GetString(contextUsername)
-	passwordHashInBase64 := ctx.GetString(contextPassword)
+	passwordHash := ctx.GetString(contextPassword)
 
 	out, err := h.services.SignUp(ctx,
-		serviceDto.MakeSignUpInp(username, passwordHashInBase64))
+		serviceDto.MakeSignUpInp(username, passwordHash))
 
 	if err != nil {
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)

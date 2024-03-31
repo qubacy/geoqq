@@ -4,14 +4,14 @@ package dto
 // -----------------------------------------------------------------------
 
 type SignInInp struct {
-	Login             string
-	PasswordHashInHex string
+	Login        string
+	PasswordHash string
 }
 
-func MakeSignInInp(login, passwordHashInHex string) SignInInp {
+func MakeSignInInp(login, passwordHash string) SignInInp {
 	return SignInInp{
-		Login:             login,
-		PasswordHashInHex: passwordHashInHex,
+		Login:        login,
+		PasswordHash: passwordHash,
 	}
 }
 
@@ -38,14 +38,14 @@ func MakeSignInOutEmpty() SignInOut {
 // -----------------------------------------------------------------------
 
 type SignUpInp struct {
-	Login             string
-	PasswordHashInHex string
+	Login        string
+	PasswordHash string
 }
 
-func MakeSignUpInp(login, passwordHashInHex string) SignUpInp {
+func MakeSignUpInp(login, passwordHash string) SignUpInp {
 	return SignUpInp{
-		Login:             login,
-		PasswordHashInHex: passwordHashInHex,
+		Login:        login,
+		PasswordHash: passwordHash,
 	}
 }
 

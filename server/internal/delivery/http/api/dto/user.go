@@ -148,8 +148,8 @@ type Security struct {
 
 func (s *Security) ToDynamicInp() *serviceDto.Security {
 	return &serviceDto.Security{
-		PasswordHashInBase64:    s.Password,
-		NewPasswordHashInBase64: s.NewPassword,
+		PasswordHash:    s.Password,
+		NewPasswordHash: s.NewPassword,
 	}
 }
 

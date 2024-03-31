@@ -4,8 +4,8 @@ package dto
 // -----------------------------------------------------------------------
 
 type SignInPostReq struct {
-	Login                string
-	PasswordHashInBase64 string
+	Login        string
+	PasswordHash string
 }
 
 type SignInPostRes struct {
@@ -25,8 +25,8 @@ func MakeSignInPostRes(access, refresh string) SignInPostRes {
 // -----------------------------------------------------------------------
 
 type SignUpPostReq struct {
-	Login                string
-	PasswordHashInBase64 string
+	Login        string
+	PasswordHash string
 }
 
 type SignUpPostRes struct {

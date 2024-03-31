@@ -2,7 +2,7 @@ package impl
 
 import (
 	"context"
-	"encoding/base64"
+	"encoding/hex"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/avatar"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -96,8 +96,8 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	if err != nil {
 		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
 	}
-	passwordDoubleHash, err := a.passwordHashInBase64ToPasswordDoubleHash(
-		input.PasswordHashInHex)
+	passwordDoubleHash, err := a.passwordHashInHexToPasswordDoubleHash(
+		input.PasswordHash)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
 	}
@@ -280,18 +280,19 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 // calculator
 // -----------------------------------------------------------------------
 
-func (a *HasherAndStorages) passwordHashInBase64ToPasswordDoubleHash(val string) (string, error) {
+func (a *HasherAndStorages) passwordHashInHexToPasswordDoubleHash(val string) (string, error) {
 
 	// believe that the module works correctly!
-	passwordHash, err := base64.StdEncoding.DecodeString(val)
+
+	passwordHash, err := hex.DecodeString(val)
 	if err != nil {
-		return "", utl.NewFuncError(a.passwordHashInBase64ToPasswordDoubleHash,
-			ec.New(err, ec.Client, ec.PasswordHashIsNotBase64))
+		return "", utl.NewFuncError(a.passwordHashInHexToPasswordDoubleHash,
+			ec.New(err, ec.Client, ec.PasswordHashIsNotHex))
 	}
 
 	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash)
 	if err != nil {
-		return "", utl.NewFuncError(a.passwordHashInBase64ToPasswordDoubleHash,
+		return "", utl.NewFuncError(a.passwordHashInHexToPasswordDoubleHash,
 			ec.New(err, ec.Server, ec.HashManagerError))
 	}
 
