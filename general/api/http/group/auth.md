@@ -7,7 +7,7 @@
 | Key | Value Type |
 |-----|------------|
 | login    | `string` | 
-| password | `hash-in-base64-string` | 
+| password | `hash-in-hex-string` | 
 
 ### Responses
 - *200*
@@ -35,7 +35,7 @@
 | Key | Value Type |
 |-----|------------|
 | login    | `string` | 
-| password | `hash-in-base64-string` | 
+| password | `hash-in-hex-string` | 
 
 ### Responses
 - *200*

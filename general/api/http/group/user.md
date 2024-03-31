@@ -35,8 +35,8 @@
         "hit-me-up": "<int>"
     },
     "security": {
-        "password": "<hash-string>",
-        "new-password": "<hash-string>"
+        "password": "<hash-in-hex-string>",
+        "new-password": "<hash-in-hex-string>"
     }
 }
 ```
@@ -64,8 +64,8 @@
         "hit-me-up": "<int>"
     },
     "security": {
-        "password": "<hash-string>",
-        "new-password": "<hash-string>"
+        "password": "<hash-in-hex-string>",
+        "new-password": "<hash-in-hex-string>"
     }
 }
 ```
