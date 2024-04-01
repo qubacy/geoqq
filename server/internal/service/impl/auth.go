@@ -245,7 +245,7 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 			utl.NewFuncError(a.updateHashRefreshToken, err)
 	}
 
-	err = a.domainStorage.UpdateHashRefreshTokenAndEntryTime(ctx, userId, hashRefreshToken)
+	err = a.domainStorage.UpdateHashRefreshTokenAndSomeTimes(ctx, userId, hashRefreshToken)
 	if err != nil {
 		return ec.DomainStorageError,
 			utl.NewFuncError(a.updateHashRefreshToken, err)

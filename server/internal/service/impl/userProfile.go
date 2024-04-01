@@ -35,6 +35,8 @@ func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) 
 		return domain.UserProfile{}, utl.NewFuncError(
 			p.GetUserProfile, ec.New(err, ec.Server, ec.DomainStorageError))
 	}
+
+	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
 	return userProfile, nil
 }
 
@@ -65,6 +67,8 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 		return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
+
+	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
 	return nil
 }
 
@@ -84,6 +88,8 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 		return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
+
+	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
 	return nil
 }
 

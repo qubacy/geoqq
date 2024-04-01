@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,15 +14,21 @@ type Server struct {
 
 type Dependencies struct {
 	Engine *gin.Engine
+
+	Host string
+	Port uint16
+
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }
 
 func NewServer(deps Dependencies) (*Server, error) {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:           ":57000",
+			Addr:           fmt.Sprintf("%s:%v", deps.Host, deps.Port),
 			MaxHeaderBytes: 1 << 20,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
+			ReadTimeout:    deps.ReadTimeout,
+			WriteTimeout:   deps.WriteTimeout,
 			Handler:        deps.Engine,
 		},
 	}, nil
@@ -35,4 +42,5 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Stop() {
+	// TODO:!!!
 }

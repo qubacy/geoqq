@@ -1,11 +1,19 @@
+server:
+  http:
+    host: ""
+    port: 57000
+
+    read_timeout: 10s
+    write_timeout: 10s
+
+  # is not http?
+  websocket:
+
 delivery:
   token:
     access_ttl: 30m
     refresh_ttl: 876000h
     signing_key: "signing_key"
-
-  http:
-    port: 57000
 
 storage:
   hash_type: "sha1" # general parameter?
@@ -25,17 +33,20 @@ storage:
     type: "postgre"
   
     memory:
+      #...
 
     sql:
       postgre:
         host: "127.0.0.1"
         port: 5432
+
         user: "postgres"
         password: "admin"
         database: "geoqq"
+
+        background:
+          
+          max_query_count: 10
+
       sqlite:
         #...
-
-server:
-  http:
-    port: 57000

@@ -24,9 +24,6 @@ type AvatarStorage interface {
 // -----------------------------------------------------------------------
 
 type UserStorage interface {
-	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
-	GetPublicUsersByIds(ctx context.Context, userId uint64, targetUserIds []uint64) (domain.PublicUserList, error)
-
 	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
@@ -49,7 +46,7 @@ type UserStorage interface {
 		longitude, latitude float64) error
 
 	ResetHashRefreshToken(ctx context.Context, id uint64) error
-	UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
+	UpdateHashRefreshTokenAndSomeTimes(ctx context.Context,
 		id uint64, value string) error
 
 	UpdateUserParts(ctx context.Context, id uint64,
@@ -58,6 +55,11 @@ type UserStorage interface {
 	// ***
 
 	UpdateLastActivityTimeForUser(ctx context.Context, id uint64) error
+}
+
+type PublicUserStorage interface {
+	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
+	GetPublicUsersByIds(ctx context.Context, userId uint64, targetUserIds []uint64) (domain.PublicUserList, error)
 }
 
 type UserProfileStorage interface {
@@ -142,6 +144,7 @@ type Storage interface {
 	AvatarStorage
 
 	UserStorage
+	PublicUserStorage
 	UserProfileStorage
 
 	MateStorage
@@ -150,4 +153,6 @@ type Storage interface {
 	MateChatMessageStorage
 
 	GeoChatMessageStorage
+
+	Background
 }

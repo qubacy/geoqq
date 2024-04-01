@@ -133,7 +133,7 @@ func (s *AvatarStorage) InsertServerGeneratedAvatar(
 	sourceFunc := s.InsertServerGeneratedAvatar
 
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
-		func(conn *pgxpool.Conn) pgx.Row {
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
 				templateInsertSvrGeneratedAvatar+`;`,
 				hashValue,
@@ -153,7 +153,7 @@ func (s *AvatarStorage) InsertServerGeneratedAvatarWithLabel(ctx context.Context
 	sourceFunc := s.InsertServerGeneratedAvatarWithLabel
 
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
-		func(conn *pgxpool.Conn) pgx.Row {
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
 				templateInsertSvrGeneratedAvatarWithLbl+`;`,
 				label, hashValue,
@@ -177,7 +177,7 @@ func (s *AvatarStorage) InsertAvatar(
 	sourceFunc := s.InsertAvatar
 
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
-		func(conn *pgxpool.Conn) pgx.Row {
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
 				templateInsertAvatar+`;`,
 				userId, hashValue,

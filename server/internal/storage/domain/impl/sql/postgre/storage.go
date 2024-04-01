@@ -12,27 +12,32 @@ import (
 type Storage struct {
 	*AvatarStorage
 	*UserStorage
+	*PublicUserStorage
 	*UserProfileStorage
 	*MateStorage
 	*MateRequestStorage
 	*MateChatStorage
 	*MateChatMessageStorage
 	*GeoChatMessageStorage
+
+	*Background
 }
 
 type Dependencies struct {
-	User     string
-	Password string
-	Host     string
-	Port     uint16
-	DbName   string
+	User          string
+	Password      string
+	Host          string
+	Port          uint16
+	DbName        string
+	MaxQueryCount int
 }
 
 // ctor
 // -----------------------------------------------------------------------
 
-func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
-	pool, err := pgxpool.Connect(ctx, createConnectionString(deps))
+func NewStorage(ctxForInit, ctxWithCancel context.Context,
+	deps Dependencies) (*Storage, error) {
+	pool, err := pgxpool.Connect(ctxForInit, createConnectionString(deps))
 	if err != nil {
 		return nil, utility.NewFuncError(NewStorage, err)
 	}
@@ -40,12 +45,18 @@ func NewStorage(ctx context.Context, deps Dependencies) (*Storage, error) {
 	storage := &Storage{
 		AvatarStorage:          newAvatarStorage(pool),
 		UserStorage:            newUserStorage(pool),
+		PublicUserStorage:      newPublicUserStorage(pool),
 		UserProfileStorage:     newUserProfileStorage(pool),
 		MateStorage:            newMateStorage(pool),
 		MateRequestStorage:     newMateRequestStorage(pool),
 		MateChatStorage:        newMateChatStorage(pool),
 		MateChatMessageStorage: newMateChatMessageStorage(pool),
 		GeoChatMessageStorage:  newGeoChatMessageStorage(pool),
+
+		Background: newBackgroundStorage(
+			ctxForInit, ctxWithCancel,
+			pool, deps.MaxQueryCount,
+		),
 	}
 
 	return storage, nil

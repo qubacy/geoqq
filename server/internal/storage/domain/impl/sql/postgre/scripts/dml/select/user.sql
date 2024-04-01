@@ -1,5 +1,10 @@
 SELECT *
-FROM "UserEntry";
+FROM "UserEntry"
+ORDER BY "Id";
+
+SELECT "Id", "Username", "SignInTime", "LastActionTime"
+FROM "UserEntry"
+ORDER BY "Id";
 
 UPDATE "UserEntry" 
 SET "HashPassword" = 'adf20ec5664499c609ad141057e9bf94212eb337' WHERE "Id" = 1;

@@ -77,10 +77,16 @@ func NewApp() (*App, error) {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
 
-	// *** server
+	// *** start server!
 
 	serverDeps := server.Dependencies{
 		Engine: httpHandler.GetEngine(),
+
+		Host: viper.GetString("server.http.host"),
+		Port: viper.GetUint16("server.http.port"),
+
+		ReadTimeout:  viper.GetDuration("server.http.read_timeout"),
+		WriteTimeout: viper.GetDuration("server.http.write_timeout"),
 	}
 
 	server, err := server.NewServer(serverDeps)
@@ -102,23 +108,27 @@ func (a *App) Run() error {
 
 func domainStorageInstance() (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
-	ctx, cancel := context.WithTimeout(context.Background(), maxInitTime)
+	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
 	defer cancel()
 
 	var err error = ErrDomainStorageTypeIsNotDefined
 	var storage domainStorage.Storage = nil
 
+	// TODO: context for cancel!!!
+
 	storageType := viper.GetString("storage.domain.type")
 	if storageType == "postgre" {
-		storage, err = domainStorageImpl.NewStorage(ctx, domainStorageImpl.Dependencies{
-			Host:     viper.GetString("storage.domain.sql.postgre.host"),
-			Port:     viper.GetUint16("storage.domain.sql.postgre.port"),
-			User:     viper.GetString("storage.domain.sql.postgre.user"),
-			Password: viper.GetString("storage.domain.sql.postgre.password"),
-			DbName:   viper.GetString("storage.domain.sql.postgre.database"),
+		storage, err = domainStorageImpl.NewStorage(ctxForInit, context.TODO(), domainStorageImpl.Dependencies{
+			Host:          viper.GetString("storage.domain.sql.postgre.host"),
+			Port:          viper.GetUint16("storage.domain.sql.postgre.port"),
+			User:          viper.GetString("storage.domain.sql.postgre.user"),
+			Password:      viper.GetString("storage.domain.sql.postgre.password"),
+			DbName:        viper.GetString("storage.domain.sql.postgre.database"),
+			MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
 		})
 	} else if storageType == "sqlite" {
 		//...
+		return nil, ErrNotImplemented
 	}
 
 	if err != nil {
@@ -143,6 +153,7 @@ func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, err
 		})
 	} else if storageType == "runtime" {
 		//...
+		return nil, ErrNotImplemented
 	}
 
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
 	utl "geoqq/pkg/utility"
@@ -70,39 +69,6 @@ var (
 		FROM "DeletedUser"
 		WHERE "UserId" = $1`)
 
-	/*
-		Order:
-			1. source userId
-			2. target userId (or some ids)
-	*/
-	templateSelectPublicUsers = utl.RemoveAdjacentWs(`
-		SELECT 
-			"UserEntry"."Id" AS "Id",
-			"Username",
-			"Description",
-			"AvatarId",
-			"LastActionTime",
-			case
-				when "Mate"."Id" is null then false
-				else true
-			end as "IsMate",
-			case 
-				when "DeletedUser"."UserId" is null then false
-				else true
-			end as "IsDeleted",
-			"UserOptions"."HitMeUp" AS "HitMeUp"
-		FROM "UserEntry"
-		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
-		INNER JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
-		LEFT JOIN "Mate" ON (
-			("Mate"."FirstUserId" = $1 AND
-				"Mate"."SecondUserId" = "UserEntry"."Id") OR
-        	("Mate"."FirstUserId" = "UserEntry"."Id" AND
-				"Mate"."SecondUserId" = $1)
-		)
-		LEFT JOIN "DeletedUser" ON "DeletedUser"."UserId" = "UserEntry"."Id"
-			WHERE "UserEntry"."Id"`)  // next placeholders start with 2.
-
 	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
 		UPDATE "UserLocation" 
 			SET "Longitude" = $1,
@@ -111,73 +77,21 @@ var (
 
 	templateUpdateOnlyHashRefreshTokenById = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" SET "HashUpdToken" = $1 WHERE "Id" = $2`)
+
+	/*
+		Order:
+			1. userId
+			2. hashUpdToken
+	*/
+	templateUpdateHashRefreshTokenAndSomeTimes = utl.RemoveAdjacentWs(`
+		UPDATE "UserEntry"
+			SET "HashUpdToken" = $2,
+				"SignInTime" = NOW()::timestamp,
+				"LastActionTime" = NOW()::timestamp
+		WHERE "Id" = $1`)
 )
 
 // public
-// -----------------------------------------------------------------------
-
-func (s *UserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
-	*domain.PublicUser, error,
-) {
-	conn, err := s.pool.Acquire(ctx)
-	if err != nil {
-		return nil, utl.NewFuncError(s.GetPublicUserById, err)
-	}
-	defer conn.Release()
-
-	// ***
-
-	row := conn.QueryRow(ctx,
-		templateSelectPublicUsers+` = $2;`,
-		userId, targetUserId,
-	)
-
-	publicUser, err := publicUserFromQueryResult(row)
-	if err != nil {
-		return nil, utl.NewFuncError(s.GetPublicUserById, err)
-	}
-	return &publicUser, nil
-}
-
-func (s *UserStorage) GetPublicUsersByIds(ctx context.Context,
-	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
-	if len(targetUserIds) == 0 {
-		return domain.PublicUserList{}, nil
-	}
-
-	conn, err := s.pool.Acquire(ctx)
-	if err != nil {
-		return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
-	}
-	defer conn.Release()
-
-	// ***
-
-	rows, err := conn.Query(ctx,
-		templateSelectPublicUsers+fmt.Sprintf(` IN (%v);`,
-			utl.NumbersToString(targetUserIds),
-		), userId,
-	)
-	if err != nil {
-		return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
-	}
-	defer rows.Close()
-
-	// ***
-
-	publicUsers := domain.PublicUserList{}
-	for rows.Next() {
-		publicUser, err := publicUserFromQueryResult(rows)
-		if err != nil {
-			return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
-		}
-
-		publicUsers = append(publicUsers, &publicUser)
-	}
-
-	return publicUsers, nil
-}
-
 // -----------------------------------------------------------------------
 
 func (us *UserStorage) GetUserIdByByName(ctx context.Context,
@@ -432,23 +346,20 @@ func (us *UserStorage) ResetHashRefreshToken(ctx context.Context, id uint64) err
 	return nil
 }
 
-func (us *UserStorage) UpdateHashRefreshTokenAndEntryTime(ctx context.Context,
+func (us *UserStorage) UpdateHashRefreshTokenAndSomeTimes(ctx context.Context,
 	id uint64, refreshTokenHash string) error {
 	conn, err := us.pool.Acquire(ctx)
 	if err != nil {
-		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
+		return utl.NewFuncError(us.UpdateHashRefreshTokenAndSomeTimes, err)
 	}
 	defer conn.Release()
 
 	cmdTag, err := conn.Exec(ctx,
-		`UPDATE "UserEntry"
-    		SET "HashUpdToken" = $1,
-        		"SignInTime" = NOW()::timestamp
-    		WHERE "Id" = $2;`,
-		refreshTokenHash, id,
+		templateUpdateHashRefreshTokenAndSomeTimes+`;`,
+		id, refreshTokenHash,
 	)
 	if err != nil {
-		return utl.NewFuncError(us.UpdateHashRefreshTokenAndEntryTime, err)
+		return utl.NewFuncError(us.UpdateHashRefreshTokenAndSomeTimes, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -760,31 +671,4 @@ func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
 	}
 
 	return nil
-}
-
-// convert
-// -----------------------------------------------------------------------
-
-type QueryResultScanner interface {
-	Scan(dest ...interface{}) error
-}
-
-func publicUserFromQueryResult(row QueryResultScanner) (domain.PublicUser, error) {
-	publicUser := domain.PublicUser{}
-	err := row.Scan(
-		&publicUser.Id,
-		&publicUser.Username,
-		&publicUser.Description,
-		&publicUser.AvatarId,
-		&publicUser.LastActionTime,
-		&publicUser.IsMate,
-		&publicUser.IsDeleted,
-		&publicUser.HitMeUp,
-	)
-	if err != nil {
-		return domain.PublicUser{},
-			utl.NewFuncError(publicUserFromQueryResult, err)
-	}
-
-	return publicUser, nil
 }

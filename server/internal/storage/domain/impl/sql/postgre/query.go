@@ -30,7 +30,8 @@ func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, p
 
 // -----------------------------------------------------------------------
 
-type rowQueryWrapper = func(conn *pgxpool.Conn) pgx.Row
+type rowQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) pgx.Row
+type bgrQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) error
 
 func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
 	f rowQueryWrapper) (pgx.Row, error) {
@@ -41,7 +42,7 @@ func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
 	}
 	defer conn.Release()
 
-	return f(conn), nil
+	return f(conn, ctx), nil
 }
 
 func scanLastInsertedId(row pgx.Row, sourceFunc any) (uint64, error) {
