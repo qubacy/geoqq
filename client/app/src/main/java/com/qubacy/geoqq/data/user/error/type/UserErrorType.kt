@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.user.error.type
 
-import com.qubacy.geoqq._common.error.domain.ErrorDomain
-import com.qubacy.geoqq._common.error.type.ErrorType
+import com.qubacy.geoqq._common.model.error.domain.ErrorDomain
+import com.qubacy.geoqq._common.model.error.type.ErrorType
 
 enum class UserErrorType (
     override val id: Long,

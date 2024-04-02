@@ -40,7 +40,8 @@
         android:layout_marginStart="@dimen/big_gap_between_components"
         android:layout_marginEnd="@dimen/big_gap_between_components"
         android:layout_marginBottom="@dimen/small_gap_between_components"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:overScrollMode="never">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

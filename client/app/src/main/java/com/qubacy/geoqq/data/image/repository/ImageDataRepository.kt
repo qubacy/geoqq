@@ -9,10 +9,10 @@ import com.qubacy.geoqq.data.image.error.type.ImageErrorType
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.toRawImage
+import com.qubacy.geoqq.data.image.repository._common.toUploadImageRequest
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.http.request.GetImagesRequest
 import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequest
-import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequestImage
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import javax.inject.Inject
@@ -76,7 +76,7 @@ class ImageDataRepository @Inject constructor(
 
         val accessToken = mTokenDataRepository.getTokens().accessToken
 
-        val imageContentToUpload = UploadImageRequestImage.create(imageData)
+        val imageContentToUpload = imageData.toUploadImageRequest()
         val uploadImageRequest = UploadImageRequest(accessToken, imageContentToUpload)
         val uploadImageCall = mHttpImageDataSource.uploadImage(uploadImageRequest)
         val uploadImageResponse = executeNetworkRequest(mErrorDataRepository, uploadImageCall)

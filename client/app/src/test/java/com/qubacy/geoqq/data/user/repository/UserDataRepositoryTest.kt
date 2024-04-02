@@ -6,7 +6,7 @@ import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq._common.error._test
 
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.error.type.TestErrorType
 
 object TestError {

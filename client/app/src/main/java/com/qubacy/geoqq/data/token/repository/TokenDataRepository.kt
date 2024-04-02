@@ -11,7 +11,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
-import com.qubacy.geoqq.data.token.repository.source.result.GetTokensDataResult
+import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import javax.inject.Inject
 
 class TokenDataRepository @Inject constructor(

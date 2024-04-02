@@ -1,6 +1,6 @@
-package com.qubacy.geoqq._common.error.type
+package com.qubacy.geoqq._common.model.error.type
 
-import com.qubacy.geoqq._common.error.domain.ErrorDomain
+import com.qubacy.geoqq._common.model.error.domain.ErrorDomain
 
 interface ErrorType{
     val domain: ErrorDomain

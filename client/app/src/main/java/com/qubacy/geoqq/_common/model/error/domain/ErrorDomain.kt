@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common.error.domain
+package com.qubacy.geoqq._common.model.error.domain
 
 enum class ErrorDomain(val id: Long) {
     DATABASE(0),

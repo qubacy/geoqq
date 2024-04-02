@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.image.error.type
 
-import com.qubacy.geoqq._common.error.domain.ErrorDomain
-import com.qubacy.geoqq._common.error.type.ErrorType
+import com.qubacy.geoqq._common.model.error.domain.ErrorDomain
+import com.qubacy.geoqq._common.model.error.type.ErrorType
 
 enum class ImageErrorType (
     override val id: Long,

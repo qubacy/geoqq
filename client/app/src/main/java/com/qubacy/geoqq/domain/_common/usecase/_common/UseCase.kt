@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain._common.usecase._common
 
 import com.qubacy.geoqq._common.coroutine.CoroutineUser
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult

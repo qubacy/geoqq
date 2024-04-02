@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.error.repository._test.mock
 
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import org.mockito.Mockito
 import java.util.concurrent.atomic.AtomicBoolean

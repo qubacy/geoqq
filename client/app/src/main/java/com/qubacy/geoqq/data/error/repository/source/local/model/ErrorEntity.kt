@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data.error.repository.source.local.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 
 @Entity(
     tableName = ErrorEntity.TABLE_NAME,

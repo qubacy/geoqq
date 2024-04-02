@@ -22,5 +22,9 @@ enum class ImageExtension(
         fun getStringByFormat(format: CompressFormat): String {
             return entries.find { it.format == format }!!.strings.first()
         }
+
+        fun getIdByFormat(format: CompressFormat): Int {
+            return entries.find { it.format == format }!!.id
+        }
     }
 }

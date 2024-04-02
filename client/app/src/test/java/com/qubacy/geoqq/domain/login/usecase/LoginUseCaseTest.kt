@@ -6,7 +6,7 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.source.result.GetTokensDataResult
+import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import kotlinx.coroutines.test.runTest

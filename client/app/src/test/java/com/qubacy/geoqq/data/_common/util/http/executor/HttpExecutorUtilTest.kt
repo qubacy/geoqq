@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.util.http.executor
 
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository

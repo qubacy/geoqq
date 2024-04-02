@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data.token.repository._test.mock
 
 import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository.source.result.GetTokensDataResult
+import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 

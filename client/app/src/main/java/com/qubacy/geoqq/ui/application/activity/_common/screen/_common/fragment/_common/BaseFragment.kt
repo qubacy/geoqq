@@ -14,7 +14,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq._common.error.Error
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 
 abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {

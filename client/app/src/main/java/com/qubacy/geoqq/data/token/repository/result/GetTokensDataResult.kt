@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.token.repository.source.result
+package com.qubacy.geoqq.data.token.repository.result
 
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 
