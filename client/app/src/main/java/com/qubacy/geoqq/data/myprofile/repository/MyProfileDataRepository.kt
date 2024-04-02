@@ -5,11 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.myprofile.model.DataMyProfile
-import com.qubacy.geoqq.data.myprofile.model.toDataMyProfile
-import com.qubacy.geoqq.data.myprofile.model.toMyProfileDataStoreModel
-import com.qubacy.geoqq.data.myprofile.model.toUpdateMyProfileRequest
+import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
+import com.qubacy.geoqq.data.myprofile.model.update.DataMyProfileUpdateData
+import com.qubacy.geoqq.data.myprofile.model.profile.toDataMyProfile
+import com.qubacy.geoqq.data.myprofile.model.profile.toMyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.model.update.toUpdateMyProfileRequest
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http.request.DeleteMyProfileRequest
@@ -64,20 +67,21 @@ class MyProfileDataRepository @Inject constructor(
         return resultLiveData
     }
 
-    suspend fun updateMyProfile(
-        myProfile: DataMyProfile,
-        password: String,
-        newPassword: String
-    ) {
+    suspend fun updateMyProfile(updateProfileData: DataMyProfileUpdateData) {
         val accessToken = mTokenDataRepository.getTokens().accessToken
 
-        val updateMyProfileRequest = myProfile.toUpdateMyProfileRequest(
-            accessToken, password, newPassword)
+        var avatar: DataImage? = null
+
+        if (updateProfileData.avatarUri != null)
+            avatar = mImageDataRepository.saveImage(updateProfileData.avatarUri)
+
+        val updateMyProfileRequest = updateProfileData
+            .toUpdateMyProfileRequest(accessToken, avatar?.id)
         val updateMyProfileCall = mHttpMyProfileDataSource.updateMyProfile(updateMyProfileRequest)
         val updateMyProfileResponse = executeNetworkRequest(
             mErrorDataRepository, updateMyProfileCall)
 
-        val myProfileToSave = myProfile.toMyProfileDataStoreModel()
+        val myProfileToSave = getUpdatedMyProfileToSave(updateProfileData)
 
         mLocalMyProfileDataSource.saveMyProfile(myProfileToSave)
     }
@@ -107,5 +111,14 @@ class MyProfileDataRepository @Inject constructor(
         val avatar = mImageDataRepository.getImageById(getMyProfileResponse.avatarId)
 
         return getMyProfileResponse.toDataMyProfile(avatar)
+    }
+
+    private suspend fun getUpdatedMyProfileToSave(
+        updateProfileData: DataMyProfileUpdateData,
+        avatar: DataImage? = null
+    ): MyProfileDataStoreModel {
+        val myProfileDataStoreModel = mLocalMyProfileDataSource.getMyProfile()!!
+
+        return updateProfileData.toMyProfileDataStoreModel(myProfileDataStoreModel, avatar)
     }
 }

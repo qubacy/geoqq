@@ -9,9 +9,12 @@ import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
-import com.qubacy.geoqq.data.myprofile.model.DataMyProfile
-import com.qubacy.geoqq.data.myprofile.model.DataPrivacy
-import com.qubacy.geoqq.data.myprofile.model.toMyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
+import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
+import com.qubacy.geoqq.data.myprofile.model.profile.toMyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.model.update.DataMyProfileUpdateData
+import com.qubacy.geoqq.data.myprofile.model.update.DataSecurity
+import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
@@ -37,8 +40,18 @@ class MyProfileDataRepositoryTest(
 ) : DataRepositoryTest<MyProfileDataRepository>() {
     companion object {
         val DEFAULT_AVATAR = ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
+        val DEFAULT_PASSWORD = "test"
+
+
         val DEFAULT_DATA_MY_PROFILE = DataMyProfile(
-            "test", "test", DEFAULT_AVATAR, DataPrivacy(HitMeUpType.EVERYBODY))
+            "test", "test", DEFAULT_AVATAR, DataPrivacy(HitMeUpType.EVERYBODY)
+        )
+        val DEFAULT_DATA_MY_PROFILE_UPDATE_DATA = DataMyProfileUpdateData(
+            DEFAULT_DATA_MY_PROFILE.aboutMe,
+            DEFAULT_DATA_MY_PROFILE.avatar.uri,
+            DataSecurity(DEFAULT_PASSWORD, DEFAULT_PASSWORD),
+            DEFAULT_DATA_MY_PROFILE.privacy
+        )
     }
 
     @get:Rule
@@ -254,15 +267,34 @@ class MyProfileDataRepositoryTest(
     }
 
     @Test
-    fun updateMyProfileTest() = runTest {
-        val dataMyProfile = DEFAULT_DATA_MY_PROFILE
-        val password = "test"
-        val newPassword = "test"
+    fun updateMyProfileWithoutAvatarTest() = runTest {
+        val myProfileUpdateData = DEFAULT_DATA_MY_PROFILE_UPDATE_DATA
+            .copy(avatarUri = null)
 
         mHttpSourceUpdateMyProfile = UpdateMyProfileResponse()
+        mLocalSourceGetMyProfile = myProfileUpdateData
+            .toMyProfileDataStoreModel(DEFAULT_DATA_MY_PROFILE.toMyProfileDataStoreModel())
 
-        mDataRepository.updateMyProfile(dataMyProfile, password, newPassword)
+        mDataRepository.updateMyProfile(myProfileUpdateData)
 
+        Assert.assertTrue(mHttpSourceUpdateMyProfileCallFlag)
+        Assert.assertTrue(mHttpSourceUpdateMyProfileResponseCallFlag)
+        Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)
+    }
+
+    @Test
+    fun updateMyProfileWithAvatarTest() = runTest {
+        val avatar = DEFAULT_AVATAR
+        val myProfileUpdateData = DEFAULT_DATA_MY_PROFILE_UPDATE_DATA.copy(avatarUri = avatar.uri)
+
+        mImageDataRepositoryMockContainer.saveImage = DEFAULT_AVATAR
+        mHttpSourceUpdateMyProfile = UpdateMyProfileResponse()
+        mLocalSourceGetMyProfile = myProfileUpdateData
+            .toMyProfileDataStoreModel(DEFAULT_DATA_MY_PROFILE.toMyProfileDataStoreModel(), avatar)
+
+        mDataRepository.updateMyProfile(myProfileUpdateData)
+
+        Assert.assertTrue(mImageDataRepositoryMockContainer.saveImageCallFlag)
         Assert.assertTrue(mHttpSourceUpdateMyProfileCallFlag)
         Assert.assertTrue(mHttpSourceUpdateMyProfileResponseCallFlag)
         Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)

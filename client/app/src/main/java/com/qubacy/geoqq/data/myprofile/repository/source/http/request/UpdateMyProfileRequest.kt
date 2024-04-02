@@ -7,18 +7,18 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 class UpdateMyProfileRequest(
     @Json(name = "access-token") val accessToken: String,
-    @Json(name = "description") val aboutMe: String,
-    @Json(name = "avatar-id") val avatarId: Long,
-    @Json(name = "security") val security: MyProfileSecurityRequest,
-    @Json(name = "privacy") val privacy: MyProfilePrivacy
+    @Json(name = "description") val aboutMe: String?,
+    @Json(name = "avatar-id") val avatarId: Long?,
+    @Json(name = "security") val security: MyProfileSecurityRequest?,
+    @Json(name = "privacy") val privacy: MyProfilePrivacy?
 ) {
 
 }
 
 @JsonClass(generateAdapter = true)
 class MyProfileSecurityRequest(
-    @Json(name = "password") val password: String,
-    @Json(name = "new-password") val newPassword: String
+    @Json(name = "password") val passwordHash: String,
+    @Json(name = "new-password") val newPasswordHash: String
 ) {
 
 }
