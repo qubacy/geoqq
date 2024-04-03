@@ -103,19 +103,39 @@ class MyProfileFragment(
     override fun runInitWithUiState(uiState: MyProfileUiState) {
         super.runInitWithUiState(uiState)
 
-        if (!uiState.myProfileInputData.isEmpty())
-            initInputsWithInputData(uiState.myProfileInputData)
+        if (uiState.myProfilePresentation != null) initInputsWithUiState(uiState)
     }
 
-    private fun initInputsWithInputData(inputData: MyProfileInputData) {
-        inputData.avatarUri?.also { changeUpdatedAvatarUri(it) }
-        inputData.aboutMe?.also { mBinding.fragmentMyProfileInputAboutMe.setText(it) }
-        inputData.password?.also { mBinding.fragmentMyProfileInputPassword.setText(it) }
-        inputData.newPassword?.also { mBinding.fragmentMyProfileInputNewPassword.setText(it) }
-        inputData.newPasswordAgain?.also {
-            mBinding.fragmentMyProfileInputNewPasswordAgain.setText(it)
+    private fun initInputsWithUiState(
+        uiState: MyProfileUiState
+    ) {
+        val myProfilePresentation = uiState.myProfilePresentation!!
+        val myProfileInputData = uiState.myProfileInputData
+
+        mBinding.fragmentMyProfileAvatar.apply {
+            if (myProfileInputData.avatarUri == null) setImageURI(myProfilePresentation.avatarUri)
+            else changeUpdatedAvatarUri(myProfileInputData.avatarUri)
         }
-        inputData.hitMeUp?.also { changeHitMeUpInputByHitMeUpType(it) }
+        mBinding.fragmentMyProfileTextUsername.text = myProfilePresentation.username
+        mBinding.fragmentMyProfileInputAboutMe.apply {
+            if (myProfileInputData.aboutMe == null) setText(myProfilePresentation.aboutMe)
+            else setText(myProfileInputData.aboutMe)
+        }
+        mBinding.fragmentMyProfileInputPassword.apply {
+            if (myProfileInputData.password != null) setText(myProfileInputData.password)
+        }
+        mBinding.fragmentMyProfileInputNewPassword.apply {
+            if (myProfileInputData.newPassword != null) setText(myProfileInputData.newPassword)
+        }
+        mBinding.fragmentMyProfileInputNewPasswordAgain.apply {
+            if (myProfileInputData.newPasswordAgain != null)
+                setText(myProfileInputData.newPasswordAgain)
+        }
+        mBinding.fragmentMyProfileSwitchHitMeUp.apply {
+            if (myProfileInputData.hitMeUp == null)
+                changeHitMeUpInputByHitMeUpType(myProfilePresentation.hitMeUp)
+            else changeHitMeUpInputByHitMeUpType(myProfileInputData.hitMeUp)
+        }
     }
 
     private fun changeUpdatedAvatarUri(avatarUri: Uri) {
@@ -203,6 +223,33 @@ class MyProfileFragment(
         )
     }
 
+    private fun getUpdateData(): MyProfileInputData {
+        val myProfilePresentation = mModel.uiState.myProfilePresentation!!
+        val inputData = getInputData()
+
+        val aboutMe = inputData.aboutMe.let {
+            if (it == myProfilePresentation.aboutMe) null else it
+        }
+        val password = inputData.password.let {
+            if (it.isNullOrEmpty()) null else it
+        }
+        val newPassword = inputData.newPassword.let {
+            if (it.isNullOrEmpty()) null else it
+        }
+        val newPasswordAgain = inputData.newPasswordAgain.let {
+                if (it.isNullOrEmpty()) null else it
+            }
+        val hitMeUp = inputData.hitMeUp.let {
+            if (it == myProfilePresentation.hitMeUp) null else it
+        }
+
+        return MyProfileInputData(
+            mUpdatedAvatarUri, aboutMe,
+            password, newPassword, newPasswordAgain,
+            hitMeUp
+        )
+    }
+
     private fun getHitMeUpInputType(): HitMeUpType {
         return if (mBinding.fragmentMyProfileSwitchHitMeUp.isChecked) HitMeUpType.EVERYBODY
         else HitMeUpType.NOBODY
@@ -241,7 +288,7 @@ class MyProfileFragment(
         mBinding.fragmentMyProfileInputPassword.isEnabled = areEnabled
         mBinding.fragmentMyProfileInputNewPassword.isEnabled = areEnabled
         mBinding.fragmentMyProfileInputNewPasswordAgain.isEnabled = areEnabled
-        mBinding.fragmentMyProfileSwitchHitMeUp.isChecked = areEnabled
+        mBinding.fragmentMyProfileSwitchHitMeUp.isEnabled = areEnabled
         mBinding.fragmentMyProfileButtonUpdate.isEnabled = areEnabled
     }
 
@@ -277,7 +324,7 @@ class MyProfileFragment(
     }
 
     private fun launchUpdateProfile() {
-        val inputData = getInputData()
+        val inputData = getUpdateData()
 
         if (!mModel.isUpdateDataValid(inputData))
             return mModel.retrieveError(MyProfileErrorType.INVALID_UPDATE_DATA)

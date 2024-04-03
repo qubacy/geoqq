@@ -25,9 +25,8 @@
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/fragment_my_profile_progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_anchor="@id/fragment_my_profile_top_bar_wrapper"
-        app:layout_anchorGravity="bottom"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_top_bar_wrapper"
         android:indeterminate="true"
         android:visibility="gone"/>
 

@@ -13,6 +13,7 @@ import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDo
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
@@ -20,6 +21,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toMyProfileUpdateData
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toUpdatedMyProfilePresentation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
@@ -35,7 +37,7 @@ open class MyProfileViewModel @Inject constructor(
     companion object {
         const val TAG = "MyProfileViewModel"
 
-        val ABOUT_ME_REGEX = Regex("^\\S+\$")
+        val ABOUT_ME_REGEX = Regex("^.+\$")
         val PASSWORD_REGEX = PasswordContext.REGEX
     }
 
@@ -90,13 +92,14 @@ open class MyProfileViewModel @Inject constructor(
     ): UiOperation {
         changeLoadingState(false)
 
-        val uiOperation =
-            if (!getMyProfileResult.isSuccessful()) ErrorUiOperation(getMyProfileResult.error!!)
-            else GetMyProfileUiOperation(getMyProfileResult.myProfile!!.toMyProfilePresentation())
+        val myProfilePresentation = getMyProfileResult.myProfile?.toMyProfilePresentation()
 
-        // todo: is it necessary to update mUiState here?
+        if (!getMyProfileResult.isSuccessful())
+            return ErrorUiOperation(getMyProfileResult.error!!)
 
-        return uiOperation
+        mUiState.myProfilePresentation = myProfilePresentation!!
+
+        return GetMyProfileUiOperation(myProfilePresentation)
     }
 
     private fun processUpdateMyProfileDomainResult(
@@ -104,12 +107,20 @@ open class MyProfileViewModel @Inject constructor(
     ): UiOperation {
         changeLoadingState(false)
 
-        val uiOperation =
-            if (!updateMyProfileDomainResult.isSuccessful())
-                ErrorUiOperation(updateMyProfileDomainResult.error!!)
-            else UpdateMyProfileUiOperation()
+        if (!updateMyProfileDomainResult.isSuccessful())
+            return ErrorUiOperation(updateMyProfileDomainResult.error!!)
 
-        return uiOperation
+        mUiState.myProfilePresentation = getUpdatedMyProfilePresentation()
+
+        return UpdateMyProfileUiOperation()
+    }
+
+    private fun getUpdatedMyProfilePresentation(): MyProfilePresentation {
+        val prevMyProfilePresentation = mUiState.myProfilePresentation
+            ?: throw IllegalStateException()
+
+        return mUiState.myProfileInputData
+            .toUpdatedMyProfilePresentation(prevMyProfilePresentation)
     }
 
     private fun processDeleteMyProfileDomainResult(
@@ -117,23 +128,27 @@ open class MyProfileViewModel @Inject constructor(
     ): UiOperation {
         changeLoadingState(false)
 
-        val uiOperation =
-            if (!deleteMyProfileDomainResult.isSuccessful())
-                ErrorUiOperation(deleteMyProfileDomainResult.error!!)
-            else DeleteMyProfileUiOperation()
+        if (!deleteMyProfileDomainResult.isSuccessful())
+            return ErrorUiOperation(deleteMyProfileDomainResult.error!!)
 
-        return uiOperation
+        return DeleteMyProfileUiOperation()
     }
 
     fun getMyProfile() {
+        changeLoadingState(true)
         mUseCase.getMyProfile()
     }
 
     fun updateMyProfile(updateData: MyProfileInputData) {
+        changeLoadingState(true)
+
+        mUiState.myProfileInputData = updateData
+
         mUseCase.updateMyProfile(updateData.toMyProfileUpdateData())
     }
 
     fun deleteMyProfile() {
+        changeLoadingState(true)
         mUseCase.deleteMyProfile()
     }
 
