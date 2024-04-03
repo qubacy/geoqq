@@ -15,7 +15,7 @@ import com.qubacy.geoqq.data.myprofile.model.profile.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.model.update.DataMyProfileUpdateData
 import com.qubacy.geoqq.data.myprofile.model.update.DataSecurity
 import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
-import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
+import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.DeleteMyProfileResponse
@@ -241,7 +241,7 @@ class MyProfileDataRepositoryTest(
             dataMyProfile.avatar.id, MyProfilePrivacy(dataMyProfile.privacy.hitMeUp.id)
         )
         val expectedDataMyProfile = dataMyProfile
-        val expectedGetMyProfileResult = GetMyProfileResult(dataMyProfile)
+        val expectedGetMyProfileResult = GetMyProfileDataResult(dataMyProfile)
 
         mLocalSourceGetMyProfile = getMyProfileDataStoreModel
         mImageDataRepositoryMockContainer.getImageById = dataMyProfile.avatar
@@ -255,9 +255,9 @@ class MyProfileDataRepositoryTest(
 
             val gottenResult = awaitItem()
 
-            Assert.assertEquals(GetMyProfileResult::class, gottenResult::class)
+            Assert.assertEquals(GetMyProfileDataResult::class, gottenResult::class)
 
-            gottenResult as GetMyProfileResult
+            gottenResult as GetMyProfileDataResult
 
             Assert.assertTrue(mHttpSourceGetMyProfileCallFlag)
             Assert.assertTrue(mHttpSourceGetMyProfileResponseCallFlag)

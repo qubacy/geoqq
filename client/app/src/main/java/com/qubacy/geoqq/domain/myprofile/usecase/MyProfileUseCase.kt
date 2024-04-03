@@ -7,6 +7,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.model.update.toDataMyProfileUpdateData
+import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 
@@ -26,6 +27,14 @@ class MyProfileUseCase(
     fun updateMyProfile(myProfileUpdateData: MyProfileUpdateData) {
         executeLogic({
             mMyProfileDataRepository.updateMyProfile(myProfileUpdateData.toDataMyProfileUpdateData())
+            mResultFlow.emit(UpdateMyProfileDomainResult())
         }) { UpdateMyProfileDomainResult(error = it) }
+    }
+
+    fun deleteMyProfile() {
+        executeLogic({
+            mMyProfileDataRepository.deleteMyProfile()
+            mResultFlow.emit(DeleteMyProfileDomainResult())
+        }) { DeleteMyProfileDomainResult(error = it) }
     }
 }

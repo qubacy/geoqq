@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.myprofile.model.profile.toDataMyProfile
 import com.qubacy.geoqq.data.myprofile.model.profile.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.model.update.toUpdateMyProfileRequest
-import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileResult
+import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http.request.DeleteMyProfileRequest
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
@@ -36,8 +36,8 @@ class MyProfileDataRepository @Inject constructor(
     private val mLocalMyProfileDataSource: LocalMyProfileDataSource,
     private val mHttpMyProfileDataSource: HttpMyProfileDataSource
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
-    suspend fun getMyProfile(): LiveData<GetMyProfileResult> {
-        val resultLiveData = MutableLiveData<GetMyProfileResult>()
+    suspend fun getMyProfile(): LiveData<GetMyProfileDataResult> {
+        val resultLiveData = MutableLiveData<GetMyProfileDataResult>()
 
         CoroutineScope(coroutineContext).launch {
             val localMyProfile = mLocalMyProfileDataSource.getMyProfile()
@@ -45,7 +45,7 @@ class MyProfileDataRepository @Inject constructor(
             if (localMyProfile != null) {
                 val localDataMyProfile = resolveMyProfileDataStoreModel(localMyProfile)
 
-                resultLiveData.postValue(GetMyProfileResult(localDataMyProfile))
+                resultLiveData.postValue(GetMyProfileDataResult(localDataMyProfile))
             }
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
@@ -56,8 +56,8 @@ class MyProfileDataRepository @Inject constructor(
             val httpDataMyProfile = resolveGetMyProfileResponse(myProfileResponse)
 
             if (localMyProfile == null)
-                resultLiveData.postValue(GetMyProfileResult(httpDataMyProfile))
-            else mResultFlow.emit(GetMyProfileResult(httpDataMyProfile))
+                resultLiveData.postValue(GetMyProfileDataResult(httpDataMyProfile))
+            else mResultFlow.emit(GetMyProfileDataResult(httpDataMyProfile))
 
             val myProfileToSave = httpDataMyProfile.toMyProfileDataStoreModel()
 

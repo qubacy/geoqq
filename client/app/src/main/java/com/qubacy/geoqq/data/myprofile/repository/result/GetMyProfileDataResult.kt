@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.myprofile.repository.result
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
 
-data class GetMyProfileResult(
+data class GetMyProfileDataResult(
     val myProfile: DataMyProfile
 ) : DataResult {
 
