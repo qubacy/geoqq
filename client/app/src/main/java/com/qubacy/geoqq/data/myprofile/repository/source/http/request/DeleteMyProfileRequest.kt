@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class DeleteMyProfileRequest(
-    @Json(name = "accessToken") val accessToken: String
+    @Json(name = "access-token") val accessToken: String
 ) {
 
 }

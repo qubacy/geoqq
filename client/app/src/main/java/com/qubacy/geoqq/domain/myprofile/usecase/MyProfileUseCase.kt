@@ -5,19 +5,22 @@ import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
+import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.model.update.toDataMyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.logout.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MyProfileUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
-    private val mMyProfileDataRepository: MyProfileDataRepository
+    private val mMyProfileDataRepository: MyProfileDataRepository,
+    private val mTokenDataRepository: TokenDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     fun getMyProfile() {
         executeLogic({
@@ -38,8 +41,18 @@ class MyProfileUseCase @Inject constructor(
     fun deleteMyProfile() {
         executeLogic({
             mMyProfileDataRepository.deleteMyProfile()
+            mTokenDataRepository.clearTokens()
+
             mResultFlow.emit(DeleteMyProfileDomainResult())
         }) { DeleteMyProfileDomainResult(error = it) }
+    }
+
+    fun logout() {
+        executeLogic({
+            mTokenDataRepository.clearTokens()
+
+            mResultFlow.emit(LogoutDomainResult())
+        }) { LogoutDomainResult(error = it) }
     }
 
     override fun onCoroutineScopeSet() {

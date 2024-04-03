@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
@@ -10,7 +11,9 @@ import androidx.core.graphics.Insets
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.google.android.material.divider.MaterialDividerItemDecoration
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
@@ -60,6 +63,24 @@ class MateChatsFragment(
         runPermissionCheck<MateChatsFragment>()
         setupNavigationUI(mBinding.fragmentMateChatsTopBar)
         initMateChatListView()
+
+        mBinding.fragmentMateChatsTopBar.setOnMenuItemClickListener {
+            onTopBarMenuItemClicked(it)
+        }
+    }
+
+    private fun onTopBarMenuItemClicked(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.main_top_bar_option_my_profile -> onMyProfileMenuItemClicked()
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun onMyProfileMenuItemClicked() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_mateChatsFragment_to_myProfileFragment)
     }
 
     override fun runInitWithUiState(uiState: MateChatsUiState) {

@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
@@ -32,6 +33,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error.MyProfileErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import dagger.hilt.android.AndroidEntryPoint
@@ -162,6 +164,8 @@ class MyProfileFragment(
                 processUpdateMyProfileOperation(uiOperation as UpdateMyProfileUiOperation)
             DeleteMyProfileUiOperation::class ->
                 processDeleteMyProfileOperation(uiOperation as DeleteMyProfileUiOperation)
+            LogoutUiOperation::class ->
+                processLogoutOperation(uiOperation as LogoutUiOperation)
             else -> return false
         }
 
@@ -193,7 +197,16 @@ class MyProfileFragment(
     ) {
         // todo: implement..
 
+        navigateToLogin()
+    }
 
+    private fun processLogoutOperation(logoutUiOperation: LogoutUiOperation) {
+        navigateToLogin()
+    }
+
+    private fun navigateToLogin() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_myProfileFragment_to_loginFragment)
     }
 
     override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
@@ -340,8 +353,7 @@ class MyProfileFragment(
     }
 
     private fun launchLogout() {
-        // todo: implement processing..
-
+        mModel.logout()
     }
 
     private fun launchDeleteProfile() {

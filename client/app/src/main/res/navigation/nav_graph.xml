@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/myProfileFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -29,12 +29,24 @@
         tools:layout="@layout/fragment_mate_chats">
         <action
             android:id="@+id/action_mateChatsFragment_to_myProfileFragment"
-            app:destination="@id/myProfileFragment" />
+            app:destination="@id/myProfileFragment"
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_bottom"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_top" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.MyProfileFragment"
         android:label="My profile"
-        tools:layout="@layout/fragment_my_profile"/>
+        tools:layout="@layout/fragment_my_profile">
+        <action
+            android:id="@+id/action_myProfileFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>

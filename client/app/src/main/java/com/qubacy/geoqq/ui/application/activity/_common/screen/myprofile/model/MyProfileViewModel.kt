@@ -9,6 +9,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.logout.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
@@ -18,6 +19,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.s
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toMyProfileUpdateData
@@ -83,6 +85,8 @@ open class MyProfileViewModel @Inject constructor(
                 processUpdateMyProfileDomainResult(domainResult as UpdateMyProfileDomainResult)
             DeleteMyProfileDomainResult::class ->
                 processDeleteMyProfileDomainResult(domainResult as DeleteMyProfileDomainResult)
+            LogoutDomainResult::class ->
+                processLogoutDomainResult(domainResult as LogoutDomainResult)
             else -> null
         }
     }
@@ -134,6 +138,15 @@ open class MyProfileViewModel @Inject constructor(
         return DeleteMyProfileUiOperation()
     }
 
+    private fun processLogoutDomainResult(logoutDomainResult: LogoutDomainResult): UiOperation {
+        changeLoadingState(false)
+
+        if (!logoutDomainResult.isSuccessful())
+            return ErrorUiOperation(logoutDomainResult.error!!)
+
+        return LogoutUiOperation()
+    }
+
     fun getMyProfile() {
         changeLoadingState(true)
         mUseCase.getMyProfile()
@@ -153,9 +166,8 @@ open class MyProfileViewModel @Inject constructor(
     }
 
     fun logout() {
-        // todo: implement..
-
-
+        changeLoadingState(true)
+        mUseCase.logout()
     }
 }
 
