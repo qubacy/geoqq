@@ -10,8 +10,9 @@ import com.qubacy.geoqq.domain.myprofile.model.update.toDataMyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
+import javax.inject.Inject
 
-class MyProfileUseCase(
+class MyProfileUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMyProfileDataRepository: MyProfileDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {

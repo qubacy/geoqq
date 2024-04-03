@@ -19,10 +19,20 @@
 
     <string name="fragment_mate_chats_top_bar_title_text">Mate Chats</string>
 
+    <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
+    <string name="fragment_my_profile_input_password_hint_text">Password</string>
+    <string name="fragment_my_profile_input_new_password_hint_text">New password</string>
+    <string name="fragment_my_profile_input_new_password_again_hint_text">New password again</string>
+    <string name="fragment_my_profile_text_hit_me_up_text">Anybody can hit me up</string>
+    <string name="fragment_my_profile_dialog_request_message_delete_account">Do you actually want to delete your account?</string>
+
     <!--  Components:  -->
 
     <string name="component_error_dialog_title_text">Error</string>
     <string name="component_error_dialog_button_neutral_caption">OK</string>
+
+    <string name="component_request_dialog_button_positive_caption">OK</string>
+    <string name="component_request_dialog_button_negative_caption">Cancel</string>
     
     <string name="component_main_top_bar_option_my_profile_title">My profile</string>
     
@@ -34,10 +44,6 @@
 
     <string name="component_my_profile_top_bar_popup_option_logout_title">Logout</string>
     <string name="component_my_profile_top_bar_popup_option_delete_profile_title">Delete profile</string>
-    <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
-    <string name="fragment_my_profile_input_password_hint_text">Password</string>
-    <string name="fragment_my_profile_input_new_password_hint_text">New password</string>
-    <string name="fragment_my_profile_input_new_password_again_hint_text">New password again</string>
-    <string name="fragment_my_profile_text_hit_me_up_text">Anybody can hit me up</string>
+    <string name="fragment_my_profile_button_update_text">UPDATE</string>
 
 </resources>

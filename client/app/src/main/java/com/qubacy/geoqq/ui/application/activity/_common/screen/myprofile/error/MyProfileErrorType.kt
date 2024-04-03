@@ -1,11 +1,11 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen.login.error
+package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error
 
 import com.qubacy.geoqq._common.model.error.domain.ErrorDomain
 import com.qubacy.geoqq._common.model.error.type.ErrorType
 
-enum class LoginFragmentErrorType(
+enum class MyProfileErrorType(
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.UI_MY_PROFILE
 ) : ErrorType {
-    INVALID_LOGIN_DATA(0);
+    INVALID_UPDATE_DATA(0);
 }

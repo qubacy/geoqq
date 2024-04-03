@@ -23,9 +23,24 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     }
 
     protected lateinit var mBinding: ViewBindingType
+
     private var mErrorDialog: AlertDialog? = null
+    private var mRequestDialog: AlertDialog? = null
 
     protected var mSnackbarAnchorView: View? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        initActivityResultLaunchers()
+    }
+
+    /**
+     * Should be used for initializing ActivityResultLaunchers;
+     */
+    protected open fun initActivityResultLaunchers() {
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,6 +106,24 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
             .create()
 
         mErrorDialog!!.show()
+    }
+
+    open fun showRequestDialog(
+        @StringRes messageResId: Int,
+        onPositiveButtonClicked: () -> Unit,
+        onNegativeButtonClicked: (() -> Unit)? = null
+    ) {
+        mRequestDialog = MaterialAlertDialogBuilder(requireContext())
+            .setMessage(messageResId)
+            .setPositiveButton(R.string.component_request_dialog_button_positive_caption) { _, _ ->
+                onPositiveButtonClicked()
+            }
+            .setNegativeButton(R.string.component_request_dialog_button_negative_caption) { _, _ ->
+                onNegativeButtonClicked?.invoke()
+            }
+            .create()
+
+        mRequestDialog!!.show()
     }
 
     open fun onErrorDismissed(error: Error) {

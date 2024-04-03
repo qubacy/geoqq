@@ -8,8 +8,8 @@ import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProf
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.UpdateMyProfileResponse
 import retrofit2.Call
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.PUT
 import retrofit2.http.Query
 
@@ -24,7 +24,7 @@ interface HttpMyProfileDataSource : DataSource {
         @Body body: UpdateMyProfileRequest
     ): Call<UpdateMyProfileResponse>
 
-    @DELETE
+    @HTTP(method = "DELETE", path = "/api/my-profile", hasBody = true)
     fun deleteMyProfile(
         @Body body: DeleteMyProfileRequest
     ): Call<DeleteMyProfileResponse>

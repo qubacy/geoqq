@@ -3,6 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.qubacy.geoqq._common.model.login.LoginContext
+import com.qubacy.geoqq._common.model.password.PasswordContext
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
@@ -26,8 +28,8 @@ open class LoginViewModel @Inject constructor(
     companion object {
         const val TAG = "LoginViewModel"
 
-        val LOGIN_REGEX = Regex("^\\S{8,32}$")
-        val PASSWORD_REGEX = Regex("^\\S{8,32}$")
+        val LOGIN_REGEX = LoginContext.REGEX
+        val PASSWORD_REGEX = PasswordContext.REGEX
     }
 
     override fun generateDefaultUiState(): LoginUiState {
