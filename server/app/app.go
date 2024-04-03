@@ -119,12 +119,16 @@ func domainStorageInstance() (domainStorage.Storage, error) {
 	storageType := viper.GetString("storage.domain.type")
 	if storageType == "postgre" {
 		storage, err = domainStorageImpl.NewStorage(ctxForInit, context.TODO(), domainStorageImpl.Dependencies{
-			Host:          viper.GetString("storage.domain.sql.postgre.host"),
-			Port:          viper.GetUint16("storage.domain.sql.postgre.port"),
-			User:          viper.GetString("storage.domain.sql.postgre.user"),
-			Password:      viper.GetString("storage.domain.sql.postgre.password"),
-			DbName:        viper.GetString("storage.domain.sql.postgre.database"),
-			MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
+			Host:     viper.GetString("storage.domain.sql.postgre.host"),
+			Port:     viper.GetUint16("storage.domain.sql.postgre.port"),
+			User:     viper.GetString("storage.domain.sql.postgre.user"),
+			Password: viper.GetString("storage.domain.sql.postgre.password"),
+			DbName:   viper.GetString("storage.domain.sql.postgre.database"),
+
+			DependenciesForBgr: domainStorageImpl.DependenciesForBgr{
+				MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
+				QueryTimeout:  viper.GetDuration("storage.domain.sql.postgre.background.query_timeout"),
+			},
 		})
 	} else if storageType == "sqlite" {
 		//...

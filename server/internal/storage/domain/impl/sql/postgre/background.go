@@ -3,6 +3,7 @@ package postgre
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -14,29 +15,37 @@ type Background struct {
 
 	pool    *pgxpool.Pool
 	queries chan bgrQueryWrapper
+
+	queryTimeout time.Duration
+}
+
+type DependenciesForBgr struct {
+	MaxQueryCount int
+	QueryTimeout  time.Duration
 }
 
 // ctor
 // -----------------------------------------------------------------------
 
-func newBackgroundStorage(
+func newBackground(
 	ctxForInit context.Context,
 	ctxWithCancel context.Context,
 	pool *pgxpool.Pool,
-	maxQueryCount int,
-
+	deps DependenciesForBgr,
 ) *Background {
-	queries := make(chan bgrQueryWrapper, maxQueryCount)
+	queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
 
 	storage := &Background{
 		UserStorageBackground: newUserStorageBackground(queries),
 
 		pool:    pool,
 		queries: queries,
+
+		queryTimeout: deps.QueryTimeout,
 	}
 
 	// can run several...
-	go storage.updateQueriesInBgr(
+	go storage.updateQueries(
 		ctxForInit,
 		ctxWithCancel,
 	)
@@ -47,8 +56,8 @@ func newBackgroundStorage(
 // private
 // -----------------------------------------------------------------------
 
-func (s *Background) updateQueriesInBgr(
-	ctxForInit, ctxWithCancel context.Context,
+func (s *Background) updateQueries(
+	ctxForInit, ctxWithCancel context.Context, // as field in struct?
 ) {
 	conn, err := s.pool.Acquire(ctxForInit)
 	if err != nil {
@@ -65,7 +74,13 @@ func (s *Background) updateQueriesInBgr(
 			return
 
 		case f := <-s.queries:
-			err = f(conn, context.TODO())
+			ctx := context.Background()
+			ctx, cancel := context.WithTimeout(
+				ctx, s.queryTimeout,
+			)
+			defer cancel()
+
+			err = f(conn, ctx)
 			if err != nil { // only log to file?
 				// TODO:
 				fmt.Println(err)

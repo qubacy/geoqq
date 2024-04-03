@@ -24,12 +24,13 @@ type Storage struct {
 }
 
 type Dependencies struct {
-	User          string
-	Password      string
-	Host          string
-	Port          uint16
-	DbName        string
-	MaxQueryCount int
+	User     string
+	Password string
+	Host     string
+	Port     uint16
+	DbName   string
+
+	DependenciesForBgr
 }
 
 // ctor
@@ -53,9 +54,9 @@ func NewStorage(ctxForInit, ctxWithCancel context.Context,
 		MateChatMessageStorage: newMateChatMessageStorage(pool),
 		GeoChatMessageStorage:  newGeoChatMessageStorage(pool),
 
-		Background: newBackgroundStorage(
+		Background: newBackground(
 			ctxForInit, ctxWithCancel,
-			pool, deps.MaxQueryCount,
+			pool, deps.DependenciesForBgr,
 		),
 	}
 

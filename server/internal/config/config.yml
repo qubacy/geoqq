@@ -45,7 +45,7 @@ storage:
         database: "geoqq"
 
         background:
-          
+          query_timeout: 10s
           max_query_count: 10
 
       sqlite:

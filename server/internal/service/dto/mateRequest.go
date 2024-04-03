@@ -10,6 +10,8 @@ type MateRequestsForUserOut struct {
 func NewMateRequestsForUserOutFromDomain(
 	mateRequests []*table.MateRequest, userId uint64) *MateRequestsForUserOut {
 
+	// TODO: check arg on nil?
+
 	outputMateRequests := []*MateRequest{}
 	for i := range mateRequests {
 		outputMateRequest := NewMateRequest(

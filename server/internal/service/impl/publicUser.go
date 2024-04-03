@@ -48,6 +48,8 @@ func (s *UserService) GetPublicUserById(ctx context.Context,
 		return nil, utl.NewFuncError(s.GetPublicUserById,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
+
+	s.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
 	return publicUser, nil
 }
 
@@ -79,5 +81,6 @@ func (s *UserService) GetPublicUserByIds(ctx context.Context,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
+	s.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
 	return publicUsers, nil
 }
