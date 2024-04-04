@@ -414,11 +414,7 @@
       "responses": [
         {
           "uuid": "03d56be4-b78b-4ade-b030-be771d15e0c8",
-<<<<<<< HEAD
           "body": "{\n  \"users\": [\n    {{#each (bodyRaw 'ids')}}\n      {\n        \"id\": {{this}},\n        \"username\": \"Johnsonman {{this}}\",\n        \"description\": \"fck the planet\",\n        \"avatar-id\": 1,\n        \"is-mate\": false, //true\n        \"is-deleted\": false\n      }{{#unless @last}},{{/unless}}\n    {{/each}}\n  ]\n}",
-=======
-          "body": "{\n  \"users\": [\n    {{#each (bodyRaw 'ids')}}\n      {\n        \"id\": {{this}},\n        \"username\": \"Johnsonman {{this}}\",\n        \"description\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae justo eget magna fermentum. Vestibulum mattis ullamcorper velit sed. Augue neque gravida in fermentum. Diam ut venenatis tellus in metus vulputate eu. Integer vitae justo eget magna fermentum iaculis eu non. Turpis massa tincidunt dui ut ornare lectus sit. Sagittis vitae et leo duis ut. Id venenatis a condimentum vitae sapien pellentesque habitant morbi. Varius morbi enim nunc faucibus a.\n          \n          Egestas pretium aenean pharetra magna ac placerat. Lacus luctus accumsan tortor posuere ac ut consequat semper. Sapien et ligula ullamcorper malesuada proin libero nunc consequat interdum. Tortor at auctor urna nunc. Leo integer malesuada nunc vel risus commodo viverra maecenas accumsan. Elit eget gravida cum sociis natoque penatibus et magnis. Purus gravida quis blandit turpis cursus in hac habitasse. Id consectetur purus ut faucibus pulvinar elementum. Augue neque gravida in fermentum. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec. Aliquam nulla facilisi cras fermentum odio eu feugiat pretium nibh. Habitasse platea dictumst quisque sagittis.\",\n        \"avatar-id\": 1,\n        \"is-mate\": false, //true\n        \"is-deleted\": false\n      }{{#unless @last}},{{/unless}}\n    {{/each}}\n  ]\n}",
->>>>>>> db0bcb5ceab74d0e249aa8f4a1d8e1f7a8503778
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -618,11 +614,7 @@
       "responses": [
         {
           "uuid": "4697efc8-de72-4758-b220-77fbcd874182",
-<<<<<<< HEAD
           "body": "{\n  \"chats\": [\n    {{#repeat (queryParam 'count')}}//(queryParam 'count')\n    {\n      \"id\": {{add @index (queryParam 'offset')}},\n      \"user-id\": {{add (add @index (queryParam 'offset')) 1}},\n      \"new-message-count\": {{int 0 1000}},\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\",\n        \"time\": 1700591740000,\n        \"user-id\": 0\n      }\n    }\n    {{/repeat}}\n  ]\n}",
-=======
-          "body": "{\n  \"chats\": [\n    {{#repeat (queryParam 'count')}}\n    {\n      \"id\": {{add @index (queryParam 'offset')}},\n      \"user-id\": {{add (add @index (queryParam 'offset')) 1}},\n      \"new-message-count\": {{int 0 1000}},\n      \"last-message\": {\n        \"id\": 0,\n        \"text\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\",\n        \"time\": 1700591740000,\n        \"user-id\": 0\n      }\n    }\n    {{/repeat}}\n  ]\n}",
->>>>>>> db0bcb5ceab74d0e249aa8f4a1d8e1f7a8503778
           "latency": 0,
           "statusCode": 200,
           "label": "Note: chats have to be sorted by a last message timestamp;",
@@ -1144,7 +1136,7 @@
       "responses": [
         {
           "uuid": "3b9502f7-b7e7-48e3-a33a-acd4932b4e4a",
-          "body": "{}",
+          "body": "{\n  \"id\": 1\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
