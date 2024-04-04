@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq._common.model.login.LoginContext
-import com.qubacy.geoqq._common.model.password.PasswordContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login.LoginValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
@@ -27,9 +27,6 @@ open class LoginViewModel @Inject constructor(
 ) {
     companion object {
         const val TAG = "LoginViewModel"
-
-        val LOGIN_REGEX = LoginContext.REGEX
-        val PASSWORD_REGEX = PasswordContext.REGEX
     }
 
     override fun generateDefaultUiState(): LoginUiState {
@@ -68,11 +65,19 @@ open class LoginViewModel @Inject constructor(
     }
 
     open fun isLoginValid(login: String): Boolean {
-        return LOGIN_REGEX.matches(login)
+        return LoginValidator().isValid(login)
     }
 
     open fun isPasswordValid(password: String): Boolean {
-        return PASSWORD_REGEX.matches(password)
+        return PasswordValidator().isValid(password)
+    }
+
+    open fun isSignInDataValid(login: String, password: String): Boolean {
+        return true
+    }
+
+    open fun isSignUpDataValid(login: String, password: String, passwordAgain: String): Boolean {
+        return (password == passwordAgain)
     }
 
     open fun signIn() {

@@ -14,15 +14,18 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
@@ -36,6 +39,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme.AboutMeValidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -73,9 +77,26 @@ class MyProfileFragment(
         setupTopBarMenu()
         runPermissionCheck<MyProfileFragment>()
 
+        mSnackbarAnchorView = mBinding.fragmentMyProfileButtonUpdate
+
+        initUiControls()
+    }
+
+    private fun initUiControls() {
         mBinding.fragmentMyProfileButtonAvatar.setOnClickListener {
             onUpdateAvatarButtonClicked()
         }
+        mBinding.fragmentMyProfileInputAboutMe.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputAboutMe, mBinding.fragmentMyProfileInputWrapperAboutMe))
+        mBinding.fragmentMyProfileInputPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputPassword, mBinding.fragmentMyProfileInputWrapperPassword))
+        mBinding.fragmentMyProfileInputNewPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputNewPassword, mBinding.fragmentMyProfileInputWrapperNewPassword))
+        mBinding.fragmentMyProfileInputNewPasswordAgain.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputNewPasswordAgain,
+            mBinding.fragmentMyProfileInputWrapperNewPasswordAgain
+        ))
+
         mBinding.fragmentMyProfileButtonUpdate.setOnClickListener {
             onUpdateProfileButtonClicked()
         }
@@ -187,16 +208,12 @@ class MyProfileFragment(
     private fun processUpdateMyProfileOperation(
         updateMyProfileOperation: UpdateMyProfileUiOperation
     ) {
-        // todo: implement..
-
-
+        onPopupMessageOccurred(R.string.fragment_my_profile_snackbar_message_profile_updated)
     }
 
     private fun processDeleteMyProfileOperation(
         deleteMyProfileUiOperation: DeleteMyProfileUiOperation
     ) {
-        // todo: implement..
-
         navigateToLogin()
     }
 
@@ -339,11 +356,48 @@ class MyProfileFragment(
     private fun launchUpdateProfile() {
         val inputData = getUpdateData()
 
+        if (!validateInputs(inputData)) return
         if (!mModel.isUpdateDataValid(inputData))
             return mModel.retrieveError(MyProfileErrorType.INVALID_UPDATE_DATA)
 
         mModel.updateMyProfile(inputData)
         clearInputsAfterUpdate()
+    }
+
+    private fun validateInputs(inputData: MyProfileInputData): Boolean {
+        var areValid = true
+
+        if (inputData.aboutMe != null && !AboutMeValidator().isValid(inputData.aboutMe)) {
+            mBinding.fragmentMyProfileInputWrapperAboutMe.error =
+                getString(R.string.fragment_my_profile_input_error_about_me)
+
+            areValid = false
+        }
+
+        val passwordValidator = PasswordValidator()
+
+        if (inputData.password != null && !passwordValidator.isValid(inputData.password)) {
+            mBinding.fragmentMyProfileInputWrapperPassword.error =
+                getString(R.string.fragment_input_error_password)
+
+            areValid = false
+        }
+        if (inputData.newPassword != null && !passwordValidator.isValid(inputData.newPassword)) {
+            mBinding.fragmentMyProfileInputWrapperNewPassword.error =
+                getString(R.string.fragment_input_error_password)
+
+            areValid = false
+        }
+        if (inputData.newPasswordAgain != null
+         && !passwordValidator.isValid(inputData.newPasswordAgain)
+        ) {
+            mBinding.fragmentMyProfileInputWrapperNewPasswordAgain.error =
+                getString(R.string.fragment_input_error_password)
+
+            areValid = false
+        }
+
+        return areValid
     }
 
     private fun clearInputsAfterUpdate() {

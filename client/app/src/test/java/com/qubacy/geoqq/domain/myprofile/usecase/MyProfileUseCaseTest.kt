@@ -16,11 +16,14 @@ import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
+import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.logout.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -34,6 +37,8 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     override val rule = RuleChain
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
+
+    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
 
     private var mGetMyProfile: GetMyProfileDataResult? = null
 
@@ -84,13 +89,21 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             }
         }
 
-        return superRepositories.plus(myProfileDataRepositoryMock)
+        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+
+        return superRepositories.plus(
+            listOf(
+                myProfileDataRepositoryMock,
+                mTokenDataRepositoryMockContainer.tokenDataRepositoryMock
+            )
+        )
     }
 
     override fun initUseCase(repositories: List<DataRepository>) {
         mUseCase = MyProfileUseCase(
             repositories[0] as ErrorDataRepository,
-            repositories[1] as MyProfileDataRepository
+            repositories[1] as MyProfileDataRepository,
+            repositories[2] as TokenDataRepository
         )
     }
 
@@ -219,6 +232,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             val result = awaitItem()
 
             Assert.assertTrue(mDeleteMyProfileCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.clearTokensCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(DeleteMyProfileDomainResult::class, result::class)
 
@@ -227,6 +241,19 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             val gottenIsSuccessful = result.isSuccessful()
 
             Assert.assertEquals(expectedIsSuccessful, gottenIsSuccessful)
+        }
+    }
+
+    @Test
+    fun logoutTest() = runTest {
+        mUseCase.resultFlow.test {
+            mUseCase.logout()
+
+            val result = awaitItem()
+
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.clearTokensCallFlag)
+            Assert.assertTrue(result.isSuccessful())
+            Assert.assertEquals(LogoutDomainResult::class, result::class)
         }
     }
 }

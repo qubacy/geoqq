@@ -3,7 +3,6 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq._common.model.password.PasswordContext
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
@@ -38,9 +37,6 @@ open class MyProfileViewModel @Inject constructor(
 ) {
     companion object {
         const val TAG = "MyProfileViewModel"
-
-        val ABOUT_ME_REGEX = Regex("^.+\$")
-        val PASSWORD_REGEX = PasswordContext.REGEX
     }
 
     override fun generateDefaultUiState(): MyProfileUiState {
@@ -54,20 +50,8 @@ open class MyProfileViewModel @Inject constructor(
     fun isUpdateDataValid(updateData: MyProfileInputData): Boolean {
         if (updateData.isEmpty()) return false
 
-        if (updateData.aboutMe != null)
-            if (!ABOUT_ME_REGEX.matches(updateData.aboutMe)) return false
-
         if (updateData.password != null) {
-            if (!PASSWORD_REGEX.matches(updateData.password)) return false
-
-            if (updateData.newPassword.isNullOrEmpty()
-             || updateData.newPasswordAgain.isNullOrEmpty()
-            ) {
-                return false
-            }
-
             if (updateData.newPassword != updateData.newPasswordAgain) return false
-            if (!PASSWORD_REGEX.matches(updateData.newPassword)) return false
         }
 
         return true

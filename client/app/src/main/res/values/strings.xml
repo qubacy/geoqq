@@ -1,12 +1,17 @@
 <resources>
     <string name="app_name">GeoQQ</string>
 
+    <!-- Common: -->
+
+    <string name="fragment_input_error_password">Password has to consist of 8 or more characters!</string>
+
     <!--  Fragments:  -->
 
     <string name="fragment_login_text_logo_text">GeoQQ</string>
     <string name="fragment_login_text_input_login_hint_text">Login</string>
     <string name="fragment_login_text_input_password_hint_text">Password</string>
     <string name="fragment_login_text_input_repeat_password_hint_text">Password again</string>
+    <string name="fragment_login_input_error_login">Login has to consist at least 8 characters!</string>
 
     <string name="fragment_login_button_login_text_sign_in_mode">SIGN IN</string>
     <string name="fragment_login_button_login_text_sign_up_mode">SIGN UP</string>
@@ -25,6 +30,8 @@
     <string name="fragment_my_profile_input_new_password_again_hint_text">New password again</string>
     <string name="fragment_my_profile_text_hit_me_up_text">Anybody can hit me up</string>
     <string name="fragment_my_profile_dialog_request_message_delete_account">Do you actually want to delete your account?</string>
+    <string name="fragment_my_profile_snackbar_message_profile_updated">Your profile has been updated</string>
+    <string name="fragment_my_profile_input_error_about_me">About me has to contain any characters!</string>
 
     <!--  Components:  -->
 

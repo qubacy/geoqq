@@ -12,12 +12,15 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.graphics.Insets
 import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
@@ -26,6 +29,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.Login
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login.LoginValidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -66,15 +70,26 @@ class LoginFragment(
         super.onViewCreated(view, savedInstanceState)
 
         initViewValues()
+        initUiControls()
 
+        setupHeaderAnimation()
+    }
+
+    private fun initUiControls() {
+        mBinding.fragmentLoginTextInputLogin.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentLoginTextInputLogin, mBinding.fragmentLoginTextInputLoginWrapper))
+        mBinding.fragmentLoginTextInputPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentLoginTextInputPassword, mBinding.fragmentLoginTextInputPasswordWrapper))
+        mBinding.fragmentLoginTextInputRepeatPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
+            mBinding.fragmentLoginTextInputRepeatPassword,
+            mBinding.fragmentLoginTextInputRepeatPasswordWrapper
+        ))
         mBinding.fragmentLoginButtonLogin.apply {
             setOnClickListener { onLoginClicked() }
         }
         mBinding.fragmentLoginButtonChangeLoginType.apply {
             setOnClickListener { onChangeLoginTypeClicked() }
         }
-
-        setupHeaderAnimation()
     }
 
     override fun onStart() {
@@ -126,27 +141,52 @@ class LoginFragment(
         val login = mBinding.fragmentLoginTextInputLogin.text.toString()
         val password = mBinding.fragmentLoginTextInputPassword.text.toString()
 
-        if (!mModel.isLoginValid(login) || !mModel.isPasswordValid(password)) {
-            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
-
-            return
-        }
-
         when (mModel.uiState.loginMode) {
             LoginUiState.LoginMode.SIGN_IN -> launchSignIn(login, password)
             LoginUiState.LoginMode.SIGN_UP -> launchSignUp(login, password)
         }
     }
 
+    private fun validateCommonInputs(login: String, password: String): Boolean {
+        var areValid = true
+
+        if (!LoginValidator().isValid(login)) {
+            mBinding.fragmentLoginTextInputLoginWrapper.error =
+                getString(R.string.fragment_login_input_error_login)
+
+            areValid = false
+        }
+        if (!PasswordValidator().isValid(password)) {
+            mBinding.fragmentLoginTextInputPasswordWrapper.error =
+                getString(R.string.fragment_input_error_password)
+
+            areValid = false
+        }
+
+        return areValid
+    }
+
     private fun launchSignIn(login: String, password: String) {
+        if (!validateSignInInputs(login, password)) return
+        if (!mModel.isSignInDataValid(login, password)) {
+            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
+
+            return
+        }
+
         mModel.signIn(login, password)
         clearLoginInputs()
     }
 
-    private fun launchSignUp(login: String, password: String) {
-        val repeatPassword = mBinding.fragmentLoginTextInputRepeatPassword.text.toString()
+    private fun validateSignInInputs(login: String, password: String): Boolean {
+        return validateCommonInputs(login, password)
+    }
 
-        if (repeatPassword != password) {
+    private fun launchSignUp(login: String, password: String) {
+        val passwordAgain = mBinding.fragmentLoginTextInputRepeatPassword.text.toString()
+
+        if (!validateSignUpInputs(login, password, passwordAgain)) return
+        if (!mModel.isSignUpDataValid(login, password, passwordAgain)) {
             mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
 
             return
@@ -154,6 +194,23 @@ class LoginFragment(
 
         mModel.signUp(login, password)
         clearLoginInputs()
+    }
+
+    private fun validateSignUpInputs(
+        login: String,
+        password: String,
+        passwordAgain: String
+    ): Boolean {
+        var areValid = validateCommonInputs(login, password)
+
+        if (!PasswordValidator().isValid(passwordAgain)) {
+            mBinding.fragmentLoginTextInputRepeatPasswordWrapper.error =
+                getString(R.string.fragment_input_error_password)
+
+            areValid = false
+        }
+
+        return areValid
     }
 
     private fun clearLoginInputs() {
