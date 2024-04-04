@@ -27,6 +27,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     private var mErrorDialog: AlertDialog? = null
     private var mRequestDialog: AlertDialog? = null
 
+    private var mMessageSnackbar: Snackbar? = null
     protected var mSnackbarAnchorView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +66,8 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
 
     override fun onStop() {
         mErrorDialog?.dismiss()
+        mRequestDialog?.dismiss()
+        mMessageSnackbar?.dismiss()
 
         super.onStop()
     }
@@ -80,8 +83,10 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         message: String,
         duration: Int = Toast.LENGTH_SHORT
     ) {
-        Snackbar.make(requireContext(), requireView(), message, duration)
-            .setAnchorView(mSnackbarAnchorView).show()
+        mMessageSnackbar = Snackbar.make(requireContext(), requireView(), message, duration)
+            .setAnchorView(mSnackbarAnchorView)
+
+        mMessageSnackbar!!.show()
     }
 
     fun onPopupMessageOccurred(

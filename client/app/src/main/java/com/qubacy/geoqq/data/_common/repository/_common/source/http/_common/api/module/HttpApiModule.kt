@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
-class HttpApiModule {
+object HttpApiModule {
     @Provides
     fun provideHttpClient(
         @ApplicationContext context: Context

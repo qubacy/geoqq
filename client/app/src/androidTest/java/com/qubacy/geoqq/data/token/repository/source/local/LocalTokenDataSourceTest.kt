@@ -30,7 +30,7 @@ class LocalTokenDataSourceTest {
 
         mTokenDataSource.saveTokens(expectedAccessToken, expectedRefreshToken)
 
-        val gottenAccessToken = mTokenDataSource.lastAccessToken
+        val gottenAccessToken = mTokenDataSource.getRefreshToken()
         val gottenRefreshToken = mTokenDataSource.getRefreshToken()
 
         Assert.assertEquals(expectedAccessToken, gottenAccessToken)
@@ -45,7 +45,7 @@ class LocalTokenDataSourceTest {
         mTokenDataSource.saveTokens(accessToken, refreshToken)
         mTokenDataSource.clearTokens()
 
-        val gottenAccessToken = mTokenDataSource.lastAccessToken
+        val gottenAccessToken = mTokenDataSource.getAccessToken()
         val gottenRefreshToken = mTokenDataSource.getRefreshToken()
 
         Assert.assertTrue(gottenAccessToken.isNullOrEmpty())

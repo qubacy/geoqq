@@ -35,6 +35,8 @@ class MyProfileUseCase @Inject constructor(
         executeLogic({
             mMyProfileDataRepository.updateMyProfile(myProfileUpdateData.toDataMyProfileUpdateData())
 
+            if (myProfileUpdateData.security != null) logout()
+
             mResultFlow.emit(UpdateMyProfileDomainResult())
         }) { UpdateMyProfileDomainResult(error = it) }
     }
