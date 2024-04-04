@@ -34,6 +34,7 @@ class MyProfileUseCase @Inject constructor(
     fun updateMyProfile(myProfileUpdateData: MyProfileUpdateData) {
         executeLogic({
             mMyProfileDataRepository.updateMyProfile(myProfileUpdateData.toDataMyProfileUpdateData())
+
             mResultFlow.emit(UpdateMyProfileDomainResult())
         }) { UpdateMyProfileDomainResult(error = it) }
     }

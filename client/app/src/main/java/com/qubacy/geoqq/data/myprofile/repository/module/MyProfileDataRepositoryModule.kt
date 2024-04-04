@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,14 +21,16 @@ object MyProfileDataRepositoryModule {
         tokenDataRepository: TokenDataRepository,
         imageDataRepository: ImageDataRepository,
         localMyProfileDataSource: LocalMyProfileDataSource,
-        httpMyProfileDataSource: HttpMyProfileDataSource
+        httpMyProfileDataSource: HttpMyProfileDataSource,
+        httpClient: OkHttpClient
     ): MyProfileDataRepository {
         return MyProfileDataRepository(
             mErrorDataRepository = errorDataRepository,
             mTokenDataRepository = tokenDataRepository,
             mImageDataRepository = imageDataRepository,
             mLocalMyProfileDataSource = localMyProfileDataSource,
-            mHttpMyProfileDataSource = httpMyProfileDataSource
+            mHttpMyProfileDataSource = httpMyProfileDataSource,
+            mHttpClient = httpClient
         )
     }
 }

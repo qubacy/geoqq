@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,14 +21,16 @@ object UserDataRepositoryModule {
         tokenDataRepository: TokenDataRepository,
         imageDataRepository: ImageDataRepository,
         localUserDataSource: LocalUserDataSource,
-        httpUserDataSource: HttpUserDataSource
+        httpUserDataSource: HttpUserDataSource,
+        httpClient: OkHttpClient
     ): UserDataRepository {
         return UserDataRepository(
             mErrorDataRepository = errorDataRepository,
             mTokenDataRepository = tokenDataRepository,
             mImageDataRepository = imageDataRepository,
             mLocalUserDataSource = localUserDataSource,
-            mHttpUserDataSource = httpUserDataSource
+            mHttpUserDataSource = httpUserDataSource,
+            mHttpClient = httpClient
         )
     }
 }

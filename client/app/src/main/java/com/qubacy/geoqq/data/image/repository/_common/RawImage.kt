@@ -33,5 +33,5 @@ fun GetImageResponse.toRawImage(): RawImage {
 fun RawImage.toUploadImageRequest(): UploadImageRequestImage {
     val extension = ImageExtension.getIdByFormat(extension)
 
-    return UploadImageRequestImage(extension, content.toBase64())
+    return UploadImageRequestImage(extension, content.toBase64(this.extension))
 }

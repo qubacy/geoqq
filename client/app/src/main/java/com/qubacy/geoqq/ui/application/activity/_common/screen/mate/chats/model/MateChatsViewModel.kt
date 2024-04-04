@@ -68,13 +68,15 @@ open class MateChatsViewModel @Inject constructor(
 
     private fun processGetChatChunkDomainResult(
         getChatChunkResult: GetChatChunkDomainResult
-    ): UiOperation {
+    ): UiOperation? {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextChatChunk = false
 
         if (!getChatChunkResult.isSuccessful())
             return processErrorDomainResult(getChatChunkResult.error!!)
+
+        if (getChatChunkResult.chunk == null) return null
 
         changeLastChatChunkIndex(mLastChatChunkIndex + 1)
 

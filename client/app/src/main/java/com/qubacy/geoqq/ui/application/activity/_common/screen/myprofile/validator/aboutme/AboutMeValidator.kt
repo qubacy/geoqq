@@ -8,6 +8,6 @@ class AboutMeValidator : Validator<String> {
     }
 
     override fun isValid(value: String): Boolean {
-        return REGEX.matches(value)
+        return REGEX.containsMatchIn(value)
     }
 }

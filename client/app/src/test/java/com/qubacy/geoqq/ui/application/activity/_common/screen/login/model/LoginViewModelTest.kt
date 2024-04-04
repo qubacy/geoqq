@@ -81,48 +81,41 @@ class LoginViewModelTest(
     }
 
     @Test
-    fun isLoginValidTest() {
+    fun isSignInDataValidTest() {
         class TestCase(
             val login: String,
+            val password: String,
             val isValid: Boolean
         )
 
         val testCases = listOf(
-            TestCase("", false),
-            TestCase("        ", false),
-            TestCase(" testtest", false),
-            TestCase("test test", false),
-            TestCase("testtest ", false),
-            TestCase("test", false),
-            TestCase("testtest", true),
+            TestCase("testtest", "testtest", true)
         )
 
         for (testCase in testCases) {
-            val gottenIsValid = mModel.isLoginValid(testCase.login)
+            val gottenIsValid = mModel.isSignInDataValid(testCase.login, testCase.password)
 
             Assert.assertEquals(testCase.isValid, gottenIsValid)
         }
     }
 
     @Test
-    fun isPasswordValidTest() {
+    fun isSignUpDataValidTest() {
         class TestCase(
+            val login: String,
             val password: String,
+            val passwordAgain: String,
             val isValid: Boolean
         )
 
         val testCases = listOf(
-            TestCase("", false),
-            TestCase("        ", false),
-            TestCase(" testtest", false),
-            TestCase("test test", false),
-            TestCase("testtest ", false),
-            TestCase("test", false),
-            TestCase("testtest", true),
+            TestCase("testtest", "testtest", "testtest2", false),
+            TestCase("testtest", "testtest", "testtest", true),
         )
 
         for (testCase in testCases) {
-            val gottenIsValid = mModel.isPasswordValid(testCase.password)
+            val gottenIsValid = mModel.isSignUpDataValid(
+                testCase.login, testCase.password, testCase.passwordAgain)
 
             Assert.assertEquals(testCase.isValid, gottenIsValid)
         }

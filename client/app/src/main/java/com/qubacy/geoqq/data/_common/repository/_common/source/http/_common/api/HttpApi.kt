@@ -17,6 +17,7 @@ import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class HttpApi {
     class LanguageHeaderInterceptor() : Interceptor {
@@ -40,14 +41,15 @@ class HttpApi {
     companion object {
         const val TAG = "HttpApi"
 
-        const val BASE_URL = "https://efe1-5-101-44-221.ngrok-free.app"//"http://10.0.2.2:3001"
+        const val BASE_URL = "http://10.0.2.2:3001"
     }
 
     /**
      * NOTE: uncomment the logging interceptor ONLY for debugging purposes.
      */
-    private val mOkHttpClient = OkHttpClient.Builder()
+    val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())
+        .callTimeout(30, TimeUnit.SECONDS)
 //        .addInterceptor {
 //            val request = it.request()
 //            val response = it.proceed(request)
@@ -64,7 +66,7 @@ class HttpApi {
 
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .client(mOkHttpClient)
+        .client(okHttpClient)
         .addConverterFactory(MoshiConverterFactory.create(mMoshi).asLenient())
         .build()
 

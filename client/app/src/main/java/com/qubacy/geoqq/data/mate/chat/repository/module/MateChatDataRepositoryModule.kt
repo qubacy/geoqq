@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,14 +21,16 @@ object MateChatDataRepositoryModule {
         tokenDataRepository: TokenDataRepository,
         userDataRepository: UserDataRepository,
         localMateChatDataSource: LocalMateChatDataSource,
-        httpMateChatDataSource: HttpMateChatDataSource
+        httpMateChatDataSource: HttpMateChatDataSource,
+        httpClient: OkHttpClient
     ): MateChatDataRepository {
         return MateChatDataRepository(
             mErrorDataRepository = errorDataRepository,
             mTokenDataRepository = tokenDataRepository,
             mUserDataRepository = userDataRepository,
             mLocalMateChatDataSource = localMateChatDataSource,
-            mHttpMateChatDataSource = httpMateChatDataSource
+            mHttpMateChatDataSource = httpMateChatDataSource,
+            mHttpClient = httpClient
         )
     }
 }

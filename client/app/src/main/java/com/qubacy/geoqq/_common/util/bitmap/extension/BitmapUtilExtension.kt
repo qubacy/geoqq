@@ -1,13 +1,13 @@
 package com.qubacy.geoqq._common.util.bitmap.extension
 
 import android.graphics.Bitmap
-import java.nio.ByteBuffer
+import android.graphics.Bitmap.CompressFormat
+import java.io.ByteArrayOutputStream
 
-fun Bitmap.toByteArray(): ByteArray {
-    val size = rowBytes * height
-    val byteBuffer = ByteBuffer.allocate(size)
+fun Bitmap.toByteArray(compressFormat: CompressFormat): ByteArray {
+    val byteArrayStream = ByteArrayOutputStream()
 
-    copyPixelsToBuffer(byteBuffer)
+    compress(compressFormat, 100, byteArrayStream)
 
-    return byteBuffer.array()
+    return byteArrayStream.toByteArray()
 }

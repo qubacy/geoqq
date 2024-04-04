@@ -8,6 +8,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -16,12 +17,14 @@ object TokenDataRepositoryModule {
     fun provideTokenDataRepository(
         errorDataRepository: ErrorDataRepository,
         localTokenDataSource: LocalTokenDataSource,
-        httpTokenDataSource: HttpTokenDataSource
+        httpTokenDataSource: HttpTokenDataSource,
+        httpClient: OkHttpClient
     ): TokenDataRepository {
         return TokenDataRepository(
             errorDataRepository,
             localTokenDataSource,
-            httpTokenDataSource
+            httpTokenDataSource,
+            httpClient
         )
     }
 }

@@ -18,9 +18,7 @@ import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.response.DeleteMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
-import com.qubacy.geoqq.data.myprofile.repository.source.http.response.UpdateMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
@@ -70,8 +68,6 @@ class MyProfileDataRepositoryTest(
     private var mLocalSourceResetMyProfileCallFlag = false
 
     private var mHttpSourceGetMyProfile: GetMyProfileResponse? = null
-    private var mHttpSourceUpdateMyProfile: UpdateMyProfileResponse? = null
-    private var mHttpSourceDeleteMyProfile: DeleteMyProfileResponse? = null
 
     private var mHttpSourceGetMyProfileResponseCallFlag = false
     private var mHttpSourceUpdateMyProfileResponseCallFlag = false
@@ -94,8 +90,6 @@ class MyProfileDataRepositoryTest(
         mLocalSourceResetMyProfileCallFlag = false
 
         mHttpSourceGetMyProfile = null
-        mHttpSourceUpdateMyProfile = null
-        mHttpSourceDeleteMyProfile = null
 
         mHttpSourceGetMyProfileResponseCallFlag = false
         mHttpSourceUpdateMyProfileCallFlag = false
@@ -159,14 +153,16 @@ class MyProfileDataRepositoryTest(
 
         Mockito.`when`(updateMyProfileResponseMock.body()).thenAnswer {
             mHttpSourceUpdateMyProfileResponseCallFlag = true
-            mHttpSourceUpdateMyProfile
+
+            Unit
         }
 
         val deleteMyProfileResponseMock = Mockito.mock(Response::class.java)
 
         Mockito.`when`(deleteMyProfileResponseMock.body()).thenAnswer {
             mHttpSourceDeleteMyProfileResponseCallFlag = true
-            mHttpSourceDeleteMyProfile
+
+            Unit
         }
 
         val getMyProfileCallMock = Mockito.mock(Call::class.java)
@@ -271,7 +267,6 @@ class MyProfileDataRepositoryTest(
         val myProfileUpdateData = DEFAULT_DATA_MY_PROFILE_UPDATE_DATA
             .copy(avatarUri = null)
 
-        mHttpSourceUpdateMyProfile = UpdateMyProfileResponse()
         mLocalSourceGetMyProfile = myProfileUpdateData
             .toMyProfileDataStoreModel(DEFAULT_DATA_MY_PROFILE.toMyProfileDataStoreModel())
 
@@ -288,7 +283,6 @@ class MyProfileDataRepositoryTest(
         val myProfileUpdateData = DEFAULT_DATA_MY_PROFILE_UPDATE_DATA.copy(avatarUri = avatar.uri)
 
         mImageDataRepositoryMockContainer.saveImage = DEFAULT_AVATAR
-        mHttpSourceUpdateMyProfile = UpdateMyProfileResponse()
         mLocalSourceGetMyProfile = myProfileUpdateData
             .toMyProfileDataStoreModel(DEFAULT_DATA_MY_PROFILE.toMyProfileDataStoreModel(), avatar)
 
@@ -302,8 +296,6 @@ class MyProfileDataRepositoryTest(
 
     @Test
     fun deleteMyProfileTest() = runTest {
-        mHttpSourceDeleteMyProfile = DeleteMyProfileResponse()
-
         mDataRepository.deleteMyProfile()
 
         Assert.assertTrue(mHttpSourceDeleteMyProfileCallFlag)

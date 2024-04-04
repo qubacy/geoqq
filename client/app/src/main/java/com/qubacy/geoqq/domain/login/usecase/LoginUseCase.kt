@@ -12,7 +12,7 @@ class LoginUseCase @Inject constructor(
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     fun signIn() {
         executeLogic({
-            mTokenDataRepository.getTokens()
+            mTokenDataRepository.signIn()
             mResultFlow.emit(SignedInDomainResult())
         }) { SignedInDomainResult(it) }
     }

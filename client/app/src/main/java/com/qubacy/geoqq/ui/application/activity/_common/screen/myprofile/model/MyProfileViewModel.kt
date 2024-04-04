@@ -52,6 +52,10 @@ open class MyProfileViewModel @Inject constructor(
 
         if (updateData.password != null) {
             if (updateData.newPassword != updateData.newPasswordAgain) return false
+
+        } else {
+            if (updateData.newPassword != null || updateData.newPasswordAgain != null)
+                return false
         }
 
         return true

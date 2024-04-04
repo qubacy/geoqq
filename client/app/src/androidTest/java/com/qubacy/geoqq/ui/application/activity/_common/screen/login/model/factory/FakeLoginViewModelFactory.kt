@@ -16,8 +16,12 @@ class FakeLoginViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val viewModelMock = super.create(modelClass) as LoginViewModel
 
-        Mockito.`when`(viewModelMock.isLoginValid(Mockito.anyString())).thenCallRealMethod()
-        Mockito.`when`(viewModelMock.isPasswordValid(Mockito.anyString())).thenCallRealMethod()
+        Mockito.`when`(viewModelMock.isSignInDataValid(
+            Mockito.anyString(), Mockito.anyString()
+        )).thenCallRealMethod()
+        Mockito.`when`(viewModelMock.isSignUpDataValid(
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyString()
+        )).thenCallRealMethod()
         Mockito.`when`(viewModelMock.setLoginMode(AnyMockUtil.anyObject())).thenAnswer {
             val loginMode = it.arguments[0] as LoginUiState.LoginMode
 

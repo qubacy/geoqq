@@ -29,10 +29,9 @@ class MateChatsUseCase(
             val count = DEFAULT_CHAT_CHUNK_SIZE
 
             val getChatsResult = mMateChatDataRepository.getChats(offset, count).await()
-                ?: return@executeLogic
 
-            val chats = getChatsResult.chats.map { it.toMateChat() }
-            val chatChunk = MateChatChunk(chunkIndex, chats)
+            val chats = getChatsResult?.chats?.map { it.toMateChat() }
+            val chatChunk = chats?.let { MateChatChunk(chunkIndex, chats)}
 
             mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk))
 

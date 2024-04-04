@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -31,6 +32,7 @@ class MateChatDataRepository @Inject constructor(
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateChatDataSource: LocalMateChatDataSource,
     private val mHttpMateChatDataSource: HttpMateChatDataSource,
+    private val mHttpClient: OkHttpClient
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     suspend fun getChats(offset: Int, count: Int): LiveData<GetChatsDataResult?> {
@@ -45,7 +47,8 @@ class MateChatDataRepository @Inject constructor(
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
-            val getChatsResponse = executeNetworkRequest(mErrorDataRepository, getChatsCall)
+            val getChatsResponse = executeNetworkRequest(
+                mErrorDataRepository, mHttpClient, getChatsCall)
 
             if (getChatsResponse.chats.isEmpty()) {
                 if (localDataChats.isNotEmpty()) return@launch

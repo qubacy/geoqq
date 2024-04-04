@@ -10,24 +10,27 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
-class MateMessageDataRepositoryModule {
+object MateMessageDataRepositoryModule {
     @Provides
     fun provideMateMessageDataRepository(
         errorDataRepository: ErrorDataRepository,
         tokenDataRepository: TokenDataRepository,
         userDataRepository: UserDataRepository,
         localMateMessageDataSource: LocalMateMessageDataSource,
-        httpMateMessageDataSource: HttpMateMessageDataSource
+        httpMateMessageDataSource: HttpMateMessageDataSource,
+        httpClient: OkHttpClient
     ): MateMessageDataRepository {
         return MateMessageDataRepository(
             mErrorDataRepository = errorDataRepository,
             mTokenDataRepository = tokenDataRepository,
             mUserDataRepository = userDataRepository,
             mLocalMateMessageDataSource = localMateMessageDataSource,
-            mHttpMateMessageDataSource = httpMateMessageDataSource
+            mHttpMateMessageDataSource = httpMateMessageDataSource,
+            mHttpClient = httpClient
         )
     }
 }

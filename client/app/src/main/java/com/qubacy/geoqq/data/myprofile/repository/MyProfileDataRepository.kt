@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -34,7 +35,8 @@ class MyProfileDataRepository @Inject constructor(
     private val mTokenDataRepository: TokenDataRepository,
     private val mImageDataRepository: ImageDataRepository,
     private val mLocalMyProfileDataSource: LocalMyProfileDataSource,
-    private val mHttpMyProfileDataSource: HttpMyProfileDataSource
+    private val mHttpMyProfileDataSource: HttpMyProfileDataSource,
+    private val mHttpClient: OkHttpClient
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     suspend fun getMyProfile(): LiveData<GetMyProfileDataResult> {
         val resultLiveData = MutableLiveData<GetMyProfileDataResult>()
@@ -51,7 +53,8 @@ class MyProfileDataRepository @Inject constructor(
             val accessToken = mTokenDataRepository.getTokens().accessToken
 
             val myProfileCall = mHttpMyProfileDataSource.getMyProfile(accessToken)
-            val myProfileResponse = executeNetworkRequest(mErrorDataRepository, myProfileCall)
+            val myProfileResponse = executeNetworkRequest(
+                mErrorDataRepository, mHttpClient, myProfileCall)
 
             val httpDataMyProfile = resolveGetMyProfileResponse(myProfileResponse)
 
@@ -79,7 +82,7 @@ class MyProfileDataRepository @Inject constructor(
             .toUpdateMyProfileRequest(accessToken, avatar?.id)
         val updateMyProfileCall = mHttpMyProfileDataSource.updateMyProfile(updateMyProfileRequest)
         val updateMyProfileResponse = executeNetworkRequest(
-            mErrorDataRepository, updateMyProfileCall)
+            mErrorDataRepository, mHttpClient, updateMyProfileCall)
 
         val myProfileToSave = getUpdatedMyProfileToSave(updateProfileData)
 
@@ -92,7 +95,7 @@ class MyProfileDataRepository @Inject constructor(
         val deleteMyProfileRequest = DeleteMyProfileRequest(accessToken)
         val deleteMyProfileCall = mHttpMyProfileDataSource.deleteMyProfile(deleteMyProfileRequest)
         val deleteMyProfileResponse = executeNetworkRequest(
-            mErrorDataRepository, deleteMyProfileCall)
+            mErrorDataRepository, mHttpClient, deleteMyProfileCall)
 
         mLocalMyProfileDataSource.resetMyProfile()
     }

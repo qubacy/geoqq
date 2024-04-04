@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -18,13 +19,15 @@ object ImageDataRepositoryModule {
         errorDataRepository: ErrorDataRepository,
         tokenDataRepository: TokenDataRepository,
         localImageDataSource: LocalImageDataSource,
-        httpImageDataSource: HttpImageDataSource
+        httpImageDataSource: HttpImageDataSource,
+        httpClient: OkHttpClient
     ): ImageDataRepository {
         return ImageDataRepository(
             errorDataRepository,
             tokenDataRepository,
             localImageDataSource,
-            httpImageDataSource
+            httpImageDataSource,
+            httpClient
         )
     }
 }

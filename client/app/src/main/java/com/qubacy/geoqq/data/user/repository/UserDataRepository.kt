@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -35,7 +36,8 @@ class UserDataRepository @Inject constructor(
     private val mTokenDataRepository: TokenDataRepository,
     private val mImageDataRepository: ImageDataRepository,
     private val mLocalUserDataSource: LocalUserDataSource,
-    private val mHttpUserDataSource: HttpUserDataSource
+    private val mHttpUserDataSource: HttpUserDataSource,
+    private val mHttpClient: OkHttpClient
     // todo: add a websocket source..
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
@@ -56,7 +58,8 @@ class UserDataRepository @Inject constructor(
 
             val getUsersRequest = GetUsersRequest(accessToken, userIds)
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
-            val getUsersResponse = executeNetworkRequest(mErrorDataRepository, getUsersCall)
+            val getUsersResponse = executeNetworkRequest(
+                mErrorDataRepository, mHttpClient, getUsersCall)
 
             if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
                 throw ErrorAppException(mErrorDataRepository

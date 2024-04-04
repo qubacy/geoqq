@@ -54,7 +54,7 @@ class MateChatsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback { }
+        requireActivity().onBackPressedDispatcher.addCallback(owner = this) { }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
