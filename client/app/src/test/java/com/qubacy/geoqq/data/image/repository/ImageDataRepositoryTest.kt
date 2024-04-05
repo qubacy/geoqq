@@ -2,11 +2,11 @@ package com.qubacy.geoqq.data.image.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Im
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.BitmapFactoryMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image._common.util.bitmap.extension.toBase64
@@ -40,6 +40,7 @@ class ImageDataRepositoryTest(
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceLoadImage: ImageEntity? = null
     private var mLocalSourceLoadImages: List<ImageEntity>? = null
@@ -98,6 +99,7 @@ class ImageDataRepositoryTest(
     private fun initImageDataRepository() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localImageDataSourceMock = mockLocalImageDataSource()
         val httpImageDataSourceMock = mockHttpImageDataSource()
@@ -106,7 +108,8 @@ class ImageDataRepositoryTest(
             mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
             mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             localImageDataSourceMock,
-            httpImageDataSourceMock
+            httpImageDataSourceMock,
+            mOkHttpClientMockContainer.httpClient
         )
     }
 
@@ -274,11 +277,13 @@ class ImageDataRepositoryTest(
         Assert.assertEquals(expectedDataImages, gottenDataImages)
     }
 
+    @Deprecated("Fix this one")
     @Test
     fun saveImageTest() = runTest {
         val bitmapMock = Mockito.mock(Bitmap::class.java)
 
-        Mockito.`when`(bitmapMock.toBase64()).thenAnswer { String() }
+        // todo: .toBase64() cannot be mocked:
+        Mockito.`when`(bitmapMock.toBase64(AnyMockUtil.anyObject())).thenAnswer { String() }
 
         val id = 0L
         val uriMock = Mockito.mock(Uri::class.java)

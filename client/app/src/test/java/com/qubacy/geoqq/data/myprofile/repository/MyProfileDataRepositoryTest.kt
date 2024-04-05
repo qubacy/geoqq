@@ -7,6 +7,7 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
@@ -60,6 +61,7 @@ class MyProfileDataRepositoryTest(
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mImageDataRepositoryMockContainer: ImageDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceGetMyProfile: MyProfileDataStoreModel? = null
 
@@ -103,6 +105,7 @@ class MyProfileDataRepositoryTest(
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mImageDataRepositoryMockContainer = ImageDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localMyProfileDataSourceMock = mockLocalMyProfileDataSource()
         val httpMyProfileDataSourceMock = mockHttpMyProfileDataSource()
@@ -112,7 +115,8 @@ class MyProfileDataRepositoryTest(
             mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
             mLocalMyProfileDataSource = localMyProfileDataSourceMock,
-            mHttpMyProfileDataSource = httpMyProfileDataSourceMock
+            mHttpMyProfileDataSource = httpMyProfileDataSourceMock,
+            mHttpClient = mOkHttpClientMockContainer.httpClient
         )
     }
 

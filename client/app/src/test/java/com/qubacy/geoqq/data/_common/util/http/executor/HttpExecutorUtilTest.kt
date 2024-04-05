@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.data._common.util.http.executor
 
-import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
+import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.Buffer
@@ -28,9 +28,15 @@ class HttpExecutorUtilTest {
         val DEFAULT_ERROR = TestError.normal
     }
 
-    private lateinit var mErrorDataRepositoryMock: ErrorDataRepository
+    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
     private lateinit var mCallMock: Call<TestResponseBody>
 
+    private var mRequestFails: Boolean? = null
+    private var mErrorBody: ResponseBody? = null
+    private var mResponseBody: TestResponseBody? = null
+
+    private var mCancelAllCallFlag = false
     private var mResponseBodyCallFlag = false
     private var mResponseBodyErrorBodyCallFlag = false
     private var mCallExecuteCallFlag = false
@@ -42,49 +48,33 @@ class HttpExecutorUtilTest {
 
     @After
     fun clear() {
+        mRequestFails = null
+        mErrorBody = null
+        mResponseBody = null
+
+        mCancelAllCallFlag = false
         mResponseBodyCallFlag = false
         mResponseBodyErrorBodyCallFlag = false
         mCallExecuteCallFlag = false
     }
 
-    private fun initExecuteNetworkRequestContext(
-        getErrorResult: Error = DEFAULT_ERROR,
-        requestFails: Boolean = false,
-        errorBody: ResponseBody? = null,
-        body: TestResponseBody? = TestResponseBody()
-    ) {
-        initErrorDataRepositoryMock(getErrorResult)
-        initCallMock(requestFails, errorBody, body)
+    private fun initExecuteNetworkRequestContext() {
+        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
+
+        initCallMock()
     }
 
-    private fun initErrorDataRepositoryMock(
-        getErrorResult: Error
-    ) {
-        val errorDataRepositoryMock = Mockito.mock(ErrorDataRepository::class.java)
-
-        Mockito.`when`(errorDataRepositoryMock.getError(Mockito.anyLong())).thenAnswer {
-            getErrorResult
-        }
-
-        mErrorDataRepositoryMock = errorDataRepositoryMock
-    }
-
-    private fun initCallMock(
-        requestFails: Boolean,
-        errorBody: ResponseBody?,
-        body: TestResponseBody?
-    ) {
+    private fun initCallMock() {
         val responseMock = Mockito.mock(Response::class.java)
 
         Mockito.`when`(responseMock.body()).thenAnswer {
             mResponseBodyCallFlag = true
-
-            body
+            mResponseBody
         }
         Mockito.`when`(responseMock.errorBody()).thenAnswer {
             mResponseBodyErrorBodyCallFlag = true
-
-            errorBody
+            mErrorBody
         }
 
         val callMock = Mockito.mock(Call::class.java)
@@ -92,7 +82,7 @@ class HttpExecutorUtilTest {
         Mockito.`when`(callMock.execute()).thenAnswer {
             mCallExecuteCallFlag = true
 
-            if (requestFails) throw IllegalStateException()
+            if (mRequestFails == true) throw IllegalStateException()
 
             responseMock
         }
@@ -102,16 +92,23 @@ class HttpExecutorUtilTest {
 
     @Test
     fun executeNetworkRequestWhenRequestFailsTest() {
-        initExecuteNetworkRequestContext(requestFails = true)
+        val expectedError = DEFAULT_ERROR
+
+        mRequestFails = true
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         try {
-            executeNetworkRequest(mErrorDataRepositoryMock, mCallMock)
+            executeNetworkRequest(
+                mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+                mOkHttpClientMockContainer.httpClient,
+                mCallMock
+            )
 
             throw IllegalStateException()
 
         } catch (e: ErrorAppException) {
             Assert.assertTrue(mCallExecuteCallFlag)
-            Assert.assertEquals(DEFAULT_ERROR, e.error)
+            Assert.assertEquals(expectedError, e.error)
         }
     }
 
@@ -119,17 +116,24 @@ class HttpExecutorUtilTest {
     fun executeNetworkRequestWhenErrorResponseTest() {
         val errorBody = TestErrorResponseBody()
 
-        initExecuteNetworkRequestContext(errorBody = errorBody)
+        val expectedError = DEFAULT_ERROR
+
+        mErrorBody = errorBody
+        mErrorDataRepositoryMockContainer.getError = expectedError
 
         try {
-            executeNetworkRequest(mErrorDataRepositoryMock, mCallMock)
+            executeNetworkRequest(
+                mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+                mOkHttpClientMockContainer.httpClient,
+                mCallMock
+            )
 
             throw IllegalStateException()
 
         } catch (e: ErrorAppException) {
             Assert.assertTrue(mCallExecuteCallFlag)
             Assert.assertTrue(mResponseBodyErrorBodyCallFlag)
-            Assert.assertEquals(DEFAULT_ERROR, e.error)
+            Assert.assertEquals(expectedError, e.error)
         }
     }
 
@@ -137,9 +141,13 @@ class HttpExecutorUtilTest {
     fun executeNetworkRequestWhenSuccessfulResponseTest() {
         val expectedResponseBody = TestResponseBody()
 
-        initExecuteNetworkRequestContext(body = expectedResponseBody)
+        mResponseBody = expectedResponseBody
 
-        val gottenResponseBody = executeNetworkRequest(mErrorDataRepositoryMock, mCallMock)
+        val gottenResponseBody = executeNetworkRequest(
+            mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
+            mOkHttpClientMockContainer.httpClient,
+            mCallMock
+        )
 
         Assert.assertTrue(mCallExecuteCallFlag)
         Assert.assertTrue(mResponseBodyErrorBodyCallFlag)

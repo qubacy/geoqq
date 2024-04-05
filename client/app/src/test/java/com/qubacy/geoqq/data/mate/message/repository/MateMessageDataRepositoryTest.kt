@@ -10,6 +10,7 @@ import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
@@ -48,6 +49,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceGetMateMessages: List<MateMessageEntity> = listOf()
     private var mLocalSourceGetMateMessage: MateMessageEntity? = null
@@ -93,6 +95,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localMateMessageDataSourceMock = mockLocalMateMessageDataSource()
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
@@ -102,7 +105,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
             mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
             mLocalMateMessageDataSource = localMateMessageDataSourceMock,
-            mHttpMateMessageDataSource = httpMateMessageDataSourceMock
+            mHttpMateMessageDataSource = httpMateMessageDataSourceMock,
+            mHttpClient = mOkHttpClientMockContainer.httpClient
         )
     }
 

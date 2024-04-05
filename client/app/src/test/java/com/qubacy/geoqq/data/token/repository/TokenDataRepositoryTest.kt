@@ -6,6 +6,7 @@ import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil.mockBase64
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
@@ -36,6 +37,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     }
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceLastAccessToken: String? = null
     private var mLocalSourceRefreshToken: String? = null
@@ -62,13 +64,16 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     fun clear() {
         mLocalSourceLastAccessToken = null
         mLocalSourceRefreshToken = null
-        mLocalSourceGetRefreshTokenCallFlag = false
         mLocalSourceSaveTokensAccessToken = null
         mLocalSourceSaveTokensRefreshToken = null
+
+        mLocalSourceGetRefreshTokenCallFlag = false
         mLocalSourceClearTokensCallFlag = false
+
         mHttpSourceUpdateTokensResponse = null
         mHttpSourceSignInResponse = null
         mHttpSourceSignUpResponse = null
+
         mHttpSourceUpdateTokensCallFlag = false
         mHttpSourceSignInCallFlag = false
         mHttpSourceSignUpCallFlag = false
@@ -76,10 +81,11 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
     private fun initTokenDataRepository() = runTest {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localTokenDataSourceMock = Mockito.mock(LocalTokenDataSource::class.java)
 
-        Mockito.`when`(localTokenDataSourceMock.lastAccessToken).thenAnswer {
+        Mockito.`when`(localTokenDataSourceMock.getAccessToken()).thenAnswer {
             mLocalSourceLastAccessToken
         }
         Mockito.`when`(localTokenDataSourceMock.getRefreshToken()).thenAnswer {
@@ -167,7 +173,8 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         mDataRepository = TokenDataRepository(
             mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
             localTokenDataSourceMock,
-            httpTokenDataSourceMock
+            httpTokenDataSourceMock,
+            mOkHttpClientMockContainer.httpClient
         )
     }
 
@@ -283,7 +290,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     }
 
     @Test
-    fun getAccessTokenPayloadTest() {
+    fun getAccessTokenPayloadTest() = runTest {
         val expectedTokenPayload = VALID_TOKEN_PAYLOAD
 
         mLocalSourceLastAccessToken = VALID_TOKEN

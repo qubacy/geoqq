@@ -10,6 +10,7 @@ import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
@@ -70,6 +71,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mImageDataRepositoryMockContainer: ImageDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceGetUsersByIds: List<UserEntity>? = null
     private var mLocalSourceGetUserById: UserEntity? = null
@@ -113,6 +115,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mImageDataRepositoryMockContainer = ImageDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localUserDataSourceMock = mockLocalUserDataSource()
         val httpUserDataSourceMock = mockHttpUserDataSource()
@@ -122,7 +125,8 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
             mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
             mLocalUserDataSource = localUserDataSourceMock,
-            mHttpUserDataSource = httpUserDataSourceMock
+            mHttpUserDataSource = httpUserDataSourceMock,
+            mHttpClient = mOkHttpClientMockContainer.httpClient
         )
     }
 

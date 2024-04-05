@@ -80,7 +80,7 @@ open class MateChatsViewModel @Inject constructor(
 
         changeLastChatChunkIndex(mLastChatChunkIndex + 1)
 
-        val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk!!)
+        val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk)
         val chatChunkPosition = getChatChunkPositionByChunkIndex(getChatChunkResult.chunk.index)
 
         return InsertChatsUiOperation(chatChunkPosition, chatPresentationChunk)

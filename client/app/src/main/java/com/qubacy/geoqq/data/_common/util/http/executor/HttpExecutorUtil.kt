@@ -13,10 +13,10 @@ fun <ResponseBodyType>executeNetworkRequest(
     call: Call<ResponseBodyType>
 ): ResponseBodyType {
     try {
-        Log.d(
-            "HttpExecutorUtil",
-            "executeNetworkRequest(): ${call.request().method()} ${call.request().url()};"
-        )
+//        Log.d(
+//            "HttpExecutorUtil",
+//            "executeNetworkRequest(): ${call.request().method()} ${call.request().url()};"
+//        )
 
         val response = call.execute()
 
@@ -34,7 +34,9 @@ fun <ResponseBodyType>executeNetworkRequest(
 
         return responseBody as ResponseBodyType
 
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
+        if (e is ErrorAppException) throw e
+
         e.printStackTrace()
         httpClient.dispatcher().cancelAll() // todo: is it ok?
 

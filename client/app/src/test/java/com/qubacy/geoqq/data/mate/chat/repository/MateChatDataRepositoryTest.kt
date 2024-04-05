@@ -8,6 +8,7 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
+import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
@@ -56,6 +57,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
+    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
 
     private var mLocalSourceGetChats: Map<MateChatEntity, MateMessageEntity?>? = null
     private var mLocalSourceGetChatById: Map<MateChatEntity, MateMessageEntity?>? = null
@@ -111,6 +113,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
+        mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
         val localMateChatDataSourceMock = mockLocalMateChatDataSource()
         val httpMateChatDataSourceMock = mockHttpMateChatDataSource()
@@ -120,7 +123,8 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
             mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
             mLocalMateChatDataSource = localMateChatDataSourceMock,
-            mHttpMateChatDataSource = httpMateChatDataSourceMock
+            mHttpMateChatDataSource = httpMateChatDataSourceMock,
+            mHttpClient = mOkHttpClientMockContainer.httpClient
         )
     }
 
