@@ -18,7 +18,8 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     private var mGetTokensDataResult: GetTokensDataResult? = null
 
     private var mTokenDataRepositoryGetTokensCallFlag = false
-    private var mTokenDataRepositorySignInCallFlag = false
+    private var mTokenDataRepositorySignInWithTokenFlag = false
+    private var mTokenDataRepositorySignInWithLoginDataCallFlag = false
     private var mTokenDataRepositorySignUpCallFlag = false
 
     override fun clear() {
@@ -27,7 +28,8 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
         mGetTokensDataResult = null
 
         mTokenDataRepositoryGetTokensCallFlag = false
-        mTokenDataRepositorySignInCallFlag = false
+        mTokenDataRepositorySignInWithTokenFlag = false
+        mTokenDataRepositorySignInWithLoginDataCallFlag = false
         mTokenDataRepositorySignUpCallFlag = false
     }
 
@@ -44,10 +46,16 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
                 mGetTokensDataResult
             }
+            Mockito.`when`(tokenDataRepositoryMock.signIn()).thenAnswer {
+                mTokenDataRepositorySignInWithTokenFlag = true
+
+                if (mErrorDataRepositoryMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
+            }
             Mockito.`when`(tokenDataRepositoryMock.signIn(
                 Mockito.anyString(), Mockito.anyString()
             )).thenAnswer {
-                mTokenDataRepositorySignInCallFlag = true
+                mTokenDataRepositorySignInWithLoginDataCallFlag = true
 
                 if (mErrorDataRepositoryMockContainer.getError != null)
                     throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
@@ -86,7 +94,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryGetTokensCallFlag)
+            Assert.assertTrue(mTokenDataRepositorySignInWithTokenFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -103,7 +111,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryGetTokensCallFlag)
+            Assert.assertTrue(mTokenDataRepositorySignInWithTokenFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
@@ -120,7 +128,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInCallFlag)
+            Assert.assertTrue(mTokenDataRepositorySignInWithLoginDataCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -139,7 +147,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInCallFlag)
+            Assert.assertTrue(mTokenDataRepositorySignInWithLoginDataCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)

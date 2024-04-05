@@ -87,7 +87,7 @@ open class MyProfileViewModel @Inject constructor(
         val myProfilePresentation = getMyProfileResult.myProfile?.toMyProfilePresentation()
 
         if (!getMyProfileResult.isSuccessful())
-            return ErrorUiOperation(getMyProfileResult.error!!)
+            return processErrorDomainResult(getMyProfileResult.error!!)
 
         mUiState.myProfilePresentation = myProfilePresentation!!
 
@@ -100,7 +100,7 @@ open class MyProfileViewModel @Inject constructor(
         changeLoadingState(false)
 
         if (!updateMyProfileDomainResult.isSuccessful())
-            return ErrorUiOperation(updateMyProfileDomainResult.error!!)
+            return processErrorDomainResult(updateMyProfileDomainResult.error!!)
 
         mUiState.myProfilePresentation = getUpdatedMyProfilePresentation()
 
@@ -121,7 +121,7 @@ open class MyProfileViewModel @Inject constructor(
         changeLoadingState(false)
 
         if (!deleteMyProfileDomainResult.isSuccessful())
-            return ErrorUiOperation(deleteMyProfileDomainResult.error!!)
+            return processErrorDomainResult(deleteMyProfileDomainResult.error!!)
 
         return DeleteMyProfileUiOperation()
     }
@@ -130,7 +130,7 @@ open class MyProfileViewModel @Inject constructor(
         changeLoadingState(false)
 
         if (!logoutDomainResult.isSuccessful())
-            return ErrorUiOperation(logoutDomainResult.error!!)
+            return processErrorDomainResult(logoutDomainResult.error!!)
 
         return LogoutUiOperation()
     }

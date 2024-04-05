@@ -13,8 +13,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
@@ -29,9 +28,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
 
     override val uiOperationFlow = merge(
         mUiOperationFlow,
-        mUseCase.resultFlow.map {
-            mapDomainResultFlow(it)
-        }.filterNotNull()
+        mUseCase.resultFlow.mapNotNull { mapDomainResultFlow(it) }
     )
     private lateinit var mBusinessScope: CoroutineScope
 
