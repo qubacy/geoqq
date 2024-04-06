@@ -10,6 +10,7 @@ class MyProfileViewModelMockContext(
     uiState: MyProfileUiState,
     uiOperationFlow: MutableSharedFlow<UiOperation> = MutableSharedFlow(),
     retrieveErrorResult: Error? = null,
+    var isUpdateDataValid: Boolean = false,
     var preserveInputDataCallFlag: Boolean = false,
     var isUpdateDataValidCallFlag: Boolean = false,
     var getMyProfileCallFlag: Boolean = false,

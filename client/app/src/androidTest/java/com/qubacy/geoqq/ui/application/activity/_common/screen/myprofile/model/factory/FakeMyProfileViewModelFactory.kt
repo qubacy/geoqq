@@ -26,7 +26,7 @@ class FakeMyProfileViewModelFactory(
             mockContext.uiState.isLoading = true
             mockContext.isUpdateDataValidCallFlag = true
 
-            Unit
+            mockContext.isUpdateDataValid
         }
         Mockito.`when`(viewModelMock.getMyProfile()).thenAnswer {
             mockContext.uiState.isLoading = true

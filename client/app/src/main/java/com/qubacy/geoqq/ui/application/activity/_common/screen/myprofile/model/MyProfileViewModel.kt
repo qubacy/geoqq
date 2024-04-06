@@ -43,11 +43,11 @@ open class MyProfileViewModel @Inject constructor(
         return MyProfileUiState()
     }
 
-    fun preserveInputData(inputData: MyProfileInputData) {
+    open fun preserveInputData(inputData: MyProfileInputData) {
         mUiState.myProfileInputData = inputData
     }
 
-    fun isUpdateDataValid(updateData: MyProfileInputData): Boolean {
+    open fun isUpdateDataValid(updateData: MyProfileInputData): Boolean {
         if (updateData.isEmpty()) return false
 
         if (updateData.password != null) {
@@ -135,12 +135,12 @@ open class MyProfileViewModel @Inject constructor(
         return LogoutUiOperation()
     }
 
-    fun getMyProfile() {
+    open fun getMyProfile() {
         changeLoadingState(true)
         mUseCase.getMyProfile()
     }
 
-    fun updateMyProfile(updateData: MyProfileInputData) {
+    open fun updateMyProfile(updateData: MyProfileInputData) {
         changeLoadingState(true)
 
         mUiState.myProfileInputData = updateData
@@ -148,12 +148,12 @@ open class MyProfileViewModel @Inject constructor(
         mUseCase.updateMyProfile(updateData.toMyProfileUpdateData())
     }
 
-    fun deleteMyProfile() {
+    open fun deleteMyProfile() {
         changeLoadingState(true)
         mUseCase.deleteMyProfile()
     }
 
-    fun logout() {
+    open fun logout() {
         changeLoadingState(true)
         mUseCase.logout()
     }

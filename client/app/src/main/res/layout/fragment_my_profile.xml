@@ -57,7 +57,8 @@
                 app:layout_constraintDimensionRatio="1"
                 android:layout_marginTop="@dimen/small_gap_between_components"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-                app:srcCompat="@drawable/avatar_placeholder"/>
+                app:srcCompat="@drawable/avatar_placeholder"
+                android:scaleType="centerCrop"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fragment_my_profile_button_avatar"

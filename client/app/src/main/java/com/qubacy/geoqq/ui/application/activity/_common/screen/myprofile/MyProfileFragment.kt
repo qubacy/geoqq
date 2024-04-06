@@ -222,8 +222,8 @@ class MyProfileFragment(
     }
 
     private fun navigateToLogin() {
-        Navigation.findNavController(requireView())
-            .navigate(R.id.action_myProfileFragment_to_loginFragment)
+        val n = Navigation.findNavController(requireView())
+            n.navigate(R.id.action_myProfileFragment_to_loginFragment)
     }
 
     override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
@@ -356,7 +356,9 @@ class MyProfileFragment(
     private fun launchUpdateProfile() {
         val inputData = getUpdateData()
 
-        if (!validateInputs(inputData)) return
+        val invalidInputSet = validateInputs(inputData)
+
+        if (invalidInputSet.isNotEmpty()) return setInputErrors(invalidInputSet)
         if (!mModel.isUpdateDataValid(inputData))
             return mModel.retrieveError(MyProfileErrorType.INVALID_UPDATE_DATA)
 
@@ -364,40 +366,47 @@ class MyProfileFragment(
         clearInputsAfterUpdate()
     }
 
-    private fun validateInputs(inputData: MyProfileInputData): Boolean {
-        var areValid = true
+    fun validateInputs(inputData: MyProfileInputData): HashSet<Int> {
+        val invalidInputSet = hashSetOf<Int>()
 
         if (inputData.aboutMe != null && !AboutMeValidator().isValid(inputData.aboutMe)) {
-            mBinding.fragmentMyProfileInputWrapperAboutMe.error =
-                getString(R.string.fragment_my_profile_input_error_about_me)
-
-            areValid = false
+            invalidInputSet.add(R.id.fragment_my_profile_input_about_me)
         }
 
         val passwordValidator = PasswordValidator()
 
         if (inputData.password != null && !passwordValidator.isValid(inputData.password)) {
-            mBinding.fragmentMyProfileInputWrapperPassword.error =
-                getString(R.string.fragment_input_error_password)
-
-            areValid = false
+            invalidInputSet.add(R.id.fragment_my_profile_input_password)
         }
         if (inputData.newPassword != null && !passwordValidator.isValid(inputData.newPassword)) {
-            mBinding.fragmentMyProfileInputWrapperNewPassword.error =
-                getString(R.string.fragment_input_error_password)
-
-            areValid = false
+            invalidInputSet.add(R.id.fragment_my_profile_input_new_password)
         }
         if (inputData.newPasswordAgain != null
          && !passwordValidator.isValid(inputData.newPasswordAgain)
         ) {
-            mBinding.fragmentMyProfileInputWrapperNewPasswordAgain.error =
-                getString(R.string.fragment_input_error_password)
-
-            areValid = false
+            invalidInputSet.add(R.id.fragment_my_profile_input_new_password_again)
         }
 
-        return areValid
+        return invalidInputSet
+    }
+
+    private fun setInputErrors(invalidInputSet: HashSet<Int>) {
+        if (invalidInputSet.contains(R.id.fragment_my_profile_input_about_me)) {
+            mBinding.fragmentMyProfileInputWrapperAboutMe.error =
+                getString(R.string.fragment_my_profile_input_error_about_me)
+        }
+        if (invalidInputSet.contains(R.id.fragment_my_profile_input_password)) {
+            mBinding.fragmentMyProfileInputWrapperPassword.error =
+                getString(R.string.fragment_input_error_password)
+        }
+        if (invalidInputSet.contains(R.id.fragment_my_profile_input_new_password)) {
+            mBinding.fragmentMyProfileInputWrapperNewPassword.error =
+                getString(R.string.fragment_input_error_password)
+        }
+        if (invalidInputSet.contains(R.id.fragment_my_profile_input_new_password_again)) {
+            mBinding.fragmentMyProfileInputWrapperNewPasswordAgain.error =
+                getString(R.string.fragment_input_error_password)
+        }
     }
 
     private fun clearInputsAfterUpdate() {
