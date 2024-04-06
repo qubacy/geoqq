@@ -6,7 +6,6 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,12 +19,12 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.s
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.FakeMyProfileViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
@@ -507,11 +506,23 @@ class MyProfileFragmentTest : BusinessFragmentTest<
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
+    @Deprecated("Poorly synchronized so can fail.")
     @Test
     fun processDeleteMyProfileOperationTest() = runTest {
+        val deleteOperation = DeleteMyProfileUiOperation()
 
+        val expectedDestination = R.id.loginFragment
+
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(deleteOperation)
+
+        val gottenDestination = mNavController.currentDestination!!.id
+
+        Assert.assertEquals(expectedDestination, gottenDestination)
     }
 
+    @Deprecated("Poorly synchronized so can fail.")
     @Test
     fun processLogoutOperationTest() = runTest {
         val logoutOperation = LogoutUiOperation()

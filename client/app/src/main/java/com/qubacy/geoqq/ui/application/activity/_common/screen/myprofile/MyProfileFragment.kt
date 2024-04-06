@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -222,8 +223,11 @@ class MyProfileFragment(
     }
 
     private fun navigateToLogin() {
-        val n = Navigation.findNavController(requireView())
-            n.navigate(R.id.action_myProfileFragment_to_loginFragment)
+        Log.d(TAG, "navigateToLogin(): view.tag = " +
+                "${requireView().getTag(androidx.navigation.R.id.nav_controller_view_tag)}")
+
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_myProfileFragment_to_loginFragment)
     }
 
     override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {

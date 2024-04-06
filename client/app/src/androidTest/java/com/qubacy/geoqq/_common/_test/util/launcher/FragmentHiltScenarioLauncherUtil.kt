@@ -3,10 +3,12 @@ package com.qubacy.geoqq._common._test.util.launcher
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import androidx.annotation.StyleRes
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
@@ -34,22 +36,41 @@ inline fun <T : Fragment> launchFragmentInHiltContainer(
     )
 
     return ActivityScenario.launch<HiltTestActivity>(startActivityIntent).onActivity { activity ->
-        val rootView = activity.findViewById<View>(android.R.id.content)
-
         navHostController.setViewModelStore(activity.viewModelStore)
 
         navHostControllerInitAction(navHostController)
-        Navigation.setViewNavController(rootView, navHostController)
 
         val fragmentClassRef = fragmentClass
         val fragment: Fragment = activity.supportFragmentManager.fragmentFactory.instantiate(
             Preconditions.checkNotNull(fragmentClassRef.classLoader) as ClassLoader,
             fragmentClassRef.name
         )
+
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event.targetState != Lifecycle.State.STARTED) return
+
+                Log.d("TEST", "onStateChanged(): view.tag = " +
+                        "${fragment.requireView()
+                            .getTag(androidx.navigation.R.id.nav_controller_view_tag)}")
+
+                Navigation.setViewNavController(fragment.requireView(), navHostController)
+            }
+        })
+
         fragment.arguments = fragmentArgs
         activity.supportFragmentManager
             .beginTransaction()
             .add(R.id.activity_main_fragment_container, fragment, "")
+//            .runOnCommit {
+//                fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+//                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+//                        if (event.targetState != Lifecycle.State.STARTED) return
+//
+//                        Navigation.setViewNavController(fragment.requireView(), navHostController)
+//                    }
+//                })
+//            }
             .commitNow()
 
         fragment.action()
