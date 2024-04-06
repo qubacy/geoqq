@@ -261,6 +261,9 @@ class MyProfileFragment(
         val myProfilePresentation = mModel.uiState.myProfilePresentation!!
         val inputData = getInputData()
 
+        val avatarUri = inputData.avatarUri.let {
+            if (it == myProfilePresentation.avatarUri) null else it
+        }
         val aboutMe = inputData.aboutMe.let {
             if (it == myProfilePresentation.aboutMe) null else it
         }
@@ -278,7 +281,7 @@ class MyProfileFragment(
         }
 
         return MyProfileInputData(
-            mUpdatedAvatarUri, aboutMe,
+            avatarUri, aboutMe,
             password, newPassword, newPasswordAgain,
             hitMeUp
         )
