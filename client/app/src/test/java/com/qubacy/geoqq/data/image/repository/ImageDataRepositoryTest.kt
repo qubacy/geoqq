@@ -9,7 +9,6 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
-import com.qubacy.geoqq.data.image._common.util.bitmap.extension.toBase64
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.RawImage
@@ -277,34 +276,34 @@ class ImageDataRepositoryTest(
         Assert.assertEquals(expectedDataImages, gottenDataImages)
     }
 
-//    @Deprecated("Fix this one")
-//    @Test
-//    fun saveImageTest() = runTest {
-//        val bitmapMock = Mockito.mock(Bitmap::class.java)
-//
-//        // todo: .toBase64() cannot be mocked:
-//        Mockito.`when`(bitmapMock.toBase64(AnyMockUtil.anyObject())).thenAnswer { String() }
-//
-//        val id = 0L
-//        val uriMock = Mockito.mock(Uri::class.java)
-//        val getImageDataByUri = RawImage(
-//            extension = Bitmap.CompressFormat.PNG, content = bitmapMock)
-//        val uploadImageResponse = UploadImageResponse(id)
-//        val saveImage = ImageEntity(id, uriMock)
-//        val expectedDataImage = saveImage.toDataImage()
-//
-//        mLocalSourceGetImageDataByUri = getImageDataByUri
-//        mHttpSourceUploadImageResponse = uploadImageResponse
-//        mLocalSourceSaveImage = saveImage
-//
-//        val gottenDataImage = mDataRepository.saveImage(uriMock)
-//
-//        Assert.assertTrue(mLocalSourceGetImageDataByUriCallFlag)
-//        Assert.assertTrue(mHttpSourceUploadImageCallFlag)
-//        Assert.assertTrue(mHttpSourceUploadImageResponseCallFlag)
-//        Assert.assertTrue(mLocalSourceSaveImageCallFlag)
-//        Assert.assertEquals(expectedDataImage, gottenDataImage)
-//    }
+    @Test
+    fun saveImageTest() = runTest {
+        val bitmapMock = Mockito.mock(Bitmap::class.java)
+
+        Mockito.`when`(bitmapMock.compress(
+            AnyMockUtil.anyObject(), Mockito.anyInt(), AnyMockUtil.anyObject()
+        )).thenAnswer { true }
+
+        val id = 0L
+        val uriMock = Mockito.mock(Uri::class.java)
+        val getImageDataByUri = RawImage(
+            extension = Bitmap.CompressFormat.PNG, content = bitmapMock)
+        val uploadImageResponse = UploadImageResponse(id)
+        val saveImage = ImageEntity(id, uriMock)
+        val expectedDataImage = saveImage.toDataImage()
+
+        mLocalSourceGetImageDataByUri = getImageDataByUri
+        mHttpSourceUploadImageResponse = uploadImageResponse
+        mLocalSourceSaveImage = saveImage
+
+        val gottenDataImage = mDataRepository.saveImage(uriMock)
+
+        Assert.assertTrue(mLocalSourceGetImageDataByUriCallFlag)
+        Assert.assertTrue(mHttpSourceUploadImageCallFlag)
+        Assert.assertTrue(mHttpSourceUploadImageResponseCallFlag)
+        Assert.assertTrue(mLocalSourceSaveImageCallFlag)
+        Assert.assertEquals(expectedDataImage, gottenDataImage)
+    }
 
     private fun generateImageEntities(
         count: Int,
