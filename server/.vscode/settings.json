@@ -5,6 +5,7 @@
         "cristalhq",
         "datname",
         "datnames",
+        "Debugf",
         "geodatas",
         "geodist",
         "geodistance",
@@ -12,11 +13,15 @@
         "gonic",
         "govatar",
         "Hasher",
+        "Infof",
         "jackc",
+        "mlog",
         "mockaroo",
+        "natefinch",
         "pgxpool",
         "postgre",
         "psycopg",
-        "smallint"
+        "smallint",
+        "Warnf"
     ]
 }

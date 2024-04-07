@@ -17,6 +17,8 @@ import (
 	geoDistanceImpl "geoqq/pkg/geoDistance/impl/haversine"
 	"geoqq/pkg/hash"
 	hashImpl "geoqq/pkg/hash/impl"
+	"geoqq/pkg/logger"
+	"geoqq/pkg/logger/impl"
 	"geoqq/pkg/token"
 	tokenImpl "geoqq/pkg/token/impl"
 	"geoqq/pkg/utility"
@@ -36,6 +38,17 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
+
+	// *** logger
+
+	logger.Instance = impl.SetLumberjackLoggerForStdOutput(
+		logger.Level(viper.GetInt("logging.level")),
+		viper.GetString("logging.lumberjack.dirname"),
+		viper.GetString("logging.lumberjack.filename"),
+		viper.GetInt("logging.lumberjack.max_size_mb"),
+		viper.GetInt("logging.lumberjack.max_backups"),
+		viper.GetInt("logging.lumberjack.max_age_days"),
+	)
 
 	// *** common deps!
 

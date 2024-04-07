@@ -51,3 +51,18 @@ storage:
 
       sqlite:
         #...
+
+logging:
+  type: "lumberjack"
+  level: 0
+
+  lumberjack:
+    dirname: "./lumberjack"
+    filename: "server.log"
+
+    max_size_mb: 1
+    max_backups: 3
+    max_age_days: 1
+
+  mlog:
+    #...

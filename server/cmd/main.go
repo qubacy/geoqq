@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"geoqq/app"
+	"geoqq/pkg/logger"
 	"log"
 	"os"
 	"os/signal"
@@ -31,6 +32,7 @@ func printlnExecutable() {
 func main() {
 
 	printlnWd()
+
 	printlnExecutable()
 
 	// ***
@@ -55,10 +57,12 @@ func main() {
 		}
 	}()
 
+	logger.Info("Server Is Running")
+
 	// ***
 
 	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt,
+	signal.Notify(sigCh,
 		syscall.SIGINT,
 		syscall.SIGHUP,
 		syscall.SIGTERM,
