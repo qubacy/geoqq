@@ -6,10 +6,13 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.ViewStub
+import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.google.android.material.textview.MaterialTextView
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateMessageBinding
@@ -21,12 +24,17 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.compone
 class MateMessageItemView(
     context: Context,
     attrs: AttributeSet? = null
-) : ConstraintLayout(context, attrs), RecyclerViewItemView<MateMessageItemData> {
+) : LinearLayout(context, attrs), RecyclerViewItemView<MateMessageItemData> {
     companion object {
-        val BACKGROUND_DRAWABLE_RIGHT_RES_ID = R.drawable.message_background_right
-        val BACKGROUND_DRAWABLE_LEFT_RES_ID = R.drawable.message_background_left
+        const val TAG = "MateMessageItemView"
+
+        val BACKGROUND_DRAWABLE_RIGHT_RES_ID = R.drawable.message_back_right_new
+        val BACKGROUND_DRAWABLE_LEFT_RES_ID = R.drawable.message_back_left_new
 
         const val MIN_WIDTH_PERCENT = 0.8f
+        const val WIDTH_BREAKPOINT_PX = 600
+
+        val VERTICAL_PADDING_DIMEN_ID = R.dimen.tiny_gap_between_components
     }
 
     private lateinit var mBackgroundRight: Drawable
@@ -36,6 +44,8 @@ class MateMessageItemView(
     private var mBackgroundTintRight: Int = 0
     @ColorInt
     private var mBackgroundTintLeft: Int = 0
+
+    private var mVerticalPadding: Int = 0
 
     private lateinit var mBinding: ComponentMateMessageBinding
 
@@ -53,12 +63,14 @@ class MateMessageItemView(
             .resolveColorAttr(com.google.android.material.R.attr.colorSecondaryContainer)
         mBackgroundTintRight = context.theme
             .resolveColorAttr(com.google.android.material.R.attr.colorPrimaryContainer)
+
+        mVerticalPadding = context.resources.getDimension(VERTICAL_PADDING_DIMEN_ID).toInt()
     }
 
     private fun inflate() {
         val layoutInflater = LayoutInflater.from(context)
 
-        mBinding = ComponentMateMessageBinding.inflate(layoutInflater, this, false)
+        mBinding = ComponentMateMessageBinding.inflate(layoutInflater, this)
     }
 
     private fun initAttrs(attrs: AttributeSet?) {
@@ -67,9 +79,12 @@ class MateMessageItemView(
 
     private fun initLayoutAttrs() {
         layoutParams = LayoutParams(
-            LayoutParams.WRAP_CONTENT,
+            LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
         )
+        orientation = VERTICAL
+
+        updatePadding(top = mVerticalPadding, bottom = mVerticalPadding)
     }
 
     override fun setData(data: MateMessageItemData) {
@@ -82,13 +97,27 @@ class MateMessageItemView(
 
     // todo: is it ok? search for the better way..
     private fun setText(text: String) {
-        var textView = mBinding.root.getViewById(R.id.component_mate_message_text)
+        var textView = mBinding.componentMateMessageContentWrapper
+            .getViewById(R.id.component_mate_message_text_stub)
 
-        if (textView is ViewStub) textView = textView.inflate()
+        if (textView != null) textView = initTextView()
 
         textView as MaterialTextView
 
         textView.text = text
+    }
+
+    private fun initTextView(): MaterialTextView {
+        val textView = mBinding.componentMateMessageTextStub.inflate()
+
+        mBinding.componentMateMessageTimestamp.updateLayoutParams {
+            this as ConstraintLayout.LayoutParams
+
+            this.topToTop = ConstraintLayout.LayoutParams.UNSET
+            this.topToBottom = textView.id
+        }
+
+        return textView as MaterialTextView
     }
 
     private fun changeLayoutBySenderSide(senderSide: SenderSide) {
@@ -97,16 +126,12 @@ class MateMessageItemView(
     }
 
     private fun changeLayoutConstraintsBySenderSide(senderSide: SenderSide) {
-        val layoutParams = LayoutParams(mBinding.root.layoutParams)
+        mBinding.componentMateMessageContentWrapper.updateLayoutParams {
+            this as LayoutParams
 
-        when (senderSide) {
-            SenderSide.ME -> {
-                layoutParams.startToStart = LayoutParams.UNSET
-                layoutParams.endToEnd = LayoutParams.PARENT_ID
-            }
-            SenderSide.OTHER -> {
-                layoutParams.endToEnd = LayoutParams.UNSET
-                layoutParams.startToStart = LayoutParams.PARENT_ID
+            this.gravity = when (senderSide) {
+                SenderSide.ME -> { GravityCompat.END }
+                SenderSide.OTHER -> { GravityCompat.START }
             }
         }
     }
@@ -126,15 +151,30 @@ class MateMessageItemView(
             }
         }
 
-        mBinding.root.apply {
+        mBinding.componentMateMessageContentWrapper.apply {
             background = backgroundDrawable
             backgroundTintList = ColorStateList.valueOf(backgroundTint)
         }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMinWidth()
 
-        setMeasuredDimension()
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    private fun setMinWidth() {
+        val parentWidth = (parent as ViewGroup).measuredWidth
+
+        mBinding.componentMateMessageContentWrapper.updateLayoutParams {
+            this as LayoutParams
+
+            this.width = getMinWidthByParentWidth(parentWidth)
+        }
+    }
+
+    fun getMinWidthByParentWidth(parentWidth: Int): Int {
+        return if (parentWidth > WIDTH_BREAKPOINT_PX) (parentWidth * MIN_WIDTH_PERCENT).toInt()
+        else parentWidth
     }
 }

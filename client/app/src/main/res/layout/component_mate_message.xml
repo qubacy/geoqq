@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:background="@drawable/message_background_right"
-    tools:backgroundTint="?attr/colorSurfaceContainer">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ViewStub
-        android:id="@+id/component_mate_message_text"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/component_mate_message_content_wrapper"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_height="wrap_content">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/component_mate_message_timestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/component_mate_message_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        tools:text="5:00 AM"/>
+        <ViewStub
+            android:id="@+id/component_mate_message_text_stub"
+            android:inflatedId="@+id/component_mate_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout="@layout/component_message_text"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/component_mate_message_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/very_small_gap_between_components"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            tools:text="5:00 AM"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>
