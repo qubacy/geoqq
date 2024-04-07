@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"geoqq/app"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func printlnWd() {
@@ -31,13 +35,43 @@ func main() {
 
 	// ***
 
-	app, err := app.NewApp()
+	ctxWithCancel, cancel := context.WithCancel(
+		context.Background(),
+	)
+	defer func() {
+		cancel() // ?
+	}()
+
+	app, err := app.NewApp(ctxWithCancel)
 	if err != nil {
 		log.Fatalf("New app failed. Err: %v", err.Error())
 	}
 
-	err = app.Run()
+	go func() {
+		err = app.Run()
+
+		if err != nil {
+			log.Fatalf("Run app failed. Err: %v", err.Error())
+		}
+	}()
+
+	// ***
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt,
+		syscall.SIGINT,
+		syscall.SIGHUP,
+		syscall.SIGTERM,
+		syscall.SIGABRT,
+	)
+
+	<-sigCh
+	cancel()
+
+	time.Sleep(250 * time.Millisecond) // not necessary!
+
+	err = app.Stop()
 	if err != nil {
-		log.Fatalf("Run app failed. Err: %v", err.Error())
+		log.Fatalf("Stop app failed. Err: %v", err.Error())
 	}
 }

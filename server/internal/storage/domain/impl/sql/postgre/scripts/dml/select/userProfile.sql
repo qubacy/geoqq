@@ -9,3 +9,5 @@ INNER JOIN "UserDetails"
 	ON "UserDetails"."UserId" = "UserEntry"."Id"
 INNER JOIN "UserOptions" 
 	ON "UserOptions"."UserId" = "UserEntry"."Id";
+
+SELECT * FROM "UserDetails";

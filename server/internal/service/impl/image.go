@@ -113,6 +113,8 @@ func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 		return p.avatarIdWithError(ErrImageBodyEmpty, ec.Client, ec.AvatarBodyEmpty)
 	}
 
+	// TODO: check mime type!
+
 	// ***
 
 	image := file.NewImageWithoutId(imageExt, content)

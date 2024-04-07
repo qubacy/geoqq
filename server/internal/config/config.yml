@@ -5,6 +5,7 @@ server:
 
     read_timeout: 10s
     write_timeout: 10s
+    shutdown_timeout: 5s
 
   # is not http?
   websocket:
@@ -46,7 +47,7 @@ storage:
 
         background:
           query_timeout: 10s
-          max_query_count: 10
+          max_query_count: 2
 
       sqlite:
         #...

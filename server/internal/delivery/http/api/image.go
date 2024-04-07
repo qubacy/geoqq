@@ -1,10 +1,13 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/utility"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -108,6 +111,8 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 
 	// *** to service
 
+	fmt.Println(requestDto)
+
 	images, err := h.services.GetImagesByIds(ctx,
 		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
@@ -163,6 +168,15 @@ func (h *Handler) postNewImage(ctx *gin.Context) {
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
+	}
+
+	jsonBytes, err := json.Marshal(requestDto)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = os.WriteFile("image.json", jsonBytes, 0666)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	imageId, err := h.services.AddImageToUser(ctx,

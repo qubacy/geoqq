@@ -45,8 +45,6 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 	// ***
 
 	var engine *gin.Engine = gin.Default()
-	engine.Use(gin.Recovery()).
-		Use(gin.Logger())
 
 	// TODO: add extra middlewares!
 

@@ -1,0 +1,11 @@
+http:
+  routers:
+    router1:
+      service: service1
+      rule: "Host(`127.0.0.1`)"
+
+  services:
+    service1:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:57001"

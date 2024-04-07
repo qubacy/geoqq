@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -9,7 +10,8 @@ import (
 )
 
 type Server struct {
-	httpServer *http.Server
+	httpServer      *http.Server
+	shutdownTimeout time.Duration
 }
 
 type Dependencies struct {
@@ -18,8 +20,9 @@ type Dependencies struct {
 	Host string
 	Port uint16
 
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
+	ReadTimeout     time.Duration
+	WriteTimeout    time.Duration
+	ShutdownTimeout time.Duration
 }
 
 func NewServer(deps Dependencies) (*Server, error) {
@@ -41,6 +44,14 @@ func (s *Server) Start() error {
 	return s.httpServer.ListenAndServe()
 }
 
-func (s *Server) Stop() {
-	// TODO:!!!
+func (s *Server) Stop() error {
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		s.shutdownTimeout,
+	)
+	defer cancel()
+
+	// ***
+
+	return s.httpServer.Shutdown(ctx)
 }

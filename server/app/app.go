@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"geoqq/internal/config"
 	deliveryHttp "geoqq/internal/delivery/http"
 	"geoqq/internal/server"
@@ -29,7 +30,8 @@ type App struct {
 	//...
 }
 
-func NewApp() (*App, error) {
+// or ctx for cancel background work!
+func NewApp(ctxWithCancel context.Context) (*App, error) {
 	err := config.Initialize()
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
@@ -48,7 +50,7 @@ func NewApp() (*App, error) {
 
 	// *** storage
 
-	domainStorage, err := domainStorageInstance()
+	domainStorage, err := domainStorageInstance(ctxWithCancel)
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
@@ -103,33 +105,40 @@ func (a *App) Run() error {
 	return a.server.Start()
 }
 
+func (a *App) Stop() error {
+	return a.server.Stop()
+}
+
 // private
 // -----------------------------------------------------------------------
 
-func domainStorageInstance() (domainStorage.Storage, error) {
+func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
 	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
-	defer cancel()
+	defer func() {
+		fmt.Println("CtxForInit will be canceled")
+		cancel()
+	}()
 
 	var err error = ErrDomainStorageTypeIsNotDefined
 	var storage domainStorage.Storage = nil
 
-	// TODO: context for cancel!!!
-
 	storageType := viper.GetString("storage.domain.type")
 	if storageType == "postgre" {
-		storage, err = domainStorageImpl.NewStorage(ctxForInit, context.TODO(), domainStorageImpl.Dependencies{
-			Host:     viper.GetString("storage.domain.sql.postgre.host"),
-			Port:     viper.GetUint16("storage.domain.sql.postgre.port"),
-			User:     viper.GetString("storage.domain.sql.postgre.user"),
-			Password: viper.GetString("storage.domain.sql.postgre.password"),
-			DbName:   viper.GetString("storage.domain.sql.postgre.database"),
+		storage, err = domainStorageImpl.NewStorage(
+			ctxForInit, ctxWithCancel,
+			domainStorageImpl.Dependencies{
+				Host:     viper.GetString("storage.domain.sql.postgre.host"),
+				Port:     viper.GetUint16("storage.domain.sql.postgre.port"),
+				User:     viper.GetString("storage.domain.sql.postgre.user"),
+				Password: viper.GetString("storage.domain.sql.postgre.password"),
+				DbName:   viper.GetString("storage.domain.sql.postgre.database"),
 
-			DependenciesForBgr: domainStorageImpl.DependenciesForBgr{
-				MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
-				QueryTimeout:  viper.GetDuration("storage.domain.sql.postgre.background.query_timeout"),
-			},
-		})
+				DependenciesForBgr: domainStorageImpl.DependenciesForBgr{
+					MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
+					QueryTimeout:  viper.GetDuration("storage.domain.sql.postgre.background.query_timeout"),
+				},
+			})
 	} else if storageType == "sqlite" {
 		//...
 		return nil, ErrNotImplemented

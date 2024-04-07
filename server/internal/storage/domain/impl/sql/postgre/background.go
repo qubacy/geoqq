@@ -32,7 +32,9 @@ func newBackground(
 	ctxWithCancel context.Context,
 	pool *pgxpool.Pool,
 	deps DependenciesForBgr,
+
 ) *Background {
+	fmt.Printf("MaxQueryCount: %v\n", deps.MaxQueryCount)
 	queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
 
 	storage := &Background{
@@ -71,6 +73,7 @@ func (s *Background) updateQueries(
 	for {
 		select {
 		case <-ctxWithCancel.Done():
+			fmt.Println("123")
 			return
 
 		case f := <-s.queries:
@@ -82,7 +85,6 @@ func (s *Background) updateQueries(
 
 			err = f(conn, ctx)
 			if err != nil { // only log to file?
-				// TODO:
 				fmt.Println(err)
 			}
 		}

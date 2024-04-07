@@ -80,6 +80,7 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, responseDto)
 }
 

@@ -24,6 +24,12 @@ func (h *Handler) registerUserRoutes() {
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
 			h.userIdentityByContextData,
 			h.putMyProfileWithAttachedAvatar)
+
+		myProfileRouter.DELETE("/my-profile", func(ctx *gin.Context) {
+			// TODO:
+
+			ctx.Status(http.StatusOK)
+		})
 	}
 
 	// ***
@@ -151,6 +157,12 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 
 func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	requestDto := dto.MyProfilePutReq{}
+
+	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
+		return
+	}
+
 	// *** validate json body
 
 	if len(requestDto.AccessToken) == 0 {
@@ -168,10 +180,12 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	}
 
-	if requestDto.Description == nil { // as reset description!
-		requestDto.Description = new(string)
-		*requestDto.Description = ""
-	}
+	/*
+		if requestDto.Description == nil { // as reset description?
+			requestDto.Description = new(string)
+			*requestDto.Description = ""
+		}
+	*/
 
 	/*
 		if requestDto.Privacy != nil {

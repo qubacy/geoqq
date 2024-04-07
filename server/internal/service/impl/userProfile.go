@@ -77,7 +77,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 
 	storageDto, err := p.preparePartUpdateUserPartsInp(ctx, userId, input.PartProfileForUpdate)
 	if err != nil {
-		return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
+		return utl.NewFuncError(p.UpdateUserProfile, err)
 	}
 	storageDto.AvatarId = input.AvatarId
 
@@ -85,7 +85,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 
 	err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto)
 	if err != nil {
-		return utl.NewFuncError(p.UpdateUserProfileWithAvatar,
+		return utl.NewFuncError(p.UpdateUserProfile,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
