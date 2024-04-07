@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/fragment_mate_chat_top_bar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+        
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/fragment_mate_chat_top_bar_content_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            style="@style/Widget.Material3.CollapsingToolbar.Medium">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/fragment_mate_chat_top_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:menu="@menu/mate_chat_top_bar"
+                app:title="Username"/>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_mate_chat_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/fragment_mate_chat_top_bar_wrapper"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fragment_mate_chat_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/fragment_mate_chat_top_bar_wrapper"
+        app:layout_constraintBottom_toTopOf="@id/fragment_mate_input_message_wrapper"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_mate_input_message_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox.NoLine">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fragment_mate_input_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.TextInputEditText.FilledBox"
+            android:hint="@string/fragment_mate_input_message_hint_text"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

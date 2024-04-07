@@ -1,11 +1,11 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.view
+package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter.BaseRecyclerViewAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
 
 class BaseRecyclerView(
     context: Context,
@@ -31,7 +31,8 @@ class BaseRecyclerView(
         val adapter = adapter
 
         if (mCallback == null || layoutManager == null
-        || adapter == null || adapter !is BaseRecyclerViewAdapter<*, *, *, *>)
+        || adapter == null || adapter !is BaseRecyclerViewAdapter<*, *, *, *>
+        )
         {
             return true
         }

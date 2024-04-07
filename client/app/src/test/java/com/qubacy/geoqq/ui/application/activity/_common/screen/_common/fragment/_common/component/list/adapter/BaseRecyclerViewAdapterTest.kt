@@ -3,9 +3,10 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 import android.view.View
 import android.view.ViewGroup
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter.producer.BaseItemViewProducer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.RecyclerViewItemView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.data.RecyclerViewItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProducer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.data.RecyclerViewItemData
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -16,15 +17,15 @@ abstract class BaseRecyclerViewAdapterTest<
     RecyclerViewItemDataType : RecyclerViewItemData,
     RecyclerViewItemViewType,
     RecyclerViewItemViewProducerType: BaseItemViewProducer<
-        RecyclerViewItemDataType, RecyclerViewItemViewType
-    >,
+            RecyclerViewItemDataType, RecyclerViewItemViewType
+            >,
     ViewHolderType : BaseRecyclerViewAdapter.ViewHolder<
         RecyclerViewItemDataType, RecyclerViewItemViewType
     >,
     AdapterType : BaseRecyclerViewAdapter<
-        RecyclerViewItemDataType, RecyclerViewItemViewType,
-        RecyclerViewItemViewProducerType, ViewHolderType
-    >
+            RecyclerViewItemDataType, RecyclerViewItemViewType,
+            RecyclerViewItemViewProducerType, ViewHolderType
+            >
 >(
 
 ) where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,

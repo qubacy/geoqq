@@ -1,12 +1,12 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter
+package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter.producer.BaseItemViewProducer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.RecyclerViewItemView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.data.RecyclerViewItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProducer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.data.RecyclerViewItemData
 
 /**
  * Note: In order to successfully compose Unit tests, it's recommended to use WRAPPED version
@@ -16,11 +16,11 @@ abstract class BaseRecyclerViewAdapter<
     RecyclerViewItemDataType : RecyclerViewItemData,
     RecyclerViewItemViewType,
     RecyclerViewItemViewProducerType: BaseItemViewProducer<
-        RecyclerViewItemDataType, RecyclerViewItemViewType
-    >,
+            RecyclerViewItemDataType, RecyclerViewItemViewType
+            >,
     ViewHolderType: BaseRecyclerViewAdapter.ViewHolder<
-        RecyclerViewItemDataType, RecyclerViewItemViewType
-    >
+            RecyclerViewItemDataType, RecyclerViewItemViewType
+            >
 >(
     val itemViewProducer: RecyclerViewItemViewProducerType
 ) : RecyclerView.Adapter<ViewHolderType>()

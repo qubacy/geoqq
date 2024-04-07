@@ -1,9 +1,9 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.adapter.producer
+package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer
 
 import android.view.View
 import android.view.ViewGroup
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.RecyclerViewItemView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.data.RecyclerViewItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.data.RecyclerViewItemData
 
 abstract class BaseItemViewProducer<
     RecyclerViewItemDataType : RecyclerViewItemData,

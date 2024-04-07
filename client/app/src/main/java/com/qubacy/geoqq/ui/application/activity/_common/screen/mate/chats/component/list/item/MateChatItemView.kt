@@ -7,7 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updatePadding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateChatPreviewBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData
 import kotlin.math.min
 
