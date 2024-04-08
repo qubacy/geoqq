@@ -48,6 +48,7 @@ class MateMessageItemView(
     private var mVerticalPadding: Int = 0
 
     private lateinit var mBinding: ComponentMateMessageBinding
+    private var mTextView: MaterialTextView? = null
 
     init {
         loadVariables(context)
@@ -97,14 +98,9 @@ class MateMessageItemView(
 
     // todo: is it ok? search for the better way..
     private fun setText(text: String) {
-        var textView = mBinding.componentMateMessageContentWrapper
-            .getViewById(R.id.component_mate_message_text_stub)
+        if (mTextView == null) mTextView = initTextView()
 
-        if (textView != null) textView = initTextView()
-
-        textView as MaterialTextView
-
-        textView.text = text
+        mTextView!!.text = text
     }
 
     private fun initTextView(): MaterialTextView {
@@ -176,5 +172,9 @@ class MateMessageItemView(
     fun getMinWidthByParentWidth(parentWidth: Int): Int {
         return if (parentWidth > WIDTH_BREAKPOINT_PX) (parentWidth * MIN_WIDTH_PERCENT).toInt()
         else parentWidth
+    }
+
+    fun getContentWrapper(): ConstraintLayout {
+        return mBinding.componentMateMessageContentWrapper
     }
 }

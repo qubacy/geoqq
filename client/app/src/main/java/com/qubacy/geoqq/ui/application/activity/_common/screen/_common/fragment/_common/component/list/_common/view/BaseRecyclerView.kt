@@ -11,6 +11,10 @@ class BaseRecyclerView(
     context: Context,
     attrs: AttributeSet
 ) : RecyclerView(context, attrs) {
+    companion object {
+        const val TAG = "BaseRecyclerView"
+    }
+
     private var mCallback: BaseRecyclerViewCallback? = null
 
     private var mIsEndReached: Boolean = false
@@ -19,10 +23,29 @@ class BaseRecyclerView(
         mCallback = callback
     }
 
+    fun isAtStart(): Boolean {
+        val layoutManager = layoutManager
+
+        if (layoutManager == null) return false
+
+        return when (layoutManager::class) {
+            LinearLayoutManager::class ->
+                checkLinearLayoutManagerIsAtStart(layoutManager as LinearLayoutManager)
+            else -> false
+        }
+    }
+
+    private fun checkLinearLayoutManagerIsAtStart(layoutManager: LinearLayoutManager): Boolean {
+        val firstVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+
+        return (firstVisibleItemPosition == 0)
+    }
+
     override fun onScrolled(dx: Int, dy: Int) {
         super.onScrolled(dx, dy)
 
         checkIsEndReached()
+
     }
 
     @CallSuper
@@ -32,8 +55,7 @@ class BaseRecyclerView(
 
         if (mCallback == null || layoutManager == null
         || adapter == null || adapter !is BaseRecyclerViewAdapter<*, *, *, *>
-        )
-        {
+        ) {
             return true
         }
 
@@ -70,5 +92,25 @@ class BaseRecyclerView(
         } else {
             if (mIsEndReached) mIsEndReached = false
         }
+    }
+
+    override fun isPaddingOffsetRequired(): Boolean {
+        return true
+    }
+
+    override fun getTopPaddingOffset(): Int {
+        return -paddingTop
+    }
+
+    override fun getBottomPaddingOffset(): Int {
+        return paddingBottom
+    }
+
+    override fun getLeftPaddingOffset(): Int {
+        return -paddingLeft
+    }
+
+    override fun getRightPaddingOffset(): Int {
+        return paddingRight
     }
 }

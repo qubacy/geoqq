@@ -38,14 +38,15 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
         android:id="@+id/fragment_mate_chat_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/fragment_mate_chat_top_bar_wrapper"
         app:layout_constraintBottom_toTopOf="@id/fragment_mate_input_message_wrapper"
         android:padding="@dimen/small_gap_between_components"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:clipToPadding="false"
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="3"/>
 
     <com.google.android.material.textfield.TextInputLayout

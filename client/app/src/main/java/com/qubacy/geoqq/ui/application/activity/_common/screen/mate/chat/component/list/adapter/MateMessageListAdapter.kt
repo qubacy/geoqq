@@ -1,7 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter
 
 import androidx.annotation.UiThread
+import androidx.recyclerview.widget.RecyclerView
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.producer.MateMessageItemViewProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.MateMessageItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
@@ -22,6 +24,14 @@ class MateMessageListAdapter(
         baseItemView
     ) {
 
+    }
+
+    private lateinit var mRecyclerView: BaseRecyclerView
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+
+        mRecyclerView = recyclerView as BaseRecyclerView
     }
 
     override fun createViewHolder(itemView: MateMessageItemView): ViewHolder {
@@ -49,5 +59,12 @@ class MateMessageListAdapter(
         mItems.add(0, mateMessage)
 
         wrappedNotifyItemInserted(0)
+        runScrollToPosition(0)
+    }
+
+    private fun runScrollToPosition(position: Int) {
+        if (!mRecyclerView.isAtStart()) return
+
+        mRecyclerView.scrollToPosition(position)
     }
 }
