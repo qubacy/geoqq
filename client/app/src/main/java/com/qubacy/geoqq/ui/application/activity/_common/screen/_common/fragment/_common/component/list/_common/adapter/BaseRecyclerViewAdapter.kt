@@ -36,7 +36,7 @@ abstract class BaseRecyclerViewAdapter<
         where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,
               RecyclerViewItemViewType : View
     {
-        fun setData(data: RecyclerViewItemDataType) {
+        open fun setData(data: RecyclerViewItemDataType) {
             baseItemView.setData(data)
         }
     }

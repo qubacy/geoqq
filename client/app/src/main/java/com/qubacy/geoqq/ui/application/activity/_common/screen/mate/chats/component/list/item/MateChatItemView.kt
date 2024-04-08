@@ -34,6 +34,9 @@ class MateChatItemView(
 
     private fun initAttrs(attrs: AttributeSet?) {
         initLayoutAttrs()
+
+        isClickable = true
+        isFocusable = true
     }
 
     private fun initLayoutAttrs() {

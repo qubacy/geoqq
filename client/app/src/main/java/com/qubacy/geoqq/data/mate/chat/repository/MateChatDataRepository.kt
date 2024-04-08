@@ -8,13 +8,16 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toMateChatLastMessageEntityPair
+import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatByIdDataResult
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -74,6 +77,38 @@ class MateChatDataRepository @Inject constructor(
         return resultLiveData
     }
 
+    suspend fun getChatById(chatId: Long): LiveData<GetChatByIdDataResult> {
+        val resultLiveData = MutableLiveData<GetChatByIdDataResult>()
+
+        CoroutineScope(coroutineContext).launch {
+            val localChat = mLocalMateChatDataSource.getChatById(chatId)
+            val localDataChat = resolveChatWithLastMessageMap(localChat)
+                .let { if (it.isNotEmpty()) it.first() else null }
+
+            if (localDataChat != null)
+                resultLiveData.postValue(GetChatByIdDataResult(localDataChat))
+
+            val accessToken = mTokenDataRepository.getTokens().accessToken
+            val getChatCall = mHttpMateChatDataSource.getChat(chatId, accessToken)
+            val getChatResponse = executeNetworkRequest(
+                mErrorDataRepository, mHttpClient, getChatCall)
+
+            val httpDataChat = resolveGetChatResponse(getChatResponse)
+
+            if (localDataChat == httpDataChat) return@launch
+
+            if (localDataChat != null)
+                mResultFlow.emit(GetChatByIdDataResult(httpDataChat))
+            else resultLiveData.postValue(GetChatByIdDataResult(httpDataChat))
+
+            val chatToSave = httpDataChat.toMateChatLastMessageEntityPair()
+
+            mLocalMateChatDataSource.saveChats(listOf(chatToSave))
+        }
+
+        return resultLiveData
+    }
+
     private fun deleteOverdueChats(
         localDataChats: List<DataMateChat>,
         httpDataChats: List<DataMateChat>
@@ -112,6 +147,24 @@ class MateChatDataRepository @Inject constructor(
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return getChatsResponse.chats.map {
+            mapGetChatResponseToDataMateChat(it, users)
+        }
+    }
+
+    private suspend fun resolveGetChatResponse(
+        getChatResponse: GetChatResponse
+    ): DataMateChat {
+        val userId = getChatResponse.userId
+        val users = mUserDataRepository.resolveUsersWithLocalUser(listOf(userId))
+
+        return mapGetChatResponseToDataMateChat(getChatResponse, users)
+    }
+
+    private fun mapGetChatResponseToDataMateChat(
+        getChatResponse: GetChatResponse,
+        users: Map<Long, DataUser>
+    ): DataMateChat {
+        return getChatResponse.let {
             val chatUser = users[it.userId]!!
             val lastMessageUser = it.lastMessage?.let { lastMessage -> users[lastMessage.userId] }
 

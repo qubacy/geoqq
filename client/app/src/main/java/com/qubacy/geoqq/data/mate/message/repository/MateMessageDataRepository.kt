@@ -43,7 +43,7 @@ class MateMessageDataRepository @Inject constructor(
             val localDataMessages = resolveMessageEntities(localMessages)
 
             if (localMessages.isNotEmpty())
-                resultLiveData.postValue(GetMessagesDataResult(localDataMessages))
+                resultLiveData.postValue(GetMessagesDataResult(offset, localDataMessages))
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
 
@@ -62,8 +62,8 @@ class MateMessageDataRepository @Inject constructor(
             if (localDataMessages.containsAll(httpDataMessages)) return@launch
 
             if (localDataMessages.isNotEmpty())
-                mResultFlow.emit(GetMessagesDataResult(httpDataMessages))
-            else resultLiveData.postValue(GetMessagesDataResult(httpDataMessages))
+                mResultFlow.emit(GetMessagesDataResult(offset, httpDataMessages))
+            else resultLiveData.postValue(GetMessagesDataResult(offset, httpDataMessages))
 
             if (localDataMessages.size - httpDataMessages.size > 0)
                 deleteOverdueMessages(localDataMessages, httpDataMessages)

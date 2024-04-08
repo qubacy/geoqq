@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -22,9 +21,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.MateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
@@ -40,7 +40,7 @@ class MateChatsFragment(
     FragmentMateChatsBinding,
     MateChatsUiState,
     MateChatsViewModel
->(), PermissionRunnerCallback, BaseRecyclerViewCallback {
+>(), PermissionRunnerCallback, BaseRecyclerViewCallback, MateChatsListAdapterCallback {
     @Inject
     @MateChatsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -184,7 +184,7 @@ class MateChatsFragment(
     }
 
     private fun initMateChatListView() {
-        mAdapter = MateChatsListAdapter()
+        mAdapter = MateChatsListAdapter(callback = this)
 
         val itemDivider = MaterialDividerItemDecoration(
             requireContext(), MaterialDividerItemDecoration.VERTICAL)
@@ -209,5 +209,17 @@ class MateChatsFragment(
 
     private fun launchPrevChatsLoading() {
         mModel.getNextChatChunk()
+    }
+
+    override fun onChatPreviewClicked(chatId: Long) {
+        navigateToChat(chatId)
+    }
+
+    private fun navigateToChat(chatId: Long) {
+        val chat = mModel.getChatPresentationById(chatId)
+        val action = MateChatsFragmentDirections
+            .actionMateChatsFragmentToMateChatFragment(chat)
+
+        Navigation.findNavController(requireView()).navigate(action)
     }
 }

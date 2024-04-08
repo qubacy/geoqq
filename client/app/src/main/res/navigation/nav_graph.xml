@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mateChatFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -55,6 +55,10 @@
         android:id="@+id/mateChatFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.MateChatFragment"
         android:label="MateChatFragment"
-        tools:layout="@layout/fragment_mate_chat"/>
+        tools:layout="@layout/fragment_mate_chat">
+        <argument
+            android:name="chat"
+            app:argType="com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation" />
+    </fragment>
 
 </navigation>

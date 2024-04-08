@@ -3,8 +3,8 @@ package com.qubacy.geoqq.domain.mate.chats.model
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain._common.model.user.toUser
-import com.qubacy.geoqq.domain.mate.message.model.MateMessage
-import com.qubacy.geoqq.domain.mate.message.model.toMateMessage
+import com.qubacy.geoqq.domain.mate.chat.model.MateMessage
+import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 
 data class MateChat(
     val id: Long,

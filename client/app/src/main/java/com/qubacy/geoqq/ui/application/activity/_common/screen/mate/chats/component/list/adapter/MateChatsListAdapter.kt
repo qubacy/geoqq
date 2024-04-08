@@ -7,7 +7,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.compon
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData
 
 class MateChatsListAdapter(
-    itemViewProducer: MateChatItemViewProducer = MateChatItemViewProducer()
+    itemViewProducer: MateChatItemViewProducer = MateChatItemViewProducer(),
+    callback: MateChatsListAdapterCallback
 ) : BaseRecyclerViewAdapter<
     MateChatItemData,
     MateChatItemView,
@@ -17,15 +18,23 @@ class MateChatsListAdapter(
     itemViewProducer
 ) {
     class ViewHolder(
-        baseItemView: MateChatItemView
+        baseItemView: MateChatItemView,
+        val onClickAction: (Long) -> Unit
     ) : BaseRecyclerViewAdapter.ViewHolder<MateChatItemData, MateChatItemView>(
         baseItemView
     ) {
+        override fun setData(data: MateChatItemData) {
+            super.setData(data)
 
+            // todo: doesn't work for some reason:
+            baseItemView.setOnClickListener { onClickAction(data.id) }
+        }
     }
 
+    private val mCallback: MateChatsListAdapterCallback = callback
+
     override fun createViewHolder(itemView: MateChatItemView): ViewHolder {
-        return ViewHolder(itemView)
+        return ViewHolder(itemView) { mCallback.onChatPreviewClicked(it) }
     }
 
     @UiThread

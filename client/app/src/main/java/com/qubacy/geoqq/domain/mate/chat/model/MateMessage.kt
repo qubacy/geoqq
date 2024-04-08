@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.mate.message.model
+package com.qubacy.geoqq.domain.mate.chat.model
 
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.domain._common.model.user.User

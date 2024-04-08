@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,8 +11,8 @@ import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomai
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.MateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats._common.presentation.toMateChatPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
@@ -150,6 +149,16 @@ open class MateChatsViewModel @Inject constructor(
 //        )
 
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
+    }
+
+    open fun getChatPresentationById(chatId: Long): MateChatPresentation {
+        for (chatChunk in mUiState.chatChunks.values) {
+            val chat = chatChunk.find { it.id == chatId }
+
+            if (chat != null) return chat
+        }
+
+        throw IllegalStateException()
     }
 }
 

@@ -4,6 +4,7 @@ import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 
 class GetMessagesDataResult(
+    val offset: Int,
     val messages: List<DataMessage>
 ) : DataResult {
 

@@ -8,28 +8,51 @@ import android.view.ViewGroup
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MateChatFragment(
 
-) : BaseFragment<FragmentMateChatBinding>(),
+) : BusinessFragment<FragmentMateChatBinding, MateChatUiState, MateChatViewModel>(),
     PermissionRunnerCallback,
     BaseRecyclerViewCallback
 {
+    private val mArgs: MateChatFragmentArgs by navArgs()
+
+    @Inject
+    @MateChatViewModelFactoryQualifier
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    override val mModel: MateChatViewModel by viewModels(
+        factoryProducer = { viewModelFactory }
+    )
+
     private lateinit var mAdapter: MateMessageListAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (mModel.uiState.interlocutor == null) mModel.setChatContext(mArgs.chat)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
