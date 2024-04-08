@@ -37,6 +37,7 @@ class MateMessageItemView(
         val VERTICAL_PADDING_DIMEN_ID = R.dimen.tiny_gap_between_components
     }
 
+    // todo: optimize it:
     private lateinit var mBackgroundRight: Drawable
     private lateinit var mBackgroundLeft: Drawable
 

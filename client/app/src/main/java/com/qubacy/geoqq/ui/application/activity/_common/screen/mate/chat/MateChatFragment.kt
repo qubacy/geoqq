@@ -19,11 +19,15 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,14 +52,10 @@ class MateChatFragment(
 
     private lateinit var mAdapter: MateMessageListAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (mModel.uiState.interlocutor == null) mModel.setChatContext(mArgs.chat)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initChatContext() // it's important to run BEFORE super.onStart() & onPermissionGranted();
 
         runPermissionCheck<MateChatsFragment>()
         setupNavigationUI(mBinding.fragmentMateChatTopBar)
@@ -64,15 +64,73 @@ class MateChatFragment(
         initUiControls()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun processUiOperation(uiOperation: UiOperation): Boolean {
+        if (super.processUiOperation(uiOperation)) return true
 
-        // todo: delete:
-        mAdapter.setMateMessages(listOf(
-            MateMessageItemData(0, SenderSide.ME, "hi", "5:00 AM"),
-            MateMessageItemData(1, SenderSide.OTHER, "qq", "5:01 AM"),
-            MateMessageItemData(2, SenderSide.ME, "lets start", "5:02 AM"),
-        ))
+        when (uiOperation::class) {
+            InsertMessagesUiOperation::class ->
+                processInsertMessagesUiOperation(uiOperation as InsertMessagesUiOperation)
+            UpdateMessageChunkUiOperation::class ->
+                processUpdateChatChunkUiOperation(uiOperation as UpdateMessageChunkUiOperation)
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun processInsertMessagesUiOperation(
+        insertMessagesUiOperation: InsertMessagesUiOperation
+    ) {
+        val remoteUserId = mModel.uiState.chatContext!!.user.id
+        val messageItems = insertMessagesUiOperation.messages
+            .map { it.toMateMessageItemData(remoteUserId) }
+
+        mAdapter.insertMateMessages(messageItems, insertMessagesUiOperation.position)
+    }
+
+    private fun processUpdateChatChunkUiOperation(
+        updateMessageChunkUiOperation: UpdateMessageChunkUiOperation
+    ) {
+        val remoteUserId = mModel.uiState.chatContext!!.user.id
+        val messageItems = updateMessageChunkUiOperation.messages
+            .map { it.toMateMessageItemData(remoteUserId) }
+
+        if (updateMessageChunkUiOperation.messageChunkSizeDelta < 0) {
+            val itemsToInsertCount = -updateMessageChunkUiOperation.messageChunkSizeDelta
+            val itemsToUpdateCount = updateMessageChunkUiOperation.messages.size - itemsToInsertCount
+
+            val itemsToInsert = messageItems.subList(
+                itemsToUpdateCount, updateMessageChunkUiOperation.messages.size)
+            val itemsToUpdate = messageItems.subList(0, itemsToUpdateCount)
+
+            mAdapter.insertMateMessages(itemsToInsert, itemsToUpdateCount)
+            mAdapter.updateMateMessageChunk(itemsToUpdate, 0)
+
+        } else {
+            mAdapter.updateMateMessageChunk(messageItems, updateMessageChunkUiOperation.position)
+
+            if (updateMessageChunkUiOperation.messageChunkSizeDelta > 0) {
+                mAdapter.deleteMateMessages(
+                    updateMessageChunkUiOperation.position +
+                            updateMessageChunkUiOperation.messages.size,
+                    updateMessageChunkUiOperation.messageChunkSizeDelta
+                )
+            }
+        }
+    }
+
+    override fun runInitWithUiState(uiState: MateChatUiState) {
+        super.runInitWithUiState(uiState)
+
+        initUiWithUiState(uiState)
+    }
+
+    private fun initChatContext() {
+        if (mModel.uiState.chatContext == null) mModel.setChatContext(mArgs.chat)
+    }
+
+    private fun initUiWithUiState(uiState: MateChatUiState) {
+        mBinding.fragmentMateChatTopBar.title = uiState.chatContext!!.user.username
     }
 
     private fun initMessageListView() {
@@ -124,9 +182,19 @@ class MateChatFragment(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    override fun onEndReached() {
-        // todo: implement..
+    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+        initMateChat()
+    }
 
-        Log.d(TAG, "onEndReached(): entering..")
+    private fun initMateChat() {
+        if (mModel.uiState.messageChunks.isEmpty()) mModel.getNextMessageChunk()
+    }
+
+    override fun onEndReached() {
+        launchPrevMessagesLoading()
+    }
+
+    private fun launchPrevMessagesLoading() {
+        mModel.getNextMessageChunk()
     }
 }

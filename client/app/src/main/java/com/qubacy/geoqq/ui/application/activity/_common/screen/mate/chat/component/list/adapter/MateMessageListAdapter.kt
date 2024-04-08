@@ -62,6 +62,23 @@ class MateMessageListAdapter(
         runScrollToPosition(0)
     }
 
+    @UiThread
+    fun updateMateMessageChunk(mateMessages: List<MateMessageItemData>, position: Int) {
+        for (i in position until position + mateMessages.size)
+            mItems[i] = mateMessages[i - position]
+
+        wrappedNotifyItemRangeChanged(position, mateMessages.size)
+    }
+
+    @UiThread
+    fun deleteMateMessages(position: Int, count: Int) {
+        val itemsToRemove = mItems.subList(position, position + count)
+
+        mItems.removeAll(itemsToRemove)
+
+        wrappedNotifyItemRangeRemoved(position, count)
+    }
+
     private fun runScrollToPosition(position: Int) {
         if (!mRecyclerView.isAtStart()) return
 

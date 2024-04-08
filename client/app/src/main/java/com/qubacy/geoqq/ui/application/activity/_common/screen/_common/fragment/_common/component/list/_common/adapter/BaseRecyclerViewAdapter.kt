@@ -60,7 +60,7 @@ abstract class BaseRecyclerViewAdapter<
     override fun onBindViewHolder(holder: ViewHolderType, position: Int) {
         val itemData = mItems[position]
 
-        holder.baseItemView.setData(itemData)
+        holder.setData(itemData)
     }
 
     override fun getItemCount(): Int {

@@ -142,12 +142,6 @@ open class MateChatsViewModel @Inject constructor(
         val chunkSizeCheck = (prevChatChunkIndex < 0 || (prevChunkSize != null
                 && prevChunkSize >= MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE))
 
-//        Log.d(TAG, "isNextChatChunkGettingAllowed(): " +
-//                "prevChatChunkIndex = $prevChatChunkIndex; " +
-//                "prevChunkSize = $prevChunkSize; " +
-//                "chunkSizeCheck = $chunkSizeCheck;"
-//        )
-
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }
 

@@ -96,7 +96,7 @@ class MateMessageDataRepository @Inject constructor(
     private suspend fun resolveMessageEntities(
         messageEntities: List<MateMessageEntity>
     ): List<DataMessage> {
-        val userIds = messageEntities.map { it.userId }
+        val userIds = messageEntities.map { it.userId }.toSet().toList()
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return messageEntities.map { it.toDataMessage(users[it.userId]!!) }
@@ -105,7 +105,7 @@ class MateMessageDataRepository @Inject constructor(
     private suspend fun resolveGetMessagesResponse(
         getMessagesResponse: GetMessagesResponse
     ): List<DataMessage> {
-        val userIds = getMessagesResponse.messages.map { it.userId }
+        val userIds = getMessagesResponse.messages.map { it.userId }.toSet().toList()
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         return getMessagesResponse.messages.map { it.toDataMessage(users[it.userId]!!) }

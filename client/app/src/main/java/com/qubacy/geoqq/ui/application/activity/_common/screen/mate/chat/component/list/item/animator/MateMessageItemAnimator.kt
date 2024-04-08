@@ -10,6 +10,10 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 
 class MateMessageItemAnimator : SimpleItemAnimator() {
+    companion object {
+        const val DEFAULT_ANIMATION_DURATION = 300L
+    }
+
     override fun animateChange(
         oldHolder: RecyclerView.ViewHolder?,
         newHolder: RecyclerView.ViewHolder?,
@@ -32,7 +36,36 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
     }
 
     override fun animateRemove(holder: RecyclerView.ViewHolder?): Boolean {
-        return false
+        if (holder == null || holder !is MateMessageListAdapter.ViewHolder) return false
+
+        val mateMessageItemView = holder.baseItemView
+        val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
+        val itemContentWrapperGravity = (itemContentWrapperLayoutParams as LinearLayout.LayoutParams)
+            .gravity
+        val endTranslationX =
+            if (itemContentWrapperGravity == GravityCompat.END) mateMessageItemView.width.toFloat()
+            else -mateMessageItemView.width.toFloat()
+
+        mateMessageItemView.apply {
+            translationX = 0f
+        }
+
+        val onEndAction = {
+            dispatchRemoveFinished(holder)
+
+            mateMessageItemView.translationX = endTranslationX
+
+            Unit
+        }
+
+        mateMessageItemView.animate().apply {
+            translationX(0f)
+
+            duration = DEFAULT_ANIMATION_DURATION
+            interpolator = DecelerateInterpolator()
+        }.setListener(createAnimatorListener({}, onEndAction)).start()
+
+        return true
     }
 
     override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
@@ -60,7 +93,7 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
         mateMessageItemView.animate().apply {
             translationX(0f)
 
-            duration = 300L
+            duration = DEFAULT_ANIMATION_DURATION
             interpolator = DecelerateInterpolator()
         }.setListener(createAnimatorListener({}, onEndAction)).start()
 

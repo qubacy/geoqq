@@ -26,7 +26,6 @@ class MateChatsListAdapter(
         override fun setData(data: MateChatItemData) {
             super.setData(data)
 
-            // todo: doesn't work for some reason:
             baseItemView.setOnClickListener { onClickAction(data.id) }
         }
     }
