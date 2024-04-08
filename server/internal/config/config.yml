@@ -57,11 +57,11 @@ logging:
   level: 0
 
   lumberjack:
-    dirname: "./lumberjack"
+    dirname: "./rotation"
     filename: "server.log"
 
-    max_size_mb: 1
-    max_backups: 3
+    max_size_mb: 100
+    max_backups: 5
     max_age_days: 1
 
   mlog:

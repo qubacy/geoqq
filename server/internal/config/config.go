@@ -14,6 +14,8 @@ const (
 	ConfigFileExt  = "yml"
 )
 
+// TODO: flag already initialized!
+
 func Initialize() error {
 	configPath, err := currentConfigPathToFile()
 	if err != nil {

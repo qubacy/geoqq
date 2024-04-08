@@ -9,8 +9,9 @@ import (
 )
 
 type LumberjackLogger struct {
-	mx    sync.Mutex
-	level logger.Level
+	mx     sync.Mutex
+	level  logger.Level
+	logger lumberjack.Logger
 }
 
 // ctor
@@ -21,7 +22,7 @@ func SetLumberjackLoggerForStdOutput(
 	maxSizeMB int, maxBackups int, maxAgeDays int,
 ) *LumberjackLogger {
 
-	log.SetOutput(&lumberjack.Logger{
+	logger := &lumberjack.Logger{
 		Filename:   dirname + "/" + filename,
 		MaxSize:    maxSizeMB,
 		MaxBackups: maxBackups,
@@ -29,7 +30,8 @@ func SetLumberjackLoggerForStdOutput(
 
 		Compress:  false,
 		LocalTime: false,
-	})
+	}
+	log.SetOutput(logger)
 
 	log.SetFlags(
 		log.Ldate | log.Ltime | log.Lmicroseconds |
@@ -37,6 +39,7 @@ func SetLumberjackLoggerForStdOutput(
 	)
 
 	return &LumberjackLogger{
+		mx:    sync.Mutex{},
 		level: level, // error and fatal always!
 	}
 }
@@ -79,6 +82,12 @@ func (l *LumberjackLogger) Fatal(format string, a ...interface{}) {
 	defer l.mx.Unlock()
 
 	log.Fatalf(join(logger.LevelFatal, format), a...)
+}
+
+// -----------------------------------------------------------------------
+
+func (l *LumberjackLogger) Close() error {
+	return l.logger.Close()
 }
 
 // private

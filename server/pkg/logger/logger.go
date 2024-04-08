@@ -42,35 +42,55 @@ type Logger interface {
 
 	Error(format string, a ...interface{})
 	Fatal(format string, a ...interface{})
+
+	Close() error
 }
 
-var Instance Logger // TODO: to private!
+// initialize
+// -----------------------------------------------------------------------
 
-// global funcs
+var instance Logger = nil
+
+func Initialize(lr Logger) error {
+	if instance != nil {
+		return ErrLoggerIsAlreadyInitialized
+	}
+
+	instance = lr
+	return nil
+}
+
+// global funcs available after initialization!
 // -----------------------------------------------------------------------
 
 func Trace(format string, a ...interface{}) {
-	Instance.Trace(format, a...)
+	instance.Trace(format, a...)
 }
 
 func Debug(format string, a ...interface{}) {
-	Instance.Debug(format, a...)
+	instance.Debug(format, a...)
 }
 
 func Info(format string, a ...interface{}) {
-	Instance.Info(format, a...)
+	instance.Info(format, a...)
 }
 
 func Warning(format string, a ...interface{}) {
-	Instance.Warning(format, a...)
+	instance.Warning(format, a...)
 }
 
 func Error(format string, a ...interface{}) {
-	Instance.Error(format, a...)
+	instance.Error(format, a...)
 }
 
 func Fatal(format string, a ...interface{}) {
-	Instance.Fatal(format, a...)
+	instance.Fatal(format, a...)
 
 	//os.Exit(1)
+}
+
+// -----------------------------------------------------------------------
+
+func Close() error {
+	return instance.Close()
 }

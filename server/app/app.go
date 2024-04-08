@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"geoqq/internal/config"
 	deliveryHttp "geoqq/internal/delivery/http"
@@ -41,14 +42,10 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 
 	// *** logger
 
-	logger.Instance = impl.SetLumberjackLoggerForStdOutput(
-		logger.Level(viper.GetInt("logging.level")),
-		viper.GetString("logging.lumberjack.dirname"),
-		viper.GetString("logging.lumberjack.filename"),
-		viper.GetInt("logging.lumberjack.max_size_mb"),
-		viper.GetInt("logging.lumberjack.max_backups"),
-		viper.GetInt("logging.lumberjack.max_age_days"),
-	)
+	err = initializeLogging()
+	if err != nil {
+		return nil, utility.NewFuncError(NewApp, err)
+	}
 
 	// *** common deps!
 
@@ -119,11 +116,36 @@ func (a *App) Run() error {
 }
 
 func (a *App) Stop() error {
-	return a.server.Stop()
+	return errors.Join(
+		a.server.Stop(),
+		logger.Close(),
+	)
 }
 
 // private
 // -----------------------------------------------------------------------
+
+func initializeLogging() error {
+	loggingType := viper.GetString("logging.type")
+	if loggingType == "lumberjack" {
+		logger.Initialize(impl.SetLumberjackLoggerForStdOutput(
+			logger.Level(viper.GetInt("logging.level")),
+			viper.GetString("logging.lumberjack.dirname"),
+			viper.GetString("logging.lumberjack.filename"),
+
+			viper.GetInt("logging.lumberjack.max_size_mb"),
+			viper.GetInt("logging.lumberjack.max_backups"),
+			viper.GetInt("logging.lumberjack.max_age_days"),
+		))
+		return nil
+
+	} else if loggingType == "mlog" {
+		//...
+		return ErrNotImplemented
+	}
+
+	return ErrLoggingTypeIsNotDefined
+}
 
 func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
@@ -159,7 +181,7 @@ func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage
 
 	if err != nil {
 		return nil,
-			utility.NewFuncError(domainStorageInstance, err) // <--- exception!
+			utility.NewFuncError(domainStorageInstance, err) // may be edge!
 	}
 	return storage, nil
 }
