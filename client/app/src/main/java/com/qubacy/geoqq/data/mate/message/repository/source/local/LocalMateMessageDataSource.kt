@@ -35,14 +35,15 @@ interface LocalMateMessageDataSource : DataSource {
 
     @Query(
         "DELETE FROM ${MateMessageEntity.TABLE_NAME} " +
-        "WHERE ${MateMessageEntity.ID_PROP_NAME} IN (:messageIds)"
+        "WHERE ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} = :chatId " +
+        "AND ${MateMessageEntity.ID_PROP_NAME} IN (:messageIds)"
     )
-    fun deleteMessagesByIds(messageIds: List<Long>)
+    fun deleteMessagesByIds(chatId: Long, messageIds: List<Long>)
 
     fun saveMessage(message: MateMessageEntity) {
         val localMessage = getMessage(message.chatId, message.id)
 
-        if(message == localMessage) return
+        if (message == localMessage) return
 
         if (localMessage == null) insertMessage(message)
         else updateMessage(message)

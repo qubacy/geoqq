@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter
 
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
@@ -75,6 +76,8 @@ class MateMessageListAdapter(
         val itemsToRemove = mItems.subList(position, position + count)
 
         mItems.removeAll(itemsToRemove)
+
+        Log.d(TAG, "deleteMateMessages(): mItems.size = ${mItems.size};")
 
         wrappedNotifyItemRangeRemoved(position, count)
     }

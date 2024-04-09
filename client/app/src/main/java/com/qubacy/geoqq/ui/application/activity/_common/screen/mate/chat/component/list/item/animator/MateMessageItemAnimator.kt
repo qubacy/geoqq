@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.compon
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import androidx.core.view.GravityCompat
@@ -14,6 +15,7 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
         const val DEFAULT_ANIMATION_DURATION = 300L
     }
 
+    // todo: traverse it and think how to optimize:
     override fun animateChange(
         oldHolder: RecyclerView.ViewHolder?,
         newHolder: RecyclerView.ViewHolder?,
@@ -22,7 +24,45 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
         toLeft: Int,
         toTop: Int
     ): Boolean {
-        return false
+        if (oldHolder == null || newHolder == null
+         || oldHolder !is MateMessageListAdapter.ViewHolder
+         || newHolder !is MateMessageListAdapter.ViewHolder
+        ) {
+            return false
+        }
+
+        val oldMateMessageItemView = oldHolder.baseItemView
+        val newMateMessageItemView = newHolder.baseItemView
+
+        oldMateMessageItemView.apply { alpha = 1f }
+        newMateMessageItemView.apply { alpha = 0f }
+
+        val newHolderAnimation = newMateMessageItemView.animate().apply {
+            alpha(1f)
+
+            duration = DEFAULT_ANIMATION_DURATION
+            interpolator = AccelerateInterpolator()
+        }.setListener(createAnimatorListener({}, {
+            newMateMessageItemView.alpha = 1f
+
+            dispatchChangeFinished(oldHolder, false)
+        }))
+
+        val onOldHolderDisappearAction = {
+            oldMateMessageItemView.alpha = 1f
+
+            dispatchChangeFinished(oldHolder, true)
+            newHolderAnimation.start()
+        }
+
+        oldMateMessageItemView.animate().apply {
+            alpha(0f)
+
+            duration = DEFAULT_ANIMATION_DURATION
+            interpolator = AccelerateInterpolator()
+        }.setListener(createAnimatorListener({}, onOldHolderDisappearAction)).start()
+
+        return true
     }
 
     override fun runPendingAnimations() { }
@@ -39,9 +79,8 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
         if (holder == null || holder !is MateMessageListAdapter.ViewHolder) return false
 
         val mateMessageItemView = holder.baseItemView
-        val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
-        val itemContentWrapperGravity = (itemContentWrapperLayoutParams as LinearLayout.LayoutParams)
-            .gravity
+        val itemContentWrapperGravity = getViewHolderViewGravity(holder)
+
         val endTranslationX =
             if (itemContentWrapperGravity == GravityCompat.END) mateMessageItemView.width.toFloat()
             else -mateMessageItemView.width.toFloat()
@@ -72,9 +111,7 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
         if (holder == null || holder !is MateMessageListAdapter.ViewHolder) return false
 
         val mateMessageItemView = holder.baseItemView
-        val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
-        val itemContentWrapperGravity = (itemContentWrapperLayoutParams as LinearLayout.LayoutParams)
-            .gravity
+        val itemContentWrapperGravity = getViewHolderViewGravity(holder)
 
         mateMessageItemView.apply {
             translationX =
@@ -119,5 +156,12 @@ class MateMessageItemAnimator : SimpleItemAnimator() {
             override fun onAnimationCancel(animation: Animator) { endAction() }
             override fun onAnimationEnd(animation: Animator) { endAction() }
         }
+    }
+
+    private fun getViewHolderViewGravity(holder: MateMessageListAdapter.ViewHolder): Int {
+        val mateMessageItemView = holder.baseItemView
+        val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
+
+        return (itemContentWrapperLayoutParams as LinearLayout.LayoutParams).gravity
     }
 }

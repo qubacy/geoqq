@@ -9,5 +9,9 @@ data class MateMessageItemData(
     val text: String?,
     val timestamp: String
 ) : RecyclerViewItemData {
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is MateMessageItemData) return false
 
+        return (other.id == id)
+    }
 }

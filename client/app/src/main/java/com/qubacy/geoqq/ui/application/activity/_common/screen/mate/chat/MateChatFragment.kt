@@ -147,10 +147,9 @@ class MateChatFragment(
     }
 
     private fun initUiControls() {
-        // todo: delete:
-        mBinding.fragmentMateInputMessage.setOnClickListener {
-            mAdapter.addNewMateMessage(MateMessageItemData(0L, SenderSide.OTHER, "another message", "NO TIME"))
-        }
+        // todo: implement..
+
+
     }
 
     override fun viewInsetsToCatch(): Int {

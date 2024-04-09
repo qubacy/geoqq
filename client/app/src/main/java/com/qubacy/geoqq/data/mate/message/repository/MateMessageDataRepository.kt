@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.model.message.DataMessage
@@ -59,14 +60,20 @@ class MateMessageDataRepository @Inject constructor(
 
             val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
 
-            if (localDataMessages.containsAll(httpDataMessages)) return@launch
+            if (localDataMessages.containsAll(httpDataMessages)
+                && localDataMessages.size == httpDataMessages.size
+            ) {
+                return@launch
+            }
 
             if (localDataMessages.isNotEmpty())
                 mResultFlow.emit(GetMessagesDataResult(offset, httpDataMessages))
             else resultLiveData.postValue(GetMessagesDataResult(offset, httpDataMessages))
 
+            Log.d("TEST", "localDataMessages.size = ${localDataMessages.size}; httpDataMessages.size = ${httpDataMessages.size};")
+
             if (localDataMessages.size - httpDataMessages.size > 0)
-                deleteOverdueMessages(localDataMessages, httpDataMessages)
+                deleteOverdueMessages(chatId, localDataMessages, httpDataMessages)
 
             val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
 
@@ -77,6 +84,7 @@ class MateMessageDataRepository @Inject constructor(
     }
 
     private fun deleteOverdueMessages(
+        chatId: Long,
         localDataMessages: List<DataMessage>,
         httpDataMessages: List<DataMessage>
     ) {
@@ -84,7 +92,9 @@ class MateMessageDataRepository @Inject constructor(
             httpDataMessages.find { httpMessage -> httpMessage.id == localMessage.id } == null
         }
 
-        mLocalMateMessageDataSource.deleteMessagesByIds(messagesToDelete.map { it.id })
+        Log.d("TEST", "deleteOverdueMessages(): startId = ${messagesToDelete.first().id}; endId = ${messagesToDelete.last().id};")
+
+        mLocalMateMessageDataSource.deleteMessagesByIds(chatId, messagesToDelete.map { it.id })
     }
 
     suspend fun sendMessage(chatId: Long, message: DataMessage) {
