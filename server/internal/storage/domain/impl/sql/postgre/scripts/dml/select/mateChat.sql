@@ -71,8 +71,9 @@ FROM "MateChat";
 -- -----------------------------------------------------------------------
 
 SELECT * FROM "MateChat";
+SELECT * FROM "MateMessage";
 
-WITH "srcUserId" AS (VALUES (1))
+WITH "srcUserId" AS (VALUES (14))
 SELECT "MateChat"."Id" AS "Id",
        case
            when "FirstUserId" = (table "srcUserId") 
@@ -80,10 +81,10 @@ SELECT "MateChat"."Id" AS "Id",
            else "FirstUserId"
        end as "UserId",
 
-    (SELECT COUNT(*)
-     FROM "MateMessage"
-     WHERE "MateChatId" = "MateChat"."Id"
-         AND "Read" = false) AS "NewMessageCount",
+    (SELECT COUNT(*) FROM "MateMessage"
+     WHERE "MateChatId" = "MateChat"."Id" 
+        AND "MateMessage"."FromUserId" != (table "srcUserId")
+        AND "Read" = false) AS "NewMessageCount",
 
        case
            when "LastMessage"."Id" is NULL then false

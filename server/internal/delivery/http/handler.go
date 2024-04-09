@@ -4,6 +4,7 @@ import (
 	"errors"
 	"geoqq/internal/delivery/http/api"
 	"geoqq/internal/service"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/token"
 	"net/http"
 
@@ -44,11 +45,11 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 
 	// ***
 
+	gin.DefaultWriter = logger.Output()
 	var engine *gin.Engine = gin.Default()
 
-	// TODO: add extra middlewares!
+	// ***
 
-	// TODO: remove debug route
 	engine.GET("/ping", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "pong")
 	})

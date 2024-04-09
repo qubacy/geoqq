@@ -130,6 +130,8 @@ func initializeLogging() error {
 	if loggingType == "lumberjack" {
 		logger.Initialize(impl.SetLumberjackLoggerForStdOutput(
 			logger.Level(viper.GetInt("logging.level")),
+			viper.GetBool("logging.use_console"),
+
 			viper.GetString("logging.lumberjack.dirname"),
 			viper.GetString("logging.lumberjack.filename"),
 

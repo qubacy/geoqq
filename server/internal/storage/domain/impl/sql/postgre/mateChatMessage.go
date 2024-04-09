@@ -3,6 +3,7 @@ package postgre
 import (
 	"context"
 	"geoqq/internal/domain"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4"
@@ -77,7 +78,7 @@ var (
 				"Text",
 				"Time",
 				"FromUserId" AS "UserId",
-				"Read" -- will return value before update
+				"Read" /* will return value before update */
 			FROM "MateMessage"
 			INNER JOIN "MateChat" ON (
 				"MateChat"."Id" = "MateMessage"."MateChatId" 
@@ -85,21 +86,21 @@ var (
 				AND ( 
 					"FirstUserId" = $1 OR 
 					"SecondUserId" = $1
-				) -- access check, without returning obvious errors
+				) /* access check, without returning obvious errors */
 			)
-			ORDER BY "Time" DESC
+			ORDER BY "Id" DESC /* or time? */
 			LIMIT $3 OFFSET $4
 			)
 		UPDATE "MateMessage" 
 			SET "Read" = 
 				CASE "MateMessage"."FromUserId"
-					WHEN $1 THEN TRUE
-					ELSE "MateMessage"."Read" -- already set value
+					WHEN $1 THEN "MateMessage"."Read" /* already set value */
+					ELSE TRUE 
 				END
 		FROM "MateChatMessages"
 		WHERE (
 			"MateMessage"."Id" = "MateChatMessages"."Id"
-		) RETURNING "MateChatMessages".*;`)
+		) RETURNING "MateChatMessages".*`)
 )
 
 // public
@@ -176,6 +177,8 @@ func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
 	defer conn.Release()
 
 	// ***
+
+	logger.Trace(templateQuery)
 
 	rows, err := conn.Query(ctx, templateQuery+`;`,
 		userId, chatId, count, offset)

@@ -50,6 +50,8 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 	return mateMessages, nil
 }
 
+/// TODO: check length text message!!!
+
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
 

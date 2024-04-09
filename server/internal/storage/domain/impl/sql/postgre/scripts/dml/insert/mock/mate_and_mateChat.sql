@@ -2,6 +2,11 @@ SELECT *
 FROM "UserEntry";
 
 
+
+SELECT * FROM "MateMessage"
+WHERE "MateChatId" = 4;
+
+
 SELECT *
 FROM "Mate";
 
@@ -11,12 +16,12 @@ FROM "MateChat";
 
 do $$
 begin
-for i in 1..34 loop
+for i in 1..5 loop
     insert into "Mate"("FirstUserId", "SecondUserId")
-    values(i, 13) ON CONFLICT DO NOTHING;
+    values(i, 14) ON CONFLICT DO NOTHING;
 
     insert into "MateChat"("FirstUserId", "SecondUserId")
-    values(i, 13) ON CONFLICT DO NOTHING;
+    values(i, 14) ON CONFLICT DO NOTHING;
     end loop;
 end;
 $$;

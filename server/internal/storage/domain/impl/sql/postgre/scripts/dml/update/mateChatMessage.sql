@@ -87,24 +87,24 @@ WITH "MateChatMessages" AS
         "Text",
         "Time",
         "FromUserId" AS "UserId",
-        "Read" -- will return value before update
+        "Read" /* will return value before update */
     FROM "MateMessage"
     INNER JOIN "MateChat" ON (
         "MateChat"."Id" = "MateMessage"."MateChatId" 
-        AND "MateMessage"."MateChatId" = 1
+        AND "MateMessage"."MateChatId" = 4
         AND ( 
-            "FirstUserId" = 13 OR
-            "SecondUserId" = 13
-        ) -- access check, without returning obvious errors
+            "FirstUserId" = 14 OR
+            "SecondUserId" = 14
+        ) /* access check, without returning obvious errors */
     )
-    ORDER BY "Time" DESC
+    ORDER BY "Id" DESC 
     LIMIT 5 OFFSET 0
     )
 UPDATE "MateMessage" 
     SET "Read" = 
         CASE "MateMessage"."FromUserId"
-            WHEN 13 THEN TRUE
-            ELSE "MateMessage"."Read" -- already set value
+            WHEN 13 THEN "MateMessage"."Read" /* already set value */
+            ELSE TRUE 
         END
 FROM "MateChatMessages"
 WHERE (

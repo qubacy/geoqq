@@ -15,4 +15,5 @@ VALUES (2,
 
 
 SELECT *
-FROM "MateMessage";
+FROM "MateMessage"
+WHERE "MateChatId" = 4;

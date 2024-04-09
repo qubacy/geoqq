@@ -58,6 +58,12 @@ var (
   				WHERE "ChatId" = "Id"
 	  				AND "UserId" = $2)`)
 
+	/*
+		Order:
+			1. userId
+			2. count
+			3. offset
+	*/
 	templateGetMateChatsForUser = utl.RemoveAdjacentWs(`
 		SELECT "MateChat"."Id" AS "Id",
 			case
@@ -67,6 +73,7 @@ var (
 
 			(SELECT COUNT(*) FROM "MateMessage"
 			WHERE "MateChatId" = "MateChat"."Id"
+				AND "MateMessage"."FromUserId" != $1 
 				AND "Read" = false) AS "NewMessageCount",
 
 			case

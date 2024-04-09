@@ -68,8 +68,8 @@ func Test_StringToSha256ToBase64(t *testing.T) {
 }
 
 func Test_StringToSha256ToHex(t *testing.T) {
-	//sourceValue := "test_user124reg"
-	sourceValue := "test_user124reg_"
+	sourceValue := "test_user124reg"
+	//sourceValue := "test_user124reg_"
 
 	// to sha256
 

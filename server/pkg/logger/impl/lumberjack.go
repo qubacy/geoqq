@@ -2,7 +2,9 @@ package impl
 
 import (
 	"geoqq/pkg/logger"
+	"io"
 	"log"
+	"os"
 	"sync"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -11,14 +13,14 @@ import (
 type LumberjackLogger struct {
 	mx     sync.Mutex
 	level  logger.Level
-	logger lumberjack.Logger
+	logger *lumberjack.Logger
 }
 
 // ctor
 // -----------------------------------------------------------------------
 
 func SetLumberjackLoggerForStdOutput(
-	level logger.Level, dirname, filename string,
+	level logger.Level, useConsole bool, dirname, filename string,
 	maxSizeMB int, maxBackups int, maxAgeDays int,
 ) *LumberjackLogger {
 
@@ -31,7 +33,12 @@ func SetLumberjackLoggerForStdOutput(
 		Compress:  false,
 		LocalTime: false,
 	}
-	log.SetOutput(logger)
+
+	multiWriter := io.MultiWriter(logger)
+	if useConsole {
+		multiWriter = io.MultiWriter(os.Stdout, multiWriter)
+	}
+	log.SetOutput(multiWriter)
 
 	log.SetFlags(
 		log.Ldate | log.Ltime | log.Lmicroseconds |
@@ -39,8 +46,9 @@ func SetLumberjackLoggerForStdOutput(
 	)
 
 	return &LumberjackLogger{
-		mx:    sync.Mutex{},
-		level: level, // error and fatal always!
+		mx:     sync.Mutex{},
+		level:  level, // error and fatal always!
+		logger: logger,
 	}
 }
 
@@ -85,6 +93,10 @@ func (l *LumberjackLogger) Fatal(format string, a ...interface{}) {
 }
 
 // -----------------------------------------------------------------------
+
+func (l *LumberjackLogger) Output() io.Writer {
+	return log.Writer() // see constructor!
+}
 
 func (l *LumberjackLogger) Close() error {
 	return l.logger.Close()

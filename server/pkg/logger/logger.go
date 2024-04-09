@@ -1,5 +1,7 @@
 package logger
 
+import "io"
+
 type Level int
 
 const (
@@ -43,6 +45,7 @@ type Logger interface {
 	Error(format string, a ...interface{})
 	Fatal(format string, a ...interface{})
 
+	Output() io.Writer
 	Close() error
 }
 
@@ -90,6 +93,10 @@ func Fatal(format string, a ...interface{}) {
 }
 
 // -----------------------------------------------------------------------
+
+func Output() io.Writer {
+	return instance.Output()
+}
 
 func Close() error {
 	return instance.Close()

@@ -3,6 +3,7 @@ package postgre
 import (
 	"context"
 	"fmt"
+	"geoqq/pkg/logger"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -72,8 +73,8 @@ func (s *Background) updateQueries(
 
 	for {
 		select {
-		case <-ctxWithCancel.Done():
-			fmt.Println("123")
+		case <-ctxWithCancel.Done(): // ?
+			logger.Warning("update queries canceled")
 			return
 
 		case f := <-s.queries:
@@ -84,8 +85,8 @@ func (s *Background) updateQueries(
 			defer cancel()
 
 			err = f(conn, ctx)
-			if err != nil { // only log to file?
-				fmt.Println(err)
+			if err != nil {
+				logger.Error("update query with err: %v", err)
 			}
 		}
 	}

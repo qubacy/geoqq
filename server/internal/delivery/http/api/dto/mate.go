@@ -121,7 +121,7 @@ func MakeMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList
 			ErrInputParameterIsNil
 	}
 
-	res := MessagesFromMateChatWithIdRes{}
+	mateMessages := make([]MateMessage, 0, len(domainMateMessages))
 	for i := range domainMateMessages {
 		mateMessage, err := MakeMateMessageFromDomain(domainMateMessages[i])
 		if err != nil {
@@ -129,10 +129,12 @@ func MakeMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList
 				utility.NewFuncError(MakeMateChatFromOutput, err)
 		}
 
-		res.MateMessages = append(res.MateMessages, mateMessage)
+		mateMessages = append(mateMessages, mateMessage)
 	}
 
-	return res, nil
+	return MessagesFromMateChatWithIdRes{
+		MateMessages: mateMessages,
+	}, nil
 }
 
 // GET /api/mate/request

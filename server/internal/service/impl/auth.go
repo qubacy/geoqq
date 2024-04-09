@@ -59,10 +59,13 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 		return dto.SignInOut{}, utl.NewFuncError(a.SignIn, err)
 	}
 
+	// ANd Not Deleted
 	userId, err := a.domainStorage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
 		return a.signInWithError(err, ec.Server, ec.DomainStorageError)
 	}
+
+	//a.domainStorage.WasUserDeleted()
 
 	// tokens
 
@@ -131,7 +134,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	}
 	clientCode, err := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, clientCode) // or client?
+		return a.refreshTokensWithError(err, ec.Client, clientCode) // or client?
 	}
 
 	// *** new tokens and hash ***
@@ -254,6 +257,7 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 	return ec.NoError, nil
 }
 
+// TODO: return side code server or client!
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 	userId uint64, refreshToken string) (int, error) {
 

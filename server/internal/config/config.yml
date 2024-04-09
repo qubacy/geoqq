@@ -47,7 +47,7 @@ storage:
 
         background:
           query_timeout: 10s
-          max_query_count: 2
+          max_query_count: 5
 
       sqlite:
         #...
@@ -55,6 +55,7 @@ storage:
 logging:
   type: "lumberjack"
   level: 0
+  use_console: true
 
   lumberjack:
     dirname: "./rotation"
