@@ -103,11 +103,12 @@ class LocalMateMessageDataSourceTest :
 
     @Test
     fun deleteMateMessagesByIdsTest() {
+        val chatId = 0L
         val messagesToDelete = generateMessages(count = 2)
 
         messagesToDelete.forEach { mLocalMateMessageDataSource.insertMessage(it) }
 
-        mLocalMateMessageDataSource.deleteMessagesByIds(messagesToDelete.map { it.id })
+        mLocalMateMessageDataSource.deleteMessagesByIds(chatId, messagesToDelete.map { it.id })
 
         val gottenDeletedMessageEntities = mLocalMateMessageDataSource
             .getMessages(messagesToDelete.first().chatId, 0, messagesToDelete.size)

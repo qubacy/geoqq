@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.data._common.util.http.executor
 
-import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -20,10 +19,16 @@ fun <ResponseBodyType>executeNetworkRequest(
 
         val response = call.execute()
 
-        if (response.errorBody() != null)
-            throw ErrorAppException(
-                errorDataRepository.getError(
-                    NetworkErrorType.RESPONSE_ERROR.getErrorCode()))
+        if (response.errorBody() != null) {
+            val code = response.code()
+
+            if (code in 400 until 500)
+                throw ErrorAppException(errorDataRepository.getError(
+                    NetworkErrorType.RESPONSE_ERROR_WITH_CLIENT_FAIL.getErrorCode()))
+            else
+                throw ErrorAppException(errorDataRepository.getError(
+                    NetworkErrorType.RESPONSE_ERROR_WITH_SERVER_FAIL.getErrorCode()))
+        }
 
         val responseBody = response.body()
 

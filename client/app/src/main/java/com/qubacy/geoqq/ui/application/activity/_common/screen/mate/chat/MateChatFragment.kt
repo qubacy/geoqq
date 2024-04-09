@@ -140,7 +140,7 @@ class MateChatFragment(
             layoutManager = LinearLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, true)
             adapter = mAdapter
-            itemAnimator = MateMessageItemAnimator()
+            //itemAnimator = MateMessageItemAnimator() // todo: fix this;
 
             setCallback(this@MateChatFragment)
         }

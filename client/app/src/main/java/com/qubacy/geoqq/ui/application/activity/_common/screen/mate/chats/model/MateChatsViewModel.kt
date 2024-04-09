@@ -109,7 +109,7 @@ open class MateChatsViewModel @Inject constructor(
     }
 
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
-        val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
+        val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }.toMutableList()
 
         mUiState.chatChunks[chatChunk.index] = chatPresentationChunk
 
@@ -145,11 +145,17 @@ open class MateChatsViewModel @Inject constructor(
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }
 
-    open fun getChatPresentationById(chatId: Long): MateChatPresentation {
+    open fun prepareChatForEntering(chatId: Long): MateChatPresentation {
         for (chatChunk in mUiState.chatChunks.values) {
-            val chat = chatChunk.find { it.id == chatId }
+            for (chatIndex in chatChunk.indices) {
+                val chat = chatChunk[chatIndex]
 
-            if (chat != null) return chat
+                if (chat.id == chatId) {
+                    chatChunk[chatIndex] = chat.copy(newMessageCount = 0)
+
+                    return chat
+                }
+            }
         }
 
         throw IllegalStateException()

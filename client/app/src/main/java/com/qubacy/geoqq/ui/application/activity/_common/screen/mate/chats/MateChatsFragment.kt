@@ -216,7 +216,7 @@ class MateChatsFragment(
     }
 
     private fun navigateToChat(chatId: Long) {
-        val chat = mModel.getChatPresentationById(chatId)
+        val chat = mModel.prepareChatForEntering(chatId)
         val action = MateChatsFragmentDirections
             .actionMateChatsFragmentToMateChatFragment(chat)
 

@@ -7,7 +7,8 @@ enum class NetworkErrorType(
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.NETWORK
 ) : ErrorType {
-    RESPONSE_ERROR(0),
+    RESPONSE_ERROR_WITH_CLIENT_FAIL(0),
     NULL_RESPONSE_BODY(1),
-    REQUEST_FAILED(2);
+    REQUEST_FAILED(2),
+    RESPONSE_ERROR_WITH_SERVER_FAIL(3);
 }

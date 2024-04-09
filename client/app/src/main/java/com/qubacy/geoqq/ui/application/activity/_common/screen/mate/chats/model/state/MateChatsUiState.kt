@@ -7,7 +7,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 class MateChatsUiState(
     isLoading: Boolean = false,
     error: Error? = null,
-    val chatChunks: MutableMap<Int, List<MateChatPresentation>> = mutableMapOf()
+    val chatChunks: MutableMap<Int, MutableList<MateChatPresentation>> = mutableMapOf()
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): MateChatsUiState {
         return MateChatsUiState(isLoading, error?.copy(), chatChunks.toMutableMap())
