@@ -2,16 +2,22 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetView
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
@@ -48,6 +54,7 @@ class MateChatFragment(
     )
 
     private lateinit var mAdapter: MateMessageListAdapter
+    private var mInterlocutorDetailsSheet: UserBottomSheetView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -146,7 +153,25 @@ class MateChatFragment(
     private fun initUiControls() {
         // todo: implement..
 
+        mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
+            onMenuItemClicked(it)
+        }
+    }
 
+    private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.mate_chat_top_bar_option_delete_mate -> launchDeleteMate()
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun launchDeleteMate() {
+        // todo: implement..
+
+        // todo: delete:
+        openInterlocutorDetailsSheet()
     }
 
     override fun viewInsetsToCatch(): Int {
@@ -162,8 +187,16 @@ class MateChatFragment(
         mBinding.fragmentMateInputMessageWrapper.apply {
             updatePadding(bottom = insets.bottom)
         }
+        mBinding.fragmentMateChatList.apply {
+            updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                this@updateLayoutParams.bottomMargin =
+                    mBinding.fragmentMateInputMessageWrapper.measuredHeight
+            }
+        }
+        mInterlocutorDetailsSheet?.apply {
+            updatePadding(bottom = insets.bottom)
+        }
     }
-
 
     override fun createBinding(
         inflater: LayoutInflater,
@@ -192,5 +225,20 @@ class MateChatFragment(
 
     private fun launchPrevMessagesLoading() {
         mModel.getNextMessageChunk()
+    }
+
+    private fun openInterlocutorDetailsSheet() {
+        if (mInterlocutorDetailsSheet == null) initInterlocutorDetailsSheet()
+
+        mInterlocutorDetailsSheet!!.setUserData(mModel.uiState.chatContext!!.user)
+        mInterlocutorDetailsSheet!!.open()
+    }
+
+    private fun initInterlocutorDetailsSheet() {
+        mInterlocutorDetailsSheet = UserBottomSheetView(requireContext()).apply {
+            updatePadding(bottom = mBinding.fragmentMateInputMessageWrapper.paddingBottom)
+        }
+
+        mBinding.root.addView(mInterlocutorDetailsSheet)
     }
 }

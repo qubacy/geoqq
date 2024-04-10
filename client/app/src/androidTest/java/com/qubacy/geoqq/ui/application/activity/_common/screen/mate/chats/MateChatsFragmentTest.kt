@@ -99,7 +99,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     private fun generateMateChatPresentations(
         count: Int,
         offset: Int = 0
-    ): List<MateChatPresentation> {
+    ): MutableList<MateChatPresentation> {
         return IntRange(offset, count + offset).map { it ->
             val id = it.toLong()
             val user = generateUserPresentation(id)
@@ -110,7 +110,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
                 it + 1,
                 generateLastMessagePresentation(id, user)
             )
-        }
+        }.toMutableList()
     }
 
     private fun generateUserPresentation(chatId: Long): UserPresentation {

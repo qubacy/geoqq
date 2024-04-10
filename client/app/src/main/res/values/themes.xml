@@ -36,5 +36,7 @@
 
         <item name="fragmentLoginBackgroundStartColor">#89D11E</item>
         <item name="fragmentLoginBackgroundEndColor">#D0ECA7</item>
+
+        <item name="bottomSheetStyle">@style/Widget.Material3.BottomSheet</item>
     </style>
 </resources>
