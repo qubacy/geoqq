@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -23,7 +21,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.InsertMessagesUiOperation
@@ -140,7 +137,7 @@ class MateChatFragment(
             layoutManager = LinearLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, true)
             adapter = mAdapter
-            //itemAnimator = MateMessageItemAnimator() // todo: fix this;
+            itemAnimator = MateMessageItemAnimator()
 
             setCallback(this@MateChatFragment)
         }
