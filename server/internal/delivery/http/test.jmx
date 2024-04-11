@@ -47,8 +47,8 @@
           <stringProp name="-1083884698">UserNewPass</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-82424874">
-            <stringProp name="-1180079272">test_user</stringProp>
+          <collectionProp name="108299440">
+            <stringProp name="2072248283">test_user3</stringProp>
             <stringProp name="1476167027">304c32846c843b34c18caa6c8483b203fe933a4e66f0735d424e3a1932ca55a5</stringProp>
             <stringProp name="806656256">b3a255758fcab421f20140529d533e4b1dcff6a3ef23c059ff61f0c34db565c5</stringProp>
           </collectionProp>
@@ -6339,7 +6339,7 @@
           </hashTree>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="PUT /api/my-profile/with-attached-avatar" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="PUT /api/my-profile/with-attached-avatar" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -6365,7 +6365,7 @@
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="okk (for default user | work with desc)" enabled="false"/>
+        <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="okk (for default user | work with desc)" enabled="true"/>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/sign-in [okk]" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
@@ -6487,7 +6487,7 @@
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
 	&quot;access-token&quot;: &quot;${accessToken}&quot;,&#xd;
-	&quot;description&quot;: &quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.&quot;&#xd;
+	&quot;description&quot;: &quot;home&quot;&#xd;
 }&#xd;
 </stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
@@ -6558,7 +6558,7 @@
           <hashTree>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion (json body)" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="486166903">\{\s*\&quot;id\&quot;\s*:\s*\d+\s*,\s*\&quot;username\&quot;\s*:\s*\&quot;test_user\&quot;\s*,\s*\&quot;description\&quot;\s*:\s*\&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\&quot;\s*,\s*&quot;avatar-id\&quot;\s*:\s*\d+\s*,\s*\&quot;privacy\&quot;\s*:\s*\{\s*\&quot;hit-me-up\&quot;\s*:\s*\d+\s*\}\s*\}</stringProp>
+                <stringProp name="3208415">home</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -6567,7 +6567,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; &quot;&quot;]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; &quot;&quot;]" enabled="false">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -6617,7 +6617,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;&quot;]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;&quot;]" enabled="false">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="accessToken" elementType="HTTPArgument">
@@ -6655,7 +6655,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; &quot;Lorem...&quot;]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; &quot;Lorem...&quot;]" enabled="false">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -6705,7 +6705,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;Lorem...&quot;]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;Lorem...&quot;]" enabled="false">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="accessToken" elementType="HTTPArgument">
@@ -6743,7 +6743,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; null]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/my-profile/with-attached-avatar [okk: description -&gt; null]" enabled="false">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -6793,7 +6793,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;&quot;]" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/my-profile [okk: validate description == &quot;&quot;]" enabled="false">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="accessToken" elementType="HTTPArgument">
@@ -8281,7 +8281,7 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="okk (for default user | work with security)" enabled="true"/>
+        <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="okk (for default user | work with security)" enabled="false"/>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/sign-in [okk]" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
@@ -15698,7 +15698,7 @@
           </hashTree>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -15958,7 +15958,7 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat/{id}/message" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat/{id}/message" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>

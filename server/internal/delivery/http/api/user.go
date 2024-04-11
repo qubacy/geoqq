@@ -1,8 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	"net/http"
 
@@ -267,6 +269,8 @@ func (h *Handler) getUser(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
+	logger.Trace(fmt.Sprintf("%v", responseDto))
 	ctx.JSON(http.StatusOK, responseDto)
 }
 
@@ -336,5 +340,7 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
+	logger.Trace(fmt.Sprintf("%v", responseDto))
 	ctx.JSON(http.StatusOK, responseDto)
 }

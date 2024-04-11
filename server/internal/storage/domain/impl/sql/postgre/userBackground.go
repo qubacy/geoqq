@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -26,7 +27,7 @@ func newUserStorageBackground(
 // -----------------------------------------------------------------------
 
 func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
-
+	logger.Trace("try add task")
 	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
 		cmdTag, err := conn.Exec(ctx,
 			templateUpdateLastActivityTimeForUser+`;`, id,
@@ -41,4 +42,5 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 
 		return nil
 	}
+	logger.Trace("add task")
 }

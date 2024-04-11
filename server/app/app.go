@@ -151,6 +151,8 @@ func initializeLogging() error {
 
 func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
+	logger.Trace("storage.max_init_time: %v", maxInitTime)
+
 	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
 	defer func() {
 		fmt.Println("CtxForInit will be canceled")

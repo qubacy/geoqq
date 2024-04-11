@@ -62,11 +62,13 @@ func newBackground(
 func (s *Background) updateQueries(
 	ctxForInit, ctxWithCancel context.Context, // as field in struct?
 ) {
-	conn, err := s.pool.Acquire(ctxForInit)
+	// TODO: контекст  другой горутине закрываеться!!!
+	conn, err := s.pool.Acquire(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println(conn)
 	defer conn.Release()
 
 	// ***
@@ -74,10 +76,17 @@ func (s *Background) updateQueries(
 	for {
 		select {
 		case <-ctxWithCancel.Done(): // ?
+			close(s.queries)
 			logger.Warning("update queries canceled")
 			return
 
-		case f := <-s.queries:
+		// TOOD:!!!!z
+		case f, ok := <-s.queries:
+			if !ok {
+				logger.Warning("ERRRRRRR!")
+				return // Выйти из цикла
+			}
+
 			ctx := context.Background()
 			ctx, cancel := context.WithTimeout(
 				ctx, s.queryTimeout,
@@ -85,6 +94,8 @@ func (s *Background) updateQueries(
 			defer cancel()
 
 			err = f(conn, ctx)
+			logger.Trace("f done")
+
 			if err != nil {
 				logger.Error("update query with err: %v", err)
 			}
