@@ -7,7 +7,7 @@ import androidx.core.view.WindowInsetsCompat
 
 fun View.catchViewInsets(
     insetsToCatch: Int,
-    onInsetsCaught: View.(Insets) -> Unit
+    onInsetsCaught: View.(Insets, WindowInsetsCompat) -> Unit
 ) {
     ViewCompat.setOnApplyWindowInsetsListener(this) { _, insetsRes: WindowInsetsCompat? ->
         if (insetsRes == null)
@@ -15,7 +15,7 @@ fun View.catchViewInsets(
 
         val insets = insetsRes.getInsets(insetsToCatch)
 
-        onInsetsCaught(insets)
+        onInsetsCaught(insets, insetsRes)
         insetsRes
     }
 }

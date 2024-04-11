@@ -64,8 +64,8 @@ open class MainActivity : AppCompatActivity() {
         mBinding.root.catchViewInsets(
             WindowInsetsCompat.Type.statusBars() or
                     WindowInsetsCompat.Type.navigationBars()
-        ) {
-            mBinding.activityMainNavigationDrawer.updatePadding(top = it.top)
+        ) { insets, _ ->
+            mBinding.activityMainNavigationDrawer.updatePadding(top = insets.top)
         }
 
 //        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { view, insetsRes ->

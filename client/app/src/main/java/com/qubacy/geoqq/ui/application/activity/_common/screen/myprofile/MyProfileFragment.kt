@@ -303,8 +303,8 @@ class MyProfileFragment(
         return super.viewInsetsToCatch() or WindowInsetsCompat.Type.ime()
     }
 
-    override fun adjustViewToInsets(insets: Insets) {
-        super.adjustViewToInsets(insets)
+    override fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) {
+        super.adjustViewToInsets(insets, insetsRes)
 
         mBinding.fragmentMyProfileTopBarWrapper.apply {
             updatePadding(top = insets.top)

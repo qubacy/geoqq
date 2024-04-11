@@ -61,7 +61,9 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // todo: mb it's the time to get rid of this in the base class?:
-        view.catchViewInsets(viewInsetsToCatch()) { adjustViewToInsets(it) }
+        view.catchViewInsets(viewInsetsToCatch()) { insets, insetsRes ->
+            adjustViewToInsets(insets, insetsRes)
+        }
     }
 
     override fun onStop() {
@@ -77,7 +79,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
                WindowInsetsCompat.Type.navigationBars()
     }
 
-    protected open fun adjustViewToInsets(insets: Insets) { }
+    protected open fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) { }
 
     open fun onPopupMessageOccurred(
         message: String,

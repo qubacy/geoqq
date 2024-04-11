@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -161,8 +162,8 @@ class MateChatsFragment(
         return FragmentMateChatsBinding.inflate(inflater, container, false)
     }
 
-    override fun adjustViewToInsets(insets: Insets) {
-        super.adjustViewToInsets(insets)
+    override fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) {
+        super.adjustViewToInsets(insets, insetsRes)
 
         mBinding.fragmentMateChatsTopBarWrapper.apply {
             updatePadding(top = insets.top)

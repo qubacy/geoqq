@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
@@ -17,8 +16,9 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -54,7 +54,9 @@ class MateChatFragment(
     )
 
     private lateinit var mAdapter: MateMessageListAdapter
-    private var mInterlocutorDetailsSheet: UserBottomSheetView? = null
+
+    private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
+    private var mLastWindowInsets: WindowInsetsCompat? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -158,7 +160,13 @@ class MateChatFragment(
         }
     }
 
+    private fun setMenuEnabled(isEnabled: Boolean) {
+        mBinding.fragmentMateChatTopBar.isEnabled = isEnabled
+    }
+
     private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
+        closeSoftKeyboard()
+
         when (menuItem.itemId) {
             R.id.mate_chat_top_bar_option_delete_mate -> launchDeleteMate()
             else -> return false
@@ -178,8 +186,10 @@ class MateChatFragment(
         return super.viewInsetsToCatch() or WindowInsetsCompat.Type.ime()
     }
 
-    override fun adjustViewToInsets(insets: Insets) {
-        super.adjustViewToInsets(insets)
+    override fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) {
+        super.adjustViewToInsets(insets, insetsRes)
+
+        mLastWindowInsets = insetsRes
 
         mBinding.fragmentMateChatTopBarWrapper.apply {
             updatePadding(top = insets.top)
@@ -193,8 +203,9 @@ class MateChatFragment(
                     mBinding.fragmentMateInputMessageWrapper.measuredHeight
             }
         }
+
         mInterlocutorDetailsSheet?.apply {
-            updatePadding(bottom = insets.bottom)
+            adjustToInsets(insetsRes)
         }
     }
 
@@ -235,10 +246,25 @@ class MateChatFragment(
     }
 
     private fun initInterlocutorDetailsSheet() {
-        mInterlocutorDetailsSheet = UserBottomSheetView(requireContext()).apply {
-            updatePadding(bottom = mBinding.fragmentMateInputMessageWrapper.paddingBottom)
+        val expandedBottomSheetHeight = getExpandedBottomSheetHeight()
+        val collapsedBottomSheetHeight = expandedBottomSheetHeight / 2
+
+        mInterlocutorDetailsSheet = UserBottomSheetViewContainer(
+            requireContext(),
+            mBinding.root,
+            expandedBottomSheetHeight,
+            collapsedBottomSheetHeight
+        ).apply {
+            adjustToInsets(mLastWindowInsets!!)
         }
 
-        mBinding.root.addView(mInterlocutorDetailsSheet)
+        mBinding.root.addView(mInterlocutorDetailsSheet!!.getView())
+    }
+
+    private fun getExpandedBottomSheetHeight(): Int {
+        val topPosition = mBinding.fragmentMateChatTopBarWrapper.bottom
+        val bottomPosition = mBinding.root.bottom
+
+        return bottomPosition - topPosition
     }
 }

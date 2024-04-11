@@ -10,6 +10,7 @@ import android.view.ViewPropertyAnimator
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
@@ -378,8 +379,8 @@ class LoginFragment(
         return FragmentLoginBinding.inflate(inflater, container, false)
     }
 
-    override fun adjustViewToInsets(insets: Insets) {
-        super.adjustViewToInsets(insets)
+    override fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) {
+        super.adjustViewToInsets(insets, insetsRes)
 
         mBinding.fragmentLoginChangeLoginTypeWrapper.apply {
             updatePadding(bottom = insets.bottom)
