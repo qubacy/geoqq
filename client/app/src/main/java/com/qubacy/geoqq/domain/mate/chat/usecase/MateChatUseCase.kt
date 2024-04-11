@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase
 
+import android.util.Log
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -15,6 +16,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDom
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
 class MateChatUseCase(
@@ -50,6 +52,8 @@ class MateChatUseCase(
                 .await()
             val interlocutor = getUsersResult.users.first().toUser()
 
+            Log.d(TAG, "getInterlocutor(): interlocutor = $interlocutor;")
+
             mResultFlow.emit(GetInterlocutorDomainResult(interlocutor = interlocutor))
 
         }) {
@@ -61,7 +65,10 @@ class MateChatUseCase(
         super.onCoroutineScopeSet()
 
         mCoroutineScope.launch {
-            mMateMessageDataRepository.resultFlow.collect {
+            merge(
+                mMateMessageDataRepository.resultFlow,
+                mUserDataRepository.resultFlow
+            ).collect {
                 processCollectedDataResult(it)
             }
         }
@@ -91,6 +98,8 @@ class MateChatUseCase(
         getUsersByIdsDataResult: GetUsersByIdsDataResult
     ) {
         val interlocutor = getUsersByIdsDataResult.users.first().toUser()
+
+        Log.d(TAG, "processGetUsersByIdsDataResult(): interlocutor = $interlocutor;")
 
         mResultFlow.emit(UpdateInterlocutorDomainResult(interlocutor = interlocutor))
     }
