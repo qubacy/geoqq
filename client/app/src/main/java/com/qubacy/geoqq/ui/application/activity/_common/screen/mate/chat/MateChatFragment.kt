@@ -24,13 +24,16 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -78,6 +81,12 @@ class MateChatFragment(
                 processInsertMessagesUiOperation(uiOperation as InsertMessagesUiOperation)
             UpdateMessageChunkUiOperation::class ->
                 processUpdateChatChunkUiOperation(uiOperation as UpdateMessageChunkUiOperation)
+            ShowInterlocutorDetailsUiOperation::class ->
+                processShowInterlocutorDetailsUiOperation(
+                    uiOperation as ShowInterlocutorDetailsUiOperation)
+            UpdateInterlocutorDetailsUiOperation::class ->
+                processUpdateInterlocutorDetailsUiOperation(
+                    uiOperation as UpdateInterlocutorDetailsUiOperation)
             else -> return false
         }
 
@@ -125,6 +134,18 @@ class MateChatFragment(
         }
     }
 
+    private fun processShowInterlocutorDetailsUiOperation(
+        showInterlocutorDetailsUiOperation: ShowInterlocutorDetailsUiOperation
+    ) {
+        openInterlocutorDetailsSheet(showInterlocutorDetailsUiOperation.interlocutor)
+    }
+
+    private fun processUpdateInterlocutorDetailsUiOperation(
+        updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
+    ) {
+        openInterlocutorDetailsSheet(updateInterlocutorDetailsUiOperation.interlocutor)
+    }
+
     override fun runInitWithUiState(uiState: MateChatUiState) {
         super.runInitWithUiState(uiState)
 
@@ -168,18 +189,15 @@ class MateChatFragment(
         closeSoftKeyboard()
 
         when (menuItem.itemId) {
-            R.id.mate_chat_top_bar_option_delete_mate -> launchDeleteMate()
+            R.id.mate_chat_top_bar_option_show_mate_profile -> launchShowMateProfile()
             else -> return false
         }
 
         return true
     }
 
-    private fun launchDeleteMate() {
-        // todo: implement..
-
-        // todo: delete:
-        openInterlocutorDetailsSheet()
+    private fun launchShowMateProfile() {
+        mModel.getInterlocutorProfile()
     }
 
     override fun viewInsetsToCatch(): Int {
@@ -238,10 +256,10 @@ class MateChatFragment(
         mModel.getNextMessageChunk()
     }
 
-    private fun openInterlocutorDetailsSheet() {
+    private fun openInterlocutorDetailsSheet(interlocutor: UserPresentation) {
         if (mInterlocutorDetailsSheet == null) initInterlocutorDetailsSheet()
 
-        mInterlocutorDetailsSheet!!.setUserData(mModel.uiState.chatContext!!.user)
+        mInterlocutorDetailsSheet!!.setUserData(interlocutor)
         mInterlocutorDetailsSheet!!.open()
     }
 

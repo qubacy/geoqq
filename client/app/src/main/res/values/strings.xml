@@ -56,7 +56,7 @@
     <string name="component_my_profile_top_bar_popup_option_logout_title">Logout</string>
     <string name="component_my_profile_top_bar_popup_option_delete_profile_title">Delete profile</string>
 
-    <string name="component_mate_chat_top_bar_option_delete_mate_title">Delete mate</string>
+    <string name="component_mate_chat_top_bar_option_show_mate_profile_title">Delete mate</string>
 
     <string name="component_bottom_sheet_user_button_mate_caption_add">Add as a mate</string>
     <string name="component_bottom_sheet_user_button_mate_caption_remove">Remove from mates</string>

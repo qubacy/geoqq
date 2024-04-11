@@ -3,21 +3,30 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Qualifier
 
@@ -37,11 +46,11 @@ class MateChatViewModel @Inject constructor(
     }
 
     // todo: is it ok?:
-    fun setChatContext(chat: MateChatPresentation) {
+    open fun setChatContext(chat: MateChatPresentation) {
         mUiState.chatContext = chat
     }
 
-    fun getNextMessageChunk() {
+    open fun getNextMessageChunk() {
         if (!isNextMessageChunkGettingAllowed()) return
 
         mIsGettingNextMessageChunk = true
@@ -61,6 +70,16 @@ class MateChatViewModel @Inject constructor(
         return (!mIsGettingNextMessageChunk && chunkSizeCheck)
     }
 
+    open fun getInterlocutorProfile() {
+        val contextUser = mUiState.chatContext!!.user
+
+        viewModelScope.launch {
+            mUiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(contextUser))
+        }
+
+        mUseCase.getInterlocutor(contextUser.id)
+    }
+
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
         val uiOperation = super.processDomainResultFlow(domainResult)
 
@@ -71,8 +90,44 @@ class MateChatViewModel @Inject constructor(
                 processGetMessageChunkDomainResult(domainResult as GetMessageChunkDomainResult)
             UpdateMessageChunkDomainResult::class ->
                 processUpdateMessageChunkDomainResult(domainResult as UpdateMessageChunkDomainResult)
+            GetInterlocutorDomainResult::class ->
+                processGetInterlocutorDomainResult(domainResult as GetInterlocutorDomainResult)
+            UpdateInterlocutorDomainResult::class ->
+                processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
             else -> null
         }
+    }
+
+    private fun processGetInterlocutorDomainResult(
+        getInterlocutorResult: GetInterlocutorDomainResult
+    ): UiOperation {
+        if (!getInterlocutorResult.isSuccessful())
+            return processErrorDomainResult(getInterlocutorResult.error!!)
+
+        val userPresentation = getInterlocutorResult.interlocutor!!.toUserPresentation()
+
+        return ShowInterlocutorDetailsUiOperation(userPresentation)
+    }
+
+    private fun processUpdateInterlocutorDomainResult(
+        updateInterlocutorResult: UpdateInterlocutorDomainResult
+    ): UiOperation {
+        if (!updateInterlocutorResult.isSuccessful())
+            return processErrorDomainResult(updateInterlocutorResult.error!!)
+
+        val userPresentation = processInterlocutorResult(updateInterlocutorResult)
+
+        return UpdateInterlocutorDetailsUiOperation(userPresentation)
+    }
+
+    private fun processInterlocutorResult(
+        interlocutorResult: InterlocutorDomainResult
+    ): UserPresentation {
+        val userPresentation = interlocutorResult.interlocutor!!.toUserPresentation()
+
+        mUiState.chatContext = mUiState.chatContext?.copy(user = userPresentation)
+
+        return userPresentation
     }
 
     private fun processGetMessageChunkDomainResult(
