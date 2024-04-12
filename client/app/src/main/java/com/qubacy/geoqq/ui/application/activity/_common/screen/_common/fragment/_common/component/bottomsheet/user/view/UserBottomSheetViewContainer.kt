@@ -22,6 +22,10 @@ class UserBottomSheetViewContainer(
     val expandedHeight: Int,
     val collapsedHeight: Int = expandedHeight / 2
 ) {
+    companion object {
+        const val TAG = "UserBottomSheet"
+    }
+
     private lateinit var mBinding: ComponentBottomSheetUserBinding
     private lateinit var mBehavior: BottomSheetBehavior<MotionLayout>
 
@@ -109,9 +113,15 @@ class UserBottomSheetViewContainer(
         mBinding.componentBottomSheetUserTextUsername.text = userPresentation.username
         mBinding.componentBottomSheetUserTextAboutMe.text = userPresentation.description
 
-        // todo: button appearance..
+        setupMateButtonByUserData(userPresentation)
+    }
 
-
+    private fun setupMateButtonByUserData(userPresentation: UserPresentation) {
+        mBinding.componentBottomSheetUserButtonMate.isEnabled = !userPresentation.isDeleted
+        mBinding.componentBottomSheetUserButtonMate.setText(
+            if (!userPresentation.isMate) R.string.component_bottom_sheet_user_button_mate_caption_add
+            else R.string.component_bottom_sheet_user_button_mate_caption_remove
+        )
     }
 
     fun open() {
