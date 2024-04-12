@@ -18,6 +18,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
@@ -28,6 +29,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
@@ -167,7 +169,9 @@ class MateChatFragment(
             layoutManager = LinearLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, true)
             adapter = mAdapter
-            itemAnimator = MateMessageItemAnimator()
+            itemAnimator = MateMessageItemAnimator().apply {
+                addDuration = 2000 // todo: delete;
+            }
 
             setCallback(this@MateChatFragment)
         }
@@ -178,6 +182,10 @@ class MateChatFragment(
 
         mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
+        }
+        // todo: delete:
+        mBinding.fragmentMateInputMessage.setOnClickListener {
+            mAdapter.addNewMateMessage(MateMessageItemData(0L, SenderSide.ME, "test", "NOWs"))
         }
     }
 
