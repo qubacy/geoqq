@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator
 
-import android.util.Log
 import android.view.View
+import android.view.ViewPropertyAnimator
 import android.widget.LinearLayout
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -9,10 +9,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 
 class MateMessageItemAnimator : BaseRecyclerViewItemAnimator() {
-    override fun animateAdd(holder: RecyclerView.ViewHolder): Boolean {
-        super.animateAdd(holder)
+    override fun prepareHolderForAddAnimation(holder: RecyclerView.ViewHolder) {
+        super.prepareHolderForAddAnimation(holder)
 
-        if (holder !is MateMessageListAdapter.ViewHolder) return true
+        if (holder !is MateMessageListAdapter.ViewHolder) return
 
         val mateMessageItemView = holder.baseItemView
         val itemContentWrapperGravity = getViewHolderViewGravity(holder)
@@ -22,11 +22,12 @@ class MateMessageItemAnimator : BaseRecyclerViewItemAnimator() {
                 if (itemContentWrapperGravity == GravityCompat.END) width.toFloat()
                 else -width.toFloat()
         }
-        mateMessageItemView.animate().translationX(0f)
+    }
 
-        Log.d("TEST", "animateAdd(): holder = $holder; animator = ${mateMessageItemView.animate()};")
+    override fun prepareViewAnimatorForAddAnimation(animator: ViewPropertyAnimator) {
+        super.prepareViewAnimatorForAddAnimation(animator)
 
-        return true
+        animator.translationX(0f)
     }
 
     override fun onAnimateAddCancelled(view: View) {

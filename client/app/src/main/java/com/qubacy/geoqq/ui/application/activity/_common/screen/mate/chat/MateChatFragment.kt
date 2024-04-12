@@ -169,9 +169,7 @@ class MateChatFragment(
             layoutManager = LinearLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, true)
             adapter = mAdapter
-            itemAnimator = MateMessageItemAnimator().apply {
-                addDuration = 2000 // todo: delete;
-            }
+            itemAnimator = MateMessageItemAnimator()
 
             setCallback(this@MateChatFragment)
         }
@@ -185,7 +183,9 @@ class MateChatFragment(
         }
         // todo: delete:
         mBinding.fragmentMateInputMessage.setOnClickListener {
-            mAdapter.addNewMateMessage(MateMessageItemData(0L, SenderSide.ME, "test", "NOWs"))
+            val side = SenderSide.entries[(System.currentTimeMillis() % SenderSide.entries.size).toInt()]
+
+            mAdapter.addNewMateMessage(MateMessageItemData(0L, side, "test", "NOW"))
         }
     }
 
