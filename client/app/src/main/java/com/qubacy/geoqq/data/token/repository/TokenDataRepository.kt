@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.token.repository
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
@@ -11,6 +12,7 @@ import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
+import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -43,9 +45,7 @@ class TokenDataRepository @Inject constructor(
         if (isLocalAccessTokenValid)
             return GetTokensDataResult(localAccessToken!!, localRefreshToken!!)
 
-        val updateTokensCall = mHttpTokenDataSource.updateTokens(localRefreshToken!!)
-        val updateTokensResponse = executeNetworkRequest(
-            mErrorDataRepository, mHttpClient, updateTokensCall)
+        val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
         mLocalTokenDataSource.saveTokens(
             updateTokensResponse.accessToken,
@@ -69,9 +69,7 @@ class TokenDataRepository @Inject constructor(
             throw ErrorAppException(mErrorDataRepository.getError(
                 TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
 
-        val updateTokensCall = mHttpTokenDataSource.updateTokens(localRefreshToken!!)
-        val updateTokensResponse = executeNetworkRequest(
-            mErrorDataRepository, mHttpClient, updateTokensCall)
+        val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
         mLocalTokenDataSource.saveTokens(
             updateTokensResponse.accessToken,
@@ -153,5 +151,23 @@ class TokenDataRepository @Inject constructor(
         }
 
         return jwtToken.claims
+    }
+
+    private fun runUpdateTokensRequest(localRefreshToken: String): UpdateTokensResponse {
+        val updateTokensCall = mHttpTokenDataSource.updateTokens(localRefreshToken)
+
+        try {
+            val updateTokensResponse = executeNetworkRequest(
+                mErrorDataRepository, mHttpClient, updateTokensCall)
+
+            return updateTokensResponse
+
+        } catch (e: ErrorAppException) {
+            if (e.error.id == NetworkErrorType.RESPONSE_ERROR_WITH_CLIENT_FAIL.getErrorCode())
+                throw ErrorAppException(mErrorDataRepository.getError(
+                    TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
+            else
+                throw e
+        }
     }
 }
