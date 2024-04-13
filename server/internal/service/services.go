@@ -12,6 +12,8 @@ type AuthService interface {
 	SignIn(ctx context.Context, input dto.SignInInp) (dto.SignInOut, error)
 	SignUp(ctx context.Context, input dto.SignUpInp) (dto.SignUpOut, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (dto.RefreshTokensOut, error)
+
+	WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error)
 }
 
 // -----------------------------------------------------------------------

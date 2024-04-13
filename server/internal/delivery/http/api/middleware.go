@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -78,6 +79,31 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 	}
 
 	ctx.Set(contextUserId, payload.UserId)
+}
+
+func (h *Handler) userNotDeleted(ctx *gin.Context) {
+
+	// no checks required before extraction user id!
+
+	userId, clientCode, err := extractUserIdFromContext(ctx)
+	if err != nil {
+		resWithServerErr(ctx, clientCode, err)
+		return
+	}
+
+	// ***
+
+	wasDeleted, err := h.services.WasUserWithIdDeleted(ctx, userId)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+	if wasDeleted {
+		logger.Warning("request from deleted user with id %v", userId)
+		resWithAuthError(ctx, ec.InvalidAccessToken, ErrRequestFromDeletedUser)
+		return
+	}
 }
 
 // -----------------------------------------------------------------------

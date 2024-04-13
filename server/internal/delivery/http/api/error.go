@@ -10,4 +10,6 @@ var (
 	ErrEmptyContextParam      = errors.New("empty context param")
 	ErrUnexpectedContextParam = errors.New("unexpected context param")
 	ErrEmptyAccessToken       = errors.New("empty access token")
+
+	ErrRequestFromDeletedUser = errors.New("request from deleted user")
 )

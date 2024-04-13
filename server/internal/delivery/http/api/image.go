@@ -15,12 +15,19 @@ import (
 func (h *Handler) registerImageRoutes() {
 	router := h.router.Group("/image", h.parseAnyForm)
 	{
-		router.GET("/:id", h.userIdentityForGetRequest, h.getImage)
+		router.GET("/:id",
+			h.userIdentityForGetRequest, h.userNotDeleted,
+			h.getImage,
+		)
 		router.POST("", h.extractBodyFromPostForGetSomeImages,
-			h.userIdentityByContextData, h.postForGetSomeImages) // can be done better!
+			h.userIdentityByContextData, h.userNotDeleted,
+			h.postForGetSomeImages,
+		) // can be done better!?
 
 		router.POST("/new", h.extractBodyFromPostNewImage,
-			h.userIdentityByContextData, h.postNewImage)
+			h.userIdentityByContextData, h.userNotDeleted,
+			h.postNewImage,
+		)
 	}
 }
 
@@ -157,11 +164,7 @@ func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 }
 
 func (h *Handler) postNewImage(ctx *gin.Context) {
-	userId, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
-		return
-	}
+	userId := ctx.GetUint64(contextUserId)
 
 	anyRequestDto, _ := ctx.Get(contextRequestDto) // always exists!
 	requestDto, converted := anyRequestDto.(dto.ImagePostReq)

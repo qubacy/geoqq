@@ -22,3 +22,4 @@ go.work
 
 # My
 cmd/avatar
+cmd/rotation

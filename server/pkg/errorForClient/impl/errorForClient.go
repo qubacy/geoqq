@@ -12,12 +12,21 @@ type ErrorForClient struct {
 	clientCode int
 }
 
-func NewErrorForClient(err error, guiltySide, clientCode int) *ErrorForClient {
-	return &ErrorForClient{
+func MakeErrorForClient(err error, guiltySide, clientCode int) ErrorForClient {
+	return ErrorForClient{
 		err:        err,
 		guiltySide: guiltySide,
 		clientCode: clientCode,
 	}
+}
+
+func NewErrorForClient(err error, guiltySide, clientCode int) *ErrorForClient {
+	result := MakeErrorForClient(
+		err,
+		guiltySide,
+		clientCode,
+	)
+	return &result
 }
 
 func New(err error, guiltySide, clientCode int) error {

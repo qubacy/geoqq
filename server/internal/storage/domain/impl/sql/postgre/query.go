@@ -51,8 +51,16 @@ func scanLastInsertedId(row pgx.Row, sourceFunc any) (uint64, error) {
 	if err != nil {
 		return 0, utl.NewFuncError(sourceFunc, err)
 	}
-
 	return lastInsertedId, nil
+}
+
+func scanBool(row pgx.Row, sourceFunc any) (bool, error) {
+	var boolValue bool = false
+	err := row.Scan(&boolValue)
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+	return boolValue, nil
 }
 
 // -----------------------------------------------------------------------

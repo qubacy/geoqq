@@ -50,24 +50,28 @@ func newAuthService(deps Dependencies) *AuthService {
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
-	err := a.validateSingIn(input)
+	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
 	if err != nil {
 		return a.signInWithError(err, ec.Client, ec.ValidateInputParamsFailed)
+	}
+
+	// some asserts
+
+	err = assertUserWithNameNotDeleted(ctx, a.domainStorage, input.Login)
+	if err != nil {
+		return dto.SignInOut{}, utl.NewFuncError(a.SignIn, err)
 	}
 	err = a.assertUserByCredentialsExists(ctx, input)
 	if err != nil {
 		return dto.SignInOut{}, utl.NewFuncError(a.SignIn, err)
 	}
 
-	// ANd Not Deleted
+	// generate tokens
+
 	userId, err := a.domainStorage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
 		return a.signInWithError(err, ec.Server, ec.DomainStorageError)
 	}
-
-	//a.domainStorage.WasUserDeleted()
-
-	// tokens
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
@@ -84,16 +88,19 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	dto.SignUpOut, error,
 ) {
-	err := a.validateSingUp(input)
+	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
 	if err != nil {
 		return a.signUpWithError(err, ec.Client, ec.ValidateInputParamsFailed)
 	}
+
+	// some asserts
+
 	err = a.assertUserWithNameNotExists(ctx, input)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
 	}
 
-	// create
+	// create user
 
 	avatarId, err := a.generateAndSaveAvatarForUser(ctx, input.Login) // with error for client!
 	if err != nil {
@@ -109,7 +116,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 		return a.signUpWithError(err, ec.Server, ec.DomainStorageError)
 	}
 
-	// tokens
+	// generate tokens
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
@@ -132,23 +139,41 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 		// believe that module is working correctly!
 		return a.refreshTokensWithError(err, ec.Client, ec.ValidateRefreshTokenFailed)
 	}
-	clientCode, err := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
-	if err != nil {
-		return a.refreshTokensWithError(err, ec.Client, clientCode) // or client?
+	errForClient := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
+	if errForClient != nil {
+
+		// is unpacking necessary?
+		return a.refreshTokensWithError(
+			errForClient.Unwrap(),
+			errForClient.GuiltySide(),
+			errForClient.ClientCode(),
+		)
 	}
 
-	// *** new tokens and hash ***
+	// generate tokens
 
 	accessToken, refreshToken, err := a.generateTokens(payload.UserId)
 	if err != nil {
 		return a.refreshTokensWithError(err, ec.Server, ec.TokenManagerError)
 	}
-	clientCode, err = a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
+	clientCode, err := a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
 	if err != nil {
 		return a.refreshTokensWithError(err, ec.Server, clientCode)
 	}
 
 	return dto.MakeRefreshTokensOut(accessToken, refreshToken), nil
+}
+
+// -----------------------------------------------------------------------
+
+func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error) {
+	wasDeleted, err := a.domainStorage.WasUserDeleted(ctx, id)
+	if err != nil {
+		return false, utl.NewFuncError(a.WasUserWithIdDeleted,
+			ec.New(err, ec.Server, ec.DomainStorageError))
+	}
+
+	return wasDeleted, nil
 }
 
 // error wrapper
@@ -241,62 +266,70 @@ func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
 
 func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 	userId uint64, refreshToken string) (int, error) { // <--- with client code!
+	sourceFunc := a.updateHashRefreshToken
 
 	hashRefreshToken, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
-		return ec.HashManagerError,
-			utl.NewFuncError(a.updateHashRefreshToken, err)
+		return ec.HashManagerError, utl.NewFuncError(sourceFunc, err)
 	}
 
 	err = a.domainStorage.UpdateHashRefreshTokenAndSomeTimes(ctx, userId, hashRefreshToken)
 	if err != nil {
-		return ec.DomainStorageError,
-			utl.NewFuncError(a.updateHashRefreshToken, err)
+		return ec.DomainStorageError, utl.NewFuncError(sourceFunc, err)
 	}
 
 	return ec.NoError, nil
 }
 
-// TODO: return side code server or client!
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
-	userId uint64, refreshToken string) (int, error) {
+	userId uint64, refreshToken string) *ec.ErrorForClient {
+	sourceFunc := a.identicalHashesForRefreshTokens
 
 	currentHash, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
-		return ec.HashManagerError,
-			utl.NewFuncError(a.identicalHashesForRefreshTokens, err)
+		return ec.NewErrorForClient(
+			utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.HashManagerError,
+		)
 	}
+
+	// there is no token for the deleted user!
 	storageHash, err := a.domainStorage.GetHashRefreshToken(ctx, userId)
 	if err != nil {
-		return ec.DomainStorageError,
-			utl.NewFuncError(a.identicalHashesForRefreshTokens, err)
+		return ec.NewErrorForClient(
+			utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError,
+		)
 	}
 
 	// ***
 
 	if currentHash != storageHash { // client side...
-		return ec.InvalidRefreshToken,
-			ErrNotSameHashesForRefreshTokens
+		return ec.NewErrorForClient(
+			ErrNotSameHashesForRefreshTokens,
+			ec.Client, ec.InvalidRefreshToken,
+		)
 	}
-	return ec.NoError, nil
+	return nil
 }
 
 // calculator
 // -----------------------------------------------------------------------
 
 func (a *HasherAndStorages) passwordHashInHexToPasswordDoubleHash(val string) (string, error) {
+	sourceFunc := a.passwordHashInHexToPasswordDoubleHash
 
 	// believe that the module works correctly!
 
 	passwordHash, err := hex.DecodeString(val)
 	if err != nil {
-		return "", utl.NewFuncError(a.passwordHashInHexToPasswordDoubleHash,
+		return "", utl.NewFuncError(sourceFunc,
 			ec.New(err, ec.Client, ec.PasswordHashIsNotHex))
 	}
 
 	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash)
 	if err != nil {
-		return "", utl.NewFuncError(a.passwordHashInHexToPasswordDoubleHash,
+		return "", utl.NewFuncError(sourceFunc,
 			ec.New(err, ec.Server, ec.HashManagerError))
 	}
 

@@ -69,6 +69,17 @@ var (
 		FROM "DeletedUser"
 		WHERE "UserId" = $1`)
 
+	templateWasUserWithNameDeleted = utl.RemoveAdjacentWs(`
+		SELECT 
+			case
+				when COUNT(*) > 0 then TRUE
+				else FALSE
+			end as "IsDeleted"
+		FROM "DeletedUser"
+		INNER JOIN "UserEntry" ON (
+			"UserEntry"."Id" = "DeletedUser"."UserId" AND
+			"UserEntry"."Username" = $1)`)
+
 	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
 		UPDATE "UserLocation" 
 			SET "Longitude" = $1,
@@ -494,6 +505,22 @@ func (us *UserStorage) WasUserDeleted(ctx context.Context, id uint64) (bool, err
 	}
 
 	return isDeleted, nil
+}
+
+func (us *UserStorage) WasUserWithNameDeleted(ctx context.Context, username string) (bool, error) {
+	sourceFunc := us.WasUserWithNameDeleted
+	row, err := queryRowWithConnectionAcquire(us.pool, ctx,
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
+			return conn.QueryRow(ctx, templateWasUserWithNameDeleted+`;`,
+				username)
+		},
+	)
+
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return scanBool(row, sourceFunc)
 }
 
 // private

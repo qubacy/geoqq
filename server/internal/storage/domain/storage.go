@@ -41,6 +41,7 @@ type UserStorage interface {
 		id uint64, passwordDoubleHash string) (bool, error)
 
 	WasUserDeleted(ctx context.Context, id uint64) (bool, error)
+	WasUserWithNameDeleted(ctx context.Context, username string) (bool, error)
 
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error

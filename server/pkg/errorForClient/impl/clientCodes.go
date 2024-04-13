@@ -39,7 +39,8 @@ const (
 	UserNotFound
 	OneOrMoreUsersNotFound
 
-	InvalidRefreshToken
+	InvalidRefreshToken // when the token hash is updated in database
+	InvalidAccessToken  // when a user is deleted
 	PasswordHashIsNotHex
 )
 

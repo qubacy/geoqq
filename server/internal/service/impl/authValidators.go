@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"geoqq/internal/service/dto"
 	utl "geoqq/pkg/utility"
 	"regexp"
 )
@@ -50,17 +49,4 @@ func (a *AuthService) validateLoginAndPassword(
 	}
 
 	return nil
-}
-
-// concrete
-// -----------------------------------------------------------------------
-
-func (a *AuthService) validateSingUp(input dto.SignUpInp) error {
-	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHash)
-}
-
-func (a *AuthService) validateSingIn(input dto.SignInInp) error {
-	return a.validateLoginAndPassword(
-		input.Login, input.PasswordHash)
 }
