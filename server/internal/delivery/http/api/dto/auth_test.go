@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -69,7 +70,6 @@ func Test_StringToSha256ToBase64(t *testing.T) {
 
 func Test_StringToSha256ToHex(t *testing.T) {
 	sourceValue := "test_user124reg"
-	//sourceValue := "test_user124reg_"
 
 	// to sha256
 
@@ -87,4 +87,36 @@ func Test_StringToSha256ToHex(t *testing.T) {
 	// password hash in base64
 
 	fmt.Println(string(hexValue))
+}
+
+func Test_comparison_base64(t *testing.T) {
+	for i := 0; ; i++ {
+		h := sha256.New()
+		h.Write([]byte(strconv.Itoa(i)))
+		sourceValue := h.Sum(nil)
+
+		// **
+
+		stdBase64Value := make([]byte, 512)
+		base64.StdEncoding.Encode(stdBase64Value, sourceValue)
+
+		urlBase64Value := make([]byte, 512)
+		base64.URLEncoding.Encode(urlBase64Value, sourceValue)
+
+		// ***
+
+		stdBase64StrValue := string(stdBase64Value)
+		urlBase64StrValue := string(urlBase64Value)
+
+		if urlBase64StrValue != stdBase64StrValue {
+			fmt.Printf("Source Index: %v\n", i)
+			fmt.Printf("Source Value: %v\n", hex.EncodeToString(sourceValue))
+
+			fmt.Printf("\tStd Base64 Value: %v\n", stdBase64StrValue)
+			fmt.Printf("\tUrl Base64 Value: %v\n", urlBase64StrValue)
+
+			fmt.Println()
+			return
+		}
+	}
 }

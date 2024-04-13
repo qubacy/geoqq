@@ -47,7 +47,7 @@ storage:
 
         background:
           query_timeout: 10s
-          max_query_count: 5
+          max_query_count: 2
 
       sqlite:
         #...

@@ -43,6 +43,14 @@ func NewStorage(ctxForInit, ctxWithCancel context.Context,
 		return nil, utility.NewFuncError(NewStorage, err)
 	}
 
+	backgroundStorage, err := newBackground(
+		ctxForInit, ctxWithCancel,
+		pool, deps.DependenciesForBgr,
+	)
+	if err != nil {
+		return nil, utility.NewFuncError(NewStorage, err)
+	}
+
 	storage := &Storage{
 		AvatarStorage:          newAvatarStorage(pool),
 		UserStorage:            newUserStorage(pool),
@@ -54,10 +62,7 @@ func NewStorage(ctxForInit, ctxWithCancel context.Context,
 		MateChatMessageStorage: newMateChatMessageStorage(pool),
 		GeoChatMessageStorage:  newGeoChatMessageStorage(pool),
 
-		Background: newBackground(
-			ctxForInit, ctxWithCancel,
-			pool, deps.DependenciesForBgr,
-		),
+		Background: backgroundStorage,
 	}
 
 	return storage, nil

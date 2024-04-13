@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"geoqq/pkg/logger"
+	"geoqq/pkg/utility"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -34,7 +35,7 @@ func newBackground(
 	pool *pgxpool.Pool,
 	deps DependenciesForBgr,
 
-) *Background {
+) (*Background, error) {
 	fmt.Printf("MaxQueryCount: %v\n", deps.MaxQueryCount)
 	queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
 
@@ -47,29 +48,28 @@ func newBackground(
 		queryTimeout: deps.QueryTimeout,
 	}
 
+	conn, err := pool.Acquire(ctxForInit)
+	if err != nil {
+		return nil, utility.NewFuncError(newBackground, err)
+	}
+	logger.Info("background storage has captured conn")
+
 	// can run several...
 	go storage.updateQueries(
-		ctxForInit,
-		ctxWithCancel,
+		conn, ctxWithCancel,
 	)
 
-	return storage
+	return storage, nil
 }
 
 // private
 // -----------------------------------------------------------------------
 
 func (s *Background) updateQueries(
-	ctxForInit, ctxWithCancel context.Context, // as field in struct?
+	openedConn *pgxpool.Conn,
+	ctxWithCancel context.Context, // as field in struct?
 ) {
-	// TODO: контекст  другой горутине закрываеться!!!
-	conn, err := s.pool.Acquire(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(conn)
-	defer conn.Release()
+	defer openedConn.Release()
 
 	// ***
 
@@ -77,14 +77,14 @@ func (s *Background) updateQueries(
 		select {
 		case <-ctxWithCancel.Done(): // ?
 			close(s.queries)
+
 			logger.Warning("update queries canceled")
 			return
 
-		// TOOD:!!!!z
 		case f, ok := <-s.queries:
 			if !ok {
-				logger.Warning("ERRRRRRR!")
-				return // Выйти из цикла
+				logger.Warning("queries channel closed")
+				return
 			}
 
 			ctx := context.Background()
@@ -93,9 +93,7 @@ func (s *Background) updateQueries(
 			)
 			defer cancel()
 
-			err = f(conn, ctx)
-			logger.Trace("f done")
-
+			err := f(openedConn, ctx)
 			if err != nil {
 				logger.Error("update query with err: %v", err)
 			}

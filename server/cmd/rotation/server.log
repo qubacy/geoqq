@@ -773,3 +773,502 @@
 2024/04/11 17:50:24.108356 TRACE | add task
 [GIN] 2024/04/12 - 00:50:24 | 200 |       538.6µs |   192.168.0.104 | PUT      "/api/my-profile"
 2024/04/11 17:50:24.108882 TRACE | f done
+2024/04/12 13:36:39.320823 TRACE | storage.max_init_time: 5s
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:36:39.392323 INFO | Server Is Running
+2024/04/12 13:36:39.393324 Run app failed. Err: listen tcp :57000: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/04/12 13:40:11.095316 TRACE | storage.max_init_time: 5s
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:40:11.149726 INFO | Server Is Running
+2024/04/12 13:40:11.150787 Run app failed. Err: listen tcp :57000: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/04/12 13:41:11.838038 TRACE | storage.max_init_time: 5s
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:41:11.895280 INFO | Server Is Running
+2024/04/12 13:41:11.895810 Run app failed. Err: listen tcp :57000: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/04/12 13:41:58.436347 TRACE | storage.max_init_time: 5s
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:41:58.493420 INFO | Server Is Running
+2024/04/12 13:41:58.493955 Run app failed. Err: listen tcp :57000: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/04/12 13:42:24.862578 TRACE | storage.max_init_time: 5s
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:42:24.918577 INFO | Server Is Running
+2024/04/12 13:44:05.740268 TRACE | storage.max_init_time: 5s
+2024/04/12 13:44:05.795386 INFO | background storage has captured conn
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 13:44:05.795912 INFO | Server Is Running
+2024/04/12 14:02:23.196691 TRACE | storage.max_init_time: 5s
+2024/04/12 14:02:23.267715 INFO | background storage has captured conn
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (6 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (6 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (4 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (7 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (6 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (5 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (6 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (5 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (5 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (6 handlers)
+[GIN-debug] DELETE /api/my-profile/my-profile --> geoqq/internal/delivery/http/api.(*Handler).registerUserRoutes.func1 (4 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (5 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (6 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (5 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (6 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (6 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (8 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (7 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (6 handlers)
+2024/04/12 14:02:23.268777 INFO | Server Is Running
+[GIN] 2024/04/12 - 21:03:02 | 404 |            0s | 149.154.161.215 | GET      "/"
+[GIN] 2024/04/12 - 21:03:29 | 400 |       532.5µs | 176.116.169.147 | PUT      "/api/sign-in"
+[GIN] 2024/04/12 - 21:04:11 | 400 |            0s | 176.116.169.147 | PUT      "/api/sign-in"
+[GIN] 2024/04/12 - 21:04:27 | 400 |            0s | 176.116.169.147 | PUT      "/api/sign-in"
+[GIN] 2024/04/12 - 21:04:59 | 200 |     89.7874ms | 176.116.169.147 | POST     "/api/sign-in"
+2024/04/12 14:05:01.467594 TRACE | try add task
+2024/04/12 14:05:01.467594 TRACE | add task
+2024/04/12 14:05:01.467594 TRACE | {[{14 wild_trader 123122123123 149 1.712955899e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:01 | 200 |      7.9802ms | 176.116.169.147 | POST     "/api/user"
+[GIN] 2024/04/12 - 21:05:01 | 200 |      5.3499ms | 176.116.169.147 | GET      "/api/mate/chat?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:01.864974 TRACE | try add task
+2024/04/12 14:05:01.865232 TRACE | add task
+2024/04/12 14:05:01.865232 TRACE | {[{2 test_user1  2 1.711933404e+09 true false 0} {3 test_user2  3 1.711933404e+09 true false 0} {4 test_user3 home 4 1.712876971e+09 true false 0} {5 test_user4  5 1.711933405e+09 true false 0} {1 test_user  13 1.71225941e+09 true false 0} {14 wild_trader 123122123123 149 1.712955901e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:01 | 200 |      1.5679ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:04.159254 TRACE | try add task
+2024/04/12 14:05:04.159254 TRACE | add task
+2024/04/12 14:05:04.159254 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955901e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:04 | 200 |      1.8858ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:04.238558 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:04 | 200 |     14.6078ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:04.447374 TRACE | try add task
+2024/04/12 14:05:04.447906 TRACE | add task
+2024/04/12 14:05:04.447906 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955904e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:04 | 200 |      1.1157ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:07.243332 TRACE | try add task
+2024/04/12 14:05:07.243781 TRACE | add task
+2024/04/12 14:05:07.243781 TRACE | {[{14 wild_trader 123122123123 149 1.712955904e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:07 | 200 |       964.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:07.244306 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:07 | 200 |      2.0422ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=20&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:07.430932 TRACE | try add task
+2024/04/12 14:05:07.431075 TRACE | add task
+2024/04/12 14:05:07.431075 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955907e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:07 | 200 |       1.307ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:09.245695 TRACE | try add task
+2024/04/12 14:05:09.245695 TRACE | add task
+2024/04/12 14:05:09.245695 TRACE | {[{14 wild_trader 123122123123 149 1.712955907e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:09 | 200 |       593.8µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:09.293023 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:09 | 200 |     49.5713ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=40&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:09.482439 TRACE | try add task
+2024/04/12 14:05:09.482935 TRACE | add task
+2024/04/12 14:05:09.482935 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955909e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:09 | 200 |      3.4677ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:15.474841 TRACE | try add task
+2024/04/12 14:05:15.474841 TRACE | add task
+2024/04/12 14:05:15.474841 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0}]}
+[GIN] 2024/04/12 - 21:05:15 | 200 |      1.2635ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:18.854040 TRACE | try add task
+2024/04/12 14:05:18.854219 TRACE | add task
+2024/04/12 14:05:18.854219 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0}]}
+[GIN] 2024/04/12 - 21:05:18 | 200 |      1.0941ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:22.954972 TRACE | try add task
+2024/04/12 14:05:22.955013 TRACE | add task
+2024/04/12 14:05:22.955013 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955918e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:22 | 200 |      1.1167ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:22.967033 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:22 | 200 |      1.0603ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:23.149205 TRACE | try add task
+2024/04/12 14:05:23.149646 TRACE | add task
+2024/04/12 14:05:23.149646 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955922e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:23 | 200 |       963.3µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:25.568060 TRACE | try add task
+2024/04/12 14:05:25.568060 TRACE | add task
+2024/04/12 14:05:25.568060 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955923e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:25 | 200 |      1.0003ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:25.571975 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:25 | 200 |      1.0515ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=20&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:25.765887 TRACE | try add task
+2024/04/12 14:05:25.765960 TRACE | add task
+2024/04/12 14:05:25.765960 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955925e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:25 | 200 |      1.2495ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:26.691011 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+2024/04/12 14:05:26.691531 TRACE | try add task
+2024/04/12 14:05:26.691531 TRACE | add task
+2024/04/12 14:05:26.691531 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955925e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:26 | 200 |      1.0558ms | 176.116.169.147 | POST     "/api/user"
+[GIN] 2024/04/12 - 21:05:26 | 200 |      1.0558ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=40&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:26.872517 TRACE | try add task
+2024/04/12 14:05:26.873073 TRACE | add task
+2024/04/12 14:05:26.873073 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955926e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:26 | 200 |      1.0754ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:34.949954 TRACE | try add task
+2024/04/12 14:05:34.949954 TRACE | add task
+2024/04/12 14:05:34.949954 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0}]}
+[GIN] 2024/04/12 - 21:05:34 | 200 |       574.2µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:40.799363 TRACE | try add task
+2024/04/12 14:05:40.799384 TRACE | add task
+2024/04/12 14:05:40.799384 TRACE | {[{14 wild_trader 123122123123 149 1.712955934e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:40 | 200 |      2.0177ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:40.806693 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:40 | 200 |      1.6961ms | 176.116.169.147 | GET      "/api/mate/chat/5/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:40.984191 TRACE | try add task
+2024/04/12 14:05:40.984479 TRACE | add task
+2024/04/12 14:05:40.984479 TRACE | {[{14 wild_trader 123122123123 149 1.71295594e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:40 | 200 |       803.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:42.508470 TRACE | try add task
+2024/04/12 14:05:42.508481 TRACE | add task
+2024/04/12 14:05:42.508481 TRACE | {[{5 test_user4  5 1.711933405e+09 true false 0}]}
+[GIN] 2024/04/12 - 21:05:42 | 200 |      2.0735ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:45.019126 TRACE | try add task
+2024/04/12 14:05:45.019126 TRACE | add task
+2024/04/12 14:05:45.019126 TRACE | {[{14 wild_trader 123122123123 149 1.712955942e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:45 | 200 |       538.6µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:45.030690 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:45 | 200 |     26.8289ms | 176.116.169.147 | GET      "/api/mate/chat/1/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:45.233217 TRACE | try add task
+2024/04/12 14:05:45.233217 TRACE | add task
+2024/04/12 14:05:45.233217 TRACE | {[{14 wild_trader 123122123123 149 1.712955945e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:45 | 200 |       599.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:49.833687 TRACE | try add task
+2024/04/12 14:05:49.833687 TRACE | add task
+2024/04/12 14:05:49.833687 TRACE | {[{14 wild_trader 123122123123 149 1.712955945e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:49 | 200 |       536.1µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:49.841981 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:49 | 200 |       520.2µs | 176.116.169.147 | GET      "/api/mate/chat/2/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:50.019006 TRACE | try add task
+2024/04/12 14:05:50.019006 TRACE | add task
+2024/04/12 14:05:50.019006 TRACE | {[{14 wild_trader 123122123123 149 1.712955949e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:50 | 200 |      1.0577ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:52.156729 TRACE | try add task
+2024/04/12 14:05:52.156729 TRACE | add task
+2024/04/12 14:05:52.156729 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.71295595e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:52 | 200 |       605.8µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:52.163053 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:52 | 200 |       818.8µs | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:52.349938 TRACE | try add task
+2024/04/12 14:05:52.349938 TRACE | add task
+2024/04/12 14:05:52.349938 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955952e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:52 | 200 |       519.9µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:55.029045 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:55 | 200 |      1.0788ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=20&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:55.031846 TRACE | try add task
+2024/04/12 14:05:55.031846 TRACE | add task
+2024/04/12 14:05:55.031846 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955952e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:55 | 200 |       622.4µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:55.209149 TRACE | try add task
+2024/04/12 14:05:55.209149 TRACE | add task
+2024/04/12 14:05:55.209149 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955955e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:55 | 200 |       964.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:56.244455 TRACE | try add task
+2024/04/12 14:05:56.244455 TRACE | add task
+2024/04/12 14:05:56.244455 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955955e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:56 | 200 |       524.3µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:05:56.248139 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:05:56 | 200 |       522.7µs | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=40&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:05:56.431661 TRACE | try add task
+2024/04/12 14:05:56.431661 TRACE | add task
+2024/04/12 14:05:56.431661 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955956e+09 false false 0}]}
+[GIN] 2024/04/12 - 21:05:56 | 200 |       529.8µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:07.739814 TRACE | try add task
+2024/04/12 14:06:07.739814 TRACE | add task
+2024/04/12 14:06:07.739814 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0}]}
+[GIN] 2024/04/12 - 21:06:07 | 200 |       544.5µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:15.366017 TRACE | try add task
+2024/04/12 14:06:15.366017 TRACE | add task
+[GIN] 2024/04/12 - 21:06:15 | 200 |      1.2825ms | 176.116.169.147 | GET      "/api/my-profile?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:17.694472 TRACE | try add task
+2024/04/12 14:06:17.694472 TRACE | add task
+[GIN] 2024/04/12 - 21:06:17 | 200 |      1.1309ms | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:21.202299 TRACE | try add task
+2024/04/12 14:06:21.202299 TRACE | add task
+[GIN] 2024/04/12 - 21:06:21 | 200 |       526.5µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:22.634320 TRACE | try add task
+2024/04/12 14:06:22.634320 TRACE | add task
+[GIN] 2024/04/12 - 21:06:22 | 200 |       532.1µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:23.701744 TRACE | try add task
+2024/04/12 14:06:23.701779 TRACE | add task
+[GIN] 2024/04/12 - 21:06:23 | 200 |      1.0959ms | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:24.716651 TRACE | try add task
+2024/04/12 14:06:24.717172 TRACE | add task
+[GIN] 2024/04/12 - 21:06:24 | 200 |      1.0881ms | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:25.868783 TRACE | try add task
+2024/04/12 14:06:25.868783 TRACE | add task
+[GIN] 2024/04/12 - 21:06:25 | 200 |       653.9µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:26.774174 TRACE | try add task
+2024/04/12 14:06:26.774174 TRACE | add task
+[GIN] 2024/04/12 - 21:06:26 | 200 |       530.3µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:27.655298 TRACE | try add task
+2024/04/12 14:06:27.655298 TRACE | add task
+[GIN] 2024/04/12 - 21:06:27 | 200 |       521.5µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:28.550968 TRACE | try add task
+2024/04/12 14:06:28.551139 TRACE | add task
+[GIN] 2024/04/12 - 21:06:28 | 200 |       691.6µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:29.421018 TRACE | try add task
+2024/04/12 14:06:29.421279 TRACE | add task
+[GIN] 2024/04/12 - 21:06:29 | 200 |         786µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:30.368229 TRACE | try add task
+2024/04/12 14:06:30.368229 TRACE | add task
+[GIN] 2024/04/12 - 21:06:30 | 200 |       1.002ms | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:31.219079 TRACE | try add task
+2024/04/12 14:06:31.219117 TRACE | add task
+[GIN] 2024/04/12 - 21:06:31 | 200 |       717.5µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:32.050506 TRACE | try add task
+2024/04/12 14:06:32.050506 TRACE | add task
+[GIN] 2024/04/12 - 21:06:32 | 200 |       532.2µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:32.867838 TRACE | try add task
+2024/04/12 14:06:32.867838 TRACE | add task
+[GIN] 2024/04/12 - 21:06:32 | 200 |       985.8µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:33.802134 TRACE | try add task
+2024/04/12 14:06:33.802390 TRACE | add task
+[GIN] 2024/04/12 - 21:06:33 | 200 |       774.9µs | 176.116.169.147 | PUT      "/api/my-profile"
+2024/04/12 14:06:37.216625 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:37 | 200 |      1.5308ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:37.224954 TRACE | try add task
+2024/04/12 14:06:37.224970 TRACE | add task
+2024/04/12 14:06:37.224970 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955993e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:37 | 200 |       540.5µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:37.397697 TRACE | try add task
+2024/04/12 14:06:37.397697 TRACE | add task
+2024/04/12 14:06:37.397697 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955997e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:37 | 200 |      1.0025ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:39.449437 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:39 | 200 |      2.0437ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=20&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:39.456698 TRACE | try add task
+2024/04/12 14:06:39.456698 TRACE | add task
+2024/04/12 14:06:39.456698 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955997e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:39 | 200 |            0s | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:39.630092 TRACE | try add task
+2024/04/12 14:06:39.630184 TRACE | add task
+2024/04/12 14:06:39.630184 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955999e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:39 | 200 |       610.6µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:41.070081 TRACE | try add task
+2024/04/12 14:06:41.070081 TRACE | add task
+2024/04/12 14:06:41.070081 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712955999e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:41 | 200 |       528.1µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:41.070602 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:41 | 200 |      2.2914ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=40&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:41.250918 TRACE | try add task
+2024/04/12 14:06:41.251422 TRACE | add task
+2024/04/12 14:06:41.251422 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712956001e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:41 | 200 |      1.0232ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:47.959102 TRACE | try add task
+2024/04/12 14:06:47.959502 TRACE | add task
+2024/04/12 14:06:47.959502 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712956001e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:47 | 200 |      1.6448ms | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:47.964514 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:47 | 200 |      1.0155ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=0&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:48.157025 TRACE | try add task
+2024/04/12 14:06:48.157025 TRACE | add task
+2024/04/12 14:06:48.157025 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712956007e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:48 | 200 |       515.3µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:50.013842 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:50 | 200 |      1.4424ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=20&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:50.015125 TRACE | try add task
+2024/04/12 14:06:50.015125 TRACE | add task
+2024/04/12 14:06:50.015125 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712956008e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:50 | 200 |       517.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:50.195751 TRACE | try add task
+2024/04/12 14:06:50.195903 TRACE | add task
+2024/04/12 14:06:50.195903 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.71295601e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:50 | 200 |       676.2µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:51.035551 TRACE | WITH "MateChatMessages" AS (SELECT "MateMessage"."Id" AS "Id", "Text", "Time", "FromUserId" AS "UserId", "Read" /* will return value before update */ FROM "MateMessage" INNER JOIN "MateChat" ON ( "MateChat"."Id" = "MateMessage"."MateChatId" AND "MateMessage"."MateChatId" = $2 AND ( "FirstUserId" = $1 OR "SecondUserId" = $1 ) /* access check, without returning obvious errors */ ) ORDER BY "Id" DESC /* or time? */ LIMIT $3 OFFSET $4 ) UPDATE "MateMessage" SET "Read" = CASE "MateMessage"."FromUserId" WHEN $1 THEN "MateMessage"."Read" /* already set value */ ELSE TRUE END FROM "MateChatMessages" WHERE ( "MateMessage"."Id" = "MateChatMessages"."Id" ) RETURNING "MateChatMessages".*
+[GIN] 2024/04/12 - 21:06:51 | 200 |      1.2541ms | 176.116.169.147 | GET      "/api/mate/chat/4/message?offset=40&count=20&accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5MzI0OTksInVzZXItaWQiOjE0LCJwdXJwb3NlIjoxfQ._SmqivdnWJvS2X3Ur6bChY9CgDEFU5945CrE0WIjBFI"
+2024/04/12 14:06:51.039996 TRACE | try add task
+2024/04/12 14:06:51.040513 TRACE | add task
+2024/04/12 14:06:51.040523 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.71295601e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:51 | 200 |       526.7µs | 176.116.169.147 | POST     "/api/user"
+2024/04/12 14:06:51.224180 TRACE | try add task
+2024/04/12 14:06:51.224310 TRACE | add task
+2024/04/12 14:06:51.224310 TRACE | {[{4 test_user3 home 4 1.712876971e+09 true false 0} {14 wild_trader 123122123123 149 1.712956011e+09 false false 1}]}
+[GIN] 2024/04/12 - 21:06:51 | 200 |       646.4µs | 176.116.169.147 | POST     "/api/user"
