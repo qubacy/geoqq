@@ -81,6 +81,26 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 	ctx.Set(contextUserId, payload.UserId)
 }
 
+type bodyWithAccessToken struct {
+	AccessToken string `json:"access-token" binding:"required"`
+}
+
+func (h *Handler) userIdentityByBodyWithAccessToken(ctx *gin.Context) {
+	requestDto := bodyWithAccessToken{} // ?
+	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
+		return
+	}
+
+	payload, err := h.tokenExtractor.ParseAccess(requestDto.AccessToken)
+	if err != nil {
+		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
+		return
+	}
+
+	ctx.Set(contextUserId, payload.UserId)
+}
+
 func (h *Handler) userNotDeleted(ctx *gin.Context) {
 
 	// no checks required before extraction user id!
@@ -102,7 +122,6 @@ func (h *Handler) userNotDeleted(ctx *gin.Context) {
 	if wasDeleted {
 		logger.Warning("request from deleted user with id %v", userId)
 		resWithAuthError(ctx, ec.InvalidAccessToken, ErrRequestFromDeletedUser)
-		return
 	}
 }
 

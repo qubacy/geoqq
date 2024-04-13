@@ -13,21 +13,25 @@ func (h *Handler) registerGeoRoutes() {
 	{
 		chat := router.Group("/chat")
 		{
-			chat.GET("/message", h.userIdentityForGetRequest,
+			chat.GET("/message",
+				h.userIdentityForGetRequest, h.userNotDeleted,
 				requireOffsetAndCount,
-				requireLonAndLat,
-				requireRadius,
-				h.getGeoChatMessages)
+				requireLonAndLat, requireRadius,
+				h.getGeoChatMessages,
+			)
 
-			chat.GET("/message/all", h.userIdentityForGetRequest,
-				requireLonAndLat,
-				requireRadius,
-				h.getGeoChatAllMessages)
+			chat.GET("/message/all",
+				h.userIdentityForGetRequest, h.userNotDeleted,
+				requireLonAndLat, requireRadius,
+				h.getGeoChatAllMessages,
+			)
 
 			// for debug?
 
 			chat.POST("/message", h.extractBodyForPostGeoChatMessage,
-				h.userIdentityByContextData, h.postGeoChatMessage)
+				h.userIdentityByContextData, h.userNotDeleted,
+				h.postGeoChatMessage,
+			)
 		}
 	}
 }

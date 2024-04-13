@@ -10,21 +10,28 @@ import (
 )
 
 func (h *Handler) registerAuthRoutes() {
+
+	// ?
 	// router := h.router.Group("/auth")
+	//
+	// ---> /api/auth/sign-in, ...
 
 	router := h.router
 	{
 		router.POST("/sign-in", h.parseAnyForm,
 			extractLoginAndPassword,
-			h.postSignIn)
+			h.postSignIn,
+		)
 
 		router.POST("/sign-up", h.parseAnyForm,
 			extractLoginAndPassword,
-			h.postSignUp)
+			h.postSignUp,
+		)
 
 		router.PUT("/sign-in", h.parseAnyForm,
 			extractRefreshToken,
-			h.putSignIn)
+			h.putSignIn,
+		)
 	}
 }
 

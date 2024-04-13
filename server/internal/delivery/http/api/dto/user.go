@@ -169,6 +169,13 @@ func (s *Avatar) ToDynamicInp() *serviceDto.Avatar {
 	}
 }
 
+// DELETE /api/my-profile
+// -----------------------------------------------------------------------
+
+type MyProfileDeleteReq struct {
+	AccessToken string `json:"access-token" binding:"required"` // ?
+}
+
 // GET /api/user/{userId}
 // -----------------------------------------------------------------------
 

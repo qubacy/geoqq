@@ -14,33 +14,47 @@ import (
 func (h *Handler) registerUserRoutes() {
 	myProfileRouter := h.router.Group("/my-profile", h.parseAnyForm)
 	{
-		myProfileRouter.GET("", h.userIdentityForGetRequest, h.getMyProfile)
+		myProfileRouter.GET("",
+			h.userIdentityForGetRequest,
+			h.userNotDeleted,
+			h.getMyProfile,
+		)
 
 		myProfileRouter.PUT("",
 			h.extractBodyForPutMyProfile,
 			h.userIdentityByContextData,
-			h.putMyProfile)
+			h.userNotDeleted,
+			h.putMyProfile,
+		)
 
 		// deprecated!
 		myProfileRouter.PUT("/with-attached-avatar",
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
-			h.userIdentityByContextData,
-			h.putMyProfileWithAttachedAvatar)
+			h.userIdentityByContextData, h.userNotDeleted,
+			h.putMyProfileWithAttachedAvatar,
+		)
 
-		myProfileRouter.DELETE("/my-profile", func(ctx *gin.Context) {
-			// TODO:
-
-			ctx.Status(http.StatusOK)
-		})
+		myProfileRouter.DELETE("",
+			h.userIdentityByBodyWithAccessToken,
+			h.userNotDeleted, h.deleteMyProfile,
+		)
 	}
 
 	// ***
 
 	userRouter := h.router.Group("/user", h.parseAnyForm)
 	{
-		userRouter.GET("/:id", h.userIdentityForGetRequest, h.getUser)
-		userRouter.POST("", h.extractBodyForGetSomeUsers,
-			h.userIdentityByContextData, h.getSomeUsers)
+		userRouter.GET("/:id",
+			h.userIdentityForGetRequest,
+			h.userNotDeleted,
+			h.getUser,
+		)
+		userRouter.POST("",
+			h.extractBodyForGetSomeUsers,
+			h.userIdentityByContextData,
+			h.userNotDeleted,
+			h.getSomeUsers,
+		)
 	}
 }
 
@@ -226,6 +240,13 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+// DELETE /api/my-profile
+// -----------------------------------------------------------------------
+
+func (h *Handler) deleteMyProfile(ctx *gin.Context) {
+
 }
 
 // user

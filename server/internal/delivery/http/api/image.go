@@ -43,14 +43,6 @@ type uriParamsGetImage struct {
 }
 
 func (h *Handler) getImage(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
-		return
-	}
-
-	// ***
-
 	uriParams := uriParamsGetImage{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
 		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
@@ -97,14 +89,6 @@ func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
 }
 
 func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
-		return
-	}
-
-	// *** handler level checks
-
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
 	if !exists {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)

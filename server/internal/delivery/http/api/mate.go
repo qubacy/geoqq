@@ -17,33 +17,55 @@ func (h *Handler) registerMateRoutes() {
 		// TODO: what is the priority of these routes?
 		chat := router.Group("/chat")
 		{
-			chat.GET("", h.userIdentityForGetRequest, requireOffsetAndCount, h.getMateChats)
-			chat.GET("/:id", h.userIdentityForGetRequest, requireRouteItemId,
-				h.getMateChat)
+			chat.GET("",
+				h.userIdentityForGetRequest, h.userNotDeleted,
+				requireOffsetAndCount, h.getMateChats,
+			)
+			chat.GET("/:id",
+				h.userIdentityForGetRequest, h.userNotDeleted,
+				requireRouteItemId, h.getMateChat,
+			)
 
-			chat.DELETE("/:id", h.deleteMateChat)
-			chat.GET("/:id/message", h.userIdentityForGetRequest,
+			chat.DELETE("/:id",
+				h.userIdentityByBodyWithAccessToken,
+				h.userNotDeleted, h.deleteMateChat,
+			)
+			chat.GET("/:id/message",
+				h.userIdentityForGetRequest, h.userNotDeleted,
 				requireRouteItemId, requireOffsetAndCount,
-				h.getMateChatMessages) // maybe group?
+				h.getMateChatMessages,
+			) // maybe group?
 
 			// for debug?
 
-			chat.POST("/:id/message", h.extractBodyForPostMateChatMessage,
-				h.userIdentityByContextData, h.postMateChatMessage)
+			chat.POST("/:id/message",
+				h.extractBodyForPostMateChatMessage,
+				h.userIdentityByContextData, h.userNotDeleted,
+				h.postMateChatMessage,
+			)
 		}
 
 		request := router.Group("/request")
 		{
-			request.GET("", h.userIdentityForGetRequest,
-				requireOffsetAndCount, h.getMateRequests)
-			request.GET("/count", h.userIdentityForGetRequest, h.getMateRequestCount)
+			request.GET("",
+				h.userIdentityForGetRequest, h.userNotDeleted,
+				requireOffsetAndCount, h.getMateRequests,
+			)
+			request.GET("/count",
+				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.getMateRequestCount,
+			)
 
 			// ***
 
 			request.POST("", h.extractBodyForPostMateRequest,
-				h.userIdentityByContextData, h.postMateRequest)
+				h.userIdentityByContextData, h.userNotDeleted,
+				h.postMateRequest,
+			)
 
-			request.PUT("/:id", h.userIdentityForFormRequest, h.putMateRequest)
+			request.PUT("/:id", h.userIdentityForFormRequest,
+				h.userNotDeleted, h.putMateRequest,
+			)
 		}
 	}
 }
