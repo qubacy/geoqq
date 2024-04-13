@@ -30,7 +30,7 @@ class MateMessageDataRepository @Inject constructor(
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorDataRepository: ErrorDataRepository,
     private val mTokenDataRepository: TokenDataRepository,
-    private var mUserDataRepository: UserDataRepository,
+    private val mUserDataRepository: UserDataRepository,
     private val mLocalMateMessageDataSource: LocalMateMessageDataSource,
     private val mHttpMateMessageDataSource: HttpMateMessageDataSource,
     private val mHttpClient: OkHttpClient

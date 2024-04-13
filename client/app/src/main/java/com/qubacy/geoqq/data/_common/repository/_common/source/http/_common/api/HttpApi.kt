@@ -6,6 +6,7 @@ import android.util.Log
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
+import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
@@ -75,6 +76,8 @@ class HttpApi {
         retrofit.create(HttpMateMessageDataSource::class.java)
     val mateChatApi: HttpMateChatDataSource =
         retrofit.create(HttpMateChatDataSource::class.java)
+    val mateRequestApi: HttpMateRequestDataSource =
+        retrofit.create(HttpMateRequestDataSource::class.java)
     val userApi: HttpUserDataSource = retrofit.create(HttpUserDataSource::class.java)
     val imageApi: HttpImageDataSource = retrofit.create(HttpImageDataSource::class.java)
     val myProfileApi: HttpMyProfileDataSource = retrofit.create(HttpMyProfileDataSource::class.java)

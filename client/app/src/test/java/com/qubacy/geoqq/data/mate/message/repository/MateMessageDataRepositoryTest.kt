@@ -147,6 +147,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
             Unit
         }
         Mockito.`when`(localMateMessageDataSourceMock.deleteMessagesByIds(
+            Mockito.anyLong(),
             AnyMockUtil.anyObject()
         )).thenAnswer {
             mLocalSourceDeleteMateMessagesByIdsCallFlag = true

@@ -115,7 +115,7 @@ class MateChatsViewModelTest(
     fun isNextChatChunkGettingAllowedTest() {
         data class TestCase(
             val lastChatChunkIndex: Int,
-            val chatChunks: MutableMap<Int, List<MateChatPresentation>>,
+            val chatChunks: MutableMap<Int, MutableList<MateChatPresentation>>,
             val isGettingNextChatChunk: Boolean,
             val expectedIsNextChatChunkGettingAllowed: Boolean
         )
@@ -135,19 +135,19 @@ class MateChatsViewModelTest(
             ),
             TestCase(
                 0,
-                mutableMapOf(0 to listOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
                 false,
                 true
             ),
             TestCase(
                 0,
-                mutableMapOf(0 to listOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
                 true,
                 false
             ),
             TestCase(
                 1,
-                mutableMapOf(0 to listOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
                 false,
                 false
             ),
@@ -227,7 +227,7 @@ class MateChatsViewModelTest(
     @Test
     fun processGetChatChunkDomainResultTest() = runTest {
         val initIsLoading = true
-        val initChatChunks = mutableMapOf<Int, List<MateChatPresentation>>()
+        val initChatChunks = mutableMapOf<Int, MutableList<MateChatPresentation>>()
         val initIsGettingNextChatChunk = true
         val initLastChatChunkIndex = 0
 
@@ -331,7 +331,7 @@ class MateChatsViewModelTest(
         val initIsGettingNextChatChunk = true
         val initLastChatChunkIndex = 0
         val initChatChunks = mutableMapOf(
-            initLastChatChunkIndex to listOf(DEFAULT_MATE_CHAT_PRESENTATION)
+            initLastChatChunkIndex to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
         )
 
         val mockedUri = UriMockUtil.getMockedUri()
