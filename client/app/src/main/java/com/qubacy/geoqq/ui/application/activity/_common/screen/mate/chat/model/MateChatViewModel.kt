@@ -13,6 +13,8 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -23,6 +25,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +64,19 @@ class MateChatViewModel @Inject constructor(
         mUseCase.getMessageChunk(mUiState.chatContext!!.id, mLastMessageChunkIndex)
     }
 
+    open fun isInterlocutorChatable(): Boolean {
+        return mUiState.chatContext!!.user.let { it.isMate && !it.isDeleted }
+    }
+
+    open fun isInterlocutorMateable(): Boolean {
+        return mUiState.chatContext!!.user
+            .let { !it.isMate && mUiState.isMateRequestSendingAllowed }
+    }
+
+    open fun isInterlocutorMateableOrDeletable(): Boolean {
+        return (isInterlocutorMateable() || mUiState.chatContext!!.user.isMate)
+    }
+
     open fun isNextMessageChunkGettingAllowed(): Boolean {
         val prevMessageChunkIndex = mLastMessageChunkIndex - 1
         val prevChunkSize = mUiState.messageChunks[prevMessageChunkIndex]?.size
@@ -80,6 +97,16 @@ class MateChatViewModel @Inject constructor(
         mUseCase.getInterlocutor(contextUser.id)
     }
 
+    open fun addInterlocutorAsMate() {
+        changeLoadingState(true)
+        mUseCase.sendMateRequestToInterlocutor(mUiState.chatContext!!.user.id)
+    }
+
+    open fun deleteChat() {
+        changeLoadingState(true)
+        mUseCase.deleteChat(mUiState.chatContext!!.id)
+    }
+
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
         val uiOperation = super.processDomainResultFlow(domainResult)
 
@@ -94,8 +121,37 @@ class MateChatViewModel @Inject constructor(
                 processGetInterlocutorDomainResult(domainResult as GetInterlocutorDomainResult)
             UpdateInterlocutorDomainResult::class ->
                 processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
+            SendMateRequestToInterlocutorDomainResult::class ->
+                processSendMateRequestToInterlocutorDomainResult(
+                    domainResult as SendMateRequestToInterlocutorDomainResult)
+            DeleteChatDomainResult::class ->
+                processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
             else -> null
         }
+    }
+
+    private fun processSendMateRequestToInterlocutorDomainResult(
+        sendMateRequestToInterlocutorResult: SendMateRequestToInterlocutorDomainResult
+    ): UiOperation {
+        if (mUiState.isLoading) changeLoadingState(false)
+
+        if (!sendMateRequestToInterlocutorResult.isSuccessful())
+            return processErrorDomainResult(sendMateRequestToInterlocutorResult.error!!)
+
+        mUiState.isMateRequestSendingAllowed = false
+
+        return MateRequestSentToInterlocutorUiOperation()
+    }
+
+    private fun processDeleteChatDomainResult(
+        deleteChatDomainResult: DeleteChatDomainResult
+    ): UiOperation {
+        if (mUiState.isLoading) changeLoadingState(false)
+
+        if (!deleteChatDomainResult.isSuccessful())
+            return processErrorDomainResult(deleteChatDomainResult.error!!)
+
+        return ChatDeletedUiOperation()
     }
 
     private fun processGetInterlocutorDomainResult(
@@ -104,7 +160,7 @@ class MateChatViewModel @Inject constructor(
         if (!getInterlocutorResult.isSuccessful())
             return processErrorDomainResult(getInterlocutorResult.error!!)
 
-        val userPresentation = getInterlocutorResult.interlocutor!!.toUserPresentation()
+        val userPresentation = processInterlocutorResult(getInterlocutorResult)
 
         return ShowInterlocutorDetailsUiOperation(userPresentation)
     }

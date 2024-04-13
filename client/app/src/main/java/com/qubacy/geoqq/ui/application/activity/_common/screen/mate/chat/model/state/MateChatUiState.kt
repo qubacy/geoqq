@@ -9,14 +9,16 @@ class MateChatUiState(
     isLoading: Boolean = false,
     error: Error? = null,
     val messageChunks: MutableMap<Int, List<MateMessagePresentation>> = mutableMapOf(),
-    var chatContext: MateChatPresentation? = null
+    var chatContext: MateChatPresentation? = null,
+    var isMateRequestSendingAllowed: Boolean = true
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): MateChatUiState {
         return MateChatUiState(
             isLoading,
             error?.copy(),
             messageChunks.toMutableMap(),
-            chatContext?.copy()
+            chatContext?.copy(),
+            isMateRequestSendingAllowed
         )
     }
 }

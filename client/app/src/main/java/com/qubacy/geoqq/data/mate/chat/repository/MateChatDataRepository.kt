@@ -11,6 +11,7 @@ import com.qubacy.geoqq.data.mate.chat.model.toMateChatLastMessageEntityPair
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatByIdDataResult
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.request.DeleteChatRequest
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
@@ -107,6 +108,19 @@ class MateChatDataRepository @Inject constructor(
         }
 
         return resultLiveData
+    }
+
+    suspend fun deleteChat(chatId: Long) {
+        val localChat = mLocalMateChatDataSource.getChatById(chatId).keys.first()
+
+        mLocalMateChatDataSource.deleteChat(localChat)
+
+        val accessToken = mTokenDataRepository.getTokens().accessToken
+
+        val deleteChatRequest = DeleteChatRequest(accessToken)
+        val deleteChatCall = mHttpMateChatDataSource.deleteChat(chatId, deleteChatRequest)
+
+        executeNetworkRequest(mErrorDataRepository, mHttpClient, deleteChatCall)
     }
 
     private fun deleteOverdueChats(

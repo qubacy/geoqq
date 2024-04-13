@@ -4,8 +4,10 @@ import android.util.Log
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
+import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
@@ -16,12 +18,17 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDom
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MateChatUseCase(
+class MateChatUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMateMessageDataRepository: MateMessageDataRepository,
+    private val mMateRequestDataRepository: MateRequestDataRepository,
+    private val mMateChatDataRepository: MateChatDataRepository,
     private val mUserDataRepository: UserDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     companion object {
@@ -58,6 +65,28 @@ class MateChatUseCase(
 
         }) {
             GetInterlocutorDomainResult(error = it)
+        }
+    }
+
+    fun sendMateRequestToInterlocutor(interlocutorId: Long) {
+        executeLogic({
+            mMateRequestDataRepository.createMateRequest(interlocutorId)
+
+            mResultFlow.emit(SendMateRequestToInterlocutorDomainResult())
+
+        }) {
+            SendMateRequestToInterlocutorDomainResult(error = it)
+        }
+    }
+
+    fun deleteChat(chatId: Long) {
+        executeLogic({
+            mMateChatDataRepository.deleteChat(chatId)
+
+            mResultFlow.emit(DeleteChatDomainResult())
+
+        }) {
+            DeleteChatDomainResult(error = it)
         }
     }
 

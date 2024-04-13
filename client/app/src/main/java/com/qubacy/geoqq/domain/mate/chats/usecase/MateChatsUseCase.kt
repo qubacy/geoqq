@@ -11,8 +11,9 @@ import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MateChatsUseCase(
+class MateChatsUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMateChatDataRepository: MateChatDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {

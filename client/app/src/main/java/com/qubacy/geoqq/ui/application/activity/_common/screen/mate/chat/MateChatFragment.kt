@@ -12,11 +12,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
@@ -35,6 +37,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.M
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
@@ -46,7 +50,8 @@ class MateChatFragment(
 
 ) : BusinessFragment<FragmentMateChatBinding, MateChatUiState, MateChatViewModel>(),
     PermissionRunnerCallback,
-    BaseRecyclerViewCallback
+    BaseRecyclerViewCallback,
+    UserBottomSheetViewContainerCallback
 {
     private val mArgs: MateChatFragmentArgs by navArgs()
 
@@ -71,6 +76,8 @@ class MateChatFragment(
         runPermissionCheck<MateChatsFragment>()
         setupNavigationUI(mBinding.fragmentMateChatTopBar)
 
+        mSnackbarAnchorView = mBinding.fragmentMateInputMessageWrapper
+
         initMessageListView()
         initUiControls()
     }
@@ -89,6 +96,11 @@ class MateChatFragment(
             UpdateInterlocutorDetailsUiOperation::class ->
                 processUpdateInterlocutorDetailsUiOperation(
                     uiOperation as UpdateInterlocutorDetailsUiOperation)
+            MateRequestSentToInterlocutorUiOperation::class ->
+                processMateRequestSentToInterlocutorUiOperation(
+                    uiOperation as MateRequestSentToInterlocutorUiOperation)
+            ChatDeletedUiOperation::class ->
+                processChatDeletedUiOperation(uiOperation as ChatDeletedUiOperation)
             else -> return false
         }
 
@@ -145,7 +157,20 @@ class MateChatFragment(
     private fun processUpdateInterlocutorDetailsUiOperation(
         updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
     ) {
-        openInterlocutorDetailsSheet(updateInterlocutorDetailsUiOperation.interlocutor)
+        adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
+    }
+
+    private fun processMateRequestSentToInterlocutorUiOperation(
+        mateRequestSentToInterlocutorUiOperation: MateRequestSentToInterlocutorUiOperation
+    ) {
+        onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_mate_request_sent)
+        mInterlocutorDetailsSheet!!.setMateButtonEnabled(false)
+    }
+
+    private fun processChatDeletedUiOperation(chatDeletedUiOperation: ChatDeletedUiOperation) {
+        val action = MateChatFragmentDirections.actionMateChatFragmentToMateChatsFragment()
+
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
     override fun runInitWithUiState(uiState: MateChatUiState) {
@@ -159,7 +184,7 @@ class MateChatFragment(
     }
 
     private fun initUiWithUiState(uiState: MateChatUiState) {
-        mBinding.fragmentMateChatTopBar.title = uiState.chatContext!!.user.username
+        adjustUiWithInterlocutor(uiState.chatContext!!.user)
     }
 
     private fun initMessageListView() {
@@ -264,11 +289,27 @@ class MateChatFragment(
         mModel.getNextMessageChunk()
     }
 
+    private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
+        setupInterlocutorDetailsSheet(interlocutor)
+
+        mBinding.fragmentMateChatTopBar.title = interlocutor.username // todo: doesn't change for some reason;
+        mBinding.fragmentMateInputMessage.isEnabled = mModel.isInterlocutorChatable()
+    }
+
     private fun openInterlocutorDetailsSheet(interlocutor: UserPresentation) {
         if (mInterlocutorDetailsSheet == null) initInterlocutorDetailsSheet()
 
-        mInterlocutorDetailsSheet!!.setUserData(interlocutor)
+        setupInterlocutorDetailsSheet(interlocutor)
         mInterlocutorDetailsSheet!!.open()
+    }
+
+    private fun setupInterlocutorDetailsSheet(interlocutor: UserPresentation) {
+        val isMateButtonEnabled = mModel.isInterlocutorMateableOrDeletable() // todo: is it ok?
+
+        mInterlocutorDetailsSheet?.apply {
+            setMateButtonEnabled(isMateButtonEnabled)
+            setUserData(interlocutor)
+        }
     }
 
     private fun initInterlocutorDetailsSheet() {
@@ -279,7 +320,8 @@ class MateChatFragment(
             requireContext(),
             mBinding.root,
             expandedBottomSheetHeight,
-            collapsedBottomSheetHeight
+            collapsedBottomSheetHeight,
+            this
         ).apply {
             adjustToInsets(mLastWindowInsets!!)
         }
@@ -292,5 +334,24 @@ class MateChatFragment(
         val bottomPosition = mBinding.root.bottom
 
         return bottomPosition - topPosition
+    }
+
+    override fun onMateButtonClicked() {
+        val isMate = mModel.uiState.chatContext!!.user.isMate
+
+        if (isMate) launchDeleteChat()
+        else launchAddInterlocutorAsMate()
+    }
+
+    private fun launchAddInterlocutorAsMate() {
+        if (!mModel.uiState.isMateRequestSendingAllowed) return // todo: is it enough?
+
+        mModel.addInterlocutorAsMate()
+    }
+
+    private fun launchDeleteChat() {
+        // todo: mb it'd be great to get user confirmation first?
+
+        mModel.deleteChat()
     }
 }

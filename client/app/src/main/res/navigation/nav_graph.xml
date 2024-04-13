@@ -63,6 +63,14 @@
         <argument
             android:name="chat"
             app:argType="com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation" />
+        <action
+            android:id="@+id/action_mateChatFragment_to_mateChatsFragment"
+            app:destination="@id/mateChatsFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/mateChatsFragment" />
     </fragment>
 
 </navigation>

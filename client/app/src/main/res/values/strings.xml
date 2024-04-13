@@ -34,8 +34,8 @@
     <string name="fragment_my_profile_input_error_about_me">About me has to contain any characters!</string>
     <string name="fragment_my_profile_button_update_text">UPDATE</string>
 
-    <string name="fragment_mate_input_message_hint_text">Your message..</string>
-
+    <string name="fragment_mate_chat_input_message_hint_text">Your message..</string>
+    <string name="fragment_mate_chat_snackbar_message_mate_request_sent">Your mate request has been sent</string>
 
     <!--  Components:  -->
 
