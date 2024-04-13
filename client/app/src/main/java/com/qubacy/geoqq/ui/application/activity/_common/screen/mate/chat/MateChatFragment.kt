@@ -220,6 +220,7 @@ class MateChatFragment(
 
     private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
         closeSoftKeyboard()
+        closePopupMessage()
 
         when (menuItem.itemId) {
             R.id.mate_chat_top_bar_option_show_mate_profile -> launchShowMateProfile()
@@ -292,7 +293,7 @@ class MateChatFragment(
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
         setupInterlocutorDetailsSheet(interlocutor)
 
-        mBinding.fragmentMateChatTopBar.title = interlocutor.username // todo: doesn't change for some reason;
+        mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username // todo: doesn't change for some reason;
         mBinding.fragmentMateInputMessage.isEnabled = mModel.isInterlocutorChatable()
     }
 
@@ -341,6 +342,8 @@ class MateChatFragment(
 
         if (isMate) launchDeleteChat()
         else launchAddInterlocutorAsMate()
+
+        mInterlocutorDetailsSheet!!.close()
     }
 
     private fun launchAddInterlocutorAsMate() {

@@ -69,7 +69,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     override fun onStop() {
         mErrorDialog?.dismiss()
         mRequestDialog?.dismiss()
-        mMessageSnackbar?.dismiss()
+        closePopupMessage()
 
         super.onStop()
     }
@@ -96,6 +96,10 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         duration: Int = Toast.LENGTH_SHORT
     ) {
         onPopupMessageOccurred(getString(message), duration)
+    }
+
+    open fun closePopupMessage() {
+        mMessageSnackbar?.dismiss()
     }
 
     protected open fun onErrorHandled() { }

@@ -135,6 +135,10 @@ class UserBottomSheetViewContainer(
         mBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
+    fun close() {
+        mBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
     fun getView(): View {
         return mBinding.root
     }
