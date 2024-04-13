@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -10,12 +11,15 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DefaultItemAnimator
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.getNavigationResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -24,6 +28,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.MateChatFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.result.MateChatFragmentResult
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
@@ -52,6 +58,8 @@ class MateChatsFragment(
 
     private lateinit var mAdapter: MateChatsListAdapter
 
+    private var mMateChatResultLiveData: MutableLiveData<MateChatFragmentResult?>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -68,6 +76,30 @@ class MateChatsFragment(
         mBinding.fragmentMateChatsTopBar.setOnMenuItemClickListener {
             onTopBarMenuItemClicked(it)
         }
+
+        initMateChatCallback()
+    }
+
+    private fun initMateChatCallback() {
+        mMateChatResultLiveData = getNavigationResult(MateChatFragment.RESULT_KEY)
+
+        mMateChatResultLiveData?.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+
+            onMateChatResultGotten(it)
+
+            mMateChatResultLiveData!!.value = null
+        }
+    }
+
+    private fun onMateChatResultGotten(result: MateChatFragmentResult) {
+        if (result.isDeleted) removeDeletedChat(result.chatId)
+    }
+
+    private fun removeDeletedChat(chatId: Long) {
+        val deletedChatPosition = mModel.removeDeletedChat(chatId)
+
+        mAdapter.deleteMateChats(deletedChatPosition, 1) // todo: isn't animated for some reason;
     }
 
     private fun onTopBarMenuItemClicked(menuItem: MenuItem): Boolean {
@@ -193,6 +225,7 @@ class MateChatsFragment(
             setCallback(this@MateChatsFragment)
 
             adapter = mAdapter
+            itemAnimator = DefaultItemAnimator()
         }
     }
 

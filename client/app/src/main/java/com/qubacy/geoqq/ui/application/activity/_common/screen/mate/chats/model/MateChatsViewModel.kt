@@ -175,6 +175,17 @@ open class MateChatsViewModel @Inject constructor(
 
         throw IllegalStateException()
     }
+
+    /**
+     * Returns a position of the deleted chat;
+     */
+    open fun removeDeletedChat(chatId: Long): Int {
+        val chatToDeletePosition = mUiState.chats.indexOfFirst { it.id == chatId }
+
+        mUiState.chats.removeAt(chatToDeletePosition)
+
+        return chatToDeletePosition
+    }
 }
 
 @Qualifier

@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class DeleteChatRequest(
-    @Json(name = "accessToken") val accessToken: String
+    @Json(name = "access-token") val accessToken: String
 ) {
 
 }
