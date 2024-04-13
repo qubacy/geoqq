@@ -8,7 +8,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 class MateChatUiState(
     isLoading: Boolean = false,
     error: Error? = null,
-    val messageChunks: MutableMap<Int, List<MateMessagePresentation>> = mutableMapOf(),
+    val prevMessages: MutableList<MateMessagePresentation> = mutableListOf(),
+    val prevMessageChunkSizes: MutableList<Int> = mutableListOf(), // todo: think of it;
+    val messages: MutableList<MateMessagePresentation> = mutableListOf(),
     var chatContext: MateChatPresentation? = null,
     var isMateRequestSendingAllowed: Boolean = true
 ) : BusinessUiState(isLoading, error) {
@@ -16,7 +18,9 @@ class MateChatUiState(
         return MateChatUiState(
             isLoading,
             error?.copy(),
-            messageChunks.toMutableMap(),
+            prevMessages.toMutableList(),
+            prevMessageChunkSizes.toMutableList(),
+            messages.toMutableList(),
             chatContext?.copy(),
             isMateRequestSendingAllowed
         )

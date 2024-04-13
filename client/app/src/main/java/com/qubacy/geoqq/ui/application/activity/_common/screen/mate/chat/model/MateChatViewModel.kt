@@ -79,10 +79,10 @@ class MateChatViewModel @Inject constructor(
 
     open fun isNextMessageChunkGettingAllowed(): Boolean {
         val prevMessageChunkIndex = mLastMessageChunkIndex - 1
-        val prevChunkSize = mUiState.messageChunks[prevMessageChunkIndex]?.size
+        val prevMessageCount = mUiState.prevMessages.size
 
-        val chunkSizeCheck = (prevMessageChunkIndex < 0 || (prevChunkSize != null
-                && prevChunkSize >= MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE))
+        val chunkSizeCheck = (prevMessageChunkIndex < 0 ||
+                (prevMessageCount % MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE == 0))
 
         return (!mIsGettingNextMessageChunk && chunkSizeCheck)
     }
@@ -216,7 +216,7 @@ class MateChatViewModel @Inject constructor(
         if (!updateMessageChunkResult.isSuccessful())
             return processErrorDomainResult(updateMessageChunkResult.error!!)
 
-        val prevMessageChunkSize = mUiState.messageChunks[updateMessageChunkResult.chunk!!.index]!!.size
+        val prevMessageChunkSize = mUiState.prevMessageChunkSizes[updateMessageChunkResult.chunk!!.index]
         val curMessageChunkSize = updateMessageChunkResult.chunk.messages.size
 
         val messagePresentationChunk = processDomainMessageChunk(updateMessageChunkResult.chunk)
@@ -234,8 +234,25 @@ class MateChatViewModel @Inject constructor(
         messageChunk: MateMessageChunk
     ): List<MateMessagePresentation> {
         val messagePresentationChunk = messageChunk.messages.map { it.toMateMessagePresentation() }
+        val prevMessageChunkSizesSize = mUiState.prevMessageChunkSizes.size
+        val messagePresentationChunkSize = messagePresentationChunk.size
 
-        mUiState.messageChunks[messageChunk.index] = messagePresentationChunk
+        if (prevMessageChunkSizesSize < messageChunk.index + 1) {
+            mUiState.prevMessageChunkSizes.add(messagePresentationChunkSize)
+            mUiState.prevMessages.addAll(messagePresentationChunk)
+
+        } else {
+            val prevMessageChunkSize = mUiState.prevMessageChunkSizes[messageChunk.index]
+            val prevMessageToRemovePosition =
+                messageChunk.index * MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE
+            val prevMessagesToRemove = mUiState.prevMessages.subList(
+                prevMessageToRemovePosition, prevMessageToRemovePosition + prevMessageChunkSize)
+
+            mUiState.prevMessages.removeAll(prevMessagesToRemove)
+            mUiState.prevMessages.addAll(prevMessageToRemovePosition, messagePresentationChunk)
+
+            mUiState.prevMessageChunkSizes[messageChunk.index] = messagePresentationChunkSize
+        }
 
         return messagePresentationChunk
     }

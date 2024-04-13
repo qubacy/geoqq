@@ -87,16 +87,14 @@ class MateChatsFragment(
     override fun runInitWithUiState(uiState: MateChatsUiState) {
         super.runInitWithUiState(uiState)
 
-        if (uiState.chatChunks.isNotEmpty()) initMateChatsWithChatChunks(uiState.chatChunks)
+        if (uiState.chats.isNotEmpty()) initMateChatsWithChats(uiState.chats)
         if (uiState.isLoading) changeLoadingIndicatorState(true)
     }
 
-    private fun initMateChatsWithChatChunks(chatChunks: Map<Int, List<MateChatPresentation>>) {
-        val chats = chatChunks.flatMap {
-            it.value.map { chatList -> chatList.toMateChatItemData() }
-        }
+    private fun initMateChatsWithChats(chats: List<MateChatPresentation>) {
+        val chatsItemData = chats.map { it.toMateChatItemData() }
 
-        mAdapter.setMateChats(chats)
+        mAdapter.setMateChats(chatsItemData)
     }
 
     override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
@@ -104,7 +102,7 @@ class MateChatsFragment(
     }
 
     private fun initMateChats() {
-        if (mModel.uiState.chatChunks.isEmpty()) mModel.getNextChatChunk()
+        if (mModel.uiState.chats.isEmpty()) mModel.getNextChatChunk()
     }
 
     override fun processUiOperation(uiOperation: UiOperation): Boolean {

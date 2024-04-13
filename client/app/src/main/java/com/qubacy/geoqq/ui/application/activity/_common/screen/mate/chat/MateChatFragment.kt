@@ -279,7 +279,7 @@ class MateChatFragment(
     }
 
     private fun initMateChat() {
-        if (mModel.uiState.messageChunks.isEmpty()) mModel.getNextMessageChunk()
+        if (mModel.uiState.prevMessages.isEmpty()) mModel.getNextMessageChunk()
     }
 
     override fun onEndReached() {

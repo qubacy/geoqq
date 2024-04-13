@@ -95,7 +95,7 @@ open class MateChatsViewModel @Inject constructor(
         if (!updateChatChunkResult.isSuccessful())
             return processErrorDomainResult(updateChatChunkResult.error!!)
 
-        val prevChatChunkSize = mUiState.chatChunks[updateChatChunkResult.chunk!!.index]!!.size
+        val prevChatChunkSize = mUiState.chatChunkSizes[updateChatChunkResult.chunk!!.index]
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
         val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
@@ -110,8 +110,25 @@ open class MateChatsViewModel @Inject constructor(
 
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
         val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }.toMutableList()
+        val chatChunkSizesSize = mUiState.chatChunkSizes.size
+        val chatPresentationChunkSize = chatPresentationChunk.size
 
-        mUiState.chatChunks[chatChunk.index] = chatPresentationChunk
+        if (chatChunkSizesSize < chatChunk.index + 1) {
+            mUiState.chatChunkSizes.add(chatPresentationChunkSize)
+            mUiState.chats.addAll(chatPresentationChunk)
+
+        } else {
+            val prevChatChunkSize = mUiState.chatChunkSizes[chatChunk.index]
+            val prevChatToRemovePosition =
+                chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
+            val prevChatsToRemove = mUiState.chats.subList(
+                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize)
+
+            mUiState.chats.removeAll(prevChatsToRemove)
+            mUiState.chats.addAll(prevChatToRemovePosition, chatPresentationChunk)
+
+            mUiState.chatChunkSizes[chatChunk.index] = chatPresentationChunkSize
+        }
 
         return chatPresentationChunk
     }
@@ -137,24 +154,22 @@ open class MateChatsViewModel @Inject constructor(
 
     open fun isNextChatChunkGettingAllowed(): Boolean {
         val prevChatChunkIndex = mLastChatChunkIndex - 1
-        val prevChunkSize = mUiState.chatChunks[prevChatChunkIndex]?.size
+        val chatCount = mUiState.chats.size
 
-        val chunkSizeCheck = (prevChatChunkIndex < 0 || (prevChunkSize != null
-                && prevChunkSize >= MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE))
+        val chunkSizeCheck = (prevChatChunkIndex < 0 ||
+                (chatCount % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0))
 
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }
 
     open fun prepareChatForEntering(chatId: Long): MateChatPresentation {
-        for (chatChunk in mUiState.chatChunks.values) {
-            for (chatIndex in chatChunk.indices) {
-                val chat = chatChunk[chatIndex]
+        for (chatIndex in mUiState.chats.indices) {
+            val chat = mUiState.chats[chatIndex]
 
-                if (chat.id == chatId) {
-                    chatChunk[chatIndex] = chat.copy(newMessageCount = 0)
+            if (chat.id == chatId) {
+                mUiState.chats[chatIndex] = chat.copy(newMessageCount = 0)
 
-                    return chat
-                }
+                return mUiState.chats[chatIndex]
             }
         }
 
