@@ -115,7 +115,7 @@ class MateChatsViewModelTest(
     fun isNextChatChunkGettingAllowedTest() {
         data class TestCase(
             val lastChatChunkIndex: Int,
-            val chatChunks: MutableMap<Int, MutableList<MateChatPresentation>>,
+            val chats: MutableList<MateChatPresentation>,
             val isGettingNextChatChunk: Boolean,
             val expectedIsNextChatChunkGettingAllowed: Boolean
         )
@@ -123,42 +123,42 @@ class MateChatsViewModelTest(
         val testCases = listOf(
             TestCase(
                 0,
-                mutableMapOf(),
+                mutableListOf(),
                 false,
                 true
             ),
             TestCase(
                 0,
-                mutableMapOf(),
+                mutableListOf(),
                 true,
                 false
             ),
             TestCase(
                 0,
-                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
                 false,
                 true
             ),
             TestCase(
                 0,
-                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
                 true,
                 false
             ),
             TestCase(
                 1,
-                mutableMapOf(0 to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)),
+                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
                 false,
                 false
             ),
             TestCase(
                 1,
-                mutableMapOf(0 to mutableListOf<MateChatPresentation>()
+                mutableListOf<MateChatPresentation>()
                     .apply {
                         repeat(MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE) {
                             add(DEFAULT_MATE_CHAT_PRESENTATION)
                         }
-                    }),
+                    },
                 false,
                 true
             )
@@ -167,7 +167,7 @@ class MateChatsViewModelTest(
         for (testCase in testCases) {
             setLastChatChunkIndexValue(testCase.lastChatChunkIndex)
             setIsGettingNextChatChunkValue(testCase.isGettingNextChatChunk)
-            setUiState(MateChatsUiState(chatChunks = testCase.chatChunks))
+            setUiState(MateChatsUiState(chats = testCase.chats))
 
             val gottenIsNextChatChunkGettingAllowed = mModel.isNextChatChunkGettingAllowed()
 
@@ -227,7 +227,7 @@ class MateChatsViewModelTest(
     @Test
     fun processGetChatChunkDomainResultTest() = runTest {
         val initIsLoading = true
-        val initChatChunks = mutableMapOf<Int, MutableList<MateChatPresentation>>()
+        val initChats = mutableListOf<MateChatPresentation>()
         val initIsGettingNextChatChunk = true
         val initLastChatChunkIndex = 0
 
@@ -243,12 +243,13 @@ class MateChatsViewModelTest(
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
         val expectedLoadingState = false
         val expectedLastChatChunkIndex = initLastChatChunkIndex + 1
+        val expectedChatCount = initChats.size + expectedChatPresentationChunk.size
         val expectedIsGettingNextChatChunk = false
 
         setUiState(
             MateChatsUiState(
                 isLoading = initIsLoading,
-                chatChunks = initChatChunks
+                chats = initChats
             )
         )
         setLastChatChunkIndexValue(initLastChatChunkIndex)
@@ -277,9 +278,8 @@ class MateChatsViewModelTest(
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
             Assert.assertEquals(expectedLastChatChunkIndex, gottenLastChatChunkIndexValue)
             Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
-            Assert.assertTrue(finalUiState.chatChunks.contains(chatChunk.index))
-            AssertUtils.assertEqualContent(
-                expectedChatPresentationChunk, finalUiState.chatChunks[chatChunk.index]!!)
+            Assert.assertEquals(expectedChatCount, finalUiState.chats.size)
+            AssertUtils.assertEqualContent(expectedChatPresentationChunk, finalUiState.chats)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
         }
     }
@@ -330,9 +330,8 @@ class MateChatsViewModelTest(
         val initIsLoading = true
         val initIsGettingNextChatChunk = true
         val initLastChatChunkIndex = 0
-        val initChatChunks = mutableMapOf(
-            initLastChatChunkIndex to mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
-        )
+        val initChats = mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
+        val initChatSizes = mutableListOf(initChats.size)
 
         val mockedUri = UriMockUtil.getMockedUri()
         val avatar = Image(0, mockedUri)
@@ -342,17 +341,19 @@ class MateChatsViewModelTest(
 
         val updateChatChunkDomainResult = UpdateChatChunkDomainResult(chunk = chatChunk)
 
+        val expectedChatCount = chatChunk.chats.size
+        val expectedChatChunkSizes = mutableListOf(chatChunk.chats.size)
         val expectedChatChunkPosition = chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
-        val expectedChatChunkSizeDelta = initChatChunks[initLastChatChunkIndex]!!.size -
-                chatChunk.chats.size
+        val expectedChatChunkSizeDelta = initChats.size - chatChunk.chats.size
         val expectedLoadingState = false
         val expectedIsGettingNextChatChunk = false
 
         setUiState(
             MateChatsUiState(
                 isLoading = initIsLoading,
-                chatChunks = initChatChunks
+                chats = initChats,
+                chatChunkSizes = initChatSizes
             )
         )
         setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
@@ -381,9 +382,9 @@ class MateChatsViewModelTest(
             Assert.assertEquals(expectedChatChunkSizeDelta, gottenChatChunkSizeDelta)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
             Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
-            Assert.assertTrue(finalUiState.chatChunks.contains(chatChunk.index))
-            AssertUtils.assertEqualContent(
-                expectedChatPresentationChunk, finalUiState.chatChunks[chatChunk.index]!!)
+            Assert.assertEquals(expectedChatCount, finalUiState.chats.size)
+            AssertUtils.assertEqualContent(expectedChatChunkSizes, finalUiState.chatChunkSizes)
+            AssertUtils.assertEqualContent(expectedChatPresentationChunk, finalUiState.chats)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
         }
     }
