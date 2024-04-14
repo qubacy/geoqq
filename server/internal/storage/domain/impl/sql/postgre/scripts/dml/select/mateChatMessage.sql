@@ -25,3 +25,5 @@ ORDER BY "Time" DESC
 LIMIT 1
 OFFSET 0;
 
+DELETE FROM "MateMessage"
+WHERE "MateChatId" = 1;

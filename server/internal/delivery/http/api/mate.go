@@ -27,8 +27,8 @@ func (h *Handler) registerMateRoutes() {
 			)
 
 			chat.DELETE("/:id",
-				h.userIdentityByBodyWithAccessToken,
-				h.userNotDeleted, h.deleteMateChat,
+				h.userIdentityByBodyWithAccessToken, h.userNotDeleted,
+				requireRouteItemId, h.deleteMateChat,
 			)
 			chat.GET("/:id/message",
 				h.userIdentityForGetRequest, h.userNotDeleted,
@@ -127,7 +127,17 @@ func (h *Handler) getMateChat(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func (h *Handler) deleteMateChat(ctx *gin.Context) {
+	userId := ctx.GetUint64(contextUserId)
+	mateChatId := ctx.GetUint64(contextRouteItemId)
 
+	err := h.services.DeleteMateChatForUser(ctx, mateChatId, userId)
+	if err != nil {
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 // GET /api/mate/chat/{id}/message

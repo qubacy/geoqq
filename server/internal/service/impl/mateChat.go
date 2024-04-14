@@ -33,3 +33,33 @@ func (s *MateChatService) GetMateChatsForUser(ctx context.Context,
 
 	return mateChats, nil // same types!
 }
+
+func (s *MateChatService) DeleteMateChatForUser(ctx context.Context,
+	chatId, userId uint64) error {
+	/*
+		Action List:
+			1. Is there a mate chat?
+			2. Mate chat has not been previously deleted for the user.
+			3. To domain storage...
+	*/
+	sourceFunc := s.DeleteMateChatForUser
+
+	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	// ***
+
+	err = s.domainStorage.DeleteMateChatForUser(ctx, userId, chatId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+
+	return nil
+}

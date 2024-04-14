@@ -28,8 +28,18 @@ var (
 	templateInsertMateWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
 			VALUES ($1, $2)`)
+
 	templateInsertMate = templateInsertMateWithoutReturningId +
 		` RETURNING "Id"`
+
+	/*
+		Order:
+			1. firstUserId
+			2. secondUserId
+	*/
+	templateDeleteMate = utl.RemoveAdjacentWs(`
+		DELETE FROM "Mate" WHERE ("FirstUserId" = $1 OR "SecondUserId" = $1)
+				AND ("FirstUserId" = $2 OR "SecondUserId" = $2)`)
 )
 
 // public
@@ -84,15 +94,32 @@ func (s *MateStorage) InsertMate(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-func insertMateWithoutReturningId(ctx context.Context, tx pgx.Tx,
+func insertMateWithoutReturningIdInsideTx(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
-
+	sourceFunc := insertMateWithoutReturningIdInsideTx
 	err := insertForUserPairWithoutReturningIdInsideTx(ctx, tx,
 		templateInsertMateWithoutReturningId,
 		firstUserId, secondUserId,
 	)
 	if err != nil {
-		return utl.NewFuncError(insertMateWithoutReturningId, err)
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	return nil
+}
+
+func deleteMateInsideTx(ctx context.Context, tx pgx.Tx,
+	firstUserId, secondUserId uint64) error {
+
+	cmdTag, err := tx.Exec(ctx, templateDeleteMate+`;`,
+		firstUserId, secondUserId,
+	)
+
+	if err != nil {
+		return utl.NewFuncError(deleteMateInsideTx, err)
+	}
+	if !cmdTag.Delete() { // ?
+		return ErrDeleteFailed
 	}
 
 	return nil

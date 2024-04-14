@@ -197,9 +197,10 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {
 
 	/*
-		1. Insert mate.
-		2. Insert mate chat.
-		3. Update mate request result.
+	   Action List:
+	   		1. Insert mate.
+	   		2. Insert mate chat.
+	   		3. Update mate request result.
 	*/
 
 	conn, tx, err := begunTransaction(s.pool, ctx)
@@ -211,8 +212,8 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 	// ***
 
 	err = errors.Join(
-		insertMateWithoutReturningId(ctx, tx, firstUserId, secondUserId),
-		insertMateChatWithoutReturningId(ctx, tx, firstUserId, secondUserId),
+		insertMateWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
+		insertMateChatWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
 		updateMateRequestResultById(ctx, tx, id, table.Accepted),
 	)
 	if err != nil {
@@ -233,7 +234,8 @@ func (s *MateRequestStorage) RejectMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {
 
 	/*
-		1. Update mate request result.
+		Action List:
+			1. Update mate request result.
 	*/
 
 	conn, tx, err := begunTransaction(s.pool, ctx)

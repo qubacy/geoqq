@@ -101,6 +101,14 @@ var (
 		WHERE (
 			"MateMessage"."Id" = "MateChatMessages"."Id"
 		) RETURNING "MateChatMessages".*`)
+
+	/*
+		Order:
+			1. chatId
+	*/
+	templateDeleteAllMessagesFromMateChat = utl.RemoveAdjacentWs(`
+		DELETE FROM "MateMessage"
+			WHERE "MateChatId" = $1`)
 )
 
 // public
@@ -216,4 +224,24 @@ func mateChatMessageFromRows(rows pgx.Rows) (*domain.MateMessage, error) {
 	}
 
 	return mateMessage, nil
+}
+
+// -----------------------------------------------------------------------
+
+func removeAllMessagesFromMateChatInsideTx(ctx context.Context, tx pgx.Tx,
+	chatId uint64) error {
+	sourceFunc := removeAllMessagesFromMateChatInsideTx
+
+	cmdTag, err := tx.Exec(ctx,
+		templateDeleteAllMessagesFromMateChat+`;`,
+		chatId,
+	)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	if !cmdTag.Delete() {
+		return ErrDeleteFailed
+	}
+
+	return nil
 }

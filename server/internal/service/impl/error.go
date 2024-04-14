@@ -13,7 +13,8 @@ var (
 
 	ErrUserWithThisLoginAlreadyExists = errors.New("user with this login already exists")
 	ErrIncorrectLoginOrPassword       = errors.New("incorrect login or password") // no details?
-	ErrUserHasBeenDeleted             = errors.New("user has been deleted")
+	ErrUserWithNameHasBeenDeleted     = errors.New("user with name has been deleted")
+	ErrTargetUserDeleted              = errors.New("target user deleted")
 	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
 
 	ErrImageNotFound           = errors.New("image not found")

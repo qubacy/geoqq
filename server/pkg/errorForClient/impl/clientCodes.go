@@ -67,6 +67,7 @@ const (
 	MateRequestNotWaiting
 	MateRequestToSelf
 	AlreadyAreMates
+	TargetUserDeleted
 
 	MateChatNotFound
 	MateChatNotAvailable

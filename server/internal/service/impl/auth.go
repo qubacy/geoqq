@@ -167,6 +167,9 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 // -----------------------------------------------------------------------
 
 func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error) {
+
+	// TODO: create cache? Try Redis?
+
 	wasDeleted, err := a.domainStorage.WasUserDeleted(ctx, id)
 	if err != nil {
 		return false, utl.NewFuncError(a.WasUserWithIdDeleted,

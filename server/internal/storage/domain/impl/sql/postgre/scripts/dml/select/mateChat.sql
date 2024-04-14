@@ -110,8 +110,6 @@ ORDER BY "Id"
 
 -- -----------------------------------------------------------------------
 
--- TODO: 
-
 SELECT * FROM "MateMessage";
 
 WITH "srcUserId" AS (VALUES (2)),
@@ -148,3 +146,9 @@ LEFT JOIN LATERAL
 WHERE ("FirstUserId" = (table "srcUserId")
         OR "SecondUserId" = (table "srcUserId")) 
             AND "MateChat"."Id" = (table "chatId");
+
+-- -----------------------------------------------------------------------
+
+SELECT "Id", "FirstUserId", "SecondUserId" 
+    FROM "MateChat" WHERE "Id" = 1 AND (
+        "FirstUserId" = 1 OR "SecondUserId" = 1);

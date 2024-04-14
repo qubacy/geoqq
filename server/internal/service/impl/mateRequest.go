@@ -157,25 +157,40 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
+// TODO: changed error return style!
 func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
-
 	/*
-		1. They might already be mates.
-		2. The request may already be sent.
-		3. There is already an incoming request.
+		Check List:
+			1. Target user may be deleted.
+			2. They might already be mates.
+			3. The request may already be sent.
+			4. There is already an incoming request.
 	*/
+
+	// target user deleted
+
+	sourceFunc := mrs.partialValidateInputBeforeAddMateRequest
+	wasDeleted, err := mrs.domainStorage.WasUserDeleted(ctx, targetUserId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+	if wasDeleted {
+		return ec.New(ErrTargetUserDeleted,
+			ec.Client, ec.TargetUserDeleted)
+	}
 
 	// are mates
 
 	areMates, err := mrs.domainStorage.AreMates(ctx, sourceUserId, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if areMates {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(ErrAlreadyAreMates, ec.Client, ec.AlreadyAreMates))
+		return ec.New(ErrAlreadyAreMates,
+			ec.Client, ec.AlreadyAreMates)
 	}
 
 	// sent from you
@@ -183,13 +198,12 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	exists, err := mrs.domainStorage.HasWaitingMateRequest(
 		ctx, sourceUserId, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if exists {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(ErrMateRequestAlreadySentFromYou,
-				ec.Client, ec.MateRequestAlreadySentFromYou))
+		return ec.New(ErrMateRequestAlreadySentFromYou,
+			ec.Client, ec.MateRequestAlreadySentFromYou)
 	}
 
 	// sent to you
@@ -197,13 +211,12 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	exists, err = mrs.domainStorage.HasWaitingMateRequest(
 		ctx, targetUserId, sourceUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if exists {
-		return utl.NewFuncError(mrs.partialValidateInputBeforeAddMateRequest,
-			ec.New(ErrMateRequestAlreadySentToYou,
-				ec.Client, ec.MateRequestAlreadySentToYou))
+		return ec.New(ErrMateRequestAlreadySentToYou,
+			ec.Client, ec.MateRequestAlreadySentToYou)
 	}
 
 	return nil
