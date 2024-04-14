@@ -23,7 +23,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setNavigationResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
@@ -42,7 +41,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.result.MateChatFragmentResult
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +54,7 @@ class MateChatFragment(
     UserBottomSheetViewContainerCallback
 {
     companion object {
-        const val RESULT_KEY = "mateChatResult"
+        const val TAG = "MateChatFragment"
     }
 
     private val mArgs: MateChatFragmentArgs by navArgs()
@@ -174,11 +172,6 @@ class MateChatFragment(
     }
 
     private fun processChatDeletedUiOperation(chatDeletedUiOperation: ChatDeletedUiOperation) {
-        setNavigationResult(
-            result = MateChatFragmentResult(mArgs.chat.id, true),
-            key = RESULT_KEY
-        )
-
         Navigation.findNavController(requireView()).navigateUp()
     }
 

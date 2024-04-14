@@ -70,7 +70,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
     @Test
     fun tryingToLoadChatsOnEmptyChatChunkMapTest() {
-        val initUiState = MateChatsUiState(chatChunks = mutableMapOf())
+        val initUiState = MateChatsUiState(chats = mutableListOf())
 
         initWithModelContext(MateChatsViewModelMockContext(uiState = initUiState))
 
@@ -79,19 +79,15 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
     @Test
     fun scrollingDownLeadsToRequestingNewChatChunksTest() {
-        val chatPresentationChunk = generateMateChatPresentations(20)
-        val initChatChunks = mutableMapOf(
-            0 to chatPresentationChunk
-        )
-        val initUiState = MateChatsUiState(chatChunks = initChatChunks)
+        val initChats = generateMateChatPresentations(20)
+        val initUiState = MateChatsUiState(chats = initChats)
 
         initWithModelContext(MateChatsViewModelMockContext(uiState = initUiState))
 
         Assert.assertFalse(mViewModelMockContext.getNextChatChunkCallFlag)
 
         Espresso.onView(withId(R.id.fragment_mate_chats_list))
-            .perform(RecyclerViewScrollToPositionViewAction(
-                chatPresentationChunk.size - 1))
+            .perform(RecyclerViewScrollToPositionViewAction(initChats.size - 1))
 
         Assert.assertTrue(mViewModelMockContext.getNextChatChunkCallFlag)
     }
