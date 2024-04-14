@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -64,6 +63,7 @@ class MateChatsFragment(
         super.onCreate(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(owner = this) { }
+        initMateChatListAdapter()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,6 +78,10 @@ class MateChatsFragment(
         }
 
         initMateChatCallback()
+    }
+
+    private fun initMateChatListAdapter() {
+        mAdapter = MateChatsListAdapter(callback = this)
     }
 
     private fun initMateChatCallback() {
@@ -119,11 +123,12 @@ class MateChatsFragment(
     override fun runInitWithUiState(uiState: MateChatsUiState) {
         super.runInitWithUiState(uiState)
 
-        if (uiState.chats.isNotEmpty()) initMateChatsWithChats(uiState.chats)
+        if (uiState.chats.isNotEmpty() && mAdapter.itemCount <= 0)
+            initMateChatListAdapterWithChats(uiState.chats)
         if (uiState.isLoading) changeLoadingIndicatorState(true)
     }
 
-    private fun initMateChatsWithChats(chats: List<MateChatPresentation>) {
+    private fun initMateChatListAdapterWithChats(chats: List<MateChatPresentation>) {
         val chatsItemData = chats.map { it.toMateChatItemData() }
 
         mAdapter.setMateChats(chatsItemData)
@@ -215,8 +220,6 @@ class MateChatsFragment(
     }
 
     private fun initMateChatListView() {
-        mAdapter = MateChatsListAdapter(callback = this)
-
         val itemDivider = MaterialDividerItemDecoration(
             requireContext(), MaterialDividerItemDecoration.VERTICAL)
 
@@ -225,7 +228,9 @@ class MateChatsFragment(
             setCallback(this@MateChatsFragment)
 
             adapter = mAdapter
-            itemAnimator = DefaultItemAnimator()
+            itemAnimator = DefaultItemAnimator().apply {
+                removeDuration = 2000
+            }
         }
     }
 
