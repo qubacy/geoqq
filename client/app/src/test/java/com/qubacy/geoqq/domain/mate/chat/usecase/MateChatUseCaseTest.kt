@@ -15,10 +15,15 @@ import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResul
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
+import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -156,6 +161,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
 
             val result = awaitItem()
 
+            Assert.assertTrue(mGetMessagesCallFlag)
             Assert.assertEquals(GetMessageChunkDomainResult::class, result::class)
             Assert.assertTrue(result.isSuccessful())
 
@@ -166,17 +172,56 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
     }
 
     @Test
-    fun getInterlocutorTest() {
+    fun getInterlocutorTest() = runTest {
+        val user = DEFAULT_DATA_USER
+        val getUsersByIdsResult = GetUsersByIdsDataResult(listOf(user))
 
+        val expectedUser = user.toUser()
+
+        mUserDataRepositoryMockContainer.getUsersByIds = getUsersByIdsResult
+
+        mUseCase.resultFlow.test {
+            mUseCase.getInterlocutor(user.id)
+
+            val result = awaitItem()
+
+            Assert.assertTrue(mUserDataRepositoryMockContainer.getUsersByIdsCallFlag)
+            Assert.assertEquals(GetInterlocutorDomainResult::class, result::class)
+            Assert.assertTrue(result.isSuccessful())
+
+            val gottenUser = (result as GetInterlocutorDomainResult).interlocutor
+
+            Assert.assertEquals(expectedUser, gottenUser)
+        }
     }
 
     @Test
-    fun sendMateRequestToInterlocutorTest() {
+    fun sendMateRequestToInterlocutorTest() = runTest {
+        val interlocutor = DEFAULT_DATA_USER
 
+        mUseCase.resultFlow.test {
+            mUseCase.sendMateRequestToInterlocutor(interlocutor.id)
+
+            val result = awaitItem()
+
+            Assert.assertTrue(mCreateMateRequestCallFlag)
+            Assert.assertEquals(SendMateRequestToInterlocutorDomainResult::class, result::class)
+            Assert.assertTrue(result.isSuccessful())
+        }
     }
 
     @Test
-    fun deleteChatTest() {
+    fun deleteChatTest() = runTest {
+        val chatId = 0L
 
+        mUseCase.resultFlow.test {
+            mUseCase.deleteChat(chatId)
+
+            val result = awaitItem()
+
+            Assert.assertTrue(mDeleteChatCallFlag)
+            Assert.assertEquals(DeleteChatDomainResult::class, result::class)
+            Assert.assertTrue(result.isSuccessful())
+        }
     }
 }

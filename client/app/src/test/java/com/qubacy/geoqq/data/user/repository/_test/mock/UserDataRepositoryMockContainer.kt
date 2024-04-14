@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.user.repository._test.mock
 
+import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
@@ -48,7 +49,7 @@ class UserDataRepositoryMockContainer {
                 AnyMockUtil.anyObject()
             )).thenAnswer {
                 mGetUsersByIdsCallFlag = true
-                getUsersByIds
+                MutableLiveData(getUsersByIds)
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsers(
                 AnyMockUtil.anyObject()

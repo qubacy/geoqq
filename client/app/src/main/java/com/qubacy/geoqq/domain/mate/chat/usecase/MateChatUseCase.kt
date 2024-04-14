@@ -59,8 +59,6 @@ class MateChatUseCase @Inject constructor(
                 .await()
             val interlocutor = getUsersResult.users.first().toUser()
 
-            Log.d(TAG, "getInterlocutor(): interlocutor = $interlocutor;")
-
             mResultFlow.emit(GetInterlocutorDomainResult(interlocutor = interlocutor))
 
         }) {
