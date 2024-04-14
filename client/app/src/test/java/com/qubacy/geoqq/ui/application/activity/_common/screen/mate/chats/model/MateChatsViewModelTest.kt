@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen.mate.model
+package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
@@ -46,7 +46,8 @@ class MateChatsViewModelTest(
             0, DEFAULT_USER_PRESENTATION, "test message", String()
         )
         val DEFAULT_MATE_CHAT_PRESENTATION = MateChatPresentation(
-            0, DEFAULT_USER_PRESENTATION, 0, DEFAULT_LAST_MESSAGE_PRESENTATION)
+            0, DEFAULT_USER_PRESENTATION, 0, DEFAULT_LAST_MESSAGE_PRESENTATION
+        )
     }
 
     private var mUseCaseGetChatChunkCallFlag = false
