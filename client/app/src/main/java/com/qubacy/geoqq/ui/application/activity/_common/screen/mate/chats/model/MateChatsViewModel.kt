@@ -152,6 +152,15 @@ open class MateChatsViewModel @Inject constructor(
         mUseCase.getChatChunk(mLastChatChunkIndex)
     }
 
+    open fun resetChatChunks() {
+        mLastChatChunkIndex = 0
+
+        mUiState.apply {
+            chats.clear()
+            chatChunkSizes.clear()
+        }
+    }
+
     open fun isNextChatChunkGettingAllowed(): Boolean {
         val prevChatChunkIndex = mLastChatChunkIndex - 1
         val chatCount = mUiState.chats.size
@@ -176,16 +185,16 @@ open class MateChatsViewModel @Inject constructor(
         throw IllegalStateException()
     }
 
-    /**
-     * Returns a position of the deleted chat;
-     */
-    open fun removeDeletedChat(chatId: Long): Int {
-        val chatToDeletePosition = mUiState.chats.indexOfFirst { it.id == chatId }
-
-        mUiState.chats.removeAt(chatToDeletePosition)
-
-        return chatToDeletePosition
-    }
+//    /**
+//     * Returns a position of the deleted chat;
+//     */
+//    open fun removeDeletedChat(chatId: Long): Int {
+//        val chatToDeletePosition = mUiState.chats.indexOfFirst { it.id == chatId }
+//
+//        mUiState.chats.removeAt(chatToDeletePosition)
+//
+//        return chatToDeletePosition
+//    }
 }
 
 @Qualifier

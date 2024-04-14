@@ -57,19 +57,17 @@ class MateChatsFragment(
 
     private lateinit var mAdapter: MateChatsListAdapter
 
-    private var mMateChatResultLiveData: MutableLiveData<MateChatFragmentResult?>? = null
+//    private var mMateChatResultLiveData: MutableLiveData<MateChatFragmentResult?>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(owner = this) { }
-        initMateChatListAdapter()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        runPermissionCheck<MateChatsFragment>()
         setupNavigationUI(mBinding.fragmentMateChatsTopBar)
         initMateChatListView()
 
@@ -77,34 +75,36 @@ class MateChatsFragment(
             onTopBarMenuItemClicked(it)
         }
 
-        initMateChatCallback()
+//        initMateChatCallback()
     }
 
-    private fun initMateChatListAdapter() {
-        mAdapter = MateChatsListAdapter(callback = this)
+    override fun onStart() {
+        super.onStart()
+
+        runPermissionCheck<MateChatsFragment>()
     }
 
-    private fun initMateChatCallback() {
-        mMateChatResultLiveData = getNavigationResult(MateChatFragment.RESULT_KEY)
+//    private fun initMateChatCallback() {
+//        mMateChatResultLiveData = getNavigationResult(MateChatFragment.RESULT_KEY)
+//
+//        mMateChatResultLiveData?.observe(viewLifecycleOwner) {
+//            if (it == null) return@observe
+//
+//            onMateChatResultGotten(it)
+//
+//            mMateChatResultLiveData!!.value = null
+//        }
+//    }
 
-        mMateChatResultLiveData?.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-
-            onMateChatResultGotten(it)
-
-            mMateChatResultLiveData!!.value = null
-        }
-    }
-
-    private fun onMateChatResultGotten(result: MateChatFragmentResult) {
-        if (result.isDeleted) removeDeletedChat(result.chatId)
-    }
-
-    private fun removeDeletedChat(chatId: Long) {
-        val deletedChatPosition = mModel.removeDeletedChat(chatId)
-
-        mAdapter.deleteMateChats(deletedChatPosition, 1) // todo: isn't animated for some reason;
-    }
+//    private fun onMateChatResultGotten(result: MateChatFragmentResult) {
+//        if (result.isDeleted) removeDeletedChat(result.chatId)
+//    }
+//
+//    private fun removeDeletedChat(chatId: Long) {
+//        val deletedChatPosition = mModel.removeDeletedChat(chatId)
+//
+//        mAdapter.deleteMateChats(deletedChatPosition, 1) // todo: isn't animated for some reason;
+//    }
 
     private fun onTopBarMenuItemClicked(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
@@ -139,7 +139,14 @@ class MateChatsFragment(
     }
 
     private fun initMateChats() {
-        if (mModel.uiState.chats.isEmpty()) mModel.getNextChatChunk()
+        if (mModel.uiState.chats.isNotEmpty()) resetChatChunks() // todo: is it ok?
+
+        mModel.getNextChatChunk()
+    }
+
+    private fun resetChatChunks() {
+        mModel.resetChatChunks()
+        mAdapter.resetItems()
     }
 
     override fun processUiOperation(uiOperation: UiOperation): Boolean {
@@ -220,6 +227,8 @@ class MateChatsFragment(
     }
 
     private fun initMateChatListView() {
+        mAdapter = MateChatsListAdapter(callback = this)
+
         val itemDivider = MaterialDividerItemDecoration(
             requireContext(), MaterialDividerItemDecoration.VERTICAL)
 
