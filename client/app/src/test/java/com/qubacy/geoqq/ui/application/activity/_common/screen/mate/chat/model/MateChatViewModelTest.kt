@@ -267,6 +267,30 @@ class MateChatViewModelTest(
     }
 
     @Test
+    fun isChatDeletableTest() {
+        class TestCase(
+            val isUserDeleted: Boolean,
+            val expectedIsChatDeletable: Boolean
+        )
+
+        val testCases = listOf(
+            TestCase(false, false),
+            TestCase(true, true)
+        )
+
+        for (testCase in testCases) {
+            val userPresentation = DEFAULT_USER_PRESENTATION.copy(isDeleted = testCase.isUserDeleted)
+            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
+
+            setUiState(MateChatUiState(chatContext = chatContext))
+
+            val gottenIsChatDeletable = mModel.isChatDeletable()
+
+            Assert.assertEquals(testCase.expectedIsChatDeletable, gottenIsChatDeletable)
+        }
+    }
+
+    @Test
     fun isNextMessageChunkGettingAllowedTest() {
         class TestCase(
             val lastMessageChunkIndex: Int,

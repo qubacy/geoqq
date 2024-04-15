@@ -41,6 +41,8 @@ abstract class BaseFragmentTest<
     protected lateinit var mFragment: FragmentType
     protected lateinit var mNavController: TestNavHostController
 
+    protected var mNavArgs: Bundle? = null
+
     @Before
     open fun setup() {
 
@@ -73,7 +75,7 @@ abstract class BaseFragmentTest<
     }
 
     protected open fun getFragmentArgs(): Bundle? {
-        return null
+        return mNavArgs
     }
 
     private fun initFragment() {

@@ -36,6 +36,7 @@
 
     <string name="fragment_mate_chat_input_message_hint_text">Your message..</string>
     <string name="fragment_mate_chat_snackbar_message_mate_request_sent">Your mate request has been sent</string>
+    <string name="fragment_mate_chat_dialog_request_delete_chat_confirmation">Are you sure? The chat will be deleted</string>
 
     <!--  Components:  -->
 

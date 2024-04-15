@@ -226,6 +226,7 @@ class MateChatFragment(
 
         when (menuItem.itemId) {
             R.id.mate_chat_top_bar_option_show_mate_profile -> launchShowMateProfile()
+            R.id.mate_chat_top_bar_option_delete_chat -> launchDeleteChat()
             else -> return false
         }
 
@@ -297,6 +298,13 @@ class MateChatFragment(
 
         mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username // todo: doesn't change for some reason;
         mBinding.fragmentMateInputMessage.isEnabled = mModel.isInterlocutorChatable()
+
+        adjustTopBarMenuWithInterlocutor(interlocutor)
+    }
+
+    private fun adjustTopBarMenuWithInterlocutor(interlocutor: UserPresentation) {
+        mBinding.fragmentMateChatTopBar.menu.findItem(
+            R.id.mate_chat_top_bar_option_delete_chat).isVisible = mModel.isChatDeletable()
     }
 
     private fun openInterlocutorDetailsSheet(interlocutor: UserPresentation) {
@@ -355,8 +363,9 @@ class MateChatFragment(
     }
 
     private fun launchDeleteChat() {
-        // todo: mb it'd be great to get user confirmation first?
-
-        mModel.deleteChat()
+        showRequestDialog(
+            R.string.fragment_mate_chat_dialog_request_delete_chat_confirmation,
+            { mModel.deleteChat() }
+        )
     }
 }

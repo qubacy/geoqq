@@ -35,7 +35,7 @@ import javax.inject.Inject
 import javax.inject.Qualifier
 
 @HiltViewModel
-class MateChatViewModel @Inject constructor(
+open class MateChatViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
     mMateChatUseCase: MateChatUseCase
@@ -75,6 +75,10 @@ class MateChatViewModel @Inject constructor(
 
     open fun isInterlocutorMateableOrDeletable(): Boolean {
         return (isInterlocutorMateable() || mUiState.chatContext!!.user.isMate)
+    }
+
+    open fun isChatDeletable(): Boolean {
+        return (mUiState.chatContext!!.user.isDeleted)
     }
 
     open fun isNextMessageChunkGettingAllowed(): Boolean {

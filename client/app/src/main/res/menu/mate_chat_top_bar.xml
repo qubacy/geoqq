@@ -4,6 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/mate_chat_top_bar_option_delete_chat"
+        android:title="Delete chat"
+        android:icon="@drawable/ic_delete"
+        app:iconTint="?attr/colorOnSurfaceVariant"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/mate_chat_top_bar_option_show_mate_profile"
         android:title="@string/component_mate_chat_top_bar_option_show_mate_profile_title"
         android:icon="@drawable/ic_person"
