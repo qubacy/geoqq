@@ -19,6 +19,7 @@ import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
@@ -52,6 +53,7 @@ class MateChatsFragment(
     )
 
     private lateinit var mAdapter: MateChatsListAdapter
+    private lateinit var mPermissionRunner: PermissionRunner<MateChatsFragment>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +64,8 @@ class MateChatsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requestChatPermissions()
+
         setupNavigationUI(mBinding.fragmentMateChatsTopBar)
         initMateChatListView()
 
@@ -70,10 +74,16 @@ class MateChatsFragment(
         }
     }
 
+    private fun requestChatPermissions() {
+        mPermissionRunner = PermissionRunner(this).apply {
+            requestPermissions()
+        }
+    }
+
     override fun onStart() {
         super.onStart()
 
-        runPermissionCheck<MateChatsFragment>()
+        if (!mPermissionRunner.isRequestingPermissions) initMateChats()
     }
 
     private fun onTopBarMenuItemClicked(menuItem: MenuItem): Boolean {

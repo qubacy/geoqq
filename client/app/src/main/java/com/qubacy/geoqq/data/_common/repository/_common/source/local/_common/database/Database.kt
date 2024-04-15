@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatData
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
+import com.qubacy.geoqq.data.token.repository.source.local.database.LocalDatabaseTokenDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 
@@ -29,4 +30,5 @@ abstract class Database : RoomDatabase() {
     abstract fun mateMessageDao(): LocalMateMessageDataSource
     abstract fun mateChatDao(): LocalMateChatDataSource
     abstract fun userDao(): LocalUserDataSource
+    abstract fun tokenDao(): LocalDatabaseTokenDataSource
 }

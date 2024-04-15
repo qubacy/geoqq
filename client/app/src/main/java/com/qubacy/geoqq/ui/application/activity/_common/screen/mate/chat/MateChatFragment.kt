@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -20,7 +21,6 @@ import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
@@ -31,7 +31,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
@@ -209,12 +208,20 @@ class MateChatFragment(
             onMenuItemClicked(it)
         }
         // todo: delete:
-        mBinding.fragmentMateInputMessage.setOnClickListener {
-            val side = SenderSide.entries[(System.currentTimeMillis() % SenderSide.entries.size).toInt()]
-
-            mAdapter.addNewMateMessage(MateMessageItemData(0L, side, "test", "NOW"))
+        mBinding.fragmentMateInputMessage.setOnKeyListener { _, keyCode, event ->
+            onMessageInputKeyPressed(keyCode, event)
         }
     }
+
+    private fun onMessageInputKeyPressed(keyCode: Int, keyEvent: KeyEvent): Boolean {
+    if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
+        launchSendingMessage()
+
+        return true
+    }
+
+    return false
+}
 
     private fun setMenuEnabled(isEnabled: Boolean) {
         mBinding.fragmentMateChatTopBar.isEnabled = isEnabled
@@ -303,8 +310,10 @@ class MateChatFragment(
     }
 
     private fun adjustTopBarMenuWithInterlocutor(interlocutor: UserPresentation) {
+        val isChatDeletable = mModel.isChatDeletable()
+
         mBinding.fragmentMateChatTopBar.menu.findItem(
-            R.id.mate_chat_top_bar_option_delete_chat).isVisible = mModel.isChatDeletable()
+            R.id.mate_chat_top_bar_option_delete_chat).isVisible = isChatDeletable
     }
 
     private fun openInterlocutorDetailsSheet(interlocutor: UserPresentation) {
@@ -348,7 +357,7 @@ class MateChatFragment(
     }
 
     override fun onMateButtonClicked() {
-        val isMate = mModel.uiState.chatContext!!.user.isMate
+        val isMate = mModel.uiState.chatContext!!.user.isMate // todo: doesn't seem well;
 
         if (isMate) launchDeleteChat()
         else launchAddInterlocutorAsMate()
@@ -367,5 +376,19 @@ class MateChatFragment(
             R.string.fragment_mate_chat_dialog_request_delete_chat_confirmation,
             { mModel.deleteChat() }
         )
+    }
+
+    private fun launchSendingMessage() {
+        val messageText = mBinding.fragmentMateInputMessage.text.toString()
+
+        if (!mModel.isMessageTextValid(messageText)) {
+            // todo: implement..
+
+            return
+        }
+
+        mBinding.fragmentMateInputMessage.text!!.clear()
+
+        mModel.sendMessage(messageText)
     }
 }

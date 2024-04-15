@@ -13,6 +13,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.http.request.SendMateMessageRequest
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
@@ -60,6 +61,8 @@ class MateMessageDataRepository @Inject constructor(
 
             val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
 
+            Log.d("TEST", "getMessages(): httpDataMessages = ${httpDataMessages.map { it.toString() }}")
+
             if (localDataMessages.containsAll(httpDataMessages)
                 && localDataMessages.size == httpDataMessages.size
             ) {
@@ -97,10 +100,16 @@ class MateMessageDataRepository @Inject constructor(
         mLocalMateMessageDataSource.deleteMessagesByIds(chatId, messagesToDelete.map { it.id })
     }
 
-    suspend fun sendMessage(chatId: Long, message: DataMessage) {
+    suspend fun sendMessage(chatId: Long, text: String) {
         // todo: implement using the websocket data source;
 
+        // todo: delete:
+        val accessToken = mTokenDataRepository.getTokens().accessToken
 
+        val sendMessageRequest = SendMateMessageRequest(accessToken, text)
+        val sendMessageCall = mHttpMateMessageDataSource.sendMateMessage(chatId, sendMessageRequest)
+
+        executeNetworkRequest(mErrorDataRepository, mHttpClient, sendMessageCall)
     }
 
     private suspend fun resolveMessageEntities(

@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.token.repository.source.local
+package com.qubacy.geoqq.data.token.repository.source.local.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -11,9 +11,10 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(
-    LocalTokenDataSource.TOKEN_DATASTORE_NAME)
+    LocalStoreTokenDataSource.TOKEN_DATASTORE_NAME
+)
 
-class LocalTokenDataSource @Inject constructor(
+class LocalStoreTokenDataSource @Inject constructor(
     private val mTokenDataStore: DataStore<Preferences>
 ) : DataSource {
     companion object {

@@ -3,7 +3,8 @@ package com.qubacy.geoqq.data.token.repository.module
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
-import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.database.LocalDatabaseTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,13 +17,15 @@ object TokenDataRepositoryModule {
     @Provides
     fun provideTokenDataRepository(
         errorDataRepository: ErrorDataRepository,
-        localTokenDataSource: LocalTokenDataSource,
+        localStoreTokenDataSource: LocalStoreTokenDataSource,
+        localDatabaseTokenDataSource: LocalDatabaseTokenDataSource,
         httpTokenDataSource: HttpTokenDataSource,
         httpClient: OkHttpClient
     ): TokenDataRepository {
         return TokenDataRepository(
             errorDataRepository,
-            localTokenDataSource,
+            localStoreTokenDataSource,
+            localDatabaseTokenDataSource,
             httpTokenDataSource,
             httpClient
         )

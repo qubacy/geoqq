@@ -12,12 +12,14 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
+import com.qubacy.geoqq.domain.mate.chat.model.MateMessage
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import kotlinx.coroutines.flow.merge
@@ -85,6 +87,17 @@ class MateChatUseCase @Inject constructor(
 
         }) {
             DeleteChatDomainResult(error = it)
+        }
+    }
+
+    fun sendMessage(chatId: Long, text: String) {
+        executeLogic({
+            mMateMessageDataRepository.sendMessage(chatId, text)
+
+            mResultFlow.emit(SendMessageDomainResult())
+
+        }) {
+            SendMessageDomainResult(error = it)
         }
     }
 

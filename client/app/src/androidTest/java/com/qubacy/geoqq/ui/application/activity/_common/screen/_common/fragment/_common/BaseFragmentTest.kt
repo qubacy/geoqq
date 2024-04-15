@@ -45,6 +45,10 @@ abstract class BaseFragmentTest<
 
     @Before
     open fun setup() {
+        initDefaultNavArgs()
+    }
+
+    protected open fun initDefaultNavArgs() {
 
     }
 

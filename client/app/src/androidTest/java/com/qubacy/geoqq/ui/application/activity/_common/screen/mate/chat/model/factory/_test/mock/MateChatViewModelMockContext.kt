@@ -10,6 +10,10 @@ class MateChatViewModelMockContext(
     uiState: MateChatUiState,
     uiOperationFlow: MutableSharedFlow<UiOperation> = MutableSharedFlow(),
     retrieveErrorResult: Error? = null,
+    var isInterlocutorChatable: Boolean = false,
+    var isInterlocutorMateable: Boolean = false,
+    var isInterlocutorMateableOrDeletable: Boolean = false,
+    var isChatDeletable: Boolean = false,
     var setChatContextCallFlag: Boolean = false,
     var getNextMessageChunkCallFlag: Boolean = false,
     var getInterlocutorProfileCallFlag: Boolean = false,
@@ -20,6 +24,11 @@ class MateChatViewModelMockContext(
         super.reset()
 
         uiState = MateChatUiState()
+
+        isInterlocutorChatable = false
+        isInterlocutorMateable = false
+        isInterlocutorMateableOrDeletable = false
+        isChatDeletable = false
 
         setChatContextCallFlag = false
         getNextMessageChunkCallFlag = false

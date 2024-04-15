@@ -11,6 +11,7 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.Re
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
@@ -98,7 +99,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     ): MutableList<MateChatPresentation> {
         return IntRange(offset, count + offset).map { it ->
             val id = it.toLong()
-            val user = generateUserPresentation(id)
+            val user = UserPresentationGenerator.generateUserPresentation(id, mImagePresentation)
 
             MateChatPresentation(
                 id,
@@ -107,15 +108,6 @@ class MateChatsFragmentTest : BusinessFragmentTest<
                 generateLastMessagePresentation(id, user)
             )
         }.toMutableList()
-    }
-
-    private fun generateUserPresentation(chatId: Long): UserPresentation {
-        val id = chatId + 1
-
-        return UserPresentation(
-            id, "test $id", String(),
-            mImagePresentation, false, false
-        )
     }
 
     private fun generateLastMessagePresentation(

@@ -13,6 +13,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
@@ -78,7 +79,7 @@ open class MateChatViewModel @Inject constructor(
     }
 
     open fun isChatDeletable(): Boolean {
-        return (mUiState.chatContext!!.user.isDeleted)
+        return (mUiState.chatContext!!.user.isDeleted || !mUiState.chatContext!!.user.isMate)
     }
 
     open fun isNextMessageChunkGettingAllowed(): Boolean {
@@ -89,6 +90,10 @@ open class MateChatViewModel @Inject constructor(
                 (prevMessageCount % MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE == 0))
 
         return (!mIsGettingNextMessageChunk && chunkSizeCheck)
+    }
+
+    open fun isMessageTextValid(text: String): Boolean {
+        return (text.isNotEmpty()) // todo: refactor with a validator;
     }
 
     open fun getInterlocutorProfile() {
@@ -111,6 +116,10 @@ open class MateChatViewModel @Inject constructor(
         mUseCase.deleteChat(mUiState.chatContext!!.id)
     }
 
+    open fun sendMessage(text: String) {
+        mUseCase.sendMessage(mUiState.chatContext!!.id, text)
+    }
+
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
         val uiOperation = super.processDomainResultFlow(domainResult)
 
@@ -130,8 +139,21 @@ open class MateChatViewModel @Inject constructor(
                     domainResult as SendMateRequestToInterlocutorDomainResult)
             DeleteChatDomainResult::class ->
                 processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
+            SendMessageDomainResult::class ->
+                processSendMessageDomainResult(domainResult as SendMessageDomainResult)
             else -> null
         }
+    }
+
+    private fun processSendMessageDomainResult(
+        sendMessageResult: SendMessageDomainResult
+    ): UiOperation? {
+        if (mUiState.isLoading) changeLoadingState(false)
+
+        if (!sendMessageResult.isSuccessful())
+            return processErrorDomainResult(sendMessageResult.error!!)
+
+        return null // todo: for now..
     }
 
     private fun processSendMateRequestToInterlocutorDomainResult(

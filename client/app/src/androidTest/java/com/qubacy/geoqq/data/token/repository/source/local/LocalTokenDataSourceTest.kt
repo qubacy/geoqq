@@ -2,6 +2,8 @@ package com.qubacy.geoqq.data.token.repository.source.local
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.store.tokenDataStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
@@ -10,7 +12,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LocalTokenDataSourceTest {
-    private lateinit var mTokenDataSource: LocalTokenDataSource
+    private lateinit var mTokenDataSource: LocalStoreTokenDataSource
 
     @Before
     fun setup() {
@@ -20,7 +22,7 @@ class LocalTokenDataSourceTest {
     private fun initTokenDataSource() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-        mTokenDataSource = LocalTokenDataSource(context.tokenDataStore)
+        mTokenDataSource = LocalStoreTokenDataSource(context.tokenDataStore)
     }
 
     @Test

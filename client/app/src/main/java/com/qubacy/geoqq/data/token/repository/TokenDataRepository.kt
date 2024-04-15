@@ -10,15 +10,17 @@ import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
-import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
+import com.qubacy.geoqq.data.token.repository.source.local.database.LocalDatabaseTokenDataSource
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 class TokenDataRepository @Inject constructor(
     private val mErrorDataRepository: ErrorDataRepository,
-    private val mLocalTokenDataSource: LocalTokenDataSource,
+    private val mLocalStoreTokenDataSource: LocalStoreTokenDataSource,
+    private val mLocalDatabaseTokenDataSource: LocalDatabaseTokenDataSource,
     private val mHttpTokenDataSource: HttpTokenDataSource,
     private val mHttpClient: OkHttpClient
 ) : DataRepository {
@@ -27,8 +29,8 @@ class TokenDataRepository @Inject constructor(
     }
 
     suspend fun getTokens(): GetTokensDataResult {
-        val localAccessToken = mLocalTokenDataSource.getAccessToken()
-        val localRefreshToken = mLocalTokenDataSource.getRefreshToken()
+        val localAccessToken = mLocalStoreTokenDataSource.getAccessToken()
+        val localRefreshToken = mLocalStoreTokenDataSource.getRefreshToken()
 
         val isRefreshTokenValid =
             if (localRefreshToken != null) checkTokenForValidity(localRefreshToken)
@@ -47,7 +49,7 @@ class TokenDataRepository @Inject constructor(
 
         val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
-        mLocalTokenDataSource.saveTokens(
+        mLocalStoreTokenDataSource.saveTokens(
             updateTokensResponse.accessToken,
             updateTokensResponse.refreshToken
         )
@@ -59,7 +61,7 @@ class TokenDataRepository @Inject constructor(
     }
 
     suspend fun signIn() {
-        val localRefreshToken = mLocalTokenDataSource.getRefreshToken()
+        val localRefreshToken = mLocalStoreTokenDataSource.getRefreshToken()
 
         val isRefreshTokenValid =
             if (localRefreshToken != null) checkTokenForValidity(localRefreshToken)
@@ -71,7 +73,7 @@ class TokenDataRepository @Inject constructor(
 
         val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
-        mLocalTokenDataSource.saveTokens(
+        mLocalStoreTokenDataSource.saveTokens(
             updateTokensResponse.accessToken,
             updateTokensResponse.refreshToken
         )
@@ -88,7 +90,7 @@ class TokenDataRepository @Inject constructor(
         val signInRequest = mHttpTokenDataSource.signIn(login, passwordHash)
         val signInResponse = executeNetworkRequest(mErrorDataRepository, mHttpClient, signInRequest)
 
-        mLocalTokenDataSource.saveTokens(
+        mLocalStoreTokenDataSource.saveTokens(
             signInResponse.accessToken,
             signInResponse.refreshToken
         )
@@ -105,14 +107,14 @@ class TokenDataRepository @Inject constructor(
         val signUpRequest = mHttpTokenDataSource.signUp(login, passwordHash)
         val signUpResponse = executeNetworkRequest(mErrorDataRepository, mHttpClient, signUpRequest)
 
-        mLocalTokenDataSource.saveTokens(
+        mLocalStoreTokenDataSource.saveTokens(
             signUpResponse.accessToken,
             signUpResponse.refreshToken
         )
     }
 
     suspend fun getAccessTokenPayload(): Map<String, Claim> {
-        val accessToken = mLocalTokenDataSource.getAccessToken()
+        val accessToken = mLocalStoreTokenDataSource.getAccessToken()
             ?: throw IllegalStateException()
         val payload = getTokenPayload(accessToken)
 
@@ -123,8 +125,9 @@ class TokenDataRepository @Inject constructor(
         return payload
     }
 
-    suspend fun clearTokens() {
-        mLocalTokenDataSource.clearTokens()
+    suspend fun logout() {
+        mLocalStoreTokenDataSource.clearTokens()
+        mLocalDatabaseTokenDataSource.dropDataTables()
     }
 
     fun checkTokenForValidity(token: String): Boolean {

@@ -44,7 +44,7 @@ class MyProfileUseCase @Inject constructor(
     fun deleteMyProfile() {
         executeLogic({
             mMyProfileDataRepository.deleteMyProfile()
-            mTokenDataRepository.clearTokens()
+            mTokenDataRepository.logout()
 
             mResultFlow.emit(DeleteMyProfileDomainResult())
         }) { DeleteMyProfileDomainResult(error = it) }
@@ -52,7 +52,7 @@ class MyProfileUseCase @Inject constructor(
 
     fun logout() {
         executeLogic({
-            mTokenDataRepository.clearTokens()
+            mTokenDataRepository.logout()
 
             mResultFlow.emit(LogoutDomainResult())
         }) { LogoutDomainResult(error = it) }

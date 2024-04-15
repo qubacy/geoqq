@@ -12,7 +12,7 @@ import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignUpResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
-import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -83,7 +83,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mOkHttpClientMockContainer = OkHttpClientMockContainer()
 
-        val localTokenDataSourceMock = Mockito.mock(LocalTokenDataSource::class.java)
+        val localTokenDataSourceMock = Mockito.mock(LocalStoreTokenDataSource::class.java)
 
         Mockito.`when`(localTokenDataSourceMock.getAccessToken()).thenAnswer {
             mLocalSourceLastAccessToken
@@ -266,7 +266,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
     @Test
     fun clearTokensTest() = runTest {
-        mDataRepository.clearTokens()
+        mDataRepository.logout()
 
         Assert.assertTrue(mLocalSourceClearTokensCallFlag)
     }

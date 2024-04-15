@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.data.token.repository.source.local.module
+package com.qubacy.geoqq.data.token.repository.source.local.store.module
 
 import android.content.Context
-import com.qubacy.geoqq.data.token.repository.source.local.LocalTokenDataSource
-import com.qubacy.geoqq.data.token.repository.source.local.tokenDataStore
+import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
+import com.qubacy.geoqq.data.token.repository.source.local.store.tokenDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,9 +15,9 @@ object LocalTokenDataSourceModule {
     @Provides
     fun provideLocalTokenDataSource(
         @ApplicationContext context: Context
-    ): LocalTokenDataSource {
+    ): LocalStoreTokenDataSource {
         val tokenDataStore = context.tokenDataStore
 
-        return LocalTokenDataSource(tokenDataStore)
+        return LocalStoreTokenDataSource(tokenDataStore)
     }
 }

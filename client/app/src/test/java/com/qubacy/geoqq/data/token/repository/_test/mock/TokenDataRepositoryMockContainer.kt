@@ -39,7 +39,7 @@ class TokenDataRepositoryMockContainer {
                 mGetTokensCallFlag = true
                 getTokensDataResult
             }
-            Mockito.`when`(tokenDataRepositoryMock.clearTokens()).thenAnswer {
+            Mockito.`when`(tokenDataRepositoryMock.logout()).thenAnswer {
                 mClearTokensCallFlag = true
 
                 Unit

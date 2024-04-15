@@ -12,6 +12,9 @@ class PermissionRunner<FragmentType> (
 ) where FragmentType : Fragment, FragmentType : PermissionRunnerCallback {
     private lateinit var mPermissionRequestLauncher: ActivityResultLauncher<Array<String>>
 
+    private var mIsRequestingPermissions: Boolean = false
+    val isRequestingPermissions get() = mIsRequestingPermissions
+
     fun requestPermissions() {
         if (fragment.getPermissionsToRequest() == null) return
 
@@ -19,8 +22,8 @@ class PermissionRunner<FragmentType> (
             checkPermissions() -> {
                 fragment.onRequestedPermissionsGranted{ fragment.onPermissionsRequested() }
             }
-
             else -> {
+                mIsRequestingPermissions = true
                 mPermissionRequestLauncher = getPermissionRequestLauncher{
                     fragment.onPermissionsRequested()
                 }
@@ -64,6 +67,8 @@ class PermissionRunner<FragmentType> (
                     deniedPermissions.add(requestedPermission)
                 }
             }
+
+            mIsRequestingPermissions = false
 
             if (deniedPermissions.isEmpty()) fragment.onRequestedPermissionsGranted(endAction)
             else fragment.onRequestedPermissionsDenied(deniedPermissions)
