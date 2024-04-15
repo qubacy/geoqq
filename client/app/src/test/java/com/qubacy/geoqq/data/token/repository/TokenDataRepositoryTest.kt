@@ -12,6 +12,7 @@ import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignUpResponse
 import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
+import com.qubacy.geoqq.data.token.repository.source.local.database.LocalDatabaseTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -47,6 +48,8 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     private var mLocalSourceSaveTokensRefreshToken: String? = null
     private var mLocalSourceClearTokensCallFlag = false
 
+    private var mLocalDatabaseSourceDropDataTablesCallFlag = false
+
     private var mHttpSourceUpdateTokensResponse: UpdateTokensResponse? = null
     private var mHttpSourceSignInResponse: SignInResponse? = null
     private var mHttpSourceSignUpResponse: SignUpResponse? = null
@@ -69,6 +72,8 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
         mLocalSourceGetRefreshTokenCallFlag = false
         mLocalSourceClearTokensCallFlag = false
+
+        mLocalDatabaseSourceDropDataTablesCallFlag = false
 
         mHttpSourceUpdateTokensResponse = null
         mHttpSourceSignInResponse = null
@@ -106,6 +111,14 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         }
         Mockito.`when`(localTokenDataSourceMock.clearTokens()).thenAnswer {
             mLocalSourceClearTokensCallFlag = true
+
+            Unit
+        }
+
+        val localDatabaseTokenDataSourceMock = Mockito.mock(LocalDatabaseTokenDataSource::class.java)
+
+        Mockito.`when`(localDatabaseTokenDataSourceMock.dropDataTables()).thenAnswer {
+            mLocalDatabaseSourceDropDataTablesCallFlag = true
 
             Unit
         }
@@ -173,6 +186,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         mDataRepository = TokenDataRepository(
             mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
             localTokenDataSourceMock,
+            localDatabaseTokenDataSourceMock,
             httpTokenDataSourceMock,
             mOkHttpClientMockContainer.httpClient
         )
@@ -265,10 +279,11 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     }
 
     @Test
-    fun clearTokensTest() = runTest {
+    fun logoutTest() = runTest {
         mDataRepository.logout()
 
         Assert.assertTrue(mLocalSourceClearTokensCallFlag)
+        Assert.assertTrue(mLocalDatabaseSourceDropDataTablesCallFlag)
     }
 
     @Test

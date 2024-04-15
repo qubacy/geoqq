@@ -270,16 +270,20 @@ class MateChatViewModelTest(
     fun isChatDeletableTest() {
         class TestCase(
             val isUserDeleted: Boolean,
+            val isUserMate: Boolean,
             val expectedIsChatDeletable: Boolean
         )
 
         val testCases = listOf(
-            TestCase(false, false),
-            TestCase(true, true)
+            TestCase(false, false, true),
+            TestCase(false, true, false),
+            TestCase(true, false, true),
+            TestCase(true, true, true),
         )
 
         for (testCase in testCases) {
-            val userPresentation = DEFAULT_USER_PRESENTATION.copy(isDeleted = testCase.isUserDeleted)
+            val userPresentation = DEFAULT_USER_PRESENTATION.copy(
+                isDeleted = testCase.isUserDeleted, isMate = testCase.isUserMate)
             val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
 
             setUiState(MateChatUiState(chatContext = chatContext))

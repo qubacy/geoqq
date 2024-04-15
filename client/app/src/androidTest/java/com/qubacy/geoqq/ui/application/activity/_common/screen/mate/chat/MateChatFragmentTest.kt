@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
-import android.os.Bundle
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,7 +19,6 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.ui._common._test.view.util.action.click.soft.SoftClickViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
-import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
@@ -372,29 +369,62 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
     }
 
+    // todo: not possible for now:
+//    @Test
+//    fun modelSetChatContextCalledTest() {
+//        val chatContext = mChatPresentation
+//
+//        mNavArgs = MateChatFragmentArgs(chatContext).toBundle()
+//
+//        initWithModelContext(MateChatViewModelMockContext(MateChatUiState()))
+//
+//        Assert.assertTrue(mViewModelMockContext.setChatContextCallFlag)
+//    }
+
     @Test
-    fun modelSetChatContextCalledTest() {
+    fun modelGetInterlocutorProfileCalledTest() {
         val chatContext = mChatPresentation
         val initUiState = MateChatUiState(chatContext = chatContext)
 
         initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
 
-        Assert.assertTrue(mViewModelMockContext.setChatContextCallFlag)
+        Espresso.onView(withId(R.id.mate_chat_top_bar_option_show_mate_profile))
+            .perform(ViewActions.click())
+
+        Assert.assertTrue(mViewModelMockContext.getInterlocutorProfileCallFlag)
     }
 
     @Test
-    fun modelGetInterlocutorProfileCalledTest() {
+    fun modelAddInterlocutorAsMateCalledTest() = runTest {
+        val interlocutor = mChatPresentation.user.copy(isMate = false)
+        val chatContext = mChatPresentation.copy(user = interlocutor)
+        val initUiState = MateChatUiState(chatContext = chatContext)
 
-    }
+        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
 
-    @Test
-    fun modelAddInterlocutorAsMateCalledTest() {
+        mViewModelMockContext.uiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(interlocutor))
 
+        Espresso.onView(withId(R.id.component_bottom_sheet_user_button_mate))
+            .perform(SoftClickViewAction())
+
+        Assert.assertTrue(mViewModelMockContext.addInterlocutorAsMateCallFlag)
     }
 
     @Test
     fun modelDeleteChatCalledTest() {
+        val chatContext = mChatPresentation
+        val initUiState = MateChatUiState(chatContext = chatContext)
 
+        initWithModelContext(MateChatViewModelMockContext(
+            uiState = initUiState, isChatDeletable = true))
+
+        Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
+            .perform(ViewActions.click())
+        Espresso.onView(Matchers.allOf(
+            withText(R.string.component_request_dialog_button_positive_caption) // todo: specify;
+        )).perform(ViewActions.click())
+
+        Assert.assertTrue(mViewModelMockContext.deleteChatCallFlag)
     }
 
     private fun generateMateMessagePresentations(
