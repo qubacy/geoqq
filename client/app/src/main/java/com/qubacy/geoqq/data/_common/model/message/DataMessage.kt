@@ -16,7 +16,7 @@ data class DataMessage(
 }
 
 fun DataMessage.toMateMessageEntity(chatId: Long): MateMessageEntity {
-    return MateMessageEntity(id, chatId, user.id, text, time / 1000)
+    return MateMessageEntity(id, chatId, user.id, text, time)
 }
 
 fun GetMessageResponse.toDataMessage(user: DataUser): DataMessage {

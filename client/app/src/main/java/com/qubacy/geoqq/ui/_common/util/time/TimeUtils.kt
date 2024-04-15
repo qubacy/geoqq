@@ -14,7 +14,7 @@ object TimeUtils {
 
         // note: time zone setting DOESN'T affect the calendar's time prop!!!!!!
         val gmtCalendar = Calendar.getInstance(locale).apply {
-            timeInMillis = gmtTimeAsLong
+            timeInMillis = gmtTimeAsLong * 1000
         }
 
         return hoursMinutesSecondsTimeFormatter.format(gmtCalendar.time)
