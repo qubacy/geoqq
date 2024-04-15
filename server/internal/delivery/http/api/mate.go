@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -110,17 +109,26 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getMateChat(ctx *gin.Context) {
-	userId, clientCode, err := extractUserIdFromContext(ctx)
-	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
-		return
-	}
+	userId := ctx.GetUint64(contextUserId)
 	chatId := ctx.GetUint64(contextRouteItemId)
 
-	// ***
+	// <---> services
 
-	fmt.Println(userId)
-	fmt.Println(chatId)
+	outputMateChat, err := h.services.GetMateChat(ctx, chatId, userId)
+	if err != nil {
+		resWithErrorForClient(ctx, err) // carefully!
+		return
+	}
+
+	// ---> delivery
+
+	responseDto, err := dto.MakeMateChatFromOutput(outputMateChat)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, responseDto)
 }
 
 // DELETE /api/mate/chat/{id}

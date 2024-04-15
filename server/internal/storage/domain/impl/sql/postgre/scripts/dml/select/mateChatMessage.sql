@@ -1,5 +1,5 @@
-SELECT *
-FROM "MateMessage";
+SELECT * FROM "MateMessage"
+    ORDER BY "Id" DESC;
 
 SELECT * FROM "MateChat";
 

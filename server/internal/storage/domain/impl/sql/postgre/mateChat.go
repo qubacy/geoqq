@@ -55,7 +55,7 @@ var (
 			1. chatId
 			2. userId
 	*/
-	templateGetMateChatWithIdForUserFromTable = utl.RemoveAdjacentWs(`
+	templateGetTableMateChatWithIdForUser = utl.RemoveAdjacentWs(`
 		SELECT "Id", "FirstUserId", "SecondUserId" 
     		FROM "MateChat" WHERE "Id" = $1 AND (
 				"FirstUserId" = $2 OR "SecondUserId" = $2)`)
@@ -78,10 +78,8 @@ var (
 	/*
 		Order:
 			1. userId
-			2. count
-			3. offset
 	*/
-	templateGetMateChatsForUser = utl.RemoveAdjacentWs(`
+	templateAllGetMateChatsForUser = utl.RemoveAdjacentWs(`
 		SELECT "MateChat"."Id" AS "Id",
 			case
 				when "FirstUserId" = $1 
@@ -110,10 +108,28 @@ var (
   			WHERE "MateChatId" = "MateChat"."Id"
 			ORDER BY "Time" DESC
   			LIMIT 1) "LastMessage" ON true
-		WHERE ("FirstUserId" = $1 OR
-			   "SecondUserId" = $1)
-		ORDER BY "Id" 
-		LIMIT $2 OFFSET $3`)
+		LEFT JOIN "DeletedMateChat" ON 
+    		("DeletedMateChat"."ChatId" = "MateChat"."Id"
+				AND "DeletedMateChat"."UserId" = $1)
+		WHERE ("FirstUserId" = $1 OR "SecondUserId" = $1) AND 
+			"DeletedMateChat"."ChatId" IS NULL`)
+
+	/*
+		Order:
+			1. userId
+			2. count
+			3. offset
+	*/
+	templateGetMateChatsForUser = templateAllGetMateChatsForUser +
+		` ORDER BY "Id" LIMIT $2 OFFSET $3`
+
+	/*
+		Order:
+			1. userId
+			2. chatId
+	*/
+	templateGetMateChatWithIdForUser = templateAllGetMateChatsForUser +
+		` AND "MateChat"."Id" = $2`
 
 	/*
 		Order:
@@ -261,7 +277,7 @@ func (s *MateChatStorage) GetTableMateChatWithIdForUser(ctx context.Context, cha
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
 		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
-				templateGetMateChatWithIdForUserFromTable+`;`,
+				templateGetTableMateChatWithIdForUser+`;`,
 				chatId, userId)
 		},
 	)
@@ -283,6 +299,8 @@ func (s *MateChatStorage) GetMateChatWithIdForUser(ctx context.Context,
 		return nil, utl.NewFuncError(s.GetMateChatWithIdForUser, err)
 	}
 	defer conn.Release()
+
+	// TODO:! templateGetMateChatWithIdForUser
 
 	// ***
 

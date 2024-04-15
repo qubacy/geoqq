@@ -23,6 +23,25 @@ func newMateChatService(deps Dependencies) *MateChatService {
 // public
 // -----------------------------------------------------------------------
 
+func (s *MateChatService) GetMateChat(ctx context.Context, chatId, userId uint64) (*domain.MateChat, error) {
+	sourceFunc := s.GetMateChat
+
+	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	// ***
+
+	//s.domainStorage.GetMateChatWithIdForUser()
+
+	return nil, ErrNotImplemented
+}
+
 func (s *MateChatService) GetMateChatsForUser(ctx context.Context,
 	userId, offset, count uint64) (domain.MateChatList, error) {
 	mateChats, err := s.domainStorage.GetMateChatsForUser(ctx, userId, offset, count)

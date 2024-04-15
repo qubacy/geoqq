@@ -1,5 +1,5 @@
-SELECT *
-FROM "MateChat";
+SELECT * FROM "MateChat";
+SELECT * FROM "UserEntry";
 
 UPDATE "MateChat" SET "FirstUserId" = 13
 WHERE "Id" = 1;
@@ -68,10 +68,22 @@ SELECT "MateChat"."Id" AS "Id",
      LIMIT 1) AS "LastMessageUserId"
 FROM "MateChat";
 
+-- GetMateChatsForUser
 -- -----------------------------------------------------------------------
 
+SELECT * FROM "UserEntry";
 SELECT * FROM "MateChat";
+SELECT * FROM "DeletedMateChat";
+SELECT * FROM "Mate";
+
+SELECT * FROM "MateRequest";
+
+DELETE FROM "DeletedMateChat";
+INSERT INTO "DeletedMateChat" VALUES (1, 14);
+
 SELECT * FROM "MateMessage";
+
+-- -----------------------------------------------------------------------
 
 WITH "srcUserId" AS (VALUES (14))
 SELECT "MateChat"."Id" AS "Id",
@@ -103,16 +115,19 @@ LEFT JOIN LATERAL
      WHERE "MateChatId" = "MateChat"."Id"
      ORDER BY "Time" DESC
      LIMIT 1) "LastMessage" ON true
+LEFT JOIN "DeletedMateChat" ON 
+    ("DeletedMateChat"."ChatId" = "MateChat"."Id" AND
+     "DeletedMateChat"."UserId" = (table "srcUserId"))
 WHERE ("FirstUserId" = (table "srcUserId")
-       OR "SecondUserId" = (table "srcUserId"))
+        OR "SecondUserId" = (table "srcUserId"))
+            AND "DeletedMateChat"."ChatId" IS NULL
 ORDER BY "Id" 
     LIMIT 10 OFFSET 0;
 
+-- GetMateChatWithIdForUser
 -- -----------------------------------------------------------------------
 
-SELECT * FROM "MateMessage";
-
-WITH "srcUserId" AS (VALUES (2)),
+WITH "srcUserId" AS (VALUES (14)),
      "chatId" AS (VALUES (1))
 SELECT "MateChat"."Id" AS "Id",
        case
@@ -121,10 +136,10 @@ SELECT "MateChat"."Id" AS "Id",
            else "FirstUserId"
        end as "UserId",
 
-    (SELECT COUNT(*)
-     FROM "MateMessage"
-     WHERE "MateChatId" = "MateChat"."Id"
-         AND "Read" = false) AS "NewMessageCount",
+    (SELECT COUNT(*) FROM "MateMessage"
+     WHERE "MateChatId" = "MateChat"."Id" 
+        AND "MateMessage"."FromUserId" != (table "srcUserId")
+        AND "Read" = false) AS "NewMessageCount",
 
        case
            when "LastMessage"."Id" is NULL then false
@@ -143,9 +158,13 @@ LEFT JOIN LATERAL
      WHERE "MateChatId" = "MateChat"."Id"
      ORDER BY "Time" DESC
      LIMIT 1) "LastMessage" ON true
+LEFT JOIN "DeletedMateChat" ON 
+    ("DeletedMateChat"."ChatId" = "MateChat"."Id" AND
+     "DeletedMateChat"."UserId" = (table "srcUserId"))
 WHERE ("FirstUserId" = (table "srcUserId")
-        OR "SecondUserId" = (table "srcUserId")) 
-            AND "MateChat"."Id" = (table "chatId");
+        OR "SecondUserId" = (table "srcUserId")) AND
+            "DeletedMateChat"."ChatId" IS NULL AND
+            "MateChat"."Id" = (table "chatId");
 
 -- -----------------------------------------------------------------------
 

@@ -35,6 +35,7 @@ type PublicUserService interface {
 // -----------------------------------------------------------------------
 
 type MateChatService interface {
+	GetMateChat(ctx context.Context, chatId, userId uint64) (*domain.MateChat, error)
 	GetMateChatsForUser(ctx context.Context, userId, offset, count uint64) (domain.MateChatList, error)
 	DeleteMateChatForUser(ctx context.Context, chatId, userId uint64) error
 }

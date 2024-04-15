@@ -3,8 +3,8 @@ package postgre
 import (
 	"context"
 	"geoqq/internal/domain"
-	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
+	"sort"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -163,6 +163,7 @@ func (s *MateChatMessageStorage) ReadMateChatMessagesByChatId(ctx context.Contex
 		ctx, templateReadMateChatMessagesByChatId,
 		userId, chatId, count, offset,
 	)
+
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
 	}
@@ -177,21 +178,20 @@ func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
 	ctx context.Context, templateQuery string, // template for read or get!
 	userId, chatId, count, offset uint64) (
 	domain.MateMessageList, error) {
+	sourceFunc := s.queryMateChatMessagesByChatId
 
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil, utl.NewFuncError(s.queryMateChatMessagesByChatId, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	defer conn.Release()
 
 	// ***
 
-	logger.Trace(templateQuery)
-
 	rows, err := conn.Query(ctx, templateQuery+`;`,
 		userId, chatId, count, offset)
 	if err != nil {
-		return nil, utl.NewFuncError(s.queryMateChatMessagesByChatId, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	defer rows.Close()
 
@@ -201,11 +201,16 @@ func (s *MateChatMessageStorage) queryMateChatMessagesByChatId(
 	for rows.Next() {
 		mateMsg, err := mateChatMessageFromRows(rows)
 		if err != nil {
-			return nil, utl.NewFuncError(s.queryMateChatMessagesByChatId, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
 
 		mateMessages = append(mateMessages, mateMsg)
 	}
+
+	// TODO: put sorting in query?
+	sort.Slice(mateMessages, func(i, j int) bool {
+		return mateMessages[i].Id > mateMessages[j].Id
+	})
 
 	return mateMessages, nil
 }

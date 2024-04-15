@@ -45,3 +45,8 @@ func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 }
 
 // -----------------------------------------------------------------------
+
+func resWithErrorForClient(ctx *gin.Context, err error) {
+	side, code := ec.UnwrapErrorsToLastSideAndCode(err)
+	resWithSideErr(ctx, side, code, err)
+}

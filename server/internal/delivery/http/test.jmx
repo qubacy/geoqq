@@ -47,8 +47,8 @@
           <stringProp name="-1083884698">UserNewPass</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="1802215721">
-            <stringProp name="2072248283">test_user3</stringProp>
+          <collectionProp name="108298479">
+            <stringProp name="2072248282">test_user2</stringProp>
             <stringProp name="1476167027">304c32846c843b34c18caa6c8483b203fe933a4e66f0735d424e3a1932ca55a5</stringProp>
             <stringProp name="806656256">b3a255758fcab421f20140529d533e4b1dcff6a3ef23c059ff61f0c34db565c5</stringProp>
           </collectionProp>
@@ -9936,7 +9936,7 @@
           </hashTree>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DELETE /api/my-profile" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DELETE /api/my-profile" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -15966,7 +15966,7 @@
         <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="err" enabled="true"/>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat{id}" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="GET /api/mate/chat{id}" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -16051,7 +16051,7 @@
             <stringProp name="HTTPSampler.port">${HostPort}</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/api/mate/chat/1</stringProp>
+            <stringProp name="HTTPSampler.path">/api/mate/chat/4</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

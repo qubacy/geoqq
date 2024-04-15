@@ -81,6 +81,9 @@ WHERE (
 
 -- -----------------------------------------------------------------------
 
+SELECT * FROM "MateChat";
+SELECT * FROM "UserEntry";
+
 WITH "MateChatMessages" AS
     (SELECT 
         "MateMessage"."Id" AS "Id",
@@ -91,13 +94,13 @@ WITH "MateChatMessages" AS
     FROM "MateMessage"
     INNER JOIN "MateChat" ON (
         "MateChat"."Id" = "MateMessage"."MateChatId" 
-        AND "MateMessage"."MateChatId" = 4
+        AND "MateMessage"."MateChatId" = 3
         AND ( 
             "FirstUserId" = 14 OR
             "SecondUserId" = 14
         ) /* access check, without returning obvious errors */
     )
-    ORDER BY "Id" DESC 
+    ORDER BY "Id" DESC
     LIMIT 5 OFFSET 0
     )
 UPDATE "MateMessage" 
@@ -110,3 +113,60 @@ FROM "MateChatMessages"
 WHERE (
     "MateMessage"."Id" = "MateChatMessages"."Id"
 ) RETURNING "MateChatMessages".*;
+
+-- ReadMateChatMessagesByChatId
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "MateMessage";
+
+WITH "MateChatMessages" AS (
+    SELECT 
+        "MateMessage"."Id" AS "Id",
+        "Text",
+        "Time",
+        "FromUserId" AS "UserId",
+        "Read" /* will return value before update */
+    FROM "MateMessage"
+    INNER JOIN "MateChat" ON (
+        "MateChat"."Id" = "MateMessage"."MateChatId" 
+        AND "MateMessage"."MateChatId" = 3
+        AND ( 
+            "FirstUserId" = 14 OR
+            "SecondUserId" = 14
+        ) /* access check, without returning obvious errors */
+    )
+    LIMIT 5 OFFSET 0
+)
+UPDATE "MateMessage" 
+    SET "Read" = 
+        CASE "MateMessage"."FromUserId"
+            WHEN 13 THEN "MateMessage"."Read" /* already set value */
+            ELSE TRUE 
+        END
+FROM "MateChatMessages"
+WHERE (
+    "MateMessage"."Id" = "MateChatMessages"."Id"
+) RETURNING "MateChatMessages".*;
+
+-- -----------------------------------------------------------------------
+
+UPDATE "MateMessage" 
+    SET "Read" = 
+        CASE "MateMessage"."FromUserId"
+            WHEN 13 THEN "MateMessage"."Read" /* already set value */
+            ELSE TRUE 
+        END
+WHERE "MateMessage"."Id" IN (
+    SELECT 
+        "MateMessage"."Id" AS "Id"
+    FROM "MateMessage"
+    INNER JOIN "MateChat" ON (
+        "MateChat"."Id" = "MateMessage"."MateChatId" 
+        AND "MateMessage"."MateChatId" = 3
+        AND ( 
+            "FirstUserId" = 14 OR
+            "SecondUserId" = 14
+        ) /* access check, without returning obvious errors */
+    )
+    LIMIT 5 OFFSET 0
+) RETURNING "Id"
