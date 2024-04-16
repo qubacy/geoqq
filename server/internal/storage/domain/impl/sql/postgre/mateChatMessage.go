@@ -156,6 +156,8 @@ func (s *MateChatMessageStorage) GetMateChatMessagesByChatId(ctx context.Context
 	return mateMessages, nil
 }
 
+// TODO: check count!!! on max size!!
+
 func (s *MateChatMessageStorage) ReadMateChatMessagesByChatId(ctx context.Context,
 	userId, chatId uint64, count, offset uint64) (domain.MateMessageList, error) {
 

@@ -65,6 +65,7 @@ type PublicUserStorage interface {
 
 type UserProfileStorage interface {
 	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
+	DeleteUserProfile(ctx context.Context, userId uint64) error
 }
 
 type MateStorage interface {

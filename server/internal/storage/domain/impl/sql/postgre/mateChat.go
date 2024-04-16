@@ -128,7 +128,7 @@ var (
 			1. userId
 			2. chatId
 	*/
-	templateGetMateChatWithIdForUser = templateAllGetMateChatsForUser +
+	templateGetMateChatWithIdForUser string = templateAllGetMateChatsForUser +
 		` AND "MateChat"."Id" = $2`
 
 	/*
@@ -179,21 +179,24 @@ func (s *MateChatStorage) InsertMateChat(ctx context.Context,
 
 func (s *MateChatStorage) AvailableMateChatWithIdForUser(ctx context.Context,
 	chatId, userId uint64) (bool, error) {
+	sourceFunc := s.AvailableMateChatWithIdForUser
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return false, utl.NewFuncError(s.AvailableMateChatWithIdForUser, err)
+		return false, utl.NewFuncError(sourceFunc, err)
 	}
 	defer conn.Release()
 
 	// ***
 
-	row := conn.QueryRow(ctx, templateAvailableMateChatWithIdForUser+`;`,
-		chatId, userId)
+	row := conn.QueryRow(ctx,
+		templateAvailableMateChatWithIdForUser+`;`,
+		chatId, userId,
+	)
 
 	var available bool = false
 	err = row.Scan(&available)
 	if err != nil {
-		return false, utl.NewFuncError(s.AvailableMateChatWithIdForUser, err)
+		return false, utl.NewFuncError(sourceFunc, err)
 	}
 
 	return available, nil
@@ -241,7 +244,7 @@ func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 
 	mateChats := []*domain.MateChat{}
 	for rows.Next() {
-		mateChat, err := mateChatFromRows(rows)
+		mateChat, err := mateChatFromQueryResult(rows)
 		if err != nil {
 			return nil, utl.NewFuncError(
 				s.GetMateChatsForUser, err)
@@ -265,27 +268,30 @@ func (s *MateChatStorage) GetTableMateChatWithId(ctx context.Context, id uint64)
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
-	mateChat, err := tableMateChatFromRow(row)
+	mateChat, err := tableMateChatFromQueryResult(row)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	return mateChat, nil
 }
 
-func (s *MateChatStorage) GetTableMateChatWithIdForUser(ctx context.Context, chatId, userId uint64) (*table.MateChat, error) {
+func (s *MateChatStorage) GetTableMateChatWithIdForUser(ctx context.Context, chatId, userId uint64) (
+	*table.MateChat, error,
+) {
 	sourceFunc := s.GetTableMateChatWithIdForUser
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
 		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
 				templateGetTableMateChatWithIdForUser+`;`,
-				chatId, userId)
+				chatId, userId,
+			)
 		},
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
-	mateChat, err := tableMateChatFromRow(row)
+	mateChat, err := tableMateChatFromQueryResult(row)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
@@ -294,17 +300,24 @@ func (s *MateChatStorage) GetTableMateChatWithIdForUser(ctx context.Context, cha
 
 func (s *MateChatStorage) GetMateChatWithIdForUser(ctx context.Context,
 	userId, chatId uint64) (*domain.MateChat, error) {
-	conn, err := s.pool.Acquire(ctx)
+	sourceFunc := s.GetMateChatWithIdForUser
+	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateGetMateChatWithIdForUser+`;`,
+				userId, chatId,
+			)
+		},
+	)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetMateChatWithIdForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
-	defer conn.Release()
 
-	// TODO:! templateGetMateChatWithIdForUser
-
-	// ***
-
-	return nil, ErrNotImplemented
+	mateChat, err := mateChatFromQueryResult(row)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+	return mateChat, nil
 }
 
 // -----------------------------------------------------------------------
@@ -375,8 +388,86 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 	return nil
 }
 
-// private
+// convert
 // -----------------------------------------------------------------------
+
+func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, error) {
+	mateChat := domain.NewEmptyMateChat()
+	lastMessageExists := false
+
+	err := queryResult.Scan(
+		&mateChat.Id, &mateChat.UserId,
+		&mateChat.NewMessageCount,
+		&lastMessageExists,
+		nil, nil, nil, nil, // <--- skip fields!
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(mateChatFromQueryResult, err)
+	}
+
+	// ***
+
+	var lastMessage *domain.MateMessage = nil
+	if lastMessageExists {
+		lastMessage, err = lastMateChatMessageFromQueryResult(queryResult)
+		if err != nil {
+			return nil, utl.NewFuncError(mateChatFromQueryResult, err)
+		}
+	}
+
+	mateChat.LastMessage = lastMessage
+	return mateChat, nil
+}
+
+func lastMateChatMessageFromQueryResult(queryResult QueryResultScanner) (*domain.MateMessage, error) {
+	mateMessage := new(domain.MateMessage)
+	err := queryResult.Scan(
+		nil, nil, nil, nil,
+		&mateMessage.Id, &mateMessage.Text,
+		&mateMessage.Time, &mateMessage.UserId,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(
+			lastMateChatMessageFromQueryResult, err)
+	}
+
+	return mateMessage, nil
+}
+
+func tableMateChatFromQueryResult(queryResult QueryResultScanner) (*table.MateChat, error) {
+	mateChat := table.MateChat{}
+	err := queryResult.Scan(
+		&mateChat.Id,
+		&mateChat.FirstUserId,
+		&mateChat.SecondUserId,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(tableMateChatFromQueryResult, err)
+	}
+
+	return &mateChat, nil
+}
+
+// transaction!
+// -----------------------------------------------------------------------
+
+func deleteMateChatInsideTx(ctx context.Context, tx pgx.Tx,
+	chatId uint64) error {
+	sourceFunc := deleteMateChatInsideTx
+
+	cmdTag, err := tx.Exec(ctx,
+		templateDeleteMateChat+`;`,
+		chatId,
+	)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	if !cmdTag.Delete() {
+		return ErrDeleteFailed
+	}
+
+	return nil
+}
 
 func insertMateChatWithoutReturningIdInsideTx(ctx context.Context, tx pgx.Tx,
 	firstUserId uint64, secondUserId uint64) error {
@@ -395,112 +486,14 @@ func insertMateChatWithoutReturningIdInsideTx(ctx context.Context, tx pgx.Tx,
 
 func insertDeletedMateChatInsideTx(ctx context.Context, tx pgx.Tx,
 	chatId, userId uint64) error {
-	sourceFunc := insertDeletedMateChatInsideTx
-
-	cmdTag, err := tx.Exec(ctx, templateInsertDeletedMateChat+`;`,
-		chatId, userId,
+	return insertInsideTx(ctx, insertDeletedMateChatInsideTx,
+		tx, templateInsertDeletedMateChat, chatId, userId,
 	)
-
-	if err != nil {
-		return utl.NewFuncError(sourceFunc, err)
-	}
-	if !cmdTag.Insert() {
-		return ErrInsertFailed
-	}
-
-	return nil
 }
 
 func removeDeletedMateChatByChatIdInsideTx(ctx context.Context, tx pgx.Tx,
 	chatId uint64) error {
-	sourceFunc := removeDeletedMateChatByChatIdInsideTx
-
-	cmdTag, err := tx.Exec(ctx,
-		templateRemoveDeletedMateChatByChatId+`;`,
-		chatId,
+	return deleteInsideTx(ctx, removeDeletedMateChatByChatIdInsideTx,
+		tx, templateRemoveDeletedMateChatByChatId, chatId,
 	)
-	if err != nil {
-		return utl.NewFuncError(sourceFunc, err)
-	}
-	if !cmdTag.Delete() {
-		return ErrDeleteFailed
-	}
-
-	return nil
-}
-
-// -----------------------------------------------------------------------
-
-func mateChatFromRows(rows pgx.Rows) (*domain.MateChat, error) {
-	mateChat := domain.NewEmptyMateChat()
-	lastMessageExists := false
-
-	err := rows.Scan(
-		&mateChat.Id, &mateChat.UserId,
-		&mateChat.NewMessageCount,
-		&lastMessageExists,
-		nil, nil, nil, nil, // <--- skip fields!
-	)
-	if err != nil {
-		return nil, utl.NewFuncError(mateChatFromRows, err)
-	}
-
-	// ***
-
-	var lastMessage *domain.MateMessage = nil
-	if lastMessageExists {
-		lastMessage, err = lastMateChatMessageFromRows(rows)
-		if err != nil {
-			return nil, utl.NewFuncError(mateChatFromRows, err)
-		}
-	}
-
-	mateChat.LastMessage = lastMessage
-	return mateChat, nil
-}
-
-func lastMateChatMessageFromRows(rows pgx.Rows) (*domain.MateMessage, error) {
-	mateMessage := new(domain.MateMessage)
-	err := rows.Scan(
-		nil, nil, nil, nil,
-		&mateMessage.Id, &mateMessage.Text,
-		&mateMessage.Time, &mateMessage.UserId,
-	)
-	if err != nil {
-		return nil, utl.NewFuncError(lastMateChatMessageFromRows, err)
-	}
-
-	return mateMessage, nil
-}
-
-func tableMateChatFromRow(row pgx.Row) (*table.MateChat, error) {
-	mateChat := table.MateChat{}
-	err := row.Scan(
-		&mateChat.Id,
-		&mateChat.FirstUserId,
-		&mateChat.SecondUserId,
-	)
-	if err != nil {
-		return nil, utl.NewFuncError(tableMateChatFromRow, err)
-	}
-
-	return &mateChat, nil
-}
-
-func deleteMateChatInsideTx(ctx context.Context, tx pgx.Tx,
-	chatId uint64) error {
-	sourceFunc := deleteMateChatInsideTx
-
-	cmdTag, err := tx.Exec(ctx,
-		templateDeleteMateChat+`;`,
-		chatId,
-	)
-	if err != nil {
-		return utl.NewFuncError(sourceFunc, err)
-	}
-	if !cmdTag.Delete() {
-		return ErrDeleteFailed
-	}
-
-	return nil
 }

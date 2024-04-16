@@ -2,9 +2,12 @@ package postgre
 
 import (
 	"context"
+	"errors"
 	"geoqq/internal/domain"
 	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -66,4 +69,125 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	}
 
 	return userProfile, nil
+}
+
+func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint64) error {
+	/*
+		Action List:
+			1. Add user to deleted list.
+			2.
+	*/
+
+	sourceFunc := s.DeleteUserProfile
+	conn, tx, err := begunTransaction(s.pool, ctx)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	err = errors.Join(
+		insertUserToDeletedInsideTx(ctx, tx, userId),
+		deleteOutgoingMateRequestsInsideTx(ctx, tx, userId),
+		deleteIncomingMateRequestsInsideTx(ctx, tx, userId),
+		deleteMateChatsInsideTx(ctx, tx, userId),
+
+		changeNameToDeletedForUserInsideTx(ctx, tx, userId),
+		changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
+		resetHashesForUserInsideTx(ctx, tx, userId),
+
+		resetPrivacyForUserInsideTx(ctx, tx, userId),
+		resetHashesForUserInsideTx(ctx, tx, userId),
+
+		deleteUserAvatarsInsideTx(ctx, tx, userId),
+	)
+	if err != nil {
+		err = errors.Join(tx.Rollback(ctx)) // ?
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	return nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func insertUserToDeletedInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func deleteOutgoingMateRequestsInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func deleteIncomingMateRequestsInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func deleteMatesInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+// ?
+func deleteMateChatsInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+// -----------------------------------------------------------------------
+
+func changeNameToDeletedForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func changeAvatarToDeletedForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func resetHashesForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+// -----------------------------------------------------------------------
+
+func resetPrivacyForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+func resetDescriptionForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
+}
+
+// -----------------------------------------------------------------------
+
+func deleteUserAvatarsInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64) error {
+
+	return ErrNotImplemented
 }

@@ -217,7 +217,7 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 		updateMateRequestResultById(ctx, tx, id, table.Accepted),
 	)
 	if err != nil {
-		tx.Rollback(ctx) // <--- ignore error!
+		err = errors.Join(err, tx.Rollback(ctx)) // <--- ignore error?
 		return utl.NewFuncError(s.AcceptMateRequestById, err)
 	}
 
@@ -246,7 +246,7 @@ func (s *MateRequestStorage) RejectMateRequestById(ctx context.Context,
 
 	err = updateMateRequestResultById(ctx, tx, id, table.Rejected)
 	if err != nil {
-		tx.Rollback(ctx)
+		err = errors.Join(err, tx.Rollback(ctx))
 		return utl.NewFuncError(s.RejectMateRequestById, err)
 	}
 

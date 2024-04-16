@@ -4,31 +4,17 @@ import (
 	"context"
 	utl "geoqq/pkg/utility"
 
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, pgx.Tx, error) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return nil, nil, utl.NewFuncError(begunTransaction, err)
-	}
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
-		IsoLevel:       pgx.Serializable,
-		AccessMode:     pgx.ReadWrite,
-		DeferrableMode: pgx.NotDeferrable,
-	})
-	if err != nil {
-		conn.Release()
-
-		return nil, nil, utl.NewFuncError(begunTransaction, err)
-	}
-
-	return conn, tx, nil
-}
-
+// Scan
 // -----------------------------------------------------------------------
+
+type QueryResultScanner interface {
+	Scan(dest ...interface{}) error
+}
 
 type rowQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) pgx.Row
 type bgrQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) error
@@ -45,7 +31,7 @@ func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
 	return f(conn, ctx), nil
 }
 
-func scanLastInsertedId(row pgx.Row, sourceFunc any) (uint64, error) {
+func scanLastInsertedId(row QueryResultScanner, sourceFunc any) (uint64, error) {
 	var lastInsertedId uint64
 	err := row.Scan(&lastInsertedId)
 	if err != nil {
@@ -54,7 +40,7 @@ func scanLastInsertedId(row pgx.Row, sourceFunc any) (uint64, error) {
 	return lastInsertedId, nil
 }
 
-func scanBool(row pgx.Row, sourceFunc any) (bool, error) {
+func scanBool(row QueryResultScanner, sourceFunc any) (bool, error) {
 	var boolValue bool = false
 	err := row.Scan(&boolValue)
 	if err != nil {
@@ -82,8 +68,6 @@ func insertForUserPairWithoutReturningIdInsideTx(
 
 	return nil
 }
-
-// -----------------------------------------------------------------------
 
 func insertGeoChatMessageInsideTx(ctx context.Context, tx pgx.Tx,
 	fromUserId uint64, text string,
@@ -117,4 +101,93 @@ func updateUserLocationInsideTx(ctx context.Context, tx pgx.Tx, id uint64,
 	}
 
 	return nil
+}
+
+// Transaction Wrappers!
+// -----------------------------------------------------------------------
+
+func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, pgx.Tx, error) {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return nil, nil, utl.NewFuncError(begunTransaction, err)
+	}
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel:       pgx.Serializable,
+		AccessMode:     pgx.ReadWrite,
+		DeferrableMode: pgx.NotDeferrable,
+	})
+	if err != nil {
+		conn.Release()
+
+		return nil, nil, utl.NewFuncError(begunTransaction, err)
+	}
+
+	return conn, tx, nil
+}
+
+// -----------------------------------------------------------------------
+
+type CommandTagChecker func(cmdTag pgconn.CommandTag) error
+
+func assertCommandTagEqDelete(cmdTag pgconn.CommandTag) error {
+	if !cmdTag.Delete() {
+		return ErrDeleteFailed
+	}
+	return nil
+}
+
+func assertCommandTagEqInsert(cmdTag pgconn.CommandTag) error {
+	if !cmdTag.Insert() {
+		return ErrInsertFailed
+	}
+	return nil
+}
+
+func assertCommandTagEqUpdate(cmdTag pgconn.CommandTag) error {
+	if !cmdTag.Update() {
+		return ErrUpdateFailed
+	}
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func execInsideTx(ctx context.Context, sourceFunc any, check CommandTagChecker,
+	tx pgx.Tx, templateQueryText string, args ...any) error {
+	cmdTag, err := tx.Exec(ctx,
+		templateQueryText+`;`,
+		args...,
+	)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	if err := check(cmdTag); err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteInsideTx(ctx context.Context, sourceFunc any,
+	tx pgx.Tx, templateQueryText string, args ...any) error {
+	return execInsideTx(ctx, sourceFunc,
+		assertCommandTagEqDelete, tx,
+		templateQueryText, args...,
+	)
+}
+
+func insertInsideTx(ctx context.Context, sourceFunc any,
+	tx pgx.Tx, templateQueryText string, args ...any) error {
+	return execInsideTx(ctx, sourceFunc,
+		assertCommandTagEqInsert, tx,
+		templateQueryText, args...,
+	)
+}
+
+func updateInsideTx(ctx context.Context, sourceFunc any,
+	tx pgx.Tx, templateQueryText string, args ...any) error {
+	return execInsideTx(ctx, sourceFunc,
+		assertCommandTagEqUpdate, tx,
+		templateQueryText, args...,
+	)
 }

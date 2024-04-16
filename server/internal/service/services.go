@@ -25,6 +25,7 @@ type UserProfileService interface {
 
 	UpdateUserProfile(ctx context.Context,
 		userId uint64, input dto.ProfileForUpdateInp) error
+	DeleteUserProfile(ctx context.Context, userId uint64) error
 }
 
 type PublicUserService interface {

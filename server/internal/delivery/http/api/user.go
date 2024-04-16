@@ -246,7 +246,14 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func (h *Handler) deleteMyProfile(ctx *gin.Context) {
+	userId := ctx.GetUint64(contextUserId)
+	err := h.services.DeleteUserProfile(ctx, userId)
+	if err != nil {
+		resWithErrorForClient(ctx, err)
+		return
+	}
 
+	ctx.Status(http.StatusOK)
 }
 
 // user

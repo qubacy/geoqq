@@ -129,13 +129,11 @@ func (s *PublicUserStorage) GetPublicUsersByIds(ctx context.Context,
 // convert
 // -----------------------------------------------------------------------
 
-type QueryResultScanner interface {
-	Scan(dest ...interface{}) error
-}
-
-func publicUserFromQueryResult(row QueryResultScanner) (domain.PublicUser, error) {
+func publicUserFromQueryResult(queryResult QueryResultScanner) (
+	domain.PublicUser, error,
+) {
 	publicUser := domain.PublicUser{}
-	err := row.Scan(
+	err := queryResult.Scan(
 		&publicUser.Id,
 		&publicUser.Username,
 		&publicUser.Description,

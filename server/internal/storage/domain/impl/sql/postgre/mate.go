@@ -111,16 +111,7 @@ func insertMateWithoutReturningIdInsideTx(ctx context.Context, tx pgx.Tx,
 func deleteMateInsideTx(ctx context.Context, tx pgx.Tx,
 	firstUserId, secondUserId uint64) error {
 
-	cmdTag, err := tx.Exec(ctx, templateDeleteMate+`;`,
-		firstUserId, secondUserId,
+	return deleteInsideTx(ctx, deleteInsideTx,
+		tx, templateDeleteMate, firstUserId, secondUserId,
 	)
-
-	if err != nil {
-		return utl.NewFuncError(deleteMateInsideTx, err)
-	}
-	if !cmdTag.Delete() { // ?
-		return ErrDeleteFailed
-	}
-
-	return nil
 }

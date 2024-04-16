@@ -18,6 +18,7 @@
         "mlog",
         "mockaroo",
         "natefinch",
+        "pgconn",
         "pgxpool",
         "postgre",
         "psycopg",

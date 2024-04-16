@@ -93,6 +93,15 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	return nil
 }
 
+func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint64) error {
+	err := p.domainStorage.DeleteUserProfile(ctx, userId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(p.DeleteUserProfile, err),
+			ec.Server, ec.DomainStorageError)
+	}
+	return nil
+}
+
 // private
 // -----------------------------------------------------------------------
 
