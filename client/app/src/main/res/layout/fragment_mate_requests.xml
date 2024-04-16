@@ -17,9 +17,7 @@
             android:id="@+id/fragment_mate_requests_top_bar_content_wrapper"
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
-            style="@style/Widget.Material3.CollapsingToolbar.Medium"
-            app:title="@string/fragment_mate_requests_top_bar_content_wrapper_title_text"
-            app:subtitle="fwqfqw">
+            style="@style/Widget.Material3.CollapsingToolbar.Medium">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/fragment_mate_requests_top_bar"
@@ -32,5 +30,37 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_mate_requests_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_anchor="@id/fragment_mate_requests_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/fragment_mate_requests_text_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/fragment_mate_requests_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="@dimen/small_gap_between_components"
+        android:layout_marginEnd="@dimen/small_gap_between_components"
+        android:layout_marginTop="@dimen/very_small_gap_between_components"
+        android:paddingTop="@dimen/smaller_gap_between_components"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:text="@string/fragment_mate_requests_text_subtitle_text"/>
+
+    <com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
+        android:id="@+id/fragment_mate_requests_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.appbar.behavior.MateRequestAppBarLayoutScrollingViewBehavior"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="vertical"
+        tools:listitem="@layout/component_mate_request_preview"
+        tools:itemCount="4"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

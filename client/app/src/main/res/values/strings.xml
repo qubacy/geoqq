@@ -24,6 +24,7 @@
 
     <string name="fragment_mate_chats_top_bar_title_text">Mate Chats</string>
 
+    <string name="fragment_my_profile_top_bar_title_text">My profile</string>
     <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
     <string name="fragment_my_profile_input_password_hint_text">Password</string>
     <string name="fragment_my_profile_input_new_password_hint_text">New password</string>
@@ -40,6 +41,7 @@
     <string name="fragment_mate_chat_snackbar_message_message_sent">Your message has been sent</string>
 
     <string name="fragment_mate_requests_top_bar_content_wrapper_title_text">Mate requests</string>
+    <string name="fragment_mate_requests_text_subtitle_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
 
     <!--  Components:  -->
 

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mateRequestsFragment2">
+    app:startDestination="@id/mateRequestsFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -25,7 +25,7 @@
     <fragment
         android:id="@+id/mateChatsFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment"
-        android:label="Mate chats"
+        android:label="@string/fragment_mate_chats_top_bar_title_text"
         tools:layout="@layout/fragment_mate_chats">
         <action
             android:id="@+id/action_mateChatsFragment_to_myProfileFragment"
@@ -45,7 +45,7 @@
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.MyProfileFragment"
-        android:label="My profile"
+        android:label="@string/fragment_my_profile_top_bar_title_text"
         tools:layout="@layout/fragment_my_profile">
         <action
             android:id="@+id/action_myProfileFragment_to_loginFragment"
@@ -65,9 +65,17 @@
             app:argType="com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation" />
     </fragment>
     <fragment
-        android:id="@+id/mateRequestsFragment2"
+        android:id="@+id/mateRequestsFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.MateRequestsFragment"
-        android:label="MateRequestsFragment"
-        tools:layout="@layout/fragment_mate_requests"/>
+        android:label="@string/fragment_mate_requests_top_bar_content_wrapper_title_text"
+        tools:layout="@layout/fragment_mate_requests">
+        <action
+            android:id="@+id/action_mateRequestsFragment_to_myProfileFragment"
+            app:destination="@id/myProfileFragment"
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_bottom"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_top" />
+    </fragment>
 
 </navigation>
