@@ -1,12 +1,10 @@
 package com.qubacy.geoqq.data.error.repository.source.local.module
 
-import android.content.Context
+import com.qubacy.geoqq.data._common.repository._common.source.local._common.database.Database
 import com.qubacy.geoqq.data.error.repository.source.local.LocalErrorDataSource
-import com.qubacy.geoqq.ui.application.CustomApplication
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -14,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 object LocalErrorDataSourceModule {
     @Provides
     fun provideLocalErrorDataSource(
-        @ApplicationContext context: Context
+        database: Database
     ): LocalErrorDataSource {
-        return (context as CustomApplication).db.errorDao()
+        return database.errorDao()
     }
 }

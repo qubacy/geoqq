@@ -194,11 +194,8 @@ class MateChatViewModelTest(
         for (testCase in testCases) {
             val userPresentation = DEFAULT_USER_PRESENTATION.copy(
                 isMate = testCase.isUserMate, isDeleted = testCase.isUserDeleted)
-            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
 
-            setUiState(MateChatUiState(chatContext = chatContext))
-
-            val gottenIsChatable = mModel.isInterlocutorChatable()
+            val gottenIsChatable = mModel.isInterlocutorChatable(userPresentation)
 
             Assert.assertEquals(testCase.expectedIsChatable, gottenIsChatable)
         }
@@ -220,16 +217,13 @@ class MateChatViewModelTest(
         )
 
         for (testCase in testCases) {
-            val userPresentation = DEFAULT_USER_PRESENTATION.copy(
-                isMate = testCase.isUserMate)
-            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
+            val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
 
             setUiState(MateChatUiState(
-                chatContext = chatContext,
                 isMateRequestSendingAllowed = testCase.isMateRequestSendingAllowed
             ))
 
-            val gottenIsMateable = mModel.isInterlocutorMateable()
+            val gottenIsMateable = mModel.isInterlocutorMateable(userPresentation)
 
             Assert.assertEquals(testCase.expectedIsMateable, gottenIsMateable)
         }
@@ -251,16 +245,14 @@ class MateChatViewModelTest(
         )
 
         for (testCase in testCases) {
-            val userPresentation = DEFAULT_USER_PRESENTATION.copy(
-                isMate = testCase.isUserMate)
-            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
+            val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
 
             setUiState(MateChatUiState(
-                chatContext = chatContext,
                 isMateRequestSendingAllowed = testCase.isMateRequestSendingAllowed
             ))
 
-            val gottenIsMateableOrDeletable = mModel.isInterlocutorMateableOrDeletable()
+            val gottenIsMateableOrDeletable = mModel.isInterlocutorMateableOrDeletable(
+                userPresentation)
 
             Assert.assertEquals(testCase.expectedIsMateableOrDeletable, gottenIsMateableOrDeletable)
         }
@@ -284,13 +276,31 @@ class MateChatViewModelTest(
         for (testCase in testCases) {
             val userPresentation = DEFAULT_USER_PRESENTATION.copy(
                 isDeleted = testCase.isUserDeleted, isMate = testCase.isUserMate)
-            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
 
-            setUiState(MateChatUiState(chatContext = chatContext))
-
-            val gottenIsChatDeletable = mModel.isChatDeletable()
+            val gottenIsChatDeletable = mModel.isChatDeletable(userPresentation)
 
             Assert.assertEquals(testCase.expectedIsChatDeletable, gottenIsChatDeletable)
+        }
+    }
+
+    @Test
+    fun isInterlocutorMateTest() {
+        class TestCase(
+            val isUserMate: Boolean,
+            val expectedIsUserMate: Boolean
+        )
+
+        val testCases = listOf(
+            TestCase(false, false),
+            TestCase(true, true)
+        )
+
+        for (testCase in testCases) {
+            val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
+
+            val gottenIsUserMate = mModel.isInterlocutorMate(userPresentation)
+
+            Assert.assertEquals(testCase.expectedIsUserMate, gottenIsUserMate)
         }
     }
 

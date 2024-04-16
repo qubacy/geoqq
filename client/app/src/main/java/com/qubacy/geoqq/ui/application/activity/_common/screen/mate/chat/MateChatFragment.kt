@@ -31,9 +31,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.error.MateChatErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.MessageSentUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
@@ -104,6 +106,8 @@ class MateChatFragment(
                     uiOperation as MateRequestSentToInterlocutorUiOperation)
             ChatDeletedUiOperation::class ->
                 processChatDeletedUiOperation(uiOperation as ChatDeletedUiOperation)
+            MessageSentUiOperation::class ->
+                processMessageSentUiOperation(uiOperation as MessageSentUiOperation)
             else -> return false
         }
 
@@ -172,6 +176,10 @@ class MateChatFragment(
 
     private fun processChatDeletedUiOperation(chatDeletedUiOperation: ChatDeletedUiOperation) {
         Navigation.findNavController(requireView()).navigateUp()
+    }
+
+    private fun processMessageSentUiOperation(messageSentUiOperation: MessageSentUiOperation) {
+        //onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_message_sent) // not a nice thing actually;
     }
 
     override fun runInitWithUiState(uiState: MateChatUiState) {
@@ -357,7 +365,7 @@ class MateChatFragment(
     }
 
     override fun onMateButtonClicked() {
-        val isMate = mModel.uiState.chatContext!!.user.isMate // todo: doesn't seem well;
+        val isMate = mModel.isInterlocutorMate()
 
         if (isMate) launchDeleteChat()
         else launchAddInterlocutorAsMate()
@@ -381,11 +389,8 @@ class MateChatFragment(
     private fun launchSendingMessage() {
         val messageText = mBinding.fragmentMateInputMessage.text.toString()
 
-        if (!mModel.isMessageTextValid(messageText)) {
-            // todo: implement..
-
-            return
-        }
+        if (!mModel.isMessageTextValid(messageText))
+            return mModel.retrieveError(MateChatErrorType.INVALID_MESSAGE)
 
         mBinding.fragmentMateInputMessage.text!!.clear()
 

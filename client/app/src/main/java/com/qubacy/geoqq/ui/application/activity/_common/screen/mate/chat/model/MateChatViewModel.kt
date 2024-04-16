@@ -16,6 +16,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor._common.Int
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -24,6 +25,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.MessageSentUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
@@ -65,21 +67,34 @@ open class MateChatViewModel @Inject constructor(
         mUseCase.getMessageChunk(mUiState.chatContext!!.id, mLastMessageChunkIndex)
     }
 
-    open fun isInterlocutorChatable(): Boolean {
-        return mUiState.chatContext!!.user.let { it.isMate && !it.isDeleted }
+    open fun isInterlocutorChatable(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    ): Boolean {
+        return interlocutor.let { isInterlocutorMate(it) && !it.isDeleted }
     }
 
-    open fun isInterlocutorMateable(): Boolean {
-        return mUiState.chatContext!!.user
-            .let { !it.isMate && mUiState.isMateRequestSendingAllowed }
+    open fun isInterlocutorMate(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    ): Boolean {
+        return interlocutor.isMate
     }
 
-    open fun isInterlocutorMateableOrDeletable(): Boolean {
-        return (isInterlocutorMateable() || mUiState.chatContext!!.user.isMate)
+    open fun isInterlocutorMateable(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    ): Boolean {
+        return interlocutor.let { !isInterlocutorMate(it) && mUiState.isMateRequestSendingAllowed }
     }
 
-    open fun isChatDeletable(): Boolean {
-        return (mUiState.chatContext!!.user.isDeleted || !mUiState.chatContext!!.user.isMate)
+    open fun isInterlocutorMateableOrDeletable(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    ): Boolean {
+        return interlocutor.let { isInterlocutorMateable(it) || isInterlocutorMate(it) }
+    }
+
+    open fun isChatDeletable(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    ): Boolean {
+        return interlocutor.let { it.isDeleted || !isInterlocutorMate(it) }
     }
 
     open fun isNextMessageChunkGettingAllowed(): Boolean {
@@ -93,7 +108,7 @@ open class MateChatViewModel @Inject constructor(
     }
 
     open fun isMessageTextValid(text: String): Boolean {
-        return (text.isNotEmpty()) // todo: refactor with a validator;
+        return MessageTextValidator().isValid(text)
     }
 
     open fun getInterlocutorProfile() {
@@ -117,6 +132,7 @@ open class MateChatViewModel @Inject constructor(
     }
 
     open fun sendMessage(text: String) {
+        changeLoadingState(true)
         mUseCase.sendMessage(mUiState.chatContext!!.id, text)
     }
 
@@ -147,13 +163,13 @@ open class MateChatViewModel @Inject constructor(
 
     private fun processSendMessageDomainResult(
         sendMessageResult: SendMessageDomainResult
-    ): UiOperation? {
+    ): UiOperation {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!sendMessageResult.isSuccessful())
             return processErrorDomainResult(sendMessageResult.error!!)
 
-        return null // todo: for now..
+        return MessageSentUiOperation()
     }
 
     private fun processSendMateRequestToInterlocutorDomainResult(
