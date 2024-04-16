@@ -2,7 +2,11 @@
 
 buildscript {
     repositories {
-        google()
+`        google()
+        mavenCentral()
+        maven {
+            url = uri("https://jitpack.io")
+        }
     }
     dependencies {
         val navVersion = "2.7.7"

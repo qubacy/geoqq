@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/mateRequestsFragment2">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -64,5 +64,10 @@
             android:name="chat"
             app:argType="com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation" />
     </fragment>
+    <fragment
+        android:id="@+id/mateRequestsFragment2"
+        android:name="com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.MateRequestsFragment"
+        android:label="MateRequestsFragment"
+        tools:layout="@layout/fragment_mate_requests"/>
 
 </navigation>
