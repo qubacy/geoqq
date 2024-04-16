@@ -1,14 +1,15 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import com.qubacy.choosablelistviewlib.item.content.ChoosableItemContentViewProvider
 import com.qubacy.geoqq.databinding.ComponentMateRequestPreviewBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
 
-class MateRequestItemViewContainer(
+class MateRequestItemViewProvider(
     parent: ViewGroup
-) : RecyclerViewItemView<MateRequestItemData> {
+) : ChoosableItemContentViewProvider<MateRequestItemData> {
     private lateinit var mBinding: ComponentMateRequestPreviewBinding
 
     init {
@@ -22,8 +23,12 @@ class MateRequestItemViewContainer(
             .inflate(layoutInflater, parent, false)
     }
 
-    override fun setData(data: MateRequestItemData) {
-        mBinding.componentMateRequestPreviewImageAvatar.setImageURI(data.imageUri)
-        mBinding.componentMateRequestPreviewTextUsername.text = data.username
+    override fun setData(contentItemData: MateRequestItemData) {
+        mBinding.componentMateRequestPreviewImageAvatar.setImageURI(contentItemData.imageUri)
+        mBinding.componentMateRequestPreviewTextUsername.text = contentItemData.username
+    }
+
+    override fun getView(): View {
+        return mBinding.root
     }
 }

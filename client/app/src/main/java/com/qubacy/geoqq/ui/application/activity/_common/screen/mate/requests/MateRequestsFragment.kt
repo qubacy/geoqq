@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -9,17 +10,28 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
+import com.qubacy.choosablelistviewlib.animator.SmoothListItemAnimator
+import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
+import com.qubacy.geoqq.ui._common.util.context.extension.getDrawableFromUri
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
 
 class MateRequestsFragment(
 
-) : BaseFragment<FragmentMateRequestsBinding>(), PermissionRunnerCallback {
-    private lateinit var mAdapter:
+) : BaseFragment<FragmentMateRequestsBinding>(),
+    PermissionRunnerCallback,
+    ChoosableListItemTouchHelperCallback.Callback
+{
+    private lateinit var mAdapter: MateRequestsListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,8 +43,26 @@ class MateRequestsFragment(
         initUiControls()
     }
 
-    private fun initMateRequestList() {
+    override fun onStart() {
+        super.onStart()
 
+        // todo: delete:
+        val uri = Uri.parse("android.resource://com.qubacy.geoqq/drawable/ic_launcher_background")
+        mAdapter.addItem(MateRequestItemData(0, uri, "test"))
+        mAdapter.addItem(MateRequestItemData(1, uri, "test"))
+        mAdapter.addItem(MateRequestItemData(2, uri, "test"))
+    }
+
+    private fun initMateRequestList() {
+        mAdapter = MateRequestsListAdapter(MateRequestItemViewProviderProducer(requireContext()))
+
+        mBinding.fragmentMateRequestsList.apply {
+            adapter = mAdapter
+            itemAnimator = SmoothListItemAnimator()
+
+            ItemTouchHelper(ChoosableListItemTouchHelperCallback(
+                mCallback = this@MateRequestsFragment)).attachToRecyclerView(this)
+        }
     }
 
     private fun initUiControls() {
@@ -79,4 +109,9 @@ class MateRequestsFragment(
         return FragmentMateRequestsBinding.inflate(inflater, container, false)
     }
 
+    override fun onItemSwiped(direction: SwipeDirection, position: Int) {
+        // todo: implement..
+
+
+    }
 }

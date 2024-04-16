@@ -17,6 +17,8 @@
 
     <integer name="fragment_login_repeat_password_visibility_change_animation_duration">350</integer>
 
+    <fraction name="fragment_mate_requests_list_item_hint_threshold">0.6</fraction>
+
 
     <!-- Component: -->
 

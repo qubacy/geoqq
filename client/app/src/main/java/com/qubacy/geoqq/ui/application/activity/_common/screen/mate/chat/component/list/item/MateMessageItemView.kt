@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
@@ -17,14 +18,14 @@ import com.google.android.material.textview.MaterialTextView
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateMessageBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 
 class MateMessageItemView(
     context: Context,
     attrs: AttributeSet? = null
-) : LinearLayout(context, attrs), RecyclerViewItemView<MateMessageItemData> {
+) : LinearLayout(context, attrs), RecyclerViewItemViewProvider<MateMessageItemData> {
     companion object {
         const val TAG = "MateMessageItemView"
 
@@ -177,5 +178,9 @@ class MateMessageItemView(
 
     fun getContentWrapper(): ConstraintLayout {
         return mBinding.componentMateMessageContentWrapper
+    }
+
+    override fun getView(): View {
+        return this
     }
 }

@@ -38,5 +38,25 @@
         <item name="fragmentLoginBackgroundEndColor">#D0ECA7</item>
 
         <item name="bottomSheetStyle">@style/Widget.Material3.BottomSheet</item>
+
+        <item name="choosableListItemLeftSwipeBackgroundColor">?attr/colorErrorContainer</item>
+        <item name="choosableListItemRightSwipeBackgroundColor">?attr/colorPrimaryContainer</item>
+
+        <item name="choosableListItemLeftSwipeHintViewIcon">@drawable/ic_cross_animated</item>
+        <item name="choosableListItemLeftSwipeHintViewIconTint">?attr/colorOnErrorContainer</item>
+        <item name="choosableListItemLeftSwipeHintViewText">@string/component_choosable_list_item_hint_text_swipe_left_text</item>
+        <item name="choosableListItemLeftSwipeHintViewTextColor">?attr/colorOnErrorContainer</item>
+
+        <item name="choosableListItemRightSwipeHintViewIcon">@drawable/ic_checkmark_animated</item>
+        <item name="choosableListItemRightSwipeHintViewIconTint">?attr/colorOnPrimaryContainer</item>
+        <item name="choosableListItemRightSwipeHintViewText">@string/component_choosable_list_item_hint_text_swipe_right_text</item>
+        <item name="choosableListItemRightSwipeHintViewTextColor">?attr/colorOnPrimaryContainer</item>
+
+        <item name="choosableListItemHintIconAnimationDuration">150</item>
+        <item name="choosableListItemHintVerticalMargin">8dp</item>
+
+        <item name="choosableListItemHintThreshold">@fraction/fragment_mate_requests_list_item_hint_threshold</item>
+        <item name="choosableListItemLeftHintGuidelinePosition">@fraction/fragment_mate_requests_list_item_hint_threshold</item>
+        <item name="choosableListItemHintIconSize">24dp</item>
     </style>
 </resources>

@@ -14,7 +14,7 @@ class MateMessageItemAnimator : BaseRecyclerViewItemAnimator() {
 
         if (holder !is MateMessageListAdapter.ViewHolder) return
 
-        val mateMessageItemView = holder.baseItemView
+        val mateMessageItemView = holder.baseItemViewProvider
         val itemContentWrapperGravity = getViewHolderViewGravity(holder)
 
         mateMessageItemView.apply {
@@ -37,7 +37,7 @@ class MateMessageItemAnimator : BaseRecyclerViewItemAnimator() {
     }
 
     private fun getViewHolderViewGravity(holder: MateMessageListAdapter.ViewHolder): Int {
-        val mateMessageItemView = holder.baseItemView
+        val mateMessageItemView = holder.baseItemViewProvider
         val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
 
         return (itemContentWrapperLayoutParams as LinearLayout.LayoutParams).gravity

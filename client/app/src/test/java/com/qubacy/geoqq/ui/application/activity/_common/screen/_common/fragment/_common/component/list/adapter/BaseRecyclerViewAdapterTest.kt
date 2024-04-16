@@ -4,8 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProducer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProviderProducer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.data.RecyclerViewItemData
 import org.junit.After
 import org.junit.Assert
@@ -16,7 +16,7 @@ import org.mockito.Mockito
 abstract class BaseRecyclerViewAdapterTest<
     RecyclerViewItemDataType : RecyclerViewItemData,
     RecyclerViewItemViewType,
-    RecyclerViewItemViewProducerType: BaseItemViewProducer<
+    RecyclerViewItemViewProducerType: BaseItemViewProviderProducer<
             RecyclerViewItemDataType, RecyclerViewItemViewType
             >,
     ViewHolderType : BaseRecyclerViewAdapter.ViewHolder<
@@ -28,7 +28,7 @@ abstract class BaseRecyclerViewAdapterTest<
             >
 >(
 
-) where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,
+) where RecyclerViewItemViewType : RecyclerViewItemViewProvider<RecyclerViewItemDataType>,
         RecyclerViewItemViewType : View
 {
     protected lateinit var mItemViewProducer: RecyclerViewItemViewProducerType
@@ -63,9 +63,9 @@ abstract class BaseRecyclerViewAdapterTest<
 
     // todo: check this again:
     protected open fun createItemViewProducerMock(): RecyclerViewItemViewProducerType {
-        val itemViewProducerMock = Mockito.mock(BaseItemViewProducer::class.java)
+        val itemViewProducerMock = Mockito.mock(BaseItemViewProviderProducer::class.java)
 
-        Mockito.`when`(itemViewProducerMock.createItemView(
+        Mockito.`when`(itemViewProducerMock.createItemViewProvider(
             AnyMockUtil.anyObject(), Mockito.anyInt()
         )).thenAnswer {
             mItemViewProducerCreateItemViewCallFlag = true

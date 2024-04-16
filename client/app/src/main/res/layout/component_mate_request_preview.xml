@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="@dimen/very_small_gap_between_components"
-    android:paddingHorizontal="@dimen/small_gap_between_components">
+    android:paddingHorizontal="@dimen/small_gap_between_components"
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/component_mate_request_preview_image_avatar"

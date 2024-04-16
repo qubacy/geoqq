@@ -3,18 +3,19 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.compo
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updatePadding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateChatPreviewBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData
 import kotlin.math.min
 
 class MateChatItemView(
     context: Context,
     attrs: AttributeSet? = null
-) : ConstraintLayout(context, attrs), RecyclerViewItemView<MateChatItemData> {
+) : ConstraintLayout(context, attrs), RecyclerViewItemViewProvider<MateChatItemData> {
     companion object {
         const val MAX_NEW_MESSAGE_COUNT_TO_DISPLAY = 100
     }
@@ -63,5 +64,9 @@ class MateChatItemView(
     private fun generateUpdateCountText(updateCount: Int): String {
         return if (updateCount <= 0) String()
         else "+${min(updateCount, MAX_NEW_MESSAGE_COUNT_TO_DISPLAY)}"
+    }
+
+    override fun getView(): View {
+        return this
     }
 }

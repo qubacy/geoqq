@@ -26,7 +26,7 @@ class MateChatsListAdapter(
         override fun setData(data: MateChatItemData) {
             super.setData(data)
 
-            baseItemView.setOnClickListener { onClickAction(data.id) }
+            baseItemViewProvider.setOnClickListener { onClickAction(data.id) }
         }
     }
 

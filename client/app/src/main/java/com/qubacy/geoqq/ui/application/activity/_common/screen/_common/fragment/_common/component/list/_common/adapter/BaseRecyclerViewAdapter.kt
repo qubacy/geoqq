@@ -4,8 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProducer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.producer.BaseItemViewProviderProducer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.data.RecyclerViewItemData
 
 /**
@@ -15,29 +15,26 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 abstract class BaseRecyclerViewAdapter<
     RecyclerViewItemDataType : RecyclerViewItemData,
     RecyclerViewItemViewType,
-    RecyclerViewItemViewProducerType: BaseItemViewProducer<
-            RecyclerViewItemDataType, RecyclerViewItemViewType
-            >,
+    RecyclerViewItemViewProviderProducerType: BaseItemViewProviderProducer<
+        RecyclerViewItemDataType, RecyclerViewItemViewType
+    >,
     ViewHolderType: BaseRecyclerViewAdapter.ViewHolder<
-            RecyclerViewItemDataType, RecyclerViewItemViewType
-            >
+        RecyclerViewItemDataType, RecyclerViewItemViewType
+    >
 >(
-    val itemViewProducer: RecyclerViewItemViewProducerType
+    val itemViewProviderProducer: RecyclerViewItemViewProviderProducerType
 ) : RecyclerView.Adapter<ViewHolderType>()
-    where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,
+    where RecyclerViewItemViewType : RecyclerViewItemViewProvider<RecyclerViewItemDataType>,
           RecyclerViewItemViewType : View
 {
     open class ViewHolder<
         RecyclerViewItemDataType : RecyclerViewItemData,
-        RecyclerViewItemViewType
+        RecyclerViewItemViewProviderType : RecyclerViewItemViewProvider<RecyclerViewItemDataType>
     >(
-        val baseItemView: RecyclerViewItemViewType
-    ) : RecyclerView.ViewHolder(baseItemView)
-        where RecyclerViewItemViewType : RecyclerViewItemView<RecyclerViewItemDataType>,
-              RecyclerViewItemViewType : View
-    {
+        val baseItemViewProvider: RecyclerViewItemViewProviderType
+    ) : RecyclerView.ViewHolder(baseItemViewProvider.getView()) {
         open fun setData(data: RecyclerViewItemDataType) {
-            baseItemView.setData(data)
+            baseItemViewProvider.setData(data)
         }
     }
 
@@ -50,7 +47,7 @@ abstract class BaseRecyclerViewAdapter<
     val items: List<RecyclerViewItemDataType> get() = mItems
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderType {
-        val itemView = itemViewProducer.createItemView(parent, viewType)
+        val itemView = itemViewProviderProducer.createItemViewProvider(parent, viewType)
 
         return createViewHolder(itemView)
     }
