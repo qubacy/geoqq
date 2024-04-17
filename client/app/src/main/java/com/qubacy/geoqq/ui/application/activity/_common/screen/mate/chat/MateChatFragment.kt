@@ -25,6 +25,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
@@ -52,7 +54,8 @@ class MateChatFragment(
 ) : BusinessFragment<FragmentMateChatBinding, MateChatUiState, MateChatViewModel>(),
     PermissionRunnerCallback,
     BaseRecyclerViewCallback,
-    UserBottomSheetViewContainerCallback
+    UserBottomSheetViewContainerCallback,
+    MateableFragment
 {
     companion object {
         const val TAG = "MateChatFragment"
@@ -324,46 +327,6 @@ class MateChatFragment(
             R.id.mate_chat_top_bar_option_delete_chat).isVisible = isChatDeletable
     }
 
-    private fun openInterlocutorDetailsSheet(interlocutor: UserPresentation) {
-        if (mInterlocutorDetailsSheet == null) initInterlocutorDetailsSheet()
-
-        setupInterlocutorDetailsSheet(interlocutor)
-        mInterlocutorDetailsSheet!!.open()
-    }
-
-    private fun setupInterlocutorDetailsSheet(interlocutor: UserPresentation) {
-        val isMateButtonEnabled = mModel.isInterlocutorMateableOrDeletable() // todo: is it ok?
-
-        mInterlocutorDetailsSheet?.apply {
-            setMateButtonEnabled(isMateButtonEnabled)
-            setUserData(interlocutor)
-        }
-    }
-
-    private fun initInterlocutorDetailsSheet() {
-        val expandedBottomSheetHeight = getExpandedBottomSheetHeight()
-        val collapsedBottomSheetHeight = expandedBottomSheetHeight / 2
-
-        mInterlocutorDetailsSheet = UserBottomSheetViewContainer(
-            requireContext(),
-            mBinding.root,
-            expandedBottomSheetHeight,
-            collapsedBottomSheetHeight,
-            this
-        ).apply {
-            adjustToInsets(mLastWindowInsets!!)
-        }
-
-        mBinding.root.addView(mInterlocutorDetailsSheet!!.getView())
-    }
-
-    private fun getExpandedBottomSheetHeight(): Int {
-        val topPosition = mBinding.fragmentMateChatTopBarWrapper.bottom
-        val bottomPosition = mBinding.root.bottom
-
-        return bottomPosition - topPosition
-    }
-
     override fun onMateButtonClicked() {
         val isMate = mModel.isInterlocutorMate()
 
@@ -395,5 +358,36 @@ class MateChatFragment(
         mBinding.fragmentMateInputMessage.text!!.clear()
 
         mModel.sendMessage(messageText)
+    }
+
+    override fun getInterlocutorDetailsSheet(): UserBottomSheetViewContainer? {
+        return mInterlocutorDetailsSheet
+    }
+
+    override fun getMateViewModel(): MateableViewModel {
+        return mModel
+    }
+
+    override fun initInterlocutorDetailsSheet() {
+        mInterlocutorDetailsSheet = createInterlocutorDetailsSheet()
+    }
+
+    override fun getInterlocutorDetailsSheetExpandedHeight(): Int {
+        val topPosition = mBinding.fragmentMateChatTopBarWrapper.bottom
+        val bottomPosition = mBinding.root.bottom
+
+        return bottomPosition - topPosition
+    }
+
+    override fun getInterlocutorDetailsSheetParent(): CoordinatorLayout {
+        return mBinding.root
+    }
+
+    override fun getInterlocutorDetailsSheetCallback(): UserBottomSheetViewContainerCallback {
+        return this
+    }
+
+    override fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat {
+        return mLastWindowInsets!!
     }
 }

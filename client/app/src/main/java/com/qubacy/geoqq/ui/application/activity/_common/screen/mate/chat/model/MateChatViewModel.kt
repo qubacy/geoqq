@@ -18,6 +18,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomain
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
@@ -44,7 +45,7 @@ open class MateChatViewModel @Inject constructor(
     mMateChatUseCase: MateChatUseCase
 ) : BusinessViewModel<MateChatUiState, MateChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateChatUseCase
-) {
+), MateableViewModel {
     private var mLastMessageChunkIndex: Int = 0
     private var mIsGettingNextMessageChunk = false
 
@@ -85,8 +86,8 @@ open class MateChatViewModel @Inject constructor(
         return interlocutor.let { !isInterlocutorMate(it) && mUiState.isMateRequestSendingAllowed }
     }
 
-    open fun isInterlocutorMateableOrDeletable(
-        interlocutor: UserPresentation = mUiState.chatContext!!.user
+    override fun isInterlocutorMateableOrDeletable(
+        interlocutor: UserPresentation
     ): Boolean {
         return interlocutor.let { isInterlocutorMateable(it) || isInterlocutorMate(it) }
     }
