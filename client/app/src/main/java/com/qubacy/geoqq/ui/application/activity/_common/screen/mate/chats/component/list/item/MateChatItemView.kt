@@ -8,14 +8,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updatePadding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateChatPreviewBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData
+import com.qubacy.utility.baserecyclerview.item.BaseRecyclerViewItemViewProvider
 import kotlin.math.min
 
 class MateChatItemView(
     context: Context,
     attrs: AttributeSet? = null
-) : ConstraintLayout(context, attrs), RecyclerViewItemViewProvider<MateChatItemData> {
+) : ConstraintLayout(context, attrs), BaseRecyclerViewItemViewProvider<MateChatItemData> {
     companion object {
         const val MAX_NEW_MESSAGE_COUNT_TO_DISPLAY = 100
     }

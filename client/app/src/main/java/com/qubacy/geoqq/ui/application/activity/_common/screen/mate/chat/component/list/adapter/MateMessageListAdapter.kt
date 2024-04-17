@@ -3,11 +3,11 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.compon
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.adapter.BaseRecyclerViewAdapter
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.producer.MateMessageItemViewProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.MateMessageItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
+import com.qubacy.utility.baserecyclerview.adapter.BaseRecyclerViewAdapter
+import com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
 
 class MateMessageListAdapter(
     itemViewProducer: MateMessageItemViewProducer = MateMessageItemViewProducer()

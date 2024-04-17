@@ -16,7 +16,6 @@ import com.qubacy.choosablelistviewlib.animator.SmoothListItemAnimator
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.ui._common.util.context.extension.getDrawableFromUri
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI

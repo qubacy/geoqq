@@ -13,7 +13,11 @@ class MateRequestItemViewProviderProducer(
 ) : ChoosableItemViewProviderProducer<
     MateRequestItemData, MateRequestItemViewProvider
 >(context) {
-    override fun createItemView(
+    override fun createDivider(context: Context): MaterialDivider? {
+        return MaterialDivider(context)
+    }
+
+    override fun createItemViewProvider(
         parent: ViewGroup,
         viewType: Int
     ): ChoosableItemViewProvider<MateRequestItemData, MateRequestItemViewProvider> {
@@ -21,9 +25,5 @@ class MateRequestItemViewProviderProducer(
         val itemView = createChoosableItemView(parent, contentItemViewProvider)
 
         return itemView
-    }
-
-    override fun createDivider(context: Context): MaterialDivider? {
-        return MaterialDivider(context)
     }
 }

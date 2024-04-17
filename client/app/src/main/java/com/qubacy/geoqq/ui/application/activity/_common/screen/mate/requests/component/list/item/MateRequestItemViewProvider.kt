@@ -3,13 +3,13 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.co
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.qubacy.choosablelistviewlib.item.content.ChoosableItemContentViewProvider
 import com.qubacy.geoqq.databinding.ComponentMateRequestPreviewBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
+import com.qubacy.utility.baserecyclerview.item.BaseRecyclerViewItemViewProvider
 
 class MateRequestItemViewProvider(
     parent: ViewGroup
-) : ChoosableItemContentViewProvider<MateRequestItemData> {
+) : BaseRecyclerViewItemViewProvider<MateRequestItemData> {
     private lateinit var mBinding: ComponentMateRequestPreviewBinding
 
     init {

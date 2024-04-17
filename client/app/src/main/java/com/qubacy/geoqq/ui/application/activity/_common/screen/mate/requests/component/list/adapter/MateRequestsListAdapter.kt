@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter
 
 import com.qubacy.choosablelistviewlib.adapter.ChoosableListAdapter
+import com.qubacy.choosablelistviewlib.adapter.producer.ChoosableItemViewProviderProducer
 import com.qubacy.choosablelistviewlib.item.ChoosableItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.MateRequestItemViewProvider
@@ -11,6 +12,7 @@ class MateRequestsListAdapter(
 ) : ChoosableListAdapter<
     MateRequestItemData,
     MateRequestItemViewProvider,
+    ChoosableItemViewProviderProducer<MateRequestItemData, MateRequestItemViewProvider>,
     MateRequestsListAdapter.ViewHolder
 >(
     itemViewProviderProducer
@@ -19,7 +21,7 @@ class MateRequestsListAdapter(
         choosableItemViewProvider: ChoosableItemViewProvider<
             MateRequestItemData, MateRequestItemViewProvider
         >
-    ) : ChoosableListItemViewHolder<
+    ) : ChoosableListAdapter.ChoosableListItemViewHolder<
         MateRequestItemData, MateRequestItemViewProvider
     >(choosableItemViewProvider) {
 

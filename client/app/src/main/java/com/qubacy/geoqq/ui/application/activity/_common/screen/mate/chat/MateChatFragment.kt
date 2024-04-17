@@ -20,7 +20,6 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
@@ -43,6 +42,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
+import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

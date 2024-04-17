@@ -30,7 +30,7 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
-    <com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
+    <com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
         android:id="@+id/fragment_mate_chats_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

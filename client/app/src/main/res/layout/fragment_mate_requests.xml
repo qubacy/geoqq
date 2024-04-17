@@ -53,7 +53,7 @@
         android:textAppearance="?attr/textAppearanceBodyLarge"
         android:text="@string/fragment_mate_requests_text_subtitle_text"/>
 
-    <com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerView
+    <com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
         android:id="@+id/fragment_mate_requests_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

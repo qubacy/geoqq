@@ -16,8 +16,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.view.BaseRecyclerViewCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -33,6 +31,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
+import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

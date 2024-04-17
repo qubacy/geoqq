@@ -18,14 +18,14 @@ import com.google.android.material.textview.MaterialTextView
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ComponentMateMessageBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.RecyclerViewItemViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
+import com.qubacy.utility.baserecyclerview.item.BaseRecyclerViewItemViewProvider
 
 class MateMessageItemView(
     context: Context,
     attrs: AttributeSet? = null
-) : LinearLayout(context, attrs), RecyclerViewItemViewProvider<MateMessageItemData> {
+) : LinearLayout(context, attrs), BaseRecyclerViewItemViewProvider<MateMessageItemData> {
     companion object {
         const val TAG = "MateMessageItemView"
 

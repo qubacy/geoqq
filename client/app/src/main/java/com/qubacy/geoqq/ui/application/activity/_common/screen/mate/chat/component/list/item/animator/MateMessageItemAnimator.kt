@@ -5,8 +5,8 @@ import android.view.ViewPropertyAnimator
 import android.widget.LinearLayout
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list._common.item.animator.BaseRecyclerViewItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
+import com.qubacy.utility.baserecyclerview.item.animator.BaseRecyclerViewItemAnimator
 
 class MateMessageItemAnimator : BaseRecyclerViewItemAnimator() {
     override fun prepareHolderForAddAnimation(holder: RecyclerView.ViewHolder) {
