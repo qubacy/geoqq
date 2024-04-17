@@ -216,9 +216,7 @@ class MateChatsFragment(
             setCallback(this@MateChatsFragment)
 
             adapter = mAdapter
-            itemAnimator = DefaultItemAnimator().apply {
-                removeDuration = 2000
-            }
+            itemAnimator = DefaultItemAnimator()
         }
     }
 
