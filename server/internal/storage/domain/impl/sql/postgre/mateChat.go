@@ -79,7 +79,7 @@ var (
 		Order:
 			1. userId
 	*/
-	templateAllGetMateChatsForUser = utl.RemoveAdjacentWs(`
+	templateGetAllMateChatsForUser = utl.RemoveAdjacentWs(`
 		SELECT "MateChat"."Id" AS "Id",
 			case
 				when "FirstUserId" = $1 
@@ -120,7 +120,7 @@ var (
 			2. count
 			3. offset
 	*/
-	templateGetMateChatsForUser = templateAllGetMateChatsForUser +
+	templateGetMateChatsForUser = templateGetAllMateChatsForUser +
 		` ORDER BY "Id" LIMIT $2 OFFSET $3`
 
 	/*
@@ -128,7 +128,7 @@ var (
 			1. userId
 			2. chatId
 	*/
-	templateGetMateChatWithIdForUser string = templateAllGetMateChatsForUser +
+	templateGetMateChatWithIdForUser string = templateGetAllMateChatsForUser +
 		` AND "MateChat"."Id" = $2`
 
 	/*
@@ -375,7 +375,7 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 	}
 
 	if err != nil {
-		err = errors.Join(tx.Rollback(ctx)) // ?
+		err = errors.Join(err, tx.Rollback(ctx)) // ?
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
@@ -496,4 +496,15 @@ func removeDeletedMateChatByChatIdInsideTx(ctx context.Context, tx pgx.Tx,
 	return deleteInsideTx(ctx, removeDeletedMateChatByChatIdInsideTx,
 		tx, templateRemoveDeletedMateChatByChatId, chatId,
 	)
+}
+
+// queries by conn
+// -----------------------------------------------------------------------
+
+// TODO: table!!!!
+func getAllMateChatIdsForUser(conn *pgxpool.Conn, ctx context.Context, userId uint64) (
+	[]uint64, error,
+) {
+
+	return nil, ErrNotImplemented
 }

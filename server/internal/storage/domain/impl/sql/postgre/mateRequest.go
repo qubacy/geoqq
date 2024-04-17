@@ -26,12 +26,16 @@ func newMateRequestStorage(pool *pgxpool.Pool) *MateRequestStorage {
 // public
 // -----------------------------------------------------------------------
 
-const (
-	templateUpdateMateRequestResultById = `
-		UPDATE "MateRequest" 
-		SET "Result" = $1,
-			"ResponseTime" = NOW()::timestamp
-		WHERE "Id" = $2`
+var (
+	templateUpdateMateRequestResultById = utl.RemoveAdjacentWs(`
+		UPDATE "MateRequest" SET "Result" = $1,
+			   "ResponseTime" = NOW()::timestamp
+			WHERE "Id" = $2`)
+
+	templateDeleteMateRequestsForUser = utl.RemoveAdjacentWs(`
+		DELETE FROM "MateRequest" WHERE (
+			"FromUserId" = $1 OR "ToUserId" = $1) AND
+    			"Result" = $2`)
 )
 
 // -----------------------------------------------------------------------

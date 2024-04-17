@@ -2,7 +2,6 @@ package postgre
 
 import (
 	"context"
-	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -27,14 +26,14 @@ func newUserStorageBackground(
 // -----------------------------------------------------------------------
 
 func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
-	logger.Trace("try add task")
+	sourceFunc := s.UpdateBgrLastActivityTimeForUser
 	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
 		cmdTag, err := conn.Exec(ctx,
 			templateUpdateLastActivityTimeForUser+`;`, id,
 		)
 
 		if err != nil {
-			return utl.NewFuncError(s.UpdateBgrLastActivityTimeForUser, err)
+			return utl.NewFuncError(sourceFunc, err)
 		}
 		if !cmdTag.Update() {
 			return ErrUpdateFailed
@@ -42,5 +41,34 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 
 		return nil
 	}
-	logger.Trace("add task")
+}
+
+func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
+	sourceFunc := s.DeleteBgrMateChatsForUser
+	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
+		chatIds, err := getAllMateChatIdsForUser(conn, ctx, id)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+
+		// ***
+
+		tx, err := begunTransactionFromConn(conn, ctx)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+
+		for _, chatId := range chatIds {
+			//delChatId...
+
+			// see DeleteMateChatForUser!!
+		}
+
+		err = tx.Commit(ctx)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+
+		return nil
+	}
 }

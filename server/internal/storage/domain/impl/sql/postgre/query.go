@@ -112,18 +112,28 @@ func begunTransaction(pool *pgxpool.Pool, ctx context.Context) (*pgxpool.Conn, p
 		return nil, nil, utl.NewFuncError(begunTransaction, err)
 	}
 
+	tx, err := begunTransactionFromConn(conn, ctx)
+	if err != nil {
+		conn.Release()
+
+		return nil, nil,
+			utl.NewFuncError(begunTransaction, err)
+	}
+
+	return conn, tx, nil
+}
+
+func begunTransactionFromConn(conn *pgxpool.Conn, ctx context.Context) (pgx.Tx, error) {
 	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
 		IsoLevel:       pgx.Serializable,
 		AccessMode:     pgx.ReadWrite,
 		DeferrableMode: pgx.NotDeferrable,
 	})
+
 	if err != nil {
-		conn.Release()
-
-		return nil, nil, utl.NewFuncError(begunTransaction, err)
+		return nil, utl.NewFuncError(begunTransactionFromConn, err)
 	}
-
-	return conn, tx, nil
+	return tx, err
 }
 
 // -----------------------------------------------------------------------

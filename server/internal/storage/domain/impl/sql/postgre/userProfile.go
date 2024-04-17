@@ -4,9 +4,13 @@ import (
 	"context"
 	"errors"
 	"geoqq/internal/domain"
+	"geoqq/internal/domain/table"
+	"geoqq/internal/storage/domain/dto"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	utl "geoqq/pkg/utility"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -39,6 +43,14 @@ var (
 		INNER JOIN "UserOptions" 
 			ON "UserOptions"."UserId" = "UserEntry"."Id"
 		WHERE "UserEntry"."Id" = $1`)
+
+	templateInsertUserToDeleted = utility.RemoveAdjacentWs(`
+		INSERT INTO "DeletedUser" ("UserId", "Time")
+		VALUES ($1, NOW()::timestamp)`)
+
+	templateChangeNameForUser = utility.RemoveAdjacentWs(`
+		UPDATE "UserEntry" SET "Username" = $1
+		WHERE "Id" = $2`)
 )
 
 // public
@@ -74,8 +86,9 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint64) error {
 	/*
 		Action List:
-			1. Add user to deleted list.
+			1.
 			2.
+			3.
 	*/
 
 	sourceFunc := s.DeleteUserProfile
@@ -89,21 +102,21 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 	err = errors.Join(
 		insertUserToDeletedInsideTx(ctx, tx, userId),
-		deleteOutgoingMateRequestsInsideTx(ctx, tx, userId),
-		deleteIncomingMateRequestsInsideTx(ctx, tx, userId),
-		deleteMateChatsInsideTx(ctx, tx, userId),
+		deleteMateRequestsForUserInsideTx(ctx, tx, table.Waiting, userId),
+
+		// ***
 
 		changeNameToDeletedForUserInsideTx(ctx, tx, userId),
-		changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
-		resetHashesForUserInsideTx(ctx, tx, userId),
+		//changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
 
+		updateUserDescriptionInsideTx(ctx, tx, userId, ""),
+		updateHashRefreshTokenInsideTx(ctx, tx, userId, ""),
 		resetPrivacyForUserInsideTx(ctx, tx, userId),
-		resetHashesForUserInsideTx(ctx, tx, userId),
-
-		deleteUserAvatarsInsideTx(ctx, tx, userId),
 	)
 	if err != nil {
-		err = errors.Join(tx.Rollback(ctx)) // ?
+		err = errors.Join(err, tx.Rollback(ctx)) // ?
+		logger.Error("%v", err)
+
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
@@ -113,6 +126,9 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
+
+	// В очередь!
+	// ---> deleteMateChatsInsideTx(ctx, tx, userId)
 	return nil
 }
 
@@ -121,41 +137,27 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 func insertUserToDeletedInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
+	return insertInsideTx(ctx, insertDeletedMateChatInsideTx,
+		tx, templateInsertUserToDeleted+`;`, userId,
+	)
 }
 
-func deleteOutgoingMateRequestsInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-func deleteIncomingMateRequestsInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-func deleteMatesInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-// ?
-func deleteMateChatsInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
+func deleteMateRequestsForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, result table.MateRequestResult, userId uint64) error {
+	return deleteInsideTx(ctx, deleteMateRequestsForUserInsideTx,
+		tx, templateDeleteMateRequestsForUser+`;`,
+		userId, int16(result),
+	)
 }
 
 // -----------------------------------------------------------------------
 
 func changeNameToDeletedForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
+	return updateInsideTx(ctx, changeNameToDeletedForUserInsideTx,
+		tx, templateChangeNameForUser+`;`,
+		uuid.NewString(), userId,
+	)
 }
 
 func changeAvatarToDeletedForUserInsideTx(ctx context.Context,
@@ -164,30 +166,8 @@ func changeAvatarToDeletedForUserInsideTx(ctx context.Context,
 	return ErrNotImplemented
 }
 
-func resetHashesForUserInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-// -----------------------------------------------------------------------
-
 func resetPrivacyForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-func resetDescriptionForUserInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
-}
-
-// -----------------------------------------------------------------------
-
-func deleteUserAvatarsInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
+	return updateUserPrivacyInsideTx(ctx, tx,
+		userId, dto.MakePrivacyForDeletedUser()) // ?
 }

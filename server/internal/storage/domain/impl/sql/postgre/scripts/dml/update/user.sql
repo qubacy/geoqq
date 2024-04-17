@@ -70,3 +70,12 @@ SELECT * FROM "UserLocation";
 UPDATE "UserEntry"
 SET "LastActionTime" = NOW()::timestamp
 WHERE "Id" = 1;
+
+SELECT * FROM "DeletedUser";
+SELECT * FROM "UserEntry";
+
+UPDATE "UserEntry" 
+SET "Username" = '123'
+    WHERE "Id" = 1;
+
+SELECT * FROM "UserOptions";

@@ -262,22 +262,22 @@ func (us *UserStorage) InsertUser(ctx context.Context,
 	lastInsertedId, err := insertUserEntryWithoutHashUpdToken(
 		ctx, tx, username, passwordDoubleHash)
 	if err != nil {
-		tx.Rollback(ctx) // <--- ignore error!
+		err = errors.Join(err, tx.Rollback(ctx)) // <--- ignore error?
 		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserLocation(ctx, tx, lastInsertedId)
 	if err != nil {
-		tx.Rollback(ctx)
+		err = errors.Join(err, tx.Rollback(ctx))
 		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserDetails(ctx, tx, lastInsertedId, avatarId)
 	if err != nil {
-		tx.Rollback(ctx)
+		err = errors.Join(err, tx.Rollback(ctx))
 		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 	err = insertUserOptions(ctx, tx, lastInsertedId)
 	if err != nil {
-		tx.Rollback(ctx)
+		err = errors.Join(err, tx.Rollback(ctx))
 		return 0, utl.NewFuncError(us.InsertUser, err)
 	}
 
@@ -399,34 +399,34 @@ func (us *UserStorage) UpdateUserParts(ctx context.Context,
 	// ***
 
 	if input.Description != nil {
-		err = updateUserDescription(ctx, tx, id, *input.Description)
+		err = updateUserDescriptionInsideTx(ctx, tx, id, *input.Description)
 		if err != nil {
-			tx.Rollback(ctx)
+			err = errors.Join(err, tx.Rollback(ctx))
 			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.AvatarId != nil {
 		err = updateUserAvatarId(ctx, tx, id, *input.AvatarId)
 		if err != nil {
-			tx.Rollback(ctx)
+			err = errors.Join(err, tx.Rollback(ctx))
 			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.Privacy != nil {
-		err = updateUserPrivacy(ctx, tx, id, *input.Privacy)
+		err = updateUserPrivacyInsideTx(ctx, tx, id, *input.Privacy)
 		if err != nil {
-			tx.Rollback(ctx)
+			err = errors.Join(err, tx.Rollback(ctx))
 			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
 	if input.PasswordDoubleHash != nil {
 		err = errors.Join(
 			updateUserHashPassword(ctx, tx, id, *input.PasswordDoubleHash),
-			updateHashRefreshToken(ctx, tx, id, ""), // reset!
+			updateHashRefreshTokenInsideTx(ctx, tx, id, ""), // reset!
 		)
 
 		if err != nil {
-			tx.Rollback(ctx)
+			err = errors.Join(err, tx.Rollback(ctx))
 			return utl.NewFuncError(us.UpdateUserParts, err)
 		}
 	}
@@ -616,14 +616,14 @@ func insertUserOptions(ctx context.Context, tx pgx.Tx,
 
 // -----------------------------------------------------------------------
 
-func updateUserDescription(ctx context.Context, tx pgx.Tx,
+func updateUserDescriptionInsideTx(ctx context.Context, tx pgx.Tx,
 	id uint64, desc string) error {
 	cmdTag, err := tx.Exec(ctx,
 		`UPDATE "UserDetails" SET "Description" = $1
 			WHERE "UserId" = $2;`, desc, id,
 	)
 	if err != nil {
-		return utl.NewFuncError(updateUserDescription, err)
+		return utl.NewFuncError(updateUserDescriptionInsideTx, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -648,14 +648,14 @@ func updateUserAvatarId(ctx context.Context, tx pgx.Tx,
 	return nil
 }
 
-func updateUserPrivacy(ctx context.Context, tx pgx.Tx,
+func updateUserPrivacyInsideTx(ctx context.Context, tx pgx.Tx,
 	id uint64, privacy dto.Privacy) error {
 	cmdTag, err := tx.Exec(ctx,
 		`UPDATE "UserOptions" SET "HitMeUp" = $1
 			WHERE "UserId" = $2;`, privacy.HitMeUp, id,
 	)
 	if err != nil {
-		return utl.NewFuncError(updateUserPrivacy, err)
+		return utl.NewFuncError(updateUserPrivacyInsideTx, err)
 	}
 	if !cmdTag.Update() {
 		return ErrUpdateFailed
@@ -682,7 +682,7 @@ func updateUserHashPassword(ctx context.Context, tx pgx.Tx,
 
 // -----------------------------------------------------------------------
 
-func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
+func updateHashRefreshTokenInsideTx(ctx context.Context, tx pgx.Tx,
 	id uint64, refreshTokenHash string) error {
 
 	cmdTag, err := tx.Exec(ctx,
@@ -690,7 +690,7 @@ func updateHashRefreshToken(ctx context.Context, tx pgx.Tx,
 		refreshTokenHash, id,
 	)
 	if err != nil {
-		return utl.NewFuncError(updateHashRefreshToken, err)
+		return utl.NewFuncError(updateHashRefreshTokenInsideTx, err)
 	}
 
 	if !cmdTag.Update() {

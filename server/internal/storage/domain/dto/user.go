@@ -1,5 +1,9 @@
 package dto
 
+import (
+	"geoqq/internal/domain/table"
+)
+
 type UpdateUserPartsInp struct {
 	Description        *string
 	Privacy            *Privacy
@@ -9,4 +13,11 @@ type UpdateUserPartsInp struct {
 
 type Privacy struct {
 	HitMeUp int
+}
+
+func MakePrivacyForDeletedUser() Privacy {
+	return Privacy{
+		HitMeUp: table.HitMeUpNo,
+		//...
+	}
 }

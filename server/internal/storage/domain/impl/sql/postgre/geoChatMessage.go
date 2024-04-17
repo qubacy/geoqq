@@ -94,7 +94,7 @@ func (s *GeoChatMessageStorage) InsertGeoChatMessageWithUpdateUserLocation(ctx c
 		updateUserLocationInsideTx(ctx, tx, fromUserId, longitude, latitude),
 	)
 	if err != nil {
-		tx.Rollback(ctx) // <--- ignore error!
+		err = errors.Join(err, tx.Rollback(ctx)) // <--- ignore error!
 		return 0, utl.NewFuncError(
 			s.InsertGeoChatMessageWithUpdateUserLocation, err)
 	}

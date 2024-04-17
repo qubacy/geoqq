@@ -75,14 +75,15 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 			ec.New(ErrMateRequestToSelf, ec.Client, ec.MateRequestToSelf))
 	}
 
-	exists, err := mrs.domainStorage.HasUserWithId(ctx, targetUserId)
+	// asserts
+
+	err := assertUserWithIdExists(ctx, mrs.domainStorage, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.AddMateRequest,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
-	if !exists {
-		return utl.NewFuncError(mrs.AddMateRequest,
-			ec.New(ErrUserNotFound, ec.Client, ec.UserNotFound))
+	err = assertUserWithIdNotDeleted(ctx, mrs.domainStorage, targetUserId)
+	if err != nil {
+		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
 
 	// ***
@@ -178,7 +179,7 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	}
 	if wasDeleted {
 		return ec.New(ErrTargetUserDeleted,
-			ec.Client, ec.TargetUserDeleted)
+			ec.Client, ec.TargetUserDeleted) // TODO: wrapper???
 	}
 
 	// are mates

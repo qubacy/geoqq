@@ -39,7 +39,7 @@ func assertUserWithIdNotDeleted(ctx context.Context,
 
 	if wasDeleted {
 		return ec.New(ErrUserWithNameHasBeenDeleted,
-			ec.Client, ec.UserNotFound)
+			ec.Client, ec.UserNotFound) // TODO: chnge error&
 	}
 
 	return nil
