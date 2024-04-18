@@ -9,8 +9,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -24,7 +24,7 @@ abstract class UseCase(
     }
 
     protected val mResultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
-    val resultFlow: SharedFlow<DomainResult> get() = mResultFlow
+    open val resultFlow: Flow<DomainResult> get() = mResultFlow
 
     protected fun <ResultType : DomainResult>executeLogic(
         logicAction: suspend () -> Unit,

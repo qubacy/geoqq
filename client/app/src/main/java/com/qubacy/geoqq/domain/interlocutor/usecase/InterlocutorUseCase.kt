@@ -1,0 +1,60 @@
+package com.qubacy.geoqq.domain.interlocutor.usecase
+
+import android.util.Log
+import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
+import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
+import com.qubacy.geoqq.domain._common.model.user.toUser
+import com.qubacy.geoqq.domain._common.usecase._common.UseCase
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+class InterlocutorUseCase @Inject constructor(
+    errorDataRepository: ErrorDataRepository,
+    private val mUserDataRepository: UserDataRepository
+) : UseCase(mErrorDataRepository = errorDataRepository) {
+    fun getInterlocutor(interlocutorId: Long) {
+        executeLogic({
+            val getUsersResult = mUserDataRepository.getUsersByIds(listOf(interlocutorId))
+                .await()
+            val interlocutor = getUsersResult.users.first().toUser()
+
+            mResultFlow.emit(GetInterlocutorDomainResult(interlocutor = interlocutor))
+
+        }) {
+            GetInterlocutorDomainResult(error = it)
+        }
+    }
+
+    override fun onCoroutineScopeSet() {
+        super.onCoroutineScopeSet()
+
+        mCoroutineScope.launch {
+            mUserDataRepository.resultFlow.collect {
+                processCollectedDataResult(it)
+            }
+        }
+    }
+
+    private suspend fun processCollectedDataResult(dataResult: DataResult) {
+        when (dataResult::class) {
+            GetUsersByIdsDataResult::class ->
+                processGetUsersByIdsDataResult(dataResult as GetUsersByIdsDataResult)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private suspend fun processGetUsersByIdsDataResult(
+        getUsersByIdsDataResult: GetUsersByIdsDataResult
+    ) {
+        val interlocutor = getUsersByIdsDataResult.users.first().toUser()
+
+        Log.d(TAG, "processGetUsersByIdsDataResult(): interlocutor = $interlocutor;")
+
+        mResultFlow.emit(UpdateInterlocutorDomainResult(interlocutor = interlocutor))
+    }
+}

@@ -21,9 +21,9 @@ import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -205,7 +205,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             val result = awaitItem()
 
             Assert.assertTrue(mCreateMateRequestCallFlag)
-            Assert.assertEquals(SendMateRequestToInterlocutorDomainResult::class, result::class)
+            Assert.assertEquals(SendMateRequestDomainResult::class, result::class)
             Assert.assertTrue(result.isSuccessful())
         }
     }

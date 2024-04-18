@@ -4,7 +4,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 
 interface MateableFragment {
@@ -18,15 +17,12 @@ interface MateableFragment {
     }
 
     fun getInterlocutorDetailsSheet(): UserBottomSheetViewContainer?
-    fun getMateViewModel(): MateableViewModel
 
     fun setupInterlocutorDetailsSheet(
         interlocutor: UserPresentation
     ) {
         val interlocutorDetailsSheet = getInterlocutorDetailsSheet()
-        val mateViewModel = getMateViewModel()
-
-        val isMateButtonEnabled = mateViewModel.isInterlocutorMateableOrDeletable(interlocutor)
+        val isMateButtonEnabled = isInterlocutorDetailsMateButtonEnabled(interlocutor)
 
         interlocutorDetailsSheet?.apply {
             setMateButtonEnabled(isMateButtonEnabled)
@@ -69,4 +65,6 @@ interface MateableFragment {
     }
 
     fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat
+
+    fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean
 }

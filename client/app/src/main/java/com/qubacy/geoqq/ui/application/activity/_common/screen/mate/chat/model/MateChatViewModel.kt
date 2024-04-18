@@ -3,22 +3,20 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
@@ -34,7 +32,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Qualifier
 
@@ -45,7 +42,7 @@ open class MateChatViewModel @Inject constructor(
     mMateChatUseCase: MateChatUseCase
 ) : BusinessViewModel<MateChatUiState, MateChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateChatUseCase
-), MateableViewModel {
+) {
     private var mLastMessageChunkIndex: Int = 0
     private var mIsGettingNextMessageChunk = false
 
@@ -86,8 +83,8 @@ open class MateChatViewModel @Inject constructor(
         return interlocutor.let { !isInterlocutorMate(it) && mUiState.isMateRequestSendingAllowed }
     }
 
-    override fun isInterlocutorMateableOrDeletable(
-        interlocutor: UserPresentation
+    open fun isInterlocutorMateableOrDeletable(
+        interlocutor: UserPresentation = mUiState.chatContext!!.user
     ): Boolean {
         return interlocutor.let { isInterlocutorMateable(it) || isInterlocutorMate(it) }
     }
@@ -112,14 +109,12 @@ open class MateChatViewModel @Inject constructor(
         return MessageTextValidator().isValid(text)
     }
 
-    open fun getInterlocutorProfile() {
-        val contextUser = mUiState.chatContext!!.user
+    fun getInterlocutorProfile(): UserPresentation {
+        val interlocutor = mUiState.chatContext!!.user
 
-        viewModelScope.launch {
-            mUiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(contextUser))
-        }
+        mUseCase.getInterlocutor(interlocutor.id)
 
-        mUseCase.getInterlocutor(contextUser.id)
+        return interlocutor
     }
 
     open fun addInterlocutorAsMate() {
@@ -151,9 +146,10 @@ open class MateChatViewModel @Inject constructor(
                 processGetInterlocutorDomainResult(domainResult as GetInterlocutorDomainResult)
             UpdateInterlocutorDomainResult::class ->
                 processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
-            SendMateRequestToInterlocutorDomainResult::class ->
+            SendMateRequestDomainResult::class ->
                 processSendMateRequestToInterlocutorDomainResult(
-                    domainResult as SendMateRequestToInterlocutorDomainResult)
+                    domainResult as SendMateRequestDomainResult
+                )
             DeleteChatDomainResult::class ->
                 processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
             SendMessageDomainResult::class ->
@@ -174,7 +170,7 @@ open class MateChatViewModel @Inject constructor(
     }
 
     private fun processSendMateRequestToInterlocutorDomainResult(
-        sendMateRequestToInterlocutorResult: SendMateRequestToInterlocutorDomainResult
+        sendMateRequestToInterlocutorResult: SendMateRequestDomainResult
     ): UiOperation {
         if (mUiState.isLoading) changeLoadingState(false)
 

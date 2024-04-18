@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain.mate.requests.model
+package com.qubacy.geoqq.domain.mate.request.model
 
 import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
 import com.qubacy.geoqq.domain._common.model.user.User

@@ -13,10 +13,10 @@ import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
@@ -455,7 +455,7 @@ class MateChatViewModelTest(
         val expectedLoadingState = false
 
         val sendMateRequestToInterlocutorDomainResult =
-            SendMateRequestToInterlocutorDomainResult(error = expectedError)
+            SendMateRequestDomainResult(error = expectedError)
 
         setUiState(initUiState)
 
@@ -491,7 +491,7 @@ class MateChatViewModelTest(
         val expectedLoadingState = false
         val expectedIsMateRequestSendingAllowed = false
 
-        val sendMateRequestToInterlocutorDomainResult = SendMateRequestToInterlocutorDomainResult()
+        val sendMateRequestToInterlocutorDomainResult = SendMateRequestDomainResult()
 
         setUiState(initUiState)
 

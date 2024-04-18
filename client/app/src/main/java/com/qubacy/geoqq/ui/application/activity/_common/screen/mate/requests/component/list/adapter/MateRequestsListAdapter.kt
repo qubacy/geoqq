@@ -8,7 +8,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.com
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
 
 class MateRequestsListAdapter(
-    itemViewProviderProducer: MateRequestItemViewProviderProducer
+    itemViewProviderProducer: MateRequestItemViewProviderProducer,
+    private val mCallback: MateRequestsListAdapterCallback
 ) : ChoosableListAdapter<
     MateRequestItemData,
     MateRequestItemViewProvider,
@@ -21,15 +22,24 @@ class MateRequestsListAdapter(
         choosableItemViewProvider: ChoosableItemViewProvider<
             MateRequestItemData, MateRequestItemViewProvider
         >
-    ) : ChoosableListAdapter.ChoosableListItemViewHolder<
+    ) : ChoosableListItemViewHolder<
         MateRequestItemData, MateRequestItemViewProvider
     >(choosableItemViewProvider) {
-
     }
 
     override fun createViewHolder(
         itemView: ChoosableItemViewProvider<MateRequestItemData, MateRequestItemViewProvider>
     ): ViewHolder {
         return ViewHolder(itemView)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
+
+        val id = mItems[position].id
+
+        holder.baseItemViewProvider.setOnClickListener {
+            mCallback.onMateRequestClicked(id)
+        }
     }
 }

@@ -1,41 +1,42 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase
 
-import android.util.Log
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
-import com.qubacy.geoqq.domain.mate.chat.model.MateMessage
+import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.request.SendMateRequestToInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MateChatUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
+    private val mMateRequestUseCase: MateRequestUseCase,
+    private val mInterlocutorUseCase: InterlocutorUseCase,
     private val mMateMessageDataRepository: MateMessageDataRepository,
-    private val mMateRequestDataRepository: MateRequestDataRepository,
-    private val mMateChatDataRepository: MateChatDataRepository,
-    private val mUserDataRepository: UserDataRepository
+    private val mMateChatDataRepository: MateChatDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     companion object {
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }
+
+    override val resultFlow: Flow<DomainResult> = merge(
+        mResultFlow,
+        mMateRequestUseCase.resultFlow,
+        mInterlocutorUseCase.resultFlow
+    )
 
     fun getMessageChunk(chatId: Long, chunkIndex: Int) {
         executeLogic({
@@ -55,28 +56,12 @@ class MateChatUseCase @Inject constructor(
         }
     }
 
-    fun getInterlocutor(interlocutorId: Long) {
-        executeLogic({
-            val getUsersResult = mUserDataRepository.getUsersByIds(listOf(interlocutorId))
-                .await()
-            val interlocutor = getUsersResult.users.first().toUser()
-
-            mResultFlow.emit(GetInterlocutorDomainResult(interlocutor = interlocutor))
-
-        }) {
-            GetInterlocutorDomainResult(error = it)
-        }
+    fun sendMateRequestToInterlocutor(interlocutorId: Long) {
+        mMateRequestUseCase.sendMateRequest(interlocutorId)
     }
 
-    fun sendMateRequestToInterlocutor(interlocutorId: Long) {
-        executeLogic({
-            mMateRequestDataRepository.createMateRequest(interlocutorId)
-
-            mResultFlow.emit(SendMateRequestToInterlocutorDomainResult())
-
-        }) {
-            SendMateRequestToInterlocutorDomainResult(error = it)
-        }
+    fun getInterlocutor(interlocutorId: Long) {
+        mInterlocutorUseCase.getInterlocutor(interlocutorId)
     }
 
     fun deleteChat(chatId: Long) {
@@ -105,21 +90,19 @@ class MateChatUseCase @Inject constructor(
         super.onCoroutineScopeSet()
 
         mCoroutineScope.launch {
-            merge(
-                mMateMessageDataRepository.resultFlow,
-                mUserDataRepository.resultFlow
-            ).collect {
+            mMateMessageDataRepository.resultFlow.collect {
                 processCollectedDataResult(it)
             }
         }
+
+        mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
+        mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
     }
 
     private suspend fun processCollectedDataResult(dataResult: DataResult) {
         when (dataResult::class) {
             GetMessagesDataResult::class ->
                 processGetMessagesDataResult(dataResult as GetMessagesDataResult)
-            GetUsersByIdsDataResult::class ->
-                processGetUsersByIdsDataResult(dataResult as GetUsersByIdsDataResult)
             else -> throw IllegalArgumentException()
         }
     }
@@ -132,15 +115,5 @@ class MateChatUseCase @Inject constructor(
         val messageChunk = MateMessageChunk(chunkIndex, messages)
 
         mResultFlow.emit(UpdateMessageChunkDomainResult(chunk = messageChunk))
-    }
-
-    private suspend fun processGetUsersByIdsDataResult(
-        getUsersByIdsDataResult: GetUsersByIdsDataResult
-    ) {
-        val interlocutor = getUsersByIdsDataResult.users.first().toUser()
-
-        Log.d(TAG, "processGetUsersByIdsDataResult(): interlocutor = $interlocutor;")
-
-        mResultFlow.emit(UpdateInterlocutorDomainResult(interlocutor = interlocutor))
     }
 }

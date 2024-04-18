@@ -26,7 +26,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
@@ -252,7 +251,9 @@ class MateChatFragment(
     }
 
     private fun launchShowMateProfile() {
-        mModel.getInterlocutorProfile()
+        val interlocutor = mModel.getInterlocutorProfile()
+
+        openInterlocutorDetailsSheet(interlocutor)
     }
 
     override fun viewInsetsToCatch(): Int {
@@ -364,8 +365,8 @@ class MateChatFragment(
         return mInterlocutorDetailsSheet
     }
 
-    override fun getMateViewModel(): MateableViewModel {
-        return mModel
+    override fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean {
+        return mModel.isInterlocutorMateableOrDeletable(interlocutor)
     }
 
     override fun initInterlocutorDetailsSheet() {

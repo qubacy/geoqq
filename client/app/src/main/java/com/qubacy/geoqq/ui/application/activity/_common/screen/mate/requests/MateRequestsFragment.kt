@@ -31,8 +31,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.MateableViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
@@ -47,6 +48,7 @@ class MateRequestsFragment(
 ) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModel>(),
     PermissionRunnerCallback,
     ChoosableListItemTouchHelperCallback.Callback,
+    MateRequestsListAdapterCallback,
     UserBottomSheetViewContainerCallback,
     MateableFragment
 {
@@ -94,7 +96,8 @@ class MateRequestsFragment(
     }
 
     private fun initMateRequestList() {
-        mAdapter = MateRequestsListAdapter(MateRequestItemViewProviderProducer(requireContext()))
+        mAdapter = MateRequestsListAdapter(
+            MateRequestItemViewProviderProducer(requireContext()), this)
 
         mBinding.fragmentMateRequestsList.apply {
             adapter = mAdapter
@@ -216,8 +219,9 @@ class MateRequestsFragment(
         return mInterlocutorDetailsSheet
     }
 
-    override fun getMateViewModel(): MateableViewModel {
-        return mModel
+
+    override fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean {
+        return true
     }
 
     override fun initInterlocutorDetailsSheet() {
@@ -245,5 +249,17 @@ class MateRequestsFragment(
 
     override fun onMateButtonClicked() {
         TODO("Not yet implemented")
+
+        // todo: is it ok to preserve the button in the fragment?
+    }
+
+    override fun onMateRequestClicked(id: Long) {
+        val user = mModel.getUserProfileWithMateRequestId(id)
+
+        launchShowUserProfile(user)
+    }
+
+    private fun launchShowUserProfile(user: UserPresentation) {
+        openInterlocutorDetailsSheet(user)
     }
 }
