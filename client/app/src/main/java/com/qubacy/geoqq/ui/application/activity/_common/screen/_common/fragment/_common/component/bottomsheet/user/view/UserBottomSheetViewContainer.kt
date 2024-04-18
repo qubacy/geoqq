@@ -89,14 +89,14 @@ class UserBottomSheetViewContainer(
 
         mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_collapsed).apply {
             setMargin(
-                R.id.component_bottom_sheet_user_button_mate,
+                R.id.component_bottom_sheet_user_line_content_bottom,
                 ConstraintLayout.LayoutParams.BOTTOM,
                 bottomInset
             )
         }
         mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_expanded).apply {
             setMargin(
-                R.id.component_bottom_sheet_user_button_mate,
+                R.id.component_bottom_sheet_user_line_content_bottom,
                 ConstraintLayout.LayoutParams.BOTTOM,
                 bottomInset
             )
@@ -147,6 +147,10 @@ class UserBottomSheetViewContainer(
 
     fun setMateButtonEnabled(isEnabled: Boolean) {
         mIsMateButtonEnabled = isEnabled
-        mBinding.componentBottomSheetUserButtonMate.isEnabled = isEnabled
+
+        mBinding.componentBottomSheetUserButtonMate.apply {
+            this.isEnabled = mIsMateButtonEnabled
+            visibility = if (mIsMateButtonEnabled) View.VISIBLE else View.GONE // todo: doesn't work. why?
+        }
     }
 }

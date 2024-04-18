@@ -74,9 +74,16 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/component_bottom_sheet_user_text_wrapper_about_me"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/component_bottom_sheet_user_line_content_bottom"
         android:layout_marginTop="@dimen/small_gap_between_components"
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:text="@string/component_bottom_sheet_user_button_mate_caption_add"/>
+
+    <FrameLayout
+        android:id="@+id/component_bottom_sheet_user_line_content_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/component_bottom_sheet_user_button_mate"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
