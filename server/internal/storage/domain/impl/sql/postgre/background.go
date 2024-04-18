@@ -2,7 +2,6 @@ package postgre
 
 import (
 	"context"
-	"fmt"
 	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	"time"
@@ -36,7 +35,7 @@ func newBackground(
 	deps DependenciesForBgr,
 
 ) (*Background, error) {
-	fmt.Printf("MaxQueryCount: %v\n", deps.MaxQueryCount)
+	logger.Trace("max query count: %v", deps.MaxQueryCount)
 	queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
 
 	storage := &Background{

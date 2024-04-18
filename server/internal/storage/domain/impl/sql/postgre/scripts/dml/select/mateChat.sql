@@ -156,7 +156,7 @@ LEFT JOIN LATERAL
     (SELECT *
      FROM "MateMessage"
      WHERE "MateChatId" = "MateChat"."Id"
-     ORDER BY "Time" DESC
+     ORDER BY "Time" DESC /* or id? */
      LIMIT 1) "LastMessage" ON true
 LEFT JOIN "DeletedMateChat" ON 
     ("DeletedMateChat"."ChatId" = "MateChat"."Id" AND
@@ -171,3 +171,66 @@ WHERE ("FirstUserId" = (table "srcUserId")
 SELECT "Id", "FirstUserId", "SecondUserId" 
     FROM "MateChat" WHERE "Id" = 1 AND (
         "FirstUserId" = 1 OR "SecondUserId" = 1);
+
+SELECT "Id", "FirstUserId", "SecondUserId",
+    FROM "MateChat" WHERE ("FirstUserId" = 14 OR
+                           "SecondUserId" = 14);
+
+-- Get Mate Chat Ids What Deleted For User!
+-- -----------------------------------------------------------------------
+
+WITH "userId" AS (VALUES (14))
+SELECT "Id" FROM "MateChat" 
+INNER JOIN "DeletedMateChat" ON (
+    "ChatId" = "Id" AND "UserId" = (table "userId"));
+
+-- Get Mate Chat Ids What Not Deleted For User!
+-- -----------------------------------------------------------------------
+
+WITH "userId" AS (VALUES (14))
+SELECT "Id" FROM "MateChat" 
+LEFT JOIN "DeletedMateChat" ON (
+    "ChatId" = "Id" AND "UserId" = (table "userId"))
+WHERE "DeletedMateChat"."ChatId" IS NULL;
+
+-- getAvailableTableMateChatsForUser
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "DeletedMateChat";
+DELETE FROM "DeletedMateChat" 
+    WHERE "ChatId" = 4 AND "UserId" = 1;
+
+SELECT * FROM "MateChat";
+INSERT INTO "DeletedMateChat" VALUES (2, 2);
+
+
+/*
+    Desc: 
+        Return all chats available to the user.
+        With information about availability for second.
+*/
+WITH "userId" AS (VALUES (14)), /* 1stUser */
+     "MateChatNotDeletedFor1stUser" AS (
+    SELECT 
+        "Id" AS "MateChatId",
+        case 
+            when "SecondUserId" = (table "userId") 
+            then "FirstUserId" else "SecondUserId"
+        end as "2ndUserId"
+
+    FROM "MateChat"
+    LEFT JOIN "DeletedMateChat" ON ("ChatId" = "Id" AND
+                                    "UserId" = (table "userId"))
+    WHERE ("FirstUserId" = (table "userId") OR
+           "SecondUserId" = (table "userId")) AND 
+                "DeletedMateChat"."ChatId" IS NULL /* filter! */
+)
+SELECT 
+    "MateChatNotDeletedFor1stUser".*,
+    case
+        when "DeletedMateChat"."ChatId" IS NULL 
+        then FALSE else TRUE
+    end as "DeletedFor2nd"
+FROM "MateChatNotDeletedFor1stUser"
+LEFT JOIN "DeletedMateChat" ON 
+    "MateChatId" = "ChatId";

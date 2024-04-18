@@ -73,6 +73,7 @@ func (s *MateChatService) DeleteMateChatForUser(ctx context.Context,
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
+	// important!
 	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)

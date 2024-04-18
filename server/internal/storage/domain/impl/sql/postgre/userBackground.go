@@ -46,7 +46,7 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 	sourceFunc := s.DeleteBgrMateChatsForUser
 	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
-		chatIds, err := getAllMateChatIdsForUser(conn, ctx, id)
+		mateChats, err := getAvailableTableMateChatsForUser(conn, ctx, id)
 		if err != nil {
 			return utl.NewFuncError(sourceFunc, err)
 		}
@@ -58,7 +58,7 @@ func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 			return utl.NewFuncError(sourceFunc, err)
 		}
 
-		for _, chatId := range chatIds {
+		for _, mateChat := range mateChats {
 			//delChatId...
 
 			// see DeleteMateChatForUser!!
