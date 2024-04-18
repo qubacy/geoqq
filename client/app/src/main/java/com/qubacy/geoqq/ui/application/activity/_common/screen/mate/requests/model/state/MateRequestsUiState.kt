@@ -8,10 +8,11 @@ class MateRequestsUiState(
     isLoading: Boolean = false,
     error: Error? = null,
     val requests: MutableList<MateRequestPresentation> = mutableListOf(),
-    var newRequestCount: Int = 0
+    var newRequestCount: Int = 0,
+    var answeredRequestCount: Int = 0
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): MateRequestsUiState {
         return MateRequestsUiState(
-            isLoading, error?.copy(), requests.toMutableList(), newRequestCount)
+            isLoading, error?.copy(), requests.toMutableList(), newRequestCount, answeredRequestCount)
     }
 }

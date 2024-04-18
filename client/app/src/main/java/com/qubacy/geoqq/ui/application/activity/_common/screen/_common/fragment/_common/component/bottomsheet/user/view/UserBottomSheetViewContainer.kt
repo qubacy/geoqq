@@ -1,12 +1,14 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import android.view.ViewTreeObserver.OnPreDrawListener
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -35,6 +37,8 @@ class UserBottomSheetViewContainer(
     init {
         inflate(context, parent)
         initLayout()
+
+        Log.d(TAG, "init(): collapsedHeight = $collapsedHeight;")
     }
 
     private fun inflate(context: Context, parent: CoordinatorLayout) {
@@ -69,7 +73,10 @@ class UserBottomSheetViewContainer(
     private fun initBehavior() {
         mBehavior = BottomSheetBehavior.from(mBinding.root).apply {
             addBottomSheetCallback(object : BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {}
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED)
+                        Log.d(TAG, "")
+                }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     if (slideOffset !in 0.001f..0.999f) return // todo: is it ok??
@@ -81,25 +88,28 @@ class UserBottomSheetViewContainer(
             })
 
             peekHeight = collapsedHeight
+            isShouldRemoveExpandedCorners = true
         }
     }
 
     fun adjustToInsets(insetsRes: WindowInsetsCompat) {
         val bottomInset = getBottomInsetFromInsetsRes(insetsRes)
 
-        mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_collapsed).apply {
-            setMargin(
+        Log.d(TAG, "adjustToInsets(): bottomInsets = $bottomInset;")
+
+        val setMarginAction = { constraintSet: ConstraintSet ->
+            constraintSet.setMargin(
                 R.id.component_bottom_sheet_user_line_content_bottom,
                 ConstraintLayout.LayoutParams.BOTTOM,
                 bottomInset
             )
         }
+
+        mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_collapsed).apply {
+            setMarginAction(this)
+        }
         mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_expanded).apply {
-            setMargin(
-                R.id.component_bottom_sheet_user_line_content_bottom,
-                ConstraintLayout.LayoutParams.BOTTOM,
-                bottomInset
-            )
+            setMarginAction(this)
         }
 
         mBinding.root.requestLayout() // todo: mb this is useless;
@@ -147,10 +157,48 @@ class UserBottomSheetViewContainer(
 
     fun setMateButtonEnabled(isEnabled: Boolean) {
         mIsMateButtonEnabled = isEnabled
+        mBinding.componentBottomSheetUserButtonMate.isEnabled = mIsMateButtonEnabled
+    }
 
-        mBinding.componentBottomSheetUserButtonMate.apply {
-            this.isEnabled = mIsMateButtonEnabled
-            visibility = if (mIsMateButtonEnabled) View.VISIBLE else View.GONE // todo: doesn't work. why?
+    fun setMateButtonVisible(isVisible: Boolean) {
+        val topViewId =
+            if (isVisible) R.id.component_bottom_sheet_user_button_mate
+            else R.id.component_bottom_sheet_user_text_about_me
+
+        val changeConstraintAction = { constraintSet: ConstraintSet ->
+            constraintSet.setVisibility(
+                R.id.component_bottom_sheet_user_button_mate,
+                if (isVisible) View.VISIBLE else View.GONE
+            )
+
+            constraintSet.connect(
+                topViewId, ConstraintSet.BOTTOM,
+                R.id.component_bottom_sheet_user_line_content_bottom, ConstraintSet.TOP
+            )
+            constraintSet.connect(
+                R.id.component_bottom_sheet_user_line_content_bottom, ConstraintSet.TOP,
+                topViewId, ConstraintSet.BOTTOM
+            )
+
+            if (isVisible) {
+                constraintSet.connect(
+                    R.id.component_bottom_sheet_user_text_about_me, ConstraintSet.BOTTOM,
+                    R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP
+                )
+                constraintSet.connect(
+                    R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP,
+                    R.id.component_bottom_sheet_user_text_about_me, ConstraintSet.BOTTOM
+                )
+            }
         }
+
+        mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_collapsed).apply {
+            changeConstraintAction(this)
+        }
+        mBinding.root.getConstraintSet(R.id.component_bottom_sheet_user_scene_expanded).apply {
+            changeConstraintAction(this)
+        }
+
+        mBinding.root.rebuildScene()
     }
 }

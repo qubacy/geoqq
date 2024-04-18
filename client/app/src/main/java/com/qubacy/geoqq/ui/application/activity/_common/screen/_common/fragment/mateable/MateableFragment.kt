@@ -23,9 +23,11 @@ interface MateableFragment {
     ) {
         val interlocutorDetailsSheet = getInterlocutorDetailsSheet()
         val isMateButtonEnabled = isInterlocutorDetailsMateButtonEnabled(interlocutor)
+        val isMateButtonVisible = isInterlocutorDetailsMateButtonVisible(interlocutor)
 
         interlocutorDetailsSheet?.apply {
             setMateButtonEnabled(isMateButtonEnabled)
+            setMateButtonVisible(isMateButtonVisible)
             setUserData(interlocutor)
         }
     }
@@ -34,7 +36,7 @@ interface MateableFragment {
 
     fun createInterlocutorDetailsSheet(): UserBottomSheetViewContainer {
         val expandedBottomSheetHeight = getInterlocutorDetailsSheetExpandedHeight()
-        val collapsedBottomSheetHeight = expandedBottomSheetHeight / 2
+        val collapsedBottomSheetHeight = getInterlocutorDetailsSheetCollapsedHeight()
 
         val parent = getInterlocutorDetailsSheetParent()
         val callback = getInterlocutorDetailsSheetCallback()
@@ -54,17 +56,21 @@ interface MateableFragment {
     }
 
     fun getInterlocutorDetailsSheetExpandedHeight(): Int
+    fun getInterlocutorDetailsSheetCollapsedHeight(): Int {
+        return getInterlocutorDetailsSheetExpandedHeight() / 2
+    }
 
     fun getInterlocutorDetailsSheetParent(): CoordinatorLayout
     fun getInterlocutorDetailsSheetCallback(): UserBottomSheetViewContainerCallback
 
     fun postCreateInterlocutorDetailsSheet(interlocutorDetailsSheet: UserBottomSheetViewContainer) {
-        val insets = getInterlocutorDetailsSheetInsets()
+        val insets = getInterlocutorDetailsSheetInsets() ?: return
 
         interlocutorDetailsSheet.adjustToInsets(insets)
     }
 
-    fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat
+    fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat? = null
 
     fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean
+    fun isInterlocutorDetailsMateButtonVisible(interlocutor: UserPresentation): Boolean = true
 }

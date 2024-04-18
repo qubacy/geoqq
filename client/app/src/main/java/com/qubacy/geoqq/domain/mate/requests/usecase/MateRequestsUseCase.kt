@@ -29,15 +29,14 @@ class MateRequestsUseCase @Inject constructor(
         mInterlocutorUseCase.resultFlow
     )
 
-    fun getRequestChunk(chunkIndex: Int) {
+    fun getRequestChunk(offset: Int) {
         executeLogic({
-            val offset = chunkIndex * DEFAULT_REQUEST_CHUNK_SIZE
             val count = DEFAULT_REQUEST_CHUNK_SIZE
 
             val getRequestsResult = mMateRequestDataRepository.getMateRequests(offset, count)
 
             val requests = getRequestsResult.requests.map { it.toMateRequest() }
-            val requestChunk = MateRequestChunk(chunkIndex, requests)
+            val requestChunk = MateRequestChunk(offset, requests)
 
             mResultFlow.emit(GetRequestChunkDomainResult(chunk = requestChunk))
 

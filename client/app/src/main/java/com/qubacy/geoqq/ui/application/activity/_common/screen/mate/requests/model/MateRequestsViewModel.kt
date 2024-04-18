@@ -33,7 +33,6 @@ open class MateRequestsViewModel @Inject constructor(
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateRequestsUseCase
 ) {
-    private var mLastRequestChunkIndex: Int = 0
     private var mIsGettingNextRequestChunk = false
 
     override fun generateDefaultUiState(): MateRequestsUiState {
@@ -55,7 +54,7 @@ open class MateRequestsViewModel @Inject constructor(
 
         changeLoadingState(true)
 
-        mUseCase.getRequestChunk(mLastRequestChunkIndex)
+        mUseCase.getRequestChunk(mUiState.requests.size)
     }
 
     open fun answerRequest(position: Int, isAccepted: Boolean) {
@@ -67,21 +66,20 @@ open class MateRequestsViewModel @Inject constructor(
     }
 
     open fun isNextRequestChunkGettingAllowed(): Boolean {
-        val prevRequestChunkIndex = mLastRequestChunkIndex - 1
-        val prevRequestCount = mUiState.requests.size - mUiState.newRequestCount
+        val prevRequestCount = mUiState.requests.size -
+                mUiState.newRequestCount + mUiState.answeredRequestCount
 
-        val chunkSizeCheck = (prevRequestChunkIndex < 0 ||
+        val chunkSizeCheck = (mUiState.requests.isEmpty() ||
                 (prevRequestCount % MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE == 0))
 
         return (!mIsGettingNextRequestChunk && chunkSizeCheck)
     }
 
     open fun resetRequests() {
-        mLastRequestChunkIndex = 0
-
         mUiState.apply {
             requests.clear()
             newRequestCount = 0
+            answeredRequestCount = 0
         }
     }
 
@@ -150,13 +148,12 @@ open class MateRequestsViewModel @Inject constructor(
             return processErrorDomainResult(getRequestChunkResult.error!!)
 
         val requestChunk = getRequestChunkResult.chunk!!
-        val position = getRequestChunkPositionByChunkIndex(requestChunk.index)
+        val requestOffset = requestChunk.offset
         val requests = requestChunk.requests.map { it.toMateRequestPresentation() }
 
-        mLastRequestChunkIndex++
         mUiState.requests.addAll(requests)
 
-        return InsertRequestsUiOperation(position, requests)
+        return InsertRequestsUiOperation(requestOffset, requests)
     }
 
     private fun processAnswerMateRequestDomainResult(
@@ -169,6 +166,9 @@ open class MateRequestsViewModel @Inject constructor(
 
         val requestId = answerRequestResult.requestId!!
         val requestPosition = mUiState.requests.indexOfFirst { it.id == requestId }
+
+        mUiState.requests.removeAt(requestPosition)
+        mUiState.answeredRequestCount++
 
         return RemoveRequestUiOperation(requestPosition)
     }

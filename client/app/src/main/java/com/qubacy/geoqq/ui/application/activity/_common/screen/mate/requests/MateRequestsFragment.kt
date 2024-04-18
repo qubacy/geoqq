@@ -75,7 +75,6 @@ class MateRequestsFragment(
     )
 
     private lateinit var mPermissionRunner: PermissionRunner<MateRequestsFragment>
-    private var mLastWindowInsets: WindowInsetsCompat? = null
 
     private lateinit var mAdapter: MateRequestsListAdapter
 
@@ -230,8 +229,6 @@ class MateRequestsFragment(
     override fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) {
         super.adjustViewToInsets(insets, insetsRes)
 
-        mLastWindowInsets = insetsRes
-
         mBinding.fragmentMateRequestsTopBarWrapper.apply {
             updatePadding(top = insets.top)
         }
@@ -319,7 +316,11 @@ class MateRequestsFragment(
 
 
     override fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean {
-        return true
+        return false
+    }
+
+    override fun isInterlocutorDetailsMateButtonVisible(interlocutor: UserPresentation): Boolean {
+        return false
     }
 
     override fun initInterlocutorDetailsSheet() {
@@ -339,16 +340,6 @@ class MateRequestsFragment(
 
     override fun getInterlocutorDetailsSheetCallback(): UserBottomSheetViewContainerCallback {
         return this
-    }
-
-    override fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat {
-        return mLastWindowInsets!!
-    }
-
-    override fun onMateButtonClicked() {
-        TODO("Not yet implemented")
-
-        // todo: is it ok to preserve the button in the fragment?
     }
 
     override fun onMateRequestClicked(id: Long) {
