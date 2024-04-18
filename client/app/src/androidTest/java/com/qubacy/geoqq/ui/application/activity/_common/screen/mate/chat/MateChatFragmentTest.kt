@@ -30,8 +30,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
@@ -130,7 +130,8 @@ class MateChatsFragmentTest : BusinessFragmentTest<
             MateChatViewModelMockContext(uiState = MateChatUiState(chatContext = chatContext)))
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(chatContext.user))
+            ShowInterlocutorDetailsUiOperation(chatContext.user)
+        )
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(Matchers.allOf(
@@ -163,14 +164,16 @@ class MateChatsFragmentTest : BusinessFragmentTest<
             R.string.component_bottom_sheet_user_button_mate_caption_remove
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(interlocutorNotMate))
+            ShowInterlocutorDetailsUiOperation(interlocutorNotMate)
+        )
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(withText(
                 expectedInterlocutorNotMateButtonCaption))))
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(interlocutorMate))
+            ShowInterlocutorDetailsUiOperation(interlocutorMate)
+        )
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(withText(
@@ -197,9 +200,11 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         mViewModelMockContext.isChatDeletable = true
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(initInterlocutor))
+            ShowInterlocutorDetailsUiOperation(initInterlocutor)
+        )
         mViewModelMockContext.uiOperationFlow.emit(
-            UpdateInterlocutorDetailsUiOperation(deletedInterlocutor))
+            UpdateInterlocutorDetailsUiOperation(deletedInterlocutor)
+        )
 
         Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -235,7 +240,8 @@ class MateChatsFragmentTest : BusinessFragmentTest<
                 isInterlocutorMateableOrDeletable = true))
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(initInterlocutor))
+            ShowInterlocutorDetailsUiOperation(initInterlocutor)
+        )
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_button_mate))
             .perform(SoftClickViewAction()) // todo: it's used here 'cause the normal one doesn't work as we use MotionLayout;

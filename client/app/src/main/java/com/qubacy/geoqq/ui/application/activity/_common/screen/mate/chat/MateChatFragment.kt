@@ -36,11 +36,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.M
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.MessageSentUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.user.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
@@ -99,10 +99,12 @@ class MateChatFragment(
                 processUpdateChatChunkUiOperation(uiOperation as UpdateMessageChunkUiOperation)
             ShowInterlocutorDetailsUiOperation::class ->
                 processShowInterlocutorDetailsUiOperation(
-                    uiOperation as ShowInterlocutorDetailsUiOperation)
+                    uiOperation as ShowInterlocutorDetailsUiOperation
+                )
             UpdateInterlocutorDetailsUiOperation::class ->
                 processUpdateInterlocutorDetailsUiOperation(
-                    uiOperation as UpdateInterlocutorDetailsUiOperation)
+                    uiOperation as UpdateInterlocutorDetailsUiOperation
+                )
             MateRequestSentToInterlocutorUiOperation::class ->
                 processMateRequestSentToInterlocutorUiOperation(
                     uiOperation as MateRequestSentToInterlocutorUiOperation)

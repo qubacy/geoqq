@@ -2,7 +2,6 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
@@ -26,19 +25,26 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.MateRequestItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.toMateRequestItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
+import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,6 +54,7 @@ class MateRequestsFragment(
 ) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModel>(),
     PermissionRunnerCallback,
     ChoosableListItemTouchHelperCallback.Callback,
+    BaseRecyclerViewCallback,
     MateRequestsListAdapterCallback,
     UserBottomSheetViewContainerCallback,
     MateableFragment
@@ -67,20 +74,23 @@ class MateRequestsFragment(
         factoryProducer = { viewModelFactory }
     )
 
+    private lateinit var mPermissionRunner: PermissionRunner<MateRequestsFragment>
+    private var mLastWindowInsets: WindowInsetsCompat? = null
+
     private lateinit var mAdapter: MateRequestsListAdapter
 
-    private lateinit var mInterlocutorDetailsSheet: UserBottomSheetViewContainer
-
-    private var mLastWindowInsets: WindowInsetsCompat? = null
+    private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        runPermissionCheck<MateRequestsFragment>()
+        requestPermissions()
         setupNavigationUI(mBinding.fragmentMateRequestsTopBar)
 
         initMateRequestList()
         initUiControls()
+
+        mInterlocutorDetailsSheet = null
 
         scheduleHintTextViewAppearanceAnimation()
     }
@@ -88,11 +98,98 @@ class MateRequestsFragment(
     override fun onStart() {
         super.onStart()
 
-        // todo: delete:
-        val uri = Uri.parse("android.resource://com.qubacy.geoqq/drawable/ic_launcher_background")
-        mAdapter.addItem(MateRequestItemData(0, uri, "test"))
-        mAdapter.addItem(MateRequestItemData(1, uri, "test"))
-        mAdapter.addItem(MateRequestItemData(2, uri, "test"))
+        if (!mPermissionRunner.isRequestingPermissions) initMateRequests()
+    }
+
+    private fun initMateRequests() {
+        if (mModel.uiState.requests.isNotEmpty()) resetRequestChunks() // todo: is it ok?
+
+        mModel.getNextRequestChunk()
+    }
+
+    private fun resetRequestChunks() {
+        mModel.resetRequests()
+        mAdapter.resetItems()
+    }
+
+    private fun requestPermissions() {
+        mPermissionRunner = PermissionRunner(this).apply {
+            requestPermissions()
+        }
+    }
+
+    override fun runInitWithUiState(uiState: MateRequestsUiState) {
+        super.runInitWithUiState(uiState)
+
+        if (uiState.requests.isNotEmpty() && mAdapter.itemCount <= 0)
+            initMateRequestListAdapterWithRequests(uiState.requests)
+        if (uiState.isLoading) adjustUiWithLoadingState(true)
+    }
+
+    private fun adjustUiWithLoadingState(loadingState: Boolean) {
+        changeLoadingIndicatorState(loadingState)
+
+        mBinding.root.isEnabled = !loadingState
+    }
+
+    private fun initMateRequestListAdapterWithRequests(requests: List<MateRequestPresentation>) {
+        val requestsItemData = requests.map { it.toMateRequestItemData() }
+
+        mAdapter.setMateRequests(requestsItemData)
+    }
+
+    override fun processUiOperation(uiOperation: UiOperation): Boolean {
+        if (super.processUiOperation(uiOperation)) return true
+
+        when (uiOperation::class) {
+            InsertRequestsUiOperation::class ->
+                processInsertRequestsUiOperation(uiOperation as InsertRequestsUiOperation)
+            ShowInterlocutorDetailsUiOperation::class ->
+                processShowInterlocutorDetailsUiOperation(
+                    uiOperation as ShowInterlocutorDetailsUiOperation)
+            UpdateInterlocutorDetailsUiOperation::class ->
+                processUpdateInterlocutorDetailsUiOperation(
+                    uiOperation as UpdateInterlocutorDetailsUiOperation)
+            RemoveRequestUiOperation::class ->
+                processRemoveRequestUiOperation(uiOperation as RemoveRequestUiOperation)
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun processRemoveRequestUiOperation(
+        removeRequestUiOperation: RemoveRequestUiOperation
+    ) {
+        mAdapter.removeItemAtPosition(removeRequestUiOperation.position)
+    }
+
+    private fun processInsertRequestsUiOperation(
+        insertRequestsUiOperation: InsertRequestsUiOperation
+    ) {
+        val mateRequestsData = insertRequestsUiOperation.requests.map { it.toMateRequestItemData() }
+
+        mAdapter.insertMateRequests(mateRequestsData, insertRequestsUiOperation.position)
+    }
+
+    private fun processShowInterlocutorDetailsUiOperation(
+        showInterlocutorDetailsUiOperation: ShowInterlocutorDetailsUiOperation
+    ) {
+        openInterlocutorDetailsSheet(showInterlocutorDetailsUiOperation.interlocutor)
+    }
+
+    private fun processUpdateInterlocutorDetailsUiOperation(
+        updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
+    ) {
+        adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
+    }
+
+    private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
+        setupInterlocutorDetailsSheet(interlocutor)
+
+        // todo: changing Mate Request preview..
+
+
     }
 
     private fun initMateRequestList() {
@@ -102,6 +199,8 @@ class MateRequestsFragment(
         mBinding.fragmentMateRequestsList.apply {
             adapter = mAdapter
             itemAnimator = SmoothListItemAnimator()
+
+            setCallback(this@MateRequestsFragment)
 
             ItemTouchHelper(ChoosableListItemTouchHelperCallback(
                 mCallback = this@MateRequestsFragment)).attachToRecyclerView(this)
@@ -155,10 +254,9 @@ class MateRequestsFragment(
     }
 
     override fun onItemSwiped(direction: SwipeDirection, position: Int) {
-        // todo: implement..
+        val isAccepted = (direction == SwipeDirection.RIGHT)
 
-        // todo: delete:
-        mAdapter.removeItemAtPosition(position)
+        mModel.answerRequest(position, isAccepted)
     }
 
     private fun animateHintTextView(isAppearing: Boolean) {
@@ -261,5 +359,14 @@ class MateRequestsFragment(
 
     private fun launchShowUserProfile(user: UserPresentation) {
         openInterlocutorDetailsSheet(user)
+    }
+
+    private fun changeLoadingIndicatorState(isVisible: Boolean) {
+        mBinding.fragmentMateRequestsProgressBar.visibility =
+            if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun onEndReached() {
+        mModel.getNextRequestChunk()
     }
 }

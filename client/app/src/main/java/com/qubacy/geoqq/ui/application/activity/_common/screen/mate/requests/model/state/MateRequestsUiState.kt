@@ -7,9 +7,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._co
 class MateRequestsUiState(
     isLoading: Boolean = false,
     error: Error? = null,
-    val requests: MutableList<MateRequestPresentation> = mutableListOf()
+    val requests: MutableList<MateRequestPresentation> = mutableListOf(),
+    var newRequestCount: Int = 0
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): MateRequestsUiState {
-        return MateRequestsUiState(isLoading, error?.copy(), requests.toMutableList())
+        return MateRequestsUiState(
+            isLoading, error?.copy(), requests.toMutableList(), newRequestCount)
     }
 }

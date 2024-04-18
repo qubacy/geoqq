@@ -26,7 +26,7 @@ class MateRequestUseCase @Inject constructor(
         executeLogic({
             mMateRequestDataRepository.answerMateRequest(requestId, isAccepted)
 
-            mResultFlow.emit(AnswerMateRequestDomainResult())
+            mResultFlow.emit(AnswerMateRequestDomainResult(requestId = requestId))
 
         }) {
             AnswerMateRequestDomainResult(error = it)
