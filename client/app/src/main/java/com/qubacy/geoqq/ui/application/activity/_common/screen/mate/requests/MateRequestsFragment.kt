@@ -17,11 +17,10 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
-import com.qubacy.choosablelistviewlib.animator.SmoothListItemAnimator
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
+import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
@@ -204,7 +203,7 @@ class MateRequestsFragment(
 
         mBinding.fragmentMateRequestsList.apply {
             adapter = mAdapter
-            itemAnimator = DefaultItemAnimator()
+            itemAnimator = ChoosableListItemAnimator()
 
             setCallback(this@MateRequestsFragment)
 
