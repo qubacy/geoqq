@@ -163,8 +163,8 @@ LEFT JOIN "DeletedMateChat" ON
      "DeletedMateChat"."UserId" = (table "srcUserId"))
 WHERE ("FirstUserId" = (table "srcUserId")
         OR "SecondUserId" = (table "srcUserId")) AND
-            "DeletedMateChat"."ChatId" IS NULL AND
-            "MateChat"."Id" = (table "chatId");
+           "DeletedMateChat"."ChatId" IS NULL AND
+           "MateChat"."Id" = (table "chatId");
 
 -- -----------------------------------------------------------------------
 
@@ -202,7 +202,6 @@ DELETE FROM "DeletedMateChat"
 
 SELECT * FROM "MateChat";
 INSERT INTO "DeletedMateChat" VALUES (2, 2);
-
 
 /*
     Desc: 

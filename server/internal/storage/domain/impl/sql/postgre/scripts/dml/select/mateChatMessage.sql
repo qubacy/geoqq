@@ -1,7 +1,8 @@
 SELECT * FROM "MateMessage"
-    ORDER BY "Id" DESC;
+    ORDER BY "Time" ASC;
 
 SELECT * FROM "MateChat";
+SELECT * FROM "DeletedMateChat";
 
 UPDATE "MateMessage" SET "FromUserId" = 2
 WHERE "Id" = 2;

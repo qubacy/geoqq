@@ -2,6 +2,8 @@ package postgre
 
 import (
 	"context"
+	"errors"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -43,32 +45,37 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 	}
 }
 
+// TODO: если что-то пойдет не так?
 func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 	sourceFunc := s.DeleteBgrMateChatsForUser
 	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
-		mateChats, err := getAvailableTableMateChatsForUser(conn, ctx, id)
+		mateChats, err := getAvailableMateChatsForFirstUser(conn, ctx, id)
 		if err != nil {
 			return utl.NewFuncError(sourceFunc, err)
 		}
 
 		// ***
 
-		tx, err := begunTransactionFromConn(conn, ctx)
-		if err != nil {
-			return utl.NewFuncError(sourceFunc, err)
-		}
-
 		for _, mateChat := range mateChats {
-			//delChatId...
+			logger.Trace("delete mate chat %v", *mateChat)
+			tx, err := begunTransactionFromConn(conn, ctx)
+			if err != nil {
+				return utl.NewFuncError(sourceFunc, err)
+			}
 
-			// see DeleteMateChatForUser!!
+			err = stepsToDeleteMateChatForUserInsideTx(ctx, tx,
+				!mateChat.DeletedForSecond,
+				mateChat.Id, id, mateChat.SecondUserId)
+
+			if err != nil {
+				err = errors.Join(err, tx.Rollback(ctx)) // ?
+				return utl.NewFuncError(sourceFunc, err)
+			}
+
+			if err := tx.Commit(ctx); err != nil {
+				return utl.NewFuncError(sourceFunc, err)
+			}
 		}
-
-		err = tx.Commit(ctx)
-		if err != nil {
-			return utl.NewFuncError(sourceFunc, err)
-		}
-
 		return nil
 	}
 }

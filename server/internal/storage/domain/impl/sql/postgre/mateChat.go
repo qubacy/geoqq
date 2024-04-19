@@ -33,7 +33,8 @@ var (
 			"FirstUserId", 
 			"SecondUserId"
 		)
-		VALUES($1, $2)`)
+		VALUES($1, $2) 
+			ON CONFLICT DO NOTHING`) // see index `unique_mate_chat_ids_comb`
 
 	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
 		` RETURNING "Id"`
@@ -127,7 +128,7 @@ var (
 			3. offset
 	*/
 	templateGetMateChatsForUser = templateGetAllMateChatsForUser +
-		` ORDER BY "Id" LIMIT $2 OFFSET $3`
+		` ORDER BY "LastMessageUserId" LIMIT $2 OFFSET $3` // TODO: сортировка по времени NULL в конец!!!
 
 	/*
 		Order:
@@ -156,6 +157,47 @@ var (
 
 	templateDeleteMateChat = utl.RemoveAdjacentWs(`
 		DELETE FROM "MateChat" WHERE "Id" = $1`)
+
+	/*
+		Order:
+			1. userId
+	*/
+	templateGetAvailableMateChatsForUser = utl.RemoveAdjacentWs(`
+		WITH "MateChatNotDeletedFor1stUser" AS (
+			SELECT 
+				"Id" AS "MateChatId",
+				case 
+					when "SecondUserId" = $1
+					then "FirstUserId" else "SecondUserId"
+				end as "2ndUserId"
+
+			FROM "MateChat"
+			LEFT JOIN "DeletedMateChat" ON ("ChatId" = "Id" AND
+											"UserId" = $1)
+			WHERE ("FirstUserId" = $1 OR
+				   "SecondUserId" = $1) AND 
+						"DeletedMateChat"."ChatId" IS NULL /* filter! */
+		)
+		SELECT 
+			"MateChatNotDeletedFor1stUser".*,
+			case
+				when "DeletedMateChat"."ChatId" IS NULL 
+				then FALSE else TRUE
+			end as "DeletedFor2nd"
+		FROM "MateChatNotDeletedFor1stUser"
+		LEFT JOIN "DeletedMateChat" ON 
+			"MateChatId" = "ChatId"`)
+
+	/*
+		Order:
+			1. firstUserId
+			2. secondUserId
+	*/
+	templateRemoveDeletedMateChatsForUsers = utl.RemoveAdjacentWs(`
+		DELETE FROM "DeletedMateChat" WHERE "ChatId" IN (
+			SELECT "Id" FROM "MateChat" WHERE (
+				("FirstUserId" = $1 OR "SecondUserId" = $1) AND
+				("FirstUserId" = $2 OR "SecondUserId" = $2))`)
 )
 
 // public
@@ -356,7 +398,7 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 
 	// ***
 
-	available, err := s.AvailableMateChatWithIdForUser(ctx, chatId, secondUserId)
+	available, err := s.AvailableMateChatWithIdForUser(ctx, chatId, secondUserId) // !
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
@@ -369,18 +411,8 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 
 	// ***
 
-	if !available {
-		err = errors.Join(
-			removeDeletedMateChatByChatIdInsideTx(ctx, tx, chatId),
-			removeAllMessagesFromMateChatInsideTx(ctx, tx, chatId),
-			deleteMateChatInsideTx(ctx, tx, chatId),
-		)
-	} else {
-		err = errors.Join(
-			insertDeletedMateChatInsideTx(ctx, tx, chatId, userId),
-			deleteMateInsideTx(ctx, tx, userId, secondUserId),
-		)
-	}
+	err = stepsToDeleteMateChatForUserInsideTx(ctx, tx, available,
+		chatId, userId, secondUserId)
 
 	if err != nil {
 		err = errors.Join(err, tx.Rollback(ctx)) // ?
@@ -398,6 +430,23 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 
 // transaction!
 // -----------------------------------------------------------------------
+
+func stepsToDeleteMateChatForUserInsideTx(ctx context.Context, tx pgx.Tx,
+	availableForSecond bool, chatId, firstUserId, secondUserId uint64) error {
+	if !availableForSecond {
+		return errors.Join(
+			// TODO :test delete mate message!!!
+			removeDeletedMateChatByChatIdInsideTx(ctx, tx, chatId),
+			removeAllMessagesFromMateChatInsideTx(ctx, tx, chatId),
+			deleteMateChatInsideTx(ctx, tx, chatId),
+		)
+	}
+
+	return errors.Join(
+		insertDeletedMateChatInsideTx(ctx, tx, chatId, firstUserId),
+		deleteMateInsideTx(ctx, tx, firstUserId, secondUserId),
+	)
+}
 
 func deleteMateChatInsideTx(ctx context.Context, tx pgx.Tx,
 	chatId uint64) error {
@@ -446,23 +495,31 @@ func removeDeletedMateChatByChatIdInsideTx(ctx context.Context, tx pgx.Tx,
 	)
 }
 
+func removeDeletedMateChatsForUsersInsideTx(ctx context.Context, tx pgx.Tx,
+	firstUserId, secondUserId uint64) error {
+	return deleteInsideTx(ctx, removeDeletedMateChatsForUsersInsideTx,
+		tx, templateRemoveDeletedMateChatsForUsers,
+		firstUserId, secondUserId,
+	)
+}
+
 // queries by conn
 // -----------------------------------------------------------------------
 
-func getAvailableTableMateChatsForUser(conn *pgxpool.Conn, ctx context.Context, userId uint64) (
-	[]*table.MateChat, error,
+func getAvailableMateChatsForFirstUser(conn *pgxpool.Conn, ctx context.Context, userId uint64) (
+	[]*domain.AvailableMateChatForFirst, error,
 ) {
-	sourceFunc := getAvailableTableMateChatsForUser
+	sourceFunc := getAvailableMateChatsForFirstUser
 	rows, err := conn.Query(ctx,
-		templateGetAllTableMateChatsForUser+`;`, userId,
+		templateGetAvailableMateChatsForUser+`;`, userId,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
-	mateChats := []*table.MateChat{}
+	mateChats := []*domain.AvailableMateChatForFirst{}
 	for rows.Next() {
-		mateChat, err := tableMateChatFromQueryResult(rows)
+		mateChat, err := availableMateChatFromQueryResult(rows)
 		if err != nil {
 			return nil, utl.NewFuncError(sourceFunc, err)
 		}
@@ -475,6 +532,22 @@ func getAvailableTableMateChatsForUser(conn *pgxpool.Conn, ctx context.Context, 
 
 // convert
 // -----------------------------------------------------------------------
+
+func availableMateChatFromQueryResult(queryResult QueryResultScanner) (
+	*domain.AvailableMateChatForFirst, error) {
+	mateChat := &domain.AvailableMateChatForFirst{}
+	err := queryResult.Scan(
+		&mateChat.Id,
+		&mateChat.SecondUserId,
+		&mateChat.DeletedForSecond,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(
+			availableMateChatFromQueryResult, err)
+	}
+
+	return mateChat, nil
+}
 
 func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, error) {
 	mateChat := domain.NewEmptyMateChat()

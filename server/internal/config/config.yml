@@ -49,6 +49,9 @@ storage:
           query_timeout: 10s
           max_query_count: 2
 
+        query:
+          max_page_size: 100 # TODO!
+
       sqlite:
         #...
 

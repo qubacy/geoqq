@@ -6,6 +6,7 @@ import (
 	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 )
 
@@ -149,6 +150,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 	}
 
 	if err != nil {
+		logger.Error("%v", err)
 		return utl.NewFuncError(mrs.SetResultForMateRequest,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}

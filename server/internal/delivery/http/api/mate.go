@@ -1,9 +1,11 @@
 package api
 
 import (
+	"encoding/json"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"net/http"
 	"strconv"
 
@@ -101,6 +103,9 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
+	bytes, _ := json.Marshal(responseDto)
+	logger.Trace(string(bytes))
 
 	ctx.JSON(http.StatusOK, responseDto)
 }

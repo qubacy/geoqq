@@ -201,10 +201,11 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {
 
 	/*
-	   Action List:
-	   		1. Insert mate.
-	   		2. Insert mate chat.
-	   		3. Update mate request result.
+		Action List:
+			1. Remove records from `DeletedMateChat` for users.
+			2. Insert mate (can exist?).
+			3. Insert mate chat (if not exists).
+			4. Update mate request result.
 	*/
 
 	conn, tx, err := begunTransaction(s.pool, ctx)
@@ -216,6 +217,7 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 	// ***
 
 	err = errors.Join(
+		removeDeletedMateChatsForUsersInsideTx(ctx, tx, firstUserId, secondUserId),
 		insertMateWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
 		insertMateChatWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
 		updateMateRequestResultById(ctx, tx, id, table.Accepted),

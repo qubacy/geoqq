@@ -15,3 +15,11 @@ func NewEmptyMateChat() *MateChat {
 }
 
 type MateChatList []*MateChat
+
+// -----------------------------------------------------------------------
+
+type AvailableMateChatForFirst struct {
+	Id               uint64
+	SecondUserId     uint64
+	DeletedForSecond bool
+}

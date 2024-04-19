@@ -27,7 +27,8 @@ func newMateStorage(pool *pgxpool.Pool) *MateStorage {
 var (
 	templateInsertMateWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
-			VALUES ($1, $2)`)
+		VALUES ($1, $2) 
+			ON CONFLICT DO NOTHING`)  // see index `index unique_mate_ids_comb`
 
 	templateInsertMate = templateInsertMateWithoutReturningId +
 		` RETURNING "Id"`

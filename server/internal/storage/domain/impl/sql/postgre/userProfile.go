@@ -7,7 +7,6 @@ import (
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
 	"geoqq/pkg/logger"
-	"geoqq/pkg/utility"
 	utl "geoqq/pkg/utility"
 
 	"github.com/google/uuid"
@@ -32,7 +31,7 @@ func newUserProfileStorage(pool *pgxpool.Pool) *UserProfileStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateGetUserProfile = utility.RemoveAdjacentWs(`
+	templateGetUserProfile = utl.RemoveAdjacentWs(`
 		SELECT 
 			"UserEntry"."Id" AS "Id",
 			"Username", "Description",
@@ -44,11 +43,11 @@ var (
 			ON "UserOptions"."UserId" = "UserEntry"."Id"
 		WHERE "UserEntry"."Id" = $1`)
 
-	templateInsertUserToDeleted = utility.RemoveAdjacentWs(`
+	templateInsertUserToDeleted = utl.RemoveAdjacentWs(`
 		INSERT INTO "DeletedUser" ("UserId", "Time")
 		VALUES ($1, NOW()::timestamp)`)
 
-	templateChangeNameForUser = utility.RemoveAdjacentWs(`
+	templateChangeNameForUser = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" SET "Username" = $1
 		WHERE "Id" = $2`)
 )
@@ -62,7 +61,7 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
 		return domain.UserProfile{},
-			utility.NewFuncError(s.GetUserProfile, err)
+			utl.NewFuncError(s.GetUserProfile, err)
 	}
 	defer conn.Release()
 
@@ -77,7 +76,7 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 
 	if err != nil {
 		return domain.UserProfile{},
-			utility.NewFuncError(s.GetUserProfile, err)
+			utl.NewFuncError(s.GetUserProfile, err)
 	}
 
 	return userProfile, nil
