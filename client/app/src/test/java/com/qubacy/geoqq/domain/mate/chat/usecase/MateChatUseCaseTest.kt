@@ -7,23 +7,20 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.model.message.DataMessage
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -42,7 +39,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
-    private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
+    private lateinit var mMateRequestUseCaseMockContainer: MateRequestUseCaseMockContainer
+    private lateinit var mInterlocutorUseCaseMockContainer: InterlocutorUseCaseMockContainer
 
     private var mGetMessagesResult: GetMessagesDataResult? = null
 
@@ -53,11 +51,24 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
 
     private var mCreateMateRequestCallFlag = false
 
-    override fun initRepositories(): List<DataRepository> {
-        val superRepositories = super.initRepositories()
+    override fun initDependencies(): List<Any> {
+        val superDependencies = super.initDependencies()
 
-        mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
+        mMateRequestUseCaseMockContainer = MateRequestUseCaseMockContainer()
+        mInterlocutorUseCaseMockContainer = InterlocutorUseCaseMockContainer()
 
+        val mateMessageDataRepositoryMock = mockMateMessageDataRepository()
+        val mateChatDataRepositoryMock = mockMateChatDataRepository()
+
+        return superDependencies.plus(listOf(
+            mMateRequestUseCaseMockContainer.mateRequestUseCaseMock,
+            mInterlocutorUseCaseMockContainer.interlocutorUseCaseMock,
+            mateMessageDataRepositoryMock,
+            mateChatDataRepositoryMock
+        ))
+    }
+
+    private fun mockMateMessageDataRepository(): MateMessageDataRepository {
         val mateMessageDataRepositoryMock = Mockito.mock(MateMessageDataRepository::class.java)
 
         runTest {
@@ -84,6 +95,10 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             }
         }
 
+        return mateMessageDataRepositoryMock
+    }
+
+    private fun mockMateChatDataRepository(): MateChatDataRepository {
         val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepository::class.java)
 
         runTest {
@@ -97,39 +112,24 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             }
         }
 
-        val mateRequestDataRepositoryMock = Mockito.mock(MateRequestDataRepository::class.java)
-
-        runTest {
-            Mockito.`when`(mateRequestDataRepositoryMock.createMateRequest(
-                Mockito.anyLong()
-            )).thenAnswer {
-                mCreateMateRequestCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-            }
-        }
-
-        return superRepositories.plus(listOf(
-            mateMessageDataRepositoryMock,
-            mateChatDataRepositoryMock,
-            mateRequestDataRepositoryMock,
-            mUserDataRepositoryMockContainer.userDataRepository
-        ))
+        return mateChatDataRepositoryMock
     }
 
-    override fun initUseCase(repositories: List<DataRepository>) {
+    override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateChatUseCase(
-            errorDataRepository = repositories[0] as ErrorDataRepository,
-            mMateMessageDataRepository = repositories[1] as MateMessageDataRepository,
-            mMateChatDataRepository = repositories[2] as MateChatDataRepository,
-            mMateRequestDataRepository = repositories[3] as MateRequestDataRepository,
-            mUserDataRepository = repositories[4] as UserDataRepository
+            errorDataRepository = dependencies[0] as ErrorDataRepository,
+            mMateRequestUseCase = dependencies[1] as MateRequestUseCase,
+            mInterlocutorUseCase = dependencies[2] as InterlocutorUseCase,
+            mMateMessageDataRepository = dependencies[3] as MateMessageDataRepository,
+            mMateChatDataRepository = dependencies[4] as MateChatDataRepository
         )
     }
 
     override fun clear() {
         super.clear()
+
+        mMateRequestUseCaseMockContainer.clear()
+        mInterlocutorUseCaseMockContainer.clear()
 
         mGetMessagesResult = null
 
@@ -173,41 +173,20 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
 
     @Test
     fun getInterlocutorTest() = runTest {
-        val user = DEFAULT_DATA_USER
-        val getUsersByIdsResult = GetUsersByIdsDataResult(listOf(user))
+        val interlocutorId = 0L
 
-        val expectedUser = user.toUser()
+        mUseCase.getInterlocutor(interlocutorId)
 
-        mUserDataRepositoryMockContainer.getUsersByIds = getUsersByIdsResult
-
-        mUseCase.resultFlow.test {
-            mUseCase.getInterlocutor(user.id)
-
-            val result = awaitItem()
-
-            Assert.assertTrue(mUserDataRepositoryMockContainer.getUsersByIdsCallFlag)
-            Assert.assertEquals(GetInterlocutorDomainResult::class, result::class)
-            Assert.assertTrue(result.isSuccessful())
-
-            val gottenUser = (result as GetInterlocutorDomainResult).interlocutor
-
-            Assert.assertEquals(expectedUser, gottenUser)
-        }
+        Assert.assertTrue(mInterlocutorUseCaseMockContainer.getInterlocutorCallFlag)
     }
 
     @Test
-    fun sendMateRequestToInterlocutorTest() = runTest {
-        val interlocutor = DEFAULT_DATA_USER
+    fun sendMateRequestTest() = runTest {
+        val interlocutorId = 0L
 
-        mUseCase.resultFlow.test {
-            mUseCase.sendMateRequestToInterlocutor(interlocutor.id)
+        mUseCase.sendMateRequestToInterlocutor(interlocutorId)
 
-            val result = awaitItem()
-
-            Assert.assertTrue(mCreateMateRequestCallFlag)
-            Assert.assertEquals(SendMateRequestDomainResult::class, result::class)
-            Assert.assertTrue(result.isSuccessful())
-        }
+        Assert.assertTrue(mMateRequestUseCaseMockContainer.sendMateRequestCallFlag)
     }
 
     @Test

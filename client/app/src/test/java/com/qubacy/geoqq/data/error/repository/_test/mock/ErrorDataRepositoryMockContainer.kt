@@ -11,7 +11,7 @@ class ErrorDataRepositoryMockContainer {
 
     var getError: Error? = null
 
-    var mGetErrorCallFlag = false
+    private var mGetErrorCallFlag = false
     val getErrorCallFlag get() = mGetErrorCallFlag
 
     init {

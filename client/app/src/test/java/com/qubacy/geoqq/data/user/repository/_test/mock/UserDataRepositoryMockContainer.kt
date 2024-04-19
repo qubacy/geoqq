@@ -2,6 +2,8 @@ package com.qubacy.geoqq.data.user.repository._test.mock
 
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -26,6 +28,8 @@ class UserDataRepositoryMockContainer {
 
     val userDataRepository: UserDataRepository
 
+    var error: Error? = null
+
     var getUsersByIds: GetUsersByIdsDataResult = DEFAULT_GET_USERS_BY_IDS
     var resolveUsers: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS
     var resolveUsersWithLocalUser: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
@@ -49,18 +53,27 @@ class UserDataRepositoryMockContainer {
                 AnyMockUtil.anyObject()
             )).thenAnswer {
                 mGetUsersByIdsCallFlag = true
+
+                if (error != null) throw ErrorAppException(error!!)
+
                 MutableLiveData(getUsersByIds)
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsers(
                 AnyMockUtil.anyObject()
             )).thenAnswer {
                 mResolveUsersCallFlag = true
+
+                if (error != null) throw ErrorAppException(error!!)
+
                 resolveUsers
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsersWithLocalUser(
                 AnyMockUtil.anyObject()
             )).thenAnswer {
                 mResolveUsersWithLocalUserCallFlag = true
+
+                if (error != null) throw ErrorAppException(error!!)
+
                 resolveUsersWithLocalUser
             }
         }
@@ -69,10 +82,14 @@ class UserDataRepositoryMockContainer {
     }
 
     fun reset() {
+        error = null
+
         getUsersByIds = DEFAULT_GET_USERS_BY_IDS
         resolveUsers = DEFAULT_RESOLVE_USERS
+        resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
 
         mGetUsersByIdsCallFlag = false
         mResolveUsersCallFlag = false
+        mResolveUsersWithLocalUserCallFlag = false
     }
 }

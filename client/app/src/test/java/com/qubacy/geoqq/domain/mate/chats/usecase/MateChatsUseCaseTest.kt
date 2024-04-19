@@ -7,7 +7,6 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
@@ -35,8 +34,9 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
     private var mGetChatsCallFlag = false
 
-    override fun initRepositories(): List<DataRepository> {
-        val superRepositories = super.initRepositories()
+    override fun initDependencies(): List<Any> {
+        val superDependencies = super.initDependencies()
+
         val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepository::class.java)
 
         runTest {
@@ -52,13 +52,13 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
             }
         }
 
-        return superRepositories.plus(mateChatDataRepositoryMock)
+        return superDependencies.plus(mateChatDataRepositoryMock)
     }
 
-    override fun initUseCase(repositories: List<DataRepository>) {
+    override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateChatsUseCase(
-            repositories[0] as ErrorDataRepository,
-            repositories[1] as MateChatDataRepository
+            dependencies[0] as ErrorDataRepository,
+            dependencies[1] as MateChatDataRepository
         )
     }
 

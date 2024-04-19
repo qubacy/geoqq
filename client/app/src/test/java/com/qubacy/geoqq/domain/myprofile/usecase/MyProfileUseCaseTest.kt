@@ -9,7 +9,6 @@ import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
@@ -56,8 +55,9 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
         mDeleteMyProfileCallFlag = false
     }
 
-    override fun initRepositories(): List<DataRepository> {
-        val superRepositories = super.initRepositories()
+    override fun initDependencies(): List<Any> {
+        val superDependencies = super.initDependencies()
+
         val myProfileDataRepositoryMock = Mockito.mock(MyProfileDataRepository::class.java)
 
         runTest {
@@ -91,7 +91,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
 
-        return superRepositories.plus(
+        return superDependencies.plus(
             listOf(
                 myProfileDataRepositoryMock,
                 mTokenDataRepositoryMockContainer.tokenDataRepositoryMock
@@ -99,11 +99,11 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
         )
     }
 
-    override fun initUseCase(repositories: List<DataRepository>) {
+    override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MyProfileUseCase(
-            repositories[0] as ErrorDataRepository,
-            repositories[1] as MyProfileDataRepository,
-            repositories[2] as TokenDataRepository
+            dependencies[0] as ErrorDataRepository,
+            dependencies[1] as MyProfileDataRepository,
+            dependencies[2] as TokenDataRepository
         )
     }
 

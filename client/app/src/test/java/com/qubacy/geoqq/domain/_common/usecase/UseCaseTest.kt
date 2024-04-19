@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.domain._common.usecase
 
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import kotlinx.coroutines.Dispatchers
@@ -29,18 +28,18 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
     }
 
     private fun init() {
-        val repositories = initRepositories()
+        val dependencies = initDependencies()
 
-        initUseCase(repositories)
+        initUseCase(dependencies)
 
         mUseCase.setCoroutineDispatcher(Dispatchers.Main)
     }
 
-    protected open fun initRepositories(): List<DataRepository> {
+    protected open fun initDependencies(): List<Any> {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
 
         return listOf(mErrorDataRepositoryMockContainer.errorDataRepositoryMock)
     }
 
-    protected abstract fun initUseCase(repositories: List<DataRepository>)
+    protected abstract fun initUseCase(dependencies: List<Any>)
 }

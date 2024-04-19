@@ -2,99 +2,53 @@ package com.qubacy.geoqq.domain.login.usecase
 
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import org.mockito.Mockito
 
 class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
-    private var mGetTokensDataResult: GetTokensDataResult? = null
-
-    private var mTokenDataRepositoryGetTokensCallFlag = false
-    private var mTokenDataRepositorySignInWithTokenFlag = false
-    private var mTokenDataRepositorySignInWithLoginDataCallFlag = false
-    private var mTokenDataRepositorySignUpCallFlag = false
+    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
 
     override fun clear() {
         super.clear()
 
-        mGetTokensDataResult = null
-
-        mTokenDataRepositoryGetTokensCallFlag = false
-        mTokenDataRepositorySignInWithTokenFlag = false
-        mTokenDataRepositorySignInWithLoginDataCallFlag = false
-        mTokenDataRepositorySignUpCallFlag = false
+        mTokenDataRepositoryMockContainer.clear()
     }
 
-    override fun initRepositories(): List<DataRepository> {
-        val superRepositories = super.initRepositories()
-        val tokenDataRepositoryMock = Mockito.mock(TokenDataRepository::class.java)
+    override fun initDependencies(): List<Any> {
+        val superDependencies = super.initDependencies()
 
-        runTest {
-            Mockito.`when`(tokenDataRepositoryMock.getTokens()).thenAnswer {
-                mTokenDataRepositoryGetTokensCallFlag = true
+        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
 
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-
-                mGetTokensDataResult
-            }
-            Mockito.`when`(tokenDataRepositoryMock.signIn()).thenAnswer {
-                mTokenDataRepositorySignInWithTokenFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-            }
-            Mockito.`when`(tokenDataRepositoryMock.signIn(
-                Mockito.anyString(), Mockito.anyString()
-            )).thenAnswer {
-                mTokenDataRepositorySignInWithLoginDataCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-            }
-            Mockito.`when`(tokenDataRepositoryMock.signUp(
-                Mockito.anyString(), Mockito.anyString()
-            )).thenAnswer {
-                mTokenDataRepositorySignUpCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-            }
-        }
-
-        return superRepositories.plus(tokenDataRepositoryMock)
+        return superDependencies.plus(mTokenDataRepositoryMockContainer.tokenDataRepositoryMock)
     }
 
-    override fun initUseCase(repositories: List<DataRepository>) {
+    override fun initUseCase(dependencies: List<Any>) {
         mUseCase = LoginUseCase(
-            repositories[0] as ErrorDataRepository,
-            repositories[1] as TokenDataRepository
+            dependencies[0] as ErrorDataRepository,
+            dependencies[1] as TokenDataRepository
         )
     }
 
     @Test
     fun signInWithTokenSucceededTest() = runTest {
-        val expectedGetTokensDataResult = GetTokensDataResult(
-            "accessToken",
-            "refreshToken"
-        )
+        val expectedGetTokensDataResult =
+            GetTokensDataResult("accessToken", "refreshToken")
 
-        mGetTokensDataResult = expectedGetTokensDataResult
+        mTokenDataRepositoryMockContainer.getTokensDataResult = expectedGetTokensDataResult
 
         mUseCase.resultFlow.test {
             mUseCase.signIn()
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInWithTokenFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithTokenCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -104,14 +58,14 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     fun signInWithTokenFailedTest() = runTest {
         val expectedError = TestError.normal
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        mTokenDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn()
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInWithTokenFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithTokenCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
@@ -128,7 +82,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInWithLoginDataCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -136,18 +90,19 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
     @Test
     fun signInWithLoginDataFailedTest() = runTest {
-        val expectedError = TestError.normal
         val login = "login"
         val password = "password"
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        val expectedError = TestError.normal
+
+        mTokenDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn(login, password)
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignInWithLoginDataCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
@@ -164,7 +119,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignUpCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -172,18 +127,19 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
     @Test
     fun signUpTestFailed() = runTest {
-        val expectedError = TestError.normal
         val login = "login"
         val password = "password"
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        val expectedError = TestError.normal
+
+        mTokenDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signUp(login, password)
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositorySignUpCallFlag)
+            Assert.assertTrue(mTokenDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
