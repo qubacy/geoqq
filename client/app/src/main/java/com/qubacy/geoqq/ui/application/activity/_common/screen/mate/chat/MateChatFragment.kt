@@ -89,6 +89,12 @@ class MateChatFragment(
         initUiControls()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        mInterlocutorDetailsSheet?.close()
+    }
+
     override fun processUiOperation(uiOperation: UiOperation): Boolean {
         if (super.processUiOperation(uiOperation)) return true
 

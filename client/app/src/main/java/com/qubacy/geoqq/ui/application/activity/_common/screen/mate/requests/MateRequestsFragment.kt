@@ -17,6 +17,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.animator.SmoothListItemAnimator
@@ -98,6 +99,12 @@ class MateRequestsFragment(
         super.onStart()
 
         if (!mPermissionRunner.isRequestingPermissions) initMateRequests()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        mInterlocutorDetailsSheet?.close()
     }
 
     private fun initMateRequests() {
@@ -197,7 +204,7 @@ class MateRequestsFragment(
 
         mBinding.fragmentMateRequestsList.apply {
             adapter = mAdapter
-            itemAnimator = SmoothListItemAnimator()
+            itemAnimator = DefaultItemAnimator()
 
             setCallback(this@MateRequestsFragment)
 

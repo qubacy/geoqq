@@ -9,8 +9,10 @@ import android.view.ViewTreeObserver.OnPreDrawListener
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.Constraint
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
@@ -74,8 +76,11 @@ class UserBottomSheetViewContainer(
         mBehavior = BottomSheetBehavior.from(mBinding.root).apply {
             addBottomSheetCallback(object : BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED)
-                        Log.d(TAG, "")
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED ||
+                        newState == BottomSheetBehavior.STATE_COLLAPSED
+                    ) {
+                        Log.d(TAG, "onStateChanged(): newState = $newState;")
+                    }
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -156,14 +161,19 @@ class UserBottomSheetViewContainer(
     }
 
     fun setMateButtonEnabled(isEnabled: Boolean) {
+        if (mIsMateButtonEnabled == isEnabled) return
+
         mIsMateButtonEnabled = isEnabled
         mBinding.componentBottomSheetUserButtonMate.isEnabled = mIsMateButtonEnabled
     }
 
     fun setMateButtonVisible(isVisible: Boolean) {
+        if (mBinding.componentBottomSheetUserButtonMate.isVisible == isVisible)
+            return
+
         val topViewId =
             if (isVisible) R.id.component_bottom_sheet_user_button_mate
-            else R.id.component_bottom_sheet_user_text_about_me
+            else R.id.component_bottom_sheet_user_text_wrapper_about_me
 
         val changeConstraintAction = { constraintSet: ConstraintSet ->
             constraintSet.setVisibility(
@@ -182,12 +192,12 @@ class UserBottomSheetViewContainer(
 
             if (isVisible) {
                 constraintSet.connect(
-                    R.id.component_bottom_sheet_user_text_about_me, ConstraintSet.BOTTOM,
+                    R.id.component_bottom_sheet_user_text_wrapper_about_me, ConstraintSet.BOTTOM,
                     R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP
                 )
                 constraintSet.connect(
                     R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP,
-                    R.id.component_bottom_sheet_user_text_about_me, ConstraintSet.BOTTOM
+                    R.id.component_bottom_sheet_user_text_wrapper_about_me, ConstraintSet.BOTTOM
                 )
             }
         }
