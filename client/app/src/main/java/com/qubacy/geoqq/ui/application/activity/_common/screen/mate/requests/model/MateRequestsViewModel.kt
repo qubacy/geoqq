@@ -42,7 +42,7 @@ open class MateRequestsViewModel @Inject constructor(
     open fun getUserProfileWithMateRequestId(id: Long): UserPresentation {
         val user = mUiState.requests.find { it.id == id }!!.user // todo: is it alright?
 
-        mUseCase.getInterlocutor(user.id)
+        mUseCase.getInterlocutor(user.id) // todo: is it necessary?
 
         return user
     }
@@ -66,11 +66,13 @@ open class MateRequestsViewModel @Inject constructor(
     }
 
     open fun isNextRequestChunkGettingAllowed(): Boolean {
-        val prevRequestCount = mUiState.requests.size -
-                mUiState.newRequestCount + mUiState.answeredRequestCount
+        val prevRequestCount = mUiState.requests.size + mUiState.answeredRequestCount
+        val preparedPrevRequestCount =
+            if (prevRequestCount > 0) prevRequestCount - mUiState.newRequestCount
+            else prevRequestCount
 
-        val chunkSizeCheck = (mUiState.requests.isEmpty() ||
-                (prevRequestCount % MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE == 0))
+        val chunkSizeCheck =
+            (preparedPrevRequestCount % MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE == 0)
 
         return (!mIsGettingNextRequestChunk && chunkSizeCheck)
     }
@@ -78,6 +80,7 @@ open class MateRequestsViewModel @Inject constructor(
     open fun resetRequests() {
         mUiState.apply {
             requests.clear()
+
             newRequestCount = 0
             answeredRequestCount = 0
         }
@@ -148,12 +151,12 @@ open class MateRequestsViewModel @Inject constructor(
             return processErrorDomainResult(getRequestChunkResult.error!!)
 
         val requestChunk = getRequestChunkResult.chunk!!
-        val requestOffset = requestChunk.offset
+        val requestChunkPosition = mUiState.requests.size
         val requests = requestChunk.requests.map { it.toMateRequestPresentation() }
 
         mUiState.requests.addAll(requests)
 
-        return InsertRequestsUiOperation(requestOffset, requests)
+        return InsertRequestsUiOperation(requestChunkPosition, requests)
     }
 
     private fun processAnswerMateRequestDomainResult(

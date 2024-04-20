@@ -384,18 +384,9 @@ class MateChatViewModelTest(
 
         setUiState(initUiState)
 
-        mModel.uiOperationFlow.test {
-            mModel.getInterlocutorProfile()
+        val gottenUserPresentation = mModel.getInterlocutorProfile()
 
-            val operation = awaitItem()
-
-            Assert.assertTrue(mGetInterlocutorCallFlag)
-            Assert.assertEquals(ShowInterlocutorDetailsUiOperation::class, operation::class)
-
-            val gottenUserPresentation = (operation as ShowInterlocutorDetailsUiOperation).interlocutor
-
-            Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
-        }
+        Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
     }
 
     @Test

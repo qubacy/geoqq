@@ -36,7 +36,7 @@ class MateRequestsUseCase @Inject constructor(
             val getRequestsResult = mMateRequestDataRepository.getMateRequests(offset, count)
 
             val requests = getRequestsResult.requests.map { it.toMateRequest() }
-            val requestChunk = MateRequestChunk(offset, requests)
+            val requestChunk = MateRequestChunk(requests)
 
             mResultFlow.emit(GetRequestChunkDomainResult(chunk = requestChunk))
 
