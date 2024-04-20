@@ -19,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
@@ -34,6 +35,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapter
@@ -44,6 +46,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
@@ -139,8 +142,7 @@ class MateRequestsFragment(
     private fun adjustUiWithLoadingState(loadingState: Boolean) {
         changeLoadingIndicatorState(loadingState)
 
-        // todo: test this:
-        mBinding.fragmentMateRequestsList.isEnabled = !loadingState
+        mBinding.fragmentMateRequestsList.setIsEnabled(!loadingState)
     }
 
     private fun initMateRequestListAdapterWithRequests(requests: List<MateRequestPresentation>) {
@@ -163,10 +165,19 @@ class MateRequestsFragment(
                     uiOperation as UpdateInterlocutorDetailsUiOperation)
             RemoveRequestUiOperation::class ->
                 processRemoveRequestUiOperation(uiOperation as RemoveRequestUiOperation)
+            ReturnAnsweredRequestUiOperation::class ->
+                processReturnAnsweredRequestUiOperation(
+                    uiOperation as ReturnAnsweredRequestUiOperation)
             else -> return false
         }
 
         return true
+    }
+
+    private fun processReturnAnsweredRequestUiOperation(
+        returnAnsweredRequestUiOperation: ReturnAnsweredRequestUiOperation
+    ) {
+        mAdapter.returnSwipedItem(returnAnsweredRequestUiOperation.position)
     }
 
     private fun processRemoveRequestUiOperation(
@@ -195,6 +206,10 @@ class MateRequestsFragment(
         adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
     }
 
+    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
+        adjustUiWithLoadingState(loadingOperation.isLoading)
+    }
+
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
         setupInterlocutorDetailsSheet(interlocutor)
 
@@ -212,9 +227,8 @@ class MateRequestsFragment(
             itemAnimator = ChoosableListItemAnimator()
 
             setCallback(this@MateRequestsFragment)
-
-            ItemTouchHelper(ChoosableListItemTouchHelperCallback(
-                mCallback = this@MateRequestsFragment)).attachToRecyclerView(this)
+            setItemTouchHelperCallback(ChoosableListItemTouchHelperCallback(
+                mCallback = this@MateRequestsFragment))
         }
     }
 

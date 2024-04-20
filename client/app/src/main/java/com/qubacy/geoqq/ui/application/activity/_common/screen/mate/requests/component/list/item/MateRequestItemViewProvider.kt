@@ -31,4 +31,8 @@ class MateRequestItemViewProvider(
     override fun getView(): View {
         return mBinding.root
     }
+
+    override fun setViewProviderEnabled(isEnabled: Boolean) {
+        mBinding.root.isEnabled = isEnabled
+    }
 }

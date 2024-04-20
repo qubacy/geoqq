@@ -5,7 +5,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 
 class AnswerMateRequestDomainResult(
     error: Error? = null,
-    val requestId: Long? = null
+    val requestId: Long
 ) : DomainResult(error) {
 
 }

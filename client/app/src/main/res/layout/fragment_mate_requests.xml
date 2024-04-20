@@ -46,12 +46,12 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
-    <com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
+    <com.qubacy.choosablelistviewlib.view.ChoosableRecyclerView
         android:id="@+id/fragment_mate_requests_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.view.behavior.MateRequestRecyclerViewBehavior"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layoutManager="com.qubacy.utility.baserecyclerview.view.layoutmanager.LinearRecyclerViewLayoutManager"
         android:orientation="vertical"
         tools:listitem="@layout/component_mate_request_preview"
         tools:itemCount="4"/>

@@ -29,7 +29,7 @@ class MateRequestUseCase @Inject constructor(
             mResultFlow.emit(AnswerMateRequestDomainResult(requestId = requestId))
 
         }) {
-            AnswerMateRequestDomainResult(error = it)
+            AnswerMateRequestDomainResult(requestId = requestId, error = it)
         }
     }
 }

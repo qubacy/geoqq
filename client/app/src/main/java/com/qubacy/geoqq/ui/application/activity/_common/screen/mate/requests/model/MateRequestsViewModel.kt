@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mo
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
@@ -20,8 +21,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Qualifier
 
@@ -164,16 +167,25 @@ open class MateRequestsViewModel @Inject constructor(
     ): UiOperation {
         if (mUiState.isLoading) changeLoadingState(false)
 
-        if (!answerRequestResult.isSuccessful())
-            return processErrorDomainResult(answerRequestResult.error!!)
-
-        val requestId = answerRequestResult.requestId!!
+        val requestId = answerRequestResult.requestId
         val requestPosition = mUiState.requests.indexOfFirst { it.id == requestId }
+
+        if (!answerRequestResult.isSuccessful()) {
+            onMateRequestAnsweringFailed(requestPosition)
+
+            return processErrorDomainResult(answerRequestResult.error!!)
+        }
 
         mUiState.requests.removeAt(requestPosition)
         mUiState.answeredRequestCount++
 
         return RemoveRequestUiOperation(requestPosition)
+    }
+
+    private fun onMateRequestAnsweringFailed(requestPosition: Int) {
+        viewModelScope.launch {
+            mUiOperationFlow.emit(ReturnAnsweredRequestUiOperation(requestPosition))
+        }
     }
 }
 

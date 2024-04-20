@@ -1,14 +1,19 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.qubacy.choosablelistviewlib.item.ChoosableItemViewProvider
+import com.qubacy.choosablelistviewlib.view.ChoosableRecyclerView
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
@@ -24,6 +29,7 @@ import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.c
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
@@ -240,6 +246,29 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
                     ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)
                 ))
             )))
+    }
+
+    @Test
+    fun processSetLoadingStateUiOperationTest() = runTest {
+        val initLoadingState = false
+        val initRequests = generateMateRequests(1)
+        val initUiState = MateRequestsUiState(isLoading = initLoadingState)
+
+        val initInsertRequestsUiOperation = InsertRequestsUiOperation(0, initRequests)
+
+        val isLoading = true
+        val setLoadingStateOperation = SetLoadingStateUiOperation(isLoading)
+
+        initWithModelContext(MateRequestsViewModelMockContext(initUiState))
+
+        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
+        mViewModelMockContext.uiOperationFlow.emit(setLoadingStateOperation)
+
+        // todo: implement this properly:
+        Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
+            .perform(ViewActions.click())
+        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
+            .check(ViewAssertions.doesNotExist())
     }
 
     private fun generateMateRequests(
