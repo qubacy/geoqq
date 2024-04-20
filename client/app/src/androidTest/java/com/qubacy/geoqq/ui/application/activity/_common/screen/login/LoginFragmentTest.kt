@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.login
 
+import android.util.Log
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -14,10 +15,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.modul
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.error._test.TestError
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.module.FakeLoginViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -109,11 +113,6 @@ class LoginFragmentTest : BusinessFragmentTest<
 
         Espresso.onView(withText(R.string.component_error_dialog_title_text))
             .check(ViewAssertions.doesNotExist())
-
-        // todo: implement later:
-        //val currentDestination = mNavController.currentDestination
-
-        //Assert.assertEquals(R.id., currentDestination)
     }
 
     @Test
@@ -246,5 +245,43 @@ class LoginFragmentTest : BusinessFragmentTest<
             .check(ViewAssertions.matches(withText(String())))
         Espresso.onView(withId(R.id.fragment_login_text_input_repeat_password))
             .check(ViewAssertions.matches(withText(String())))
+    }
+
+    @Deprecated("Poorly synchronized so can fail.")
+    @Test
+    fun processSignInOperationTest() = runTest {
+        val signInOperation = SignInUiOperation()
+
+        val expectedDestination = R.id.mateChatsFragment
+
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(signInOperation)
+
+        val currentDestination = mNavController.currentDestination!!.id
+
+        Assert.assertEquals(expectedDestination, currentDestination)
+    }
+
+    @Test
+    fun processSetLoadingOperationTest() = runTest {
+        val initUiState = LoginUiState(isLoading = false)
+
+        val setLoadingStateOperation = SetLoadingStateUiOperation(true)
+
+        initWithModelContext(LoginViewModelMockContext(initUiState))
+
+        mViewModelMockContext.uiOperationFlow.emit(setLoadingStateOperation)
+
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_text_input_repeat_password))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_button_login))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_button_change_login_type))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
     }
 }

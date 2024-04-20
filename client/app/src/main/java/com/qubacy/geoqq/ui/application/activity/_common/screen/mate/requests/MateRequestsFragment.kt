@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -83,11 +84,11 @@ class MateRequestsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requestPermissions()
         setupNavigationUI(mBinding.fragmentMateRequestsTopBar)
 
         initMateRequestList()
         initUiControls()
+        requestPermissions()
 
         mInterlocutorDetailsSheet = null
 
@@ -121,6 +122,10 @@ class MateRequestsFragment(
         mPermissionRunner = PermissionRunner(this).apply {
             requestPermissions()
         }
+    }
+
+    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+        initMateRequests()
     }
 
     override fun runInitWithUiState(uiState: MateRequestsUiState) {
@@ -365,6 +370,8 @@ class MateRequestsFragment(
     }
 
     override fun onEndReached() {
+        Log.d(TAG, "onEndReached(): entering..")
+
         mModel.getNextRequestChunk()
     }
 }
