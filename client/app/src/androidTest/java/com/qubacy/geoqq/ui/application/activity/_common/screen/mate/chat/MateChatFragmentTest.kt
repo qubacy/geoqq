@@ -200,9 +200,6 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         mViewModelMockContext.isChatDeletable = true
 
         mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(initInterlocutor)
-        )
-        mViewModelMockContext.uiOperationFlow.emit(
             UpdateInterlocutorDetailsUiOperation(deletedInterlocutor)
         )
 
@@ -237,6 +234,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         initWithModelContext(
             MateChatViewModelMockContext(
                 uiState = MateChatUiState(chatContext = chatContext),
+                isInterlocutorMate = true,
                 isInterlocutorMateableOrDeletable = true))
 
         mViewModelMockContext.uiOperationFlow.emit(
@@ -392,7 +390,9 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         val chatContext = mChatPresentation
         val initUiState = MateChatUiState(chatContext = chatContext)
 
-        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
+        initWithModelContext(MateChatViewModelMockContext(
+            uiState = initUiState, getInterlocutorProfile = chatContext.user
+        ))
 
         Espresso.onView(withId(R.id.mate_chat_top_bar_option_show_mate_profile))
             .perform(ViewActions.click())

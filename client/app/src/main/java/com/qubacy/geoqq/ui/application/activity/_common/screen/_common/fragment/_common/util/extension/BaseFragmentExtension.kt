@@ -48,7 +48,7 @@ fun BaseFragment<*>.setupNavigationUI(toolbar: MaterialToolbar) {
 
     toolbar.setupWithNavController(navController, appBarConfiguration)
 
-    mainActivity.navigationDrawer.apply {
+    mainActivity.navigationDrawer?.apply {
         setupWithNavController(navController)
         setHeaderTitle(toolbar.title.toString())
     }

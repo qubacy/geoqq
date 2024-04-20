@@ -78,6 +78,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         Assert.assertTrue(mViewModelMockContext.getNextChatChunkCallFlag)
     }
 
+    // todo: fix this one (not passing for now):
     @Test
     fun scrollingDownLeadsToRequestingNewChatChunksTest() {
         val initChats = generateMateChatPresentations(20)

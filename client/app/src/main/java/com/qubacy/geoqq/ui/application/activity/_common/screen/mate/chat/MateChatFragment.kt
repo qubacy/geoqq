@@ -396,7 +396,7 @@ class MateChatFragment(
         return this
     }
 
-    override fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat {
-        return mLastWindowInsets!!
+    override fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat? {
+        return mLastWindowInsets
     }
 }

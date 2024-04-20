@@ -8,7 +8,7 @@ import com.qubacy.geoqq.databinding.ComponentMainNavigationDrawerHeaderBinding
 
 class MainNavigationDrawer(
     context: Context,
-    attrs: AttributeSet
+    attrs: AttributeSet? = null
 ) : NavigationView(context, attrs) {
     private lateinit var mHeaderView: ComponentMainNavigationDrawerHeaderBinding
 

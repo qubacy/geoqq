@@ -1,20 +1,27 @@
 package com.qubacy.geoqq.ui.application.activity._common
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.navigation.fragment.NavHostFragment
+import android.view.ViewGroup.LayoutParams
+import androidx.drawerlayout.widget.DrawerLayout
+import com.qubacy.geoqq.ui.application.activity._common.component.drawer.MainNavigationDrawer
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HiltTestActivity : MainActivity() {
+    private lateinit var mRootView: DrawerLayout
+
+    override val navigationDrawerLayout: DrawerLayout get() = mRootView
+    override val navigationDrawer: MainNavigationDrawer? = null
+
+    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        basicOnCreate(savedInstanceState)
 
-        val navHostFragment = supportFragmentManager.fragments[0] as NavHostFragment
-        val startFragment = navHostFragment.childFragmentManager.fragments[0]
+        mRootView = DrawerLayout(this).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        }
 
-        navHostFragment.childFragmentManager
-            .beginTransaction()
-            .remove(startFragment)
-            .commitNow()
+        setContentView(mRootView)
     }
 }

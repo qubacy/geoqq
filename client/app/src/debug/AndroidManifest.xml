@@ -5,7 +5,8 @@
     <application>
         <activity
             android:exported="true"
-            android:name=".ui.application.activity._common.HiltTestActivity"/>
+            android:name=".ui.application.activity._common.HiltTestActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

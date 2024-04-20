@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -31,12 +32,17 @@ open class MainActivity : AppCompatActivity() {
         R.id.mateChatsFragment,
         R.id.mateRequestsFragment
     )
-    open val navigationDrawer: MainNavigationDrawer get() =
+    open val navigationDrawer: MainNavigationDrawer? get() =
         mBinding.activityMainNavigationDrawer
     open val navigationDrawerLayout get() = mBinding.root
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    protected fun basicOnCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        basicOnCreate(savedInstanceState)
 
         installSplashScreen().apply {
             setOnExitAnimationListener {

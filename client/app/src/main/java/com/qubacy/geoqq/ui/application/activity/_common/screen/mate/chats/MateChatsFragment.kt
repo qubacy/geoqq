@@ -63,10 +63,9 @@ class MateChatsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requestChatPermissions()
-
         setupNavigationUI(mBinding.fragmentMateChatsTopBar)
         initMateChatListView()
+        requestChatPermissions()
 
         mBinding.fragmentMateChatsTopBar.setOnMenuItemClickListener {
             onTopBarMenuItemClicked(it)

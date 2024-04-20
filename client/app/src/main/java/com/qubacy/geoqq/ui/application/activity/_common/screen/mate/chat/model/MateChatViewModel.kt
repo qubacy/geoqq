@@ -109,7 +109,7 @@ open class MateChatViewModel @Inject constructor(
         return MessageTextValidator().isValid(text)
     }
 
-    fun getInterlocutorProfile(): UserPresentation {
+    open fun getInterlocutorProfile(): UserPresentation {
         val interlocutor = mUiState.chatContext!!.user
 
         mUseCase.getInterlocutor(interlocutor.id)

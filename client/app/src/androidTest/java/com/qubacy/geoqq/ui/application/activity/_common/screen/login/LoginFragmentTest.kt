@@ -55,13 +55,11 @@ class LoginFragmentTest : BusinessFragmentTest<
     fun clickingSignInWithoutLoginDataLeadsToShowingErrorTest() {
         defaultInit()
 
-        val expectedError = TestError.normal
-
-        mViewModelMockContext.retrieveErrorResult = expectedError
-
         Espresso.onView(withId(R.id.fragment_login_button_login))
             .perform(ViewActions.click())
-        Espresso.onView(withText(expectedError.message))
+        Espresso.onView(withText(R.string.fragment_login_input_error_login))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withText(R.string.fragment_input_error_password))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -70,15 +68,12 @@ class LoginFragmentTest : BusinessFragmentTest<
         defaultInit()
 
         val login = "testtest"
-        val expectedError = TestError.normal
-
-        mViewModelMockContext.retrieveErrorResult = expectedError
 
         Espresso.onView(withId(R.id.fragment_login_text_input_login))
             .perform(ViewActions.typeText(login), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.fragment_login_button_login))
             .perform(ViewActions.click())
-        Espresso.onView(withText(expectedError.message))
+        Espresso.onView(withText(R.string.fragment_input_error_password))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -87,15 +82,12 @@ class LoginFragmentTest : BusinessFragmentTest<
         defaultInit()
 
         val password = "password"
-        val expectedError = TestError.normal
-
-        mViewModelMockContext.retrieveErrorResult = expectedError
 
         Espresso.onView(withId(R.id.fragment_login_text_input_password))
             .perform(ViewActions.typeText(password), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.fragment_login_button_login))
             .perform(ViewActions.click())
-        Espresso.onView(withText(expectedError.message))
+        Espresso.onView(withText(R.string.fragment_login_input_error_login))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 

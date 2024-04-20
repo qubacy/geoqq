@@ -40,6 +40,11 @@ inline fun <T : Fragment> launchFragmentInHiltContainer(
 
         navHostControllerInitAction(navHostController)
 
+        Navigation.setViewNavController(
+            activity.findViewById(android.R.id.content), navHostController)
+
+        Log.d("TEST", "onActivity(): navController = ${navHostController};")
+
         val fragmentClassRef = fragmentClass
         val fragment: Fragment = activity.supportFragmentManager.fragmentFactory.instantiate(
             Preconditions.checkNotNull(fragmentClassRef.classLoader) as ClassLoader,
@@ -53,24 +58,13 @@ inline fun <T : Fragment> launchFragmentInHiltContainer(
                 Log.d("TEST", "onStateChanged(): view.tag = " +
                         "${fragment.requireView()
                             .getTag(androidx.navigation.R.id.nav_controller_view_tag)}")
-
-                Navigation.setViewNavController(fragment.requireView(), navHostController)
             }
         })
 
         fragment.arguments = fragmentArgs
         activity.supportFragmentManager
             .beginTransaction()
-            .add(R.id.activity_main_fragment_container, fragment, "")
-//            .runOnCommit {
-//                fragment.lifecycle.addObserver(object : LifecycleEventObserver {
-//                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-//                        if (event.targetState != Lifecycle.State.STARTED) return
-//
-//                        Navigation.setViewNavController(fragment.requireView(), navHostController)
-//                    }
-//                })
-//            }
+            .add(android.R.id.content, fragment, "")
             .commitNow()
 
         fragment.action()

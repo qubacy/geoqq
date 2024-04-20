@@ -224,6 +224,7 @@ class MyProfileFragment(
     private fun navigateToLogin() {
         Log.d(TAG, "navigateToLogin(): view.tag = " +
                 "${requireView().getTag(androidx.navigation.R.id.nav_controller_view_tag)}")
+        Log.d(TAG, "navigateToLogin(): navController = ${Navigation.findNavController(requireView())};")
 
         Navigation.findNavController(requireView())
             .navigate(R.id.action_myProfileFragment_to_loginFragment)
