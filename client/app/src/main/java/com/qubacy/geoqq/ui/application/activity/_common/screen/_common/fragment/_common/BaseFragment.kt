@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 
 abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     companion object {
@@ -69,7 +70,9 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
     override fun onStop() {
         mErrorDialog?.dismiss()
         mRequestDialog?.dismiss()
+
         closePopupMessage()
+        closeSoftKeyboard()
 
         super.onStop()
     }

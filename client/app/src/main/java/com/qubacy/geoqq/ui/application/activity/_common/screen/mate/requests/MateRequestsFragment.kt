@@ -134,7 +134,8 @@ class MateRequestsFragment(
     private fun adjustUiWithLoadingState(loadingState: Boolean) {
         changeLoadingIndicatorState(loadingState)
 
-        mBinding.root.isEnabled = !loadingState
+        // todo: test this:
+        mBinding.fragmentMateRequestsList.isEnabled = !loadingState
     }
 
     private fun initMateRequestListAdapterWithRequests(requests: List<MateRequestPresentation>) {

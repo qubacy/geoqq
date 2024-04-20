@@ -172,10 +172,6 @@ open class MateRequestsViewModel @Inject constructor(
 
         return RemoveRequestUiOperation(requestPosition)
     }
-
-    private fun getRequestChunkPositionByChunkIndex(index: Int): Int {
-        return index * MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE
-    }
 }
 
 @Qualifier

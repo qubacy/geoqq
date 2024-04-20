@@ -55,15 +55,10 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     }
 
     private fun mapDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        return processDomainResultFlow(domainResult) //?: throw IllegalStateException()
+        return processDomainResultFlow(domainResult)
     }
 
     protected open fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-//        return when (domainResult::class) {
-//            ErrorDomainResult::class -> processErrorDomainResult(domainResult as ErrorDomainResult)
-//            else -> null
-//        }
-
         return null
     }
 

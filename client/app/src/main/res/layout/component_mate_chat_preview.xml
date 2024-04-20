@@ -30,6 +30,8 @@
         android:layout_marginStart="@dimen/small_gap_between_components"
         android:layout_marginBottom="@dimen/tiny_gap_between_components"
         android:layout_marginEnd="@dimen/small_gap_between_components"
+        android:lines="1"
+        android:ellipsize="end"
         android:textAppearance="?attr/textAppearanceTitleMedium"
         tools:text="Title"/>
 
