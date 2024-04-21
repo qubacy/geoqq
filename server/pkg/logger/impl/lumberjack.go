@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"fmt"
 	"geoqq/pkg/logger"
 	"io"
 	"log"
@@ -55,41 +56,57 @@ func SetLumberjackLoggerForStdOutput(
 // public
 // -----------------------------------------------------------------------
 
+var stackFrameCountToSkip int = 2
+
 func (l *LumberjackLogger) Trace(format string, a ...interface{}) {
-	if logger.LevelTrace >= l.level {
-		l.printf(logger.LevelTrace, format, a...)
+	if logger.LevelTrace < l.level {
+		return
 	}
+
+	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
+		logger.LevelTrace, format, a...)
 }
 
 func (l *LumberjackLogger) Debug(format string, a ...interface{}) {
-	if logger.LevelDebug >= l.level {
-		l.printf(logger.LevelDebug, format, a...)
+	if logger.LevelDebug < l.level {
+		return
 	}
+
+	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
+		logger.LevelDebug, format, a...)
 }
 
 func (l *LumberjackLogger) Info(format string, a ...interface{}) {
-	if logger.LevelInfo >= l.level {
-		l.printf(logger.LevelInfo, format, a...)
+	if logger.LevelInfo < l.level {
+		return
 	}
+
+	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
+		logger.LevelInfo, format, a...)
 }
 
 func (l *LumberjackLogger) Warning(format string, a ...interface{}) {
-	if logger.LevelWarning >= l.level {
-		l.printf(logger.LevelWarning, format, a...)
+	if logger.LevelWarning < l.level {
+		return
 	}
+
+	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
+		logger.LevelWarning, format, a...)
 }
 
 // -----------------------------------------------------------------------
 
 func (l *LumberjackLogger) Error(format string, a ...interface{}) {
-	l.printf(logger.LevelError, format, a...)
+	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
+		logger.LevelError, format, a...)
 }
 
 func (l *LumberjackLogger) Fatal(format string, a ...interface{}) {
 	l.mx.Lock() // ?
 	defer l.mx.Unlock()
 
-	log.Fatalf(join(logger.LevelFatal, format), a...)
+	caller := logger.MakeCallerInfo(stackFrameCountToSkip)
+	log.Fatalf(join(caller, logger.LevelFatal, format), a...)
 }
 
 // -----------------------------------------------------------------------
@@ -105,13 +122,16 @@ func (l *LumberjackLogger) Close() error {
 // private
 // -----------------------------------------------------------------------
 
-func (l *LumberjackLogger) printf(lvl logger.Level, format string, a ...interface{}) {
+func (l *LumberjackLogger) printf(caller logger.CallerInfo, lvl logger.Level, format string, a ...interface{}) {
 	l.mx.Lock()
 	defer l.mx.Unlock()
 
-	log.Printf(join(lvl, format), a...)
+	log.Printf(join(caller, lvl, format), a...)
 }
 
-func join(level logger.Level, format string) string {
-	return level.String() + " | " + format
+func join(caller logger.CallerInfo, level logger.Level, format string) string {
+	return fmt.Sprintf("%v:%v | %v | %v",
+		caller.ShortFileName, caller.Line,
+		level.String(), format,
+	)
 }

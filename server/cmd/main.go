@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"geoqq/app"
 	"geoqq/pkg/logger"
 	"log"
@@ -12,21 +13,23 @@ import (
 )
 
 func printlnWd() {
-	pwd, err := os.Getwd()
+	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Get wd failed. Err: %v", err.Error())
+		log.Fatalf("Get wd failed. Error: %v", err.Error())
+		return // ?
 	}
 
-	log.Println(pwd)
+	fmt.Printf("Wd: %v\n", wd)
 }
 
 func printlnExecutable() {
 	path, err := os.Executable()
 	if err != nil {
-		log.Fatalf("Get executable failed. Err: %v", err.Error())
+		log.Fatalf("Get executable failed. Error: %v", err.Error())
+		return // ?
 	}
 
-	log.Println(path)
+	fmt.Printf("Path: %v", path)
 }
 
 func main() {

@@ -197,7 +197,8 @@ var (
 		DELETE FROM "DeletedMateChat" WHERE "ChatId" IN (
 			SELECT "Id" FROM "MateChat" WHERE (
 				("FirstUserId" = $1 OR "SecondUserId" = $1) AND
-				("FirstUserId" = $2 OR "SecondUserId" = $2))`)
+				("FirstUserId" = $2 OR "SecondUserId" = $2)
+				))`)
 )
 
 // public

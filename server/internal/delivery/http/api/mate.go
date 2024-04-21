@@ -290,6 +290,9 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 
 	// to-from services
 
+	logger.Debug("offset: %v", offset)
+	logger.Debug("count: %v", count)
+
 	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
 		userId, offset, count)
 	if err != nil {
@@ -305,6 +308,9 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
+	bytes, _ := json.Marshal(responseDto)
+	logger.Trace("%v", string(bytes))
 
 	ctx.JSON(http.StatusOK, responseDto)
 }

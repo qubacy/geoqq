@@ -1,6 +1,10 @@
 package logger
 
-import "io"
+import (
+	"io"
+	"runtime"
+	"strings"
+)
 
 type Level int
 
@@ -33,6 +37,36 @@ func (l Level) String() string {
 
 	// LevelTrace or unknown?
 	return "TRACE"
+}
+
+type CallerInfo struct {
+	FullFileName  string
+	ShortFileName string
+	Line          int
+}
+
+func MakeCallerInfo(skip int) CallerInfo {
+	_, file, line, ok := runtime.Caller(skip + 1)
+	if !ok {
+
+		// ok is false if it was not possible
+		// to recover the information.
+
+		return CallerInfo{
+			FullFileName:  "_",
+			ShortFileName: "_",
+			Line:          0,
+		}
+	}
+
+	// os.PathSeparator not working!
+	parts := strings.Split(file, "/")
+
+	return CallerInfo{
+		FullFileName:  file,
+		ShortFileName: parts[len(parts)-1],
+		Line:          line,
+	}
 }
 
 type Logger interface {

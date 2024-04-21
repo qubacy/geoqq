@@ -68,6 +68,14 @@ func NewPngImageFromBytes(id uint64, bytes []byte) *Image {
 	}
 }
 
+func NewImageFromBytes(id uint64, ext ImageExt, bytes []byte) *Image {
+	return &Image{
+		Id:        id,
+		Extension: ext,
+		Content:   base64.StdEncoding.EncodeToString(bytes),
+	}
+}
+
 type Images struct {
 	ImageList []*Image `json:"images"`
 }

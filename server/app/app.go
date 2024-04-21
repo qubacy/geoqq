@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"geoqq/app/firstStart"
 	"geoqq/internal/config"
 	deliveryHttp "geoqq/internal/delivery/http"
 	"geoqq/internal/server"
@@ -69,6 +70,14 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
 
+	err = firstStart.InsertDataIntoStorages(
+		domainStorage,
+		fileStorage,
+	)
+	if err != nil {
+		return nil, utility.NewFuncError(NewApp, err)
+	}
+
 	// *** service
 
 	services, err := servicesInstance(
@@ -122,7 +131,7 @@ func (a *App) Stop() error {
 	)
 }
 
-// private
+// logging
 // -----------------------------------------------------------------------
 
 func initializeLogging() error {
@@ -148,6 +157,9 @@ func initializeLogging() error {
 
 	return ErrLoggingTypeIsNotDefined
 }
+
+// storages
+// -----------------------------------------------------------------------
 
 func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage, error) {
 	maxInitTime := viper.GetDuration("storage.max_init_time")
@@ -216,6 +228,7 @@ func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, err
 	return storage, nil
 }
 
+// services
 // -----------------------------------------------------------------------
 
 func servicesInstance(
@@ -252,6 +265,7 @@ func servicesInstance(
 	return services, err
 }
 
+// common
 // -----------------------------------------------------------------------
 
 func hashManagerInstance() (hash.HashManager, error) {

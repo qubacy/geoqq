@@ -280,7 +280,8 @@ func (s *MateRequestStorage) GetAllWaitingMateRequestsForUser(ctx context.Contex
 
 	rows, err := conn.Query(ctx,
 		`SELECT * FROM "MateRequest"
-			WHERE "ToUserId" = $1 AND "Result" = $2;`,
+			WHERE "ToUserId" = $1 AND "Result" = $2
+			ORDER BY "RequestTime" DESC, "Id" DESC;`,
 		userId, int16(table.Waiting),
 	)
 	if err != nil {
@@ -299,9 +300,10 @@ func (s *MateRequestStorage) GetAllWaitingMateRequestsForUser(ctx context.Contex
 
 func (s *MateRequestStorage) GetWaitingMateRequestsForUser(ctx context.Context,
 	userId, offset, count uint64) ([]*table.MateRequest, error) {
+	sourceFunc := s.GetWaitingMateRequestsForUser
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	defer conn.Release()
 
@@ -309,21 +311,21 @@ func (s *MateRequestStorage) GetWaitingMateRequestsForUser(ctx context.Context,
 
 	rows, err := conn.Query(ctx,
 		`SELECT * FROM "MateRequest"
-			WHERE "ToUserId" = $1 AND "Result" = $2
-				ORDER BY "RequestTime" DESC LIMIT $3 OFFSET $4;`,
+		WHERE "ToUserId" = $1 AND "Result" = $2
+			ORDER BY "RequestTime" DESC, "Id" DESC 
+			LIMIT $3 OFFSET $4;`,
 		userId, int16(table.Waiting),
 		count, offset,
 	)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
 	// ***
 
 	mateRequests, err := rowsToMateRequests(rows)
 	if err != nil {
-		return nil,
-			utl.NewFuncError(s.GetWaitingMateRequestsForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	return mateRequests, nil
 }
@@ -340,7 +342,8 @@ func (s *MateRequestStorage) GetWaitingMateRequestCountForUser(ctx context.Conte
 	row := conn.QueryRow(ctx,
 		`SELECT COUNT(*) FROM "MateRequest"
 			WHERE "ToUserId" = $1 AND "Result" = $2;`,
-		userId, int16(table.Waiting))
+		userId, int16(table.Waiting),
+	)
 
 	var count = 0
 	err = row.Scan(&count)
