@@ -18,11 +18,13 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
+import com.qubacy.geoqq.ui._common.util.view.extension.runVisibilityAnimation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
@@ -66,6 +68,8 @@ class MateRequestsFragment(
 
         const val HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT = 1000L
         const val HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT = 3000L
+
+        const val DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION = 200L
     }
 
     @Inject
@@ -82,6 +86,8 @@ class MateRequestsFragment(
 
     private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
 
+    private lateinit var mEmptyListHolderImage: AnimatedVectorDrawableCompat
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -92,7 +98,10 @@ class MateRequestsFragment(
         requestPermissions()
 
         mInterlocutorDetailsSheet = null
+        mEmptyListHolderImage = AnimatedVectorDrawableCompat.create(
+            requireContext(), com.qubacy.choosablelistviewlib.R.drawable.ic_cross_animated)!!
 
+        initEmptyListPlaceholderView()
         scheduleHintTextViewAppearanceAnimation()
     }
 
@@ -106,6 +115,19 @@ class MateRequestsFragment(
         super.onStop()
 
         mInterlocutorDetailsSheet?.close()
+    }
+
+    private fun initEmptyListPlaceholderView() {
+        mBinding.fragmentMateRequestsPlaceholderImage.setImageDrawable(mEmptyListHolderImage)
+
+        mBinding.root.viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener{
+            override fun onPreDraw(): Boolean {
+                mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
+                mEmptyListHolderImage.start()
+
+                return true
+            }
+        })
     }
 
     private fun initMateRequests() {
@@ -182,6 +204,8 @@ class MateRequestsFragment(
         removeRequestUiOperation: RemoveRequestUiOperation
     ) {
         mAdapter.removeItemAtPosition(removeRequestUiOperation.position)
+
+        checkMateRequestListEmpty()
     }
 
     private fun processInsertRequestsUiOperation(
@@ -190,6 +214,8 @@ class MateRequestsFragment(
         val mateRequestsData = insertRequestsUiOperation.requests.map { it.toMateRequestItemData() }
 
         mAdapter.insertMateRequests(mateRequestsData, insertRequestsUiOperation.position)
+
+        checkMateRequestListEmpty()
     }
 
     private fun processShowInterlocutorDetailsUiOperation(
@@ -206,6 +232,23 @@ class MateRequestsFragment(
 
     override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
         adjustUiWithLoadingState(loadingOperation.isLoading)
+    }
+
+    private fun checkMateRequestListEmpty() {
+        setEmptyListPlaceholderVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
+    }
+
+    private fun setEmptyListPlaceholderVisible(isVisible: Boolean) {
+        if (isVisible) {
+            mBinding.fragmentMateRequestsPlaceholderContainer.runVisibilityAnimation(
+                true, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
+
+            mEmptyListHolderImage.start()
+
+        } else {
+            mBinding.fragmentMateRequestsPlaceholderContainer.runVisibilityAnimation(
+                false, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
+        }
     }
 
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {

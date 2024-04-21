@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.activity.addCallback
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
@@ -13,9 +14,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
+import com.qubacy.geoqq.ui._common.util.view.extension.runVisibilityAnimation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -43,6 +46,10 @@ class MateChatsFragment(
     MateChatsUiState,
     MateChatsViewModel
 >(), PermissionRunnerCallback, BaseRecyclerViewCallback, MateChatsListAdapterCallback {
+    companion object {
+        const val DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION = 200L
+    }
+
     @Inject
     @MateChatsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -53,6 +60,8 @@ class MateChatsFragment(
 
     private lateinit var mAdapter: MateChatsListAdapter
     private lateinit var mPermissionRunner: PermissionRunner<MateChatsFragment>
+
+    private lateinit var mEmptyListHolderImage: AnimatedVectorDrawableCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +76,44 @@ class MateChatsFragment(
         initMateChatListView()
         requestChatPermissions()
 
+        mEmptyListHolderImage = AnimatedVectorDrawableCompat.create(
+            requireContext(), com.qubacy.choosablelistviewlib.R.drawable.ic_cross_animated)!!
+
         mBinding.fragmentMateChatsTopBar.setOnMenuItemClickListener {
             onTopBarMenuItemClicked(it)
+        }
+
+        initEmptyListPlaceholderView()
+    }
+
+    private fun initEmptyListPlaceholderView() {
+        mBinding.fragmentMateChatsPlaceholderImage.setImageDrawable(mEmptyListHolderImage)
+
+        mBinding.root.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
+                mEmptyListHolderImage.start()
+
+                return true
+            }
+        })
+    }
+
+    private fun checkMateChatListEmpty() {
+        setEmptyListPlaceholderVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
+    }
+
+    private fun setEmptyListPlaceholderVisible(isVisible: Boolean) {
+        if (isVisible) {
+            mBinding.fragmentMateChatsPlaceholderContainer.runVisibilityAnimation(
+                true, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
+
+            mEmptyListHolderImage.start()
+
+        } else {
+            mBinding.fragmentMateChatsPlaceholderContainer.runVisibilityAnimation(
+                false, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
         }
     }
 
@@ -145,6 +190,8 @@ class MateChatsFragment(
         val chatItems = insertChatsUiOperation.chats.map { it.toMateChatItemData() }
 
         mAdapter.insertMateChats(chatItems, insertChatsUiOperation.position)
+
+        checkMateChatListEmpty()
     }
 
     private fun processUpdateChatChunkUiOperation(
@@ -173,6 +220,8 @@ class MateChatsFragment(
                 )
             }
         }
+
+        checkMateChatListEmpty()
     }
 
     override fun createBinding(

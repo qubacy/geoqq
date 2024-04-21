@@ -9,7 +9,6 @@ import android.view.ViewTreeObserver.OnPreDrawListener
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.constraintlayout.widget.ConstraintSet.Constraint
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -84,6 +83,8 @@ class UserBottomSheetViewContainer(
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    Log.d(TAG, "onSlide(): slideOffset = $slideOffset;")
+
                     if (slideOffset !in 0.001f..0.999f) return // todo: is it ok??
 
                     mBinding.root.setTransition(

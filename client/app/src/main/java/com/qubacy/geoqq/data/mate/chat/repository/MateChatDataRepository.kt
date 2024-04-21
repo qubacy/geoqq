@@ -54,7 +54,7 @@ class MateChatDataRepository @Inject constructor(
             val getChatsResponse = executeNetworkRequest(
                 mErrorDataRepository, mHttpClient, getChatsCall)
 
-            if (getChatsResponse.chats.isEmpty()) {
+            if (getChatsResponse.chats.isEmpty()) { // todo: think of this;
                 if (localDataChats.isNotEmpty()) return@launch
                 else resultLiveData.postValue(null)
             }

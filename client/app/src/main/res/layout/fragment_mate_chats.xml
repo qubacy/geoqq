@@ -30,6 +30,31 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
+    <LinearLayout
+        android:id="@+id/fragment_mate_chats_placeholder_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_anchor="@id/fragment_mate_chats_list"
+        app:layout_anchorGravity="center">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/fragment_mate_chats_placeholder_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            tools:srcCompat="@drawable/ic_cross_animated"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/fragment_mate_chats_text_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/very_small_gap_between_components"
+            android:textAppearance="?textAppearanceBodyLarge"
+            android:text="@string/fragment_mate_chats_placeholder_text_text"/>
+
+    </LinearLayout>
+
     <com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
         android:id="@+id/fragment_mate_chats_list"
         android:layout_width="match_parent"

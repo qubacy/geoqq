@@ -46,6 +46,31 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
+    <LinearLayout
+        android:id="@+id/fragment_mate_requests_placeholder_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_anchor="@id/fragment_mate_requests_list"
+        app:layout_anchorGravity="center">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/fragment_mate_requests_placeholder_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            tools:srcCompat="@drawable/ic_cross_animated"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/fragment_mate_requests_text_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/very_small_gap_between_components"
+            android:textAppearance="?textAppearanceBodyLarge"
+            android:text="@string/fragment_mate_requests_placeholder_text_text"/>
+
+    </LinearLayout>
+
     <com.qubacy.choosablelistviewlib.view.ChoosableRecyclerView
         android:id="@+id/fragment_mate_requests_list"
         android:layout_width="match_parent"
