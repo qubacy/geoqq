@@ -177,7 +177,7 @@ class MateRequestsFragment(
     private fun processReturnAnsweredRequestUiOperation(
         returnAnsweredRequestUiOperation: ReturnAnsweredRequestUiOperation
     ) {
-        mAdapter.returnSwipedItem(returnAnsweredRequestUiOperation.position)
+        mBinding.fragmentMateRequestsList.returnSwipedItem(returnAnsweredRequestUiOperation.position)
     }
 
     private fun processRemoveRequestUiOperation(

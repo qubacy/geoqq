@@ -50,5 +50,6 @@
         <item name="choosableListItemHintThreshold">@fraction/fragment_mate_requests_list_item_hint_threshold</item>
         <item name="choosableListItemLeftHintGuidelinePosition">@fraction/fragment_mate_requests_list_item_hint_threshold</item>
         <item name="choosableListItemHintIconSize">48dp</item>
+        <item name="choosableListItemSwipeBackAnimationDuration">200</item>
     </style>
 </resources>

@@ -77,10 +77,4 @@ class MateRequestsListAdapter(
 
         return mateRequestPosition
     }
-
-    // todo: should be moved to ChoosableListView:
-    @UiThread
-    fun returnSwipedItem(position: Int) {
-        wrappedNotifyItemChanged(position)
-    }
 }
