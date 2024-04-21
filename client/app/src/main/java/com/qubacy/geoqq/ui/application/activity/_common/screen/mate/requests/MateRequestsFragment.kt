@@ -18,8 +18,6 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator

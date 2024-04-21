@@ -16,10 +16,13 @@ class FakeMateChatsViewModelFactory(
         val viewModelMock = super.create(modelClass) as MateChatsViewModel
 
         Mockito.`when`(viewModelMock.getNextChatChunk()).thenAnswer {
-            mockContext.uiState.isLoading = true
             mockContext.getNextChatChunkCallFlag = true
 
             Unit
+        }
+        Mockito.`when`(viewModelMock.prepareChatForEntering(Mockito.anyLong())).thenAnswer {
+            mockContext.prepareChatForEnteringCallFlag = true
+            mockContext.prepareChatForEntering
         }
 
         return viewModelMock as T
