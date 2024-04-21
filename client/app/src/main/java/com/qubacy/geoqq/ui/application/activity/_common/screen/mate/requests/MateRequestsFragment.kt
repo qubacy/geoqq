@@ -99,7 +99,7 @@ class MateRequestsFragment(
 
         mInterlocutorDetailsSheet = null
         mEmptyListHolderImage = AnimatedVectorDrawableCompat.create(
-            requireContext(), com.qubacy.choosablelistviewlib.R.drawable.ic_cross_animated)!!
+            requireContext(), R.drawable.ic_earth_animated)!!
 
         initEmptyListPlaceholderView()
         scheduleHintTextViewAppearanceAnimation()
