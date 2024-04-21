@@ -1,5 +1,6 @@
 SELECT * FROM "MateRequest";
-SELECT * FROM "UserEntry";
+SELECT * FROM "UserEntry"
+    ORDER BY "Id" DESC;
 
 INSERT INTO "MateRequest" ("FromUserId",
                            "ToUserId",
@@ -10,12 +11,12 @@ RETURNING "Id";
 
 do $$
 begin
-for i in 34..39 loop
+for i in 3..36 loop
     INSERT INTO "MateRequest" (
         "FromUserId", "ToUserId",
         "RequestTime", "Result"
         )
-    VALUES (i, 14, NOW()::timestamp, 0);
+    VALUES (i, 2, NOW()::timestamp, 0);
 
     end loop;
 end;

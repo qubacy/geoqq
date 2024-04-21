@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/avatar"
 	ec "geoqq/pkg/errorForClient/impl"
@@ -217,8 +218,7 @@ func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login st
 
 	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
 	if err != nil {
-		_ = a.domainStorage.DeleteAvatarWithId(ctx, avatarId) // ignore err.
-
+		err = errors.Join(err, a.domainStorage.DeleteAvatarWithId(ctx, avatarId))
 		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
 			ec.New(err, ec.Server, ec.FileStorageError))
 	}
@@ -241,7 +241,7 @@ func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error
 			ec.New(err, ec.Server, ec.AvatarGeneratorError))
 	}
 
-	imageHash, err := a.hashManager.NewFromBytes(imageBytes)
+	imageHash, err := a.hashManager.NewFromBytes(imageBytes) // in a separate function?
 	if err != nil {
 		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
 			ec.New(err, ec.Server, ec.HashManagerError))

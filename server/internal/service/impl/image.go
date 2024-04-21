@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"geoqq/internal/service/dto"
 	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/file"
@@ -138,8 +139,7 @@ func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 
 	err = p.fileStorage.SaveImage(ctx, image)
 	if err != nil {
-		_ = p.domainStorage.DeleteAvatarWithId(ctx, avatarId)
-
+		err = errors.Join(err, p.domainStorage.DeleteAvatarWithId(ctx, avatarId))
 		return p.avatarIdWithError(err, ec.Server, ec.FileStorageError)
 	}
 	return avatarId, nil

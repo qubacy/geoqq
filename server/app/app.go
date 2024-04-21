@@ -70,9 +70,13 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 		return nil, utility.NewFuncError(NewApp, err)
 	}
 
+	maxInitTime := viper.GetDuration("first_start.max_init_time") // ?
+	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
+	defer func() { cancel() }()
+
 	err = firstStart.InsertDataIntoStorages(
-		domainStorage,
-		fileStorage,
+		ctxForInit, domainStorage, fileStorage,
+		hashManager,
 	)
 	if err != nil {
 		return nil, utility.NewFuncError(NewApp, err)

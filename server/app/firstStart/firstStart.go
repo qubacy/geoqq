@@ -2,7 +2,9 @@ package firstStart
 
 import (
 	"context"
+	"errors"
 	"geoqq/pkg/file"
+	"geoqq/pkg/hash"
 	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	"io"
@@ -15,57 +17,114 @@ import (
 )
 
 func InsertDataIntoStorages(
+	ctxForInit context.Context,
 	ds domainStorage.Storage,
 	fs fileStorage.Storage,
+	hashManager hash.HashManager,
 ) error {
 	sourceFunc := InsertDataIntoStorages
-	wd, err := os.Getwd()
+
+	// TODO: check
+
+	err := insertAvatarsForDeletedUsers(ctxForInit,
+		ds, fs, hashManager)
 	if err != nil {
 		return utility.NewFuncError(sourceFunc, err)
+	}
+
+	return nil
+}
+
+func pathToAssets() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", utility.NewFuncError(pathToAssets, err)
 	}
 
 	parts := strings.Split(wd, string(os.PathSeparator))
 	parts = parts[:len(parts)-1] // remove app!
-	parts = append(parts, "assets", "firstData", "deletedProfile")
-	pathToFirstData := strings.Join(parts, string(os.PathSeparator))
-	logger.Debug("path to first data: %v", pathToFirstData)
+	parts = append(parts, "assets")
+	return strings.Join(parts, string(os.PathSeparator)), nil
+}
 
-	dirEntries, err := os.ReadDir(pathToFirstData)
+// -----------------------------------------------------------------------
+
+const (
+	labelDeletedUser = "deletedUser"
+)
+
+func insertAvatarsForDeletedUsers(
+	ctxForInit context.Context,
+	ds domainStorage.Storage,
+	fs fileStorage.Storage,
+	hashManager hash.HashManager,
+) error {
+	sourceFunc := insertAvatarsForDeletedUsers
+	pathToImages, err := pathToAssets()
+	if err != nil {
+		return utility.NewFuncError(pathToAssets, err)
+	}
+	pathToImages = strings.Join(
+		[]string{pathToImages, "firstData", "deletedUser"}, // permanent dirs!
+		string(os.PathSeparator),
+	)
+	logger.Debug("path to images for deleted users: %v",
+		pathToImages)
+
+	dirEntries, err := os.ReadDir(pathToImages)
 	if err != nil {
 		return utility.NewFuncError(sourceFunc, err)
 	}
-
 	for i, dirEntry := range dirEntries {
 		logger.Debug("dir entry [%v] has name %v", i, dirEntry.Name())
 		if dirEntry.IsDir() {
-			return ErrUnexpected
+			return ErrUnexpectedItemInDir
 		}
-
-		strFileExtension := filepath.Ext(dirEntry.Name()) // remove dot
-		ext := file.MakeImageExtFromString(strFileExtension[1:])
+		strFileExtension := filepath.Ext(dirEntry.Name())[1:] // remove dot...
+		ext := file.MakeImageExtFromString(strFileExtension)
 		if ext == file.Unknown {
-			return ErrUnexpected
+			return ErrUnknownImageExtension
 		}
 
-		id, err := ds.InsertServerGeneratedAvatarWithLabel(context.Background(), "", "deletedProfile")
+		// ***
+
+		imageBytes, err := readImageContent(pathToImages, dirEntry.Name())
 		if err != nil {
-			return ErrUnexpected
+			return utility.NewFuncError(sourceFunc, err)
+		}
+		imageHash, err := hashManager.NewFromBytes(imageBytes)
+		if err != nil {
+			return utility.NewFuncError(sourceFunc, err)
 		}
 
-		f, err := os.Open(pathToFirstData + string(os.PathSeparator) + dirEntry.Name())
+		// ***
+
+		id, err := ds.InsertServerGeneratedAvatarWithLabel(ctxForInit,
+			imageHash, labelDeletedUser)
 		if err != nil {
-			return ErrUnexpected
+			return utility.NewFuncError(sourceFunc, err)
 		}
-		imageBytes, err := io.ReadAll(f)
-		if err != nil {
-			return ErrUnexpected
-		}
+
 		image := file.NewImageFromBytes(id, ext, imageBytes)
-		err = fs.SaveImage(context.Background(), image)
+		err = fs.SaveImage(ctxForInit, image)
 		if err != nil {
-			return ErrUnexpected
+			err = errors.Join(err, ds.DeleteAvatarWithId(ctxForInit, id))
+			return utility.NewFuncError(sourceFunc, err)
 		}
 	}
 
 	return nil
+}
+
+func readImageContent(pathToImages, fn string) ([]byte, error) {
+	f, err := os.Open(pathToImages + string(os.PathSeparator) + fn)
+	if err != nil {
+		return nil, ErrFailedToOpenFile
+	}
+
+	imageBytes, err := io.ReadAll(f)
+	if err != nil {
+		return nil, ErrFailedToReadFile
+	}
+	return imageBytes, nil
 }

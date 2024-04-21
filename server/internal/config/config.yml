@@ -1,3 +1,6 @@
+first_start:
+  max_init_time: 5s
+
 server:
   http:
     host: ""

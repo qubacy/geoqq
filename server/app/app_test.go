@@ -73,7 +73,7 @@ func Test_os_PathSeparator(t *testing.T) {
 }
 
 func Test_runtime_Caller(t *testing.T) {
-	pc, file, line, ok := runtime.Caller(0)
+	pc, file, line, ok := runtime.Caller(3)
 	if !ok {
 		t.Error("Runtime Caller Is Not OK!")
 	}
