@@ -6,7 +6,6 @@
     android:id="@+id/component_bottom_sheet_user_container"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_gravity="bottom"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:behavior_hideable="true"
     style="@style/Widget.Material3.BottomSheet"

@@ -318,6 +318,8 @@ class MateRequestsFragment(
     }
 
     override fun onItemSwiped(direction: SwipeDirection, position: Int) {
+        mInterlocutorDetailsSheet?.close()
+
         val isAccepted = (direction == SwipeDirection.RIGHT)
 
         mModel.answerRequest(position, isAccepted)

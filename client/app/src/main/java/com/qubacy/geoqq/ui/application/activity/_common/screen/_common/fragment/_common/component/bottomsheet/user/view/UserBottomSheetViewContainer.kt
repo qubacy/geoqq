@@ -75,10 +75,12 @@ class UserBottomSheetViewContainer(
         mBehavior = BottomSheetBehavior.from(mBinding.root).apply {
             addBottomSheetCallback(object : BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    Log.d(TAG, "onStateChanged(): newState = $newState;")
+
                     if (newState == BottomSheetBehavior.STATE_EXPANDED ||
                         newState == BottomSheetBehavior.STATE_COLLAPSED
                     ) {
-                        Log.d(TAG, "onStateChanged(): newState = $newState;")
+                        Log.d(TAG, "onStateChanged(): stable state = $newState;")
                     }
                 }
 
@@ -179,27 +181,22 @@ class UserBottomSheetViewContainer(
         val changeConstraintAction = { constraintSet: ConstraintSet ->
             constraintSet.setVisibility(
                 R.id.component_bottom_sheet_user_button_mate,
-                if (isVisible) View.VISIBLE else View.GONE
-            )
+                if (isVisible) View.VISIBLE else View.GONE)
 
             constraintSet.connect(
                 topViewId, ConstraintSet.BOTTOM,
-                R.id.component_bottom_sheet_user_line_content_bottom, ConstraintSet.TOP
-            )
+                R.id.component_bottom_sheet_user_line_content_bottom, ConstraintSet.TOP)
             constraintSet.connect(
                 R.id.component_bottom_sheet_user_line_content_bottom, ConstraintSet.TOP,
-                topViewId, ConstraintSet.BOTTOM
-            )
+                topViewId, ConstraintSet.BOTTOM)
 
             if (isVisible) {
                 constraintSet.connect(
                     R.id.component_bottom_sheet_user_text_wrapper_about_me, ConstraintSet.BOTTOM,
-                    R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP
-                )
+                    R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP)
                 constraintSet.connect(
                     R.id.component_bottom_sheet_user_button_mate, ConstraintSet.TOP,
-                    R.id.component_bottom_sheet_user_text_wrapper_about_me, ConstraintSet.BOTTOM
-                )
+                    R.id.component_bottom_sheet_user_text_wrapper_about_me, ConstraintSet.BOTTOM)
             }
         }
 
