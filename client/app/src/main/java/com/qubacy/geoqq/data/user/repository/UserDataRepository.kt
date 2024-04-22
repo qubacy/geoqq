@@ -117,7 +117,11 @@ class UserDataRepository @Inject constructor(
         val avatarIds = userEntities.map { it.avatarId }.toSet().toList()
         val avatars = resolveAvatars(avatarIds)
 
-        return userEntities.map { it.toDataUser(avatars[it.avatarId]!!) }
+        return userEntities.mapNotNull {
+            val avatar = avatars[it.avatarId] ?: return@mapNotNull null
+
+            it.toDataUser(avatar)
+        }
     }
 
     private suspend fun resolveGetUserResponses(

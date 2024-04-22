@@ -54,14 +54,18 @@ class MateChatDataRepository @Inject constructor(
             val getChatsResponse = executeNetworkRequest(
                 mErrorDataRepository, mHttpClient, getChatsCall)
 
-            if (getChatsResponse.chats.isEmpty()) { // todo: think of this;
-                if (localDataChats.isNotEmpty()) return@launch
-                else resultLiveData.postValue(null)
-            }
+//            if (getChatsResponse.chats.isEmpty()) { // todo: think of this;
+//                if (localDataChats.isNotEmpty()) return@launch
+//                else resultLiveData.postValue(null)
+//            }
 
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 
-            if (localDataChats.containsAll(httpDataChats)) return@launch
+            if (localDataChats.size == httpDataChats.size
+             && localDataChats.containsAll(httpDataChats)
+            ) {
+                return@launch
+            }
 
             if (localDataChats.isNotEmpty())
                 mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
@@ -137,13 +141,15 @@ class MateChatDataRepository @Inject constructor(
     private suspend fun resolveChatWithLastMessageMap(
         chatWithLastMessageMap: Map<MateChatEntity, MateMessageEntity?>
     ): List<DataMateChat> {
+        if (chatWithLastMessageMap.isEmpty()) return emptyList()
+
         val userIds = chatWithLastMessageMap.flatMap {
             mutableListOf(it.key.userId).also { _ -> it.value?.userId ?: return@also }
         }.toSet().toList()
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
-        return chatWithLastMessageMap.map {
-            val chatUser = users[it.key.userId]!!
+        return chatWithLastMessageMap.mapNotNull {
+            val chatUser = users[it.key.userId] ?: return@mapNotNull null
             val lastMessageUser = it.value?.let { lastMessage -> users[lastMessage.userId] }
 
             it.toDataMateChat(chatUser, lastMessageUser)
@@ -153,6 +159,8 @@ class MateChatDataRepository @Inject constructor(
     private suspend fun resolveGetChatsResponse(
         getChatsResponse: GetChatsResponse
     ): List<DataMateChat> {
+        if (getChatsResponse.chats.isEmpty()) return emptyList()
+
         val userIds = getChatsResponse.chats.flatMap { chat ->
             mutableListOf(chat.userId).apply {
                 chat.lastMessage?.also { add(it.userId) } ?: return@apply

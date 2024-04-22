@@ -34,18 +34,7 @@ open class MateChatsViewModel @Inject constructor(
         const val LAST_CHAT_CHUNK_INDEX_KEY = "lastChatChunkIndex"
     }
 
-    private var mLastChatChunkIndex: Int = 0
     private var mIsGettingNextChatChunk: Boolean = false
-
-    init {
-        mLastChatChunkIndex = mSavedStateHandle[LAST_CHAT_CHUNK_INDEX_KEY] ?: 0
-    }
-
-    override fun onCleared() {
-        mSavedStateHandle[LAST_CHAT_CHUNK_INDEX_KEY] = mLastChatChunkIndex
-
-        super.onCleared()
-    }
 
     override fun generateDefaultUiState(): MateChatsUiState {
         return MateChatsUiState()
@@ -77,12 +66,9 @@ open class MateChatsViewModel @Inject constructor(
 
         if (getChatChunkResult.chunk == null) return null
 
-        changeLastChatChunkIndex(mLastChatChunkIndex + 1)
-
         val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk)
-        val chatChunkPosition = getChatChunkPositionByChunkIndex(getChatChunkResult.chunk.index)
 
-        return InsertChatsUiOperation(chatChunkPosition, chatPresentationChunk)
+        return InsertChatsUiOperation(getChatChunkResult.chunk.offset, chatPresentationChunk)
     }
 
     private fun processUpdateChatChunkDomainResult(
@@ -95,21 +81,22 @@ open class MateChatsViewModel @Inject constructor(
         if (!updateChatChunkResult.isSuccessful())
             return processErrorDomainResult(updateChatChunkResult.error!!)
 
-        val prevChatChunkSize = mUiState.chatChunkSizes[updateChatChunkResult.chunk!!.index]
+        val prevChatChunkSize = mUiState
+            .chatChunkSizes[getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)]
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
         val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
-        val chatChunkPosition = getChatChunkPositionByChunkIndex(updateChatChunkResult.chunk.index)
 
         return UpdateChatChunkUiOperation(
-            chatChunkPosition,
+            updateChatChunkResult.chunk.offset,
             chatPresentationChunk,
             prevChatChunkSize - curChatChunkSize
         )
     }
 
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
-        val chatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }.toMutableList()
+        val chatPresentationChunk =
+            chatChunk.chats.map { it.toMateChatPresentation() }.toMutableList()
         val chatChunkSizesSize = mUiState.chatChunkSizes.size
         val chatPresentationChunkSize = chatPresentationChunk.size
 
@@ -122,7 +109,8 @@ open class MateChatsViewModel @Inject constructor(
             val prevChatToRemovePosition =
                 chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
             val prevChatsToRemove = mUiState.chats.subList(
-                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize)
+                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize
+            )
 
             mUiState.chats.removeAll(prevChatsToRemove)
             mUiState.chats.addAll(prevChatToRemovePosition, chatPresentationChunk)
@@ -133,12 +121,8 @@ open class MateChatsViewModel @Inject constructor(
         return chatPresentationChunk
     }
 
-    private fun getChatChunkPositionByChunkIndex(index: Int): Int {
-        return index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
-    }
-
-    private fun changeLastChatChunkIndex(newValue: Int) {
-        mLastChatChunkIndex = newValue
+    private fun getPrevChatChunkOffset(offset: Int): Int {
+        return offset - mUiState.newChatCount
     }
 
     // todo: reconsider this (mb there is another optimal way?): DOESNT WORK

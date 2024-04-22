@@ -118,7 +118,11 @@ class MateMessageDataRepository @Inject constructor(
         val userIds = messageEntities.map { it.userId }.toSet().toList()
         val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
-        return messageEntities.map { it.toDataMessage(users[it.userId]!!) }
+        return messageEntities.mapNotNull {
+            val user = users[it.userId] ?: return@mapNotNull null // todo: think of this;
+
+            it.toDataMessage(user)
+        }
     }
 
     private suspend fun resolveGetMessagesResponse(

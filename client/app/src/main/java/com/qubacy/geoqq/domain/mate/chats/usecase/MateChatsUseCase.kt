@@ -21,18 +21,14 @@ class MateChatsUseCase @Inject constructor(
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
     }
 
-    /**
-     * It's supposed that [chunkIndex] is used for calculating both count and offset values;
-     */
-    fun getChatChunk(chunkIndex: Int) {
+    fun getChatChunk(offset: Int) {
         executeLogic({
-            val offset = chunkIndex * DEFAULT_CHAT_CHUNK_SIZE
             val count = DEFAULT_CHAT_CHUNK_SIZE
 
             val getChatsResult = mMateChatDataRepository.getChats(offset, count).await()
 
             val chats = getChatsResult?.chats?.map { it.toMateChat() }
-            val chatChunk = chats?.let { MateChatChunk(chunkIndex, chats)}
+            val chatChunk = chats?.let { MateChatChunk(offset, chats)}
 
             mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk))
 
