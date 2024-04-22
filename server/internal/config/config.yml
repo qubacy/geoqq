@@ -1,5 +1,5 @@
 first_start:
-  max_init_time: 5s
+  max_init_time: 10s
 
 server:
   http:

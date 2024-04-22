@@ -16,6 +16,7 @@ type QueryResultScanner interface {
 	Scan(dest ...interface{}) error
 }
 
+type queryWrapper = func(conn *pgxpool.Conn, ctx context.Context) (pgx.Rows, error)
 type rowQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) pgx.Row
 type bgrQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) error
 
@@ -31,7 +32,7 @@ func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
 	return f(conn, ctx), nil
 }
 
-func scanLastInsertedId(row QueryResultScanner, sourceFunc any) (uint64, error) {
+func scanUint64(row QueryResultScanner, sourceFunc any) (uint64, error) {
 	var lastInsertedId uint64
 	err := row.Scan(&lastInsertedId)
 	if err != nil {
@@ -49,6 +50,40 @@ func scanBool(row QueryResultScanner, sourceFunc any) (bool, error) {
 	return boolValue, nil
 }
 
+// -----------------------------------------------------------------------
+
+func queryWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
+	f queryWrapper) (pgx.Rows, error) {
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return nil, utl.NewFuncError(queryWithConnectionAcquire, err)
+	}
+	defer conn.Release()
+
+	return f(conn, ctx)
+}
+
+func scanListOfUint64(rows pgx.Rows, sourceFunc any) ([]uint64, error) {
+	numbers := []uint64{}
+	for rows.Next() {
+		var num uint64
+		err := rows.Scan(&num)
+		if err != nil {
+			// so as not to wrap the error in caller!
+			// 								     |
+			// 							     -----
+			//								 |
+			// 								 V
+			return nil, utl.NewFuncError(sourceFunc, err)
+		}
+
+		numbers = append(numbers, num)
+	}
+	return numbers, nil
+}
+
+// Transaction Wrappers (bad solution)
 // -----------------------------------------------------------------------
 
 func insertForUserPairWithoutReturningIdInsideTx(

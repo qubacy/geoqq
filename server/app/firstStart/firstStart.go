@@ -16,6 +16,12 @@ import (
 	fileStorage "geoqq/internal/storage/file"
 )
 
+const (
+	LabelDeletedUser = "deletedUser"
+)
+
+// -----------------------------------------------------------------------
+
 func InsertDataIntoStorages(
 	ctxForInit context.Context,
 	ds domainStorage.Storage,
@@ -24,34 +30,26 @@ func InsertDataIntoStorages(
 ) error {
 	sourceFunc := InsertDataIntoStorages
 
-	// TODO: check
-
-	err := insertAvatarsForDeletedUsers(ctxForInit,
-		ds, fs, hashManager)
+	has, err := ds.HasAvatarsWithLabel(ctxForInit, LabelDeletedUser)
 	if err != nil {
 		return utility.NewFuncError(sourceFunc, err)
 	}
+	if !has {
+		if err := insertAvatarsForDeletedUsers(
+			ctxForInit, ds, fs, hashManager); err != nil {
+			return utility.NewFuncError(sourceFunc, err)
+		}
+
+		logger.Info("avatars for deleted users are inserted")
+	}
+
+	// next steps...
 
 	return nil
 }
 
-func pathToAssets() (string, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", utility.NewFuncError(pathToAssets, err)
-	}
-
-	parts := strings.Split(wd, string(os.PathSeparator))
-	parts = parts[:len(parts)-1] // remove app!
-	parts = append(parts, "assets")
-	return strings.Join(parts, string(os.PathSeparator)), nil
-}
-
+// private
 // -----------------------------------------------------------------------
-
-const (
-	labelDeletedUser = "deletedUser"
-)
 
 func insertAvatarsForDeletedUsers(
 	ctxForInit context.Context,
@@ -88,7 +86,10 @@ func insertAvatarsForDeletedUsers(
 
 		// ***
 
-		imageBytes, err := readImageContent(pathToImages, dirEntry.Name())
+		imageBytes, err := readImageContent(
+			strings.Join([]string{pathToImages, dirEntry.Name()},
+				string(os.PathSeparator)),
+		)
 		if err != nil {
 			return utility.NewFuncError(sourceFunc, err)
 		}
@@ -100,7 +101,7 @@ func insertAvatarsForDeletedUsers(
 		// ***
 
 		id, err := ds.InsertServerGeneratedAvatarWithLabel(ctxForInit,
-			imageHash, labelDeletedUser)
+			imageHash, LabelDeletedUser)
 		if err != nil {
 			return utility.NewFuncError(sourceFunc, err)
 		}
@@ -116,8 +117,8 @@ func insertAvatarsForDeletedUsers(
 	return nil
 }
 
-func readImageContent(pathToImages, fn string) ([]byte, error) {
-	f, err := os.Open(pathToImages + string(os.PathSeparator) + fn)
+func readImageContent(fn string) ([]byte, error) {
+	f, err := os.Open(fn)
 	if err != nil {
 		return nil, ErrFailedToOpenFile
 	}
@@ -127,4 +128,16 @@ func readImageContent(pathToImages, fn string) ([]byte, error) {
 		return nil, ErrFailedToReadFile
 	}
 	return imageBytes, nil
+}
+
+func pathToAssets() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", utility.NewFuncError(pathToAssets, err)
+	}
+
+	parts := strings.Split(wd, string(os.PathSeparator))
+	parts = parts[:len(parts)-1] // remove app!
+	parts = append(parts, "assets")
+	return strings.Join(parts, string(os.PathSeparator)), nil
 }

@@ -3,6 +3,7 @@ package postgre
 import (
 	"context"
 	"errors"
+	"geoqq/app/firstStart"
 	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
@@ -50,6 +51,17 @@ var (
 	templateChangeNameForUser = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" SET "Username" = $1
 		WHERE "Id" = $2`)
+
+	/*
+		Order:
+			1. userId
+			2. label
+	*/
+	templateSetRandomAvatarWithLabelForUser = utl.RemoveAdjacentWs(`
+		UPDATE "UserDetails" SET "AvatarId" = (
+			SELECT "Id" FROM "Avatar" WHERE "Label" = $2
+			ORDER BY RANDOM() LIMIT 1
+		) WHERE "UserId" = $1`)
 )
 
 // public
@@ -106,11 +118,13 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 		// ***
 
 		changeNameToDeletedForUserInsideTx(ctx, tx, userId),
-		//changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
+		changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
 
 		updateUserDescriptionInsideTx(ctx, tx, userId, ""),
 		updateHashRefreshTokenInsideTx(ctx, tx, userId, ""),
 		resetPrivacyForUserInsideTx(ctx, tx, userId),
+
+		// reset hash password?
 	)
 	if err != nil {
 		err = errors.Join(err, tx.Rollback(ctx)) // ?
@@ -123,6 +137,8 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 	err = tx.Commit(ctx)
 	if err != nil {
+		logger.Error("%v", err)
+
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
@@ -137,14 +153,14 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 func insertUserToDeletedInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
 	return insertInsideTx(ctx, insertDeletedMateChatInsideTx,
-		tx, templateInsertUserToDeleted+`;`, userId,
+		tx, templateInsertUserToDeleted, userId,
 	)
 }
 
 func deleteMateRequestsForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, result table.MateRequestResult, userId uint64) error {
 	return deleteInsideTx(ctx, deleteMateRequestsForUserInsideTx,
-		tx, templateDeleteMateRequestsForUser+`;`,
+		tx, templateDeleteMateRequestsForUser,
 		userId, int16(result),
 	)
 }
@@ -154,15 +170,17 @@ func deleteMateRequestsForUserInsideTx(ctx context.Context,
 func changeNameToDeletedForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
 	return updateInsideTx(ctx, changeNameToDeletedForUserInsideTx,
-		tx, templateChangeNameForUser+`;`,
+		tx, templateChangeNameForUser,
 		uuid.NewString(), userId,
 	)
 }
 
 func changeAvatarToDeletedForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
-
-	return ErrNotImplemented
+	return updateInsideTx(ctx, changeAvatarToDeletedForUserInsideTx,
+		tx, templateSetRandomAvatarWithLabelForUser,
+		userId, firstStart.LabelDeletedUser,
+	)
 }
 
 func resetPrivacyForUserInsideTx(ctx context.Context,

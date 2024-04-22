@@ -60,6 +60,18 @@ var (
 		VALUES (
 			$1, NOW()::timestamp, $2
 		) RETURNING "Id"`)
+
+	templateHasAvatarsWithLabel = utl.RemoveAdjacentWs(`
+		SELECT 
+			case 
+				when COUNT(*) > 0 then TRUE
+				else FALSE
+			end as "Exist"
+		FROM "Avatar" WHERE "Label" = $1`)
+
+	templateGetRandomAvatarIdByLabel = utl.RemoveAdjacentWs(`
+		SELECT "Id" FROM "Avatar" WHERE "Label" = $1
+		ORDER BY RANDOM() LIMIT 1`)
 )
 
 // public
@@ -97,7 +109,7 @@ func (s *AvatarStorage) HasAvatars(ctx context.Context, uniqueIds []uint64) (
 	bool, error,
 ) {
 	if len(uniqueIds) == 0 {
-		return true, nil
+		return true, nil // ?
 	}
 
 	conn, err := s.pool.Acquire(ctx)
@@ -123,6 +135,62 @@ func (s *AvatarStorage) HasAvatars(ctx context.Context, uniqueIds []uint64) (
 	return count == len(uniqueIds), nil
 }
 
+func (s *AvatarStorage) HasAvatarsWithLabel(ctx context.Context, label string) (
+	bool, error) {
+	if len(label) == 0 {
+		return false, ErrInvalidParams
+	}
+
+	sourceFunc := s.InsertServerGeneratedAvatar
+	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateHasAvatarsWithLabel+`;`,
+				label,
+			)
+		},
+	)
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+	return scanBool(row, sourceFunc)
+}
+
+func (s *AvatarStorage) GetAvatarIdsByLabel(ctx context.Context, label string) (
+	[]uint64, error,
+) {
+	if len(label) == 0 {
+		return nil, ErrInvalidParams
+	}
+
+	sourceFunc := s.GetAvatarIdsByLabel
+	rows, err := queryWithConnectionAcquire(s.pool, ctx,
+		func(conn *pgxpool.Conn, ctx context.Context) (pgx.Rows, error) {
+			return conn.Query(ctx, "")
+		},
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return scanListOfUint64(rows, sourceFunc)
+}
+
+func (s *AvatarStorage) GetRandomAvatarIdByLabel(ctx context.Context, label string) (
+	uint64, error,
+) {
+	if len(label) == 0 {
+		return 0, ErrInvalidParams
+	}
+
+	sourceFunc := s.GetRandomAvatarIdByLabel
+	avatarId, err := getRandomAvatarIdByLabel(s.pool, ctx, label)
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+	return avatarId, nil
+}
+
 // work with generated avatar
 // -----------------------------------------------------------------------
 
@@ -130,8 +198,11 @@ func (s *AvatarStorage) InsertServerGeneratedAvatar(
 	ctx context.Context, hashValue string) (
 	uint64, error,
 ) {
-	sourceFunc := s.InsertServerGeneratedAvatar
+	if len(hashValue) == 0 {
+		return 0, ErrInvalidParams
+	}
 
+	sourceFunc := s.InsertServerGeneratedAvatar
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
 		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
@@ -140,18 +211,20 @@ func (s *AvatarStorage) InsertServerGeneratedAvatar(
 			)
 		},
 	)
-
 	if err != nil {
 		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return scanLastInsertedId(row, sourceFunc)
+	return scanUint64(row, sourceFunc)
 }
 
 func (s *AvatarStorage) InsertServerGeneratedAvatarWithLabel(ctx context.Context,
 	hashValue, label string) (uint64, error) {
-	sourceFunc := s.InsertServerGeneratedAvatarWithLabel
+	if len(label) == 0 || len(hashValue) == 0 {
+		return 0, ErrInvalidParams
+	}
 
+	sourceFunc := s.InsertServerGeneratedAvatarWithLabel
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
 		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
@@ -165,7 +238,7 @@ func (s *AvatarStorage) InsertServerGeneratedAvatarWithLabel(ctx context.Context
 		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return scanLastInsertedId(row, sourceFunc)
+	return scanUint64(row, sourceFunc)
 }
 
 // -----------------------------------------------------------------------
@@ -174,8 +247,11 @@ func (s *AvatarStorage) InsertAvatar(
 	ctx context.Context, userId uint64, hashValue string) (
 	uint64, error,
 ) {
-	sourceFunc := s.InsertAvatar
+	if len(hashValue) == 0 {
+		return 0, ErrInvalidParams
+	}
 
+	sourceFunc := s.InsertAvatar
 	row, err := queryRowWithConnectionAcquire(s.pool, ctx,
 		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
 			return conn.QueryRow(ctx,
@@ -189,7 +265,7 @@ func (s *AvatarStorage) InsertAvatar(
 		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return scanLastInsertedId(row, s.InsertAvatar)
+	return scanUint64(row, s.InsertAvatar)
 }
 
 // -----------------------------------------------------------------------
@@ -212,4 +288,24 @@ func (s *AvatarStorage) DeleteAvatarWithId(
 	}
 
 	return nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func getRandomAvatarIdByLabel(pool *pgxpool.Pool,
+	ctx context.Context, label string) (uint64, error) {
+	sourceFunc := getRandomAvatarIdByLabel
+	row, err := queryRowWithConnectionAcquire(pool, ctx,
+		func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
+			return conn.QueryRow(ctx,
+				templateGetRandomAvatarIdByLabel+`;`,
+				label,
+			)
+		},
+	)
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+	return scanUint64(row, sourceFunc)
 }

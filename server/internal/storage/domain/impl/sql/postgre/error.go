@@ -5,8 +5,11 @@ import "errors"
 var (
 	ErrNoRows           = errors.New("no rows")
 	ErrUnexpectedResult = errors.New("unexpected result")
-	ErrUpdateFailed     = errors.New("update failed")
-	ErrInsertFailed     = errors.New("insert failed")
-	ErrDeleteFailed     = errors.New("delete failed")
 	ErrNotImplemented   = errors.New("not implemented")
+
+	ErrUpdateFailed = errors.New("update failed")
+	ErrInsertFailed = errors.New("insert failed")
+	ErrDeleteFailed = errors.New("delete failed")
+
+	ErrInvalidParams = errors.New("invalid params")
 )
