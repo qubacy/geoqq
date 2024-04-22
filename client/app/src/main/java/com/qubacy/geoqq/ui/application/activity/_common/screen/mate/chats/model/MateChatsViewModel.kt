@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -30,8 +31,6 @@ open class MateChatsViewModel @Inject constructor(
 ) {
     companion object {
         const val TAG = "MateChatsViewModel"
-
-        const val LAST_CHAT_CHUNK_INDEX_KEY = "lastChatChunkIndex"
     }
 
     private var mIsGettingNextChatChunk: Boolean = false
@@ -81,8 +80,9 @@ open class MateChatsViewModel @Inject constructor(
         if (!updateChatChunkResult.isSuccessful())
             return processErrorDomainResult(updateChatChunkResult.error!!)
 
-        val prevChatChunkSize = mUiState
-            .chatChunkSizes[getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)]
+        val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
+        Log.d(TAG, "processUpdateChatChunkDomainResult(): prevChatChunkOffset = $prevChatChunkOffset; mUiState.chatChunkSizes = ${mUiState.chatChunkSizes.map { "${it.key} -> ${it.value}, " }};")
+        val prevChatChunkSize = mUiState.chatChunkSizes[prevChatChunkOffset]!!
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
         val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
@@ -97,17 +97,16 @@ open class MateChatsViewModel @Inject constructor(
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {
         val chatPresentationChunk =
             chatChunk.chats.map { it.toMateChatPresentation() }.toMutableList()
-        val chatChunkSizesSize = mUiState.chatChunkSizes.size
         val chatPresentationChunkSize = chatPresentationChunk.size
+        val chunkOffset = getPrevChatChunkOffset(chatChunk.offset)
 
-        if (chatChunkSizesSize < chatChunk.index + 1) {
-            mUiState.chatChunkSizes.add(chatPresentationChunkSize)
+        if (!mUiState.chatChunkSizes.contains(chunkOffset)) {
+            mUiState.chatChunkSizes[chunkOffset] = chatPresentationChunkSize
             mUiState.chats.addAll(chatPresentationChunk)
 
         } else {
-            val prevChatChunkSize = mUiState.chatChunkSizes[chatChunk.index]
-            val prevChatToRemovePosition =
-                chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
+            val prevChatChunkSize = mUiState.chatChunkSizes[chunkOffset]!!
+            val prevChatToRemovePosition = chatChunk.offset
             val prevChatsToRemove = mUiState.chats.subList(
                 prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize
             )
@@ -115,7 +114,7 @@ open class MateChatsViewModel @Inject constructor(
             mUiState.chats.removeAll(prevChatsToRemove)
             mUiState.chats.addAll(prevChatToRemovePosition, chatPresentationChunk)
 
-            mUiState.chatChunkSizes[chatChunk.index] = chatPresentationChunkSize
+            mUiState.chatChunkSizes[chunkOffset] = chatPresentationChunkSize
         }
 
         return chatPresentationChunk
@@ -133,24 +132,29 @@ open class MateChatsViewModel @Inject constructor(
 
         changeLoadingState(true)
 
-        mUseCase.getChatChunk(mLastChatChunkIndex)
+        val offset = mUiState.chats.size
+
+        Log.d(TAG, "getNextChatChunk(): getting a new chunk. offset = $offset;")
+
+        mUseCase.getChatChunk(offset)
     }
 
     open fun resetChatChunks() {
-        mLastChatChunkIndex = 0
-
         mUiState.apply {
+            newChatCount = 0
+
             chats.clear()
             chatChunkSizes.clear()
         }
     }
 
     open fun isNextChatChunkGettingAllowed(): Boolean {
-        val prevChatChunkIndex = mLastChatChunkIndex - 1
         val chatCount = mUiState.chats.size
+        val preparedChatCount =
+            if (chatCount > 0) chatCount - mUiState.newChatCount
+            else chatCount
 
-        val chunkSizeCheck = (prevChatChunkIndex < 0 ||
-                (chatCount % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0))
+        val chunkSizeCheck = (preparedChatCount % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0)
 
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }

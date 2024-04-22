@@ -56,9 +56,8 @@ class MateChatsUseCase @Inject constructor(
     }
 
     private suspend fun processGetChatsDataResult(getChatsResult: GetChatsDataResult) {
-        val chunkIndex = getChatsResult.offset / DEFAULT_CHAT_CHUNK_SIZE
         val chats = getChatsResult.chats.map { it.toMateChat() }
-        val chatChunk = MateChatChunk(chunkIndex, chats)
+        val chatChunk = MateChatChunk(getChatsResult.offset, chats)
 
         mResultFlow.emit(UpdateChatChunkDomainResult(chunk = chatChunk))
     }

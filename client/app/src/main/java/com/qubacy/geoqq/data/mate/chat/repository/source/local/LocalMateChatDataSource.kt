@@ -20,7 +20,7 @@ interface LocalMateChatDataSource : LocalMateMessageDataSource {
         "${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME} " +
         "AND ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} = " +
         "${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} " +
-        "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC " +
+        "ORDER BY ${MateMessageEntity.TIME_PROP_NAME} DESC, ${MateChatEntity.ID_PROP_NAME} DESC " +
         "LIMIT :offset, :count"
     )
     fun getChats(offset: Int, count: Int): Map<MateChatEntity, MateMessageEntity?>
@@ -67,6 +67,15 @@ interface LocalMateChatDataSource : LocalMateMessageDataSource {
         "WHERE ${MateChatEntity.ID_PROP_NAME} IN (:chatIds)"
     )
     fun deleteChatsByIds(chatIds: List<Long>)
+
+    @Query(
+        "DELETE FROM ${MateChatEntity.TABLE_NAME} " +
+        "WHERE ${MateChatEntity.ID_PROP_NAME} IN " +
+        "(SELECT ${MateChatEntity.ID_PROP_NAME}" +
+        "FROM ${MateChatEntity.}" +
+        ")"
+    )
+    fun deleteChatsOlderChatWithId(chatId: Long)
 
     fun saveChats(chatLastMessageEntityPairList: List<Pair<MateChatEntity, MateMessageEntity?>>) {
         for (chatLastMessageEntityPair in chatLastMessageEntityPairList) {

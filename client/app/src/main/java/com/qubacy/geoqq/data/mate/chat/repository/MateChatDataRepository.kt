@@ -64,19 +64,21 @@ class MateChatDataRepository @Inject constructor(
             if (localDataChats.size == httpDataChats.size
              && localDataChats.containsAll(httpDataChats)
             ) {
-                return@launch
+                if (localDataChats.isEmpty()) resultLiveData.postValue(null)
+                else return@launch
             }
 
             if (localDataChats.isNotEmpty())
                 mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
             else resultLiveData.postValue(GetChatsDataResult(offset, httpDataChats))
 
-            if (localDataChats.size - httpDataChats.size > 0)
-                deleteOverdueChats(localDataChats, httpDataChats)
-
+            // todo: think of the operations' order:
             val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
 
             mLocalMateChatDataSource.saveChats(chatsToSave)
+
+            if (localDataChats.size - httpDataChats.size > 0)
+                deleteOverdueChats(localDataChats, httpDataChats)
         }
 
         return resultLiveData
@@ -131,6 +133,12 @@ class MateChatDataRepository @Inject constructor(
         localDataChats: List<DataMateChat>,
         httpDataChats: List<DataMateChat>
     ) {
+        val lastValidChatId = httpDataChats.last().id
+
+        if (httpDataChats.isEmpty()) {
+            mLocalMateChatDataSource.deleteChatsOlderChatWithId(lastValidChatId)
+        }
+
         val chatsToDelete = localDataChats.filter { localChat ->
             httpDataChats.find { httpChat -> httpChat.id == localChat.id } == null
         }

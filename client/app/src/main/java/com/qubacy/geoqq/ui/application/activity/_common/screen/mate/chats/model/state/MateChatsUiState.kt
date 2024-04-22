@@ -8,11 +8,11 @@ class MateChatsUiState(
     isLoading: Boolean = false,
     error: Error? = null,
     val chats: MutableList<MateChatPresentation> = mutableListOf(),
-    val chatChunkSizes: MutableList<Int> = mutableListOf(),
+    val chatChunkSizes: MutableMap<Int, Int> = mutableMapOf(),
     var newChatCount: Int = 0
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): MateChatsUiState {
         return MateChatsUiState(
-            isLoading, error?.copy(), chats.toMutableList(), chatChunkSizes.toMutableList())
+            isLoading, error?.copy(), chats.toMutableList(), chatChunkSizes.toMutableMap())
     }
 }
