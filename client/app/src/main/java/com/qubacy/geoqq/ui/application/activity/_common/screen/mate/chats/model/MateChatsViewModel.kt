@@ -132,11 +132,12 @@ open class MateChatsViewModel @Inject constructor(
 
         changeLoadingState(true)
 
+        val loadedChatIds = mUiState.chats.map { it.id }
         val offset = mUiState.chats.size
 
         Log.d(TAG, "getNextChatChunk(): getting a new chunk. offset = $offset;")
 
-        mUseCase.getChatChunk(offset)
+        mUseCase.getChatChunk(loadedChatIds, offset)
     }
 
     open fun resetChatChunks() {

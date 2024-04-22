@@ -21,11 +21,12 @@ class MateChatsUseCase @Inject constructor(
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
     }
 
-    fun getChatChunk(offset: Int) {
+    fun getChatChunk(loadedChatIds: List<Long>, offset: Int) {
         executeLogic({
             val count = DEFAULT_CHAT_CHUNK_SIZE
 
-            val getChatsResult = mMateChatDataRepository.getChats(offset, count).await()
+            val getChatsResult = mMateChatDataRepository
+                .getChats(loadedChatIds, offset, count).await()
 
             val chats = getChatsResult?.chats?.map { it.toMateChat() }
             val chatChunk = chats?.let { MateChatChunk(offset, chats)}

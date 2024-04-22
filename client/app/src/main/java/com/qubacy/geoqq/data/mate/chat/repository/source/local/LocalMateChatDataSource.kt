@@ -70,12 +70,33 @@ interface LocalMateChatDataSource : LocalMateMessageDataSource {
 
     @Query(
         "DELETE FROM ${MateChatEntity.TABLE_NAME} " +
-        "WHERE ${MateChatEntity.ID_PROP_NAME} IN " +
-        "(SELECT ${MateChatEntity.ID_PROP_NAME}" +
-        "FROM ${MateChatEntity.}" +
-        ")"
+        "WHERE ${MateChatEntity.ID_PROP_NAME} NOT IN (:chatIds)"
     )
-    fun deleteChatsOlderChatWithId(chatId: Long)
+    fun deleteOtherChatsByIds(chatIds: List<Long>)
+
+//    fun deleteChatsOlderChatWithId(database: Database, chatId: Long, isInclusive: Boolean = false) {
+//        val query = SimpleSQLiteQuery(
+//            "BEGIN;" +
+//            "CREATE TEMP TABLE _SortedRowIndexChatId(row_index PRIMARY KEY, chat_id INTEGER);" +
+//            "CREATE TEMP TABLE _GivenChatIdRowIndex(chat_id PRIMARY KEY, row_index INTEGER);" +
+//            "INSERT INTO _SortedRowIndexChatId" +
+//            "SELECT ROW_NUMBER() OVER(ORDER BY ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.TIME_PROP_NAME} DESC, ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} DESC) row_index, ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} as chat_id" +
+//            "FROM ${MateChatEntity.TABLE_NAME}" +
+//            "LEFT JOIN ${MateMessageEntity.TABLE_NAME}" +
+//            "ON ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.ID_PROP_NAME} = ${MateChatEntity.TABLE_NAME}.${MateChatEntity.LAST_MESSAGE_ID_PROP_NAME}" +
+//            "AND ${MateMessageEntity.TABLE_NAME}.${MateMessageEntity.CHAT_ID_PROP_NAME} = ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME};" +
+//            "INSERT INTO _GivenChatIdRowIndex" +
+//            "SELECT chat_id, row_index FROM _SortedRowIndexChatId WHERE chat_id = $chatId LIMIT 1;" +
+//            "DELETE FROM ${MateChatEntity.TABLE_NAME} WHERE ${MateChatEntity.TABLE_NAME}.${MateChatEntity.ID_PROP_NAME} IN (SELECT _SortedRowIndexChatId.chat_id" +
+//            "FROM _SortedRowIndexChatId, _GivenChatIdRowIndex" +
+//            "WHERE _SortedRowIndexChatId.row_index ${if (isInclusive) ">=" else ">"} _GivenChatIdRowIndex.row_index;" +
+//            "DROP TABLE _SortedRowIndexChatId;" +
+//            "DROP TABLE _GivenChatIdRowIndex;" +
+//            "END;"
+//        )
+//
+//        database.query(query)
+//    }
 
     fun saveChats(chatLastMessageEntityPairList: List<Pair<MateChatEntity, MateMessageEntity?>>) {
         for (chatLastMessageEntityPair in chatLastMessageEntityPairList) {
