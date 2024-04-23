@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -13,7 +11,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.choosablelistviewlib.item.ChoosableItemViewProvider
-import com.qubacy.choosablelistviewlib.view.ChoosableRecyclerView
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
@@ -258,14 +255,20 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
 
         val isLoading = true
         val setLoadingStateOperation = SetLoadingStateUiOperation(isLoading)
+        val userPresentation = mUserPresentation
 
-        initWithModelContext(MateRequestsViewModelMockContext(initUiState))
+        initWithModelContext(MateRequestsViewModelMockContext(
+            initUiState, getUserProfileWithMateRequestId = userPresentation))
 
         mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
+
+        // todo: find a way to avoid this:
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
         mViewModelMockContext.uiOperationFlow.emit(setLoadingStateOperation)
 
-        // todo: implement this properly:
         Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
             .perform(ViewActions.click())
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.doesNotExist())

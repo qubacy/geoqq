@@ -61,6 +61,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private var mLocalSourceDeleteMateMessageCallFlag = false
     private var mLocalSourceDeleteMateMessagesByIdsCallFlag = false
     private var mLocalSourceSaveMateMessageCallFlag = false
+    private var mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
+    private var mLocalSourceDeleteAllMessagesCallFlag = false
 
     private var mHttpSourceGetMateMessagesResponse: GetMessagesResponse? = null
 
@@ -84,6 +86,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mLocalSourceDeleteMateMessageCallFlag = false
         mLocalSourceDeleteMateMessagesByIdsCallFlag = false
         mLocalSourceSaveMateMessageCallFlag = false
+        mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
+        mLocalSourceDeleteAllMessagesCallFlag = false
 
         mHttpSourceGetMateMessagesResponse = null
 
@@ -154,6 +158,20 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Unit
         }
+        Mockito.`when`(localMateMessageDataSourceMock.deleteOtherMessagesByIds(
+            Mockito.anyLong(), AnyMockUtil.anyObject()
+        )).thenAnswer {
+            mLocalSourceDeleteOtherMessagesByIdsCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(localMateMessageDataSourceMock.deleteAllMessages(
+            Mockito.anyLong()
+        )).thenAnswer {
+            mLocalSourceDeleteAllMessagesCallFlag = true
+
+            Unit
+        }
         Mockito.`when`(localMateMessageDataSourceMock.saveMessages(
             AnyMockUtil.anyObject()
         )).thenAnswer {
@@ -194,6 +212,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     @Test
     fun getMessagesTest() = runTest {
         val chatId = 0L
+        val loadedMessageIds = listOf<Long>()
         val offset = 0
         val count = 5
 
@@ -210,7 +229,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
 
         mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository.getMessages(chatId, offset, count).await()
+            val gottenLocalResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count).await()
 
             Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
 
@@ -235,6 +254,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     @Test
     fun getMessagesWithOverdueMessagesTest() = runTest {
         val chatId = 0L
+        val loadedMessageIds = listOf<Long>()
         val offset = 0
         val count = 5
 
@@ -251,7 +271,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
 
         mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository.getMessages(chatId, offset, count).await()
+            val gottenLocalResult = mDataRepository
+                .getMessages(chatId, loadedMessageIds, offset, count).await()
 
             Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
 
@@ -265,7 +286,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
 
             Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
             Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
-            Assert.assertTrue(mLocalSourceDeleteMateMessagesByIdsCallFlag)
+            Assert.assertTrue(mLocalSourceDeleteOtherMessagesByIdsCallFlag)
             Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages

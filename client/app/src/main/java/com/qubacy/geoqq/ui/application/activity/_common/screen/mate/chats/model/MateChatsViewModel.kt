@@ -108,8 +108,7 @@ open class MateChatsViewModel @Inject constructor(
             val prevChatChunkSize = mUiState.chatChunkSizes[chunkOffset]!!
             val prevChatToRemovePosition = chatChunk.offset
             val prevChatsToRemove = mUiState.chats.subList(
-                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize
-            )
+                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize)
 
             mUiState.chats.removeAll(prevChatsToRemove)
             mUiState.chats.addAll(prevChatToRemovePosition, chatPresentationChunk)

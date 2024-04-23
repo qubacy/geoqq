@@ -71,6 +71,8 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
     private var mLocalSourceDeleteChatCallFlag = false
     private var mLocalSourceDeleteChatsByIdsCallFlag = false
     private var mLocalSourceSaveChatsCallFlag = false
+    private var mLocalSourceDeleteAllChatsCallFlag = false
+    private var mLocalSourceDeleteOtherChatsByIdsCallFlag = false
 
     private var mHttpSourceGetChatResponse: GetChatResponse? = null
     private var mHttpSourceGetChatsResponse: GetChatsResponse? = null
@@ -99,6 +101,8 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         mLocalSourceDeleteChatCallFlag = false
         mLocalSourceDeleteChatsByIdsCallFlag = false
         mLocalSourceSaveChatsCallFlag = false
+        mLocalSourceDeleteAllChatsCallFlag = false
+        mLocalSourceDeleteOtherChatsByIdsCallFlag = false
 
         mHttpSourceGetChatResponse = null
         mHttpSourceGetChatsResponse = null
@@ -140,6 +144,18 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         Mockito.`when`(localMateChatDataSourceMock.getChatById(Mockito.anyLong())).thenAnswer {
             mLocalSourceGetChatByIdCallFlag = true
             mLocalSourceGetChatById
+        }
+        Mockito.`when`(localMateChatDataSourceMock.deleteAllChats()).thenAnswer {
+            mLocalSourceDeleteAllChatsCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(localMateChatDataSourceMock.deleteOtherChatsByIds(
+            AnyMockUtil.anyObject()
+        )).thenAnswer {
+            mLocalSourceDeleteOtherChatsByIdsCallFlag = true
+
+            Unit
         }
         Mockito.`when`(localMateChatDataSourceMock.insertChat(AnyMockUtil.anyObject())).thenAnswer {
             mLocalSourceInsertChatCallFlag = true
@@ -318,7 +334,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
             Assert.assertTrue(mHttpSourceGetChatsCallFlag)
             Assert.assertTrue(mHttpSourceGetChatsResponseCallFlag)
-            Assert.assertTrue(mLocalSourceDeleteChatsByIdsCallFlag)
+            Assert.assertTrue(mLocalSourceDeleteOtherChatsByIdsCallFlag)
             Assert.assertEquals(GetChatsDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataChats = (gottenHttpResult as GetChatsDataResult).chats

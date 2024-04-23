@@ -62,11 +62,6 @@ class MateChatDataRepository @Inject constructor(
             val getChatsResponse = executeNetworkRequest(
                 mErrorDataRepository, mHttpClient, getChatsCall)
 
-//            if (getChatsResponse.chats.isEmpty()) { // todo: think of this;
-//                if (localDataChats.isNotEmpty()) return@launch
-//                else resultLiveData.postValue(null)
-//            }
-
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 
             if (localDataChats.size == httpDataChats.size
@@ -83,7 +78,7 @@ class MateChatDataRepository @Inject constructor(
             if (localDataChats.size - httpDataChats.size > 0) {
                 val finalLoadedChatIds = loadedChatIds.plus(httpDataChats.map { it.id })
 
-                deleteOverdueChats(finalLoadedChatIds)//deleteOverdueChats(localDataChats, httpDataChats)
+                deleteOverdueChats(finalLoadedChatIds)
             }
 
             val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
@@ -106,6 +101,7 @@ class MateChatDataRepository @Inject constructor(
                 resultLiveData.postValue(GetChatByIdDataResult(localDataChat))
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
+
             val getChatCall = mHttpMateChatDataSource.getChat(chatId, accessToken)
             val getChatResponse = executeNetworkRequest(
                 mErrorDataRepository, mHttpClient, getChatCall)
@@ -142,26 +138,8 @@ class MateChatDataRepository @Inject constructor(
     private fun deleteOverdueChats(
         loadedChatIds: List<Long>
     ) {
-//        val isHttpDataChatsNotEmpty = httpDataChats.isNotEmpty()
-//
-//        val lastValidChatId = if (isHttpDataChatsNotEmpty)
-//            httpDataChats.last().id else localDataChats.first().id
-//        val isInclusive = !isHttpDataChatsNotEmpty
-//
-//        Log.d(TAG, "deleteOverdueChats(): localDataChats = ${localDataChats.map { it.id.toString() + ' ' }};")
-//        Log.d(TAG, "deleteOverdueChats(): isHttpDataChatsNotEmpty = $isHttpDataChatsNotEmpty; lastValidChatId = $lastValidChatId; isInclusive = $isInclusive;")
-//
-//        mLocalMateChatDataSource.deleteChatsOlderChatWithId(mDatabase, lastValidChatId, isInclusive)
-
-
-        mLocalMateChatDataSource.deleteOtherChatsByIds(loadedChatIds)
-
-
-//        val chatsToDelete = localDataChats.filter { localChat ->
-//            httpDataChats.find { httpChat -> httpChat.id == localChat.id } == null
-//        }
-//
-//        mLocalMateChatDataSource.deleteChatsByIds(chatsToDelete.map { it.id })
+        if (loadedChatIds.isEmpty()) mLocalMateChatDataSource.deleteAllChats()
+        else mLocalMateChatDataSource.deleteOtherChatsByIds(loadedChatIds)
     }
 
     private suspend fun resolveChatWithLastMessageMap(

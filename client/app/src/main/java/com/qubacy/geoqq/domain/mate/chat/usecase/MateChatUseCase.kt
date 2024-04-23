@@ -38,16 +38,15 @@ class MateChatUseCase @Inject constructor(
         mInterlocutorUseCase.resultFlow
     )
 
-    fun getMessageChunk(chatId: Long, chunkIndex: Int) {
+    fun getMessageChunk(chatId: Long, loadedMessageIds: List<Long>, offset: Int) {
         executeLogic({
-            val offset = chunkIndex * DEFAULT_MESSAGE_CHUNK_SIZE
             val count = DEFAULT_MESSAGE_CHUNK_SIZE
 
             val getMessagesResult = mMateMessageDataRepository
-                .getMessages(chatId, offset, count).await()
+                .getMessages(chatId, loadedMessageIds, offset, count).await()
 
             val messages = getMessagesResult?.messages?.map { it.toMateMessage() }
-            val messageChunk = messages?.let { MateMessageChunk(chunkIndex, messages)}
+            val messageChunk = messages?.let { MateMessageChunk(offset, messages)}
 
             mResultFlow.emit(GetMessageChunkDomainResult(chunk = messageChunk))
 
@@ -110,9 +109,8 @@ class MateChatUseCase @Inject constructor(
     private suspend fun processGetMessagesDataResult(
         getMessagesResult: GetMessagesDataResult
     ) {
-        val chunkIndex = getMessagesResult.offset / DEFAULT_MESSAGE_CHUNK_SIZE
         val messages = getMessagesResult.messages.map { it.toMateMessage() }
-        val messageChunk = MateMessageChunk(chunkIndex, messages)
+        val messageChunk = MateMessageChunk(getMessagesResult.offset, messages)
 
         mResultFlow.emit(UpdateMessageChunkDomainResult(chunk = messageChunk))
     }

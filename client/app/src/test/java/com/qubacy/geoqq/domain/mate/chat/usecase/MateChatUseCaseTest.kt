@@ -74,6 +74,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         runTest {
             Mockito.`when`(mateMessageDataRepositoryMock.getMessages(
                 Mockito.anyLong(),
+                AnyMockUtil.anyObject(),
                 Mockito.anyInt(),
                 Mockito.anyInt()
             )).thenAnswer {
@@ -144,6 +145,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
     @Test
     fun getMessageChunkTest() = runTest {
         val chatId = 0L
+        val loadedMessageIds = listOf<Long>()
         val chunkIndex = 0
         val offset = chunkIndex * MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE
         val messages = listOf(
@@ -157,7 +159,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         mGetMessagesResult = getMessagesResult
 
         mUseCase.resultFlow.test {
-            mUseCase.getMessageChunk(chatId, chunkIndex)
+            mUseCase.getMessageChunk(chatId, loadedMessageIds, chunkIndex)
 
             val result = awaitItem()
 

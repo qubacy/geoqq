@@ -74,6 +74,11 @@ interface LocalMateChatDataSource : LocalMateMessageDataSource {
     )
     fun deleteOtherChatsByIds(chatIds: List<Long>)
 
+    @Query(
+        "DELETE FROM ${MateChatEntity.TABLE_NAME}"
+    )
+    fun deleteAllChats()
+
 //    fun deleteChatsOlderChatWithId(database: Database, chatId: Long, isInclusive: Boolean = false) {
 //        val query = SimpleSQLiteQuery(
 //            "BEGIN;" +

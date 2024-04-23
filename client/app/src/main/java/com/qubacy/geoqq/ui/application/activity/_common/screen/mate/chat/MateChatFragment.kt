@@ -309,7 +309,15 @@ class MateChatFragment(
     }
 
     private fun initMateChat() {
-        if (mModel.uiState.prevMessages.isEmpty()) mModel.getNextMessageChunk()
+//        if (mModel.uiState.prevMessages.isEmpty()) mModel.getNextMessageChunk()
+        if (mModel.areMessageChunksInitialized()) resetMessageChunks()
+
+        mModel.getNextMessageChunk()
+    }
+
+    private fun resetMessageChunks() {
+        mAdapter.resetItems()
+        mModel.resetMessageChunks()
     }
 
     override fun onEndReached() {

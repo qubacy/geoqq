@@ -37,7 +37,12 @@ class MateMessageDataRepository @Inject constructor(
     private val mHttpClient: OkHttpClient
     // todo: provide a websocket data source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
-    suspend fun getMessages(chatId: Long, offset: Int, count: Int): LiveData<GetMessagesDataResult?> {
+    suspend fun getMessages(
+        chatId: Long,
+        loadedMessageIds: List<Long>,
+        offset: Int,
+        count: Int
+    ): LiveData<GetMessagesDataResult?> {
         val resultLiveData = MutableLiveData<GetMessagesDataResult?>()
 
         CoroutineScope(coroutineContext).launch {
@@ -54,29 +59,26 @@ class MateMessageDataRepository @Inject constructor(
             val getMessagesResponse = executeNetworkRequest(
                 mErrorDataRepository, mHttpClient, getMessagesCall)
 
-            if (getMessagesResponse.messages.isEmpty()) {
-                if (localDataMessages.isNotEmpty()) return@launch
-                else resultLiveData.postValue(null)
-            }
-
             val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
 
-            Log.d("TEST", "getMessages(): httpDataMessages = ${httpDataMessages.map { it.toString() }}")
-
-            if (localDataMessages.containsAll(httpDataMessages)
-                && localDataMessages.size == httpDataMessages.size
+            if (localDataMessages.size == httpDataMessages.size
+                && localDataMessages.containsAll(httpDataMessages)
             ) {
-                return@launch
+                if (localDataMessages.isEmpty()) resultLiveData.postValue(null)
+                else return@launch
             }
 
             if (localDataMessages.isNotEmpty())
                 mResultFlow.emit(GetMessagesDataResult(offset, httpDataMessages))
             else resultLiveData.postValue(GetMessagesDataResult(offset, httpDataMessages))
 
-            Log.d("TEST", "localDataMessages.size = ${localDataMessages.size}; httpDataMessages.size = ${httpDataMessages.size};")
+            //Log.d("TEST", "localDataMessages.size = ${localDataMessages.size}; httpDataMessages.size = ${httpDataMessages.size};")
 
-            if (localDataMessages.size - httpDataMessages.size > 0)
-                deleteOverdueMessages(chatId, localDataMessages, httpDataMessages)
+            if (localDataMessages.size - httpDataMessages.size > 0) {
+                val finalLoadedMessageIds = loadedMessageIds.plus(httpDataMessages.map { it.id })
+
+                deleteOverdueMessages(chatId, finalLoadedMessageIds)
+            }
 
             val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
 
@@ -88,16 +90,12 @@ class MateMessageDataRepository @Inject constructor(
 
     private fun deleteOverdueMessages(
         chatId: Long,
-        localDataMessages: List<DataMessage>,
-        httpDataMessages: List<DataMessage>
+        loadedMessageIds: List<Long>
     ) {
-        val messagesToDelete = localDataMessages.filter { localMessage ->
-            httpDataMessages.find { httpMessage -> httpMessage.id == localMessage.id } == null
-        }
+        //Log.d("TEST", "deleteOverdueMessages(): chatId = $chatId; loadedMessageIds: $loadedMessageIds;")
 
-        Log.d("TEST", "deleteOverdueMessages(): startId = ${messagesToDelete.first().id}; endId = ${messagesToDelete.last().id};")
-
-        mLocalMateMessageDataSource.deleteMessagesByIds(chatId, messagesToDelete.map { it.id })
+        if (loadedMessageIds.isEmpty()) mLocalMateMessageDataSource.deleteAllMessages(chatId)
+        else mLocalMateMessageDataSource.deleteOtherMessagesByIds(chatId, loadedMessageIds)
     }
 
     suspend fun sendMessage(chatId: Long, text: String) {

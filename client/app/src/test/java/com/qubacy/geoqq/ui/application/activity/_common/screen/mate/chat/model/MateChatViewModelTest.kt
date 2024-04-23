@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -23,7 +24,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.toImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
@@ -31,6 +31,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.o
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -61,7 +62,6 @@ class MateChatViewModelTest(
         val DEFAULT_MATE_MESSAGE_PRESENTATION = DEFAULT_MATE_MESSAGE.toMateMessagePresentation()
     }
 
-    private lateinit var mLastMessageChunkIndexFieldReflection: Field
     private lateinit var mIsGettingNextMessageChunkFieldReflection: Field
 
     private var mGetMessageChunkCallFlag = false
@@ -72,9 +72,6 @@ class MateChatViewModelTest(
     override fun preInit() {
         super.preInit()
 
-        mLastMessageChunkIndexFieldReflection = MateChatViewModel::class.java
-            .getDeclaredField("mLastMessageChunkIndex")
-            .apply { isAccessible = true }
         mIsGettingNextMessageChunkFieldReflection = MateChatViewModel::class.java
             .getDeclaredField("mIsGettingNextMessageChunk")
             .apply { isAccessible = true }
@@ -93,7 +90,7 @@ class MateChatViewModelTest(
         val mateChatUseCaseMock = super.initUseCase()
 
         Mockito.`when`(mateChatUseCaseMock.getMessageChunk(
-            Mockito.anyLong(), Mockito.anyInt()
+            Mockito.anyLong(), AnyMockUtil.anyObject(), Mockito.anyInt()
         )).thenAnswer {
             mGetMessageChunkCallFlag = true
 
@@ -307,64 +304,43 @@ class MateChatViewModelTest(
     @Test
     fun isNextMessageChunkGettingAllowedTest() {
         class TestCase(
-            val lastMessageChunkIndex: Int,
-            val prevMessages: MutableList<MateMessagePresentation>,
+            val messageChunkSizes: MutableMap<Int, Int>,
             val isGettingNextMessageChunk: Boolean,
             val expectedIsNextMessageChunkGettingAllowed: Boolean
         )
 
         val testCases = listOf(
             TestCase(
-                0,
-                mutableListOf(),
+                mutableMapOf(),
                 false,
                 true
             ),
             TestCase(
-                0,
-                mutableListOf(),
+                mutableMapOf(),
                 true,
                 false
             ),
             TestCase(
-                1,
-                mutableListOf(),
-                false,
-                true
-            ),
-            TestCase(
-                1,
-                mutableListOf(DEFAULT_MATE_MESSAGE_PRESENTATION),
+                mutableMapOf(0 to 0),
                 false,
                 false
             ),
             TestCase(
-                1,
-                mutableListOf<MateMessagePresentation>().apply {
-                    repeat(MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE) {
-                        add(DEFAULT_MATE_MESSAGE_PRESENTATION)
-                    }
-                },
+                mutableMapOf(0 to MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE - 1),
                 false,
-                true
-            ),
-            TestCase(
-                1,
-                mutableListOf<MateMessagePresentation>().apply {
-                    repeat(MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE) {
-                        add(DEFAULT_MATE_MESSAGE_PRESENTATION)
-                    }
-                },
-                true,
                 false
             ),
+            TestCase(
+                mutableMapOf(0 to MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE),
+                false,
+                true
+            )
         )
 
         for (testCase in testCases) {
-            mLastMessageChunkIndexFieldReflection.set(mModel, testCase.lastMessageChunkIndex)
             mIsGettingNextMessageChunkFieldReflection.set(mModel, testCase.isGettingNextMessageChunk)
 
-            setUiState(MateChatUiState(prevMessages = testCase.prevMessages))
+            setUiState(MateChatUiState(messageChunkSizes = testCase.messageChunkSizes))
 
             val gottenIsNextMessageChunkGettingAllowed = mModel.isNextMessageChunkGettingAllowed()
 
@@ -373,6 +349,32 @@ class MateChatViewModelTest(
                 gottenIsNextMessageChunkGettingAllowed
             )
         }
+    }
+
+    @Test
+    fun resetMessageChunksTest() {
+        val initMessages = mutableListOf(DEFAULT_MATE_MESSAGE_PRESENTATION)
+        val initMessageChunkSizes = mutableMapOf(0 to initMessages.size)
+        val initNewMessageCount = 2
+        val initUiState = MateChatUiState(
+            messages = initMessages,
+            messageChunkSizes = initMessageChunkSizes,
+            newMessageCount = initNewMessageCount
+        )
+
+        val expectedMessages = listOf<MateMessagePresentation>()
+        val expectedMessageChunkSizes = mutableMapOf<Int, Int>()
+        val expectedNewMessageCount = 0
+
+        setUiState(initUiState)
+
+        mModel.resetMessageChunks()
+
+        val finalUiState = mModel.uiState
+
+        AssertUtils.assertEqualContent(expectedMessages, finalUiState.messages)
+        AssertUtils.assertEqualMaps(expectedMessageChunkSizes, finalUiState.messageChunkSizes)
+        Assert.assertEquals(expectedNewMessageCount, finalUiState.newMessageCount)
     }
 
     @Test
@@ -734,8 +736,7 @@ class MateChatViewModelTest(
         val expectedLoadingState = false
         val expectedMateMessageChunk = mateMessageChunk.messages
             .map { it.toMateMessagePresentation() }
-        val expectedPrevMessageChunkSizes = mutableListOf(expectedMateMessageChunk.size)
-        val expectedLastChunkIndex = 1
+        val expectedMessageChunkSizes = mutableMapOf(0 to mateMessageChunk.messages.size)
         val expectedIsGettingNextMessageChunk = false
 
         val getMessageChunkDomainResult = GetMessageChunkDomainResult(chunk = mateMessageChunk)
@@ -755,18 +756,15 @@ class MateChatViewModelTest(
             val gottenMateMessageChunk = (insertMessagesOperation as
                     InsertMessagesUiOperation).messages
             val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenLastChunkIndex = mLastMessageChunkIndexFieldReflection.get(mModel) as Int
             val gottenIsGettingNextMessageChunk = mIsGettingNextMessageChunkFieldReflection.get(mModel)
             val finalUiState = mModel.uiState
 
             AssertUtils.assertEqualContent(expectedMateMessageChunk, gottenMateMessageChunk)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedLastChunkIndex, gottenLastChunkIndex)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
+            AssertUtils.assertEqualMaps(expectedMessageChunkSizes, finalUiState.messageChunkSizes)
             Assert.assertEquals(expectedIsGettingNextMessageChunk, gottenIsGettingNextMessageChunk)
-            AssertUtils.assertEqualContent(expectedMateMessageChunk, finalUiState.prevMessages)
-            AssertUtils.assertEqualContent(expectedPrevMessageChunkSizes,
-                finalUiState.prevMessageChunkSizes)
+            AssertUtils.assertEqualContent(expectedMateMessageChunk, finalUiState.messages)
         }
     }
 
@@ -811,16 +809,15 @@ class MateChatViewModelTest(
     fun processUpdateMessageChunkDomainResultTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextMessageChunk = true
-        val initLastChunkIndex = 1
-        val initPrevMessages = mutableListOf(
+        val initMessages = mutableListOf(
             DEFAULT_MATE_MESSAGE_PRESENTATION,
             DEFAULT_MATE_MESSAGE_PRESENTATION
         )
-        val initPrevMessageChunkSizes = mutableListOf(initPrevMessages.size)
+        val initMessageChunkSizes = mutableMapOf(0 to initMessages.size)
         val initUiState = MateChatUiState(
             isLoading = initLoadingState,
-            prevMessages = initPrevMessages,
-            prevMessageChunkSizes = initPrevMessageChunkSizes
+            messages = initMessages,
+            messageChunkSizes = initMessageChunkSizes
         )
 
         val updatedMateMessageChunk = MateMessageChunk(
@@ -833,8 +830,8 @@ class MateChatViewModelTest(
         val expectedLoadingState = false
         val expectedUpdatedMateMessageChunk = updatedMateMessageChunk.messages
             .map { it.toMateMessagePresentation() }
-        val expectedPrevMessageChunkSizes = mutableListOf(expectedUpdatedMateMessageChunk.size)
-        val expectedLastChunkIndex = 1
+        val expectedMessageChunkSizes = initMessageChunkSizes.toMutableMap()
+            .apply { this[0] = updatedMateMessageChunk.messages.size }
         val expectedIsGettingNextMessageChunk = false
 
         val updateMessageChunkDomainResult = UpdateMessageChunkDomainResult(
@@ -842,7 +839,6 @@ class MateChatViewModelTest(
 
         setUiState(initUiState)
         mIsGettingNextMessageChunkFieldReflection.set(mModel, initIsGettingNextMessageChunk)
-        mLastMessageChunkIndexFieldReflection.set(mModel, initLastChunkIndex)
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateMessageChunkDomainResult)
@@ -856,18 +852,15 @@ class MateChatViewModelTest(
             val gottenUpdatedMateMessageChunk = (updateMessageChunkOperation as
                     UpdateMessageChunkUiOperation).messages
             val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenLastChunkIndex = mLastMessageChunkIndexFieldReflection.get(mModel) as Int
             val gottenIsGettingNextMessageChunk = mIsGettingNextMessageChunkFieldReflection.get(mModel)
             val finalUiState = mModel.uiState
 
             AssertUtils.assertEqualContent(expectedUpdatedMateMessageChunk, gottenUpdatedMateMessageChunk)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedLastChunkIndex, gottenLastChunkIndex)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
             Assert.assertEquals(expectedIsGettingNextMessageChunk, gottenIsGettingNextMessageChunk)
-            AssertUtils.assertEqualContent(expectedUpdatedMateMessageChunk, finalUiState.prevMessages)
-            AssertUtils.assertEqualContent(expectedPrevMessageChunkSizes,
-                finalUiState.prevMessageChunkSizes)
+            AssertUtils.assertEqualContent(expectedUpdatedMateMessageChunk, finalUiState.messages)
+            AssertUtils.assertEqualMaps(expectedMessageChunkSizes, finalUiState.messageChunkSizes)
         }
     }
 }
