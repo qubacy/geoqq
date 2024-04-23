@@ -134,8 +134,7 @@ open class MateRequestsViewModel @Inject constructor(
     ): UserPresentation {
         val userPresentation = interlocutorResult.interlocutor!!.toUserPresentation()
 
-        val requestPosition = mUiState.requests.indexOfFirst {
-            it.user.id == userPresentation.id }
+        val requestPosition = mUiState.requests.indexOfFirst { it.user.id == userPresentation.id }
 
         mUiState.requests[requestPosition] =
             mUiState.requests[requestPosition].copy(user = userPresentation)

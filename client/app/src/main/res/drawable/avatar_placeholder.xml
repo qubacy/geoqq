@@ -6,4 +6,11 @@
         <color android:color="?attr/colorSurfaceContainer"/>
     </item>
 
+    <item
+        android:top="@dimen/small_gap_between_components"
+        android:bottom="@dimen/small_gap_between_components"
+        android:left="@dimen/small_gap_between_components"
+        android:right="@dimen/small_gap_between_components"
+        android:drawable="@drawable/ic_avatar_placeholder"/>
+
 </layer-list>

@@ -243,7 +243,13 @@ class MateRequestsFragment(
     }
 
     private fun checkMateRequestListEmpty() {
-        mSurfacePlaceholderViewProvider.setIsVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
+        val isHintVisible = mAdapter.itemCount <= 0
+
+        changeSurfacePlaceholderVisibility(isHintVisible)
+    }
+
+    private fun changeSurfacePlaceholderVisibility(isHintVisible: Boolean) {
+        mSurfacePlaceholderViewProvider.setIsVisible(isHintVisible) // todo: mb it'd be better to optimize this;
     }
 
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
@@ -269,18 +275,33 @@ class MateRequestsFragment(
     }
 
     private fun initUiControls() {
+        initTopBarMenu()
+    }
+
+    private fun initTopBarMenu() {
+        inflateTopBarMenu()
+
         mBinding.fragmentMateRequestsTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
     }
 
+    private fun inflateTopBarMenu() {
+        mBinding.fragmentMateRequestsTopBar.inflateMenu(R.menu.mate_requests_top_bar)
+    }
+
     private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.main_top_bar_option_my_profile -> navigateToMyProfile()
+            R.id.mate_requests_top_bar_option_hint -> showHint()
             else -> return false
         }
 
         return true
+    }
+
+    private fun showHint() {
+        mHintViewProvider.animateAppearance(true)
     }
 
     private fun navigateToMyProfile() {

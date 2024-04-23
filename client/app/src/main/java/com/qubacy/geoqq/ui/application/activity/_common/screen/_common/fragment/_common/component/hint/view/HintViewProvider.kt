@@ -4,6 +4,7 @@ import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import com.qubacy.geoqq.databinding.ComponentHintBinding
 import com.qubacy.geoqq.ui._common.util.view.extension.runAnimation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component._common.view.provider.ViewProvider
@@ -37,7 +38,9 @@ open class HintViewProvider(
         mBinding.componentHintText.text = text
     }
 
-    protected open fun animateAppearance(isAppearing: Boolean) {
+    open fun animateAppearance(isAppearing: Boolean) {
+        if (isAppearing == mBinding.root.isVisible) return
+
         val hintView = getView()
         val hintViewHeight = hintView.measuredHeight
 
@@ -72,8 +75,10 @@ open class HintViewProvider(
 
     fun scheduleAppearanceAnimation(
         isAppearing: Boolean,
-        duration: Long
+        duration: Long = MateRequestsFragment.HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT
     ) {
+        if (isAppearing == mBinding.root.isVisible) return
+
         object : CountDownTimer(duration, duration) {
             override fun onTick(millisUntilFinished: Long) {}
             override fun onFinish() { animateAppearance(isAppearing) }

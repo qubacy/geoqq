@@ -69,4 +69,6 @@
     <string name="component_bottom_sheet_user_button_mate_caption_add">Add as a mate</string>
     <string name="component_bottom_sheet_user_button_mate_caption_remove">Remove from mates</string>
 
+    <string name="component_mate_requests_top_bar_option_hint_title">Info</string>
+
 </resources>
