@@ -37,10 +37,10 @@
         <action
             android:id="@+id/action_mateChatsFragment_to_mateChatFragment"
             app:destination="@id/mateChatFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right_zoom_in"
+            app:exitAnim="@anim/slide_out_left_zoom_in"
+            app:popEnterAnim="@anim/slide_in_left_zoom_out"
+            app:popExitAnim="@anim/slide_out_right_zoom_out" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"

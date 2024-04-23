@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -65,6 +66,16 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         view.catchViewInsets(viewInsetsToCatch()) { insets, insetsRes ->
             adjustViewToInsets(insets, insetsRes)
         }
+
+        postponeEnterTransition()
+        requireView().viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                startPostponedEnterTransition()
+                requireView().viewTreeObserver.removeOnPreDrawListener(this)
+
+                return true
+            }
+        })
     }
 
     override fun onStop() {

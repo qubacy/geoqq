@@ -42,7 +42,7 @@ class HttpApi {
     companion object {
         const val TAG = "HttpApi"
 
-        const val BASE_URL = "http://10.0.2.2:3001"
+        const val BASE_URL = "https://a07a-176-116-169-147.ngrok-free.app"//"http://10.0.2.2:3001"
     }
 
     /**

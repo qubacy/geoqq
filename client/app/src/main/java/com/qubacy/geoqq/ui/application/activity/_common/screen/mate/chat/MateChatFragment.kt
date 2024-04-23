@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
+import android.graphics.Shader
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -18,6 +20,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
+import com.qubacy.geoqq.ui._common.tile.TileDrawable
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
@@ -217,6 +220,16 @@ class MateChatFragment(
 
             setCallback(this@MateChatFragment)
         }
+
+        setupMessageListBackground()
+    }
+
+    private fun setupMessageListBackground() {
+        val background = ContextCompat.getDrawable(
+            requireContext(), R.drawable.chat_background_pattern)!!
+        val tileBackground = TileDrawable(background, Shader.TileMode.REPEAT)
+
+        mBinding.fragmentMateChatList.background = tileBackground
     }
 
     private fun initUiControls() {

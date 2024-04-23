@@ -90,7 +90,8 @@
                 app:layout_constraintTop_toTopOf="@id/fragment_my_profile_input_wrapper_about_me"
                 app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_input_wrapper_about_me"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/ic_person"/>
+                app:srcCompat="@drawable/ic_person"
+                app:tint="?attr/colorOnSurface"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_my_profile_input_wrapper_about_me"
@@ -119,7 +120,8 @@
                 app:layout_constraintTop_toTopOf="@id/fragment_my_profile_input_wrapper_password"
                 app:layout_constraintBottom_toBottomOf="@id/fragment_my_profile_input_wrapper_password"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/ic_lock"/>
+                app:srcCompat="@drawable/ic_lock"
+                app:tint="?attr/colorOnSurface"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_my_profile_input_wrapper_password"
@@ -192,7 +194,8 @@
                 app:layout_constraintTop_toBottomOf="@id/fragment_my_profile_input_wrapper_new_password_again"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="@dimen/small_gap_between_components"
-                app:srcCompat="@drawable/ic_shield"/>
+                app:srcCompat="@drawable/ic_shield"
+                app:tint="?attr/colorOnSurface"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/fragment_my_profile_text_hit_me_up"
