@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
@@ -21,7 +22,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
@@ -52,15 +52,11 @@ class MateChatsViewModelTest(
 
     private var mUseCaseGetChatChunkCallFlag = false
 
-    private lateinit var mLastChatChunkIndexFieldReflection: Field
     private lateinit var mIsGettingNextChatChunkFieldReflection: Field
 
     override fun preInit() {
         super.preInit()
 
-        mLastChatChunkIndexFieldReflection = MateChatsViewModel::class.java
-            .getDeclaredField("mLastChatChunkIndex")
-            .apply { isAccessible = true }
         mIsGettingNextChatChunkFieldReflection = MateChatsViewModel::class.java
             .getDeclaredField("mIsGettingNextChatChunk")
             .apply { isAccessible = true }
@@ -75,7 +71,9 @@ class MateChatsViewModelTest(
     override fun initUseCase(): MateChatsUseCase {
         val mateChatsUseCaseMock = super.initUseCase()
 
-        Mockito.`when`(mateChatsUseCaseMock.getChatChunk(Mockito.anyInt())).thenAnswer {
+        Mockito.`when`(mateChatsUseCaseMock.getChatChunk(
+            AnyMockUtil.anyObject(), Mockito.anyInt()
+        )).thenAnswer {
             mUseCaseGetChatChunkCallFlag = true
 
             Unit
@@ -115,60 +113,41 @@ class MateChatsViewModelTest(
     @Test
     fun isNextChatChunkGettingAllowedTest() {
         data class TestCase(
-            val lastChatChunkIndex: Int,
-            val chats: MutableList<MateChatPresentation>,
+            val chatChunkSizes: MutableMap<Int, Int>,
             val isGettingNextChatChunk: Boolean,
             val expectedIsNextChatChunkGettingAllowed: Boolean
         )
 
         val testCases = listOf(
             TestCase(
-                0,
-                mutableListOf(),
+                mutableMapOf(),
                 false,
                 true
             ),
             TestCase(
-                0,
-                mutableListOf(),
+                mutableMapOf(),
                 true,
                 false
             ),
             TestCase(
-                0,
-                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
-                false,
-                true
-            ),
-            TestCase(
-                0,
-                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
-                true,
-                false
-            ),
-            TestCase(
-                1,
-                mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION),
+                mutableMapOf(0 to 1),
                 false,
                 false
             ),
             TestCase(
-                1,
-                mutableListOf<MateChatPresentation>()
-                    .apply {
-                        repeat(MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE) {
-                            add(DEFAULT_MATE_CHAT_PRESENTATION)
-                        }
-                    },
+                mutableMapOf(0 to MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE),
                 false,
                 true
             )
         )
 
         for (testCase in testCases) {
-            setLastChatChunkIndexValue(testCase.lastChatChunkIndex)
+            println("isNextChatChunkGettingAllowedTest(): " +
+                    "chatChunkSizes = ${testCase.chatChunkSizes}; " +
+                    "isGettingNextChatChunk = ${testCase.isGettingNextChatChunk};")
+
             setIsGettingNextChatChunkValue(testCase.isGettingNextChatChunk)
-            setUiState(MateChatsUiState(chats = testCase.chats))
+            setUiState(MateChatsUiState(chatChunkSizes = testCase.chatChunkSizes))
 
             val gottenIsNextChatChunkGettingAllowed = mModel.isNextChatChunkGettingAllowed()
 
@@ -183,11 +162,11 @@ class MateChatsViewModelTest(
     fun processGetChatChunkDomainResultWithErrorTest() = runTest {
         val initIsLoading = true
         val initIsGettingNextChatChunk = true
-        val initLastChatChunkIndex = 0
+        val initChatChunkSizes = mutableMapOf<Int, Int>()
 
         val expectedError = TestError.normal
         val expectedLoadingState = false
-        val expectedLastChatChunkIndex = initLastChatChunkIndex
+        val expectedChatChunkSizes = initChatChunkSizes
         val expectedIsGettingNextChatChunk = false
 
         val getChatChunkDomainResult = GetChatChunkDomainResult(error = expectedError)
@@ -195,10 +174,10 @@ class MateChatsViewModelTest(
         setUiState(
             MateChatsUiState(
                 isLoading = initIsLoading,
-                error = null
+                error = null,
+                chatChunkSizes = initChatChunkSizes
             )
         )
-        setLastChatChunkIndexValue(initLastChatChunkIndex)
         setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
 
         mModel.uiOperationFlow.test {
@@ -212,14 +191,13 @@ class MateChatsViewModelTest(
 
             val gottenError = (errorOperation as ErrorUiOperation).error
             val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenLastChatChunkIndexValue = getLastChatChunkIndexValue()
             val gottenIsGettingNextChatChunk = getIsGettingNextChatChunkValue()
             val finalUiState = mModel.uiState
 
             Assert.assertEquals(expectedError, gottenError)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedLastChatChunkIndex, gottenLastChatChunkIndexValue)
             Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
+            AssertUtils.assertEqualMaps(expectedChatChunkSizes, finalUiState.chatChunkSizes)
             Assert.assertEquals(expectedError, finalUiState.error)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
         }
@@ -230,7 +208,7 @@ class MateChatsViewModelTest(
         val initIsLoading = true
         val initChats = mutableListOf<MateChatPresentation>()
         val initIsGettingNextChatChunk = true
-        val initLastChatChunkIndex = 0
+        val initChatChunkSizes = mutableMapOf<Int, Int>()
 
         val mockedUri = UriMockUtil.getMockedUri()
         val avatar = Image(0, mockedUri)
@@ -240,20 +218,21 @@ class MateChatsViewModelTest(
 
         val getChatChunkDomainResult = GetChatChunkDomainResult(chunk = chatChunk)
 
-        val expectedChatChunkPosition = chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
+        val expectedChatChunkPosition = chatChunk.offset
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
         val expectedLoadingState = false
-        val expectedLastChatChunkIndex = initLastChatChunkIndex + 1
+        val expectedChatChunkSizes = initChatChunkSizes.toMutableMap()
+            .apply { this[0] = chatChunk.chats.size }
         val expectedChatCount = initChats.size + expectedChatPresentationChunk.size
         val expectedIsGettingNextChatChunk = false
 
         setUiState(
             MateChatsUiState(
                 isLoading = initIsLoading,
-                chats = initChats
+                chats = initChats,
+                chatChunkSizes = initChatChunkSizes
             )
         )
-        setLastChatChunkIndexValue(initLastChatChunkIndex)
         setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
 
         mModel.uiOperationFlow.test {
@@ -270,15 +249,14 @@ class MateChatsViewModelTest(
             val gottenChatChunkPosition = insertChatsOperation.position
             val gottenChatPresentationChunk = insertChatsOperation.chats
             val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenLastChatChunkIndexValue = getLastChatChunkIndexValue()
             val gottenIsGettingNextChatChunk = getIsGettingNextChatChunkValue()
             val finalUiState = mModel.uiState
 
             Assert.assertEquals(expectedChatChunkPosition, gottenChatChunkPosition)
             AssertUtils.assertEqualContent(expectedChatPresentationChunk, gottenChatPresentationChunk)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedLastChatChunkIndex, gottenLastChatChunkIndexValue)
             Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
+            AssertUtils.assertEqualMaps(expectedChatChunkSizes, finalUiState.chatChunkSizes)
             Assert.assertEquals(expectedChatCount, finalUiState.chats.size)
             AssertUtils.assertEqualContent(expectedChatPresentationChunk, finalUiState.chats)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
@@ -330,9 +308,8 @@ class MateChatsViewModelTest(
     fun processUpdateChatChunkDomainResultTest() = runTest {
         val initIsLoading = true
         val initIsGettingNextChatChunk = true
-        val initLastChatChunkIndex = 0
         val initChats = mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
-        val initChatSizes = mutableListOf(initChats.size)
+        val initChatSizes = mutableMapOf(0 to initChats.size)
 
         val mockedUri = UriMockUtil.getMockedUri()
         val avatar = Image(0, mockedUri)
@@ -343,8 +320,10 @@ class MateChatsViewModelTest(
         val updateChatChunkDomainResult = UpdateChatChunkDomainResult(chunk = chatChunk)
 
         val expectedChatCount = chatChunk.chats.size
-        val expectedChatChunkSizes = mutableListOf(chatChunk.chats.size)
-        val expectedChatChunkPosition = chatChunk.index * MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
+        val expectedChatChunkSizes = mutableMapOf(
+            0 to chatChunk.chats.size
+        )
+        val expectedChatChunkPosition = chatChunk.offset
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
         val expectedChatChunkSizeDelta = initChats.size - chatChunk.chats.size
         val expectedLoadingState = false
@@ -358,7 +337,6 @@ class MateChatsViewModelTest(
             )
         )
         setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
-        setLastChatChunkIndexValue(initLastChatChunkIndex)
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateChatChunkDomainResult)
@@ -384,18 +362,10 @@ class MateChatsViewModelTest(
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
             Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
             Assert.assertEquals(expectedChatCount, finalUiState.chats.size)
-            AssertUtils.assertEqualContent(expectedChatChunkSizes, finalUiState.chatChunkSizes)
+            AssertUtils.assertEqualMaps(expectedChatChunkSizes, finalUiState.chatChunkSizes)
             AssertUtils.assertEqualContent(expectedChatPresentationChunk, finalUiState.chats)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
         }
-    }
-
-    private fun getLastChatChunkIndexValue(): Int {
-        return mLastChatChunkIndexFieldReflection.getInt(mModel)
-    }
-
-    private fun setLastChatChunkIndexValue(value: Int) {
-        mLastChatChunkIndexFieldReflection.set(mModel, value)
     }
 
     private fun getIsGettingNextChatChunkValue(): Boolean {

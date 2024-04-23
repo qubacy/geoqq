@@ -162,7 +162,7 @@ class MateChatsFragment(
     }
 
     private fun initMateChats() {
-        if (mModel.uiState.chats.isNotEmpty()) resetChatChunks() // todo: is it ok?
+        if (mModel.areChatChunksInitialized()) resetChatChunks()
 
         mModel.getNextChatChunk()
     }

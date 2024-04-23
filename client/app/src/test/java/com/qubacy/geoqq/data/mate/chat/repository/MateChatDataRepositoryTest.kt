@@ -235,6 +235,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
     @Test
     fun getChatsTest() = runTest {
+        val loadedChatIds = listOf<Long>()
         val offset = 0
         val count = 5
 
@@ -255,7 +256,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         }
 
         mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository.getChats(offset, count).await()
+            val gottenLocalResult = mDataRepository.getChats(loadedChatIds, offset, count).await()
 
             Assert.assertTrue(mLocalSourceGetChatsCallFlag)
 
@@ -279,6 +280,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
     @Test
     fun getChatsWithOverdueChatsTest() = runTest {
+        val loadedChatIds = listOf<Long>()
         val offset = 0
         val count = 5
 
@@ -302,7 +304,7 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         }
 
         mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository.getChats(offset, count).await()
+            val gottenLocalResult = mDataRepository.getChats(loadedChatIds, offset, count).await()
 
             Assert.assertTrue(mLocalSourceGetChatsCallFlag)
 

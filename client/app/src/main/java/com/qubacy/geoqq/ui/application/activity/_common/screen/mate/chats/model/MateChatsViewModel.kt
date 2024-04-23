@@ -81,7 +81,7 @@ open class MateChatsViewModel @Inject constructor(
             return processErrorDomainResult(updateChatChunkResult.error!!)
 
         val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
-        Log.d(TAG, "processUpdateChatChunkDomainResult(): prevChatChunkOffset = $prevChatChunkOffset; mUiState.chatChunkSizes = ${mUiState.chatChunkSizes.map { "${it.key} -> ${it.value}, " }};")
+        //Log.d(TAG, "processUpdateChatChunkDomainResult(): prevChatChunkOffset = $prevChatChunkOffset; mUiState.chatChunkSizes = ${mUiState.chatChunkSizes.map { "${it.key} -> ${it.value}, " }};")
         val prevChatChunkSize = mUiState.chatChunkSizes[prevChatChunkOffset]!!
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
@@ -135,7 +135,7 @@ open class MateChatsViewModel @Inject constructor(
         val loadedChatIds = mUiState.chats.map { it.id }
         val offset = mUiState.chats.size
 
-        Log.d(TAG, "getNextChatChunk(): getting a new chunk. offset = $offset;")
+        //Log.d(TAG, "getNextChatChunk(): getting a new chunk. offset = $offset;")
 
         mUseCase.getChatChunk(loadedChatIds, offset)
     }
@@ -149,13 +149,21 @@ open class MateChatsViewModel @Inject constructor(
         }
     }
 
-    open fun isNextChatChunkGettingAllowed(): Boolean {
-        val chatCount = mUiState.chats.size
-        val preparedChatCount =
-            if (chatCount > 0) chatCount - mUiState.newChatCount
-            else chatCount
+    open fun areChatChunksInitialized(): Boolean {
+        return mUiState.chatChunkSizes.isNotEmpty()
+    }
 
-        val chunkSizeCheck = (preparedChatCount % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0)
+    open fun isNextChatChunkGettingAllowed(): Boolean {
+        val lastChatChunkSize = mUiState.chatChunkSizes.entries.lastOrNull()?.value
+
+        val chunkSizeCheck = (
+            lastChatChunkSize == null ||
+            (lastChatChunkSize != 0 &&
+                lastChatChunkSize % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0
+            )
+        )
+
+        //Log.d(TAG, "isNextChatChunkGettingAllowed(): lastChatChunkSize = $lastChatChunkSize; mIsGettingNextChatChunk = $mIsGettingNextChatChunk;")
 
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
     }

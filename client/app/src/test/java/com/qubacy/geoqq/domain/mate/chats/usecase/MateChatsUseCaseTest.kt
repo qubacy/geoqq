@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
@@ -41,7 +42,9 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
         runTest {
             Mockito.`when`(mateChatDataRepositoryMock.getChats(
-                Mockito.anyInt(), Mockito.anyInt()
+                AnyMockUtil.anyObject(),
+                Mockito.anyInt(),
+                Mockito.anyInt()
             )).thenAnswer {
                 mGetChatsCallFlag = true
 
@@ -72,13 +75,14 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
     @Test
     fun getChatChunkFailedTest() = runTest {
+        val loadedChatIds = listOf<Long>()
         val chunkIndex = 0
         val expectedError = TestError.normal
 
         mErrorDataRepositoryMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
-            mUseCase.getChatChunk(chunkIndex)
+            mUseCase.getChatChunk(loadedChatIds, chunkIndex)
 
             val gottenResult = awaitItem()
 
@@ -89,6 +93,7 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
     @Test
     fun getChatChunkSucceededTest() = runTest {
+        val loadedChatIds = listOf<Long>()
         val chunkIndex = 1
         val count = MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
         val offset = count * chunkIndex
@@ -110,7 +115,7 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
         mGetChatsDataResult = getChatsResult
 
         mUseCase.resultFlow.test {
-            mUseCase.getChatChunk(chunkIndex)
+            mUseCase.getChatChunk(loadedChatIds, chunkIndex)
 
             val gottenResult = awaitItem()
 
