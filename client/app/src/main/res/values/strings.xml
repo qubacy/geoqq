@@ -41,9 +41,9 @@
     <string name="fragment_mate_chat_snackbar_message_message_sent">Your message has been sent</string>
 
     <string name="fragment_mate_requests_top_bar_content_wrapper_title_text">Mate requests</string>
-    <string name="fragment_mate_requests_text_subtitle_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
-    <string name="fragment_mate_requests_placeholder_text_text">You have no mate requests for now!</string>
-    <string name="fragment_mate_chats_placeholder_text_text">No chats for now!</string>
+    <string name="fragment_mate_requests_hint_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
+    <string name="fragment_mate_requests_surface_placeholder_text">You have no mate requests for now!</string>
+    <string name="fragment_mate_chats_surface_placeholder_text">No chats for now!</string>
 
     <!--  Components:  -->
 

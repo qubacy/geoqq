@@ -29,7 +29,7 @@ class MateRequestRecyclerViewBehavior(
         Log.d(TAG, "layoutDependsOn(): entered..")
 
         return when (dependency.id) {
-            R.id.fragment_mate_requests_text_hint -> {
+            R.id.component_hint_text -> {
                 mHintTextView = dependency as MaterialTextView
 
                 true

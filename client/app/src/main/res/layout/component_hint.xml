@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textview.MaterialTextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/component_hint_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/small_gap_between_components"
+    android:layout_marginEnd="@dimen/small_gap_between_components"
+    android:layout_marginTop="@dimen/very_small_gap_between_components"
+    android:paddingVertical="@dimen/smaller_gap_between_components"
+    android:textAppearance="?attr/textAppearanceBodyLarge"
+    tools:text="Test hint text"
+    android:visibility="gone"/>

@@ -1,24 +1,25 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.activity.addCallback
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
-import com.qubacy.geoqq.ui._common.util.view.extension.runVisibilityAnimation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -46,10 +47,6 @@ class MateChatsFragment(
     MateChatsUiState,
     MateChatsViewModel
 >(), PermissionRunnerCallback, BaseRecyclerViewCallback, MateChatsListAdapterCallback {
-    companion object {
-        const val DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION = 200L
-    }
-
     @Inject
     @MateChatsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -61,7 +58,7 @@ class MateChatsFragment(
     private lateinit var mAdapter: MateChatsListAdapter
     private lateinit var mPermissionRunner: PermissionRunner<MateChatsFragment>
 
-    private lateinit var mEmptyListHolderImage: AnimatedVectorDrawableCompat
+    private lateinit var mSurfacePlaceholderViewProvider: SurfacePlaceholderViewProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,45 +73,27 @@ class MateChatsFragment(
         initMateChatListView()
         requestChatPermissions()
 
-        mEmptyListHolderImage = AnimatedVectorDrawableCompat.create(
-            requireContext(), R.drawable.ic_earth_animated)!!
-
         mBinding.fragmentMateChatsTopBar.setOnMenuItemClickListener {
             onTopBarMenuItemClicked(it)
         }
 
-        initEmptyListPlaceholderView()
+        initSurfacePlaceholderViewProvider()
     }
 
-    private fun initEmptyListPlaceholderView() {
-        mBinding.fragmentMateChatsPlaceholderImage.setImageDrawable(mEmptyListHolderImage)
-
-        mBinding.root.viewTreeObserver.addOnPreDrawListener(object :
-            ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
-                mEmptyListHolderImage.start()
-
-                return true
+    private fun initSurfacePlaceholderViewProvider() {
+        mSurfacePlaceholderViewProvider = SurfacePlaceholderViewProvider(mBinding.root).apply {
+            getView().updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                anchorId = R.id.fragment_mate_chats_list
+                anchorGravity = Gravity.CENTER
             }
-        })
+
+            setText(getString(R.string.fragment_mate_chats_surface_placeholder_text))
+            setAnimatedVectorImage(R.drawable.ic_earth_animated)
+        }
     }
 
     private fun checkMateChatListEmpty() {
-        setEmptyListPlaceholderVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
-    }
-
-    private fun setEmptyListPlaceholderVisible(isVisible: Boolean) {
-        if (isVisible) {
-            mBinding.fragmentMateChatsPlaceholderContainer.runVisibilityAnimation(
-                true, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
-
-            mEmptyListHolderImage.start()
-
-        } else {
-            mBinding.fragmentMateChatsPlaceholderContainer.runVisibilityAnimation(
-                false, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
-        }
+        mSurfacePlaceholderViewProvider.setIsVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
     }
 
     private fun requestChatPermissions() {
@@ -268,7 +247,7 @@ class MateChatsFragment(
         }
     }
 
-    override fun getPermissionsToRequest(): Array<String>? {
+    override fun getPermissionsToRequest(): Array<String> {
         return arrayOf(
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE)

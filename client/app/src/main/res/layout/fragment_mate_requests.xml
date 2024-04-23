@@ -6,21 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/fragment_mate_requests_text_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/fragment_mate_requests_top_bar_wrapper"
-        app:layout_anchorGravity="bottom"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="@dimen/small_gap_between_components"
-        android:layout_marginEnd="@dimen/small_gap_between_components"
-        android:layout_marginTop="@dimen/very_small_gap_between_components"
-        android:paddingVertical="@dimen/smaller_gap_between_components"
-        android:textAppearance="?attr/textAppearanceBodyLarge"
-        android:text="@string/fragment_mate_requests_text_subtitle_text"
-        android:visibility="gone"/>
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/fragment_mate_requests_top_bar_wrapper"
         android:layout_width="match_parent"
@@ -45,31 +30,6 @@
         app:layout_anchorGravity="bottom"
         android:indeterminate="true"
         android:visibility="gone"/>
-
-    <LinearLayout
-        android:id="@+id/fragment_mate_requests_placeholder_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_anchor="@id/fragment_mate_requests_list"
-        app:layout_anchorGravity="center">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/fragment_mate_requests_placeholder_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            tools:srcCompat="@drawable/ic_cross_animated"/>
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/fragment_mate_requests_text_placeholder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/very_small_gap_between_components"
-            android:textAppearance="?textAppearanceBodyLarge"
-            android:text="@string/fragment_mate_requests_placeholder_text_text"/>
-
-    </LinearLayout>
 
     <com.qubacy.choosablelistviewlib.view.ChoosableRecyclerView
         android:id="@+id/fragment_mate_requests_list"

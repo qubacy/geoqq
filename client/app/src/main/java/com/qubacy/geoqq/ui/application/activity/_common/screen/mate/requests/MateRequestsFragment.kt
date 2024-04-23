@@ -1,32 +1,30 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
-import android.view.animation.AccelerateInterpolator
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.ui._common.util.view.extension.runVisibilityAnimation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
@@ -64,12 +62,8 @@ class MateRequestsFragment(
     MateableFragment
 {
     companion object {
-        const val HINT_TEXT_ANIMATION_DURATION = 300L
-
         const val HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT = 1000L
         const val HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT = 3000L
-
-        const val DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION = 200L
     }
 
     @Inject
@@ -84,9 +78,10 @@ class MateRequestsFragment(
 
     private lateinit var mAdapter: MateRequestsListAdapter
 
-    private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
+    private lateinit var mHintViewProvider: HintViewProvider
+    private lateinit var mSurfacePlaceholderViewProvider: SurfacePlaceholderViewProvider
 
-    private lateinit var mEmptyListHolderImage: AnimatedVectorDrawableCompat
+    private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,11 +93,9 @@ class MateRequestsFragment(
         requestPermissions()
 
         mInterlocutorDetailsSheet = null
-        mEmptyListHolderImage = AnimatedVectorDrawableCompat.create(
-            requireContext(), R.drawable.ic_earth_animated)!!
 
-        initEmptyListPlaceholderView()
-        scheduleHintTextViewAppearanceAnimation()
+        initSurfacePlaceholderViewProvider()
+        initHintViewProvider()
     }
 
     override fun onStart() {
@@ -117,17 +110,32 @@ class MateRequestsFragment(
         mInterlocutorDetailsSheet?.close()
     }
 
-    private fun initEmptyListPlaceholderView() {
-        mBinding.fragmentMateRequestsPlaceholderImage.setImageDrawable(mEmptyListHolderImage)
-
-        mBinding.root.viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener{
-            override fun onPreDraw(): Boolean {
-                mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
-                mEmptyListHolderImage.start()
-
-                return true
+    private fun initHintViewProvider() {
+        mHintViewProvider = HintViewProvider(mBinding.root, false).apply {
+            getView().updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                anchorId = mBinding.fragmentMateRequestsTopBarWrapper.id
+                anchorGravity = Gravity.BOTTOM
+                gravity = Gravity.BOTTOM
             }
-        })
+
+            mBinding.root.addView(this.getView(), 0)
+
+            setHintText(getString(R.string.fragment_mate_requests_hint_text))
+        }
+
+        scheduleHintTextViewAppearanceAnimation()
+    }
+
+    private fun initSurfacePlaceholderViewProvider() {
+        mSurfacePlaceholderViewProvider = SurfacePlaceholderViewProvider(mBinding.root).apply {
+            getView().updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                anchorId = R.id.fragment_mate_requests_list
+                anchorGravity = Gravity.CENTER
+            }
+
+            setText(getString(R.string.fragment_mate_requests_surface_placeholder_text))
+            setAnimatedVectorImage(R.drawable.ic_earth_animated)
+        }
     }
 
     private fun initMateRequests() {
@@ -235,20 +243,7 @@ class MateRequestsFragment(
     }
 
     private fun checkMateRequestListEmpty() {
-        setEmptyListPlaceholderVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
-    }
-
-    private fun setEmptyListPlaceholderVisible(isVisible: Boolean) {
-        if (isVisible) {
-            mBinding.fragmentMateRequestsPlaceholderContainer.runVisibilityAnimation(
-                true, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
-
-            mEmptyListHolderImage.start()
-
-        } else {
-            mBinding.fragmentMateRequestsPlaceholderContainer.runVisibilityAnimation(
-                false, DEFAULT_PLACEHOLDER_VISIBILITY_ANIMATION_DURATION)
-        }
+        mSurfacePlaceholderViewProvider.setIsVisible(mAdapter.itemCount <= 0) // todo: mb it'd be better to optimize this;
     }
 
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
@@ -304,7 +299,7 @@ class MateRequestsFragment(
         }
     }
 
-    override fun getPermissionsToRequest(): Array<String>? {
+    override fun getPermissionsToRequest(): Array<String> {
         return arrayOf(
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -325,58 +320,16 @@ class MateRequestsFragment(
         mModel.answerRequest(position, isAccepted)
     }
 
-    private fun animateHintTextView(isAppearing: Boolean) {
-        val textViewHeight = mBinding.fragmentMateRequestsTextHint.measuredHeight
-
-        mBinding.fragmentMateRequestsTextHint.apply {
-            alpha = if (isAppearing) 0f else 1f
-            translationY = if (isAppearing) -textViewHeight.toFloat() else 0f
-
-            if (isAppearing) visibility = View.VISIBLE
-        }
-
-        val endAction = {
-            mBinding.fragmentMateRequestsTextHint.apply {
-                alpha = if (isAppearing) 1f else 0f
-                translationY = if (isAppearing) 0f else -textViewHeight.toFloat()
-
-                if (!isAppearing) visibility = View.GONE
-                if (isAppearing) launchHintTextViewAnimation(
-                    false, HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT)
-            }
-        }
-
-        mBinding.fragmentMateRequestsTextHint.animate().apply {
-            alpha(if (isAppearing) 1f else 0f)
-            translationY(if (isAppearing) 0f else -textViewHeight.toFloat())
-
-            duration = HINT_TEXT_ANIMATION_DURATION
-            interpolator = AccelerateInterpolator()
-        }.setListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationCancel(animation: Animator) { endAction() }
-            override fun onAnimationEnd(animation: Animator) { endAction() }
-        }).start()
-    }
-
     private fun scheduleHintTextViewAppearanceAnimation() {
         mBinding.root.viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener{
             override fun onPreDraw(): Boolean {
                 mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
-                launchHintTextViewAnimation(true, HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT)
+                mHintViewProvider.scheduleAppearanceAnimation(
+                    true, HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT)
 
                 return true
             }
         })
-    }
-
-    private fun launchHintTextViewAnimation(
-        isAppearing: Boolean,
-        duration: Long
-    ) {
-        object : CountDownTimer(duration, duration) {
-            override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() { animateHintTextView(isAppearing) }
-        }.start()
     }
 
     override fun getInterlocutorDetailsSheet(): UserBottomSheetViewContainer? {
