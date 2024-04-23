@@ -221,15 +221,13 @@ class MateChatsFragment(
         }
     }
 
-    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
-        super.processSetLoadingOperation(loadingOperation)
-
-        changeLoadingIndicatorState(loadingOperation.isLoading)
-    }
-
     private fun changeLoadingIndicatorState(isVisible: Boolean) {
         mBinding.fragmentMateChatsProgressBar.visibility =
             if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun adjustUiWithLoadingState(loadingState: Boolean) {
+        changeLoadingIndicatorState(loadingState)
     }
 
     private fun initMateChatListView() {

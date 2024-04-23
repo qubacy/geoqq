@@ -420,4 +420,13 @@ class MateChatFragment(
     override fun getInterlocutorDetailsSheetInsets(): WindowInsetsCompat? {
         return mLastWindowInsets
     }
+
+    override fun adjustUiWithLoadingState(isLoading: Boolean) {
+        changeLoadingIndicatorState(isLoading)
+    }
+
+    private fun changeLoadingIndicatorState(isVisible: Boolean) {
+        mBinding.fragmentMateChatProgressBar.visibility =
+            if (isVisible) View.VISIBLE else View.GONE
+    }
 }

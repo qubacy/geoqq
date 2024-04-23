@@ -167,7 +167,7 @@ class MateRequestsFragment(
         if (uiState.isLoading) adjustUiWithLoadingState(true)
     }
 
-    private fun adjustUiWithLoadingState(loadingState: Boolean) {
+    override fun adjustUiWithLoadingState(loadingState: Boolean) {
         changeLoadingIndicatorState(loadingState)
 
         mBinding.fragmentMateRequestsList.setIsEnabled(!loadingState)

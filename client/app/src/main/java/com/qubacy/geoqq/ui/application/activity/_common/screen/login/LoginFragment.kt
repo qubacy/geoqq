@@ -23,7 +23,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.LoginFragmentErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
@@ -115,8 +114,8 @@ class LoginFragment(
         return true
     }
 
-    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
-        val isEnabled = !loadingOperation.isLoading
+    override fun adjustUiWithLoadingState(isLoading: Boolean) {
+        val isEnabled = !isLoading
 
         mBinding.fragmentLoginTextInputLogin.isEnabled = isEnabled
         mBinding.fragmentLoginTextInputPassword.isEnabled = isEnabled

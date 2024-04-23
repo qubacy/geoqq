@@ -314,6 +314,10 @@ class MyProfileFragment(
         }
     }
 
+    override fun adjustUiWithLoadingState(isLoading: Boolean) {
+        changeLoadingIndicatorState(isLoading)
+    }
+
     private fun changeLoadingIndicatorState(isVisible: Boolean) {
         mBinding.fragmentMyProfileProgressBar.visibility =
             if (isVisible) View.VISIBLE else View.GONE

@@ -19,12 +19,16 @@ import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 
-abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
+abstract class BaseFragment<ViewBindingType : ViewBinding>(
+
+) : Fragment() {
     companion object {
         const val TAG = "BaseFragment"
     }
 
     protected lateinit var mBinding: ViewBindingType
+
+    protected open val mStartTransitionOnPreDraw: Boolean = true
 
     private var mErrorDialog: AlertDialog? = null
     private var mRequestDialog: AlertDialog? = null
@@ -68,6 +72,11 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>() : Fragment() {
         }
 
         postponeEnterTransition()
+
+        if (mStartTransitionOnPreDraw) runPostponedEnterTransitionAfterPreDraw()
+    }
+
+    protected open fun runPostponedEnterTransitionAfterPreDraw() {
         requireView().viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 startPostponedEnterTransition()

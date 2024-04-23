@@ -24,6 +24,7 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.Re
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
@@ -103,16 +104,16 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
 
         Espresso.onView(isRoot())
             .perform(WaitViewAction(MateRequestsFragment.HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT))
-        Espresso.onView(withId(R.id.fragment_mate_requests_text_hint))
+        Espresso.onView(withId(R.id.component_hint_text))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
         val disappearanceTimeout = MateRequestsFragment.HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT +
-                MateRequestsFragment.HINT_TEXT_ANIMATION_DURATION
+                HintViewProvider.DEFAULT_APPEARANCE_ANIMATION_DURATION
 
         Espresso.onView(isRoot())
             .perform(WaitViewAction(disappearanceTimeout))
-        Espresso.onView(withId(R.id.fragment_mate_requests_text_hint))
+        Espresso.onView(withId(R.id.component_hint_text))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
     }
