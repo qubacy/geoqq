@@ -10,11 +10,13 @@ import (
 
 type MateChatService struct {
 	domainStorage domainStorage.Storage
+	maxPageSize   uint64
 }
 
 func newMateChatService(deps Dependencies) *MateChatService {
 	instance := &MateChatService{
 		domainStorage: deps.DomainStorage,
+		maxPageSize:   deps.MaxPageSize,
 	}
 
 	return instance
@@ -50,6 +52,13 @@ func (s *MateChatService) GetMateChat(ctx context.Context, chatId, userId uint64
 
 func (s *MateChatService) GetMateChatsForUser(ctx context.Context,
 	userId, offset, count uint64) (domain.MateChatList, error) {
+	if count > s.maxPageSize {
+		return nil, ec.New(ErrCountMoreThanPermissible,
+			ec.Client, ec.CountMoreThanPermissible)
+	}
+
+	// ***
+
 	mateChats, err := s.domainStorage.GetMateChatsForUser(ctx, userId, offset, count)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetMateChatsForUser,

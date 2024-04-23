@@ -13,11 +13,15 @@ server:
   # is not http?
   websocket:
 
-delivery:
+delivery: # or service?
   token:
     access_ttl: 30m
     refresh_ttl: 876000h
     signing_key: "signing_key"
+
+service:
+  pagination:
+    max_page_size: 100 # ..]
 
 storage:
   hash_type: "sha1" # general parameter?
@@ -51,9 +55,6 @@ storage:
         background:
           query_timeout: 10s
           max_query_count: 2
-
-        query:
-          max_page_size: 100 # TODO!
 
       sqlite:
         #...

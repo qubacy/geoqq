@@ -258,6 +258,7 @@ func servicesInstance(
 		AccessTokenTTL:        viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL:       viper.GetDuration("delivery.token.refresh_ttl"),
 		AvatarGenerator:       avatarGenerator,
+		MaxPageSize:           viper.GetUint64("service.pagination.max_page_size"),
 		DomainStorage:         domainStorage,
 		FileStorage:           fileStorage,
 		GeoDistanceCalculator: geoDistanceImpl.NewCalculator(),

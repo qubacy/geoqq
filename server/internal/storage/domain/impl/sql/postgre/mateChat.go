@@ -128,8 +128,9 @@ var (
 			3. offset
 	*/
 	templateGetMateChatsForUser = templateGetAllMateChatsForUser +
-		` ORDER BY "LastMessageTime" DESC, "LastMessageId" DESC
-			LIMIT $2 OFFSET $3` // TODO: сортировка по времени NULL в конец!!!
+		` ORDER BY "LastMessageTime" DESC NULLS LAST,
+				   "LastMessageId" DESC NULLS LAST /* ? */
+			LIMIT $2 OFFSET $3`
 
 	/*
 		Order:

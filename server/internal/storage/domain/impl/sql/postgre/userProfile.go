@@ -97,9 +97,7 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint64) error {
 	/*
 		Action List:
-			1.
-			2.
-			3.
+			Below...
 	*/
 
 	sourceFunc := s.DeleteUserProfile

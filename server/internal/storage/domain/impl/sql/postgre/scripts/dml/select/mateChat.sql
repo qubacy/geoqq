@@ -71,7 +71,9 @@ FROM "MateChat";
 -- GetMateChatsForUser
 -- -----------------------------------------------------------------------
 
-SELECT * FROM "UserEntry";
+SELECT * FROM "UserEntry"
+ORDER BY "Id" DESC;
+
 SELECT * FROM "MateChat";
 SELECT * FROM "DeletedMateChat";
 SELECT * FROM "Mate";
@@ -85,7 +87,9 @@ SELECT * FROM "MateMessage";
 
 -- -----------------------------------------------------------------------
 
-WITH "srcUserId" AS (VALUES (14))
+SELECT * FROM "MateChat";
+
+WITH "srcUserId" AS (VALUES (2))
 SELECT "MateChat"."Id" AS "Id",
        case
            when "FirstUserId" = (table "srcUserId") 
@@ -121,13 +125,14 @@ LEFT JOIN "DeletedMateChat" ON
 WHERE ("FirstUserId" = (table "srcUserId")
         OR "SecondUserId" = (table "srcUserId"))
             AND "DeletedMateChat"."ChatId" IS NULL
-ORDER BY "Id" 
+ORDER BY "LastMessageTime" DESC NULLS LAST,
+         "LastMessageId" DESC NULLS LAST /* ? */
     LIMIT 10 OFFSET 0;
 
 -- GetMateChatWithIdForUser
 -- -----------------------------------------------------------------------
 
-WITH "srcUserId" AS (VALUES (14)),
+WITH "srcUserId" AS (VALUES (1)),
      "chatId" AS (VALUES (1))
 SELECT "MateChat"."Id" AS "Id",
        case

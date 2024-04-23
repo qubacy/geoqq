@@ -28,6 +28,7 @@ type Dependencies struct {
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 
+	MaxPageSize     uint64
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage
 	AvatarGenerator avatar.AvatarGenerator

@@ -29,6 +29,7 @@ const (
 
 	// service
 	ValidateInputParamsFailed
+	CountMoreThanPermissible
 )
 
 // -----------------------------------------------------------------------

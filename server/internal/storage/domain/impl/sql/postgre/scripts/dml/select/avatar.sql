@@ -1,4 +1,5 @@
-SELECT * FROM "Avatar";
+SELECT * FROM "Avatar"
+ORDER BY "UserId" NULLS FIRST;
 
 -- -----------------------------------------------------------------------
 
