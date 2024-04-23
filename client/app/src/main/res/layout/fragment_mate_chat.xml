@@ -47,6 +47,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:padding="@dimen/small_gap_between_components"
         android:clipToPadding="false"
+        android:background="@drawable/carpet_background"
         tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="3"/>
 
