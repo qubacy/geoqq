@@ -55,14 +55,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        style="@style/Widget.Material3.TextInputLayout.FilledBox.NoLine">
+        style="@style/Widget.Material3.TextInputLayout.FilledBox.NoLine"
+        android:hint="@string/fragment_mate_chat_input_message_hint_text_chatable">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fragment_mate_input_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.TextInputEditText.FilledBox"
-            android:hint="@string/fragment_mate_chat_input_message_hint_text"/>
+            style="@style/Widget.Material3.TextInputEditText.FilledBox" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

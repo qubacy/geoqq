@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
@@ -26,7 +27,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
@@ -356,10 +356,33 @@ class MateChatFragment(
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
         setupInterlocutorDetailsSheet(interlocutor)
 
-        mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username // todo: doesn't change for some reason;
-        mBinding.fragmentMateInputMessage.isEnabled = mModel.isInterlocutorChatable()
+        mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username
 
+        adjustMessageInputWithInterlocutor(interlocutor)
         adjustTopBarMenuWithInterlocutor(interlocutor)
+    }
+
+    private fun adjustMessageInputWithInterlocutor(interlocutor: UserPresentation) {
+        val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
+
+        mBinding.fragmentMateInputMessage.apply {
+            isEnabled = isInterlocutorChatable
+
+            if (!isInterlocutorChatable) clearFocus()
+        }
+
+        mBinding.fragmentMateInputMessageWrapper
+            .setHint(getMessageInputHintByInterlocutor(interlocutor))
+    }
+
+    @StringRes
+    private fun getMessageInputHintByInterlocutor(interlocutor: UserPresentation): Int {
+        return if (interlocutor.isMate && !interlocutor.isDeleted)
+            R.string.fragment_mate_chat_input_message_hint_text_chatable
+        else if (interlocutor.isDeleted)
+            R.string.fragment_mate_chat_input_message_hint_text_deleted
+        else
+            R.string.fragment_mate_chat_input_message_hint_text_not_mate
     }
 
     private fun adjustTopBarMenuWithInterlocutor(interlocutor: UserPresentation) {

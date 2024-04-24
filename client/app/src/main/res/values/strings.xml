@@ -35,10 +35,12 @@
     <string name="fragment_my_profile_input_error_about_me">About me has to contain any characters!</string>
     <string name="fragment_my_profile_button_update_text">UPDATE</string>
 
-    <string name="fragment_mate_chat_input_message_hint_text">Your message..</string>
     <string name="fragment_mate_chat_snackbar_message_mate_request_sent">Your mate request has been sent</string>
     <string name="fragment_mate_chat_dialog_request_delete_chat_confirmation">Are you sure? The chat will be deleted</string>
     <string name="fragment_mate_chat_snackbar_message_message_sent">Your message has been sent</string>
+    <string name="fragment_mate_chat_input_message_hint_text_chatable">Your message..</string>
+    <string name="fragment_mate_chat_input_message_hint_text_deleted">Your interlocutor deleted it\'s account..</string>
+    <string name="fragment_mate_chat_input_message_hint_text_not_mate">Add the interlocutor as a mate first!</string>
 
     <string name="fragment_mate_requests_top_bar_content_wrapper_title_text">Mate requests</string>
     <string name="fragment_mate_requests_hint_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
