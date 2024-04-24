@@ -102,6 +102,10 @@ class MateChatFragment(
         return mBinding.fragmentMateChatTopBar
     }
 
+    override fun getFragmentDestinationId(): Int {
+        return R.id.mateChatFragment
+    }
+
     override fun getFragmentTitle(): String {
         return mModel.uiState.chatContext!!.user.username
     }

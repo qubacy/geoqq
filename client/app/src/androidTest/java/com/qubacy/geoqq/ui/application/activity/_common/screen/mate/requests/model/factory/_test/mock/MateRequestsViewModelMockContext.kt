@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory._test.mock
 
 import com.qubacy.geoqq._common.model.error.Error
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory._test.mock.ViewModelMockContext
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory._test.mock.BusinessViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
@@ -16,7 +16,7 @@ class MateRequestsViewModelMockContext(
     var getNextRequestChunkCallFlag: Boolean = false,
     var answerRequestCallFlag: Boolean = false,
     var resetRequestsCallFlag: Boolean = false
-) : ViewModelMockContext<MateRequestsUiState>(uiState, uiOperationFlow, retrieveErrorResult) {
+) : BusinessViewModelMockContext<MateRequestsUiState>(uiState, uiOperationFlow, retrieveErrorResult) {
     override fun reset() {
         super.reset()
 

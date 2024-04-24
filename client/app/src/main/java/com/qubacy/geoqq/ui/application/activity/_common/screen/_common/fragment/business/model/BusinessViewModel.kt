@@ -35,7 +35,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     private lateinit var mBusinessScope: CoroutineScope
 
     private var mBackendResponded: Boolean = false
-    val backendResponded get() = mBackendResponded
+    open val backendResponded get() = mBackendResponded
 
     init {
         mBackendResponded = mSavedStateHandle[BACKEND_RESPONDED_KEY] ?: false
@@ -83,11 +83,11 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         }
     }
 
-    fun setBackendResponded() {
+    open fun setBackendResponded() {
         changeBackendResponded(true)
     }
 
-    fun prepareForNavigation() {
+    open fun prepareForNavigation() {
         changeBackendResponded(false)
     }
 

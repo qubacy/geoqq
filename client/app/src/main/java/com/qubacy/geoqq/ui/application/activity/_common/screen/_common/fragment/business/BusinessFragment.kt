@@ -40,6 +40,8 @@ abstract class BusinessFragment<
                     destination: NavDestination,
                     arguments: Bundle?
                 ) {
+                    if (destination.id == getFragmentDestinationId()) return
+
                     Log.d(TAG, "onDestinationChanged(): destination = $destination;")
 
                     //this@BusinessFragment.adjustUiWithLoadingState(true)
@@ -57,6 +59,8 @@ abstract class BusinessFragment<
             title = getFragmentTitle()
         }
     }
+
+    protected abstract fun getFragmentDestinationId(): Int
 
     protected open fun getFragmentTitle(): String {
         return String()

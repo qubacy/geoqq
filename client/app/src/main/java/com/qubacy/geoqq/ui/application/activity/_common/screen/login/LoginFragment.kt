@@ -54,6 +54,8 @@ class LoginFragment(
     private var mRepeatPasswordViewHeight: Int = 0
     private var mControlComponentGap: Int = 0
 
+    override val mStartTransitionOnPreDraw: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -101,6 +103,10 @@ class LoginFragment(
         super.runInitWithUiState(uiState)
 
         setControlsWithLoginMode(uiState.loginMode)
+    }
+
+    override fun getFragmentDestinationId(): Int {
+        return R.id.loginFragment
     }
 
     override fun processUiOperation(uiOperation: UiOperation): Boolean {

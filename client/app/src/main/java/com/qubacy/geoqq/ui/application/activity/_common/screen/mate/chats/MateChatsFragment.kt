@@ -80,9 +80,12 @@ class MateChatsFragment(
         initSurfacePlaceholderViewProvider()
     }
 
-
     override fun retrieveToolbar(): MaterialToolbar {
         return mBinding.fragmentMateChatsTopBar
+    }
+
+    override fun getFragmentDestinationId(): Int {
+        return R.id.mateChatsFragment
     }
 
     override fun getFragmentTitle(): String {

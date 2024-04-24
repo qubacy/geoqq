@@ -82,9 +82,12 @@ class MyProfileFragment(
         initUiControls()
     }
 
-
     override fun retrieveToolbar(): MaterialToolbar {
         return mBinding.fragmentMyProfileTopBar
+    }
+
+    override fun getFragmentDestinationId(): Int {
+        return R.id.myProfileFragment
     }
 
     override fun getFragmentTitle(): String {

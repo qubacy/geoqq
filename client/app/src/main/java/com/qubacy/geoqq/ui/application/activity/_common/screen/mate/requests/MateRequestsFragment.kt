@@ -113,6 +113,10 @@ class MateRequestsFragment(
         return mBinding.fragmentMateRequestsTopBar
     }
 
+    override fun getFragmentDestinationId(): Int {
+        return R.id.mateRequestsFragment
+    }
+
     override fun getFragmentTitle(): String {
         return getString(R.string.fragment_mate_requests_top_bar_content_wrapper_title_text)
     }

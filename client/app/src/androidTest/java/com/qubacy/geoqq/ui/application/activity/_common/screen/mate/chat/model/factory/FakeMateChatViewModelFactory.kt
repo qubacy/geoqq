@@ -2,8 +2,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.
 
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.factory._test.mock.MateChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
@@ -11,7 +11,7 @@ import org.mockito.Mockito
 
 class FakeMateChatViewModelFactory(
     mockContext: MateChatViewModelMockContext
-) : FakeStatefulViewModelFactory<
+) : FakeBusinessViewModelFactory<
     MateChatUiState, MateChatViewModel, MateChatViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

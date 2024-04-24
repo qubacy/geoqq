@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.factory._test.mock
 
 import com.qubacy.geoqq._common.model.error.Error
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory._test.mock.ViewModelMockContext
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory._test.mock.BusinessViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
@@ -22,7 +22,9 @@ class MateChatViewModelMockContext(
     var getInterlocutorProfileCallFlag: Boolean = false,
     var addInterlocutorAsMateCallFlag: Boolean = false,
     var deleteChatCallFlag: Boolean = false
-) : ViewModelMockContext<MateChatUiState>(uiState, uiOperationFlow, retrieveErrorResult) {
+) : BusinessViewModelMockContext<MateChatUiState>(
+    uiState, uiOperationFlow, retrieveErrorResult
+) {
     override fun reset() {
         super.reset()
 

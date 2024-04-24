@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory
 
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory._test.mock.MateRequestsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
@@ -9,7 +9,7 @@ import org.mockito.Mockito
 
 class FakeMateRequestsViewModelFactory(
     mockContext: MateRequestsViewModelMockContext
-) : FakeStatefulViewModelFactory<
+) : FakeBusinessViewModelFactory<
     MateRequestsUiState, MateRequestsViewModel, MateRequestsViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

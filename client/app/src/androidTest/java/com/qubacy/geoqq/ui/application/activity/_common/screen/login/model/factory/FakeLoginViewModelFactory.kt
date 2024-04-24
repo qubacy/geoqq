@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.fact
 
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
@@ -10,7 +10,7 @@ import org.mockito.Mockito
 
 class FakeLoginViewModelFactory(
     mockContext: LoginViewModelMockContext
-) : FakeStatefulViewModelFactory<
+) : FakeBusinessViewModelFactory<
     LoginUiState, LoginViewModel, LoginViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
