@@ -12,12 +12,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.error.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 
 abstract class BaseFragment<ViewBindingType : ViewBinding>(
 
@@ -27,6 +29,8 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
     }
 
     protected lateinit var mBinding: ViewBindingType
+
+    protected var mAppBar: MaterialToolbar? = null
 
     protected open val mStartTransitionOnPreDraw: Boolean = true
 
@@ -55,6 +59,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         savedInstanceState: Bundle?
     ): View? {
         mBinding = createBinding(inflater, container)
+        mAppBar = retrieveToolbar()
 
         return mBinding.root
     }
@@ -63,6 +68,10 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         inflater: LayoutInflater, container: ViewGroup?
     ): ViewBindingType
 
+    protected open fun retrieveToolbar(): MaterialToolbar? {
+        return null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -70,6 +79,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         view.catchViewInsets(viewInsetsToCatch()) { insets, insetsRes ->
             adjustViewToInsets(insets, insetsRes)
         }
+        mAppBar?.let { setupNavigationUI(it) } // todo: alright?
 
         postponeEnterTransition()
 

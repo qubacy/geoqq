@@ -18,6 +18,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.google.android.material.appbar.MaterialToolbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
@@ -73,13 +74,21 @@ class MyProfileFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupNavigationUI(mBinding.fragmentMyProfileTopBar)
         setupTopBarMenu()
         runPermissionCheck<MyProfileFragment>()
 
         mSnackbarAnchorView = mBinding.fragmentMyProfileButtonUpdate
 
         initUiControls()
+    }
+
+
+    override fun retrieveToolbar(): MaterialToolbar {
+        return mBinding.fragmentMyProfileTopBar
+    }
+
+    override fun getFragmentTitle(): String {
+        return getString(R.string.fragment_my_profile_top_bar_title_text)
     }
 
     private fun initUiControls() {

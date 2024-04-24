@@ -3,10 +3,12 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.annotation.CallSuper
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.appbar.MaterialToolbar
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
@@ -40,9 +42,24 @@ abstract class BusinessFragment<
                 ) {
                     Log.d(TAG, "onDestinationChanged(): destination = $destination;")
 
-                    this@BusinessFragment.adjustUiWithLoadingState(true)
+                    //this@BusinessFragment.adjustUiWithLoadingState(true)
+                    afterDestinationChange()
                 }
             })
+    }
+
+    @CallSuper
+    protected open fun afterDestinationChange() {
+        this@BusinessFragment.adjustUiWithLoadingState(true)
+        mModel.prepareForNavigation() // todo: rethink this;
+
+        mAppBar?.apply {
+            title = getFragmentTitle()
+        }
+    }
+
+    protected open fun getFragmentTitle(): String {
+        return String()
     }
 
     protected override fun runInitWithUiState(uiState: UiStateType) {
@@ -52,7 +69,7 @@ abstract class BusinessFragment<
     }
 
     protected override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        startPostponedEnterTransition() // todo: is it ok?
+        onBackendResponded()
 
         if (super.processUiOperation(uiOperation)) return true
 
@@ -63,6 +80,14 @@ abstract class BusinessFragment<
         }
 
         return true
+    }
+
+    protected open fun onBackendResponded() {
+        if (mModel.backendResponded) return
+
+        mModel.setBackendResponded()
+
+        startPostponedEnterTransition() // todo: is it ok?
     }
 
     protected open fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {

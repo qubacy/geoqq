@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.MaterialToolbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
@@ -84,7 +85,6 @@ class MateChatFragment(
         initChatContext() // it's important to run BEFORE super.onStart() & onPermissionGranted();
 
         runPermissionCheck<MateChatsFragment>()
-        setupNavigationUI(mBinding.fragmentMateChatTopBar)
 
         mSnackbarAnchorView = mBinding.fragmentMateInputMessageWrapper
 
@@ -96,6 +96,14 @@ class MateChatFragment(
         super.onStop()
 
         mInterlocutorDetailsSheet?.close()
+    }
+
+    override fun retrieveToolbar(): MaterialToolbar {
+        return mBinding.fragmentMateChatTopBar
+    }
+
+    override fun getFragmentTitle(): String {
+        return mModel.uiState.chatContext!!.user.username
     }
 
     override fun processUiOperation(uiOperation: UiOperation): Boolean {

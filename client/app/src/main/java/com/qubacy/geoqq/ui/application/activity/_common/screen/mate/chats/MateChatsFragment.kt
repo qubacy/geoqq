@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
@@ -69,7 +70,6 @@ class MateChatsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupNavigationUI(mBinding.fragmentMateChatsTopBar)
         initMateChatListView()
         requestChatPermissions()
 
@@ -78,6 +78,15 @@ class MateChatsFragment(
         }
 
         initSurfacePlaceholderViewProvider()
+    }
+
+
+    override fun retrieveToolbar(): MaterialToolbar {
+        return mBinding.fragmentMateChatsTopBar
+    }
+
+    override fun getFragmentTitle(): String {
+        return getString(R.string.fragment_mate_chats_top_bar_title_text)
     }
 
     private fun initSurfacePlaceholderViewProvider() {

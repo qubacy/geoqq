@@ -24,6 +24,8 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
 ) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository) {
     companion object {
         const val TAG = "BusinessViewModel"
+
+        const val BACKEND_RESPONDED_KEY = "backendResponded"
     }
 
     override val uiOperationFlow = merge(
@@ -32,7 +34,12 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     )
     private lateinit var mBusinessScope: CoroutineScope
 
+    private var mBackendResponded: Boolean = false
+    val backendResponded get() = mBackendResponded
+
     init {
+        mBackendResponded = mSavedStateHandle[BACKEND_RESPONDED_KEY] ?: false
+
         resetBusinessScope()
     }
 
@@ -74,5 +81,18 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         viewModelScope.launch {
             mUiOperationFlow.emit(SetLoadingStateUiOperation(isLoading))
         }
+    }
+
+    fun setBackendResponded() {
+        changeBackendResponded(true)
+    }
+
+    fun prepareForNavigation() {
+        changeBackendResponded(false)
+    }
+
+    private fun changeBackendResponded(backendResponded: Boolean) {
+        mSavedStateHandle[BACKEND_RESPONDED_KEY] = backendResponded
+        mBackendResponded = backendResponded
     }
 }

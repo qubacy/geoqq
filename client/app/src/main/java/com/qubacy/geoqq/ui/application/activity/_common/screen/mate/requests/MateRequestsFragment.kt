@@ -16,6 +16,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.google.android.material.appbar.MaterialToolbar
 import com.qubacy.choosablelistviewlib._common.direction.SwipeDirection
 import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallback
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
@@ -86,8 +87,6 @@ class MateRequestsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupNavigationUI(mBinding.fragmentMateRequestsTopBar)
-
         initMateRequestList()
         initUiControls()
         requestPermissions()
@@ -108,6 +107,14 @@ class MateRequestsFragment(
         super.onStop()
 
         mInterlocutorDetailsSheet?.close()
+    }
+
+    override fun retrieveToolbar(): MaterialToolbar {
+        return mBinding.fragmentMateRequestsTopBar
+    }
+
+    override fun getFragmentTitle(): String {
+        return getString(R.string.fragment_mate_requests_top_bar_content_wrapper_title_text)
     }
 
     private fun initHintViewProvider() {
