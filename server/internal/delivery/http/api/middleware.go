@@ -261,7 +261,7 @@ func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
 
 	accessToken := ctx.Request.FormValue("access-token")
 	if len(accessToken) == 0 {
-		return "", ec.ParseAccessTokenFailed,
+		return "", ec.ParseAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
 

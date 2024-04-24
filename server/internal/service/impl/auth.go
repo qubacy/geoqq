@@ -137,7 +137,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	payload, err := a.tokenManager.ParseRefresh(refreshToken) // with validation!
 	if err != nil {
 
-		// believe that module is working correctly!
+		// believe that module is working correctly?!
 		return a.refreshTokensWithError(err, ec.Client, ec.ValidateRefreshTokenFailed)
 	}
 	errForClient := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)

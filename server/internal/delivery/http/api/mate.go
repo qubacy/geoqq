@@ -48,9 +48,9 @@ func (h *Handler) registerMateRoutes() {
 
 		request := router.Group("/request")
 		{
-			request.GET("",
+			request.GET("", requireOffsetAndCount,
 				h.userIdentityForGetRequest, h.userNotDeleted,
-				requireOffsetAndCount, h.getMateRequests,
+				h.getMateRequests,
 			)
 			request.GET("/count",
 				h.userIdentityForGetRequest, h.userNotDeleted,

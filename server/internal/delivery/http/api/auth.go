@@ -122,7 +122,7 @@ func extractRefreshToken(ctx *gin.Context) {
 	)
 	if len(refreshToken) == 0 {
 		resWithClientError(ctx,
-			se.ValidateRequestFailed,
+			se.ValidateRequestFailed, // ?
 			ErrEmptyRequestParameter,
 		)
 		return
