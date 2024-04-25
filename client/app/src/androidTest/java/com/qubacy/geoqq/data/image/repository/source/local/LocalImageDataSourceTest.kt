@@ -110,6 +110,7 @@ class LocalImageDataSourceTest {
         Assert.assertEquals(expectedImageEntity, gottenImageEntity)
     }
 
+    // todo: can fail due to the app's prev. usage history:
     @Test
     fun loadImagesTest() {
         val initImages = listOf(mTestRawImage.copy(id = 0), mTestRawImage.copy(id = 1))

@@ -35,7 +35,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.error.MateChatErrorType
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.error.UiMateChatErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
@@ -418,7 +418,7 @@ class MateChatFragment(
         val messageText = mBinding.fragmentMateInputMessage.text.toString()
 
         if (!mModel.isMessageTextValid(messageText))
-            return mModel.retrieveError(MateChatErrorType.INVALID_MESSAGE)
+            return mModel.retrieveError(UiMateChatErrorType.INVALID_MESSAGE)
 
         mBinding.fragmentMateInputMessage.text!!.clear()
 

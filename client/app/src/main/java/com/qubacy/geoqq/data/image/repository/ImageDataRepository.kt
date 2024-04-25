@@ -3,9 +3,9 @@ package com.qubacy.geoqq.data.image.repository
 import android.net.Uri
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.data.image.error.type.ImageErrorType
+import com.qubacy.geoqq.data.image.error.type.DataImageLocalErrorType
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.toRawImage
@@ -40,7 +40,7 @@ class ImageDataRepository @Inject constructor(
 
         if (savedImage == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                ImageErrorType.SAVING_FAILED.getErrorCode()))
+                DataImageLocalErrorType.SAVING_FAILED.getErrorCode()))
 
         return savedImage.toDataImage()
     }
@@ -63,7 +63,7 @@ class ImageDataRepository @Inject constructor(
 
         if (savedImages == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                ImageErrorType.SAVING_FAILED.getErrorCode()))
+                DataImageLocalErrorType.SAVING_FAILED.getErrorCode()))
 
         return savedImages.map { it.toDataImage() }
     }
@@ -73,7 +73,7 @@ class ImageDataRepository @Inject constructor(
 
         if (imageData == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                ImageErrorType.LOADING_DATA_FAILED.getErrorCode()))
+                DataImageLocalErrorType.LOADING_DATA_FAILED.getErrorCode()))
 
         val accessToken = mTokenDataRepository.getTokens().accessToken
 
@@ -87,7 +87,7 @@ class ImageDataRepository @Inject constructor(
 
         if (savedImage == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                ImageErrorType.SAVING_FAILED.getErrorCode()))
+                DataImageLocalErrorType.SAVING_FAILED.getErrorCode()))
 
         return savedImage.toDataImage()
     }

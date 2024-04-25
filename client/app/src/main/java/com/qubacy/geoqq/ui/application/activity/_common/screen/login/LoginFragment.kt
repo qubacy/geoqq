@@ -23,7 +23,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.LoginFragmentErrorType
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.UiLoginFragmentErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
@@ -174,7 +174,7 @@ class LoginFragment(
     private fun launchSignIn(login: String, password: String) {
         if (!validateSignInInputs(login, password)) return
         if (!mModel.isSignInDataValid(login, password)) {
-            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
+            mModel.retrieveError(UiLoginFragmentErrorType.INVALID_LOGIN_DATA)
 
             return
         }
@@ -192,7 +192,7 @@ class LoginFragment(
 
         if (!validateSignUpInputs(login, password, passwordAgain)) return
         if (!mModel.isSignUpDataValid(login, password, passwordAgain)) {
-            mModel.retrieveError(LoginFragmentErrorType.INVALID_LOGIN_DATA)
+            mModel.retrieveError(UiLoginFragmentErrorType.INVALID_LOGIN_DATA)
 
             return
         }

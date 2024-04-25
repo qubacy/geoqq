@@ -14,6 +14,10 @@ import org.junit.runner.RunWith
 class LocalErrorDataSourceTest(
 
 ) : LocalDatabaseDataSourceTest(), LocalInsertableDatabaseDataSourceTest<ErrorEntity> {
+    companion object {
+        const val DEFAULT_TEST_ERROR_ID = 20000000L
+    }
+
     private lateinit var mLocalErrorDataSource: LocalErrorDataSource
 
     @Before
@@ -36,7 +40,8 @@ class LocalErrorDataSourceTest(
 
     @Test
     fun getErrorByIdTest() {
-        val expectedErrorEntity = ErrorEntity(0, "en", "test error", false)
+        val expectedErrorEntity = ErrorEntity(
+            DEFAULT_TEST_ERROR_ID, "en", "test error", false)
 
         insertItems(mDatabase, ErrorEntity.TABLE_NAME, listOf(expectedErrorEntity))
 

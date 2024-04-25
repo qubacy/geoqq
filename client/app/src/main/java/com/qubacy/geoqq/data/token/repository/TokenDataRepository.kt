@@ -3,12 +3,12 @@ package com.qubacy.geoqq.data.token.repository
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
+import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.data.token.error.type.TokenErrorType
+import com.qubacy.geoqq.data.token.error.type.DataTokenErrorType
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreTokenDataSource
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
@@ -37,7 +37,7 @@ class TokenDataRepository @Inject constructor(
 
         if (!isRefreshTokenValid)
             throw ErrorAppException(mErrorDataRepository.getError(
-                TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
+                DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
 
         val isLocalAccessTokenValid =
             if (localAccessToken != null) checkTokenForValidity(localAccessToken)
@@ -68,7 +68,7 @@ class TokenDataRepository @Inject constructor(
 
         if (!isRefreshTokenValid)
             throw ErrorAppException(mErrorDataRepository.getError(
-                TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
+                DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
 
         val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
@@ -119,7 +119,7 @@ class TokenDataRepository @Inject constructor(
 
         if (payload == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                TokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
+                DataTokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
 
         return payload
     }
@@ -157,18 +157,8 @@ class TokenDataRepository @Inject constructor(
 
     private fun runUpdateTokensRequest(localRefreshToken: String): UpdateTokensResponse {
         val updateTokensCall = mHttpTokenDataSource.updateTokens(localRefreshToken)
+        val updateTokensResponse = mHttpCallExecutor.executeNetworkRequest(updateTokensCall)
 
-        try {
-            val updateTokensResponse = mHttpCallExecutor.executeNetworkRequest(updateTokensCall)
-
-            return updateTokensResponse
-
-        } catch (e: ErrorAppException) {
-            if (e.error.id == NetworkErrorType.RESPONSE_ERROR_WITH_CLIENT_FAIL.getErrorCode())
-                throw ErrorAppException(mErrorDataRepository.getError(
-                    TokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
-            else
-                throw e
-        }
+        return updateTokensResponse
     }
 }

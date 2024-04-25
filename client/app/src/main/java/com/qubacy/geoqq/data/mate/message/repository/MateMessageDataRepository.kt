@@ -1,13 +1,12 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository.source.http.response
 
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessageResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

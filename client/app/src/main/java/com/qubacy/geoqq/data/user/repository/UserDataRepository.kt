@@ -4,14 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.token.error.type.TokenErrorType
+import com.qubacy.geoqq.data.token.error.type.DataTokenErrorType
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.user.error.type.UserErrorType
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
@@ -59,9 +58,10 @@ class UserDataRepository @Inject constructor(
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
             val getUsersResponse = mHttpCallExecutor.executeNetworkRequest(getUsersCall)
 
-            if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
-                throw ErrorAppException(mErrorDataRepository
-                    .getError(UserErrorType.USERS_GETTING_FAILURE.getErrorCode()))
+            // todo: an impossible case:
+//            if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
+//                throw ErrorAppException(mErrorDataRepository
+//                    .getError(UserErrorType.USERS_GETTING_FAILURE.getErrorCode()))
 
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 
@@ -106,7 +106,7 @@ class UserDataRepository @Inject constructor(
 
         if (localUserIdClaim?.asLong() == null)
             throw ErrorAppException(mErrorDataRepository.getError(
-                TokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
+                DataTokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
 
         return localUserIdClaim.asLong()!!
     }

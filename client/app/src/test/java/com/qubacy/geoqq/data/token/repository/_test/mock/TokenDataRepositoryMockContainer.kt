@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data.token.repository._test.mock
 
 import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq._common.model.error.Error
+import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import kotlinx.coroutines.test.runTest

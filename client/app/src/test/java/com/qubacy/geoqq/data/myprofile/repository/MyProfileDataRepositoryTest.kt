@@ -7,7 +7,7 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
+import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
@@ -61,7 +61,7 @@ class MyProfileDataRepositoryTest(
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mImageDataRepositoryMockContainer: ImageDataRepositoryMockContainer
-    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
+    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceGetMyProfile: MyProfileDataStoreModel? = null
 
@@ -69,11 +69,6 @@ class MyProfileDataRepositoryTest(
     private var mLocalSourceSaveMyProfileCallFlag = false
     private var mLocalSourceResetMyProfileCallFlag = false
 
-    private var mHttpSourceGetMyProfile: GetMyProfileResponse? = null
-
-    private var mHttpSourceGetMyProfileResponseCallFlag = false
-    private var mHttpSourceUpdateMyProfileResponseCallFlag = false
-    private var mHttpSourceDeleteMyProfileResponseCallFlag = false
     private var mHttpSourceGetMyProfileCallFlag = false
     private var mHttpSourceUpdateMyProfileCallFlag = false
     private var mHttpSourceDeleteMyProfileCallFlag = false
@@ -91,9 +86,6 @@ class MyProfileDataRepositoryTest(
         mLocalSourceSaveMyProfileCallFlag = false
         mLocalSourceResetMyProfileCallFlag = false
 
-        mHttpSourceGetMyProfile = null
-
-        mHttpSourceGetMyProfileResponseCallFlag = false
         mHttpSourceUpdateMyProfileCallFlag = false
         mHttpSourceDeleteMyProfileCallFlag = false
         mHttpSourceGetMyProfileCallFlag = false
@@ -105,7 +97,7 @@ class MyProfileDataRepositoryTest(
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mImageDataRepositoryMockContainer = ImageDataRepositoryMockContainer()
-        mOkHttpClientMockContainer = OkHttpClientMockContainer()
+        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localMyProfileDataSourceMock = mockLocalMyProfileDataSource()
         val httpMyProfileDataSourceMock = mockHttpMyProfileDataSource()
@@ -116,7 +108,7 @@ class MyProfileDataRepositoryTest(
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
             mLocalMyProfileDataSource = localMyProfileDataSourceMock,
             mHttpMyProfileDataSource = httpMyProfileDataSourceMock,
-            mHttpClient = mOkHttpClientMockContainer.httpClient
+            mHttpCallExecutor = mHttpCallExecutorMockContainer.httpCallExecutor
         )
     }
 
@@ -146,46 +138,9 @@ class MyProfileDataRepositoryTest(
     }
 
     private fun mockHttpMyProfileDataSource(): HttpMyProfileDataSource {
-        val getMyProfileResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(getMyProfileResponseMock.body()).thenAnswer {
-            mHttpSourceGetMyProfileResponseCallFlag = true
-            mHttpSourceGetMyProfile
-        }
-
-        val updateMyProfileResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(updateMyProfileResponseMock.body()).thenAnswer {
-            mHttpSourceUpdateMyProfileResponseCallFlag = true
-
-            Unit
-        }
-
-        val deleteMyProfileResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(deleteMyProfileResponseMock.body()).thenAnswer {
-            mHttpSourceDeleteMyProfileResponseCallFlag = true
-
-            Unit
-        }
-
         val getMyProfileCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(getMyProfileCallMock.execute()).thenAnswer {
-            getMyProfileResponseMock
-        }
-
         val updateMyProfileCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(updateMyProfileCallMock.execute()).thenAnswer {
-            updateMyProfileResponseMock
-        }
-
         val deleteMyProfileCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(deleteMyProfileCallMock.execute()).thenAnswer {
-            deleteMyProfileResponseMock
-        }
 
         val httpMyProfileDataSourceMock = Mockito.mock(HttpMyProfileDataSource::class.java)
 
@@ -220,13 +175,13 @@ class MyProfileDataRepositoryTest(
         val expectedDataMyProfile = dataMyProfile
 
         mImageDataRepositoryMockContainer.getImageById = dataMyProfile.avatar
-        mHttpSourceGetMyProfile = getMyProfileResponse
+        mHttpCallExecutorMockContainer.response = getMyProfileResponse
 
         val gottenDataMyProfile = mDataRepository.getMyProfile().await().myProfile
 
         Assert.assertTrue(mLocalSourceGetMyProfileCallFlag)
         Assert.assertTrue(mHttpSourceGetMyProfileCallFlag)
-        Assert.assertTrue(mHttpSourceGetMyProfileResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)
         Assert.assertEquals(expectedDataMyProfile, gottenDataMyProfile)
     }
@@ -245,7 +200,7 @@ class MyProfileDataRepositoryTest(
 
         mLocalSourceGetMyProfile = getMyProfileDataStoreModel
         mImageDataRepositoryMockContainer.getImageById = dataMyProfile.avatar
-        mHttpSourceGetMyProfile = getMyProfileResponse
+        mHttpCallExecutorMockContainer.response = getMyProfileResponse
 
         mDataRepository.resultFlow.test {
             val gottenDataMyProfile = mDataRepository.getMyProfile().await().myProfile
@@ -260,7 +215,7 @@ class MyProfileDataRepositoryTest(
             gottenResult as GetMyProfileDataResult
 
             Assert.assertTrue(mHttpSourceGetMyProfileCallFlag)
-            Assert.assertTrue(mHttpSourceGetMyProfileResponseCallFlag)
+            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
             Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)
             Assert.assertEquals(expectedGetMyProfileResult, gottenResult)
         }
@@ -277,7 +232,7 @@ class MyProfileDataRepositoryTest(
         mDataRepository.updateMyProfile(myProfileUpdateData)
 
         Assert.assertTrue(mHttpSourceUpdateMyProfileCallFlag)
-        Assert.assertTrue(mHttpSourceUpdateMyProfileResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)
     }
 
@@ -294,7 +249,7 @@ class MyProfileDataRepositoryTest(
 
         Assert.assertTrue(mImageDataRepositoryMockContainer.saveImageCallFlag)
         Assert.assertTrue(mHttpSourceUpdateMyProfileCallFlag)
-        Assert.assertTrue(mHttpSourceUpdateMyProfileResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveMyProfileCallFlag)
     }
 
@@ -303,7 +258,7 @@ class MyProfileDataRepositoryTest(
         mDataRepository.deleteMyProfile()
 
         Assert.assertTrue(mHttpSourceDeleteMyProfileCallFlag)
-        Assert.assertTrue(mHttpSourceDeleteMyProfileResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceResetMyProfileCallFlag)
     }
 }

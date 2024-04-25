@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository.source_common.local.database.st
 
 import android.content.Context
 import androidx.room.Room
-import com.qubacy.geoqq.data._common.repository._common.source.local._common.database.Database
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.Database
 
 object TestDatabase {
     private var mDB: Database? = null

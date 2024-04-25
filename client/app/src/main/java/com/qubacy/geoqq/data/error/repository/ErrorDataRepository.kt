@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.error.repository
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data.error.repository.source.local.LocalErrorDataSource
 import com.qubacy.geoqq.data.error.repository.source.local.model.toError
-import com.qubacy.geoqq._common.model.error.Error
+import com.qubacy.geoqq._common.model.error._common.Error
 import java.util.Locale
 import javax.inject.Inject
 

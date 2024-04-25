@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.model.message
 
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessageResponse
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.model.DataUser
 

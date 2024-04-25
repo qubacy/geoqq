@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.util.http.executor
 
 import com.qubacy.geoqq._common.exception._common.AppException
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
+import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -26,19 +26,13 @@ fun <ResponseBodyType>executeNetworkRequest(
             val code = response.code()
 
             if (code in 400 until 500)
-                throw ErrorAppException(errorDataRepository.getError(
-                    NetworkErrorType.RESPONSE_ERROR_WITH_CLIENT_FAIL.getErrorCode()))
+                throw IllegalStateException()
             else
                 throw ErrorAppException(errorDataRepository.getError(
-                    NetworkErrorType.RESPONSE_ERROR_WITH_SERVER_FAIL.getErrorCode()))
+                    DataNetworkErrorType.RESPONSE_ERROR_WITH_SERVER_FAIL.getErrorCode()))
         }
 
-        val responseBody = response.body()
-
-        if (responseBody == null)
-            throw ErrorAppException(
-                errorDataRepository.getError(
-                    NetworkErrorType.NULL_RESPONSE_BODY.getErrorCode()))
+        val responseBody = response.body()!!
 
         return responseBody as ResponseBodyType
 
@@ -50,6 +44,6 @@ fun <ResponseBodyType>executeNetworkRequest(
 
         throw ErrorAppException(
             errorDataRepository.getError(
-                NetworkErrorType.REQUEST_FAILED.getErrorCode()))
+                DataNetworkErrorType.REQUEST_FAILED.getErrorCode()))
     }
 }

@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.mate.message.repository.source.http
 
 import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessagesResponse
 import com.qubacy.geoqq.data.mate.message.repository.source.http.request.SendMateMessageRequest
 import retrofit2.Call
 import retrofit2.http.Body

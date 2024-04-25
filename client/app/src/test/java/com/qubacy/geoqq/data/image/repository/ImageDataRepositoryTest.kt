@@ -6,7 +6,7 @@ import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.BitmapFactoryMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
+import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image.model.DataImage
@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import retrofit2.Call
-import retrofit2.Response
 
 class ImageDataRepositoryTest(
 
@@ -39,7 +38,7 @@ class ImageDataRepositoryTest(
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
-    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
+    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceLoadImage: ImageEntity? = null
     private var mLocalSourceLoadImages: List<ImageEntity>? = null
@@ -53,16 +52,9 @@ class ImageDataRepositoryTest(
     private var mLocalSourceSaveImagesCallFlag = false
     private var mLocalSourceGetImageDataByUriCallFlag = false
 
-    private var mHttpSourceGetImageResponse: GetImageResponse? = null
-    private var mHttpSourceGetImagesResponse: GetImagesResponse? = null
-    private var mHttpSourceUploadImageResponse: UploadImageResponse? = null
-
     private var mHttpSourceGetImageCallFlag = false
     private var mHttpSourceGetImagesCallFlag = false
     private var mHttpSourceUploadImageCallFlag = false
-    private var mHttpSourceGetImageResponseCallFlag = false
-    private var mHttpSourceGetImagesResponseCallFlag = false
-    private var mHttpSourceUploadImageResponseCallFlag = false
 
     @Before
     fun setup() {
@@ -83,22 +75,15 @@ class ImageDataRepositoryTest(
         mLocalSourceSaveImagesCallFlag = false
         mLocalSourceGetImageDataByUriCallFlag = false
 
-        mHttpSourceGetImageResponse = null
-        mHttpSourceGetImagesResponse = null
-        mHttpSourceUploadImageResponse = null
-
         mHttpSourceGetImageCallFlag = false
         mHttpSourceGetImagesCallFlag = false
         mHttpSourceUploadImageCallFlag = false
-        mHttpSourceGetImageResponseCallFlag = false
-        mHttpSourceGetImagesResponseCallFlag = false
-        mHttpSourceUploadImageResponseCallFlag = false
     }
 
     private fun initImageDataRepository() {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
-        mOkHttpClientMockContainer = OkHttpClientMockContainer()
+        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localImageDataSourceMock = mockLocalImageDataSource()
         val httpImageDataSourceMock = mockHttpImageDataSource()
@@ -108,7 +93,7 @@ class ImageDataRepositoryTest(
             mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
             localImageDataSourceMock,
             httpImageDataSourceMock,
-            mOkHttpClientMockContainer.httpClient
+            mHttpCallExecutorMockContainer.httpCallExecutor
         )
     }
 
@@ -142,44 +127,9 @@ class ImageDataRepositoryTest(
     }
 
     private fun mockHttpImageDataSource(): HttpImageDataSource {
-        val getImageResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(getImageResponseMock.body()).thenAnswer {
-            mHttpSourceGetImageResponseCallFlag = true
-            mHttpSourceGetImageResponse
-        }
-
-        val getImagesResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(getImagesResponseMock.body()).thenAnswer {
-            mHttpSourceGetImagesResponseCallFlag = true
-            mHttpSourceGetImagesResponse
-        }
-
-        val uploadImageResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(uploadImageResponseMock.body()).thenAnswer {
-            mHttpSourceUploadImageResponseCallFlag = true
-            mHttpSourceUploadImageResponse
-        }
-
         val getImageCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(getImageCallMock.execute()).thenAnswer {
-            getImageResponseMock
-        }
-
         val getImagesCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(getImagesCallMock.execute()).thenAnswer {
-            getImagesResponseMock
-        }
-
         val uploadImageCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(uploadImageCallMock.execute()).thenAnswer {
-            uploadImageResponseMock
-        }
 
         val httpImageDataSourceMock = Mockito.mock(HttpImageDataSource::class.java)
 
@@ -228,7 +178,7 @@ class ImageDataRepositoryTest(
         val getImageResponse = GetImageResponse(imageId, extension, base64Content)
         val saveImage = ImageEntity(imageId, uriMock)
 
-        mHttpSourceGetImageResponse = getImageResponse
+        mHttpCallExecutorMockContainer.response = getImageResponse
         mLocalSourceSaveImage = saveImage
 
         val expectedDataImage = DataImage(0, uriMock)
@@ -237,7 +187,7 @@ class ImageDataRepositoryTest(
 
         Assert.assertTrue(mLocalSourceLoadImageCallFlag)
         Assert.assertTrue(mHttpSourceGetImageCallFlag)
-        Assert.assertTrue(mHttpSourceGetImageResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveImageCallFlag)
         Assert.assertEquals(expectedDataImage, gottenDataImage)
     }
@@ -262,7 +212,7 @@ class ImageDataRepositoryTest(
             2, extension = ImageExtension.PNG_EXTENSION.id))
         val saveImages = generateImageEntities(getImagesResponse.images.size)
 
-        mHttpSourceGetImagesResponse = getImagesResponse
+        mHttpCallExecutorMockContainer.response = getImagesResponse
         mLocalSourceSaveImages = saveImages
 
         val expectedDataImages = saveImages.map { it.toDataImage() }
@@ -271,7 +221,7 @@ class ImageDataRepositoryTest(
 
         Assert.assertTrue(mLocalSourceLoadImagesCallFlag)
         Assert.assertTrue(mHttpSourceGetImagesCallFlag)
-        Assert.assertTrue(mHttpSourceGetImagesResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveImagesCallFlag)
         Assert.assertEquals(expectedDataImages, gottenDataImages)
     }
@@ -293,14 +243,14 @@ class ImageDataRepositoryTest(
         val expectedDataImage = saveImage.toDataImage()
 
         mLocalSourceGetImageDataByUri = getImageDataByUri
-        mHttpSourceUploadImageResponse = uploadImageResponse
+        mHttpCallExecutorMockContainer.response = uploadImageResponse
         mLocalSourceSaveImage = saveImage
 
         val gottenDataImage = mDataRepository.saveImage(uriMock)
 
         Assert.assertTrue(mLocalSourceGetImageDataByUriCallFlag)
         Assert.assertTrue(mHttpSourceUploadImageCallFlag)
-        Assert.assertTrue(mHttpSourceUploadImageResponseCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mLocalSourceSaveImageCallFlag)
         Assert.assertEquals(expectedDataImage, gottenDataImage)
     }

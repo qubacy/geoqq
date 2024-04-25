@@ -24,7 +24,6 @@ import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
@@ -34,7 +33,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.M
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.MyProfileViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error.MyProfileErrorType
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error.UiMyProfileErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
@@ -383,7 +382,7 @@ class MyProfileFragment(
 
         if (invalidInputSet.isNotEmpty()) return setInputErrors(invalidInputSet)
         if (!mModel.isUpdateDataValid(inputData))
-            return mModel.retrieveError(MyProfileErrorType.INVALID_UPDATE_DATA)
+            return mModel.retrieveError(UiMyProfileErrorType.INVALID_UPDATE_DATA)
 
         mModel.updateMyProfile(inputData)
         clearInputsAfterUpdate()

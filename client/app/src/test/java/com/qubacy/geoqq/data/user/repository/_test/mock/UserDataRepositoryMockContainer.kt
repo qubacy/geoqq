@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.user.repository._test.mock
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq._common.model.error.Error
+import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository

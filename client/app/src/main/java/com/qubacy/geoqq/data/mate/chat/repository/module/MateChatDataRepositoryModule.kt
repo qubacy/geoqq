@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource

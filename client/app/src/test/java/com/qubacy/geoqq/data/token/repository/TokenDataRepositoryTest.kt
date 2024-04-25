@@ -6,7 +6,7 @@ import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil.mockBase64
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
+import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.response.SignInResponse
@@ -38,7 +38,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     }
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
-    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
+    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceLastAccessToken: String? = null
     private var mLocalSourceRefreshToken: String? = null
@@ -49,10 +49,6 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
     private var mLocalSourceClearTokensCallFlag = false
 
     private var mLocalDatabaseSourceDropDataTablesCallFlag = false
-
-    private var mHttpSourceUpdateTokensResponse: UpdateTokensResponse? = null
-    private var mHttpSourceSignInResponse: SignInResponse? = null
-    private var mHttpSourceSignUpResponse: SignUpResponse? = null
 
     private var mHttpSourceUpdateTokensCallFlag = false
     private var mHttpSourceSignInCallFlag = false
@@ -75,10 +71,6 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
         mLocalDatabaseSourceDropDataTablesCallFlag = false
 
-        mHttpSourceUpdateTokensResponse = null
-        mHttpSourceSignInResponse = null
-        mHttpSourceSignUpResponse = null
-
         mHttpSourceUpdateTokensCallFlag = false
         mHttpSourceSignInCallFlag = false
         mHttpSourceSignUpCallFlag = false
@@ -86,7 +78,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
     private fun initTokenDataRepository() = runTest {
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mOkHttpClientMockContainer = OkHttpClientMockContainer()
+        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localTokenDataSourceMock = Mockito.mock(LocalStoreTokenDataSource::class.java)
 
@@ -125,17 +117,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
         val httpTokenDataSourceMock = Mockito.mock(HttpTokenDataSource::class.java)
 
-        val updateTokensResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(updateTokensResponseMock.body()).thenAnswer {
-            mHttpSourceUpdateTokensResponse
-        }
-
         val updateTokensRequestMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(updateTokensRequestMock.execute()).thenAnswer {
-            updateTokensResponseMock
-        }
 
         Mockito.`when`(httpTokenDataSourceMock.updateTokens(Mockito.anyString())).thenAnswer {
             mHttpSourceUpdateTokensCallFlag = true
@@ -143,17 +125,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
             updateTokensRequestMock
         }
 
-        val signInResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(signInResponseMock.body()).thenAnswer {
-            mHttpSourceSignInResponse
-        }
-
         val signInRequestMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(signInRequestMock.execute()).thenAnswer {
-            signInResponseMock
-        }
 
         Mockito.`when`(httpTokenDataSourceMock.signIn(
             Mockito.anyString(), Mockito.anyString()
@@ -163,17 +135,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
             signInRequestMock
         }
 
-        val signUpResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(signUpResponseMock.body()).thenAnswer {
-            mHttpSourceSignUpResponse
-        }
-
         val signUpRequestMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(signUpRequestMock.execute()).thenAnswer {
-            signUpResponseMock
-        }
 
         Mockito.`when`(httpTokenDataSourceMock.signUp(
             Mockito.anyString(), Mockito.anyString()
@@ -188,7 +150,7 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
             localTokenDataSourceMock,
             localDatabaseTokenDataSourceMock,
             httpTokenDataSourceMock,
-            mOkHttpClientMockContainer.httpClient
+            mHttpCallExecutorMockContainer.httpCallExecutor
         )
     }
 
@@ -216,12 +178,13 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
 
         mLocalSourceLastAccessToken = null
         mLocalSourceRefreshToken = VALID_TOKEN
-        mHttpSourceUpdateTokensResponse = expectedUpdateTokensResponse
+        mHttpCallExecutorMockContainer.response = expectedUpdateTokensResponse
 
         val gottenGetTokensResult = mDataRepository.getTokens()
 
         Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
         Assert.assertTrue(mHttpSourceUpdateTokensCallFlag)
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertEquals(expectedUpdateTokensResponse.accessToken, mLocalSourceSaveTokensAccessToken)
         Assert.assertEquals(expectedUpdateTokensResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
         Assert.assertEquals(expectedUpdateTokensResponse.accessToken, gottenGetTokensResult.accessToken)
@@ -253,10 +216,11 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         val login = "login"
         val password = "password"
 
-        mHttpSourceSignInResponse = expectedTokenSignInResponse
+        mHttpCallExecutorMockContainer.response = expectedTokenSignInResponse
 
         mDataRepository.signIn(login, password)
 
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertEquals(expectedTokenSignInResponse.accessToken, mLocalSourceSaveTokensAccessToken)
         Assert.assertEquals(expectedTokenSignInResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
     }
@@ -270,10 +234,11 @@ class TokenDataRepositoryTest : DataRepositoryTest<TokenDataRepository>() {
         val login = "login"
         val password = "password"
 
-        mHttpSourceSignUpResponse = expectedTokenSignUpResponse
+        mHttpCallExecutorMockContainer.response = expectedTokenSignUpResponse
 
         mDataRepository.signUp(login, password)
 
+        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertEquals(expectedTokenSignUpResponse.accessToken, mLocalSourceSaveTokensAccessToken)
         Assert.assertEquals(expectedTokenSignUpResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
     }

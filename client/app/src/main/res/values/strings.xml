@@ -22,7 +22,8 @@
     <string name="fragment_login_button_change_login_type_text_sign_in_mode">Sign Up</string>
     <string name="fragment_login_button_change_login_type_text_sign_up_mode">Sign In</string>
 
-    <string name="fragment_mate_chats_top_bar_title_text">Mate Chats</string>
+    <string name="fragment_mate_chats_top_bar_title_text">Mate chats</string>
+    <string name="fragment_mate_chats_surface_placeholder_text">No chats for now!</string>
 
     <string name="fragment_my_profile_top_bar_title_text">My profile</string>
     <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
@@ -45,7 +46,6 @@
     <string name="fragment_mate_requests_top_bar_content_wrapper_title_text">Mate requests</string>
     <string name="fragment_mate_requests_hint_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
     <string name="fragment_mate_requests_surface_placeholder_text">You have no mate requests for now!</string>
-    <string name="fragment_mate_chats_surface_placeholder_text">No chats for now!</string>
 
     <!--  Components:  -->
 

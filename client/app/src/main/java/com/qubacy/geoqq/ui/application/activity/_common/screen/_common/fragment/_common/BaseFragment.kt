@@ -16,7 +16,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq._common.model.error.Error
+import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.setupNavigationUI

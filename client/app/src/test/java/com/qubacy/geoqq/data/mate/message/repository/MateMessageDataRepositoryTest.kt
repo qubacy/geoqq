@@ -8,9 +8,9 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessageResponse
-import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
-import com.qubacy.geoqq.data._common.util.http.executor._test.mock.OkHttpClientMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessageResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessagesResponse
+import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
@@ -28,7 +28,6 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 import retrofit2.Call
-import retrofit2.Response
 
 class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataRepository>() {
     companion object {
@@ -49,7 +48,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
     private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
-    private lateinit var mOkHttpClientMockContainer: OkHttpClientMockContainer
+    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceGetMateMessages: List<MateMessageEntity> = listOf()
     private var mLocalSourceGetMateMessage: MateMessageEntity? = null
@@ -64,9 +63,6 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private var mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
     private var mLocalSourceDeleteAllMessagesCallFlag = false
 
-    private var mHttpSourceGetMateMessagesResponse: GetMessagesResponse? = null
-
-    private var mHttpSourceGetMateMessagesResponseCallFlag = false
     private var mHttpSourceGetMateMessagesCallFlag = false
 
     @Before
@@ -89,9 +85,6 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
         mLocalSourceDeleteAllMessagesCallFlag = false
 
-        mHttpSourceGetMateMessagesResponse = null
-
-        mHttpSourceGetMateMessagesResponseCallFlag = false
         mHttpSourceGetMateMessagesCallFlag = false
     }
 
@@ -99,7 +92,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
         mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
-        mOkHttpClientMockContainer = OkHttpClientMockContainer()
+        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localMateMessageDataSourceMock = mockLocalMateMessageDataSource()
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
@@ -110,7 +103,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
             mLocalMateMessageDataSource = localMateMessageDataSourceMock,
             mHttpMateMessageDataSource = httpMateMessageDataSourceMock,
-            mHttpClient = mOkHttpClientMockContainer.httpClient
+            mHttpCallExecutor = mHttpCallExecutorMockContainer.httpCallExecutor
         )
     }
 
@@ -184,18 +177,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     }
 
     private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSource {
-        val getMateMessagesResponseMock = Mockito.mock(Response::class.java)
-
-        Mockito.`when`(getMateMessagesResponseMock.body()).thenAnswer {
-            mHttpSourceGetMateMessagesResponseCallFlag = true
-            mHttpSourceGetMateMessagesResponse
-        }
-
         val getMateMessagesCallMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(getMateMessagesCallMock.execute()).thenAnswer {
-            getMateMessagesResponseMock
-        }
 
         val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSource::class.java)
 
@@ -222,7 +204,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
-        mHttpSourceGetMateMessagesResponse = httpMessages
+        mHttpCallExecutorMockContainer.response = httpMessages
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
@@ -242,7 +224,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
             val gottenHttpResult = awaitItem()
 
             Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
-            Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
+            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
             Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
 
             val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
@@ -264,7 +246,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
-        mHttpSourceGetMateMessagesResponse = httpMessages
+        mHttpCallExecutorMockContainer.response = httpMessages
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
@@ -285,7 +267,7 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
             val gottenHttpResult = awaitItem()
 
             Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
-            Assert.assertTrue(mHttpSourceGetMateMessagesResponseCallFlag)
+            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
             Assert.assertTrue(mLocalSourceDeleteOtherMessagesByIdsCallFlag)
             Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
 

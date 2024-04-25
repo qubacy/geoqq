@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq._common.model.error.Error
+import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.error.type.TestErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
