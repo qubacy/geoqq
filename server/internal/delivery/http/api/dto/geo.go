@@ -16,6 +16,7 @@ func MakeGeoChatMessagesResFromDomain(
 	domainGeoMessages domain.GeoMessageList) (
 	GeoChatMessagesRes, error,
 ) {
+	sourceFunc := MakeGeoChatMessagesResFromDomain
 	if domainGeoMessages == nil {
 		return GeoChatMessagesRes{},
 			ErrInputParameterIsNil
@@ -28,7 +29,7 @@ func MakeGeoChatMessagesResFromDomain(
 		)
 		if err != nil {
 			return GeoChatMessagesRes{},
-				utility.NewFuncError(MakeGeoChatMessagesResFromDomain, err)
+				utility.NewFuncError(sourceFunc, err)
 		}
 
 		res.Messages = append(res.Messages, geoMessage)

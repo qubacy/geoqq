@@ -56,7 +56,7 @@ func (h *Handler) userIdentityForFormRequest(ctx *gin.Context) {
 		return
 	}
 
-	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
+	payload, err := h.tokenExtractor.ParseAccess(accessToken)
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
@@ -72,7 +72,7 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 		return
 	}
 
-	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
+	payload, err := h.tokenExtractor.ParseAccess(accessToken)
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
@@ -80,6 +80,8 @@ func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
 
 	ctx.Set(contextUserId, payload.UserId)
 }
+
+// -----------------------------------------------------------------------
 
 type bodyWithAccessToken struct {
 	AccessToken string `json:"access-token" binding:"required"`
@@ -148,8 +150,8 @@ func requireOffsetAndCount(ctx *gin.Context) {
 	existsOffset := ctx.Request.Form.Has(GetParameterOffset)
 
 	if !existsOffset || !existsCount {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed,
-			ErrSomeParametersAreMissing)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed,
+			ErrSomeParametersAreMissingWithNames([]string{"Count", "Offset"}))
 		return
 	}
 
@@ -162,7 +164,7 @@ func requireOffsetAndCount(ctx *gin.Context) {
 	count, countErr := strconv.ParseUint(countStr, 10, 64)
 
 	if err := errors.Join(offsetErr, countErr); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
 
@@ -178,10 +180,11 @@ const GetParameterLon = "lon"
 const GetParameterLat = "lat"
 
 func requireLonAndLat(ctx *gin.Context) {
+
 	if !ctx.Request.Form.Has(GetParameterLat) ||
 		!ctx.Request.Form.Has(GetParameterLon) {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed,
-			ErrSomeParametersAreMissing)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed,
+			ErrSomeParametersAreMissingWithNames([]string{"Lat", "Lon"}))
 		return
 	}
 
@@ -194,7 +197,7 @@ func requireLonAndLat(ctx *gin.Context) {
 	lon, lonErr := strconv.ParseFloat(lonStr, 64)
 
 	if err := errors.Join(latErr, lonErr); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
 
@@ -210,8 +213,8 @@ const GetParameterRadius = "radius"
 
 func requireRadius(ctx *gin.Context) {
 	if !ctx.Request.Form.Has(GetParameterRadius) {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed,
-			ErrSomeParametersAreMissing)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed,
+			ErrSomeParametersAreMissingWithNames([]string{"Radius"}))
 		return
 	}
 
@@ -219,9 +222,11 @@ func requireRadius(ctx *gin.Context) {
 	radius, err := strconv.ParseUint(radiusStr, 10, 64)
 
 	if err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
+
+	// ***
 
 	ctx.Set(contextRadius, radius)
 }
@@ -235,7 +240,7 @@ type routeItemId struct { // or uri params!
 func requireRouteItemId(ctx *gin.Context) {
 	uriParams := routeItemId{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
 
@@ -248,9 +253,15 @@ func requireRouteItemId(ctx *gin.Context) {
 func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
 
 	// as get-parameter!
+
+	if !ctx.Request.Form.Has("accessToken") {
+		return "", ec.ValidateRequestAccessTokenFailed,
+			ErrSomeParametersAreMissingWithNames([]string{"AccessToken"})
+	}
+
 	accessToken := ctx.Request.Form.Get("accessToken")
 	if len(accessToken) == 0 {
-		return "", ec.ParseAccessTokenFailed, // ?
+		return "", ec.ValidateRequestAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
 
@@ -258,10 +269,9 @@ func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
 }
 
 func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
-
 	accessToken := ctx.Request.FormValue("access-token")
 	if len(accessToken) == 0 {
-		return "", ec.ParseAccessTokenFailed, // ?
+		return "", ec.ValidateRequestAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
 

@@ -98,12 +98,12 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 	// *** validate json body
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 		return
 	}
 	if requestDto.Avatar != nil {
 		if len(requestDto.Avatar.Content) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 			return
 		}
 
@@ -111,11 +111,11 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 	}
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 			return
 		}
 		if len(requestDto.Security.NewPassword) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 			return
 		}
 	}
@@ -182,16 +182,16 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	// *** validate json body
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 		return
 	}
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 			return
 		}
 		if len(requestDto.Security.NewPassword) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 			return
 		}
 	}
@@ -277,7 +277,7 @@ func (h *Handler) getUser(ctx *gin.Context) {
 
 	uriParams := uriParamsGetUser{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
 
@@ -315,7 +315,7 @@ func (h *Handler) extractBodyForGetSomeUsers(ctx *gin.Context) {
 	// ***
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 		return
 	}
 	/*

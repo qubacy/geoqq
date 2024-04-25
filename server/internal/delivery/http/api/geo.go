@@ -45,7 +45,7 @@ func (h *Handler) registerGeoRoutes() {
 func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 	_, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
-		resWithServerErr(ctx, clientCode, err)
+		resWithServerErr(ctx, clientCode, err) // server error!
 		return
 	}
 
@@ -60,8 +60,7 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatMessages(ctx,
 		radius, lat, lon, offset, count)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -69,7 +68,7 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 
 	responseDto, err := dto.MakeGeoChatMessagesResFromDomain(geoMessages)
 	if err != nil {
-		resWithServerErr(ctx, ec.ServerError, err)
+		resWithServerErr(ctx, ec.ServerError, err) // impossible error!
 		return
 	}
 	ctx.JSON(http.StatusOK, responseDto)
@@ -94,8 +93,7 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatAllMessages(ctx,
 		radius, lat, lon)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -140,14 +138,21 @@ func (h *Handler) extractBodyForPostGeoChatMessage(ctx *gin.Context) {
 		return
 	}
 
+	// ***
+
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestAccessTokenFailed,
+			ErrEmptyAccessToken)
 		return
 	}
+
 	if len(requestDto.Text) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+			ErrEmptyBodyParameterWithName("Text"))
 		return
 	}
+
+	// ***
 
 	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
@@ -180,10 +185,8 @@ func (h *Handler) postGeoChatMessage(ctx *gin.Context) {
 		requestDto.Longitude,
 		requestDto.Latitude,
 	)
-
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 

@@ -216,13 +216,17 @@ func (h *Handler) extractBodyForPostMateChatMessage(ctx *gin.Context) {
 	}
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+			ErrEmptyBodyParameterWithName("AccessToken"))
 		return
 	}
 	if len(requestDto.Text) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+			ErrEmptyBodyParameterWithName("Text"))
 		return
 	}
+
+	// ***
 
 	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto) // all body with access token.
@@ -243,7 +247,7 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 
 	uriParams := uriParamsPostMateChatMessage{} // or move to previous middleware?
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err) // uri
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err) // uri
 		return
 	}
 
@@ -352,7 +356,7 @@ func (h *Handler) extractBodyForPostMateRequest(ctx *gin.Context) {
 	// simple request validation...
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
 		return
 	}
 
@@ -410,13 +414,13 @@ func (h *Handler) putMateRequest(ctx *gin.Context) {
 	acceptedStr := ctx.Request.FormValue("accepted")
 	accepted, err := strconv.ParseBool(acceptedStr)
 	if err != nil {
-		resWithServerErr(ctx, ec.ParseRequestParamsFailed, err) // x-www-form-urlencoded
+		resWithServerErr(ctx, ec.ParseRequestQueryParamsFailed, err) // x-www-form-urlencoded
 		return
 	}
 
 	uriParams := uriParamsPutMateRequest{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err) // uri
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err) // uri
 		return
 	}
 

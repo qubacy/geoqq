@@ -1,13 +1,10 @@
 package api
 
 import (
-	"encoding/json"
-	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/utility"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +42,7 @@ type uriParamsGetImage struct {
 func (h *Handler) getImage(ctx *gin.Context) {
 	uriParams := uriParamsGetImage{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
-		resWithClientError(ctx, ec.ParseRequestParamsFailed, err)
+		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
 		return
 	}
 
@@ -53,8 +50,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 
 	image, err := h.services.GetImageById(ctx, uriParams.Id)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -73,12 +69,16 @@ func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
 
 	// ***
 
+	// !!!
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestAccessTokenFailed,
+			ErrEmptyAccessToken)
 		return
 	}
+
 	if len(requestDto.Ids) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+			ErrEmptyBodyParameterWithName("Ids"))
 		return
 	}
 
@@ -102,13 +102,10 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 
 	// *** to service
 
-	fmt.Println(requestDto)
-
 	images, err := h.services.GetImagesByIds(ctx,
 		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -133,11 +130,14 @@ func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 	// ***
 
 	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestAccessTokenFailed,
+			ErrEmptyAccessToken)
 		return
 	}
+
 	if len(requestDto.Image.Content) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
+		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+			ErrEmptyBodyParameterWithName("Image.Content"))
 		return
 	}
 
@@ -157,22 +157,15 @@ func (h *Handler) postNewImage(ctx *gin.Context) {
 		return
 	}
 
-	jsonBytes, err := json.Marshal(requestDto)
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = os.WriteFile("image.json", jsonBytes, 0666)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// ***
 
 	imageId, err := h.services.AddImageToUser(ctx,
 		userId, requestDto.ToInp())
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.MakeImagePostRes(imageId))
+	ctx.JSON(http.StatusOK,
+		dto.MakeImagePostRes(imageId))
 }

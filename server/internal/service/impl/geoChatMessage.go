@@ -12,12 +12,13 @@ import (
 type GeoChatMessageService struct {
 	domainStorage         domainStorage.Storage
 	geoDistanceCalculator geoDistance.Calculator
+	generalParams         GeneralParams
 }
 
 func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 	instance := &GeoChatMessageService{
 		domainStorage:         deps.DomainStorage,
-		geoDistanceCalculator: deps.GeoDistanceCalculator,
+		geoDistanceCalculator: deps.GeoDistCalculator,
 	}
 
 	return instance
@@ -79,6 +80,11 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 	offset, count uint64) (
 	domain.GeoMessageList, error,
 ) {
+	if count > s.generalParams.MaxPageSize {
+		return nil, ec.New(ErrCountMoreThanPermissible,
+			ec.Client, ec.CountMoreThanPermissible)
+	}
+
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)

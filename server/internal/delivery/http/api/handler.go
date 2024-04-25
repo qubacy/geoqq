@@ -32,6 +32,7 @@ func (d *Dependencies) validate() error {
 	if d.Router == nil {
 		return errors.New("router is nil")
 	}
+
 	return nil
 }
 

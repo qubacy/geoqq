@@ -20,8 +20,21 @@ delivery: # or service?
     signing_key: "signing_key"
 
 service:
-  pagination:
-    max_page_size: 100 # ..]
+  general:
+    pagination:
+      max_page_size: 100 # ..]
+  
+  auth:
+    sign_in:
+      failed_attempt_count: 3
+      failed_attempt_ttl: 15m
+      blocking_time: 30m
+
+    sign_up:
+      blocking_time: 1h # after registration!
+
+  chat:
+    message_length: 1024
 
 storage:
   hash_type: "sha1" # general parameter?
@@ -34,6 +47,7 @@ storage:
           root: "."
           avatar: "avatar"
           #...
+          
       runtime:
       #...
 

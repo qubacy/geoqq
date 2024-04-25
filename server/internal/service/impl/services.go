@@ -10,42 +10,73 @@ import (
 	"time"
 )
 
-type Services struct {
-	*AuthService
-	*UserProfileService
-	*UserService
-	*MateRequestService
-	*MateChatService
-	*MateChatMessageService
-	*GeoChatMessageService
-	*ImageService
+type GeneralParams struct {
+	MaxPageSize uint64 // or uint32?
+}
+
+type AuthParams struct {
+	SignIn SignInParams
+	SignUp SignUpParams
+}
+
+type SignInParams struct {
+	FailedAttemptCount uint32
+	FailedAttemptTtl   time.Duration
+	BlockingTime       time.Duration
+}
+
+type SignUpParams struct {
+	BlockingTime time.Duration
 }
 
 type Dependencies struct {
-	TokenManager token.TokenManager
 	HashManager  hash.HashManager
+	TokenManager token.TokenManager
 
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 
-	MaxPageSize     uint64
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage
 	AvatarGenerator avatar.AvatarGenerator
 
-	GeoDistanceCalculator geoDistance.Calculator
+	GeoDistCalculator geoDistance.Calculator
+
+	GeneralParams GeneralParams
+	AuthParams    AuthParams
+}
+
+// -----------------------------------------------------------------------
+
+type Services struct {
+	*AuthService
+
+	*UserProfileService
+	*UserService
+
+	*ImageService
+
+	*MateRequestService
+	*MateChatService
+	*MateChatMessageService
+
+	*GeoChatMessageService
 }
 
 func NewServices(deps Dependencies) (*Services, error) {
 	return &Services{
-		AuthService:            newAuthService(deps),
-		UserProfileService:     newUserProfileService(deps),
-		ImageService:           newImageService(deps),
+		AuthService: newAuthService(deps),
+
+		UserProfileService: newUserProfileService(deps),
+		UserService:        newUserService(deps),
+
+		ImageService: newImageService(deps), // or avatar service?
+
 		MateRequestService:     newMateRequestService(deps),
 		MateChatService:        newMateChatService(deps),
 		MateChatMessageService: newMateChatMessageService(deps),
-		GeoChatMessageService:  newGeoChatMessageService(deps),
-		UserService:            newUserService(deps),
+
+		GeoChatMessageService: newGeoChatMessageService(deps),
 	}, nil
 }
 

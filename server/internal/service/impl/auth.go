@@ -15,11 +15,14 @@ import (
 )
 
 type AuthService struct {
+	HasherAndStorages
+	avatarGenerator avatar.AvatarGenerator
+
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
 	tokenManager    token.TokenManager
-	avatarGenerator avatar.AvatarGenerator
-	HasherAndStorages
+
+	authParams AuthParams
 
 	validators map[string]*regexp.Regexp
 }
@@ -27,16 +30,18 @@ type AuthService struct {
 // without check?
 func newAuthService(deps Dependencies) *AuthService {
 	instance := &AuthService{
-		accessTokenTTL:  deps.AccessTokenTTL,
-		refreshTokenTTL: deps.RefreshTokenTTL,
-		tokenManager:    deps.TokenManager,
-		avatarGenerator: deps.AvatarGenerator,
-
 		HasherAndStorages: HasherAndStorages{
 			fileStorage:   deps.FileStorage,
 			domainStorage: deps.DomainStorage,
 			hashManager:   deps.HashManager,
 		},
+		avatarGenerator: deps.AvatarGenerator,
+
+		accessTokenTTL:  deps.AccessTokenTTL,
+		refreshTokenTTL: deps.RefreshTokenTTL,
+		tokenManager:    deps.TokenManager,
+
+		authParams: deps.AuthParams,
 	}
 
 	// ***
@@ -53,7 +58,7 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 ) {
 	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
 	if err != nil {
-		return a.signInWithError(err, ec.Client, ec.ValidateInputParamsFailed)
+		return a.signInWithError(err, ec.Client, ec.ValidateAuthParamsFailed)
 	}
 
 	// some asserts
@@ -91,7 +96,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 ) {
 	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
 	if err != nil {
-		return a.signUpWithError(err, ec.Client, ec.ValidateInputParamsFailed)
+		return a.signUpWithError(err, ec.Client, ec.ValidateAuthParamsFailed)
 	}
 
 	// some asserts

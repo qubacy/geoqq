@@ -253,15 +253,32 @@ func servicesInstance(
 	// ***
 
 	services, err := serviceImpl.NewServices(serviceImpl.Dependencies{
-		HashManager:           hashManager,
-		TokenManager:          tokenManager,
-		AccessTokenTTL:        viper.GetDuration("delivery.token.access_ttl"),
-		RefreshTokenTTL:       viper.GetDuration("delivery.token.refresh_ttl"),
-		AvatarGenerator:       avatarGenerator,
-		MaxPageSize:           viper.GetUint64("service.pagination.max_page_size"),
-		DomainStorage:         domainStorage,
-		FileStorage:           fileStorage,
-		GeoDistanceCalculator: geoDistanceImpl.NewCalculator(),
+		HashManager:  hashManager,
+		TokenManager: tokenManager,
+
+		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
+		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
+
+		DomainStorage:   domainStorage,
+		FileStorage:     fileStorage,
+		AvatarGenerator: avatarGenerator,
+
+		GeoDistCalculator: geoDistanceImpl.NewCalculator(),
+
+		GeneralParams: serviceImpl.GeneralParams{
+			MaxPageSize: viper.GetUint64("service.general.pagination.max_page_size"),
+		},
+
+		AuthParams: serviceImpl.AuthParams{
+			SignIn: serviceImpl.SignInParams{
+				FailedAttemptCount: viper.GetUint32("service.auth.sign_in.failed_attempt_count"),
+				FailedAttemptTtl:   viper.GetDuration("service.auth.sign_in.failed_attempt_ttl"),
+				BlockingTime:       viper.GetDuration("service.auth.sign_in.blocking_time"),
+			},
+			SignUp: serviceImpl.SignUpParams{
+				BlockingTime: viper.GetDuration("service.auth.sign_up.blocking_time"),
+			},
+		},
 	})
 	if err != nil {
 		return nil, utility.NewFuncError(servicesInstance, err)

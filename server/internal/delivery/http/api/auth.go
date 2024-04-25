@@ -38,10 +38,15 @@ func (h *Handler) registerAuthRoutes() {
 // auth
 // -----------------------------------------------------------------------
 
+// POST /api/sign-in
+// -----------------------------------------------------------------------
+
 func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	username := ctx.GetString(contextUsername)
 	passwordHash := ctx.GetString(contextPassword)
+
+	// ***
 
 	out, err := h.services.SignIn(ctx,
 		serviceDto.MakeSignInInp(username, passwordHash))
@@ -59,10 +64,15 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 		out.AccessToken, out.RefreshToken))
 }
 
+// POST /api/sign-up
+// -----------------------------------------------------------------------
+
 func (h *Handler) postSignUp(ctx *gin.Context) {
 
 	username := ctx.GetString(contextUsername)
 	passwordHash := ctx.GetString(contextPassword)
+
+	// ***
 
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, passwordHash))
@@ -79,12 +89,15 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 		out.AccessToken, out.RefreshToken))
 }
 
+// PUT /api/sign-in
+// -----------------------------------------------------------------------
+
 func (h *Handler) putSignIn(ctx *gin.Context) {
+
 	refreshToken := ctx.GetString(contextRefreshToken)
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
 	if err != nil {
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err) // new style!
 		return
 	}
 
@@ -97,7 +110,7 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 // middlewares
 // -----------------------------------------------------------------------
 
-// application/x-www-form-urlencoded
+// application/x-www-form-urlencoded?
 
 func extractLoginAndPassword(ctx *gin.Context) {
 	var (
@@ -106,11 +119,13 @@ func extractLoginAndPassword(ctx *gin.Context) {
 	)
 	if len(username) == 0 || len(password) == 0 {
 		resWithClientError(ctx,
-			se.ValidateRequestFailed,
+			se.ValidateRequestParamsFailed,
 			ErrEmptyRequestParameter,
 		)
 		return
 	}
+
+	// ***
 
 	ctx.Set(contextPassword, password)
 	ctx.Set(contextUsername, username)
@@ -122,11 +137,13 @@ func extractRefreshToken(ctx *gin.Context) {
 	)
 	if len(refreshToken) == 0 {
 		resWithClientError(ctx,
-			se.ValidateRequestFailed, // ?
-			ErrEmptyRequestParameter,
+			se.ValidateRequestParamsFailed, // ?
+			ErrEmptyRequestParameterWithName("RefreshToken"),
 		)
 		return
 	}
+
+	// ***
 
 	ctx.Set(contextRefreshToken, refreshToken)
 }
