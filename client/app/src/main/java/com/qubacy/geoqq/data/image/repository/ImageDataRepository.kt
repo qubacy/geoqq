@@ -1,10 +1,9 @@
 package com.qubacy.geoqq.data.image.repository
 
 import android.net.Uri
-import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
-import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.error.type.ImageErrorType
 import com.qubacy.geoqq.data.image.model.DataImage
@@ -16,7 +15,6 @@ import com.qubacy.geoqq.data.image.repository.source.http.request.GetImagesReque
 import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequest
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 class ImageDataRepository @Inject constructor(
@@ -24,7 +22,7 @@ class ImageDataRepository @Inject constructor(
     private val mTokenDataRepository: TokenDataRepository,
     private val mLocalImageDataSource: LocalImageDataSource,
     private val mHttpImageDataSource: HttpImageDataSource,
-    private val mHttpClient: OkHttpClient
+    private val mHttpCallExecutor: HttpCallExecutor
 ) : DataRepository {
     suspend fun getImageById(imageId: Long): DataImage {
         val localImage = mLocalImageDataSource.loadImage(imageId)
@@ -34,7 +32,7 @@ class ImageDataRepository @Inject constructor(
         val accessToken = mTokenDataRepository.getTokens().accessToken
 
         val getImageCall = mHttpImageDataSource.getImage(imageId, accessToken)
-        val getImageResponse = executeNetworkRequest(mErrorDataRepository, mHttpClient, getImageCall)
+        val getImageResponse = mHttpCallExecutor.executeNetworkRequest(getImageCall)
 
         val httpImageToSave = getImageResponse.toRawImage()
 
@@ -57,8 +55,7 @@ class ImageDataRepository @Inject constructor(
 
         val getImagesRequest = GetImagesRequest(accessToken, imagesIds)
         val getImagesCall = mHttpImageDataSource.getImages(getImagesRequest)
-        val getImagesResponse = executeNetworkRequest(
-            mErrorDataRepository, mHttpClient, getImagesCall)
+        val getImagesResponse = mHttpCallExecutor.executeNetworkRequest(getImagesCall)
 
         val httpImagesToSave = getImagesResponse.images.map { it.toRawImage() }
 
@@ -83,8 +80,7 @@ class ImageDataRepository @Inject constructor(
         val imageContentToUpload = imageData.toUploadImageRequest()
         val uploadImageRequest = UploadImageRequest(accessToken, imageContentToUpload)
         val uploadImageCall = mHttpImageDataSource.uploadImage(uploadImageRequest)
-        val uploadImageResponse = executeNetworkRequest(
-            mErrorDataRepository, mHttpClient, uploadImageCall)
+        val uploadImageResponse = mHttpCallExecutor.executeNetworkRequest(uploadImageCall)
 
         val localImageToSave = imageData.copy(id = uploadImageResponse.id)
         val savedImage = mLocalImageDataSource.saveImage(localImageToSave)

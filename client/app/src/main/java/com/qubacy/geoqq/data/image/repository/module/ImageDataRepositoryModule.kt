@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.image.repository.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
@@ -9,7 +10,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,14 +20,14 @@ object ImageDataRepositoryModule {
         tokenDataRepository: TokenDataRepository,
         localImageDataSource: LocalImageDataSource,
         httpImageDataSource: HttpImageDataSource,
-        httpClient: OkHttpClient
+        httpCallExecutor: HttpCallExecutor
     ): ImageDataRepository {
         return ImageDataRepository(
             errorDataRepository,
             tokenDataRepository,
             localImageDataSource,
             httpImageDataSource,
-            httpClient
+            httpCallExecutor
         )
     }
 }

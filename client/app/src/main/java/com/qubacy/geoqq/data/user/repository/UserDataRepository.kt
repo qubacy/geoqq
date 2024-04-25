@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -37,7 +36,7 @@ class UserDataRepository @Inject constructor(
     private val mImageDataRepository: ImageDataRepository,
     private val mLocalUserDataSource: LocalUserDataSource,
     private val mHttpUserDataSource: HttpUserDataSource,
-    private val mHttpClient: OkHttpClient
+    private val mHttpCallExecutor: HttpCallExecutor
     // todo: add a websocket source..
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
@@ -58,8 +57,7 @@ class UserDataRepository @Inject constructor(
 
             val getUsersRequest = GetUsersRequest(accessToken, userIds)
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
-            val getUsersResponse = executeNetworkRequest(
-                mErrorDataRepository, mHttpClient, getUsersCall)
+            val getUsersResponse = mHttpCallExecutor.executeNetworkRequest(getUsersCall)
 
             if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
                 throw ErrorAppException(mErrorDataRepository

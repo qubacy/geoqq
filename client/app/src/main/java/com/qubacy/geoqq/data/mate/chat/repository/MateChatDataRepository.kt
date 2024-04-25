@@ -2,8 +2,8 @@ package com.qubacy.geoqq.data.mate.chat.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -36,7 +35,7 @@ class MateChatDataRepository @Inject constructor(
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateChatDataSource: LocalMateChatDataSource,
     private val mHttpMateChatDataSource: HttpMateChatDataSource,
-    private val mHttpClient: OkHttpClient
+    private val mHttpCallExecutor: HttpCallExecutor
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
@@ -59,8 +58,7 @@ class MateChatDataRepository @Inject constructor(
 
             val accessToken = mTokenDataRepository.getTokens().accessToken
             val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
-            val getChatsResponse = executeNetworkRequest(
-                mErrorDataRepository, mHttpClient, getChatsCall)
+            val getChatsResponse = mHttpCallExecutor.executeNetworkRequest(getChatsCall)
 
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 
@@ -103,8 +101,7 @@ class MateChatDataRepository @Inject constructor(
             val accessToken = mTokenDataRepository.getTokens().accessToken
 
             val getChatCall = mHttpMateChatDataSource.getChat(chatId, accessToken)
-            val getChatResponse = executeNetworkRequest(
-                mErrorDataRepository, mHttpClient, getChatCall)
+            val getChatResponse = mHttpCallExecutor.executeNetworkRequest(getChatCall)
 
             val httpDataChat = resolveGetChatResponse(getChatResponse)
 
@@ -132,7 +129,7 @@ class MateChatDataRepository @Inject constructor(
         val deleteChatRequest = DeleteChatRequest(accessToken)
         val deleteChatCall = mHttpMateChatDataSource.deleteChat(chatId, deleteChatRequest)
 
-        executeNetworkRequest(mErrorDataRepository, mHttpClient, deleteChatCall)
+        mHttpCallExecutor.executeNetworkRequest(deleteChatCall)
     }
 
     private fun deleteOverdueChats(

@@ -42,7 +42,7 @@ class HttpApi {
     companion object {
         const val TAG = "HttpApi"
 
-        const val BASE_URL = "http://10.0.2.2:3001"
+        const val BASE_URL = "http://192.168.0.104:57000"//"http://10.0.2.2:3001"
     }
 
     /**
@@ -51,6 +51,7 @@ class HttpApi {
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())
         .callTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(10, TimeUnit.SECONDS)
 //        .addInterceptor {
 //            val request = it.request()
 //            val response = it.proceed(request)

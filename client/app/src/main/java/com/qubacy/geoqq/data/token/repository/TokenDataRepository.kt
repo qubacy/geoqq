@@ -5,8 +5,8 @@ import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
-import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.token.error.type.TokenErrorType
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
@@ -14,7 +14,6 @@ import com.qubacy.geoqq.data.token.repository.source.local.store.LocalStoreToken
 import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.data.token.repository.source.http.response.UpdateTokensResponse
 import com.qubacy.geoqq.data.token.repository.source.local.database.LocalDatabaseTokenDataSource
-import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 class TokenDataRepository @Inject constructor(
@@ -22,7 +21,7 @@ class TokenDataRepository @Inject constructor(
     private val mLocalStoreTokenDataSource: LocalStoreTokenDataSource,
     private val mLocalDatabaseTokenDataSource: LocalDatabaseTokenDataSource,
     private val mHttpTokenDataSource: HttpTokenDataSource,
-    private val mHttpClient: OkHttpClient
+    private val mHttpCallExecutor: HttpCallExecutor
 ) : DataRepository {
     companion object {
         const val TAG = "TokenDataRepository"
@@ -88,7 +87,7 @@ class TokenDataRepository @Inject constructor(
         val passwordHash = passwordHashBytes.toHexString()
 
         val signInRequest = mHttpTokenDataSource.signIn(login, passwordHash)
-        val signInResponse = executeNetworkRequest(mErrorDataRepository, mHttpClient, signInRequest)
+        val signInResponse = mHttpCallExecutor.executeNetworkRequest(signInRequest)
 
         mLocalStoreTokenDataSource.saveTokens(
             signInResponse.accessToken,
@@ -105,7 +104,7 @@ class TokenDataRepository @Inject constructor(
         val passwordHash = passwordHashBytes.toHexString()
 
         val signUpRequest = mHttpTokenDataSource.signUp(login, passwordHash)
-        val signUpResponse = executeNetworkRequest(mErrorDataRepository, mHttpClient, signUpRequest)
+        val signUpResponse = mHttpCallExecutor.executeNetworkRequest(signUpRequest)
 
         mLocalStoreTokenDataSource.saveTokens(
             signUpResponse.accessToken,
@@ -160,8 +159,7 @@ class TokenDataRepository @Inject constructor(
         val updateTokensCall = mHttpTokenDataSource.updateTokens(localRefreshToken)
 
         try {
-            val updateTokensResponse = executeNetworkRequest(
-                mErrorDataRepository, mHttpClient, updateTokensCall)
+            val updateTokensResponse = mHttpCallExecutor.executeNetworkRequest(updateTokensCall)
 
             return updateTokensResponse
 

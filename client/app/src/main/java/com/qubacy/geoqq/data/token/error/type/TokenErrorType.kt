@@ -9,4 +9,10 @@ enum class TokenErrorType(
 ) : ErrorType {
     LOCAL_REFRESH_TOKEN_INVALID(0),
     INVALID_TOKEN_PAYLOAD(1);
+
+    companion object {
+        fun getErrorTypeByErrorCode(errorCode: Long): TokenErrorType {
+            return entries.find { it.getErrorCode() ==  errorCode }!!
+        }
+    }
 }

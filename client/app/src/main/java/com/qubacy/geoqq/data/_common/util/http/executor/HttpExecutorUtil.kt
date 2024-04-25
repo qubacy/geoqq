@@ -1,11 +1,13 @@
 package com.qubacy.geoqq.data._common.util.http.executor
 
+import com.qubacy.geoqq._common.exception._common.AppException
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.error.type.NetworkErrorType
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import okhttp3.OkHttpClient
 import retrofit2.Call
 
+@Deprecated("Use HttpCallExecutor instead.")
 fun <ResponseBodyType>executeNetworkRequest(
     errorDataRepository: ErrorDataRepository,
     httpClient: OkHttpClient,
@@ -18,8 +20,9 @@ fun <ResponseBodyType>executeNetworkRequest(
 //        )
 
         val response = call.execute()
+        val errorBody = response.errorBody()
 
-        if (response.errorBody() != null) {
+        if (errorBody != null) {
             val code = response.code()
 
             if (code in 400 until 500)
@@ -40,7 +43,7 @@ fun <ResponseBodyType>executeNetworkRequest(
         return responseBody as ResponseBodyType
 
     } catch (e: Throwable) {
-        if (e is ErrorAppException) throw e
+        if (e is AppException) throw e
 
         e.printStackTrace()
         httpClient.dispatcher().cancelAll() // todo: is it ok?

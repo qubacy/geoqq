@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
@@ -10,7 +11,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -22,7 +22,7 @@ object MateMessageDataRepositoryModule {
         userDataRepository: UserDataRepository,
         localMateMessageDataSource: LocalMateMessageDataSource,
         httpMateMessageDataSource: HttpMateMessageDataSource,
-        httpClient: OkHttpClient
+        httpCallExecutor: HttpCallExecutor
     ): MateMessageDataRepository {
         return MateMessageDataRepository(
             mErrorDataRepository = errorDataRepository,
@@ -30,7 +30,7 @@ object MateMessageDataRepositoryModule {
             mUserDataRepository = userDataRepository,
             mLocalMateMessageDataSource = localMateMessageDataSource,
             mHttpMateMessageDataSource = httpMateMessageDataSource,
-            mHttpClient = httpClient
+            mHttpCallExecutor = httpCallExecutor
         )
     }
 }

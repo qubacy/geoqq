@@ -6,9 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.http._common.response.message.GetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data._common.util.http.executor.executeNetworkRequest
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
@@ -22,7 +22,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -34,7 +33,7 @@ class MateMessageDataRepository @Inject constructor(
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateMessageDataSource: LocalMateMessageDataSource,
     private val mHttpMateMessageDataSource: HttpMateMessageDataSource,
-    private val mHttpClient: OkHttpClient
+    private val mHttpCallExecutor: HttpCallExecutor
     // todo: provide a websocket data source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     suspend fun getMessages(
@@ -56,8 +55,7 @@ class MateMessageDataRepository @Inject constructor(
 
             val getMessagesCall = mHttpMateMessageDataSource
                 .getMateMessages(chatId, offset, count, accessToken)
-            val getMessagesResponse = executeNetworkRequest(
-                mErrorDataRepository, mHttpClient, getMessagesCall)
+            val getMessagesResponse = mHttpCallExecutor.executeNetworkRequest(getMessagesCall)
 
             val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
 
@@ -107,7 +105,7 @@ class MateMessageDataRepository @Inject constructor(
         val sendMessageRequest = SendMateMessageRequest(accessToken, text)
         val sendMessageCall = mHttpMateMessageDataSource.sendMateMessage(chatId, sendMessageRequest)
 
-        executeNetworkRequest(mErrorDataRepository, mHttpClient, sendMessageCall)
+        mHttpCallExecutor.executeNetworkRequest(sendMessageCall)
     }
 
     private suspend fun resolveMessageEntities(

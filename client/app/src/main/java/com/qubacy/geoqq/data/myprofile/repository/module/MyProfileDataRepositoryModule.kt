@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.myprofile.repository.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
@@ -10,7 +11,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -22,7 +22,7 @@ object MyProfileDataRepositoryModule {
         imageDataRepository: ImageDataRepository,
         localMyProfileDataSource: LocalMyProfileDataSource,
         httpMyProfileDataSource: HttpMyProfileDataSource,
-        httpClient: OkHttpClient
+        httpCallExecutor: HttpCallExecutor
     ): MyProfileDataRepository {
         return MyProfileDataRepository(
             mErrorDataRepository = errorDataRepository,
@@ -30,7 +30,7 @@ object MyProfileDataRepositoryModule {
             mImageDataRepository = imageDataRepository,
             mLocalMyProfileDataSource = localMyProfileDataSource,
             mHttpMyProfileDataSource = httpMyProfileDataSource,
-            mHttpClient = httpClient
+            mHttpCallExecutor = httpCallExecutor
         )
     }
 }
