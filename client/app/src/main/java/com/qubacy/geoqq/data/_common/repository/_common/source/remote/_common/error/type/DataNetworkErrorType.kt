@@ -7,6 +7,6 @@ enum class DataNetworkErrorType(
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.DATA_NETWORK
 ) : ErrorType {
-    REQUEST_FAILED(2),
-    RESPONSE_ERROR_WITH_SERVER_FAIL(3);
+    REQUEST_FAILED(0),
+    RESPONSE_ERROR_WITH_SERVER_FAIL(1);
 }

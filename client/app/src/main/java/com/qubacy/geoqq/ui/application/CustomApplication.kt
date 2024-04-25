@@ -5,8 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.api.HttpApi
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.Database
+import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -25,6 +27,8 @@ class CustomApplication : Application() {
 
         mHttpApi = buildHttpApi()
         mDB = buildDatabase()
+
+        MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
     }
 
     private fun buildHttpApi(): HttpApi {

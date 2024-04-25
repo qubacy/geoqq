@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,6 +8,8 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
+
+val mapKitKey: String = gradleLocalProperties(rootDir).getProperty("MAPKIT_API_KEY")
 
 android {
     val applicationName = "com.qubacy.geoqq"
@@ -21,6 +25,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "$applicationName._common._test.runner.CustomTestRunner"
+
+        buildConfigField("String", "MAPKIT_API_KEY", "\"${mapKitKey}\"")
     }
 
     buildTypes {
@@ -41,6 +47,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -70,6 +77,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:$retrofitVersion")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     implementation("com.auth0.android:jwtdecode:2.0.2")
+    implementation("com.yandex.android:maps.mobile:4.5.1-lite")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.10.0")
