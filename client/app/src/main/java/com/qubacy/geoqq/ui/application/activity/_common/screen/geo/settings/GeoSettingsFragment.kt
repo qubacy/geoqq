@@ -143,7 +143,7 @@ class GeoSettingsFragment(
 
     private fun adjustUiWithRadius(radius: Float) {
         mBinding.fragmentGeoSettingsTextRadius.text =
-            getString(R.string.fragment_geo_settings_text_radius_text, radius.toString())
+            getString(R.string.fragment_geo_settings_text_radius_text, radius.toInt().toString())
     }
 
     private fun initPermissionRunner() {
