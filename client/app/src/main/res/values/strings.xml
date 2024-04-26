@@ -47,6 +47,8 @@
     <string name="fragment_mate_requests_hint_text">Accept a request by swiping right or decline it by doing it in the opposite direction. Click on the one if you want to see details.</string>
     <string name="fragment_mate_requests_surface_placeholder_text">You have no mate requests for now!</string>
 
+    <string name="fragment_geo_settings_text_radius_text">Radius: </string>
+
     <!--  Components:  -->
 
     <string name="component_error_dialog_title_text">Error</string>

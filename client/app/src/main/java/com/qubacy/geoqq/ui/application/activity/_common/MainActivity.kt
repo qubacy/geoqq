@@ -30,7 +30,8 @@ open class MainActivity : AppCompatActivity() {
     open val topDestinations = setOf(
         R.id.loginFragment,
         R.id.mateChatsFragment,
-        R.id.mateRequestsFragment
+        R.id.mateRequestsFragment,
+        R.id.geoSettingsFragment
     )
     open val navigationDrawer: MainNavigationDrawer? get() =
         mBinding.activityMainNavigationDrawer

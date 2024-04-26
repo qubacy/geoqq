@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.yandex.mapkit.mapview.MapView
+        android:id="@+id/fragment_geo_settings_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior=".ui.application.activity._common.screen.geo.settings.component.map.view.behavior.MapBehavior"/>
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/fragment_geo_settings_top_bar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/fragment_geo_settings_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:menu="@menu/main_top_bar"
+            app:title="Geo chat"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_geo_settings_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/fragment_geo_settings_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/fragment_geo_settings_text_radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_marginLeft="@dimen/small_gap_between_components"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:text="@string/fragment_geo_settings_text_radius_text"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fragment_geo_settings_button_go"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="@dimen/small_gap_between_components"
+        app:srcCompat="@drawable/ic_arrow_right"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

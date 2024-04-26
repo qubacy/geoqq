@@ -42,6 +42,9 @@ open class HintViewProvider(
         if (isAppearing == mBinding.root.isVisible) return
 
         val hintView = getView()
+
+        if (hintView.measuredHeight == 0) hintView.measure(0, 0)
+
         val hintViewHeight = hintView.measuredHeight
 
         hintView.runAnimation(
