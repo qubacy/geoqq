@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             app:menu="@menu/main_top_bar"
-            app:title="Geo chat"/>
+            app:title="@string/fragment_geo_settings_top_bar_title_text"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
         android:layout_marginLeft="@dimen/small_gap_between_components"
+        app:layout_behavior=".ui.application.activity._common.screen.geo.settings.component.radius.view.behavior.RadiusBehavior"
         android:textAppearance="?attr/textAppearanceBodyLarge"
         android:text="@string/fragment_geo_settings_text_radius_text"/>
 

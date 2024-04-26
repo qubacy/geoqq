@@ -17,6 +17,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ActivityMainBinding
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 import com.qubacy.geoqq.ui.application.activity._common.component.drawer.MainNavigationDrawer
+import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -57,6 +58,8 @@ open class MainActivity : AppCompatActivity() {
 
         setContentView(mBinding.root)
         setupWindowInsetsListener()
+
+        MapKitFactory.initialize(this) // todo: is it ok to do it right here?
     }
     private fun setupEdgeToEdge() {
         // todo: think about this:

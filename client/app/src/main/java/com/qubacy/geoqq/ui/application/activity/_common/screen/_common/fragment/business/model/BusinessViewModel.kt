@@ -9,19 +9,19 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.LoadingViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.changeLoadingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
 
 abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : UseCase>(
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
     protected val mUseCase: UseCaseType
-) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository) {
+) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository), LoadingViewModel {
     companion object {
         const val TAG = "BusinessViewModel"
 
@@ -75,12 +75,8 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         return ErrorUiOperation(error)
     }
 
-    fun changeLoadingState(isLoading: Boolean) {
-        mUiState.isLoading = isLoading
-
-        viewModelScope.launch {
-            mUiOperationFlow.emit(SetLoadingStateUiOperation(isLoading))
-        }
+    override fun changeLoadingState(isLoading: Boolean) {
+        changeLoadingState(isLoading, mUiState, mUiOperationFlow)
     }
 
     open fun setBackendResponded() {

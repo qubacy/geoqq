@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.login
 
-import android.util.Log
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -15,7 +14,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.modul
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.loading.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.module.FakeLoginViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
