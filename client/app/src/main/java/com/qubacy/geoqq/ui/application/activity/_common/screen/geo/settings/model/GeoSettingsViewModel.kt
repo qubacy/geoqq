@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,9 @@ class GeoSettingsViewModel @Inject constructor(
 ), LoadingViewModel, LocationViewModel {
     companion object {
         const val DEFAULT_RADIUS_METERS = 1000f
+
+        const val DEFAULT_MIN_RADIUS = 100f
+        const val DEFAULT_MAX_RADIUS = 100000f
     }
 
     override fun generateDefaultUiState(): GeoSettingsUiState {
@@ -40,6 +44,8 @@ class GeoSettingsViewModel @Inject constructor(
 
     override fun changeLastLocation(newLocation: Location) {
         val prevLocationPoint = mUiState.lastLocationPoint
+
+        Log.d(TAG, "changeLastLocation(): prevLocationPoint = $prevLocationPoint;")
 
         if (prevLocationPoint != null
             && (prevLocationPoint.latitude == newLocation.latitude
@@ -63,13 +69,23 @@ class GeoSettingsViewModel @Inject constructor(
 
     fun applyScaleForRadius(coefficient: Float) {
         val prevRadius = mUiState.radius
+        val scaledRadius = getScaledRadius(prevRadius, coefficient)
 
-        // todo: calculate the value according to the formulas..
+        mUiState.radius = scaledRadius
 
-        // todo: delete:
         viewModelScope.launch {
-            mUiOperationFlow.emit(ChangeRadiusUiOperation(prevRadius * coefficient))
+            mUiOperationFlow.emit(ChangeRadiusUiOperation(scaledRadius))
         }
+    }
+
+    fun getScaledRadius(radius: Float, coefficient: Float): Float {
+        val scaledRadius = radius * coefficient
+        val preparedScaledRadius =
+            if (scaledRadius < DEFAULT_MIN_RADIUS) DEFAULT_MIN_RADIUS
+            else if (scaledRadius > DEFAULT_MAX_RADIUS) DEFAULT_MAX_RADIUS
+            else scaledRadius
+
+        return preparedScaledRadius
     }
 }
 

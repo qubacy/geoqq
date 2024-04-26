@@ -2,15 +2,20 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import androidx.core.graphics.Insets
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.Toast
+import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.Navigation
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -95,6 +100,42 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
                 return true
             }
         })
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        initOnDestinationChangedListener(requireView())
+    }
+
+    private fun initOnDestinationChangedListener(view: View) {
+        Navigation.findNavController(view).addOnDestinationChangedListener(
+            object : NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?
+                ) {
+                    if (destination.id == getFragmentDestinationId()) return
+
+                    Log.d(TAG, "onDestinationChanged(): destination = $destination;")
+
+                    afterDestinationChange()
+                }
+            })
+    }
+
+    @CallSuper
+    protected open fun afterDestinationChange() {
+        mAppBar?.apply {
+            title = getFragmentTitle()
+        }
+    }
+
+    protected abstract fun getFragmentDestinationId(): Int
+
+    protected open fun getFragmentTitle(): String {
+        return String()
     }
 
     override fun onStop() {

@@ -7,7 +7,7 @@
         android:id="@+id/main_navigation_drawer_group_geo">
 
         <item
-            android:id="@+id/geoChatFragment"
+            android:id="@+id/geoSettingsFragment"
             android:icon="@drawable/ic_earth"
             app:iconTint="?attr/colorOnSurfaceVariant"
             android:title="@string/component_main_navigation_drawer_option_geo_chat_title"

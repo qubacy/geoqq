@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -17,6 +18,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import com.google.android.material.appbar.MaterialToolbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
@@ -58,6 +61,8 @@ class GeoSettingsFragment(
     MapLoadedListener
 {
     companion object {
+        const val TAG = "GeoSettingsFragment"
+
         const val DEFAULT_VIEW_COEFFICIENT = 1.2f
         const val DEFAULT_CAMERA_MOVING_ANIMATION_DURATION = 0.3f
 
@@ -90,7 +95,13 @@ class GeoSettingsFragment(
         initHintViewProvider()
     }
 
+    override fun getFragmentDestinationId(): Int {
+        return R.id.geoSettingsFragment
+    }
+
     override fun onStart() {
+        mCircleMapObject = null // todo: ??
+
         super.onStart()
 
         MapKitFactory.getInstance().onStart()
@@ -108,8 +119,24 @@ class GeoSettingsFragment(
         super.onStop()
     }
 
+    override fun afterDestinationChange() {
+        super.afterDestinationChange()
+
+        adjustUiWithLoadingState(true)
+    }
+
+    override fun retrieveToolbar(): MaterialToolbar {
+        return mBinding.fragmentGeoSettingsTopBar
+    }
+
+    override fun getFragmentTitle(): String {
+        return getString(R.string.fragment_geo_settings_top_bar_title_text)
+    }
+
     override fun runInitWithUiState(uiState: GeoSettingsUiState) {
         super.runInitWithUiState(uiState)
+
+        uiState.lastLocationPoint?.let { adjustMapWithLocationPoint(it) }
 
         adjustUiWithRadius(uiState.radius)
     }
@@ -126,7 +153,28 @@ class GeoSettingsFragment(
     }
 
     private fun initUiControls() {
+        initTopBarMenu()
         initMapView()
+    }
+
+    private fun initTopBarMenu() {
+        mBinding.fragmentGeoSettingsTopBar.setOnMenuItemClickListener {
+            onMenuItemClicked(it)
+        }
+    }
+
+    private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.main_top_bar_option_my_profile -> navigateToMyProfile()
+            else -> return false
+        }
+
+        return true
+    }
+
+    private fun navigateToMyProfile() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_geoSettingsFragment_to_myProfileFragment)
     }
 
     private fun initMapView() {
@@ -263,6 +311,8 @@ class GeoSettingsFragment(
     }
 
     private fun setRadiusCircleWithLocationPoint(locationPoint: Point) {
+        Log.d(TAG, "setRadiusCircleWithLocationPoint(): entering..")
+
         drawRadiusCircleWithLocationPoint(locationPoint)
         setCameraPositionForRadiusCircle()
     }
@@ -295,6 +345,8 @@ class GeoSettingsFragment(
     }
 
     private fun initCircleMapObject(circle: Circle) {
+        Log.d(TAG, "initCircleMapObject(): entering..")
+
         val containerColor = requireContext().theme.resolveColorAttr(
             com.google.android.material.R.attr.colorErrorContainer)
 
@@ -310,6 +362,8 @@ class GeoSettingsFragment(
 
     override fun onMapLoaded(p0: MapLoadStatistics) {
         mModel.setMapLoadingStatus(true)
+
+
     }
 
     override fun onPinchZoom(coefficient: Float) {
@@ -328,9 +382,5 @@ class GeoSettingsFragment(
         val prevRadiusCircle = mCircleMapObject!!.geometry
 
         mCircleMapObject!!.geometry = Circle(prevRadiusCircle.center, radius)
-
-        // todo: is this it?..
-
-
     }
 }

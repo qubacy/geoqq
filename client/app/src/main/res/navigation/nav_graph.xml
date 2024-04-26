@@ -81,6 +81,14 @@
         android:id="@+id/geoSettingsFragment"
         android:name="com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.GeoSettingsFragment"
         android:label="@string/fragment_geo_settings_top_bar_title_text"
-        tools:layout="@layout/fragment_geo_settings" />
+        tools:layout="@layout/fragment_geo_settings" >
+        <action
+            android:id="@+id/action_geoSettingsFragment_to_myProfileFragment"
+            app:destination="@id/myProfileFragment"
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_bottom"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_top"/>
+    </fragment>
 
 </navigation>
