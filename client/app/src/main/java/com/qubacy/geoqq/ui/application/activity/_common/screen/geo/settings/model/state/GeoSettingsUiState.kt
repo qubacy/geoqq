@@ -8,13 +8,15 @@ import com.yandex.mapkit.geometry.Point
 class GeoSettingsUiState(
     override var isLoading: Boolean = false,
     error: Error? = null,
-    var lastLocationPoint: Point? = null
+    var lastLocationPoint: Point? = null,
+    var radius: Float
 ) : BaseUiState(error), LoadingUiState {
     override fun copy(): GeoSettingsUiState {
         return GeoSettingsUiState(
             isLoading,
             error?.copy(),
-            lastLocationPoint?.let { Point(it.latitude, it.longitude) }
+            lastLocationPoint?.let { Point(it.latitude, it.longitude) },
+            radius
         )
     }
 }

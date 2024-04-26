@@ -11,6 +11,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +26,12 @@ class GeoSettingsViewModel @Inject constructor(
 ) : StatefulViewModel<GeoSettingsUiState>(
     mSavedStateHandle, mErrorDataRepository
 ), LoadingViewModel, LocationViewModel {
+    companion object {
+        const val DEFAULT_RADIUS_METERS = 1000f
+    }
+
     override fun generateDefaultUiState(): GeoSettingsUiState {
-        return GeoSettingsUiState()
+        return GeoSettingsUiState(radius = DEFAULT_RADIUS_METERS)
     }
 
     override fun changeLoadingState(isLoading: Boolean) {
@@ -34,14 +39,36 @@ class GeoSettingsViewModel @Inject constructor(
     }
 
     override fun changeLastLocation(newLocation: Location) {
-        val locationPoint = Point(newLocation.latitude, newLocation.longitude)
+        val prevLocationPoint = mUiState.lastLocationPoint
 
-        if (locationPoint == uiState.lastLocationPoint) return
+        if (prevLocationPoint != null
+            && (prevLocationPoint.latitude == newLocation.latitude
+            && prevLocationPoint.longitude == newLocation.longitude
+        )) {
+            return
+        }
+
+        val locationPoint = Point(newLocation.latitude, newLocation.longitude)
 
         mUiState.lastLocationPoint = locationPoint
 
         viewModelScope.launch {
             mUiOperationFlow.emit(LocationPointChangedUiOperation(locationPoint))
+        }
+    }
+
+    fun setMapLoadingStatus(isLoaded: Boolean) {
+        changeLoadingState(!isLoaded) // todo: is it ok?
+    }
+
+    fun applyScaleForRadius(coefficient: Float) {
+        val prevRadius = mUiState.radius
+
+        // todo: calculate the value according to the formulas..
+
+        // todo: delete:
+        viewModelScope.launch {
+            mUiOperationFlow.emit(ChangeRadiusUiOperation(prevRadius * coefficient))
         }
     }
 }

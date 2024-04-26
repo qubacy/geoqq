@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.yandex.mapkit.mapview.MapView
+    <com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
         android:id="@+id/fragment_geo_settings_map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

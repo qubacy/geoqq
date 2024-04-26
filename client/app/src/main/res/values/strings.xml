@@ -48,7 +48,7 @@
     <string name="fragment_mate_requests_surface_placeholder_text">You have no mate requests for now!</string>
 
     <string name="fragment_geo_settings_top_bar_title_text">Geo settings</string>
-    <string name="fragment_geo_settings_text_radius_text">Radius: </string>
+    <string name="fragment_geo_settings_text_radius_text">Radius: %S</string>
     <string name="fragment_geo_settings_hint_text">Adjust chatting radius by pinch zooming.</string>
 
     <!--  Components:  -->

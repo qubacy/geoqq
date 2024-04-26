@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -18,18 +19,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
+import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.LoadingFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListener
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.MateRequestsFragment
 import com.yandex.mapkit.Animation
@@ -37,6 +42,9 @@ import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Circle
 import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CircleMapObject
+import com.yandex.mapkit.map.MapLoadStatistics
+import com.yandex.mapkit.map.MapLoadedListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -45,11 +53,16 @@ class GeoSettingsFragment(
 
 ) : StatefulFragment<
     FragmentGeoSettingsBinding, GeoSettingsUiState, GeoSettingsViewModel
->(), LoadingFragment, LocationFragment, PermissionRunnerCallback, LocationListenerCallback {
+>(), LoadingFragment, LocationFragment,
+    PermissionRunnerCallback, LocationListenerCallback, GeoMapViewCallback,
+    MapLoadedListener
+{
     companion object {
-        const val DEFAULT_RADIUS_METERS = 1000
         const val DEFAULT_VIEW_COEFFICIENT = 1.2f
-        const val DEFAULT_CAMERA_MOVING_ANIMATION_DURATION = 300f
+        const val DEFAULT_CAMERA_MOVING_ANIMATION_DURATION = 0.3f
+
+        const val DEFAULT_RADIUS_CIRCLE_STROKE_WIDTH = 2f
+        const val DEFAULT_RADIUS_CIRCLE_FILL_ALPHA = 100
     }
 
     @Inject
@@ -59,16 +72,21 @@ class GeoSettingsFragment(
     override val mModel: GeoSettingsViewModel by viewModels(
         factoryProducer = { viewModelFactory })
 
+    private lateinit var mPermissionRunner: PermissionRunner<GeoSettingsFragment>
     private lateinit var mLocationListener: LocationListener
 
     private lateinit var mHintViewProvider: HintViewProvider
 
+    private var mCircleMapObject: CircleMapObject? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        runPermissionCheck<GeoSettingsFragment>()
-
         initLocationListener()
+        initPermissionRunner()
+
+        initUiControls()
+
         initHintViewProvider()
     }
 
@@ -77,7 +95,9 @@ class GeoSettingsFragment(
 
         MapKitFactory.getInstance().onStart()
         mBinding.fragmentGeoSettingsMap.onStart()
-        mLocationListener.startLocationListening(requireActivity())
+
+        if (!mPermissionRunner.isRequestingPermissions)
+            mLocationListener.startLocationListening(requireActivity())
     }
 
     override fun onStop() {
@@ -86,6 +106,35 @@ class GeoSettingsFragment(
         MapKitFactory.getInstance().onStop()
 
         super.onStop()
+    }
+
+    override fun runInitWithUiState(uiState: GeoSettingsUiState) {
+        super.runInitWithUiState(uiState)
+
+        adjustUiWithRadius(uiState.radius)
+    }
+
+    private fun adjustUiWithRadius(radius: Float) {
+        mBinding.fragmentGeoSettingsTextRadius.text =
+            getString(R.string.fragment_geo_settings_text_radius_text, radius.toString())
+    }
+
+    private fun initPermissionRunner() {
+        mPermissionRunner = PermissionRunner(this).also {
+            it.requestPermissions()
+        }
+    }
+
+    private fun initUiControls() {
+        initMapView()
+    }
+
+    private fun initMapView() {
+        mBinding.fragmentGeoSettingsMap.apply {
+            setNoninteractive(true)
+            mapWindow.map.setMapLoadedListener(this@GeoSettingsFragment)
+            setCallback(this@GeoSettingsFragment)
+        }
     }
 
     private fun initLocationListener() {
@@ -155,9 +204,7 @@ class GeoSettingsFragment(
     }
 
     override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
-        // todo: starting listening for the location..
-
-
+        mLocationListener.startLocationListening(requireActivity())
     }
 
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
@@ -185,13 +232,24 @@ class GeoSettingsFragment(
         if (super.processUiOperation(uiOperation)) return true
 
         when (uiOperation::class) {
+            SetLoadingStateUiOperation::class ->
+                processSetLoadingOperation(uiOperation as SetLoadingStateUiOperation)
             LocationPointChangedUiOperation::class ->
                 processLocationPointChangedUiOperation(
                     uiOperation as LocationPointChangedUiOperation)
+            ChangeRadiusUiOperation::class ->
+                processChangeRadiusUiOperation(uiOperation as ChangeRadiusUiOperation)
             else -> return false
         }
 
         return true
+    }
+
+    private fun processChangeRadiusUiOperation(changeRadiusUiOperation: ChangeRadiusUiOperation) {
+        changeCircleRadius(changeRadiusUiOperation.radius)
+        setCameraPositionForRadiusCircle(true)
+
+        adjustUiWithRadius(changeRadiusUiOperation.radius)
     }
 
     override fun processLocationPointChangedUiOperation(
@@ -201,17 +259,28 @@ class GeoSettingsFragment(
     }
 
     private fun adjustMapWithLocationPoint(locationPoint: Point) {
-        setCameraPositionForViewCircle(locationPoint)
+        setRadiusCircleWithLocationPoint(locationPoint)
     }
 
-    private fun setCameraPositionForViewCircle(
-        locationPoint: Point,
+    private fun setRadiusCircleWithLocationPoint(locationPoint: Point) {
+        drawRadiusCircleWithLocationPoint(locationPoint)
+        setCameraPositionForRadiusCircle()
+    }
+
+    private fun drawRadiusCircleWithLocationPoint(locationPoint: Point) {
+        val radius = mModel.uiState.radius
+        val radiusCircle = Circle(locationPoint, radius)
+
+        if (mCircleMapObject == null) initCircleMapObject(radiusCircle)
+        else mCircleMapObject!!.geometry = radiusCircle
+    }
+
+    private fun setCameraPositionForRadiusCircle(
         isAnimated: Boolean = true
     ) {
-        val viewCircle = Circle(
-            locationPoint,
-            DEFAULT_RADIUS_METERS * DEFAULT_VIEW_COEFFICIENT
-        )
+        val radiusCircle = mCircleMapObject!!.geometry
+        val viewCircle = Circle(radiusCircle.center,
+            radiusCircle.radius * DEFAULT_VIEW_COEFFICIENT)
         val newCameraPosition = mBinding.fragmentGeoSettingsMap.mapWindow.map
             .cameraPosition(Geometry.fromCircle(viewCircle))
 
@@ -223,5 +292,45 @@ class GeoSettingsFragment(
             )
         else
             mBinding.fragmentGeoSettingsMap.mapWindow.map.move(newCameraPosition)
+    }
+
+    private fun initCircleMapObject(circle: Circle) {
+        val containerColor = requireContext().theme.resolveColorAttr(
+            com.google.android.material.R.attr.colorErrorContainer)
+
+        mCircleMapObject = mBinding.fragmentGeoSettingsMap.mapWindow.map.mapObjects
+            .addCircle(circle).apply {
+                strokeColor = requireContext().theme
+                    .resolveColorAttr(androidx.appcompat.R.attr.colorError)
+                strokeWidth = DEFAULT_RADIUS_CIRCLE_STROKE_WIDTH
+                fillColor = ColorUtils.setAlphaComponent(
+                    containerColor, DEFAULT_RADIUS_CIRCLE_FILL_ALPHA)
+            }
+    }
+
+    override fun onMapLoaded(p0: MapLoadStatistics) {
+        mModel.setMapLoadingStatus(true)
+    }
+
+    override fun onPinchZoom(coefficient: Float) {
+        Log.d(TAG, "onPinchZoom(): coefficient = $coefficient;")
+
+        scaleRadius(coefficient)
+    }
+
+    private fun scaleRadius(coefficient: Float) {
+        mModel.applyScaleForRadius(coefficient)
+    }
+
+    private fun changeCircleRadius(radius: Float) {
+        if (mCircleMapObject == null) return
+
+        val prevRadiusCircle = mCircleMapObject!!.geometry
+
+        mCircleMapObject!!.geometry = Circle(prevRadiusCircle.center, radius)
+
+        // todo: is this it?..
+
+
     }
 }
