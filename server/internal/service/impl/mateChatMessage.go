@@ -30,7 +30,6 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
 	}
-
 	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
@@ -44,13 +43,13 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 	)
 
 	if err != nil {
-		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.ReadMateChatMessagesByChatId, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	return mateMessages, nil
 }
 
-// TODO: check length text message!!!
+// TODO: check length text message!
 
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
@@ -69,8 +68,8 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 
 	_, err = s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToMateChat,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	return nil

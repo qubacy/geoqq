@@ -2,15 +2,15 @@ package impl
 
 // interpretation on client application!
 
-const errorOffset = 1_000
-const errorGroupSize = 100
+const clientErrorOffset = 1_000
+const errorGroupSize = 200
 
 const (
 	NoError = 0
 )
 
 const ( // only for: HTTP 500
-	ServerError = errorOffset + iota // those rare moments...
+	ServerError = errorGroupSize + iota // those rare moments...
 	HashManagerError
 	TokenManagerError
 	AvatarGeneratorError
@@ -22,14 +22,13 @@ const ( // only for: HTTP 500
 // -----------------------------------------------------------------------
 
 const (
-
-	// handler
+	ParseError = clientErrorOffset + iota // 1000
 
 	/*
 		Internal function (Request.ParseForm)
 		for form validation.
 	*/
-	ParseAnyFormFailed = errorOffset + errorGroupSize + iota // 1100
+	ParseAnyFormFailed
 
 	/*
 		An attempt to bind
@@ -70,19 +69,40 @@ const (
 // By Domains
 // -----------------------------------------------------------------------
 
+/*
+	Client App:
+
+		GENERAL(ErrorDomainType.SHARED), 	// 1200
+		AUTH(ErrorDomainType.SHARED), 		// 1400
+		USER(ErrorDomainType.SHARED), 	 	// 1600
+		MY_PROFILE(ErrorDomainType.SHARED), // 1800
+		IMAGE(ErrorDomainType.SHARED),	    // 2000
+		MATE(ErrorDomainType.SHARED), 		// 2200
+		GEO(ErrorDomainType.SHARED); 		// 2400
+*/
+
 const ( // general (middleware, ...)
 	/*
 		The token is not valid for one of the reasons:
 			- incorrect format;
-			- expired...
-	*/
-	ValidateAccessTokenFailed = errorOffset + errorGroupSize*2 + iota // 1200
+			- expired...;
 
+			- when a user is deleted.
+	*/
+	ValidateAccessTokenFailed = clientErrorOffset + errorGroupSize + iota // 1200
+
+	UserWasPreviouslyDeleted
 	CountMoreThanPermissible
+	/*
+		Actions:
+			- sign in;
+			- update profile.
+	*/
+	PasswordHashIsNotHex
 )
 
-const (
-	AuthError = errorOffset + errorGroupSize*4 + iota // 1400
+const ( // Auth
+	AuthError = clientErrorOffset + errorGroupSize*2 + iota // 1400
 
 	/*
 		When registering or authorizing,
@@ -97,53 +117,73 @@ const (
 	*/
 	ValidateRefreshTokenFailed
 
-	UserAlreadyExist
-	UserNotFound // only auth!!!
-	OneOrMoreUsersNotFound
-
-	InvalidRefreshToken // when the token hash is updated in database
-	InvalidAccessToken  // when a user is deleted
+	/*
+		Actions:
+			- registration.
+	*/
+	UserWithNameAlreadyExists
+	/*
+		Actions:
+			- sign in.
+	*/
+	UserByCredentialsNotFound
 
 	/*
-		.
-
+		Actions:
+			- refresh tokens.
 	*/
-	PasswordHashIsNotHex
+	InvalidRefreshToken
 )
 
-const (
-	UserError = 1600 + iota
+const ( // User
+	UserError = clientErrorOffset + errorGroupSize*3 + iota // 1600
+	UserNotFound
+	OneOrMoreUsersNotFound
+)
+
+const ( // My Profile (User Profile?)
+	MyProfileError = clientErrorOffset + errorGroupSize*4 + iota // 1800
 	IncorrectPasswordWhenUpdate
-	UnknownAvatarExtension
-	AvatarBodyEmpty
-	AvatarBodyIsNotBase64
 )
 
-const (
-	ImageError = 1700 + iota
+const ( // Image
+	ImageError = clientErrorOffset + errorGroupSize*5 + iota // 2000
+
+	/*
+		Actions:
+			- user adds a new image;
+			- update user profile with attached image (deprecated);
+	*/
+	UnknownImageExtension
+	ImageContentIsEmpty
+	ImageBodyIsNotBase64
+
 	ImageNotFound
 	OneOrMoreImagesNotFound
 )
 
-const (
-	MateError = 1800 + iota
+const ( // Mate
+	MateError = clientErrorOffset + errorGroupSize*6 + iota // 2200
 	UnknownMateRequestResult
 	MateRequestAlreadySentFromYou
 	MateRequestAlreadySentToYou
+
 	MateRequestNotFound
 	MateRequestNotWaiting
+
 	MateRequestToSelf
 	AlreadyAreMates
-	TargetUserDeleted
 
-	TargetUserNotFound // TODO:!!!
+	TargetUserDeleted
+	TargetUserNotFound
 
 	MateChatNotFound
 	MateChatNotAvailable
 )
 
-const (
-	GeoError = 1900 + iota
+const ( // Geo
+	GeoError = clientErrorOffset + errorGroupSize*7 + iota // 2400
+
 	WrongLatitude
 	WrongLongitude
 )

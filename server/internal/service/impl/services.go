@@ -79,12 +79,3 @@ func NewServices(deps Dependencies) (*Services, error) {
 		GeoChatMessageService: newGeoChatMessageService(deps),
 	}, nil
 }
-
-// base?
-// -----------------------------------------------------------------------
-
-type HasherAndStorages struct {
-	fileStorage   fileStorage.Storage
-	domainStorage domainStorage.Storage
-	hashManager   hash.HashManager
-}

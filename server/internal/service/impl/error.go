@@ -20,7 +20,7 @@ var (
 	ErrImageNotFound           = errors.New("image not found")
 	ErrOneOrMoreImagesNotFound = errors.New("one or more images not found")
 	ErrUnknownImageExtension   = errors.New("unknown image extension")
-	ErrImageBodyEmpty          = errors.New("image body empty")
+	ErrImageContentEmpty       = errors.New("image content empty")
 
 	ErrUserNotFound             = errors.New("user not found")
 	ErrOneOrMoreUsersNotFound   = errors.New("one or more users not found")

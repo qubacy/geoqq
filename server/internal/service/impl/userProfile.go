@@ -118,8 +118,8 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 
 		fmt.Println(input.Security.NewPasswordHash)
 
-		passwordDoubleHash, err := p.passwordHashInHexToPasswordDoubleHash(
-			input.Security.NewPasswordHash)
+		passwordDoubleHash, err := passwordHashInHexToPasswordDoubleHash(
+			p.hashManager, input.Security.NewPasswordHash)
 		if err != nil {
 			return dsDto.UpdateUserPartsInp{},
 				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
@@ -140,8 +140,11 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 	userId uint64, passwordHash string) error {
 
-	passwordDoubleHash, err := p.passwordHashInHexToPasswordDoubleHash(passwordHash)
+	passwordDoubleHash, err :=
+		passwordHashInHexToPasswordDoubleHash(p.hashManager, passwordHash)
+
 	if err != nil {
+		// Contains general client code for user!
 		return utl.NewFuncError(p.checkPasswordForUpdate, err)
 	}
 
@@ -149,13 +152,13 @@ func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 
 	exists, err := p.domainStorage.HasUserByIdAndHashPassword(ctx, userId, passwordDoubleHash)
 	if err != nil {
-		return utl.NewFuncError(p.checkPasswordForUpdate,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(p.checkPasswordForUpdate, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	if !exists {
-		return utl.NewFuncError(p.checkPasswordForUpdate,
-			ec.New(ErrIncorrectPassword, ec.Client, ec.IncorrectPasswordWhenUpdate))
+		return ec.New(ErrIncorrectPassword,
+			ec.Client, ec.IncorrectPasswordWhenUpdate)
 	}
 
 	return nil

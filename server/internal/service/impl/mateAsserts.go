@@ -12,12 +12,12 @@ func assertMateChatExists(ctx context.Context,
 
 	exists, err := domainStorage.HasMateChatWithId(ctx, chatId)
 	if err != nil {
-		return utl.NewFuncError(assertMateChatExists,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(assertMateChatExists, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
-		return utl.NewFuncError(assertMateChatExists,
-			ec.New(ErrMateChatNotFound, ec.Client, ec.MateChatNotFound))
+		return ec.New(ErrMateChatNotFound,
+			ec.Client, ec.MateChatNotFound)
 	}
 
 	return nil

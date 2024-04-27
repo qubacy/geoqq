@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"encoding/hex"
 	"errors"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/avatar"
@@ -101,7 +100,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 
 	// some asserts
 
-	err = a.assertUserWithNameNotExists(ctx, input)
+	err = a.assertUserWithNameNotExists(ctx, input.Login)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
 	}
@@ -112,8 +111,8 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	if err != nil {
 		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
 	}
-	passwordDoubleHash, err := a.passwordHashInHexToPasswordDoubleHash(
-		input.PasswordHash)
+	passwordDoubleHash, err := passwordHashInHexToPasswordDoubleHash(
+		a.hashManager, input.PasswordHash)
 	if err != nil {
 		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
 	}
@@ -170,6 +169,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	return dto.MakeRefreshTokensOut(accessToken, refreshToken), nil
 }
 
+// Extra!
 // -----------------------------------------------------------------------
 
 func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error) {
@@ -178,8 +178,8 @@ func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool
 
 	wasDeleted, err := a.domainStorage.WasUserDeleted(ctx, id)
 	if err != nil {
-		return false, utl.NewFuncError(a.WasUserWithIdDeleted,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return false, ec.New(utl.NewFuncError(a.WasUserWithIdDeleted, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	return wasDeleted, nil
@@ -319,27 +319,4 @@ func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 		)
 	}
 	return nil
-}
-
-// calculator
-// -----------------------------------------------------------------------
-
-func (a *HasherAndStorages) passwordHashInHexToPasswordDoubleHash(val string) (string, error) {
-	sourceFunc := a.passwordHashInHexToPasswordDoubleHash
-
-	// believe that the module works correctly!
-
-	passwordHash, err := hex.DecodeString(val)
-	if err != nil {
-		return "", utl.NewFuncError(sourceFunc,
-			ec.New(err, ec.Client, ec.PasswordHashIsNotHex))
-	}
-
-	passwordDoubleHash, err := a.hashManager.NewFromBytes(passwordHash)
-	if err != nil {
-		return "", utl.NewFuncError(sourceFunc,
-			ec.New(err, ec.Server, ec.HashManagerError))
-	}
-
-	return passwordDoubleHash, nil
 }

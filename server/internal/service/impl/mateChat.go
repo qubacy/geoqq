@@ -62,8 +62,8 @@ func (s *MateChatService) GetMateChatsForUser(ctx context.Context,
 
 	mateChats, err := s.domainStorage.GetMateChatsForUser(ctx, userId, offset, count)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetMateChatsForUser,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetMateChatsForUser, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	return mateChats, nil // same types!

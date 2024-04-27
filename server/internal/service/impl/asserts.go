@@ -12,34 +12,13 @@ func assertUserWithNameNotDeleted(ctx context.Context,
 
 	wasDeleted, err := storage.WasUserWithNameDeleted(ctx, name)
 	if err != nil {
-		return utl.NewFuncError(assertUserWithNameNotDeleted,
-			ec.New(err, ec.Server, ec.DomainStorageError))
-	}
-
-	if wasDeleted {
-		return utl.NewFuncError(assertUserWithNameNotDeleted,
-
-			// hide this information for user?
-			// ec.New(ErrIncorrectLoginOrPassword, ec.Client, ec.UserNotFound))
-
-			ec.New(ErrUserWithNameHasBeenDeleted, ec.Client, ec.UserNotFound))
-	}
-
-	return nil
-}
-
-func assertUserWithIdNotDeleted(ctx context.Context,
-	storage domainStorage.Storage, id uint64) error {
-
-	wasDeleted, err := storage.WasUserDeleted(ctx, id)
-	if err != nil {
-		return ec.New(utl.NewFuncError(assertUserWithIdNotDeleted, err),
+		return ec.New(utl.NewFuncError(assertUserWithNameNotDeleted, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
 	if wasDeleted {
 		return ec.New(ErrUserWithNameHasBeenDeleted,
-			ec.Client, ec.UserNotFound) // TODO: chnge error&
+			ec.Client, ec.UserWasPreviouslyDeleted)
 	}
 
 	return nil

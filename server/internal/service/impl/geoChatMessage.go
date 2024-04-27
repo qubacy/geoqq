@@ -67,8 +67,8 @@ func (s *GeoChatMessageService) GetGeoChatAllMessages(
 	geoMessages, err := s.domainStorage.GetGeoChatAllMessages(
 		ctx, distance, latitude, longitude)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetGeoChatAllMessages,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetGeoChatAllMessages, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	return geoMessages, nil
@@ -85,6 +85,8 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 			ec.Client, ec.CountMoreThanPermissible)
 	}
 
+	// ***
+
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
@@ -95,8 +97,8 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 	geoMessages, err := s.domainStorage.GetGeoChatMessages(
 		ctx, distance, latitude, longitude, offset, count)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetGeoChatMessages,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetGeoChatMessages, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	return geoMessages, nil
@@ -113,14 +115,14 @@ func validateLatAndLon(longitude, latitude float64) error {
 
 	// Долгота
 	if longitude < -180 || longitude > +180 {
-		return utl.NewFuncError(validateLatAndLon,
-			ec.New(ErrWrongLongitude, ec.Client, ec.WrongLongitude))
+		return ec.New(ErrWrongLongitude,
+			ec.Client, ec.WrongLongitude)
 	}
 
 	// Широта
 	if latitude < -90 || latitude > +90 {
-		return utl.NewFuncError(validateLatAndLon,
-			ec.New(ErrWrongLatitude, ec.Client, ec.WrongLatitude))
+		return ec.New(ErrWrongLatitude,
+			ec.Client, ec.WrongLatitude)
 	}
 
 	return nil

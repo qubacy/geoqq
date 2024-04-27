@@ -32,20 +32,20 @@ func newImageService(deps Dependencies) *ImageService {
 func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.Image, error) {
 	exists, err := s.domainStorage.HasAvatar(ctx, imageId)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetImageById,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetImageById, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
-		return nil, utl.NewFuncError(s.GetImageById,
-			ec.New(ErrImageNotFound, ec.Client, ec.ImageNotFound)) // client?
+		return nil, ec.New(ErrImageNotFound,
+			ec.Client, ec.ImageNotFound) // client?
 	}
 
 	// ***
 
 	image, err := s.fileStorage.LoadImage(ctx, imageId)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetImageById,
-			ec.New(err, ec.Server, ec.FileStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetImageById, err),
+			ec.Server, ec.FileStorageError)
 	}
 
 	return image, nil
@@ -56,21 +56,21 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 
 	exists, err := s.domainStorage.HasAvatars(ctx, imageIds)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetImagesByIds,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(s.GetImagesByIds, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
-		return nil, utl.NewFuncError(s.GetImagesByIds,
-			ec.New(ErrOneOrMoreImagesNotFound, ec.Client, ec.OneOrMoreImagesNotFound))
+		return nil, ec.New(ErrOneOrMoreImagesNotFound,
+			ec.Client, ec.OneOrMoreImagesNotFound)
 	}
 
 	// ***
 
 	images := make([]*file.Image, 0, len(imageIds)) // reserver mem
 	for _, imageId := range imageIds {
-		image, err := s.GetImageById(ctx, imageId)
+		image, err := s.GetImageById(ctx, imageId) // TODO: don't have to do a second check
 		if err != nil {
-			return nil, utl.NewFuncError(s.GetImagesByIds, err) // already error for client!
+			return nil, utl.NewFuncError(s.GetImagesByIds, err) // with error for client!
 		}
 
 		images = append(images, image)
@@ -89,18 +89,11 @@ func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 		return 0, utl.NewFuncError(s.AddImageToUser, err)
 	}
 
-	return imageId, nil
+	return imageId, nil // Use for update user profile...
 }
 
 // private
 // -----------------------------------------------------------------------
-
-func (p *HasherAndStorages) avatarIdWithError(err error, side, code int) (uint64, error) {
-	return 0, utl.NewFuncError(
-		p.addImageToUser, ec.New(
-			err, side, code),
-	)
-}
 
 // base implementation!
 func (p *HasherAndStorages) addImageToUser(ctx context.Context,
@@ -108,39 +101,48 @@ func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 
 	imageExt := file.ImageExt(ext)
 	if !imageExt.IsValid() {
-		return p.avatarIdWithError(ErrUnknownImageExtension, ec.Client, ec.UnknownAvatarExtension)
+		return 0, ec.New(ErrUnknownImageExtension,
+			ec.Client, ec.UnknownImageExtension)
 	}
 	if len(content) == 0 { // avatar body check also on delivery layout!
-		return p.avatarIdWithError(ErrImageBodyEmpty, ec.Client, ec.AvatarBodyEmpty)
+		return 0, ec.New(ErrImageContentEmpty,
+			ec.Client, ec.ImageContentIsEmpty)
 	}
 
 	// TODO: check mime type!
-
-	// ***
+	// TODO: remove avatar meta data!
 
 	image := file.NewImageWithoutId(imageExt, content)
 	avatarContentBytes, err := base64.StdEncoding.DecodeString(content)
 	if err != nil {
-		return p.avatarIdWithError(err, ec.Client, ec.AvatarBodyIsNotBase64) // or server?
+		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
+			ec.Client, ec.ImageBodyIsNotBase64) // or server?
 	}
 
 	avatarHash, err := p.hashManager.NewFromBytes(avatarContentBytes)
 	if err != nil {
-		return p.avatarIdWithError(err, ec.Server, ec.HashManagerError)
+		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
+			ec.Server, ec.HashManagerError)
 	}
 
 	// ***
 
 	avatarId, err := p.domainStorage.InsertAvatar(ctx, userId, avatarHash)
 	if err != nil {
-		return p.avatarIdWithError(err, ec.Server, ec.DomainStorageError)
+		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
+			ec.Server, ec.DomainStorageError)
 	}
 	image.Id = avatarId
 
 	err = p.fileStorage.SaveImage(ctx, image)
 	if err != nil {
-		err = errors.Join(err, p.domainStorage.DeleteAvatarWithId(ctx, avatarId))
-		return p.avatarIdWithError(err, ec.Server, ec.FileStorageError)
+		err = errors.Join(
+			err,
+			p.domainStorage.DeleteAvatarWithId(ctx, avatarId),
+		)
+		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
+			ec.Server, ec.FileStorageError)
 	}
-	return avatarId, nil
+
+	return avatarId, nil // OK!
 }

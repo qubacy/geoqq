@@ -117,13 +117,14 @@ func (h *Handler) userNotDeleted(ctx *gin.Context) {
 
 	wasDeleted, err := h.services.WasUserWithIdDeleted(ctx, userId)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 	if wasDeleted {
 		logger.Warning("request from deleted user with id %v", userId)
-		resWithAuthError(ctx, ec.InvalidAccessToken, ErrRequestFromDeletedUser)
+
+		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, // <--- locked token!
+			ErrRequestFromDeletedUser)
 	}
 }
 
