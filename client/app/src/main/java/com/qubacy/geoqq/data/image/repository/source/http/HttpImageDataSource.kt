@@ -16,7 +16,7 @@ interface HttpImageDataSource {
     @GET("/api/image/{id}")
     fun getImage(
         @Path("id") id: Long,
-        @Query("access-token") accessToken: String
+        @Query("accessToken") accessToken: String
     ): Call<GetImageResponse>
 
     @POST("/api/image")
