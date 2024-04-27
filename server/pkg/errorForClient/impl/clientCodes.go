@@ -75,8 +75,8 @@ const (
 		GENERAL(ErrorDomainType.SHARED), 	// 1200
 		AUTH(ErrorDomainType.SHARED), 		// 1400
 		USER(ErrorDomainType.SHARED), 	 	// 1600
-		MY_PROFILE(ErrorDomainType.SHARED), // 1800
-		IMAGE(ErrorDomainType.SHARED),	    // 2000
+		MY_PROFILE(ErrorDomainType.SHARED),	// 1800
+		IMAGE(ErrorDomainType.SHARED),		// 2000
 		MATE(ErrorDomainType.SHARED), 		// 2200
 		GEO(ErrorDomainType.SHARED); 		// 2400
 */
@@ -89,7 +89,8 @@ const ( // general (middleware, ...)
 
 			- when a user is deleted.
 	*/
-	ValidateAccessTokenFailed = clientErrorOffset + errorGroupSize + iota // 1200
+	GeneralError = clientErrorOffset + errorGroupSize + iota // 1200
+	ValidateAccessTokenFailed
 
 	UserWasPreviouslyDeleted
 	CountMoreThanPermissible
@@ -126,13 +127,7 @@ const ( // Auth
 		Actions:
 			- sign in.
 	*/
-	UserByCredentialsNotFound
-
-	/*
-		Actions:
-			- refresh tokens.
-	*/
-	InvalidRefreshToken
+	UserByCredentialsNotFound // 1404
 )
 
 const ( // User
@@ -144,6 +139,8 @@ const ( // User
 const ( // My Profile (User Profile?)
 	MyProfileError = clientErrorOffset + errorGroupSize*4 + iota // 1800
 	IncorrectPasswordWhenUpdate
+
+	// TODO: Invalid Avatar id
 )
 
 const ( // Image
@@ -165,6 +162,7 @@ const ( // Image
 const ( // Mate
 	MateError = clientErrorOffset + errorGroupSize*6 + iota // 2200
 	UnknownMateRequestResult
+
 	MateRequestAlreadySentFromYou
 	MateRequestAlreadySentToYou
 
@@ -177,8 +175,8 @@ const ( // Mate
 	TargetUserDeleted
 	TargetUserNotFound
 
-	MateChatNotFound
-	MateChatNotAvailable
+	MateChatNotFound     // 2210
+	MateChatNotAvailable // 2211
 )
 
 const ( // Geo

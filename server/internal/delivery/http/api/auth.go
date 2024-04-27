@@ -4,6 +4,7 @@ import (
 	"geoqq/internal/delivery/http/api/dto"
 	serviceDto "geoqq/internal/service/dto"
 	se "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,9 +53,8 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 		serviceDto.MakeSignInInp(username, passwordHash))
 
 	if err != nil { // error may belong to different sides!
-
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		logger.Error("%v", err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -78,6 +78,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 		serviceDto.MakeSignUpInp(username, passwordHash))
 
 	if err != nil {
+		logger.Warning("%v", err)
 		side, code := se.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
@@ -97,6 +98,7 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 	refreshToken := ctx.GetString(contextRefreshToken)
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
 	if err != nil {
+		logger.Error("%v", err)
 		resWithErrorForClient(ctx, err) // new style!
 		return
 	}

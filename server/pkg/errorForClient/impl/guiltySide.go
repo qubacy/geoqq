@@ -11,3 +11,14 @@ const (
 
 	// other sides...
 )
+
+func GuiltySideToString(guiltySide int) string {
+	switch guiltySide {
+	case Server:
+		return "server"
+	case Client:
+		return "client"
+	}
+
+	return "unknown"
+}

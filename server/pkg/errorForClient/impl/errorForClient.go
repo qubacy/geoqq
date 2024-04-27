@@ -64,8 +64,13 @@ func (s *ErrorForClient) ClientCode() int {
 }
 
 func (s *ErrorForClient) Error() string {
-	return fmt.Sprintf("%v\n guilty side: %v,\n client code: %v",
-		s.err, s.guiltySide, s.clientCode)
+	return fmt.Sprintf(
+		"%v"+
+			"\n\tguilty side: %v (%v),"+
+			"\n\tclient code: %v",
+		s.err, s.guiltySide, GuiltySideToString(s.guiltySide),
+		s.clientCode,
+	)
 }
 
 // unwind errors
