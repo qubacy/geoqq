@@ -21,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Qualifier
 
 @HiltViewModel
-class GeoSettingsViewModel @Inject constructor(
+open class GeoSettingsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository
 ) : StatefulViewModel<GeoSettingsUiState>(
@@ -45,8 +45,6 @@ class GeoSettingsViewModel @Inject constructor(
     override fun changeLastLocation(newLocation: Location) {
         val prevLocationPoint = mUiState.lastLocationPoint
 
-        Log.d(TAG, "changeLastLocation(): prevLocationPoint = $prevLocationPoint;")
-
         if (prevLocationPoint != null
             && (prevLocationPoint.latitude == newLocation.latitude
             && prevLocationPoint.longitude == newLocation.longitude
@@ -63,11 +61,11 @@ class GeoSettingsViewModel @Inject constructor(
         }
     }
 
-    fun setMapLoadingStatus(isLoaded: Boolean) {
+    open fun setMapLoadingStatus(isLoaded: Boolean) {
         changeLoadingState(!isLoaded) // todo: is it ok?
     }
 
-    fun applyScaleForRadius(coefficient: Float) {
+    open fun applyScaleForRadius(coefficient: Float) {
         val prevRadius = mUiState.radius
         val scaledRadius = getScaledRadius(prevRadius, coefficient)
 

@@ -158,14 +158,20 @@ class GeoSettingsFragment(
     }
 
     private fun initTopBarMenu() {
+        inflateTopBarMenu()
         mBinding.fragmentGeoSettingsTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
     }
 
+    private fun inflateTopBarMenu() {
+        mBinding.fragmentGeoSettingsTopBar.inflateMenu(R.menu.geo_settings_top_bar)
+    }
+
     private fun onMenuItemClicked(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.main_top_bar_option_my_profile -> navigateToMyProfile()
+            R.id.geo_settings_top_bar_option_hint -> showHint()
             else -> return false
         }
 
@@ -175,6 +181,10 @@ class GeoSettingsFragment(
     private fun navigateToMyProfile() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_geoSettingsFragment_to_myProfileFragment)
+    }
+
+    private fun showHint() {
+        mHintViewProvider.animateAppearance(true)
     }
 
     private fun initMapView() {

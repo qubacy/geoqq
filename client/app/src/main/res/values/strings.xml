@@ -77,4 +77,6 @@
 
     <string name="component_mate_requests_top_bar_option_hint_title">Info</string>
 
+    <string name="component_geo_settings_top_bar_option_hint_title">Info</string>
+
 </resources>
