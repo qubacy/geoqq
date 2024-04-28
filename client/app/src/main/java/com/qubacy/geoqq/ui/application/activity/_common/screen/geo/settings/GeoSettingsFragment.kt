@@ -88,6 +88,8 @@ class GeoSettingsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mSnackbarAnchorView = mBinding.fragmentGeoSettingsButtonGo
+
         initLocationListener()
         initPermissionRunner()
 

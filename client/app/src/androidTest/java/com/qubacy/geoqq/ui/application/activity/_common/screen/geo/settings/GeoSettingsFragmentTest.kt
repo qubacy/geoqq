@@ -7,8 +7,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.uiautomator.UiSelector
+import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragmentTest
@@ -23,14 +24,19 @@ import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.changed.Map
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.loaded.MapViewLoadedViewAssertion
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module.GeoSettingsViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,6 +54,14 @@ class GeoSettingsFragmentTest(
 >() {
     companion object {
         const val DEFAULT_MAX_MAP_LOADING_DURATION = 10000L
+
+        val DEFAULT_LOCATION_POINT = Point(56.010543, 92.852581)
+
+        @JvmStatic
+        @BeforeClass
+        fun overallSetup() {
+            MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
+        }
     }
 
     override fun getPermissionsToGrant(): Array<String> {
@@ -74,12 +88,6 @@ class GeoSettingsFragmentTest(
 
     override fun getCurrentDestination(): Int {
         return R.id.geoSettingsFragment
-    }
-
-    override fun setup() {
-        MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
-
-        super.setup()
     }
 
     /**
@@ -150,16 +158,58 @@ class GeoSettingsFragmentTest(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
+    @Test
+    fun mapLoadingEndsWithUsingViewModelMethodTest() {
+        defaultInit()
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(DEFAULT_MAX_MAP_LOADING_DURATION))
+
+        Assert.assertTrue(mViewModelMockContext.setMapLoadingStatusCallFlag)
+    }
+
+    @Test
+    fun appGettingNewLocationLeadsToUsingViewModelMethodTest() {
+        defaultInit()
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(1000))
+
+        Assert.assertTrue(mViewModelMockContext.changeLastLocationCallFlag)
+    }
+
+    @Test
+    fun performingPinchZoomLeadsToUsingViewModelMethodTest() {
+        defaultInit()
+
+        Espresso.onView(withId(R.id.fragment_geo_settings_map))
+            .perform(PinchZoomViewAction())
+
+        Assert.assertTrue(mViewModelMockContext.applyScaleForRadiusCallFlag)
+    }
+
     /**
      * Synchronization is TOO bad in this one:
      */
     @Test
-    fun performingMapPinchZoomingLeadsToMapZoomingTest() {
-        val pinchZoomPercent = 50
+    fun processChangeRadiusUiOperationTest() = runTest {
+        val initLocationPoint = DEFAULT_LOCATION_POINT
+        val initRadius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+        val initUiState = GeoSettingsUiState(
+            lastLocationPoint = initLocationPoint,
+            radius = initRadius
+        )
+        val initLocationPointChangedUiOperation = LocationPointChangedUiOperation(initLocationPoint)
 
-        defaultInit()
+        val radius = initRadius * 1.5f
+        val changeRadiusUiOperation = ChangeRadiusUiOperation(radius)
+
+        val expectedRadiusText = InstrumentationRegistry.getInstrumentation().targetContext
+            .getString(R.string.fragment_geo_settings_text_radius_text, radius.toInt().toString())
+
+        initWithModelContext(GeoSettingsViewModelMockContext(initUiState))
 
         Espresso.onView(isRoot()).perform(WaitViewAction(DEFAULT_MAX_MAP_LOADING_DURATION))
+
+        mViewModelMockContext.uiOperationFlow.emit(initLocationPointChangedUiOperation)
 
         val mapView = retrieveMapView()
         lateinit var prevVisibleRegion: VisibleRegion
@@ -168,8 +218,69 @@ class GeoSettingsFragmentTest(
             prevVisibleRegion = mapView.mapWindow.map.visibleRegion
         }
 
-        PinchZoomViewAction.perform(
-            UiSelector().className(GeoMapView::class.java), pinchZoomPercent)
+        mViewModelMockContext.uiOperationFlow.emit(changeRadiusUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_geo_settings_map))
+            .perform(WaitViewAction(1000))
+            .check(MapViewChangedViewAssertion(prevVisibleRegion))
+        Espresso.onView(withText(expectedRadiusText))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun processSetLoadingStateUiOperationTest() = runTest {
+        val initLoadingState = false
+        val initUiState = GeoSettingsUiState(
+            isLoading = initLoadingState,
+            radius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+        )
+
+        val loadingState = true
+        val setLoadingStateUiOperation = SetLoadingStateUiOperation(loadingState)
+
+        initWithModelContext(GeoSettingsViewModelMockContext(initUiState))
+
+        Espresso.onView(withId(R.id.fragment_geo_settings_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+
+        mViewModelMockContext.uiOperationFlow.emit(setLoadingStateUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_geo_settings_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    @Test
+    fun processLocationPointChangedUiOperationTest() = runTest {
+        val initLocationPoint = DEFAULT_LOCATION_POINT
+        val initRadius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+        val initUiState = GeoSettingsUiState(
+            lastLocationPoint = initLocationPoint,
+            radius = initRadius
+        )
+        val initLocationPointChangedUiOperation = LocationPointChangedUiOperation(initLocationPoint)
+
+        val locationPoint = Point(
+            initLocationPoint.latitude.plus(1),
+            initLocationPoint.longitude.plus(1)
+        )
+        val locationPointChangedUiOperation = LocationPointChangedUiOperation(locationPoint)
+
+        initWithModelContext(GeoSettingsViewModelMockContext(initUiState))
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(DEFAULT_MAX_MAP_LOADING_DURATION))
+
+        mViewModelMockContext.uiOperationFlow.emit(initLocationPointChangedUiOperation)
+
+        val mapView = retrieveMapView()
+        lateinit var prevVisibleRegion: VisibleRegion
+
+        mActivityScenario.onActivity {
+            prevVisibleRegion = mapView.mapWindow.map.visibleRegion
+        }
+
+        mViewModelMockContext.uiOperationFlow.emit(locationPointChangedUiOperation)
 
         Espresso.onView(withId(R.id.fragment_geo_settings_map))
             .perform(WaitViewAction(1000))
