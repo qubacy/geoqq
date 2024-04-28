@@ -63,7 +63,6 @@ class MateRequestsFragment(
 {
     companion object {
         const val HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT = 1000L
-        const val HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT = 3000L
     }
 
     @Inject

@@ -4,6 +4,7 @@ import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.LocationMockUtil
+import com.qubacy.geoqq._common.point._test.util.PointUtils
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
@@ -50,8 +51,8 @@ class GeoSettingsViewModelTest(
 
             val finalUiState = mModel.uiState
 
-            assertLocationPoints(expectedLocationPoint, operation.locationPoint)
-            assertLocationPoints(expectedLocationPoint, finalUiState.lastLocationPoint!!)
+            PointUtils.assertPoints(expectedLocationPoint, operation.locationPoint)
+            PointUtils.assertPoints(expectedLocationPoint, finalUiState.lastLocationPoint!!)
         }
     }
 
@@ -139,10 +140,5 @@ class GeoSettingsViewModelTest(
             Assert.assertEquals(expectedRadius, operation.radius)
             Assert.assertEquals(expectedRadius, finalUiState.radius)
         }
-    }
-
-    private fun assertLocationPoints(expected: Point, gotten: Point) {
-        Assert.assertEquals(expected.latitude, gotten.latitude, 0.0)
-        Assert.assertEquals(expected.longitude, gotten.longitude, 0.0)
     }
 }

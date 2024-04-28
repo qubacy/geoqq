@@ -108,7 +108,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
-        val disappearanceTimeout = MateRequestsFragment.HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT +
+        val disappearanceTimeout = HintViewProvider.DEFAULT_HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT +
                 HintViewProvider.DEFAULT_APPEARANCE_ANIMATION_DURATION
 
         Espresso.onView(isRoot())
@@ -116,6 +116,26 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
         Espresso.onView(withId(R.id.component_hint_text))
             .check(ViewAssertions.matches(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+    }
+
+    @Test
+    fun clickingInfoMenuOptionLeadsToShowingHintTest() {
+        defaultInit()
+
+        val hintVisibilityTime = MateRequestsFragment.HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT +
+                HintViewProvider.DEFAULT_APPEARANCE_ANIMATION_DURATION +
+                HintViewProvider.DEFAULT_HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT +
+                HintViewProvider.DEFAULT_APPEARANCE_ANIMATION_DURATION
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(hintVisibilityTime))
+
+        Espresso.onView(withId(R.id.mate_requests_top_bar_option_hint)).perform(ViewActions.click())
+
+        Espresso.onView(isRoot())
+            .perform(WaitViewAction(MateRequestsFragment.HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT))
+        Espresso.onView(withId(R.id.component_hint_text))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
     @Test

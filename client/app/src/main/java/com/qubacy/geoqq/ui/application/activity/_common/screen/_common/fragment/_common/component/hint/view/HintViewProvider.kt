@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import com.qubacy.geoqq.databinding.ComponentHintBinding
 import com.qubacy.geoqq.ui._common.util.view.extension.runAnimation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component._common.view.provider.ViewProvider
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.MateRequestsFragment
 
 open class HintViewProvider(
     parent: ViewGroup,
@@ -16,6 +15,7 @@ open class HintViewProvider(
 ) : ViewProvider {
     companion object {
         const val DEFAULT_APPEARANCE_ANIMATION_DURATION = 300L
+        const val DEFAULT_HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT = 3000L
     }
 
     private lateinit var mBinding: ComponentHintBinding
@@ -70,7 +70,7 @@ open class HintViewProvider(
                 if (isAppearing)
                     scheduleAppearanceAnimation(
                         false,
-                        MateRequestsFragment.HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT
+                        DEFAULT_HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT
                     )
             }
         )
@@ -78,7 +78,7 @@ open class HintViewProvider(
 
     fun scheduleAppearanceAnimation(
         isAppearing: Boolean,
-        duration: Long = MateRequestsFragment.HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT
+        duration: Long = DEFAULT_HINT_TEXT_ANIMATION_DISAPPEARANCE_TIMEOUT
     ) {
         if (isAppearing == mBinding.root.isVisible) return
 

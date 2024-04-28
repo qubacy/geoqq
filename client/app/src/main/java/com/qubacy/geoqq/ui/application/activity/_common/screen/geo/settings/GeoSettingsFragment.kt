@@ -39,7 +39,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.mode
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.MateRequestsFragment
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Circle
@@ -62,6 +61,8 @@ class GeoSettingsFragment(
 {
     companion object {
         const val TAG = "GeoSettingsFragment"
+
+        const val HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT = 1500L
 
         const val DEFAULT_VIEW_COEFFICIENT = 1.2f
         const val DEFAULT_CAMERA_MOVING_ANIMATION_DURATION = 0.3f
@@ -246,7 +247,7 @@ class GeoSettingsFragment(
             override fun onPreDraw(): Boolean {
                 mBinding.root.viewTreeObserver.removeOnPreDrawListener(this)
                 mHintViewProvider.scheduleAppearanceAnimation(
-                    true, MateRequestsFragment.HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT
+                    true, GeoSettingsFragment.HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT
                 )
 
                 return true
