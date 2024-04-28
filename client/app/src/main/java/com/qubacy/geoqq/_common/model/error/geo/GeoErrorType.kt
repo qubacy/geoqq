@@ -7,6 +7,6 @@ enum class GeoErrorType (
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.GEO
 ) : ErrorType {
-    ERROR_1(1),
-    ERROR_2(2);
+    WRONG_LATITUDE(1),
+    WRONG_LONGITUDE(2);
 }

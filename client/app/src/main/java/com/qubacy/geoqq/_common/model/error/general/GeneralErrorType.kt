@@ -7,6 +7,5 @@ enum class GeneralErrorType(
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.GENERAL
 ) : ErrorType {
-    ERROR_1(0),
-    ERROR_2(1);
+    INVALID_ACCESS_TOKEN(1);
 }

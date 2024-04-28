@@ -7,11 +7,13 @@ enum class MateErrorType (
     override val id: Long,
     override val domain: ErrorDomain = ErrorDomain.MATE
 ) : ErrorType {
-    ERROR_2(2),
-    ERROR_3(3),
-    ERROR_4(4),
-    ERROR_5(5),
-    ERROR_7(7),
-    ERROR_8(8),
-    ERROR_9(9);
+    MATE_REQUEST_ALREADY_SENT(2),
+    MATE_REQUEST_ALREADY_GOTTEN(3),
+    MATE_REQUEST_NOT_FOUND(4),
+    MATE_REQUEST_NOT_AVAILABLE(5),
+    ALREADY_MATES(7),
+    USER_ALREADY_DELETED(8),
+    USER_NOT_FOUND(9),
+    MATE_CHAT_NOT_FOUND(10),
+    MATE_CHAT_NOT_AVAILABLE(11);
 }

@@ -7,5 +7,5 @@ enum class MyProfileErrorType(
      override val id: Long,
      override val domain: ErrorDomain = ErrorDomain.MY_PROFILE
 ) : ErrorType {
-    ERROR_1(1);
+    INCORRECT_PASSWORD(1);
 }
