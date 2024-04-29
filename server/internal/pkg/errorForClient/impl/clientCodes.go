@@ -181,6 +181,8 @@ const ( // Mate
 
 	MateChatNotFound     // 2210
 	MateChatNotAvailable // 2211
+
+	MateMessageTooLong
 )
 
 const ( // Geo
@@ -188,4 +190,6 @@ const ( // Geo
 
 	WrongLatitude
 	WrongLongitude
+
+	GeoMessageTooLong
 )

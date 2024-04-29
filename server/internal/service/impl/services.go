@@ -18,10 +18,13 @@ type GeneralParams struct {
 type AuthParams struct {
 	SignIn SignInParams
 	SignUp SignUpParams
+
+	UsernamePattern string
+	PasswordPattern string
 }
 
 type SignInParams struct {
-	FailedAttemptCount uint32
+	FailedAttemptCount uint64
 	FailedAttemptTtl   time.Duration
 	BlockingTime       time.Duration
 }
@@ -32,6 +35,15 @@ type SignUpParams struct {
 
 type AddImageParams struct {
 	BlockingTime time.Duration
+}
+
+type ChatParams struct {
+	MaxMessageLength uint64
+	GeoChatParams    GeoChatParams
+}
+
+type GeoChatParams struct {
+	MaxMessageCountReturned uint64
 }
 
 type Dependencies struct {
@@ -53,6 +65,7 @@ type Dependencies struct {
 	GeneralParams  GeneralParams
 	AuthParams     AuthParams
 	AddImageParams AddImageParams
+	ChatParams     ChatParams
 }
 
 // -----------------------------------------------------------------------

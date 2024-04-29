@@ -49,7 +49,7 @@ func (a *AuthService) updateSignInCache(ctx context.Context, username string) er
 			return utl.NewFuncError(sourceFunc, err)
 		}
 
-		if uint32(len(strCount)) == maxAttemptCount-1 {
+		if uint64(len(strCount)) == maxAttemptCount-1 {
 			err = a.cache.SetWithTTL(ctx, keyLoginBlocked, singleChar, blockingTime)
 			if err != nil {
 				return utl.NewFuncError(sourceFunc, err)

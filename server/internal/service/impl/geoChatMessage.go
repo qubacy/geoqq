@@ -12,13 +12,17 @@ import (
 type GeoChatMessageService struct {
 	domainStorage         domainStorage.Storage
 	geoDistanceCalculator geoDistance.Calculator
-	generalParams         GeneralParams
+
+	generalParams GeneralParams
+	chatParams    ChatParams
 }
 
 func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 	instance := &GeoChatMessageService{
 		domainStorage:         deps.DomainStorage,
 		geoDistanceCalculator: deps.GeoDistCalculator,
+		generalParams:         deps.GeneralParams,
+		chatParams:            deps.ChatParams,
 	}
 
 	return instance
@@ -30,6 +34,11 @@ func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 	userId uint64, text string,
 	longitude, latitude float64) error {
+
+	if len(text) > int(s.chatParams.MaxMessageLength) {
+		return ec.New(ErrMessageTooLong(s.chatParams.MaxMessageLength),
+			ec.Client, ec.GeoMessageTooLong)
+	}
 
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
@@ -62,15 +71,17 @@ func (s *GeoChatMessageService) GetGeoChatAllMessages(
 		return nil, utl.NewFuncError(s.GetGeoChatAllMessages, err)
 	}
 
-	// ***
+	var offset uint64 = 0
+	var count uint64 = s.chatParams.GeoChatParams.MaxMessageCountReturned
 
-	geoMessages, err := s.domainStorage.GetGeoChatAllMessages(
-		ctx, distance, latitude, longitude)
+	geoMessages, err := s.domainStorage.GetGeoChatMessages(ctx,
+		distance, latitude, longitude,
+		offset, count,
+	)
 	if err != nil {
 		return nil, ec.New(utl.NewFuncError(s.GetGeoChatAllMessages, err),
 			ec.Server, ec.DomainStorageError)
 	}
-
 	return geoMessages, nil
 }
 
@@ -85,22 +96,19 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 			ec.Client, ec.CountMoreThanPermissible)
 	}
 
-	// ***
-
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
 	}
 
-	// ***
-
-	geoMessages, err := s.domainStorage.GetGeoChatMessages(
-		ctx, distance, latitude, longitude, offset, count)
+	geoMessages, err := s.domainStorage.GetGeoChatMessages(ctx,
+		distance, latitude, longitude,
+		offset, count,
+	)
 	if err != nil {
 		return nil, ec.New(utl.NewFuncError(s.GetGeoChatMessages, err),
 			ec.Server, ec.DomainStorageError)
 	}
-
 	return geoMessages, nil
 }
 

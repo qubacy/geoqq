@@ -10,11 +10,13 @@ import (
 
 type MateChatMessageService struct {
 	domainStorage domainStorage.Storage
+	chatParams    ChatParams
 }
 
 func newMateChatMessageService(deps Dependencies) *MateChatMessageService {
 	instance := &MateChatMessageService{
 		domainStorage: deps.DomainStorage,
+		chatParams:    deps.ChatParams,
 	}
 
 	return instance
@@ -49,28 +51,31 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 	return mateMessages, nil
 }
 
-// TODO: check length text message!
-
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
+
+	if len(text) > int(s.chatParams.MaxMessageLength) {
+		return ec.New(ErrMessageTooLong(s.chatParams.MaxMessageLength),
+			ec.Client, ec.MateMessageTooLong)
+	}
+
+	// some asserts
 
 	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
-
 	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
-	// write to database!
+	// write to database
 
 	_, err = s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
 	if err != nil {
 		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
 			ec.Server, ec.DomainStorageError)
 	}
-
 	return nil
 }

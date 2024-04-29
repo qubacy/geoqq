@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 	"regexp"
 )
@@ -9,8 +10,8 @@ func (a *AuthService) initializeValidators() error {
 
 	// can create global variables!
 	sourceRegexp := map[string]string{
-		"login":    "^[A-Za-z0-9_]{5,64}$",
-		"password": `^[\s\S]+$`, // <--- checked on client!
+		"login":    a.authParams.UsernamePattern,
+		"password": a.authParams.PasswordPattern,
 	}
 
 	// ***
@@ -23,6 +24,7 @@ func (a *AuthService) initializeValidators() error {
 		}
 
 		a.validators[fieldName] = re
+		logger.Info("%v pattern: %v", fieldName, re.String())
 	}
 	return nil
 }

@@ -60,3 +60,7 @@ func ErrIncorrectUsernameWithPattern(pattern string) error {
 func ErrAddImageBlockedForUserWithId(userId uint64) error {
 	return fmt.Errorf("add image blocked for user with id `%v`", userId)
 }
+
+func ErrMessageTooLong(maxMsgLength uint64) error {
+	return fmt.Errorf("message is too long. Max length: %v", maxMsgLength)
+}

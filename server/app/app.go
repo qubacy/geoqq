@@ -281,17 +281,28 @@ func servicesInstance(
 
 		AuthParams: serviceImpl.AuthParams{
 			SignIn: serviceImpl.SignInParams{
-				FailedAttemptCount: viper.GetUint32("service.auth.sign_in.failed_attempt_count"),
+				FailedAttemptCount: viper.GetUint64("service.auth.sign_in.failed_attempt_count"),
 				FailedAttemptTtl:   viper.GetDuration("service.auth.sign_in.failed_attempt_ttl"),
 				BlockingTime:       viper.GetDuration("service.auth.sign_in.blocking_time"),
 			},
 			SignUp: serviceImpl.SignUpParams{
 				BlockingTime: viper.GetDuration("service.auth.sign_up.blocking_time"),
 			},
+
+			UsernamePattern: viper.GetString("service.auth.username_pattern"),
+			PasswordPattern: viper.GetString("service.auth.password_pattern"),
 		},
 
 		AddImageParams: serviceImpl.AddImageParams{
 			BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
+		},
+
+		ChatParams: serviceImpl.ChatParams{
+			MaxMessageLength: viper.GetUint64("service.chat.max_message_length"),
+			GeoChatParams: serviceImpl.GeoChatParams{
+				MaxMessageCountReturned: viper.GetUint64(
+					"service.chat.geo.max_message_count_returned"),
+			},
 		},
 	})
 

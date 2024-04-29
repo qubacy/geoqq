@@ -3,7 +3,7 @@ first_start:
 
 server:
   http:
-    host: ""
+    host: "0.0.0.0"
     port: 57000
 
     read_timeout: 10s
@@ -25,6 +25,9 @@ service:
       max_page_size: 100 # ..]
   
   auth:
+    username_pattern: ^[A-Za-z0-9_]{5,64}$
+    password_pattern: ^[\s\S]+$
+
     sign_in:
       failed_attempt_count: 3
       failed_attempt_ttl: 150s
@@ -34,7 +37,9 @@ service:
       blocking_time: 30m # after registration!
 
   chat:
-    message_length: 1024 # TODO: !!!
+    max_message_length: 1024
+    geo:
+      max_message_count_returned: 100 
 
   image:
     add:
