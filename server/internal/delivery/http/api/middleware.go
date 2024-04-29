@@ -2,7 +2,7 @@ package api
 
 import (
 	"errors"
-	ec "geoqq/pkg/errorForClient/impl"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"strconv"
 

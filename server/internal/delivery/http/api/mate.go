@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
-	ec "geoqq/pkg/errorForClient/impl"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"net/http"
 	"strconv"

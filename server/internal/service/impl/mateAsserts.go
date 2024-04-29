@@ -2,17 +2,17 @@ package impl
 
 import (
 	"context"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
-	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 
-func assertMateChatExists(ctx context.Context,
+func assertMateChatWithIdExists(ctx context.Context,
 	domainStorage domainStorage.Storage, chatId uint64) error {
 
 	exists, err := domainStorage.HasMateChatWithId(ctx, chatId)
 	if err != nil {
-		return ec.New(utl.NewFuncError(assertMateChatExists, err),
+		return ec.New(utl.NewFuncError(assertMateChatWithIdExists, err),
 			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {

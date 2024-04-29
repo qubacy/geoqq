@@ -13,9 +13,10 @@ const ( // only for: HTTP 500
 	ServerError = errorGroupSize + iota // those rare moments...
 	HashManagerError
 	TokenManagerError
-	AvatarGeneratorError
+	CacheError
 	DomainStorageError
 	FileStorageError
+	AvatarGeneratorError
 )
 
 // Parse
@@ -128,6 +129,8 @@ const ( // Auth
 			- sign in.
 	*/
 	UserByCredentialsNotFound // 1404
+	SignInByNameBlocked
+	SignUpByIpAddrBlocked
 )
 
 const ( // User
@@ -139,8 +142,7 @@ const ( // User
 const ( // My Profile (User Profile?)
 	MyProfileError = clientErrorOffset + errorGroupSize*4 + iota // 1800
 	IncorrectPasswordWhenUpdate
-
-	// TODO: Invalid Avatar id
+	ImageNotFoundWhenUpdate
 )
 
 const ( // Image
@@ -172,8 +174,8 @@ const ( // Mate
 	MateRequestToSelf
 	AlreadyAreMates
 
-	TargetUserDeleted
 	TargetUserNotFound
+	TargetUserDeleted
 
 	MateChatNotFound     // 2210
 	MateChatNotAvailable // 2211

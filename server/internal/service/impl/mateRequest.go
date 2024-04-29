@@ -3,9 +3,9 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain/table"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
 	domainStorage "geoqq/internal/storage/domain"
-	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 )
@@ -80,7 +80,8 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 	err := assertUserWithIdExists(ctx,
 		mrs.domainStorage, targetUserId,
-		ec.TargetUserNotFound)
+		ec.TargetUserNotFound,
+	)
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}

@@ -2,8 +2,9 @@ package api
 
 import (
 	"geoqq/internal/delivery/http/api/dto"
+	se "geoqq/internal/pkg/errorForClient/impl"
+	"geoqq/internal/service"
 	serviceDto "geoqq/internal/service/dto"
-	se "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"net/http"
 
@@ -43,17 +44,17 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
-
 	username := ctx.GetString(contextUsername)
 	passwordHash := ctx.GetString(contextPassword)
 
 	// ***
 
+	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.SignIn(ctx,
 		serviceDto.MakeSignInInp(username, passwordHash))
 
 	if err != nil { // error may belong to different sides!
-		logger.Error("%v", err)
+		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
@@ -74,6 +75,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 
 	// ***
 
+	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.SignUp(ctx,
 		serviceDto.MakeSignUpInp(username, passwordHash))
 
@@ -96,9 +98,11 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 func (h *Handler) putSignIn(ctx *gin.Context) {
 
 	refreshToken := ctx.GetString(contextRefreshToken)
+
+	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err) // new style!
 		return
 	}

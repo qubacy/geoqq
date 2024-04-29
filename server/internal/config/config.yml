@@ -27,11 +27,11 @@ service:
   auth:
     sign_in:
       failed_attempt_count: 3
-      failed_attempt_ttl: 15m
-      blocking_time: 30m
+      failed_attempt_ttl: 150s
+      blocking_time: 5m
 
     sign_up:
-      blocking_time: 1h # after registration!
+      blocking_time: 30m # after registration!
 
   chat:
     message_length: 1024
@@ -74,7 +74,11 @@ storage:
         #...
 
 cache:
+  enable: true
+
   type: "redis"
+  max_init_time: 5s
+  
   redis:
     host: "127.0.0.1"
     port: 6379

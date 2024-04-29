@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
-	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/file"
 	utl "geoqq/pkg/utility"
 )
@@ -29,25 +29,24 @@ func newImageService(deps Dependencies) *ImageService {
 // public
 // -----------------------------------------------------------------------
 
-func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (*file.Image, error) {
-	exists, err := s.domainStorage.HasAvatar(ctx, imageId)
+func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
+	*file.Image, error,
+) {
+	sourceFunc := s.GetImageById
+	err := assertImageWithIdExists(ctx,
+		s.domainStorage, imageId,
+		ec.ImageNotFound)
 	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetImageById, err),
-			ec.Server, ec.DomainStorageError)
-	}
-	if !exists {
-		return nil, ec.New(ErrImageNotFound,
-			ec.Client, ec.ImageNotFound) // client?
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
 	// ***
 
 	image, err := s.fileStorage.LoadImage(ctx, imageId)
 	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetImageById, err),
+		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.FileStorageError)
 	}
-
 	return image, nil
 }
 

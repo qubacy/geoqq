@@ -3,8 +3,8 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
-	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 
@@ -26,7 +26,7 @@ func newMateChatMessageService(deps Dependencies) *MateChatMessageService {
 func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Context,
 	userId, chatId, offset, count uint64) (domain.MateMessageList, error) {
 
-	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return nil, utl.NewFuncError(s.ReadMateChatMessagesByChatId, err)
 	}
@@ -54,7 +54,7 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
 
-	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}

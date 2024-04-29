@@ -8,6 +8,10 @@ import (
 	"geoqq/pkg/file"
 )
 
+const (
+	AuthServiceContextClientIp = "authServiceContextClientIp"
+)
+
 type AuthService interface {
 	SignIn(ctx context.Context, input dto.SignInInp) (dto.SignInOut, error)
 	SignUp(ctx context.Context, input dto.SignUpInp) (dto.SignUpOut, error)

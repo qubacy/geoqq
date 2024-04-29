@@ -3,8 +3,8 @@ package impl
 import (
 	"context"
 	"geoqq/internal/domain"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
-	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 
@@ -30,7 +30,7 @@ func (s *MateChatService) GetMateChat(ctx context.Context, chatId, userId uint64
 ) {
 	sourceFunc := s.GetMateChat
 
-	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
@@ -79,7 +79,7 @@ func (s *MateChatService) DeleteMateChatForUser(ctx context.Context,
 	*/
 	sourceFunc := s.DeleteMateChatForUser
 
-	err := assertMateChatExists(ctx, s.domainStorage, chatId)
+	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}

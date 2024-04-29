@@ -41,7 +41,17 @@ var (
 	ErrWrongLatitude  = errors.New("wrong latitude")
 )
 
+// with params
+// -----------------------------------------------------------------------
+
+func ErrSignInByNameIsBlocked(name string) error {
+	return fmt.Errorf("sign in by `%v` is blocked", name)
+}
+
+func ErrSignUpByIpAddrBlocked(ipAddr string) error {
+	return fmt.Errorf("sign up by ip `%v` is blocked", ipAddr)
+}
+
 func ErrIncorrectUsernameWithPattern(pattern string) error {
-	return fmt.Errorf("incorrect username. Pattern `%v`",
-		pattern)
+	return fmt.Errorf("incorrect username. Pattern `%v`", pattern)
 }

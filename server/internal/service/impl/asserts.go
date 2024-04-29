@@ -2,8 +2,8 @@ package impl
 
 import (
 	"context"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
-	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 

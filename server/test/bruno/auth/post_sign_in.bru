@@ -1,0 +1,37 @@
+meta {
+  name: post_sign_in
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}:{{port}}/api/sign-in
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  login: test_user
+  password: 304c32846c843b34c18caa6c8483b203fe933a4e66f0735d424e3a1932ca55a5
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  console.log(res.body);
+  console.log(res.status);
+}
+
+tests {
+  test("Res Status -> 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  
+}

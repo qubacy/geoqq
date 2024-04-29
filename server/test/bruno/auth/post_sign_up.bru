@@ -1,0 +1,20 @@
+meta {
+  name: post_sign_up
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}:{{port}}/api/sign-up
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  login: bruno_user
+  password: 304c32846c843b34c18caa6c8483b203fe933a4e66f0735d424e3a1932ca55a5
+}

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"geoqq/internal/domain"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
 	dsDto "geoqq/internal/storage/domain/dto"
-	ec "geoqq/pkg/errorForClient/impl"
 	utl "geoqq/pkg/utility"
 )
 
@@ -74,14 +74,23 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 
 func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	userId uint64, input dto.ProfileForUpdateInp) error {
+	if input.AvatarId != nil {
+		err := assertImageWithIdExists(ctx,
+			p.domainStorage, *input.AvatarId,
+			ec.ImageNotFoundWhenUpdate)
+		if err != nil {
+			return utl.NewFuncError(p.UpdateUserProfile, err)
+		}
+	}
 
-	storageDto, err := p.preparePartUpdateUserPartsInp(ctx, userId, input.PartProfileForUpdate)
+	// ***
+
+	storageDto, err := p.preparePartUpdateUserPartsInp(ctx,
+		userId, input.PartProfileForUpdate)
 	if err != nil {
 		return utl.NewFuncError(p.UpdateUserProfile, err)
 	}
 	storageDto.AvatarId = input.AvatarId
-
-	// ***
 
 	err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto)
 	if err != nil {
@@ -132,7 +141,7 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 	}
 
 	storageDto.Description = input.Description // maybe nil
-	storageDto.AvatarId = nil
+	storageDto.AvatarId = nil                  // !
 
 	return storageDto, nil
 }

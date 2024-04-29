@@ -2,8 +2,9 @@ package impl
 
 import (
 	"context"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
-	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 )
 
@@ -46,6 +47,47 @@ func (a *AuthService) assertUserWithNameNotExists(
 	if exists {
 		return ec.New(ErrUserWithThisLoginAlreadyExists,
 			ec.Client, ec.UserWithNameAlreadyExists)
+	}
+	return nil
+}
+
+// From Cache
+// -----------------------------------------------------------------------
+
+func (a *AuthService) assertSignInByNameNotBlocked(
+	ctx context.Context, username string) error {
+	if !a.enableCache {
+		logger.Warning("cache disabled")
+		return nil
+	}
+
+	loginBlocked, err := a.cache.Exists(ctx, signInByNameBlocked(username))
+	if err != nil {
+		return ec.New(utl.NewFuncError(a.assertSignInByNameNotBlocked, err),
+			ec.Server, ec.CacheError)
+	}
+	if loginBlocked {
+		return ec.New(ErrSignInByNameIsBlocked(username),
+			ec.Client, ec.SignInByNameBlocked)
+	}
+	return nil
+}
+
+func (a *AuthService) assertSignUpByIpAddrNotBlocked(
+	ctx context.Context, ipAddr string) error {
+	if !a.enableCache {
+		logger.Warning("cache disabled")
+		return nil
+	}
+
+	ipAddrBlocked, err := a.cache.Exists(ctx, signUpByIpAddrBlocked(ipAddr))
+	if err != nil {
+		return ec.New(utl.NewFuncError(a.assertSignUpByIpAddrNotBlocked, err),
+			ec.Server, ec.CacheError)
+	}
+	if ipAddrBlocked {
+		return ec.New(ErrSignUpByIpAddrBlocked(ipAddr),
+			ec.Client, ec.SignUpByIpAddrBlocked)
 	}
 	return nil
 }

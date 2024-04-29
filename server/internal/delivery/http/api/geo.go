@@ -2,7 +2,7 @@ package api
 
 import (
 	"geoqq/internal/delivery/http/api/dto"
-	ec "geoqq/pkg/errorForClient/impl"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

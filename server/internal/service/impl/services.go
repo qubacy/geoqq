@@ -4,6 +4,7 @@ import (
 	domainStorage "geoqq/internal/storage/domain"
 	fileStorage "geoqq/internal/storage/file"
 	"geoqq/pkg/avatar"
+	"geoqq/pkg/cache"
 	"geoqq/pkg/geoDistance"
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
@@ -35,6 +36,9 @@ type Dependencies struct {
 
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+
+	EnableCache bool
+	Cache       cache.Cache
 
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage

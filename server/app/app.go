@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"geoqq/app/firstStart"
 	"geoqq/internal/config"
 	deliveryHttp "geoqq/internal/delivery/http"
@@ -16,6 +15,8 @@ import (
 	fileStorageImpl "geoqq/internal/storage/file/impl/memory/anytime"
 	"geoqq/pkg/avatar"
 	avatarImpl "geoqq/pkg/avatar/impl"
+	"geoqq/pkg/cache"
+	redisCache "geoqq/pkg/cache/redisCache"
 	geoDistanceImpl "geoqq/pkg/geoDistance/impl/haversine"
 	"geoqq/pkg/hash"
 	hashImpl "geoqq/pkg/hash/impl"
@@ -23,7 +24,7 @@ import (
 	"geoqq/pkg/logger/impl"
 	"geoqq/pkg/token"
 	tokenImpl "geoqq/pkg/token/impl"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -38,36 +39,45 @@ type App struct {
 func NewApp(ctxWithCancel context.Context) (*App, error) {
 	err := config.Initialize()
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	// *** logger
 
 	err = initializeLogging()
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	// *** common deps!
 
 	tokenManager, err := tokenManagerInstance()
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 	hashManager, err := hashManagerInstance()
 	if err != nil {
-		return nil, utility.NewFuncError(servicesInstance, err)
+		return nil, utl.NewFuncError(NewApp, err)
+	}
+
+	var cacheInst cache.Cache = nil
+	enableCache := viper.GetBool("cache.enable")
+	if enableCache {
+		cacheInst, err = createCacheInstance()
+		if err != nil {
+			return nil, utl.NewFuncError(NewApp, err)
+		}
 	}
 
 	// *** storage
 
 	domainStorage, err := domainStorageInstance(ctxWithCancel)
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 	fileStorage, err := fileStorageInstance(hashManager)
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	maxInitTime := viper.GetDuration("first_start.max_init_time") // ?
@@ -79,17 +89,17 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 		hashManager,
 	)
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	// *** service
 
 	services, err := servicesInstance(
 		tokenManager, hashManager,
-		domainStorage, fileStorage,
+		cacheInst, domainStorage, fileStorage,
 	)
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	// *** delivery with http
@@ -99,7 +109,7 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 		Services:       services,
 	})
 	if err != nil {
-		return nil, utility.NewFuncError(NewApp, err)
+		return nil, utl.NewFuncError(NewApp, err)
 	}
 
 	// *** start server!
@@ -152,33 +162,29 @@ func initializeLogging() error {
 			viper.GetInt("logging.lumberjack.max_backups"),
 			viper.GetInt("logging.lumberjack.max_age_days"),
 		))
-		return nil
-
 	} else if loggingType == "mlog" {
 		//...
 		return ErrNotImplemented
+	} else {
+		return ErrLoggingTypeIsNotDefined
 	}
 
-	return ErrLoggingTypeIsNotDefined
+	return nil
 }
 
 // storages
 // -----------------------------------------------------------------------
 
 func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage, error) {
-	maxInitTime := viper.GetDuration("storage.max_init_time")
-	logger.Trace("storage.max_init_time: %v", maxInitTime)
-
-	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
-	defer func() {
-		fmt.Println("CtxForInit will be canceled")
-		cancel()
-	}()
-
-	var err error = ErrDomainStorageTypeIsNotDefined
-	var storage domainStorage.Storage = nil
-
 	storageType := viper.GetString("storage.domain.type")
+	logger.Info("storage type: %v", storageType)
+
+	maxInitTime := viper.GetDuration("storage.max_init_time")
+	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
+	defer func() { cancel() }()
+
+	var err error
+	var storage domainStorage.Storage
 	if storageType == "postgre" {
 		storage, err = domainStorageImpl.NewStorage(
 			ctxForInit, ctxWithCancel,
@@ -197,18 +203,19 @@ func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage
 	} else if storageType == "sqlite" {
 		//...
 		return nil, ErrNotImplemented
+	} else {
+		return nil, ErrDomainStorageTypeIsNotDefined
 	}
 
 	if err != nil {
-		return nil,
-			utility.NewFuncError(domainStorageInstance, err) // may be edge!
+		return nil, utl.NewFuncError(domainStorageInstance, err) // may be edge!
 	}
 	return storage, nil
 }
 
 func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, error) {
-	var err error = ErrFileStorageTypeIsNotDefined
-	var storage fileStorage.Storage = nil
+	var err error
+	var storage fileStorage.Storage
 
 	storageType := viper.GetString("storage.file.type")
 	if storageType == "anytime" {
@@ -222,13 +229,13 @@ func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, err
 	} else if storageType == "runtime" {
 		//...
 		return nil, ErrNotImplemented
+	} else {
+		return nil, ErrFileStorageTypeIsNotDefined
 	}
 
 	if err != nil {
-		return nil,
-			utility.NewFuncError(fileStorageInstance, err)
+		return nil, utl.NewFuncError(fileStorageInstance, err)
 	}
-
 	return storage, nil
 }
 
@@ -238,6 +245,7 @@ func fileStorageInstance(hashManager hash.HashManager) (fileStorage.Storage, err
 func servicesInstance(
 	tokenManager token.TokenManager,
 	hashManager hash.HashManager,
+	cacheInstance cache.Cache,
 	domainStorage domainStorage.Storage,
 	fileStorage fileStorage.Storage) (
 	service.Services, error,
@@ -247,7 +255,7 @@ func servicesInstance(
 
 	avatarGenerator, err := avatarGeneratorInstance()
 	if err != nil {
-		return nil, utility.NewFuncError(servicesInstance, err)
+		return nil, utl.NewFuncError(servicesInstance, err)
 	}
 
 	// ***
@@ -259,6 +267,8 @@ func servicesInstance(
 		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
 
+		EnableCache:     bool(cacheInstance != nil),
+		Cache:           cacheInstance,
 		DomainStorage:   domainStorage,
 		FileStorage:     fileStorage,
 		AvatarGenerator: avatarGenerator,
@@ -280,27 +290,55 @@ func servicesInstance(
 			},
 		},
 	})
-	if err != nil {
-		return nil, utility.NewFuncError(servicesInstance, err)
-	}
 
-	return services, err
+	if err != nil {
+		return nil, utl.NewFuncError(servicesInstance, err)
+	}
+	return services, nil
 }
 
 // common
 // -----------------------------------------------------------------------
+
+func createCacheInstance() (cache.Cache, error) {
+	cacheType := viper.GetString("cache.type")
+	logger.Info("cache type: %v", cacheType)
+
+	maxInitTime := viper.GetDuration("cache.max_init_time")
+	ctxForInit, cancel := context.WithTimeout(context.Background(), maxInitTime)
+	defer func() { cancel() }()
+
+	var err error
+	var cacheInstance cache.Cache
+	if cacheType == "redis" {
+		cacheInstance, err = redisCache.New(ctxForInit,
+			redisCache.Dependencies{
+				Host: viper.GetString("cache.redis.host"),
+				Port: viper.GetUint16("cache.redis.port"),
+				//...
+			},
+		)
+	} else {
+		return nil, ErrCacheTypeIsNotDefined
+	}
+
+	if err != nil {
+		return nil, utl.NewFuncError(NewApp, err)
+	}
+	return cacheInstance, nil
+}
 
 func hashManagerInstance() (hash.HashManager, error) {
 	hashType, err := hashImpl.StrToHashType(
 		viper.GetString("storage.hash_type"))
 
 	if err != nil {
-		return nil, utility.NewFuncError(hashManagerInstance, err)
+		return nil, utl.NewFuncError(hashManagerInstance, err)
 	}
 
 	hashManager, err := hashImpl.NewHashManager(hashType)
 	if err != nil {
-		return nil, utility.NewFuncError(hashManagerInstance, err)
+		return nil, utl.NewFuncError(hashManagerInstance, err)
 	}
 
 	return hashManager, nil
@@ -310,7 +348,7 @@ func tokenManagerInstance() (token.TokenManager, error) {
 	signingKey := viper.GetString("delivery.token.signing_key")
 	tokenManager, err := tokenImpl.NewTokenManager(signingKey)
 	if err != nil {
-		return nil, utility.NewFuncError(tokenManagerInstance, err)
+		return nil, utl.NewFuncError(tokenManagerInstance, err)
 	}
 
 	return tokenManager, nil

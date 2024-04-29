@@ -3,10 +3,12 @@ package impl
 import (
 	"context"
 	"errors"
+	ec "geoqq/internal/pkg/errorForClient/impl"
+	"geoqq/internal/service"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/avatar"
-	ec "geoqq/pkg/errorForClient/impl"
 	"geoqq/pkg/file"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/token"
 	utl "geoqq/pkg/utility"
 	"regexp"
@@ -30,8 +32,11 @@ type AuthService struct {
 func newAuthService(deps Dependencies) *AuthService {
 	instance := &AuthService{
 		HasherAndStorages: HasherAndStorages{
-			fileStorage:   deps.FileStorage,
+			enableCache: deps.EnableCache,
+			cache:       deps.Cache,
+
 			domainStorage: deps.DomainStorage,
+			fileStorage:   deps.FileStorage,
 			hashManager:   deps.HashManager,
 		},
 		avatarGenerator: deps.AvatarGenerator,
@@ -55,36 +60,60 @@ func newAuthService(deps Dependencies) *AuthService {
 func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 	dto.SignInOut, error,
 ) {
+	sourceFunc := a.SignIn
+	nilResult := dto.MakeSignInOutEmpty()
+
 	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
 	if err != nil {
-		return a.signInWithError(err, ec.Client, ec.ValidateAuthParamsFailed)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Client, ec.ValidateAuthParamsFailed)
 	}
 
 	// some asserts
 
+	err = a.assertSignInByNameNotBlocked(ctx, input.Login) // using cache.
+	if err != nil {
+		return nilResult, utl.NewFuncError(sourceFunc, err)
+	}
 	err = assertUserWithNameNotDeleted(ctx, a.domainStorage, input.Login)
 	if err != nil {
-		return dto.SignInOut{}, utl.NewFuncError(a.SignIn, err)
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
-	err = a.assertUserByCredentialsExists(ctx, input)
+
+	err = a.assertUserByCredentialsExists(ctx, input) // more strict check!
 	if err != nil {
-		return dto.SignInOut{}, utl.NewFuncError(a.SignIn, err)
+		if a.enableCache {
+			side, _ := ec.UnwrapErrorsToLastSideAndCode(err)
+			if side == ec.Client { // any error for which the client is to blame!
+				if err := a.updateSignInCache(ctx, input.Login); err != nil {
+					return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+						ec.Server, ec.CacheError)
+				}
+			}
+		} else {
+			logger.Warning("cache disabled")
+		}
+
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 
 	// generate tokens
 
 	userId, err := a.domainStorage.GetUserIdByByName(ctx, input.Login)
 	if err != nil {
-		return a.signInWithError(err, ec.Server, ec.DomainStorageError)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return a.signInWithError(err, ec.Server, ec.TokenManagerError)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.TokenManagerError)
 	}
 	clientCode, err := a.updateHashRefreshToken(ctx, userId, refreshToken)
 	if err != nil {
-		return a.signInWithError(err, ec.Server, clientCode)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, clientCode)
 	}
 
 	return dto.MakeSignInOut(accessToken, refreshToken), nil
@@ -93,46 +122,70 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 	dto.SignUpOut, error,
 ) {
-	err := a.validateLoginAndPassword(input.Login, input.PasswordHash)
+	sourceFunc := a.SignUp
+	nilResult := dto.MakeSignUpOutEmpty()
+
+	// fast assert
+
+	clientIp := ctx.Value(service.AuthServiceContextClientIp).(string)
+	err := a.assertSignUpByIpAddrNotBlocked(ctx, clientIp)
 	if err != nil {
-		return a.signUpWithError(err, ec.Client, ec.ValidateAuthParamsFailed)
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 
-	// some asserts
-
+	err = a.validateLoginAndPassword(input.Login, input.PasswordHash)
+	if err != nil {
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Client, ec.ValidateAuthParamsFailed)
+	}
 	err = a.assertUserWithNameNotExists(ctx, input.Login)
 	if err != nil {
-		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 
 	// create user
 
 	avatarId, err := a.generateAndSaveAvatarForUser(ctx, input.Login) // with error for client!
 	if err != nil {
-		return dto.MakeSignUpOutEmpty(), utl.NewFuncError(a.SignUp, err)
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 	passwordDoubleHash, err := passwordHashInHexToPasswordDoubleHash(
 		a.hashManager, input.PasswordHash)
 	if err != nil {
-		return dto.SignUpOut{}, utl.NewFuncError(a.SignUp, err)
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 	userId, err := a.domainStorage.InsertUser(ctx, input.Login, passwordDoubleHash, avatarId)
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.DomainStorageError)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+
+	// limit frequent registration
+
+	if a.enableCache {
+		if err := a.updateSignUpCache(ctx, clientIp); err != nil {
+			return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+				ec.Server, ec.CacheError)
+		}
+
+	} else {
+		logger.Warning("cache disabled")
 	}
 
 	// generate tokens
 
 	accessToken, refreshToken, err := a.generateTokens(userId)
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, ec.TokenManagerError)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.TokenManagerError)
 	}
 	clientCode, err := a.updateHashRefreshToken(ctx, userId, refreshToken)
 	if err != nil {
-		return a.signUpWithError(err, ec.Server, clientCode)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, clientCode)
 	}
 
-	return dto.MakeSignUpOut(accessToken, refreshToken), nil
+	return dto.MakeSignUpOut(accessToken, refreshToken), nil // OK
 }
 
 func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
@@ -169,7 +222,7 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	return dto.MakeRefreshTokensOut(accessToken, refreshToken), nil
 }
 
-// Extra!
+// extra for middleware
 // -----------------------------------------------------------------------
 
 func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error) {
@@ -188,16 +241,6 @@ func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool
 // error wrapper
 // -----------------------------------------------------------------------
 
-func (a *AuthService) signInWithError(err error, side, code int) (dto.SignInOut, error) {
-	return dto.MakeSignInOutEmpty(),
-		utl.NewFuncError(a.SignIn, ec.New(err, side, code))
-}
-
-func (a *AuthService) signUpWithError(err error, side, code int) (dto.SignUpOut, error) {
-	return dto.MakeSignUpOutEmpty(),
-		utl.NewFuncError(a.SignUp, ec.New(err, side, code))
-}
-
 func (a *AuthService) refreshTokensWithError(err error, side, code int) (dto.RefreshTokensOut, error) {
 	return dto.MakeRefreshTokensOutEmpty(),
 		utl.NewFuncError(a.RefreshTokens, ec.New(err, side, code))
@@ -214,42 +257,44 @@ func (a *AuthService) generateAndSaveAvatarForUser(ctx context.Context, login st
 
 	// ***
 
-	// TODO: combine into a transaction?
+	// TODO: combine into a transaction? How?
+
 	avatarId, err := a.domainStorage.InsertServerGeneratedAvatar(ctx, imageHash)
 	if err != nil {
-		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return 0, ec.New(utl.NewFuncError(a.generateAndSaveAvatarForUser, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	err = a.fileStorage.SaveImage(ctx, file.NewPngImageFromBytes(avatarId, imageBytes))
 	if err != nil {
 		err = errors.Join(err, a.domainStorage.DeleteAvatarWithId(ctx, avatarId))
-		return 0, utl.NewFuncError(a.generateAndSaveAvatarForUser,
-			ec.New(err, ec.Server, ec.FileStorageError))
+		return 0, ec.New(utl.NewFuncError(a.generateAndSaveAvatarForUser, err),
+			ec.Server, ec.FileStorageError)
 	}
 
 	return avatarId, nil
 }
 
 func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error) {
+	sourceFunc := a.generateAvatarForUser
 	image, err := a.avatarGenerator.NewForUser(login)
 	if err != nil {
-		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
-			ec.New(err, ec.Server, ec.AvatarGeneratorError))
+		return nil, "", ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.AvatarGeneratorError)
 	}
 
 	// ***
 
 	imageBytes, err := utl.ImageToPngBytes(image)
 	if err != nil {
-		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
-			ec.New(err, ec.Server, ec.AvatarGeneratorError))
+		return nil, "", ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.AvatarGeneratorError)
 	}
 
 	imageHash, err := a.hashManager.NewFromBytes(imageBytes) // in a separate function?
 	if err != nil {
-		return nil, "", utl.NewFuncError(a.generateAvatarForUser,
-			ec.New(err, ec.Server, ec.HashManagerError))
+		return nil, "", ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.HashManagerError)
 	}
 
 	return imageBytes, imageHash, nil
@@ -258,17 +303,16 @@ func (a *AuthService) generateAvatarForUser(login string) ([]byte, string, error
 // -----------------------------------------------------------------------
 
 func (a *AuthService) generateTokens(userId uint64) (string, string, error) {
-	access, err := a.tokenManager.New(
-		token.MakePayload(userId, token.ForAccess), a.accessTokenTTL)
-	if err != nil {
-		return "", "", utl.NewFuncError(a.generateTokens, err) // or just return an error?
-	}
-	refresh, err := a.tokenManager.New(
-		token.MakePayload(userId, token.ForRefresh), a.refreshTokenTTL)
+	payloadForAccess := token.MakePayload(userId, token.ForAccess)
+	payloadForRefresh := token.MakePayload(userId, token.ForRefresh)
+
+	access, errForAccess := a.tokenManager.New(payloadForAccess, a.accessTokenTTL)
+	refresh, errForRefresh := a.tokenManager.New(payloadForRefresh, a.refreshTokenTTL)
+	err := errors.Join(errForAccess, errForRefresh)
+
 	if err != nil {
 		return "", "", utl.NewFuncError(a.generateTokens, err)
 	}
-
 	return access, refresh, nil
 }
 
@@ -288,6 +332,8 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 
 	return ec.NoError, nil
 }
+
+// -----------------------------------------------------------------------
 
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
 	userId uint64, refreshToken string) *ec.ErrorForClient {

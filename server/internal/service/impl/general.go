@@ -3,18 +3,24 @@ package impl
 import (
 	"context"
 	"encoding/hex"
+	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
 	fileStorage "geoqq/internal/storage/file"
-	ec "geoqq/pkg/errorForClient/impl"
+	"geoqq/pkg/cache"
 	"geoqq/pkg/hash"
 	utl "geoqq/pkg/utility"
 )
 
 type HasherAndStorages struct {
-	fileStorage   fileStorage.Storage
+	enableCache bool
+	cache       cache.Cache
+
 	domainStorage domainStorage.Storage
+	fileStorage   fileStorage.Storage
 	hashManager   hash.HashManager
 }
+
+// -----------------------------------------------------------------------
 
 func passwordHashInHexToPasswordDoubleHash(
 	hashManager hash.HashManager, hexValue string) (string, error) {
@@ -30,8 +36,8 @@ func passwordHashInHexToPasswordDoubleHash(
 
 	passwordDoubleHash, err := hashManager.NewFromBytes(passwordHash)
 	if err != nil {
-		return "", utl.NewFuncError(sourceFunc,
-			ec.New(err, ec.Server, ec.HashManagerError))
+		return "", ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.HashManagerError)
 	}
 
 	return passwordDoubleHash, nil
@@ -49,7 +55,26 @@ func assertUserWithIdExists(ctx context.Context,
 	}
 
 	if !exists {
-		return ec.New(ErrUserNotFound,
+		return ec.New(ErrUserNotFound, // !
+			ec.Client, expectedClientCodeForError)
+	}
+	return nil
+}
+
+// check availability only in domain!
+func assertImageWithIdExists(ctx context.Context,
+	storage domainStorage.Storage, id uint64,
+	expectedClientCodeForError int) error {
+	sourceFunc := assertImageWithIdExists
+
+	exists, err := storage.HasAvatar(ctx, id)
+	if err != nil {
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+
+	if !exists {
+		return ec.New(ErrImageNotFound,
 			ec.Client, expectedClientCodeForError)
 	}
 	return nil
