@@ -145,9 +145,9 @@ class GeoSettingsFragment(
         adjustUiWithRadius(uiState.radius)
     }
 
-    private fun adjustUiWithRadius(radius: Float) {
+    private fun adjustUiWithRadius(radius: Int) {
         mBinding.fragmentGeoSettingsTextRadius.text =
-            getString(R.string.fragment_geo_settings_text_radius_text, radius.toInt().toString())
+            getString(R.string.fragment_geo_settings_text_radius_text, radius.toString())
     }
 
     private fun initPermissionRunner() {
@@ -332,7 +332,7 @@ class GeoSettingsFragment(
     }
 
     private fun drawRadiusCircleWithLocationPoint(locationPoint: Point) {
-        val radius = mModel.uiState.radius
+        val radius = mModel.uiState.radius.toFloat()
         val radiusCircle = Circle(locationPoint, radius)
 
         if (mCircleMapObject == null) initCircleMapObject(radiusCircle)
@@ -390,11 +390,11 @@ class GeoSettingsFragment(
         mModel.applyScaleForRadius(coefficient)
     }
 
-    private fun changeCircleRadius(radius: Float) {
+    private fun changeCircleRadius(radius: Int) {
         if (mCircleMapObject == null) return
 
         val prevRadiusCircle = mCircleMapObject!!.geometry
 
-        mCircleMapObject!!.geometry = Circle(prevRadiusCircle.center, radius)
+        mCircleMapObject!!.geometry = Circle(prevRadiusCircle.center, radius.toFloat())
     }
 }

@@ -7,7 +7,7 @@ import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessageResponse
+import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat

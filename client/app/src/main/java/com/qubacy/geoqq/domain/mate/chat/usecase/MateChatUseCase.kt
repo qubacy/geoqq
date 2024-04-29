@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMessageDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMateMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
@@ -78,10 +78,10 @@ class MateChatUseCase @Inject constructor(
         executeLogic({
             mMateMessageDataRepository.sendMessage(chatId, text)
 
-            mResultFlow.emit(SendMessageDomainResult())
+            mResultFlow.emit(SendMateMessageDomainResult())
 
         }) {
-            SendMessageDomainResult(error = it)
+            SendMateMessageDomainResult(error = it)
         }
     }
 

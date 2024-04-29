@@ -9,7 +9,7 @@ class GeoSettingsUiState(
     override var isLoading: Boolean = false,
     error: Error? = null,
     var lastLocationPoint: Point? = null,
-    var radius: Float
+    var radius: Int
 ) : BaseUiState(error), LoadingUiState {
     override fun copy(): GeoSettingsUiState {
         return GeoSettingsUiState(

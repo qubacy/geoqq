@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.api
 
 import android.os.Build
 import android.os.LocaleList
+import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoChatDataSource
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
@@ -81,4 +82,5 @@ class HttpApi {
     val userApi: HttpUserDataSource = retrofit.create(HttpUserDataSource::class.java)
     val imageApi: HttpImageDataSource = retrofit.create(HttpImageDataSource::class.java)
     val myProfileApi: HttpMyProfileDataSource = retrofit.create(HttpMyProfileDataSource::class.java)
+    val geoChatApi: HttpGeoChatDataSource = retrofit.create(HttpGeoChatDataSource::class.java)
 }

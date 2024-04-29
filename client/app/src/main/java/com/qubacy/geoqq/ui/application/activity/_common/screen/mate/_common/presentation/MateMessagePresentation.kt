@@ -5,10 +5,10 @@ import android.os.Parcelable
 import androidx.core.os.ParcelCompat
 import com.qubacy.geoqq.domain.mate.chat.model.MateMessage
 import com.qubacy.geoqq.ui._common.util.time.TimeUtils
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.list.message.item.data.side.SenderSide
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.MessageItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.data.MateMessageItemData
 import java.util.Locale
 import java.util.TimeZone
 
@@ -60,8 +60,8 @@ fun MateMessage.toMateMessagePresentation(): MateMessagePresentation {
     return MateMessagePresentation(id, user.toUserPresentation(), text, timestamp)
 }
 
-fun MateMessagePresentation.toMateMessageItemData(remoteUserId: Long): MateMessageItemData {
+fun MateMessagePresentation.toMateMessageItemData(remoteUserId: Long): MessageItemData {
     val senderSide = if (remoteUserId == user.id) SenderSide.OTHER else SenderSide.ME
 
-    return MateMessageItemData(id, senderSide, text, timestamp)
+    return MessageItemData(id, senderSide, text, timestamp)
 }

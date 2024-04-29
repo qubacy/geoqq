@@ -146,7 +146,7 @@ class UserBottomSheetViewContainer(
                 else R.string.component_bottom_sheet_user_button_mate_caption_remove
             )
             setOnClickListener {
-                mCallback.onMateButtonClicked()
+                mCallback.onMateButtonClicked(userPresentation.id)
             }
         }
     }

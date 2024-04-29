@@ -28,10 +28,10 @@ open class GeoSettingsViewModel @Inject constructor(
     mSavedStateHandle, mErrorDataRepository
 ), LoadingViewModel, LocationViewModel {
     companion object {
-        const val DEFAULT_RADIUS_METERS = 1000f
+        const val DEFAULT_RADIUS_METERS = 1000
 
-        const val DEFAULT_MIN_RADIUS = 100f
-        const val DEFAULT_MAX_RADIUS = 100000f
+        const val DEFAULT_MIN_RADIUS = 100
+        const val DEFAULT_MAX_RADIUS = 100000
     }
 
     override fun generateDefaultUiState(): GeoSettingsUiState {
@@ -76,8 +76,8 @@ open class GeoSettingsViewModel @Inject constructor(
         }
     }
 
-    fun getScaledRadius(radius: Float, coefficient: Float): Float {
-        val scaledRadius = radius * coefficient
+    fun getScaledRadius(radius: Int, coefficient: Float): Int {
+        val scaledRadius = (radius * coefficient).toInt()
         val preparedScaledRadius =
             if (scaledRadius < DEFAULT_MIN_RADIUS) DEFAULT_MIN_RADIUS
             else if (scaledRadius > DEFAULT_MAX_RADIUS) DEFAULT_MAX_RADIUS

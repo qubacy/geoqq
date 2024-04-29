@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 
 class ChangeRadiusUiOperation(
-    val radius: Float
+    val radius: Int
 ) : UiOperation {
 
 }

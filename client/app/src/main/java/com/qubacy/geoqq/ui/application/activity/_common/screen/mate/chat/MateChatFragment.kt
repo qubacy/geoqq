@@ -33,18 +33,18 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.item.animator.MateMessageItemAnimator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.error.type.UiMateChatErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.MessageSentUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MessageSentUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.MateRequestSentToInterlocutorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
@@ -128,7 +128,8 @@ class MateChatFragment(
                 )
             MateRequestSentToInterlocutorUiOperation::class ->
                 processMateRequestSentToInterlocutorUiOperation(
-                    uiOperation as MateRequestSentToInterlocutorUiOperation)
+                    uiOperation as MateRequestSentToInterlocutorUiOperation
+                )
             ChatDeletedUiOperation::class ->
                 processChatDeletedUiOperation(uiOperation as ChatDeletedUiOperation)
             MessageSentUiOperation::class ->
@@ -228,7 +229,7 @@ class MateChatFragment(
             layoutManager = LinearLayoutManager(
                 requireContext(), LinearLayoutManager.VERTICAL, true)
             adapter = mAdapter
-            itemAnimator = MateMessageItemAnimator()
+            itemAnimator = MessageItemAnimator()
 
             setCallback(this@MateChatFragment)
         }
@@ -392,7 +393,7 @@ class MateChatFragment(
             R.id.mate_chat_top_bar_option_delete_chat).isVisible = isChatDeletable
     }
 
-    override fun onMateButtonClicked() {
+    override fun onMateButtonClicked(userId: Long) {
         val isMate = mModel.isInterlocutorMate()
 
         if (isMate) launchDeleteChat()

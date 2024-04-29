@@ -3,10 +3,10 @@ package com.qubacy.geoqq.data.mate.message.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.model.message.DataMessage
-import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.message.GetMessagesResponse
+import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
+import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
@@ -34,7 +34,7 @@ class MateMessageDataRepository @Inject constructor(
     private val mHttpMateMessageDataSource: HttpMateMessageDataSource,
     private val mHttpCallExecutor: HttpCallExecutor
     // todo: provide a websocket data source;
-) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
+) : ProducingDataRepository(coroutineDispatcher, coroutineScope), MessageDataRepository {
     suspend fun getMessages(
         chatId: Long,
         loadedMessageIds: List<Long>,
@@ -56,7 +56,7 @@ class MateMessageDataRepository @Inject constructor(
                 .getMateMessages(chatId, offset, count, accessToken)
             val getMessagesResponse = mHttpCallExecutor.executeNetworkRequest(getMessagesCall)
 
-            val httpDataMessages = resolveGetMessagesResponse(getMessagesResponse)
+            val httpDataMessages = resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
 
             if (localDataMessages.size == httpDataMessages.size
                 && localDataMessages.containsAll(httpDataMessages)
@@ -118,14 +118,5 @@ class MateMessageDataRepository @Inject constructor(
 
             it.toDataMessage(user)
         }
-    }
-
-    private suspend fun resolveGetMessagesResponse(
-        getMessagesResponse: GetMessagesResponse
-    ): List<DataMessage> {
-        val userIds = getMessagesResponse.messages.map { it.userId }.toSet().toList()
-        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
-
-        return getMessagesResponse.messages.map { it.toDataMessage(users[it.userId]!!) }
     }
 }
