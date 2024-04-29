@@ -15,16 +15,16 @@ class PermissionRunner<FragmentType> (
     private var mIsRequestingPermissions: Boolean = false
     val isRequestingPermissions get() = mIsRequestingPermissions
 
-    fun requestPermissions() {
+    fun requestPermissions(demandAll: Boolean = true) {
         if (fragment.getPermissionsToRequest() == null) return
 
         when {
-            checkPermissions() -> {
-                fragment.onRequestedPermissionsGranted{ fragment.onPermissionsRequested() }
+            checkPermissions(demandAll) -> {
+                fragment.onRequestedPermissionsGranted { fragment.onPermissionsRequested() }
             }
             else -> {
                 mIsRequestingPermissions = true
-                mPermissionRequestLauncher = getPermissionRequestLauncher{
+                mPermissionRequestLauncher = getPermissionRequestLauncher(demandAll) {
                     fragment.onPermissionsRequested()
                 }
 
@@ -33,34 +33,44 @@ class PermissionRunner<FragmentType> (
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        for (permission in fragment.getPermissionsToRequest()!!) {
+    private fun checkPermissions(demandAll: Boolean): Boolean {
+        val permissionsToRequest = fragment.getPermissionsToRequest()!!
+        var grantedPermissionCount = 0
+
+        if (permissionsToRequest.isEmpty()) return true
+
+        for (permission in permissionsToRequest) {
             if (ContextCompat.checkSelfPermission(fragment.requireContext(), permission)
                 != PackageManager.PERMISSION_GRANTED
             ) {
-                return false
+                if (demandAll) return false
             }
+
+            ++grantedPermissionCount
         }
 
-        return true
+        return grantedPermissionCount > 0
     }
 
     private fun getPermissionRequestLauncher(
+        demandAll: Boolean,
         endAction: (() -> Unit)?
     ): ActivityResultLauncher<Array<String>> {
         return fragment.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions(),
-            getPermissionRequestCallback(endAction)
+            getPermissionRequestCallback(demandAll, endAction)
         )
     }
 
     private fun getPermissionRequestCallback(
+        demandAll: Boolean,
         endAction: (() -> Unit)?
     ): ActivityResultCallback<Map<String, Boolean>> {
         return ActivityResultCallback<Map<String, Boolean>> {
+            val permissionsToRequest = fragment.getPermissionsToRequest()!!
             val deniedPermissions = mutableListOf<String>()
 
-            for (requestedPermission in fragment.getPermissionsToRequest()!!) {
+            for (requestedPermission in permissionsToRequest) {
                 if (!it.containsKey(requestedPermission)) return@ActivityResultCallback
 
                 if (it[requestedPermission] != true) {
@@ -70,8 +80,18 @@ class PermissionRunner<FragmentType> (
 
             mIsRequestingPermissions = false
 
-            if (deniedPermissions.isEmpty()) fragment.onRequestedPermissionsGranted(endAction)
-            else fragment.onRequestedPermissionsDenied(deniedPermissions)
+            if (demandAll) {
+                if (deniedPermissions.isNotEmpty())
+                    fragment.onRequestedPermissionsDenied(deniedPermissions)
+                else
+                    fragment.onRequestedPermissionsGranted(endAction)
+
+            } else {
+                if (deniedPermissions.size == permissionsToRequest.size)
+                    fragment.onRequestedPermissionsDenied(deniedPermissions)
+                else
+                    fragment.onRequestedPermissionsGranted(endAction)
+            }
         }
     }
 }

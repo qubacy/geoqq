@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen.login.error
+package com.qubacy.geoqq.ui.application.activity._common.screen.login.error.type
 
 import com.qubacy.geoqq._common.model.error._common.domain.ErrorDomain
 import com.qubacy.geoqq._common.model.error._common.type.ErrorType

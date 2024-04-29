@@ -23,7 +23,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.UiLoginFragmentErrorType
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.type.UiLoginFragmentErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation

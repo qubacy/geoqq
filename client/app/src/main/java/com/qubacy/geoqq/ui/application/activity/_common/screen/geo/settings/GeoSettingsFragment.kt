@@ -34,6 +34,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common.error.type.UiGeoErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactoryQualifier
@@ -151,7 +152,7 @@ class GeoSettingsFragment(
 
     private fun initPermissionRunner() {
         mPermissionRunner = PermissionRunner(this).also {
-            it.requestPermissions()
+            it.requestPermissions(true)
         }
     }
 
@@ -282,11 +283,11 @@ class GeoSettingsFragment(
     }
 
     override fun onLocationServicesNotEnabled() {
-        TODO("Not yet implemented")
+        mModel.retrieveError(UiGeoErrorType.LOCATION_SERVICES_UNAVAILABLE)
     }
 
     override fun onRequestingLocationUpdatesFailed(exception: Exception) {
-        TODO("Not yet implemented")
+        mModel.retrieveError(UiGeoErrorType.LOCATION_REQUEST_FAILED)
     }
 
     override fun processUiOperation(uiOperation: UiOperation): Boolean {
@@ -341,6 +342,8 @@ class GeoSettingsFragment(
     private fun setCameraPositionForRadiusCircle(
         isAnimated: Boolean = true
     ) {
+        if (mCircleMapObject == null) return
+
         val radiusCircle = mCircleMapObject!!.geometry
         val viewCircle = Circle(radiusCircle.center,
             radiusCircle.radius * DEFAULT_VIEW_COEFFICIENT)
@@ -375,8 +378,6 @@ class GeoSettingsFragment(
 
     override fun onMapLoaded(p0: MapLoadStatistics) {
         mModel.setMapLoadingStatus(true)
-
-
     }
 
     override fun onPinchZoom(coefficient: Float) {
