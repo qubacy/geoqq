@@ -30,6 +30,10 @@ type SignUpParams struct {
 	BlockingTime time.Duration
 }
 
+type AddImageParams struct {
+	BlockingTime time.Duration
+}
+
 type Dependencies struct {
 	HashManager  hash.HashManager
 	TokenManager token.TokenManager
@@ -46,8 +50,9 @@ type Dependencies struct {
 
 	GeoDistCalculator geoDistance.Calculator
 
-	GeneralParams GeneralParams
-	AuthParams    AuthParams
+	GeneralParams  GeneralParams
+	AuthParams     AuthParams
+	AddImageParams AddImageParams
 }
 
 // -----------------------------------------------------------------------

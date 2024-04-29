@@ -289,6 +289,10 @@ func servicesInstance(
 				BlockingTime: viper.GetDuration("service.auth.sign_up.blocking_time"),
 			},
 		},
+
+		AddImageParams: serviceImpl.AddImageParams{
+			BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
+		},
 	})
 
 	if err != nil {

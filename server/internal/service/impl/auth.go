@@ -191,32 +191,33 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 	dto.RefreshTokensOut, error,
 ) {
+	sourceFunc := a.RefreshTokens
+	nilResult := dto.MakeRefreshTokensOutEmpty()
+
 	payload, err := a.tokenManager.ParseRefresh(refreshToken) // with validation!
 	if err != nil {
 
 		// believe that module is working correctly?!
-		return a.refreshTokensWithError(err, ec.Client, ec.ValidateRefreshTokenFailed)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Client, ec.ValidateRefreshTokenFailed)
 	}
-	errForClient := a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
-	if errForClient != nil {
 
-		// is unpacking necessary?
-		return a.refreshTokensWithError(
-			errForClient.Unwrap(),
-			errForClient.GuiltySide(),
-			errForClient.ClientCode(),
-		)
+	err = a.identicalHashesForRefreshTokens(ctx, payload.UserId, refreshToken)
+	if err != nil {
+		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
 
 	// generate tokens
 
 	accessToken, refreshToken, err := a.generateTokens(payload.UserId)
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, ec.TokenManagerError)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.TokenManagerError)
 	}
 	clientCode, err := a.updateHashRefreshToken(ctx, payload.UserId, refreshToken)
 	if err != nil {
-		return a.refreshTokensWithError(err, ec.Server, clientCode)
+		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, clientCode)
 	}
 
 	return dto.MakeRefreshTokensOut(accessToken, refreshToken), nil
@@ -236,14 +237,6 @@ func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool
 	}
 
 	return wasDeleted, nil
-}
-
-// error wrapper
-// -----------------------------------------------------------------------
-
-func (a *AuthService) refreshTokensWithError(err error, side, code int) (dto.RefreshTokensOut, error) {
-	return dto.MakeRefreshTokensOutEmpty(),
-		utl.NewFuncError(a.RefreshTokens, ec.New(err, side, code))
 }
 
 // private
@@ -336,33 +329,27 @@ func (a *AuthService) updateHashRefreshToken(ctx context.Context,
 // -----------------------------------------------------------------------
 
 func (a *AuthService) identicalHashesForRefreshTokens(ctx context.Context,
-	userId uint64, refreshToken string) *ec.ErrorForClient {
+	userId uint64, refreshToken string) error {
 	sourceFunc := a.identicalHashesForRefreshTokens
 
 	currentHash, err := a.hashManager.NewFromString(refreshToken)
 	if err != nil {
-		return ec.NewErrorForClient(
-			utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.HashManagerError,
-		)
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.HashManagerError)
 	}
 
 	// there is no token for the deleted user!
 	storageHash, err := a.domainStorage.GetHashRefreshToken(ctx, userId)
 	if err != nil {
-		return ec.NewErrorForClient(
-			utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.DomainStorageError,
-		)
+		return ec.NewErrorForClient(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	// ***
 
 	if currentHash != storageHash { // client side...
-		return ec.NewErrorForClient(
-			ErrNotSameHashesForRefreshTokens,
-			ec.Client, ec.ValidateRefreshTokenFailed,
-		)
+		return ec.NewErrorForClient(ErrNotSameHashesForRefreshTokens,
+			ec.Client, ec.ValidateRefreshTokenFailed)
 	}
 	return nil
 }

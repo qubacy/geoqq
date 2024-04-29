@@ -12,15 +12,20 @@ import (
 
 type ImageService struct {
 	HasherAndStorages
+	addImageParams AddImageParams
 }
 
 func newImageService(deps Dependencies) *ImageService {
 	instance := &ImageService{
-		HasherAndStorages{
+		HasherAndStorages: HasherAndStorages{
+			enableCache: deps.EnableCache,
+			cache:       deps.Cache,
+
 			fileStorage:   deps.FileStorage,
 			domainStorage: deps.DomainStorage,
 			hashManager:   deps.HashManager,
 		},
+		addImageParams: deps.AddImageParams,
 	}
 
 	return instance
@@ -81,11 +86,22 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 	input dto.ImageForAddToUserInp) (uint64, error) {
 
-	imageId, err := s.addImageToUser(ctx,
-		input.Ext, input.Content, userId)
+	if err := s.assertAddImageNotBlockedForUser(ctx, userId); err != nil {
+		return 0, utl.NewFuncError(s.addImageToUser, err)
+	}
 
+	// ***
+
+	imageId, err := s.addImageToUser(ctx, input.Ext, input.Content, userId)
 	if err != nil {
 		return 0, utl.NewFuncError(s.AddImageToUser, err)
+	}
+
+	if s.enableCache {
+		if err := s.updateAddImageCache(ctx, userId); err != nil {
+			return 0, ec.New(utl.NewFuncError(s.AddImageToUser, err),
+				ec.Server, ec.CacheError)
+		}
 	}
 
 	return imageId, nil // Use for update user profile...

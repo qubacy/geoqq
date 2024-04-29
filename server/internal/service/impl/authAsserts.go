@@ -8,9 +8,6 @@ import (
 	utl "geoqq/pkg/utility"
 )
 
-// asserts
-// -----------------------------------------------------------------------
-
 // Returning a compound error!
 func (a *AuthService) assertUserByCredentialsExists(
 	ctx context.Context, input dto.SignInInp) error {
@@ -61,7 +58,7 @@ func (a *AuthService) assertSignInByNameNotBlocked(
 		return nil
 	}
 
-	loginBlocked, err := a.cache.Exists(ctx, signInByNameBlocked(username))
+	loginBlocked, err := a.cache.Exists(ctx, keySignInByNameBlocked(username))
 	if err != nil {
 		return ec.New(utl.NewFuncError(a.assertSignInByNameNotBlocked, err),
 			ec.Server, ec.CacheError)
@@ -80,7 +77,7 @@ func (a *AuthService) assertSignUpByIpAddrNotBlocked(
 		return nil
 	}
 
-	ipAddrBlocked, err := a.cache.Exists(ctx, signUpByIpAddrBlocked(ipAddr))
+	ipAddrBlocked, err := a.cache.Exists(ctx, keySignUpByIpAddrBlocked(ipAddr))
 	if err != nil {
 		return ec.New(utl.NewFuncError(a.assertSignUpByIpAddrNotBlocked, err),
 			ec.Server, ec.CacheError)

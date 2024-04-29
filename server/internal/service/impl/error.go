@@ -17,6 +17,7 @@ var (
 	ErrTargetUserDeleted              = errors.New("target user deleted")
 	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
 
+	ErrAddImageBlocked         = errors.New("add image blocked")
 	ErrImageNotFound           = errors.New("image not found")
 	ErrOneOrMoreImagesNotFound = errors.New("one or more images not found")
 	ErrUnknownImageExtension   = errors.New("unknown image extension")
@@ -54,4 +55,8 @@ func ErrSignUpByIpAddrBlocked(ipAddr string) error {
 
 func ErrIncorrectUsernameWithPattern(pattern string) error {
 	return fmt.Errorf("incorrect username. Pattern `%v`", pattern)
+}
+
+func ErrAddImageBlockedForUserWithId(userId uint64) error {
+	return fmt.Errorf("add image blocked for user with id `%v`", userId)
 }

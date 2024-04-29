@@ -159,6 +159,8 @@ const ( // Image
 
 	ImageNotFound
 	OneOrMoreImagesNotFound
+
+	AddImageBlockedForUser
 )
 
 const ( // Mate

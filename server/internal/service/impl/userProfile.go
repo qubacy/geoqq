@@ -17,6 +17,9 @@ type UserProfileService struct {
 func newUserProfileService(deps Dependencies) *UserProfileService {
 	instance := &UserProfileService{
 		HasherAndStorages{
+			enableCache: deps.EnableCache,
+			cache:       deps.Cache,
+
 			domainStorage: deps.DomainStorage,
 			fileStorage:   deps.FileStorage,
 			hashManager:   deps.HashManager,

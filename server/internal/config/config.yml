@@ -34,7 +34,11 @@ service:
       blocking_time: 30m # after registration!
 
   chat:
-    message_length: 1024
+    message_length: 1024 # TODO: !!!
+
+  image:
+    add:
+      blocking_time: 5m
 
 storage:
   hash_type: "sha1" # general parameter?
