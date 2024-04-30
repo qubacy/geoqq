@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -98,17 +99,21 @@ class UserDataRepository @Inject constructor(
         else resolveUsers(userIds.plus(localUserId))
     }
 
-    private suspend fun getLocalUserId(): Long {
-        mTokenDataRepository.getTokens() // todo: is it necessary to be placed here?
+    fun getLocalUserId(): Long {
+        var localUserId: Long? = null
 
-        val accessTokenPayload = mTokenDataRepository.getAccessTokenPayload()
-        val localUserIdClaim = accessTokenPayload[ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME]
+        runBlocking {
+            val accessTokenPayload = mTokenDataRepository.getAccessTokenPayload()
+            val localUserIdClaim = accessTokenPayload[ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME]
 
-        if (localUserIdClaim?.asLong() == null)
-            throw ErrorAppException(mErrorDataRepository.getError(
-                DataTokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
+            if (localUserIdClaim?.asLong() == null)
+                throw ErrorAppException(mErrorDataRepository.getError(
+                    DataTokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
 
-        return localUserIdClaim.asLong()!!
+            localUserId = localUserIdClaim.asLong()
+        }
+
+        return localUserId!!
     }
 
     private suspend fun resolveUserEntities(userEntities: List<UserEntity>): List<DataUser> {

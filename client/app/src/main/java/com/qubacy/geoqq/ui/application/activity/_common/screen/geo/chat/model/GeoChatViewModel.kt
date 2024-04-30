@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model
 
+import android.location.Location
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -22,6 +23,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MessageSentUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.AddGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
@@ -36,7 +38,7 @@ open class GeoChatViewModel @Inject constructor(
     mGeoChatUseCase: GeoChatUseCase
 ) : BusinessViewModel<GeoChatUiState, GeoChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mGeoChatUseCase
-) {
+), LocationViewModel {
     companion object {
         const val RADIUS_KEY = "radius"
         const val LONGITUDE_KEY = "longitude"
@@ -44,8 +46,8 @@ open class GeoChatViewModel @Inject constructor(
     }
 
     private var mRadius: Int? = null
-    private var mLongitude: Double? = null
-    private var mLatitude: Double? = null
+    private var mLongitude: Float? = null
+    private var mLatitude: Float? = null
 
     init {
         mRadius = mSavedStateHandle[RADIUS_KEY]
@@ -59,8 +61,8 @@ open class GeoChatViewModel @Inject constructor(
 
     open fun setLocationContext(
         radius: Int,
-        longitude: Double,
-        latitude: Double
+        longitude: Float,
+        latitude: Float
     ) {
         changeRadius(radius)
         changeLocation(longitude, latitude)
@@ -70,6 +72,16 @@ open class GeoChatViewModel @Inject constructor(
         return (mRadius != null && mLongitude != null && mLatitude != null)
     }
 
+    open fun getLocalUserId(): Long {
+        return mUseCase.getLocalUserId()
+    }
+
+    open fun isInterlocutorMate(userId: Long): Boolean {
+        val user = mUiState.messages.find { it.user.id == userId }!!.user
+
+        return user.isMate
+    }
+
     private fun changeRadius(radius: Int) {
         mRadius = radius
 
@@ -77,8 +89,8 @@ open class GeoChatViewModel @Inject constructor(
     }
 
     private fun changeLocation(
-        longitude: Double,
-        latitude: Double
+        longitude: Float,
+        latitude: Float
     ) {
         mLongitude = longitude
         mLatitude = latitude
@@ -107,7 +119,7 @@ open class GeoChatViewModel @Inject constructor(
         mUseCase.getInterlocutor(userId)
     }
 
-    open fun addUserAsMate(userId: Long) {
+    open fun addInterlocutorAsMate(userId: Long) {
         changeLoadingState(true)
         mUseCase.sendMateRequestToInterlocutor(userId)
     }
@@ -151,6 +163,8 @@ open class GeoChatViewModel @Inject constructor(
             return processErrorDomainResult(getGeoMessagesDomainResult.error!!)
 
         val geoMessages = getGeoMessagesDomainResult.messages!!.map { it.toGeoMessagePresentation() }
+
+        mUiState.messages.addAll(geoMessages)
 
         return AddGeoMessagesUiOperation(geoMessages)
     }
@@ -225,6 +239,10 @@ open class GeoChatViewModel @Inject constructor(
         mUiState.apply {
             messages.clear()
         }
+    }
+
+    override fun changeLastLocation(newLocation: Location) {
+        changeLocation(newLocation.longitude.toFloat(), newLocation.latitude.toFloat())
     }
 }
 

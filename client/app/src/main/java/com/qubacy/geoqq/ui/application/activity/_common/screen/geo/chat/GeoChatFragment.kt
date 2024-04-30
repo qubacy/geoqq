@@ -1,7 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat
 
 import android.graphics.Shader
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,18 +23,23 @@ import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.error.type.UiChatErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MessageSentUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListener
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common.error.type.UiGeoErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.GeoMessageListAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.GeoMessageListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.AddGeoMessagesUiOperation
@@ -46,6 +53,8 @@ class GeoChatFragment(
 
 ) : BusinessFragment<FragmentGeoChatBinding, GeoChatUiState, GeoChatViewModel>(),
     PermissionRunnerCallback,
+    LocationListenerCallback,
+    GeoMessageListAdapterCallback,
     UserBottomSheetViewContainerCallback,
     MateableFragment
 {
@@ -65,6 +74,9 @@ class GeoChatFragment(
 
     private lateinit var mAdapter: GeoMessageListAdapter
 
+    private lateinit var mPermissionRunner: PermissionRunner<GeoChatFragment>
+    private lateinit var mLocationListener: LocationListener
+
     private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
     private var mLastWindowInsets: WindowInsetsCompat? = null
 
@@ -72,8 +84,8 @@ class GeoChatFragment(
         super.onViewCreated(view, savedInstanceState)
 
         initLocationContext() // it's important to run BEFORE super.onStart() & onPermissionGranted();
-
-        runPermissionCheck<GeoChatFragment>()
+        initLocationListener()
+        initPermissionRunner()
 
         mSnackbarAnchorView = mBinding.fragmentGeoChatInputMessageWrapper
 
@@ -81,10 +93,27 @@ class GeoChatFragment(
         initUiControls()
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        if (!mPermissionRunner.isRequestingPermissions)
+            mLocationListener.startLocationListening(requireActivity())
+    }
+
     override fun onStop() {
         super.onStop()
 
         mInterlocutorDetailsSheet?.close()
+    }
+
+    private fun initLocationListener() {
+        mLocationListener = LocationListener(requireContext(), this)
+    }
+
+    private fun initPermissionRunner() {
+        mPermissionRunner = PermissionRunner(this).also {
+            it.requestPermissions(true)
+        }
     }
 
     override fun retrieveToolbar(): MaterialToolbar {
@@ -171,7 +200,7 @@ class GeoChatFragment(
     }
 
     private fun initMessageListView() {
-        mAdapter = GeoMessageListAdapter()
+        mAdapter = GeoMessageListAdapter(geoCallback = this)
 
         mBinding.fragmentGeoChatList.apply {
             layoutManager = LinearLayoutManager(
@@ -234,7 +263,9 @@ class GeoChatFragment(
     override fun getPermissionsToRequest(): Array<String> {
         return arrayOf(
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
         )
     }
 
@@ -255,47 +286,22 @@ class GeoChatFragment(
 
     private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
         setupInterlocutorDetailsSheet(interlocutor)
-
-        adjustMessageInputWithInterlocutor(interlocutor)
-        adjustTopBarMenuWithInterlocutor(interlocutor)
-    }
-
-    private fun adjustMessageInputWithInterlocutor(interlocutor: UserPresentation) {
-        val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
-
-        mBinding.fragmentGeoChatInputMessage.apply {
-            isEnabled = isInterlocutorChatable
-
-            if (!isInterlocutorChatable) clearFocus()
-        }
-    }
-
-    private fun adjustTopBarMenuWithInterlocutor(interlocutor: UserPresentation) {
-        val isChatDeletable = mModel.isChatDeletable()
-
-        mBinding.fragmentMateChatTopBar.menu.findItem(
-            R.id.mate_chat_top_bar_option_delete_chat
-        ).isVisible = isChatDeletable
     }
 
     override fun onMateButtonClicked(userId: Long) {
-        val isMate = mModel.isInterlocutorMate()
-
-        if (isMate) launchDeleteChat()
-        else launchAddInterlocutorAsMate(userId)
-
+        launchAddInterlocutorAsMate(userId)
         mInterlocutorDetailsSheet!!.close()
     }
 
     private fun launchAddInterlocutorAsMate(userId: Long) {
-        mModel.addUserAsMate(userId)
+        mModel.addInterlocutorAsMate(userId)
     }
 
     private fun launchSendingMessage() {
         val messageText = mBinding.fragmentGeoChatInputMessage.text.toString()
 
         if (!mModel.isMessageTextValid(messageText))
-            return mModel.retrieveError(UiMateChatErrorType.INVALID_MESSAGE)
+            return mModel.retrieveError(UiChatErrorType.INVALID_MESSAGE)
 
         mBinding.fragmentGeoChatInputMessage.text!!.clear()
 
@@ -306,8 +312,14 @@ class GeoChatFragment(
         return mInterlocutorDetailsSheet
     }
 
-    override fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean {
-        return mModel.isInterlocutorMateableOrDeletable(interlocutor)
+    override fun isInterlocutorDetailsMateButtonEnabled(
+        interlocutor: UserPresentation
+    ): Boolean {
+        return !interlocutor.isMate
+    }
+
+    override fun isInterlocutorDetailsMateButtonVisible(interlocutor: UserPresentation): Boolean {
+        return !interlocutor.isMate
     }
 
     override fun initInterlocutorDetailsSheet() {
@@ -340,5 +352,25 @@ class GeoChatFragment(
     private fun changeLoadingIndicatorState(isVisible: Boolean) {
         mBinding.fragmentGeoChatProgressBar.visibility =
             if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun onGeoMessageClicked(position: Int) {
+        mModel.getUserProfileByMessagePosition(position)
+    }
+
+    override fun onNewLocationGotten(location: Location?) {
+        if (location == null) return
+
+        Log.d(TAG, "onNewLocationGotten(): location = ${location.latitude}:${location.longitude};")
+
+        mModel.changeLastLocation(location)
+    }
+
+    override fun onLocationServicesNotEnabled() {
+        mModel.retrieveError(UiGeoErrorType.LOCATION_SERVICES_UNAVAILABLE)
+    }
+
+    override fun onRequestingLocationUpdatesFailed(exception: Exception) {
+        mModel.retrieveError(UiGeoErrorType.LOCATION_REQUEST_FAILED)
     }
 }

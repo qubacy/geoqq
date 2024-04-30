@@ -25,7 +25,7 @@
         android:id="@+id/fragment_geo_chat_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/fragment_mate_chat_top_bar_wrapper"
+        app:layout_anchor="@id/fragment_geo_chat_top_bar_wrapper"
         app:layout_anchorGravity="bottom"
         android:indeterminate="true"
         android:visibility="gone"/>

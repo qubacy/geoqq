@@ -6,7 +6,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.componen
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.item.data.GeoMessageItemData
 
 class GeoMessageListAdapter(
-    itemViewProducer: GeoMessageItemViewProducer = GeoMessageItemViewProducer()
+    itemViewProducer: GeoMessageItemViewProducer = GeoMessageItemViewProducer(),
+    geoCallback: GeoMessageListAdapterCallback
 ) : MessageListAdapter<GeoMessageItemData, GeoMessageItemView>(
     itemViewProducer
 ) {
@@ -20,6 +21,16 @@ class GeoMessageListAdapter(
             super.setData(data)
 
             baseItemViewProvider.setOnClickListener { onClickAction(adapterPosition) }
+        }
+    }
+
+    private val mGeoCallback: GeoMessageListAdapterCallback = geoCallback
+
+    override fun createViewHolder(
+        itemView: GeoMessageItemView
+    ): MessageListAdapter.ViewHolder<GeoMessageItemData, GeoMessageItemView> {
+        return ViewHolder(itemView) {
+            mGeoCallback.onGeoMessageClicked(it)
         }
     }
 }

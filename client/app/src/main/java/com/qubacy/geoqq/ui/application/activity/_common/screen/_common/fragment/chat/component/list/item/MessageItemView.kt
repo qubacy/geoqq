@@ -93,7 +93,7 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
     override fun setData(data: MessageItemDataType) {
         if (data.text != null) setText(data.text)
 
-        mBinding.componentMateMessageTimestamp.text = data.timestamp
+        mBinding.componentMessageTextTimestamp.text = data.timestamp
 
         changeLayoutBySenderSide(data.senderSide)
     }
@@ -106,16 +106,20 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
     }
 
     private fun initTextView(): MaterialTextView {
-        val textView = mBinding.componentMateMessageTextStub.inflate()
+        val textView = mBinding.componentMessageTextStub.inflate() as MaterialTextView
 
-        mBinding.componentMateMessageTimestamp.updateLayoutParams {
+        initTextViewLayoutParams(textView)
+
+        return textView
+    }
+
+    protected open fun initTextViewLayoutParams(textView: MaterialTextView) {
+        mBinding.componentMessageTextTimestamp.updateLayoutParams {
             this as ConstraintLayout.LayoutParams
 
             this.topToTop = ConstraintLayout.LayoutParams.UNSET
             this.topToBottom = textView.id
         }
-
-        return textView as MaterialTextView
     }
 
     private fun changeLayoutBySenderSide(senderSide: SenderSide) {
@@ -124,7 +128,7 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
     }
 
     private fun changeLayoutConstraintsBySenderSide(senderSide: SenderSide) {
-        mBinding.componentMateMessageContentWrapper.updateLayoutParams {
+        mBinding.componentMessageContentWrapper.updateLayoutParams {
             this as LayoutParams
 
             this.gravity = when (senderSide) {
@@ -149,7 +153,7 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
             }
         }
 
-        mBinding.componentMateMessageContentWrapper.apply {
+        mBinding.componentMessageContentWrapper.apply {
             background = backgroundDrawable
             backgroundTintList = ColorStateList.valueOf(backgroundTint)
         }
@@ -164,7 +168,7 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
     private fun setMinWidth() {
         val parentWidth = (parent as ViewGroup).measuredWidth
 
-        mBinding.componentMateMessageContentWrapper.updateLayoutParams {
+        mBinding.componentMessageContentWrapper.updateLayoutParams {
             this as LayoutParams
 
             this.width = getMinWidthByParentWidth(parentWidth)
@@ -177,7 +181,7 @@ open class MessageItemView<MessageItemDataType : MessageItemData>(
     }
 
     fun getContentWrapper(): ConstraintLayout {
-        return mBinding.componentMateMessageContentWrapper
+        return mBinding.componentMessageContentWrapper
     }
 
     override fun getView(): View {

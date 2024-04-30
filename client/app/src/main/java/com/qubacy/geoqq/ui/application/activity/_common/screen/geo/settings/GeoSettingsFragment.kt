@@ -159,6 +159,10 @@ class GeoSettingsFragment(
     private fun initUiControls() {
         initTopBarMenu()
         initMapView()
+
+        mBinding.fragmentGeoSettingsButtonGo.setOnClickListener {
+            navigateToGeoChat()
+        }
     }
 
     private fun initTopBarMenu() {
@@ -185,6 +189,11 @@ class GeoSettingsFragment(
     private fun navigateToMyProfile() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_geoSettingsFragment_to_myProfileFragment)
+    }
+
+    private fun navigateToGeoChat() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_geoSettingsFragment_to_geoChatFragment)
     }
 
     private fun showHint() {

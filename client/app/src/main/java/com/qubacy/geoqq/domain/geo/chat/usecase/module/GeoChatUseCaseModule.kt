@@ -2,6 +2,7 @@ package com.qubacy.geoqq.domain.geo.chat.usecase.module
 
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
+import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
@@ -18,13 +19,15 @@ class GeoChatUseCaseModule {
         errorDataRepository: ErrorDataRepository,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
-        geoMessageDataRepository: GeoMessageDataRepository
+        geoMessageDataRepository: GeoMessageDataRepository,
+        userDataRepository: UserDataRepository
     ): GeoChatUseCase {
         return GeoChatUseCase(
             errorDataRepository,
             mateRequestUseCase,
             interlocutorUseCase,
-            geoMessageDataRepository
+            geoMessageDataRepository,
+            userDataRepository
         )
     }
 }

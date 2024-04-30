@@ -10,7 +10,7 @@ enum class ErrorDomain(
     DATA_IMAGE_LOCAL(ErrorDomainType.LOCAL),
     UI_LOGIN(ErrorDomainType.LOCAL),
     UI_MY_PROFILE(ErrorDomainType.LOCAL),
-    UI_MATE_CHAT(ErrorDomainType.LOCAL),
+    UI_CHAT(ErrorDomainType.LOCAL),
     UI_GEO(ErrorDomainType.LOCAL),
 
     GENERAL(ErrorDomainType.SHARED), // 1200

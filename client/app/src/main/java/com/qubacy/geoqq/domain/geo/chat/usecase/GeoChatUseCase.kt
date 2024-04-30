@@ -4,6 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataResult
+import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
@@ -20,7 +21,8 @@ class GeoChatUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
-    private val mGeoMessageDataRepository: GeoMessageDataRepository
+    private val mGeoMessageDataRepository: GeoMessageDataRepository,
+    private val mUserDataRepository: UserDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
@@ -30,8 +32,8 @@ class GeoChatUseCase @Inject constructor(
 
     fun getMessages(
         radius: Int,
-        longitude: Double,
-        latitude: Double
+        longitude: Float,
+        latitude: Float
     ) {
         executeLogic({
             val getMessagesResult = mGeoMessageDataRepository
@@ -44,6 +46,10 @@ class GeoChatUseCase @Inject constructor(
         }) {
             GetGeoMessagesDomainResult(error = it)
         }
+    }
+
+    fun getLocalUserId(): Long {
+        return mUserDataRepository.getLocalUserId()
     }
 
     fun getInterlocutor(interlocutorId: Long) {

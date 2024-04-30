@@ -12,7 +12,7 @@ class MessageItemAnimator : BaseRecyclerViewItemAnimator() {
     override fun prepareHolderForAddAnimation(holder: RecyclerView.ViewHolder) {
         super.prepareHolderForAddAnimation(holder)
 
-        if (holder !is MessageListAdapter.ViewHolder) return
+        if (holder !is MessageListAdapter.ViewHolder<*, *>) return
 
         val messageItemView = holder.baseItemViewProvider
         val itemContentWrapperGravity = getViewHolderViewGravity(holder)
@@ -36,7 +36,7 @@ class MessageItemAnimator : BaseRecyclerViewItemAnimator() {
         view.translationX = 0f
     }
 
-    private fun getViewHolderViewGravity(holder: MessageListAdapter.ViewHolder): Int {
+    private fun getViewHolderViewGravity(holder: MessageListAdapter.ViewHolder<*, *>): Int {
         val mateMessageItemView = holder.baseItemViewProvider
         val itemContentWrapperLayoutParams = mateMessageItemView.getContentWrapper().layoutParams
 

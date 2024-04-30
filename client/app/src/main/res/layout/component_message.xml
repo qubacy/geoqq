@@ -5,13 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/component_mate_message_content_wrapper"
+        android:id="@+id/component_message_content_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <ViewStub
-            android:id="@+id/component_mate_message_text_stub"
-            android:inflatedId="@+id/component_mate_message_text"
+            android:id="@+id/component_message_text_stub"
+            android:inflatedId="@+id/component_message_text_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
@@ -19,7 +19,7 @@
             android:layout="@layout/component_message_text"/>
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/component_mate_message_timestamp"
+            android:id="@+id/component_message_text_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"

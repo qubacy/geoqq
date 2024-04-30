@@ -26,8 +26,8 @@ class GeoMessageDataRepository @Inject constructor(
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope), MessageDataRepository {
     suspend fun getMessages(
         radius: Int,
-        longitude: Double,
-        latitude: Double
+        longitude: Float,
+        latitude: Float
     ): GetGeoMessagesDataResult {
         val accessToken = mTokenDataRepository.getTokens().accessToken
 
