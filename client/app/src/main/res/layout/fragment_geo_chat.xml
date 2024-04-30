@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/fragment_geo_chat_top_bar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/fragment_geo_chat_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:title="@string/fragment_geo_chat_top_bar_title_text"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/fragment_geo_chat_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/fragment_mate_chat_top_bar_wrapper"
+        app:layout_anchorGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+    <com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
+        android:id="@+id/fragment_geo_chat_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:padding="@dimen/small_gap_between_components"
+        android:clipToPadding="false"
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="3"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_geo_chat_input_message_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox.NoLine"
+        android:hint="@string/fragment_mate_chat_input_message_hint_text_chatable">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fragment_geo_chat_input_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.TextInputEditText.FilledBox" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

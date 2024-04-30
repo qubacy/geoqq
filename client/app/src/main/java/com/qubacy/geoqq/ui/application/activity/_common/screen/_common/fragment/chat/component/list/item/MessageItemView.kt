@@ -16,16 +16,16 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import com.google.android.material.textview.MaterialTextView
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.databinding.ComponentMateMessageBinding
+import com.qubacy.geoqq.databinding.ComponentMessageBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.MessageItemData
 import com.qubacy.utility.baserecyclerview.item.BaseRecyclerViewItemViewProvider
 
-open class MessageItemView(
+open class MessageItemView<MessageItemDataType : MessageItemData>(
     context: Context,
     attrs: AttributeSet? = null
-) : LinearLayout(context, attrs), BaseRecyclerViewItemViewProvider<MessageItemData> {
+) : LinearLayout(context, attrs), BaseRecyclerViewItemViewProvider<MessageItemDataType> {
     companion object {
         const val TAG = "MessageItemView"
 
@@ -49,16 +49,18 @@ open class MessageItemView(
 
     private var mVerticalPadding: Int = 0
 
-    private lateinit var mBinding: ComponentMateMessageBinding
-    private var mTextView: MaterialTextView? = null
+    protected open lateinit var mBinding: ComponentMessageBinding
+    protected var mTextView: MaterialTextView? = null
 
     init {
+        val layoutInflater = LayoutInflater.from(context)
+
         loadVariables(context)
-        inflate()
+        inflate(layoutInflater)
         initAttrs(attrs)
     }
 
-    private fun loadVariables(context: Context) {
+    protected open fun loadVariables(context: Context) {
         mBackgroundRight = AppCompatResources.getDrawable(context, BACKGROUND_DRAWABLE_RIGHT_RES_ID)!!
         mBackgroundLeft = AppCompatResources.getDrawable(context, BACKGROUND_DRAWABLE_LEFT_RES_ID)!!
 
@@ -70,17 +72,15 @@ open class MessageItemView(
         mVerticalPadding = context.resources.getDimension(VERTICAL_PADDING_DIMEN_ID).toInt()
     }
 
-    private fun inflate() {
-        val layoutInflater = LayoutInflater.from(context)
-
-        mBinding = ComponentMateMessageBinding.inflate(layoutInflater, this)
+    protected open fun inflate(layoutInflater: LayoutInflater) {
+        mBinding = ComponentMessageBinding.inflate(layoutInflater, this)
     }
 
     private fun initAttrs(attrs: AttributeSet?) {
         initLayoutAttrs()
     }
 
-    private fun initLayoutAttrs() {
+    protected open fun initLayoutAttrs() {
         layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
@@ -90,7 +90,7 @@ open class MessageItemView(
         updatePadding(top = mVerticalPadding, bottom = mVerticalPadding)
     }
 
-    override fun setData(data: MessageItemData) {
+    override fun setData(data: MessageItemDataType) {
         if (data.text != null) setText(data.text)
 
         mBinding.componentMateMessageTimestamp.text = data.timestamp

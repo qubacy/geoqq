@@ -46,7 +46,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -84,7 +83,7 @@ class MateChatFragment(
 
         initChatContext() // it's important to run BEFORE super.onStart() & onPermissionGranted();
 
-        runPermissionCheck<MateChatsFragment>()
+        runPermissionCheck<MateChatFragment>()
 
         mSnackbarAnchorView = mBinding.fragmentMateInputMessageWrapper
 

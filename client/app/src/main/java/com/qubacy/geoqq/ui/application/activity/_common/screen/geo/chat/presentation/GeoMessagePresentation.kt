@@ -9,6 +9,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.item.data.GeoMessageItemData
 import java.util.Locale
 import java.util.TimeZone
 
@@ -59,8 +60,8 @@ fun GeoMessage.toGeoMessagePresentation(): GeoMessagePresentation {
     return GeoMessagePresentation(id, user.toUserPresentation(), text, timestamp)
 }
 
-fun GeoMessagePresentation.toGeoMessageItemData(remoteUserId: Long): MessageItemData {
-    val senderSide = if (remoteUserId == user.id) SenderSide.OTHER else SenderSide.ME
+fun GeoMessagePresentation.toGeoMessageItemData(localUserId: Long): GeoMessageItemData {
+    val senderSide = if (localUserId == user.id) SenderSide.ME else SenderSide.OTHER
 
-    return MessageItemData(id, senderSide, text, timestamp)
+    return GeoMessageItemData(id, senderSide, text, timestamp, user.username)
 }

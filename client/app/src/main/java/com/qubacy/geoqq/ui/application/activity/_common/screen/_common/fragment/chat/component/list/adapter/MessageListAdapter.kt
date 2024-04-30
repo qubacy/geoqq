@@ -8,19 +8,25 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.utility.baserecyclerview.adapter.BaseRecyclerViewAdapter
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerView
 
-open class MessageListAdapter(
-    itemViewProducer: MessageItemViewProducer = MessageItemViewProducer()
+open class MessageListAdapter<
+    MessageItemDataType : MessageItemData,
+    MessageItemViewType : MessageItemView<MessageItemDataType>
+>(
+    itemViewProducer: MessageItemViewProducer<MessageItemDataType, MessageItemViewType>
 ) : BaseRecyclerViewAdapter<
-    MessageItemData,
-    MessageItemView,
-    MessageItemViewProducer,
-    MessageListAdapter.ViewHolder
+    MessageItemDataType,
+    MessageItemViewType,
+    MessageItemViewProducer<MessageItemDataType, MessageItemViewType>,
+    MessageListAdapter.ViewHolder<MessageItemDataType, MessageItemViewType>
 >(
     itemViewProducer
 ) {
-    open class ViewHolder(
-        baseItemView: MessageItemView
-    ) : BaseRecyclerViewAdapter.ViewHolder<MessageItemData, MessageItemView>(
+    open class ViewHolder<
+        MessageItemDataType : MessageItemData,
+        MessageItemViewType : MessageItemView<MessageItemDataType>
+    >(
+        baseItemView: MessageItemViewType
+    ) : BaseRecyclerViewAdapter.ViewHolder<MessageItemDataType, MessageItemViewType>(
         baseItemView
     ) {
 
@@ -34,12 +40,14 @@ open class MessageListAdapter(
         mRecyclerView = recyclerView as BaseRecyclerView
     }
 
-    override fun createViewHolder(itemView: MessageItemView): ViewHolder {
+    override fun createViewHolder(
+        itemView: MessageItemViewType
+    ): ViewHolder<MessageItemDataType, MessageItemViewType> {
         return ViewHolder(itemView)
     }
 
     @UiThread
-    open fun setMessages(messages: List<MessageItemData>) {
+    open fun setMessages(messages: List<MessageItemDataType>) {
         resetItems()
 
         mItems.addAll(messages)
@@ -48,7 +56,7 @@ open class MessageListAdapter(
     }
 
     @UiThread
-    open fun addMessages(messages: List<MessageItemData>) {
+    open fun addMessages(messages: List<MessageItemDataType>) {
         mItems.addAll(messages)
 
         wrappedNotifyItemRangeInserted(0, messages.size)

@@ -66,6 +66,10 @@ open class GeoChatViewModel @Inject constructor(
         changeLocation(longitude, latitude)
     }
 
+    open fun isLocationContextSet(): Boolean {
+        return (mRadius != null && mLongitude != null && mLatitude != null)
+    }
+
     private fun changeRadius(radius: Int) {
         mRadius = radius
 
@@ -87,6 +91,10 @@ open class GeoChatViewModel @Inject constructor(
         changeLoadingState(true)
 
         mUseCase.getMessages(mRadius!!, mLongitude!!, mLatitude!!)
+    }
+
+    open fun areMessagesLoaded(): Boolean {
+        return mUiState.messages.isNotEmpty()
     }
 
     open fun isMessageTextValid(text: String): Boolean {
