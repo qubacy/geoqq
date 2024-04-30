@@ -4,6 +4,7 @@ import android.graphics.Shader
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -223,7 +224,19 @@ class GeoChatFragment(
 
     private fun initUiControls() {
         // todo: implement..
+        mBinding.fragmentGeoChatInputMessage.setOnKeyListener { _, keyCode, event ->
+            onMessageInputKeyPressed(keyCode, event)
+        }
+    }
 
+    private fun onMessageInputKeyPressed(keyCode: Int, keyEvent: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
+            launchSendingMessage()
+
+            return true
+        }
+
+        return false
     }
 
     override fun viewInsetsToCatch(): Int {

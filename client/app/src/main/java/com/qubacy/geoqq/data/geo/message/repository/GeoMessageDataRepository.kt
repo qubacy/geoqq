@@ -7,6 +7,7 @@ import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepositor
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoChatDataSource
+import com.qubacy.geoqq.data.geo.message.repository.source.http.request.SendMessageRequest
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -42,10 +43,19 @@ class GeoMessageDataRepository @Inject constructor(
 
     suspend fun sendMessage(
         text: String,
-        longitude: Double,
-        latitude: Double // todo: is it enough?
+        radius: Int,
+        longitude: Float,
+        latitude: Float
     ) {
         // todo: implement using the websocket data source;
 
+
+        // todo: delete (for debug only!):
+        val accessToken = mTokenDataRepository.getTokens().accessToken
+
+        val sendMessageRequest = SendMessageRequest(accessToken, text, radius, longitude, latitude)
+        val sendMessageCall = mHttpGeoChatDataSource.sendMessage(sendMessageRequest)
+
+        mHttpCallExecutor.executeNetworkRequest(sendMessageCall)
     }
 }

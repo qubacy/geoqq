@@ -140,9 +140,14 @@ class GeoSettingsFragment(
     override fun runInitWithUiState(uiState: GeoSettingsUiState) {
         super.runInitWithUiState(uiState)
 
-        uiState.lastLocationPoint?.let { adjustMapWithLocationPoint(it) }
+        uiState.lastLocationPoint?.let { adjustUiWithLocationPoint(it) }
 
         adjustUiWithRadius(uiState.radius)
+    }
+
+    private fun adjustUiWithLocationPoint(locationPoint: Point) {
+        adjustMapWithLocationPoint(locationPoint)
+        adjustGoButtonWithLocationPoint(locationPoint)
     }
 
     private fun adjustUiWithRadius(radius: Int) {
@@ -192,8 +197,15 @@ class GeoSettingsFragment(
     }
 
     private fun navigateToGeoChat() {
-        Navigation.findNavController(requireView())
-            .navigate(R.id.action_geoSettingsFragment_to_geoChatFragment)
+        val uiState = mModel.uiState
+        val radius = uiState.radius
+        val latitude = uiState.lastLocationPoint!!.latitude.toFloat()
+        val longitude = uiState.lastLocationPoint!!.longitude.toFloat()
+
+        val action = GeoSettingsFragmentDirections
+            .actionGeoSettingsFragmentToGeoChatFragment(radius, latitude, longitude)
+
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
     private fun showHint() {
@@ -326,11 +338,17 @@ class GeoSettingsFragment(
     override fun processLocationPointChangedUiOperation(
         locationPointChangedUiOperation: LocationPointChangedUiOperation
     ) {
-        adjustMapWithLocationPoint(locationPointChangedUiOperation.locationPoint)
+        adjustUiWithLocationPoint(locationPointChangedUiOperation.locationPoint)
     }
 
     private fun adjustMapWithLocationPoint(locationPoint: Point) {
         setRadiusCircleWithLocationPoint(locationPoint)
+    }
+
+    private fun adjustGoButtonWithLocationPoint(locationPoint: Point) {
+        // todo: like this for now:
+        if (!mBinding.fragmentGeoSettingsButtonGo.isEnabled)
+            mBinding.fragmentGeoSettingsButtonGo.isEnabled = true
     }
 
     private fun setRadiusCircleWithLocationPoint(locationPoint: Point) {

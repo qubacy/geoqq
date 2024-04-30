@@ -10,6 +10,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase.result.send.SendGeoMessageDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,21 @@ class GeoChatUseCase @Inject constructor(
 
         }) {
             GetGeoMessagesDomainResult(error = it)
+        }
+    }
+
+    fun sendMessage(
+        text: String,
+        radius: Int,
+        latitude: Float,
+        longitude: Float
+    ) {
+        executeLogic({
+            mGeoMessageDataRepository.sendMessage(text, radius, longitude, latitude)
+
+            mResultFlow.emit(SendGeoMessageDomainResult())
+        }) {
+            SendGeoMessageDomainResult(error = it)
         }
     }
 

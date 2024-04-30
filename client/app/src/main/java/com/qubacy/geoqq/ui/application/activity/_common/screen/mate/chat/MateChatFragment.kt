@@ -250,21 +250,20 @@ class MateChatFragment(
         mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
-        // todo: delete:
         mBinding.fragmentMateInputMessage.setOnKeyListener { _, keyCode, event ->
             onMessageInputKeyPressed(keyCode, event)
         }
     }
 
     private fun onMessageInputKeyPressed(keyCode: Int, keyEvent: KeyEvent): Boolean {
-    if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
-        launchSendingMessage()
+        if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
+            launchSendingMessage()
 
-        return true
+            return true
+        }
+
+        return false
     }
-
-    return false
-}
 
     private fun setMenuEnabled(isEnabled: Boolean) {
         mBinding.fragmentMateChatTopBar.isEnabled = isEnabled

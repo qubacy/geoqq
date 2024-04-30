@@ -76,12 +76,6 @@ open class GeoChatViewModel @Inject constructor(
         return mUseCase.getLocalUserId()
     }
 
-    open fun isInterlocutorMate(userId: Long): Boolean {
-        val user = mUiState.messages.find { it.user.id == userId }!!.user
-
-        return user.isMate
-    }
-
     private fun changeRadius(radius: Int) {
         mRadius = radius
 
@@ -127,8 +121,7 @@ open class GeoChatViewModel @Inject constructor(
     open fun sendMessage(text: String) {
         changeLoadingState(true)
 
-        // todo: implement..
-
+        mUseCase.sendMessage(text, mRadius!!, mLatitude!!, mLongitude!!)
     }
 
     override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
