@@ -91,7 +91,11 @@
             app:popExitAnim="@anim/slide_out_top"/>
         <action
             android:id="@+id/action_geoSettingsFragment_to_geoChatFragment"
-            app:destination="@id/geoChatFragment" />
+            app:destination="@id/geoChatFragment"
+            app:enterAnim="@anim/slide_in_right_zoom_in"
+            app:exitAnim="@anim/slide_out_left_zoom_in"
+            app:popEnterAnim="@anim/slide_in_left_zoom_out"
+            app:popExitAnim="@anim/slide_out_right_zoom_out" />
     </fragment>
     <fragment
         android:id="@+id/geoChatFragment"

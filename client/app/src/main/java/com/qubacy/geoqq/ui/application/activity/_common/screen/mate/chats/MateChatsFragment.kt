@@ -115,7 +115,8 @@ class MateChatsFragment(
     override fun onStart() {
         super.onStart()
 
-        if (!mPermissionRunner.isRequestingPermissions) initMateChats()
+        if (!mPermissionRunner.isRequestingPermissions || mPermissionRunner.arePermissionsGranted)
+            initMateChats()
     }
 
     private fun onTopBarMenuItemClicked(menuItem: MenuItem): Boolean {
@@ -146,7 +147,7 @@ class MateChatsFragment(
         mAdapter.setMateChats(chatsItemData)
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+    override fun onRequestedPermissionsGranted() {
         initMateChats()
     }
 

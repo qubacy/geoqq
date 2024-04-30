@@ -111,7 +111,7 @@ class GeoSettingsFragment(
         MapKitFactory.getInstance().onStart()
         mBinding.fragmentGeoSettingsMap.onStart()
 
-        if (!mPermissionRunner.isRequestingPermissions)
+        if (!mPermissionRunner.isRequestingPermissions || mPermissionRunner.arePermissionsGranted)
             mLocationListener.startLocationListening(requireActivity())
     }
 
@@ -274,7 +274,7 @@ class GeoSettingsFragment(
         )
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+    override fun onRequestedPermissionsGranted() {
         mLocationListener.startLocationListening(requireActivity())
     }
 

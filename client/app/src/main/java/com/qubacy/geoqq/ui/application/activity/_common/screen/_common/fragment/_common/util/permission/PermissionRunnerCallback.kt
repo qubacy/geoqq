@@ -4,6 +4,6 @@ interface PermissionRunnerCallback {
     fun getPermissionsToRequest(): Array<String>?
 
     fun onPermissionsRequested() {  }
-    fun onRequestedPermissionsGranted(endAction: (() -> Unit)? = null) { }
+    fun onRequestedPermissionsGranted() { }
     fun onRequestedPermissionsDenied(deniedPermissions: List<String>) { }
 }

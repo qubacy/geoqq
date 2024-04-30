@@ -329,7 +329,7 @@ class MateChatFragment(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+    override fun onRequestedPermissionsGranted() {
         initMateChat()
     }
 

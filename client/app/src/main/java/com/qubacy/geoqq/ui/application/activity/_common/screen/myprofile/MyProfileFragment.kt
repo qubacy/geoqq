@@ -113,7 +113,7 @@ class MyProfileFragment(
         }
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+    override fun onRequestedPermissionsGranted() {
         initMyProfile()
     }
 

@@ -15,12 +15,17 @@ class PermissionRunner<FragmentType> (
     private var mIsRequestingPermissions: Boolean = false
     val isRequestingPermissions get() = mIsRequestingPermissions
 
+    private var mArePermissionsGranted: Boolean = false
+    val arePermissionsGranted get() = mArePermissionsGranted
+
     fun requestPermissions(demandAll: Boolean = true) {
         if (fragment.getPermissionsToRequest() == null) return
 
         when {
             checkPermissions(demandAll) -> {
-                fragment.onRequestedPermissionsGranted { fragment.onPermissionsRequested() }
+                processPermissionsGranted {
+                    fragment.onPermissionsRequested()
+                }
             }
             else -> {
                 mIsRequestingPermissions = true
@@ -84,14 +89,22 @@ class PermissionRunner<FragmentType> (
                 if (deniedPermissions.isNotEmpty())
                     fragment.onRequestedPermissionsDenied(deniedPermissions)
                 else
-                    fragment.onRequestedPermissionsGranted(endAction)
+                    processPermissionsGranted(endAction)
 
             } else {
                 if (deniedPermissions.size == permissionsToRequest.size)
                     fragment.onRequestedPermissionsDenied(deniedPermissions)
                 else
-                    fragment.onRequestedPermissionsGranted(endAction)
+                    processPermissionsGranted(endAction)
             }
         }
+    }
+
+    private fun processPermissionsGranted(endAction: (() -> Unit)?) {
+        mArePermissionsGranted = true
+
+        endAction?.invoke()
+
+        fragment.onRequestedPermissionsGranted()
     }
 }

@@ -98,7 +98,8 @@ class MateRequestsFragment(
     override fun onStart() {
         super.onStart()
 
-        if (!mPermissionRunner.isRequestingPermissions) initMateRequests()
+        if (!mPermissionRunner.isRequestingPermissions || mPermissionRunner.arePermissionsGranted)
+            initMateRequests()
     }
 
     override fun onStop() {
@@ -164,7 +165,7 @@ class MateRequestsFragment(
         }
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
+    override fun onRequestedPermissionsGranted() {
         initMateRequests()
     }
 

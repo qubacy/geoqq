@@ -96,7 +96,7 @@ class GeoChatFragment(
     override fun onStart() {
         super.onStart()
 
-        if (!mPermissionRunner.isRequestingPermissions)
+        if (!mPermissionRunner.isRequestingPermissions || mPermissionRunner.arePermissionsGranted)
             mLocationListener.startLocationListening(requireActivity())
     }
 
@@ -269,11 +269,13 @@ class GeoChatFragment(
         )
     }
 
-    override fun onRequestedPermissionsGranted(endAction: (() -> Unit)?) {
-        initMateChat()
+    override fun onRequestedPermissionsGranted() {
+        mLocationListener.startLocationListening(requireActivity())
+
+        initGeoChat()
     }
 
-    private fun initMateChat() {
+    private fun initGeoChat() {
         if (mModel.areMessagesLoaded()) resetMessages()
 
         mModel.getMessages()

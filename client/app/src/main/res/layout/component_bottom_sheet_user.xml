@@ -8,6 +8,7 @@
     android:layout_width="match_parent"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:behavior_hideable="true"
+    app:paddingBottomSystemWindowInsets="false"
     style="@style/Widget.Material3.BottomSheet"
     android:paddingHorizontal="@dimen/medium_gap_between_components"
     app:layoutDescription="@xml/component_bottom_sheet_user_scene">
