@@ -6,8 +6,6 @@ import (
 )
 
 var (
-	ErrSomeParametersAreMissing = errors.New("some parameters are missing")
-
 	ErrEmptyRequestParameter = errors.New("empty request parameter") // uri, x-www-form-urlencoded
 	ErrEmptyBodyParameter    = errors.New("empty body parameter")    // body
 	ErrEmptyAccessToken      = errors.New("empty access token")

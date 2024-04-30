@@ -42,8 +42,11 @@ service:
       max_message_count_returned: 100 
 
   image:
+    cache_ttl: 10m
+
     add:
       blocking_time: 5m
+
 
 storage:
   hash_type: "sha1" # general parameter?

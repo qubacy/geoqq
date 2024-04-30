@@ -40,6 +40,8 @@ var (
 
 	ErrWrongLongitude = errors.New("wrong longitude")
 	ErrWrongLatitude  = errors.New("wrong latitude")
+
+	ErrInputParameterIsNil = errors.New("input parameter is nil")
 )
 
 // with params
@@ -63,4 +65,8 @@ func ErrAddImageBlockedForUserWithId(userId uint64) error {
 
 func ErrMessageTooLong(maxMsgLength uint64) error {
 	return fmt.Errorf("message is too long. Max length: %v", maxMsgLength)
+}
+
+func ErrImageWithIdNotInCache(id uint64) error {
+	return fmt.Errorf("image %v is not in cache", id)
 }

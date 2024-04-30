@@ -33,6 +33,11 @@ type SignUpParams struct {
 	BlockingTime time.Duration
 }
 
+type ImageParams struct {
+	CacheTtl       time.Duration
+	AddImageParams AddImageParams
+}
+
 type AddImageParams struct {
 	BlockingTime time.Duration
 }
@@ -62,10 +67,10 @@ type Dependencies struct {
 
 	GeoDistCalculator geoDistance.Calculator
 
-	GeneralParams  GeneralParams
-	AuthParams     AuthParams
-	AddImageParams AddImageParams
-	ChatParams     ChatParams
+	GeneralParams GeneralParams
+	AuthParams    AuthParams
+	ImageParams   ImageParams
+	ChatParams    ChatParams
 }
 
 // -----------------------------------------------------------------------

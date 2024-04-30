@@ -293,8 +293,11 @@ func servicesInstance(
 			PasswordPattern: viper.GetString("service.auth.password_pattern"),
 		},
 
-		AddImageParams: serviceImpl.AddImageParams{
-			BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
+		ImageParams: serviceImpl.ImageParams{
+			CacheTtl: viper.GetDuration("service.image.cache_ttl"),
+			AddImageParams: serviceImpl.AddImageParams{
+				BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
+			},
 		},
 
 		ChatParams: serviceImpl.ChatParams{

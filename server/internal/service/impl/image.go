@@ -7,12 +7,13 @@ import (
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
 	"geoqq/pkg/file"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
 )
 
 type ImageService struct {
 	HasherAndStorages
-	addImageParams AddImageParams
+	ImageParams ImageParams
 }
 
 func newImageService(deps Dependencies) *ImageService {
@@ -25,7 +26,7 @@ func newImageService(deps Dependencies) *ImageService {
 			domainStorage: deps.DomainStorage,
 			hashManager:   deps.HashManager,
 		},
-		addImageParams: deps.AddImageParams,
+		ImageParams: deps.ImageParams,
 	}
 
 	return instance
@@ -37,30 +38,64 @@ func newImageService(deps Dependencies) *ImageService {
 func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
 	*file.Image, error,
 ) {
+	/*
+		Action List:
+			1. Attempt to read from cache (if ok return immediately).
+			2. Check if the image is in the domain storage.
+			3. Load image from file storage (if domain ok, then file ok?).
+			4. Save the image to cache.
+	*/
+
 	sourceFunc := s.GetImageById
-	err := assertImageWithIdExists(ctx,
-		s.domainStorage, imageId,
-		ec.ImageNotFound)
-	if err != nil {
-		return nil, utl.NewFuncError(sourceFunc, err)
+
+	var err error = nil
+	var image *file.Image = nil
+
+	if s.enableCache {
+		image, err = s.loadImageFromCache(ctx, imageId)
+		if err != nil { // not a critical error (cache miss?)
+			logger.Error("%v", err)
+		} else {
+			logger.Debug("image %v loaded from cache", imageId)
+			return image, nil
+		}
+	} else {
+		logger.Warning("cache disabled")
 	}
 
 	// ***
 
-	image, err := s.fileStorage.LoadImage(ctx, imageId)
+	err = assertImageWithIdExists(ctx,
+		s.domainStorage, imageId,
+		ec.ImageNotFound,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	image, err = s.fileStorage.LoadImage(ctx, imageId)
 	if err != nil {
 		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.FileStorageError)
+	}
+
+	if s.enableCache {
+		if err = s.saveImageToCache(ctx, image); err != nil {
+			logger.Error("%v", err)
+		} else {
+			logger.Debug("image %v saved in cache", imageId)
+		}
 	}
 	return image, nil
 }
 
 func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error) {
+	sourceFunc := s.GetImagesByIds
 	imageIds = utl.RemoveDuplicatesFromSlice(imageIds)
 
 	exists, err := s.domainStorage.HasAvatars(ctx, imageIds)
 	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetImagesByIds, err),
+		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
@@ -74,12 +109,11 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 	for _, imageId := range imageIds {
 		image, err := s.GetImageById(ctx, imageId) // TODO: don't have to do a second check
 		if err != nil {
-			return nil, utl.NewFuncError(s.GetImagesByIds, err) // with error for client!
+			return nil, utl.NewFuncError(sourceFunc, err) // with error for client!
 		}
 
 		images = append(images, image)
 	}
-
 	return file.NewImages(images), nil
 }
 
