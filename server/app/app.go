@@ -331,8 +331,9 @@ func createCacheInstance() (cache.Cache, error) {
 	if cacheType == "redis" {
 		cacheInstance, err = redisCache.New(ctxForInit,
 			redisCache.Dependencies{
-				Host: viper.GetString("cache.redis.host"),
-				Port: viper.GetUint16("cache.redis.port"),
+				Host:    viper.GetString("cache.redis.host"),
+				Port:    viper.GetUint16("cache.redis.port"),
+				DbIndex: viper.GetInt("cache.redis.db_index"),
 				//...
 			},
 		)

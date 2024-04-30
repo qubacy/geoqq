@@ -9,6 +9,9 @@ import (
 	"geoqq/pkg/file"
 	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
+	"net/http"
+
+	exifremove "github.com/scottleedavis/go-exif-remove"
 )
 
 type ImageService struct {
@@ -54,7 +57,7 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
 	if s.enableCache {
 		image, err = s.loadImageFromCache(ctx, imageId)
 		if err != nil { // not a critical error (cache miss?)
-			logger.Error("%v", err)
+			logger.Warning("%v", err)
 		} else {
 			logger.Debug("image %v loaded from cache", imageId)
 			return image, nil
@@ -81,7 +84,7 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
 
 	if s.enableCache {
 		if err = s.saveImageToCache(ctx, image); err != nil {
-			logger.Error("%v", err)
+			logger.Warning("%v", err)
 		} else {
 			logger.Debug("image %v saved in cache", imageId)
 		}
@@ -148,6 +151,8 @@ func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 	ext int, content string, userId uint64) (uint64, error) {
 
+	// prepare...
+
 	imageExt := file.ImageExt(ext)
 	if !imageExt.IsValid() {
 		return 0, ec.New(ErrUnknownImageExtension,
@@ -158,31 +163,40 @@ func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 			ec.Client, ec.ImageContentIsEmpty)
 	}
 
-	// TODO: check mime type!
-	// TODO: remove avatar meta data!
-
-	image := file.NewImageWithoutId(imageExt, content)
 	avatarContentBytes, err := base64.StdEncoding.DecodeString(content)
 	if err != nil {
 		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
 			ec.Client, ec.ImageBodyIsNotBase64) // or server?
 	}
+	mimeType := http.DetectContentType(avatarContentBytes)
+	if !file.ValidImageMimeType(mimeType) {
+		return 0, ec.New(utl.NewFuncError(p.addImageToUser, nil),
+			ec.Client, ec.UnsupportedImageMimeType)
+	}
+
+	noExifBytes, err := exifremove.Remove(avatarContentBytes)
+	if err != nil {
+		logger.Warning("failed to remove exif due to %v", err)
+	} else {
+		avatarContentBytes = noExifBytes // rewrite!
+	}
+
+	// to domain storage
 
 	avatarHash, err := p.hashManager.NewFromBytes(avatarContentBytes)
 	if err != nil {
 		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
 			ec.Server, ec.HashManagerError)
 	}
-
-	// ***
-
 	avatarId, err := p.domainStorage.InsertAvatar(ctx, userId, avatarHash)
 	if err != nil {
 		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
 			ec.Server, ec.DomainStorageError)
 	}
-	image.Id = avatarId
 
+	// to file storage
+
+	image := file.NewImage(avatarId, imageExt, content)
 	err = p.fileStorage.SaveImage(ctx, image)
 	if err != nil {
 		err = errors.Join(
@@ -192,6 +206,5 @@ func (p *HasherAndStorages) addImageToUser(ctx context.Context,
 		return 0, ec.New(utl.NewFuncError(p.addImageToUser, err),
 			ec.Server, ec.FileStorageError)
 	}
-
 	return avatarId, nil // OK!
 }

@@ -11,8 +11,11 @@ import (
 )
 
 type Dependencies struct {
-	Host string
-	Port uint16
+	Host     string
+	Port     uint16
+	Username string
+	Password string
+	DbIndex  int
 }
 
 // -----------------------------------------------------------------------
@@ -22,8 +25,14 @@ type RedisCache struct {
 }
 
 func New(ctxForInit context.Context, deps Dependencies) (*RedisCache, error) {
+	logger.Debug("redis username: %v", deps.Username)
+	logger.Debug("redis password: %v", deps.Password)
+
 	client := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%v:%v", deps.Host, deps.Port),
+		Addr:     fmt.Sprintf("%v:%v", deps.Host, deps.Port),
+		DB:       deps.DbIndex,
+		Username: deps.Username,
+		Password: deps.Password,
 	})
 
 	statusCmd := client.Ping(ctxForInit)

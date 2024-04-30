@@ -17,7 +17,7 @@ func MakeImageExtFromString(value string) ImageExt {
 	switch value {
 	case "png":
 		return Png
-	case "jpg":
+	case "jpg", "jpeg":
 		return Jpg
 	}
 	return Unknown
@@ -44,6 +44,17 @@ func (ie ImageExt) IsValid() bool {
 	return false
 }
 
+func ValidImageMimeType(mimeType string) bool {
+	switch mimeType {
+	case "image/png":
+		return true
+	case "image/jpeg":
+		return true
+	}
+
+	return false
+}
+
 // -----------------------------------------------------------------------
 
 // serializable?
@@ -51,6 +62,12 @@ type Image struct {
 	Id        uint64   `json:"id"`
 	Extension ImageExt `json:"ext"`
 	Content   string   `json:"content"` // base64!
+}
+
+func NewImage(id uint64, ext ImageExt, contentAsBase64 string) *Image {
+	image := NewImageWithoutId(ext, contentAsBase64)
+	image.Id = id
+	return image
 }
 
 func NewImageWithoutId(ext ImageExt, contentAsBase64 string) *Image {

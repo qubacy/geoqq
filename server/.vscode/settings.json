@@ -6,6 +6,8 @@
         "datname",
         "datnames",
         "Debugf",
+        "exif",
+        "exifremove",
         "geodatas",
         "geodist",
         "geodistance",
@@ -22,6 +24,7 @@
         "pgxpool",
         "postgre",
         "psycopg",
+        "scottleedavis",
         "smallint",
         "Warnf"
     ]

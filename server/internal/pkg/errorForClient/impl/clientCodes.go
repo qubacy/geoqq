@@ -161,6 +161,7 @@ const ( // Image
 	OneOrMoreImagesNotFound
 
 	AddImageBlockedForUser
+	UnsupportedImageMimeType // 2007
 )
 
 const ( // Mate
