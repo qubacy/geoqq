@@ -199,7 +199,7 @@ class GeoSettingsFragmentTest(
         )
         val initLocationPointChangedUiOperation = LocationPointChangedUiOperation(initLocationPoint)
 
-        val radius = initRadius * 1.5f
+        val radius = (initRadius * 1.5).toInt()
         val changeRadiusUiOperation = ChangeRadiusUiOperation(radius)
 
         val expectedRadiusText = InstrumentationRegistry.getInstrumentation().targetContext

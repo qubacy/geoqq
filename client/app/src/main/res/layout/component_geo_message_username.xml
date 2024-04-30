@@ -6,4 +6,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textAppearance="?attr/textAppearanceTitleMedium"
+    android:lines="1"
+    android:ellipsize="end"
     tools:text="Test"/>
