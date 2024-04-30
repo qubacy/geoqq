@@ -31,27 +31,28 @@ open class LoginViewModel @Inject constructor(
         return LoginUiState()
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        val uiOperation = super.processDomainResultFlow(domainResult)
+    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        val uiOperations = super.processDomainResultFlow(domainResult)
 
-        if (uiOperation != null) return uiOperation
+        if (uiOperations.isNotEmpty()) return uiOperations
 
         return when (domainResult::class) {
             SignedInDomainResult::class ->
                 processSignedInDomainResult(domainResult as SignedInDomainResult)
-            else -> null
+            else -> listOf()
         }
     }
 
-    private fun processSignedInDomainResult(signedInResult: SignedInDomainResult): UiOperation {
+    private fun processSignedInDomainResult(
+        signedInResult: SignedInDomainResult
+    ): List<UiOperation> {
         changeLoadingState(false)
         changeAutoSignInAllowedState(false)
 
-        val uiOperation =
-            if (signedInResult.isSuccessful()) SignInUiOperation()
-            else processErrorDomainResult(signedInResult.error!!)
+        if (!signedInResult.isSuccessful())
+            return processErrorDomainResult(signedInResult.error!!)
 
-        return uiOperation
+        return listOf(SignInUiOperation())
     }
 
     private fun changeAutoSignInAllowedState(isAllowed: Boolean) {

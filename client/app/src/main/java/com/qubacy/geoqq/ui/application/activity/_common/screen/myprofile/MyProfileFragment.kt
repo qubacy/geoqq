@@ -36,7 +36,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error.UiMyProfileErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme.AboutMeValidator

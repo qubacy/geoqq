@@ -39,23 +39,23 @@ open class MateChatsViewModel @Inject constructor(
         return MateChatsUiState()
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        val uiOperation = super.processDomainResultFlow(domainResult)
+    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        val uiOperations = super.processDomainResultFlow(domainResult)
 
-        if (uiOperation != null) return uiOperation
+        if (uiOperations.isNotEmpty()) return uiOperations
 
         return when (domainResult::class) {
             GetChatChunkDomainResult::class ->
                 processGetChatChunkDomainResult(domainResult as GetChatChunkDomainResult)
             UpdateChatChunkDomainResult::class ->
                 processUpdateChatChunkDomainResult(domainResult as UpdateChatChunkDomainResult)
-            else -> null
+            else -> listOf()
         }
     }
 
     private fun processGetChatChunkDomainResult(
         getChatChunkResult: GetChatChunkDomainResult
-    ): UiOperation? {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextChatChunk = false
@@ -63,16 +63,16 @@ open class MateChatsViewModel @Inject constructor(
         if (!getChatChunkResult.isSuccessful())
             return processErrorDomainResult(getChatChunkResult.error!!)
 
-        if (getChatChunkResult.chunk == null) return null
+        if (getChatChunkResult.chunk == null) return listOf()
 
         val chatPresentationChunk = processDomainChatChunk(getChatChunkResult.chunk)
 
-        return InsertChatsUiOperation(getChatChunkResult.chunk.offset, chatPresentationChunk)
+        return listOf(InsertChatsUiOperation(getChatChunkResult.chunk.offset, chatPresentationChunk))
     }
 
     private fun processUpdateChatChunkDomainResult(
         updateChatChunkResult: UpdateChatChunkDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextChatChunk = false
@@ -87,10 +87,11 @@ open class MateChatsViewModel @Inject constructor(
 
         val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
 
-        return UpdateChatChunkUiOperation(
+        return listOf(
+            UpdateChatChunkUiOperation(
             updateChatChunkResult.chunk.offset,
             chatPresentationChunk,
-            prevChatChunkSize - curChatChunkSize
+            prevChatChunkSize - curChatChunkSize)
         )
     }
 

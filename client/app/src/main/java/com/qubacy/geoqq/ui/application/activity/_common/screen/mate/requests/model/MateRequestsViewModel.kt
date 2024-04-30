@@ -89,10 +89,10 @@ open class MateRequestsViewModel @Inject constructor(
         }
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        val uiOperation = super.processDomainResultFlow(domainResult)
+    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        val uiOperations = super.processDomainResultFlow(domainResult)
 
-        if (uiOperation != null) return uiOperation
+        if (uiOperations.isNotEmpty()) return uiOperations
 
         return when (domainResult::class) {
             GetRequestChunkDomainResult::class ->
@@ -103,30 +103,30 @@ open class MateRequestsViewModel @Inject constructor(
                 processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
             AnswerMateRequestDomainResult::class ->
                 processAnswerMateRequestDomainResult(domainResult as AnswerMateRequestDomainResult)
-            else -> null
+            else -> listOf()
         }
     }
 
     private fun processGetInterlocutorDomainResult(
         getInterlocutorResult: GetInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!getInterlocutorResult.isSuccessful())
             return processErrorDomainResult(getInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(getInterlocutorResult)
 
-        return ShowInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(ShowInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processUpdateInterlocutorDomainResult(
         updateInterlocutorResult: UpdateInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!updateInterlocutorResult.isSuccessful())
             return processErrorDomainResult(updateInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(updateInterlocutorResult)
 
-        return UpdateInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processInterlocutorResult(
@@ -144,7 +144,7 @@ open class MateRequestsViewModel @Inject constructor(
 
     private fun processGetRequestChunkDomainResult(
         getRequestChunkResult: GetRequestChunkDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextRequestChunk = false
@@ -158,12 +158,12 @@ open class MateRequestsViewModel @Inject constructor(
 
         mUiState.requests.addAll(requests)
 
-        return InsertRequestsUiOperation(requestChunkPosition, requests)
+        return listOf(InsertRequestsUiOperation(requestChunkPosition, requests))
     }
 
     private fun processAnswerMateRequestDomainResult(
         answerRequestResult: AnswerMateRequestDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         val requestId = answerRequestResult.requestId
@@ -178,7 +178,7 @@ open class MateRequestsViewModel @Inject constructor(
         mUiState.requests.removeAt(requestPosition)
         mUiState.answeredRequestCount++
 
-        return RemoveRequestUiOperation(requestPosition)
+        return listOf(RemoveRequestUiOperation(requestPosition))
     }
 
     private fun onMateRequestAnsweringFailed(requestPosition: Int) {

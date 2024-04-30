@@ -155,6 +155,8 @@ class GeoChatFragment(
     private fun processAddGeoMessagesUiOperation(
         addGeoMessagesUiOperation: AddGeoMessagesUiOperation
     ) {
+        Log.d(TAG, "processAddGeoMessagesUiOperation(): entering..")
+
         val localUserId = mModel.getLocalUserId()
         val geoMessageItems = addGeoMessagesUiOperation.messages
             .map { it.toGeoMessageItemData(localUserId) }

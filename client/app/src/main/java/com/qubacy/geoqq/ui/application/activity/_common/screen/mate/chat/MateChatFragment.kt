@@ -82,12 +82,12 @@ class MateChatFragment(
         super.onViewCreated(view, savedInstanceState)
 
         initChatContext() // it's important to run BEFORE super.onStart() & onPermissionGranted();
+        initMessageListView()
 
         runPermissionCheck<MateChatFragment>()
 
         mSnackbarAnchorView = mBinding.fragmentMateInputMessageWrapper
 
-        initMessageListView()
         initUiControls()
     }
 

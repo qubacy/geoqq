@@ -137,10 +137,10 @@ open class MateChatViewModel @Inject constructor(
         mUseCase.sendMessage(mUiState.chatContext!!.id, text)
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        val uiOperation = super.processDomainResultFlow(domainResult)
+    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        val uiOperations = super.processDomainResultFlow(domainResult)
 
-        if (uiOperation != null) return uiOperation
+        if (uiOperations.isNotEmpty()) return uiOperations
 
         return when (domainResult::class) {
             GetMessageChunkDomainResult::class ->
@@ -153,30 +153,29 @@ open class MateChatViewModel @Inject constructor(
                 processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
             SendMateRequestDomainResult::class ->
                 processSendMateRequestToInterlocutorDomainResult(
-                    domainResult as SendMateRequestDomainResult
-                )
+                    domainResult as SendMateRequestDomainResult)
             DeleteChatDomainResult::class ->
                 processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
             SendMateMessageDomainResult::class ->
                 processSendMessageDomainResult(domainResult as SendMateMessageDomainResult)
-            else -> null
+            else -> listOf()
         }
     }
 
     private fun processSendMessageDomainResult(
         sendMessageResult: SendMateMessageDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!sendMessageResult.isSuccessful())
             return processErrorDomainResult(sendMessageResult.error!!)
 
-        return MessageSentUiOperation()
+        return listOf(MessageSentUiOperation())
     }
 
     private fun processSendMateRequestToInterlocutorDomainResult(
         sendMateRequestToInterlocutorResult: SendMateRequestDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!sendMateRequestToInterlocutorResult.isSuccessful())
@@ -184,40 +183,40 @@ open class MateChatViewModel @Inject constructor(
 
         mUiState.isMateRequestSendingAllowed = false
 
-        return MateRequestSentToInterlocutorUiOperation()
+        return listOf(MateRequestSentToInterlocutorUiOperation())
     }
 
     private fun processDeleteChatDomainResult(
         deleteChatDomainResult: DeleteChatDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!deleteChatDomainResult.isSuccessful())
             return processErrorDomainResult(deleteChatDomainResult.error!!)
 
-        return ChatDeletedUiOperation()
+        return listOf(ChatDeletedUiOperation())
     }
 
     private fun processGetInterlocutorDomainResult(
         getInterlocutorResult: GetInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!getInterlocutorResult.isSuccessful())
             return processErrorDomainResult(getInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(getInterlocutorResult)
 
-        return ShowInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(ShowInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processUpdateInterlocutorDomainResult(
         updateInterlocutorResult: UpdateInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!updateInterlocutorResult.isSuccessful())
             return processErrorDomainResult(updateInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(updateInterlocutorResult)
 
-        return UpdateInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processInterlocutorResult(
@@ -232,7 +231,7 @@ open class MateChatViewModel @Inject constructor(
 
     private fun processGetMessageChunkDomainResult(
         getMessageChunkResult: GetMessageChunkDomainResult
-    ): UiOperation? {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextMessageChunk = false
@@ -240,16 +239,18 @@ open class MateChatViewModel @Inject constructor(
         if (!getMessageChunkResult.isSuccessful())
             return processErrorDomainResult(getMessageChunkResult.error!!)
 
-        if (getMessageChunkResult.chunk == null) return null
+        if (getMessageChunkResult.chunk == null) return listOf()
 
         val messagePresentationChunk = processDomainMessageChunk(getMessageChunkResult.chunk)
 
-        return InsertMessagesUiOperation(getMessageChunkResult.chunk.offset, messagePresentationChunk)
+        return listOf(
+            InsertMessagesUiOperation(getMessageChunkResult.chunk.offset, messagePresentationChunk)
+        )
     }
 
     private fun processUpdateMessageChunkDomainResult(
         updateMessageChunkResult: UpdateMessageChunkDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         mIsGettingNextMessageChunk = false
@@ -263,10 +264,11 @@ open class MateChatViewModel @Inject constructor(
 
         val messagePresentationChunk = processDomainMessageChunk(updateMessageChunkResult.chunk)
 
-        return UpdateMessageChunkUiOperation(
+        return listOf(
+            UpdateMessageChunkUiOperation(
             updateMessageChunkResult.chunk.offset,
             messagePresentationChunk,
-            prevMessageChunkSize - curMessageChunkSize
+            prevMessageChunkSize - curMessageChunkSize)
         )
     }
 

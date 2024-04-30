@@ -124,10 +124,10 @@ open class GeoChatViewModel @Inject constructor(
         mUseCase.sendMessage(text, mRadius!!, mLatitude!!, mLongitude!!)
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        val uiOperation = super.processDomainResultFlow(domainResult)
+    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        val uiOperations = super.processDomainResultFlow(domainResult)
 
-        if (uiOperation != null) return uiOperation
+        if (uiOperations.isNotEmpty()) return uiOperations
 
         return when (domainResult::class) {
             GetGeoMessagesDomainResult::class ->
@@ -143,13 +143,13 @@ open class GeoChatViewModel @Inject constructor(
                     domainResult as SendMateRequestDomainResult)
             SendGeoMessageDomainResult::class ->
                 processSendMessageDomainResult(domainResult as SendGeoMessageDomainResult)
-            else -> null
+            else -> listOf()
         }
     }
 
     private fun processGetGeoMessagesDomainResult(
         getGeoMessagesDomainResult: GetGeoMessagesDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!getGeoMessagesDomainResult.isSuccessful())
@@ -159,59 +159,59 @@ open class GeoChatViewModel @Inject constructor(
 
         mUiState.messages.addAll(geoMessages)
 
-        return AddGeoMessagesUiOperation(geoMessages)
+        return listOf(AddGeoMessagesUiOperation(geoMessages))
     }
 
     private fun processNewGeoMessagesDomainResult(
         newGeoMessagesDomainResult: NewGeoMessagesDomainResult
-    ): UiOperation? {
+    ): List<UiOperation> {
         // todo: implement..
 
-        return null
+        return listOf()
     }
 
     private fun processSendMessageDomainResult(
         sendMessageResult: SendGeoMessageDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!sendMessageResult.isSuccessful())
             return processErrorDomainResult(sendMessageResult.error!!)
 
-        return MessageSentUiOperation()
+        return listOf(MessageSentUiOperation())
     }
 
     private fun processSendMateRequestToInterlocutorDomainResult(
         sendMateRequestToInterlocutorResult: SendMateRequestDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!sendMateRequestToInterlocutorResult.isSuccessful())
             return processErrorDomainResult(sendMateRequestToInterlocutorResult.error!!)
 
-        return MateRequestSentToInterlocutorUiOperation()
+        return listOf(MateRequestSentToInterlocutorUiOperation())
     }
 
     private fun processGetInterlocutorDomainResult(
         getInterlocutorResult: GetInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!getInterlocutorResult.isSuccessful())
             return processErrorDomainResult(getInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(getInterlocutorResult)
 
-        return ShowInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(ShowInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processUpdateInterlocutorDomainResult(
         updateInterlocutorResult: UpdateInterlocutorDomainResult
-    ): UiOperation {
+    ): List<UiOperation> {
         if (!updateInterlocutorResult.isSuccessful())
             return processErrorDomainResult(updateInterlocutorResult.error!!)
 
         val userPresentation = processInterlocutorResult(updateInterlocutorResult)
 
-        return UpdateInterlocutorDetailsUiOperation(userPresentation)
+        return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
     }
 
     private fun processInterlocutorResult(

@@ -14,7 +14,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.changeLoadingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.merge
 
 abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : UseCase>(
@@ -30,7 +32,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
 
     override val uiOperationFlow = merge(
         mUiOperationFlow,
-        mUseCase.resultFlow.mapNotNull { mapDomainResultFlow(it) }
+        mUseCase.resultFlow.flatMapMerge { mapDomainResultFlow(it) }
     )
     private lateinit var mBusinessScope: CoroutineScope
 
@@ -61,18 +63,22 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         resetBusinessScope()
     }
 
-    private fun mapDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        return processDomainResultFlow(domainResult)
+    private suspend fun mapDomainResultFlow(domainResult: DomainResult): Flow<UiOperation> {
+        return flow {
+            processDomainResultFlow(domainResult).forEach {
+                this.emit(it)
+            }
+        }
     }
 
-    protected open fun processDomainResultFlow(domainResult: DomainResult): UiOperation? {
-        return null
+    protected open fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        return listOf()
     }
 
-    protected fun processErrorDomainResult(error: Error): ErrorUiOperation {
+    protected open fun processErrorDomainResult(error: Error): List<UiOperation> {
         mUiState.error = error
 
-        return ErrorUiOperation(error)
+        return listOf(ErrorUiOperation(error))
     }
 
     override fun changeLoadingState(isLoading: Boolean) {

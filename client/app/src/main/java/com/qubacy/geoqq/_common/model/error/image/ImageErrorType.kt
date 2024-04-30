@@ -8,5 +8,6 @@ enum class ImageErrorType (
     override val domain: ErrorDomain = ErrorDomain.IMAGE
 ) : ErrorType {
     IMAGE_NOT_FOUND(4),
-    IMAGES_NOT_FOUND(5);
+    IMAGES_NOT_FOUND(5),
+    IMAGE_ADDING_BANNED(6);
 }
