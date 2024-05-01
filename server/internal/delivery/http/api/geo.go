@@ -3,6 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -104,6 +105,8 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
+
+	logger.Trace("%v", responseDto)
 	ctx.JSON(http.StatusOK, responseDto)
 }
 

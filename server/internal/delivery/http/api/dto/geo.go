@@ -23,7 +23,7 @@ func MakeGeoChatMessagesResFromDomain(
 	}
 
 	res := GeoChatMessagesRes{
-		Messages: make([]GeoMessage, len(domainGeoMessages)),
+		Messages: make([]GeoMessage, 0, len(domainGeoMessages)),
 	}
 	for i := range domainGeoMessages {
 		geoMessage, err := MakeGeoMessageFromDomain(

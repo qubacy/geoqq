@@ -196,8 +196,9 @@ func domainStorageInstance(ctxWithCancel context.Context) (domainStorage.Storage
 				DbName:   viper.GetString("storage.domain.sql.postgre.database"),
 
 				DependenciesForBgr: domainStorageImpl.DependenciesForBgr{
-					MaxQueryCount: viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
-					QueryTimeout:  viper.GetDuration("storage.domain.sql.postgre.background.query_timeout"),
+					MaxWorkerCount: viper.GetInt("storage.domain.sql.postgre.background.max_worker_count"),
+					MaxQueryCount:  viper.GetInt("storage.domain.sql.postgre.background.max_query_count"),
+					QueryTimeout:   viper.GetDuration("storage.domain.sql.postgre.background.query_timeout"),
 				},
 			})
 	} else if storageType == "sqlite" {

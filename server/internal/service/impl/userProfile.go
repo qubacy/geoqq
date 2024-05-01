@@ -111,6 +111,10 @@ func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint6
 		return ec.New(utl.NewFuncError(p.DeleteUserProfile, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	p.domainStorage.DeleteBgrMateChatsForUser(userId)
+
 	return nil
 }
 

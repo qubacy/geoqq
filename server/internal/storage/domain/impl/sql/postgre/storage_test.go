@@ -67,7 +67,7 @@ func Test_pgxpool_Conn_Query(t *testing.T) {
 // -----------------------------------------------------------------------
 
 func Test_pgxpool_Conn_Config(t *testing.T) {
-	connStr := "user=postgres password=admin database=geoqq host=127.0.0.1 port=5433"
+	connStr := "user=postgres password=admin database=geoqq host=127.0.0.1 port=5432"
 	pool, err := pgxpool.Connect(context.Background(), connStr)
 	if err != nil {
 		t.Errorf("Connect to database failed. Err: %v", err)

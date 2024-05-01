@@ -11,18 +11,12 @@ import (
 
 type Background struct {
 	*UserStorageBackground
-
-	// ***
-
-	pool    *pgxpool.Pool
-	queries chan bgrQueryWrapper
-
-	queryTimeout time.Duration
 }
 
 type DependenciesForBgr struct {
-	MaxQueryCount int
-	QueryTimeout  time.Duration
+	MaxWorkerCount int
+	MaxQueryCount  int
+	QueryTimeout   time.Duration
 }
 
 // ctor
@@ -31,56 +25,81 @@ type DependenciesForBgr struct {
 func newBackground(
 	ctxForInit context.Context,
 	ctxWithCancel context.Context,
+
 	pool *pgxpool.Pool,
 	deps DependenciesForBgr,
 
 ) (*Background, error) {
+
 	logger.Trace("max query count: %v", deps.MaxQueryCount)
-	queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
+	logger.Trace("max worker count: %v", deps.MaxWorkerCount)
+	workerCount := deps.MaxWorkerCount
+
+	// ***
+
+	capturedConns := make([]*pgxpool.Conn, 0, workerCount)
+	for i := 0; i < workerCount; i++ {
+		conn, err := pool.Acquire(ctxForInit)
+		if err != nil {
+			return nil, utility.NewFuncError(
+				newBackground, err)
+		}
+
+		capturedConns = append(capturedConns, conn)
+	}
+	logger.Info("background storage has captured [%v] conns",
+		workerCount)
+
+	// ***
+
+	workers := make([]*backgroundWorker, 0, workerCount)
+	channelWithQueries := make([]chan bgrQueryWrapper, 0, workerCount)
+
+	for i := 0; i < workerCount; i++ {
+		queries := make(chan bgrQueryWrapper, deps.MaxQueryCount)
+		channelWithQueries = append(channelWithQueries, queries)
+
+		worker := &backgroundWorker{
+			ctxWithCancel: ctxWithCancel,
+			queryTimeout:  deps.QueryTimeout,
+			queries:       queries,
+		}
+		workers = append(workers, worker)
+	}
+	for i := range workers {
+		go workers[i].exec(capturedConns[i])
+	}
 
 	storage := &Background{
-		UserStorageBackground: newUserStorageBackground(queries),
-
-		pool:    pool,
-		queries: queries,
-
-		queryTimeout: deps.QueryTimeout,
+		UserStorageBackground: newUserStorageBackground(
+			channelWithQueries),
 	}
-
-	conn, err := pool.Acquire(ctxForInit)
-	if err != nil {
-		return nil, utility.NewFuncError(newBackground, err)
-	}
-	logger.Info("background storage has captured conn")
-
-	// can run several...
-	go storage.updateQueries(
-		conn, ctxWithCancel,
-	)
-
 	return storage, nil
 }
 
-// private
+// worker
 // -----------------------------------------------------------------------
 
-func (s *Background) updateQueries(
-	openedConn *pgxpool.Conn,
-	ctxWithCancel context.Context, // as field in struct?
-) {
+type backgroundWorker struct {
+	ctxWithCancel context.Context
+	queries       chan bgrQueryWrapper
+	queryTimeout  time.Duration
+}
+
+func (w *backgroundWorker) exec(openedConn *pgxpool.Conn) {
 	defer openedConn.Release()
 
 	// ***
 
 	for {
 		select {
-		case <-ctxWithCancel.Done(): // ?
-			close(s.queries)
+		case <-w.ctxWithCancel.Done(): // ?
+			close(w.queries)
 
-			logger.Warning("update queries canceled")
+			logger.Warning("queries canceled")
 			return
 
-		case f, ok := <-s.queries:
+		case f, ok := <-w.queries:
 			if !ok {
 				logger.Warning("queries channel closed")
 				return
@@ -88,13 +107,13 @@ func (s *Background) updateQueries(
 
 			ctx := context.Background()
 			ctx, cancel := context.WithTimeout(
-				ctx, s.queryTimeout,
+				ctx, w.queryTimeout,
 			)
 			defer cancel()
 
 			err := f(openedConn, ctx)
 			if err != nil {
-				logger.Error("update query with err: %v", err)
+				logger.Error("query with err: %v", err)
 			}
 		}
 	}

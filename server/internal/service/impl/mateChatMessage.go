@@ -70,6 +70,8 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
+	/// TODO : mate remove me!!!
+
 	// write to database
 
 	_, err = s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)

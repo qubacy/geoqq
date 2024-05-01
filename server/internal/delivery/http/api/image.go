@@ -3,6 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	"net/http"
 
@@ -123,6 +124,7 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 	requestDto := dto.ImagePostReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
+		logger.Error("%v", err)
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
 	}

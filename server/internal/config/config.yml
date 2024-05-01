@@ -6,8 +6,8 @@ server:
     host: "0.0.0.0"
     port: 57000
 
-    read_timeout: 10s
-    write_timeout: 10s
+    read_timeout: 25s
+    write_timeout: 25s
     shutdown_timeout: 5s
 
   # is not http?
@@ -16,7 +16,7 @@ server:
 delivery: # or service?
   token:
     access_ttl: 30m
-    refresh_ttl: 876000h
+    refresh_ttl: 15s
     signing_key: "signing_key"
 
 service:
@@ -25,8 +25,8 @@ service:
       max_page_size: 100 # ..]
   
   auth:
-    username_pattern: ^[A-Za-z0-9_]{5,64}$
-    password_pattern: ^[\s\S]+$
+    username_pattern: ^\w{6,32}$ # ^[A-Za-z0-9_]{5,64}$
+    password_pattern: ^\S{8,}$   # ^[\s\S]+$
 
     sign_in:
       failed_attempt_count: 3
@@ -42,7 +42,7 @@ service:
       max_message_count_returned: 100 
 
   image:
-    cache_ttl: 10m
+    cache_ttl: 15m
 
     add:
       blocking_time: 5m
@@ -79,8 +79,9 @@ storage:
         database: "geoqq"
 
         background:
-          query_timeout: 10s
+          max_worker_count: 2 # goroutines and channels...
           max_query_count: 2
+          query_timeout: 10s          
 
       sqlite:
         #...

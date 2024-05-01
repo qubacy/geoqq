@@ -139,9 +139,6 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 		return utl.NewFuncError(sourceFunc, err)
 	}
-
-	// В очередь!
-	// ---> deleteMateChatsInsideTx(ctx, tx, userId)
 	return nil
 }
 

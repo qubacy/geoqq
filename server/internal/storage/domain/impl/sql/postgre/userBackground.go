@@ -5,31 +5,36 @@ import (
 	"errors"
 	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
+	"math/rand"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type UserStorageBackground struct {
-	queries chan<- bgrQueryWrapper
+	channels []chan bgrQueryWrapper
 }
 
 // private ctor
 // -----------------------------------------------------------------------
 
 func newUserStorageBackground(
-	queries chan<- bgrQueryWrapper) *UserStorageBackground {
+	channelWithQueries []chan bgrQueryWrapper,
+) *UserStorageBackground {
 
 	return &UserStorageBackground{
-		queries: queries,
+		channels: channelWithQueries,
 	}
-
 }
 
 // -----------------------------------------------------------------------
 
+func (s *UserStorageBackground) channelIndex() int {
+	return rand.Intn(len(s.channels))
+}
+
 func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 	sourceFunc := s.UpdateBgrLastActivityTimeForUser
-	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
+	s.channels[s.channelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
 		cmdTag, err := conn.Exec(ctx,
 			templateUpdateLastActivityTimeForUser+`;`, id,
 		)
@@ -41,14 +46,17 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 			return ErrUpdateFailed
 		}
 
+		logger.Trace("update last activity time for user %v", id)
 		return nil
 	}
 }
 
-// TODO: если что-то пойдет не так?
 func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 	sourceFunc := s.DeleteBgrMateChatsForUser
-	s.queries <- func(conn *pgxpool.Conn, ctx context.Context) error {
+	s.channels[s.channelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
+
+		// TODO: if something goes wrong?
+
 		mateChats, err := getAvailableMateChatsForFirstUser(conn, ctx, id)
 		if err != nil {
 			return utl.NewFuncError(sourceFunc, err)

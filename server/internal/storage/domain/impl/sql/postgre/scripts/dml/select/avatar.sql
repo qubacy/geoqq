@@ -1,4 +1,5 @@
 SELECT * FROM "Avatar"
+ORDER BY "Time" DESC;
 ORDER BY "UserId" NULLS FIRST;
 
 -- -----------------------------------------------------------------------
