@@ -8,8 +8,10 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.result.handler.LoginDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -27,30 +29,23 @@ open class LoginViewModel @Inject constructor(
         const val TAG = "LoginViewModel"
     }
 
+    override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return super.generateDomainResultHandlers()
+            .plus(LoginDomainResultHandler(this))
+    }
+
     override fun generateDefaultUiState(): LoginUiState {
         return LoginUiState()
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        val uiOperations = super.processDomainResultFlow(domainResult)
-
-        if (uiOperations.isNotEmpty()) return uiOperations
-
-        return when (domainResult::class) {
-            SignedInDomainResult::class ->
-                processSignedInDomainResult(domainResult as SignedInDomainResult)
-            else -> listOf()
-        }
-    }
-
-    private fun processSignedInDomainResult(
+    fun onLoginSignedIn(
         signedInResult: SignedInDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
         changeAutoSignInAllowedState(false)
 
         if (!signedInResult.isSuccessful())
-            return processErrorDomainResult(signedInResult.error!!)
+            return onError(signedInResult.error!!)
 
         return listOf(SignInUiOperation())
     }

@@ -1,23 +1,23 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.result.handler.MateChatsDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -37,27 +37,17 @@ open class MateChatsViewModel @Inject constructor(
 
     private var mIsGettingNextChatChunk: Boolean = false
 
+    override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return super.generateDomainResultHandlers()
+            .plus(AuthorizedDomainResultHandler(this))
+            .plus(MateChatsDomainResultHandler(this))
+    }
+
     override fun generateDefaultUiState(): MateChatsUiState {
         return MateChatsUiState()
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        val uiOperations = super.processDomainResultFlow(domainResult)
-
-        if (uiOperations.isNotEmpty()) return uiOperations
-
-        return when (domainResult::class) {
-            GetChatChunkDomainResult::class ->
-                processGetChatChunkDomainResult(domainResult as GetChatChunkDomainResult)
-            UpdateChatChunkDomainResult::class ->
-                processUpdateChatChunkDomainResult(domainResult as UpdateChatChunkDomainResult)
-            ErrorWithLogoutDomainResult::class ->
-                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
-            else -> listOf()
-        }
-    }
-
-    private fun processGetChatChunkDomainResult(
+    fun onMateChatsGetChatChunk(
         getChatChunkResult: GetChatChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -65,7 +55,7 @@ open class MateChatsViewModel @Inject constructor(
         mIsGettingNextChatChunk = false
 
         if (!getChatChunkResult.isSuccessful())
-            return processErrorDomainResult(getChatChunkResult.error!!)
+            return onError(getChatChunkResult.error!!)
 
         if (getChatChunkResult.chunk == null) return listOf()
 
@@ -74,7 +64,7 @@ open class MateChatsViewModel @Inject constructor(
         return listOf(InsertChatsUiOperation(getChatChunkResult.chunk.offset, chatPresentationChunk))
     }
 
-    private fun processUpdateChatChunkDomainResult(
+    fun onMateChatsUpdateChatChunk(
         updateChatChunkResult: UpdateChatChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -82,7 +72,7 @@ open class MateChatsViewModel @Inject constructor(
         mIsGettingNextChatChunk = false
 
         if (!updateChatChunkResult.isSuccessful())
-            return processErrorDomainResult(updateChatChunkResult.error!!)
+            return onError(updateChatChunkResult.error!!)
 
         val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
         //Log.d(TAG, "processUpdateChatChunkDomainResult(): prevChatChunkOffset = $prevChatChunkOffset; mUiState.chatChunkSizes = ${mUiState.chatChunkSizes.map { "${it.key} -> ${it.value}, " }};")

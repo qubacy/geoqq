@@ -42,6 +42,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.comp
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.operation.handler.GeoSettingsUiOperationHandler
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Circle
@@ -95,6 +96,7 @@ class GeoSettingsFragment(
         return super.generateUiOperationHandlers()
             .plus(LoadingUiOperationHandler(this))
             .plus(LocationUiOperationHandler(this))
+            .plus(GeoSettingsUiOperationHandler(this))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -4,8 +4,6 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
@@ -20,7 +18,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.result.handler.MyProfileDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toMyProfileUpdateData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toUpdatedMyProfilePresentation
@@ -38,6 +39,12 @@ open class MyProfileViewModel @Inject constructor(
 ), AuthorizedViewModel {
     companion object {
         const val TAG = "MyProfileViewModel"
+    }
+
+    override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return super.generateDomainResultHandlers()
+            .plus(AuthorizedDomainResultHandler(this))
+            .plus(MyProfileDomainResultHandler(this))
     }
 
     override fun generateDefaultUiState(): MyProfileUiState {
@@ -62,27 +69,7 @@ open class MyProfileViewModel @Inject constructor(
         return true
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        val uiOperations = super.processDomainResultFlow(domainResult)
-
-        if (uiOperations.isNotEmpty()) return uiOperations
-
-        return when (domainResult::class) {
-            GetMyProfileDomainResult::class ->
-                processGetMyProfileDomainResult(domainResult as GetMyProfileDomainResult)
-            UpdateMyProfileDomainResult::class ->
-                processUpdateMyProfileDomainResult(domainResult as UpdateMyProfileDomainResult)
-            DeleteMyProfileDomainResult::class ->
-                processDeleteMyProfileDomainResult(domainResult as DeleteMyProfileDomainResult)
-            LogoutDomainResult::class ->
-                processLogoutDomainResult(domainResult as LogoutDomainResult)
-            ErrorWithLogoutDomainResult::class ->
-                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
-            else -> listOf()
-        }
-    }
-
-    private fun processGetMyProfileDomainResult(
+    fun onMyProfileGetMyProfile(
         getMyProfileResult: GetMyProfileDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
@@ -90,20 +77,20 @@ open class MyProfileViewModel @Inject constructor(
         val myProfilePresentation = getMyProfileResult.myProfile?.toMyProfilePresentation()
 
         if (!getMyProfileResult.isSuccessful())
-            return processErrorDomainResult(getMyProfileResult.error!!)
+            return onError(getMyProfileResult.error!!)
 
         mUiState.myProfilePresentation = myProfilePresentation!!
 
         return listOf(GetMyProfileUiOperation(myProfilePresentation))
     }
 
-    private fun processUpdateMyProfileDomainResult(
+    fun onMyProfileUpdateMyProfile(
         updateMyProfileDomainResult: UpdateMyProfileDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
 
         if (!updateMyProfileDomainResult.isSuccessful())
-            return processErrorDomainResult(updateMyProfileDomainResult.error!!)
+            return onError(updateMyProfileDomainResult.error!!)
 
         mUiState.myProfilePresentation = getUpdatedMyProfilePresentation()
 
@@ -118,24 +105,24 @@ open class MyProfileViewModel @Inject constructor(
             .toUpdatedMyProfilePresentation(prevMyProfilePresentation)
     }
 
-    private fun processDeleteMyProfileDomainResult(
+    fun onMyProfileDeleteMyProfile(
         deleteMyProfileDomainResult: DeleteMyProfileDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
 
         if (!deleteMyProfileDomainResult.isSuccessful())
-            return processErrorDomainResult(deleteMyProfileDomainResult.error!!)
+            return onError(deleteMyProfileDomainResult.error!!)
 
         return listOf(DeleteMyProfileUiOperation())
     }
 
-    private fun processLogoutDomainResult(
+    fun onMyProfileLogout(
         logoutDomainResult: LogoutDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
 
         if (!logoutDomainResult.isSuccessful())
-            return processErrorDomainResult(logoutDomainResult.error!!)
+            return onError(logoutDomainResult.error!!)
 
         return listOf(LogoutUiOperation())
     }

@@ -10,13 +10,13 @@ import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
+import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMateMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
@@ -82,10 +82,10 @@ class MateChatUseCase @Inject constructor(
         executeLogic({
             mMateMessageDataRepository.sendMessage(chatId, text)
 
-            mResultFlow.emit(SendMateMessageDomainResult())
+            mResultFlow.emit(SendMessageDomainResult())
 
         }, {
-            SendMateMessageDomainResult(error = it)
+            SendMessageDomainResult(error = it)
         }, ::authorizedErrorMiddleware)
     }
 

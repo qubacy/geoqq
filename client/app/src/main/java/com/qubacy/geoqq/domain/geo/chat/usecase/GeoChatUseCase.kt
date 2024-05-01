@@ -9,10 +9,10 @@ import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
+import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.send.SendGeoMessageDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
@@ -62,9 +62,9 @@ class GeoChatUseCase @Inject constructor(
         executeLogic({
             mGeoMessageDataRepository.sendMessage(text, radius, longitude, latitude)
 
-            mResultFlow.emit(SendGeoMessageDomainResult())
+            mResultFlow.emit(SendMessageDomainResult())
         }, {
-            SendGeoMessageDomainResult(error = it)
+            SendMessageDomainResult(error = it)
         }, ::authorizedErrorMiddleware)
     }
 

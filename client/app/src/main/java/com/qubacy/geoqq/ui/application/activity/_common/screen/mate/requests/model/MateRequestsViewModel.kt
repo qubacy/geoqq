@@ -5,18 +5,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.GetRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.result.handler.InterlocutorDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
@@ -24,6 +22,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._co
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.ReturnAnsweredRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.result.handler.MateRequestsDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -37,8 +36,15 @@ open class MateRequestsViewModel @Inject constructor(
     mMateRequestsUseCase: MateRequestsUseCase
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateRequestsUseCase
-), AuthorizedViewModel {
+), AuthorizedViewModel, InterlocutorViewModel {
     private var mIsGettingNextRequestChunk = false
+
+    override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return super.generateDomainResultHandlers()
+            .plus(AuthorizedDomainResultHandler(this))
+            .plus(InterlocutorDomainResultHandler(this))
+            .plus(MateRequestsDomainResultHandler(this))
+    }
 
     override fun generateDefaultUiState(): MateRequestsUiState {
         return MateRequestsUiState()
@@ -91,62 +97,7 @@ open class MateRequestsViewModel @Inject constructor(
         }
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        val uiOperations = super.processDomainResultFlow(domainResult)
-
-        if (uiOperations.isNotEmpty()) return uiOperations
-
-        return when (domainResult::class) {
-            GetRequestChunkDomainResult::class ->
-                processGetRequestChunkDomainResult(domainResult as GetRequestChunkDomainResult)
-            GetInterlocutorDomainResult::class ->
-                processGetInterlocutorDomainResult(domainResult as GetInterlocutorDomainResult)
-            UpdateInterlocutorDomainResult::class ->
-                processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
-            AnswerMateRequestDomainResult::class ->
-                processAnswerMateRequestDomainResult(domainResult as AnswerMateRequestDomainResult)
-            ErrorWithLogoutDomainResult::class ->
-                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
-            else -> listOf()
-        }
-    }
-
-    private fun processGetInterlocutorDomainResult(
-        getInterlocutorResult: GetInterlocutorDomainResult
-    ): List<UiOperation> {
-        if (!getInterlocutorResult.isSuccessful())
-            return processErrorDomainResult(getInterlocutorResult.error!!)
-
-        val userPresentation = processInterlocutorResult(getInterlocutorResult)
-
-        return listOf(ShowInterlocutorDetailsUiOperation(userPresentation))
-    }
-
-    private fun processUpdateInterlocutorDomainResult(
-        updateInterlocutorResult: UpdateInterlocutorDomainResult
-    ): List<UiOperation> {
-        if (!updateInterlocutorResult.isSuccessful())
-            return processErrorDomainResult(updateInterlocutorResult.error!!)
-
-        val userPresentation = processInterlocutorResult(updateInterlocutorResult)
-
-        return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
-    }
-
-    private fun processInterlocutorResult(
-        interlocutorResult: InterlocutorDomainResult
-    ): UserPresentation {
-        val userPresentation = interlocutorResult.interlocutor!!.toUserPresentation()
-
-        val requestPosition = mUiState.requests.indexOfFirst { it.user.id == userPresentation.id }
-
-        mUiState.requests[requestPosition] =
-            mUiState.requests[requestPosition].copy(user = userPresentation)
-
-        return userPresentation
-    }
-
-    private fun processGetRequestChunkDomainResult(
+    fun onMateRequestsGetRequestChunk(
         getRequestChunkResult: GetRequestChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -154,7 +105,7 @@ open class MateRequestsViewModel @Inject constructor(
         mIsGettingNextRequestChunk = false
 
         if (!getRequestChunkResult.isSuccessful())
-            return processErrorDomainResult(getRequestChunkResult.error!!)
+            return onError(getRequestChunkResult.error!!)
 
         val requestChunk = getRequestChunkResult.chunk!!
         val requestChunkPosition = mUiState.requests.size
@@ -165,7 +116,7 @@ open class MateRequestsViewModel @Inject constructor(
         return listOf(InsertRequestsUiOperation(requestChunkPosition, requests))
     }
 
-    private fun processAnswerMateRequestDomainResult(
+    fun onMateRequestsAnswerMateRequest(
         answerRequestResult: AnswerMateRequestDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -176,7 +127,7 @@ open class MateRequestsViewModel @Inject constructor(
         if (!answerRequestResult.isSuccessful()) {
             onMateRequestAnsweringFailed(requestPosition)
 
-            return processErrorDomainResult(answerRequestResult.error!!)
+            return onError(answerRequestResult.error!!)
         }
 
         mUiState.requests.removeAt(requestPosition)
@@ -185,10 +136,25 @@ open class MateRequestsViewModel @Inject constructor(
         return listOf(RemoveRequestUiOperation(requestPosition))
     }
 
+    override fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation {
+        val userPresentation = domainResult.interlocutor!!.toUserPresentation()
+
+        val requestPosition = mUiState.requests.indexOfFirst { it.user.id == userPresentation.id }
+
+        mUiState.requests[requestPosition] =
+            mUiState.requests[requestPosition].copy(user = userPresentation)
+
+        return userPresentation
+    }
+
     private fun onMateRequestAnsweringFailed(requestPosition: Int) {
         viewModelScope.launch {
             mUiOperationFlow.emit(ReturnAnsweredRequestUiOperation(requestPosition))
         }
+    }
+
+    override fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+        return this
     }
 }
 

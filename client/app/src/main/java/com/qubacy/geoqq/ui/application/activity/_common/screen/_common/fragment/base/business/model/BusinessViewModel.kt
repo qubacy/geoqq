@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model
 
+import androidx.annotation.CallSuper
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq._common.model.error._common.Error
@@ -13,6 +14,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.LoadingViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.changeLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.preserveLoadingState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +26,9 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     mSavedStateHandle: SavedStateHandle,
     mErrorDataRepository: ErrorDataRepository,
     protected val mUseCase: UseCaseType
-) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository), LoadingViewModel {
+) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorDataRepository),
+    LoadingViewModel
+{
     companion object {
         const val TAG = "BusinessViewModel"
 
@@ -40,10 +44,19 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     private var mBackendResponded: Boolean = false
     open val backendResponded get() = mBackendResponded
 
+    protected val mDomainResultHandlers: Array<DomainResultHandler<*>>
+
+    @CallSuper
+    protected open fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return arrayOf()
+    }
+
     init {
         mBackendResponded = mSavedStateHandle[BACKEND_RESPONDED_KEY] ?: false
 
         resetBusinessScope()
+
+        mDomainResultHandlers = generateDomainResultHandlers()
     }
 
     private fun resetBusinessScope() {
@@ -73,10 +86,16 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     }
 
     protected open fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        for (domainResultHandler in mDomainResultHandlers) {
+            val uiOperations = domainResultHandler.handleDomainResult(domainResult)
+
+            if (uiOperations.isNotEmpty()) return uiOperations
+        }
+
         return listOf()
     }
 
-    protected open fun processErrorDomainResult(error: Error): List<UiOperation> {
+    fun onError(error: Error): List<UiOperation> {
         mUiState.error = error
 
         return listOf(ErrorUiOperation(error))

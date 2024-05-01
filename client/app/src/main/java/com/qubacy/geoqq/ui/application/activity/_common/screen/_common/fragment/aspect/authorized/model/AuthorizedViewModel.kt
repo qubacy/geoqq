@@ -6,7 +6,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 
 interface AuthorizedViewModel {
-    fun processErrorWithLogoutDomainResult(
+    fun onAuthorizedErrorWithLogout(
         errorWithLogoutDomainResult: ErrorWithLogoutDomainResult
     ): List<UiOperation> {
         return listOf(

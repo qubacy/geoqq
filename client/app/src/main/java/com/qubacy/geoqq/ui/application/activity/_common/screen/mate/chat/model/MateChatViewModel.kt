@@ -4,20 +4,17 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMateMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -26,12 +23,14 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MessageSentUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.result.handler.ChatDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.result.handler.InterlocutorDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.result.handler.MateChatDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -44,8 +43,16 @@ open class MateChatViewModel @Inject constructor(
     mMateChatUseCase: MateChatUseCase
 ) : BusinessViewModel<MateChatUiState, MateChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateChatUseCase
-), AuthorizedViewModel {
+), AuthorizedViewModel, InterlocutorViewModel, ChatViewModel {
     private var mIsGettingNextMessageChunk = false
+
+    override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
+        return super.generateDomainResultHandlers()
+            .plus(AuthorizedDomainResultHandler(this))
+            .plus(InterlocutorDomainResultHandler(this))
+            .plus(ChatDomainResultHandler(this))
+            .plus(MateChatDomainResultHandler(this))
+    }
 
     override fun generateDefaultUiState(): MateChatUiState {
         return MateChatUiState()
@@ -139,101 +146,28 @@ open class MateChatViewModel @Inject constructor(
         mUseCase.sendMessage(mUiState.chatContext!!.id, text)
     }
 
-    override fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        val uiOperations = super.processDomainResultFlow(domainResult)
-
-        if (uiOperations.isNotEmpty()) return uiOperations
-
-        return when (domainResult::class) {
-            GetMessageChunkDomainResult::class ->
-                processGetMessageChunkDomainResult(domainResult as GetMessageChunkDomainResult)
-            UpdateMessageChunkDomainResult::class ->
-                processUpdateMessageChunkDomainResult(domainResult as UpdateMessageChunkDomainResult)
-            GetInterlocutorDomainResult::class ->
-                processGetInterlocutorDomainResult(domainResult as GetInterlocutorDomainResult)
-            UpdateInterlocutorDomainResult::class ->
-                processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
-            SendMateRequestDomainResult::class ->
-                processSendMateRequestToInterlocutorDomainResult(
-                    domainResult as SendMateRequestDomainResult)
-            DeleteChatDomainResult::class ->
-                processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
-            SendMateMessageDomainResult::class ->
-                processSendMessageDomainResult(domainResult as SendMateMessageDomainResult)
-            ErrorWithLogoutDomainResult::class ->
-                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
-            else -> listOf()
-        }
-    }
-
-    private fun processSendMessageDomainResult(
-        sendMessageResult: SendMateMessageDomainResult
-    ): List<UiOperation> {
+    override fun onChatSendMateRequest(domainResult: SendMateRequestDomainResult): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
-        if (!sendMessageResult.isSuccessful())
-            return processErrorDomainResult(sendMessageResult.error!!)
-
-        return listOf(MessageSentUiOperation())
-    }
-
-    private fun processSendMateRequestToInterlocutorDomainResult(
-        sendMateRequestToInterlocutorResult: SendMateRequestDomainResult
-    ): List<UiOperation> {
-        if (mUiState.isLoading) changeLoadingState(false)
-
-        if (!sendMateRequestToInterlocutorResult.isSuccessful())
-            return processErrorDomainResult(sendMateRequestToInterlocutorResult.error!!)
+        if (!domainResult.isSuccessful()) return onError(domainResult.error!!)
 
         mUiState.isMateRequestSendingAllowed = false
 
         return listOf(MateRequestSentToInterlocutorUiOperation())
     }
 
-    private fun processDeleteChatDomainResult(
+    fun onMateChatDeleteChat(
         deleteChatDomainResult: DeleteChatDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
         if (!deleteChatDomainResult.isSuccessful())
-            return processErrorDomainResult(deleteChatDomainResult.error!!)
+            return onError(deleteChatDomainResult.error!!)
 
         return listOf(ChatDeletedUiOperation())
     }
 
-    private fun processGetInterlocutorDomainResult(
-        getInterlocutorResult: GetInterlocutorDomainResult
-    ): List<UiOperation> {
-        if (!getInterlocutorResult.isSuccessful())
-            return processErrorDomainResult(getInterlocutorResult.error!!)
-
-        val userPresentation = processInterlocutorResult(getInterlocutorResult)
-
-        return listOf(ShowInterlocutorDetailsUiOperation(userPresentation))
-    }
-
-    private fun processUpdateInterlocutorDomainResult(
-        updateInterlocutorResult: UpdateInterlocutorDomainResult
-    ): List<UiOperation> {
-        if (!updateInterlocutorResult.isSuccessful())
-            return processErrorDomainResult(updateInterlocutorResult.error!!)
-
-        val userPresentation = processInterlocutorResult(updateInterlocutorResult)
-
-        return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
-    }
-
-    private fun processInterlocutorResult(
-        interlocutorResult: InterlocutorDomainResult
-    ): UserPresentation {
-        val userPresentation = interlocutorResult.interlocutor!!.toUserPresentation()
-
-        mUiState.chatContext = mUiState.chatContext?.copy(user = userPresentation)
-
-        return userPresentation
-    }
-
-    private fun processGetMessageChunkDomainResult(
+    fun onMateChatGetMessageChunk(
         getMessageChunkResult: GetMessageChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -241,7 +175,7 @@ open class MateChatViewModel @Inject constructor(
         mIsGettingNextMessageChunk = false
 
         if (!getMessageChunkResult.isSuccessful())
-            return processErrorDomainResult(getMessageChunkResult.error!!)
+            return onError(getMessageChunkResult.error!!)
 
         if (getMessageChunkResult.chunk == null) return listOf()
 
@@ -252,7 +186,7 @@ open class MateChatViewModel @Inject constructor(
         )
     }
 
-    private fun processUpdateMessageChunkDomainResult(
+    fun onMateChatUpdateMessageChunk(
         updateMessageChunkResult: UpdateMessageChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
@@ -260,7 +194,7 @@ open class MateChatViewModel @Inject constructor(
         mIsGettingNextMessageChunk = false
 
         if (!updateMessageChunkResult.isSuccessful())
-            return processErrorDomainResult(updateMessageChunkResult.error!!)
+            return onError(updateMessageChunkResult.error!!)
 
         val prevMessageChunkOffset = getPrevMessageChunkOffset(updateMessageChunkResult.chunk!!.offset)
         val prevMessageChunkSize = mUiState.messageChunkSizes[prevMessageChunkOffset]!!
@@ -318,6 +252,22 @@ open class MateChatViewModel @Inject constructor(
             messageChunkSizes.clear()
             messages.clear()
         }
+    }
+
+    override fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation {
+        val userPresentation = domainResult.interlocutor!!.toUserPresentation()
+
+        mUiState.chatContext = mUiState.chatContext?.copy(user = userPresentation)
+
+        return userPresentation
+    }
+
+    override fun getChatViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+        return this
+    }
+
+    override fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+        return this
     }
 }
 
