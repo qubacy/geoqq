@@ -26,7 +26,7 @@ import org.junit.rules.RuleChain
 
 abstract class BaseFragmentTest<
     ViewBindingType : ViewBinding,
-    FragmentType : BaseFragment<ViewBindingType>
+    FragmentType : com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment<ViewBindingType>
 > {
     companion object {
         const val TEST_MESSAGE = "test message"
@@ -117,7 +117,7 @@ abstract class BaseFragmentTest<
     open fun showMessageTest() = runTest {
         defaultInit()
 
-        val onPopupMessageOccurredMethodReflection = BaseFragment::class.java
+        val onPopupMessageOccurredMethodReflection = com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment::class.java
             .getDeclaredMethod(
                 "onPopupMessageOccurred", String::class.java, Int::class.java)
             .apply { isAccessible = true }

@@ -7,8 +7,8 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel

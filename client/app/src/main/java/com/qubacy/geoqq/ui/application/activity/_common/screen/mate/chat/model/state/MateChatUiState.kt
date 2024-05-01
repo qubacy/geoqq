@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state
 
 import com.qubacy.geoqq._common.model.error._common.Error
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.state.BusinessUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 

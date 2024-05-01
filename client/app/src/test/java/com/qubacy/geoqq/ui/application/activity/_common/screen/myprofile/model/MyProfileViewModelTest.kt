@@ -21,7 +21,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
@@ -468,7 +468,7 @@ class MyProfileViewModelTest(
             val logoutUiOperation = awaitItem()
             val setLoadingOperation = awaitItem()
 
-            Assert.assertEquals(LogoutUiOperation::class, logoutUiOperation::class)
+            Assert.assertEquals(com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation::class, logoutUiOperation::class)
             Assert.assertEquals(SetLoadingStateUiOperation::class, setLoadingOperation::class)
             Assert.assertEquals(expectedIsLoading, mModel.uiState.isLoading)
 

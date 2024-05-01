@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.login.operation.handler
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.LoginFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 

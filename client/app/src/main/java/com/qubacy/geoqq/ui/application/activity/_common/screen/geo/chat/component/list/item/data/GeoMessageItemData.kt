@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.item.data
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.MessageItemData
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.side.SenderSide
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.data.MessageItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.data.side.SenderSide
 
 class GeoMessageItemData(
     id: Long,

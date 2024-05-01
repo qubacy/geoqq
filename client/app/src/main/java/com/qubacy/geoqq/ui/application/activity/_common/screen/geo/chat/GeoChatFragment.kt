@@ -24,26 +24,25 @@ import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.ChatFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.error.type.UiChatErrorType
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.operation.handler.ChatUiOperationHandler
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListener
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.InterlocutorFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.operation.handler.InterlocutorUiOperationHandler
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.LocationFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.operation.handler.LocationUiOperationHandler
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.popup.PopupFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunner
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.animator.MessageItemAnimator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.error.type.UiChatErrorType
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.operation.handler.ChatUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.util.listener.LocationListener
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.util.listener.LocationListenerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.operation.handler.InterlocutorUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.LocationFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.operation.handler.LocationUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common.error.type.UiGeoErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.GeoMessageListAdapter
@@ -101,7 +100,11 @@ class GeoChatFragment(
             .plus(ChatUiOperationHandler(this))
             .plus(LocationUiOperationHandler(this))
             .plus(InterlocutorUiOperationHandler(this))
-            .plus(AuthorizedUiOperationHandler(this))
+            .plus(
+                com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler(
+                    this
+                )
+            )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

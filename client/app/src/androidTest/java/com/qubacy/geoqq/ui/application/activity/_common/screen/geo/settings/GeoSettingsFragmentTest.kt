@@ -22,7 +22,7 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.pinch.PinchZoomViewAct
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.changed.MapViewChangedViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.loaded.MapViewLoadedViewAssertion
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
@@ -288,7 +288,7 @@ class GeoSettingsFragmentTest(
     }
 
     private fun retrieveMapView(): GeoMapView {
-        val binding = BaseFragment::class.java.getDeclaredField("mBinding")
+        val binding = com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment::class.java.getDeclaredField("mBinding")
             .apply { isAccessible = true }.get(mFragment) as FragmentGeoSettingsBinding
 
         return binding.fragmentGeoSettingsMap

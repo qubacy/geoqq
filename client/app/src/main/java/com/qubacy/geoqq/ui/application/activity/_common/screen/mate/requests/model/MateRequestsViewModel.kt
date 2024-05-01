@@ -13,11 +13,11 @@ import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.GetRequestChunkDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation

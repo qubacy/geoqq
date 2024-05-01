@@ -5,8 +5,7 @@ import android.os.Parcelable
 import androidx.core.os.ParcelCompat
 import com.qubacy.geoqq.domain.geo.chat.model.GeoMessage
 import com.qubacy.geoqq.ui._common.util.time.TimeUtils
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.MessageItemData
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.side.SenderSide
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.item.data.GeoMessageItemData

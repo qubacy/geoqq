@@ -2,9 +2,9 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.compon
 
 import android.util.Log
 import androidx.annotation.UiThread
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.adapter.MessageListAdapter
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.MessageItemView
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.data.MessageItemData
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.adapter.MessageListAdapter
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.MessageItemView
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.data.MessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.producer.MateMessageItemViewProducer
 
 class MateMessageListAdapter(

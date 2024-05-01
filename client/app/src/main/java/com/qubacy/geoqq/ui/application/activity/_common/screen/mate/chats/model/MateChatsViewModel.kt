@@ -11,9 +11,9 @@ import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
