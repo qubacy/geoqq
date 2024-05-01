@@ -23,11 +23,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.type.UiLoginFragmentErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.operation.handler.LoginUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login.LoginValidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -55,6 +57,11 @@ class LoginFragment(
     private var mControlComponentGap: Int = 0
 
     override val mStartTransitionOnPreDraw: Boolean = true
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(LoginUiOperationHandler(this))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,17 +116,6 @@ class LoginFragment(
         return R.id.loginFragment
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            SignInUiOperation::class -> processSignInOperation(uiOperation as SignInUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
         val isEnabled = !isLoading
 
@@ -130,7 +126,7 @@ class LoginFragment(
         mBinding.fragmentLoginButtonChangeLoginType.isEnabled = isEnabled
     }
 
-    private fun processSignInOperation(signInOperation: SignInUiOperation) {
+    fun onLoginFragmentSignIn() {
         Navigation.findNavController(requireView())
             .navigate(LoginFragmentDirections.actionLoginFragmentToMateChatsFragment())
     }

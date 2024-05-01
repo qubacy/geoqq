@@ -19,27 +19,27 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.MyProfileViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.MyProfileViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.error.UiMyProfileErrorType
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.popup.PopupFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.operation.handler.MyProfileUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme.AboutMeValidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -49,6 +49,7 @@ class MyProfileFragment(
 
 ) : BusinessFragment<FragmentMyProfileBinding, MyProfileUiState, MyProfileViewModel>(),
     AuthorizedFragment,
+    PopupFragment,
     PermissionRunnerCallback
 {
     @Inject
@@ -64,6 +65,14 @@ class MyProfileFragment(
 
     private var mUpdatedAvatarUri: Uri? = null
 
+    override var messageSnackbar: Snackbar? = null
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(AuthorizedUiOperationHandler(this))
+            .plus(MyProfileUiOperationHandler(this))
+    }
+
     override fun initActivityResultLaunchers() {
         mPickImageLauncher = registerForActivityResult(
             ActivityResultContracts.PickVisualMedia()
@@ -78,9 +87,15 @@ class MyProfileFragment(
         setupTopBarMenu()
         runPermissionCheck<MyProfileFragment>()
 
-        mSnackbarAnchorView = mBinding.fragmentMyProfileButtonUpdate
-
         initUiControls()
+    }
+
+    override fun getPopupAnchorView(): View {
+        return mBinding.fragmentMyProfileButtonUpdate
+    }
+
+    override fun getPopupFragmentBaseFragment(): BaseFragment<*> {
+        return this
     }
 
     override fun retrieveToolbar(): MaterialToolbar {
@@ -188,26 +203,8 @@ class MyProfileFragment(
         }
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            GetMyProfileUiOperation::class ->
-                processGetMyProfileOperation(uiOperation as GetMyProfileUiOperation)
-            UpdateMyProfileUiOperation::class ->
-                processUpdateMyProfileOperation(uiOperation as UpdateMyProfileUiOperation)
-            DeleteMyProfileUiOperation::class ->
-                processDeleteMyProfileOperation(uiOperation as DeleteMyProfileUiOperation)
-            LogoutUiOperation::class ->
-                processLogoutOperation(uiOperation as LogoutUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
-    private fun processGetMyProfileOperation(getMyProfileOperation: GetMyProfileUiOperation) {
-        setupUiWithMyProfilePresentation(getMyProfileOperation.myProfile)
+    fun onMyProfileFragmentGetMyProfile(myProfile: MyProfilePresentation) {
+        setupUiWithMyProfilePresentation(myProfile)
     }
 
     private fun setupUiWithMyProfilePresentation(myProfilePresentation: MyProfilePresentation) {
@@ -218,15 +215,11 @@ class MyProfileFragment(
         changeHitMeUpInputByHitMeUpType(myProfilePresentation.hitMeUp)
     }
 
-    private fun processUpdateMyProfileOperation(
-        updateMyProfileOperation: UpdateMyProfileUiOperation
-    ) {
+    fun onMyProfileFragmentUpdateMyProfile() {
         onPopupMessageOccurred(R.string.fragment_my_profile_snackbar_message_profile_updated)
     }
 
-    private fun processDeleteMyProfileOperation(
-        deleteMyProfileUiOperation: DeleteMyProfileUiOperation
-    ) {
+    fun onMyProfileFragmentDeleteMyProfile() {
         navigateToLogin()
     }
 
@@ -237,11 +230,6 @@ class MyProfileFragment(
 
         Navigation.findNavController(requireView())
             .navigate(R.id.action_myProfileFragment_to_loginFragment)
-    }
-
-    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
-        changeLoadingIndicatorState(loadingOperation.isLoading)
-        changeControlsEnabled(!loadingOperation.isLoading)
     }
 
     override fun onStop() {
@@ -325,6 +313,7 @@ class MyProfileFragment(
 
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
         changeLoadingIndicatorState(isLoading)
+        changeControlsEnabled(!isLoading)
     }
 
     private fun changeLoadingIndicatorState(isVisible: Boolean) {

@@ -1,12 +1,13 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable
+package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor
 
+import androidx.annotation.CallSuper
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 
-interface MateableFragment {
+interface InterlocutorFragment {
     fun openInterlocutorDetailsSheet(
         interlocutor: UserPresentation
     ) {
@@ -73,4 +74,13 @@ interface MateableFragment {
 
     fun isInterlocutorDetailsMateButtonEnabled(interlocutor: UserPresentation): Boolean
     fun isInterlocutorDetailsMateButtonVisible(interlocutor: UserPresentation): Boolean = true
+
+    @CallSuper
+    fun adjustInterlocutorFragmentUiWithInterlocutor(interlocutor: UserPresentation) {
+        setupInterlocutorDetailsSheet(interlocutor)
+    }
+
+    fun closeInterlocutorDetailsSheet() {
+        getInterlocutorDetailsSheet()?.close()
+    }
 }

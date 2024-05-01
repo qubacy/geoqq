@@ -14,7 +14,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class GeoChatUseCaseModule {
+object GeoChatUseCaseModule {
     @Provides
     fun provideGeoChatUseCase(
         errorDataRepository: ErrorDataRepository,

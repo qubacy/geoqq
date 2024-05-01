@@ -1,5 +1,8 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful
 
+import android.os.Bundle
+import android.util.Log
+import androidx.annotation.CallSuper
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq._common.model.error._common.Error
@@ -8,6 +11,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler.error.ErrorUiOperationHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -24,7 +29,20 @@ abstract class StatefulFragment<
     protected abstract val mModel: ViewModelType
     private var mOperationCollectionJob: Job? = null
 
+    protected lateinit var mUiOperationHandlers: Array<UiOperationHandler<*>>
+
     private val mErrorMutex: Mutex = Mutex()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mUiOperationHandlers = generateUiOperationHandlers()
+    }
+
+    @CallSuper
+    protected open fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return arrayOf(ErrorUiOperationHandler(this))
+    }
 
     override fun onStop() {
         mOperationCollectionJob?.cancel()
@@ -57,17 +75,19 @@ abstract class StatefulFragment<
         if (uiState.error != null) onErrorOccurred(uiState.error!!)
     }
 
+    @CallSuper
     protected open fun processUiOperation(uiOperation: UiOperation): Boolean {
-        when (uiOperation::class) {
-            ErrorUiOperation::class -> processErrorOperation(uiOperation as ErrorUiOperation)
-            else -> {
-                mErrorMutex.unlock()
+        for (uiOperationHandler in mUiOperationHandlers) {
+            Log.d(TAG, "processUiOperation(): uiOperation = $uiOperation; uiOperationHandler = $uiOperationHandler;")
 
-                return false
+            if (uiOperationHandler.handleUiOperation(uiOperation)) {
+                if (uiOperationHandler !is ErrorUiOperationHandler) mErrorMutex.unlock()
+
+                return true
             }
         }
 
-        return true
+        return false
     }
 
     private fun processErrorOperation(errorOperation: ErrorUiOperation) {

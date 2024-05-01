@@ -20,34 +20,35 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.ChatFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.InterlocutorFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessageItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.error.type.UiChatErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MessageSentUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.operation.handler.ChatUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.operation.handler.InterlocutorUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.popup.PopupFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.operation.handler.MateChatUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -59,8 +60,10 @@ class MateChatFragment(
     PermissionRunnerCallback,
     BaseRecyclerViewCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment,
-    AuthorizedFragment
+    InterlocutorFragment,
+    AuthorizedFragment,
+    ChatFragment,
+    PopupFragment
 {
     companion object {
         const val TAG = "MateChatFragment"
@@ -81,6 +84,24 @@ class MateChatFragment(
     private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
     private var mLastWindowInsets: WindowInsetsCompat? = null
 
+    override var messageSnackbar: Snackbar? = null
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(MateChatUiOperationHandler(this))
+            .plus(ChatUiOperationHandler(this))
+            .plus(InterlocutorUiOperationHandler(this))
+            .plus(AuthorizedUiOperationHandler(this))
+    }
+
+    override fun getPopupAnchorView(): View {
+        return mBinding.fragmentMateInputMessageWrapper
+    }
+
+    override fun getPopupFragmentBaseFragment(): BaseFragment<*> {
+        return this
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -89,15 +110,14 @@ class MateChatFragment(
 
         runPermissionCheck<MateChatFragment>()
 
-        mSnackbarAnchorView = mBinding.fragmentMateInputMessageWrapper
-
         initUiControls()
     }
 
     override fun onStop() {
         super.onStop()
 
-        mInterlocutorDetailsSheet?.close()
+        closePopupMessage()
+        closeInterlocutorDetailsSheet()
     }
 
     override fun retrieveToolbar(): MaterialToolbar {
@@ -112,101 +132,54 @@ class MateChatFragment(
         return mModel.uiState.chatContext!!.user.username
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            InsertMessagesUiOperation::class ->
-                processInsertMessagesUiOperation(uiOperation as InsertMessagesUiOperation)
-            UpdateMessageChunkUiOperation::class ->
-                processUpdateChatChunkUiOperation(uiOperation as UpdateMessageChunkUiOperation)
-            ShowInterlocutorDetailsUiOperation::class ->
-                processShowInterlocutorDetailsUiOperation(
-                    uiOperation as ShowInterlocutorDetailsUiOperation)
-            UpdateInterlocutorDetailsUiOperation::class ->
-                processUpdateInterlocutorDetailsUiOperation(
-                    uiOperation as UpdateInterlocutorDetailsUiOperation)
-            MateRequestSentToInterlocutorUiOperation::class ->
-                processMateRequestSentToInterlocutorUiOperation(
-                    uiOperation as MateRequestSentToInterlocutorUiOperation)
-            ChatDeletedUiOperation::class ->
-                processChatDeletedUiOperation(uiOperation as ChatDeletedUiOperation)
-            MessageSentUiOperation::class ->
-                processMessageSentUiOperation(uiOperation as MessageSentUiOperation)
-            LogoutUiOperation::class ->
-                processLogoutOperation(uiOperation as LogoutUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
-    private fun processInsertMessagesUiOperation(
-        insertMessagesUiOperation: InsertMessagesUiOperation
+    fun onMateChatFragmentInsertMessages(
+        messages: List<MateMessagePresentation>,
+        position: Int
     ) {
         val remoteUserId = mModel.uiState.chatContext!!.user.id
-        val messageItems = insertMessagesUiOperation.messages
+        val messageItems = messages
             .map { it.toMateMessageItemData(remoteUserId) }
 
-        mAdapter.insertMateMessages(messageItems, insertMessagesUiOperation.position)
+        mAdapter.insertMateMessages(messageItems, position)
     }
 
-    private fun processUpdateChatChunkUiOperation(
-        updateMessageChunkUiOperation: UpdateMessageChunkUiOperation
+    fun onMateChatFragmentUpdateMessages(
+        messages: List<MateMessagePresentation>,
+        position: Int,
+        messageChunkSizeDelta: Int
     ) {
         val remoteUserId = mModel.uiState.chatContext!!.user.id
-        val messageItems = updateMessageChunkUiOperation.messages
+        val messageItems = messages
             .map { it.toMateMessageItemData(remoteUserId) }
 
-        if (updateMessageChunkUiOperation.messageChunkSizeDelta < 0) {
-            val itemsToInsertCount = -updateMessageChunkUiOperation.messageChunkSizeDelta
-            val itemsToUpdateCount = updateMessageChunkUiOperation.messages.size - itemsToInsertCount
+        if (messageChunkSizeDelta < 0) {
+            val itemsToInsertCount = -messageChunkSizeDelta
+            val itemsToUpdateCount = messages.size - itemsToInsertCount
 
             val itemsToInsert = messageItems.subList(
-                itemsToUpdateCount, updateMessageChunkUiOperation.messages.size)
+                itemsToUpdateCount, messages.size)
             val itemsToUpdate = messageItems.subList(0, itemsToUpdateCount)
 
             mAdapter.insertMateMessages(itemsToInsert, itemsToUpdateCount)
             mAdapter.updateMateMessageChunk(itemsToUpdate, 0)
 
         } else {
-            mAdapter.updateMateMessageChunk(messageItems, updateMessageChunkUiOperation.position)
+            mAdapter.updateMateMessageChunk(messageItems, position)
 
-            if (updateMessageChunkUiOperation.messageChunkSizeDelta > 0) {
-                mAdapter.deleteMateMessages(
-                    updateMessageChunkUiOperation.position +
-                            updateMessageChunkUiOperation.messages.size,
-                    updateMessageChunkUiOperation.messageChunkSizeDelta
-                )
+            if (messageChunkSizeDelta > 0) {
+                mAdapter.deleteMateMessages(position + messages.size, messageChunkSizeDelta)
             }
         }
     }
 
-    private fun processShowInterlocutorDetailsUiOperation(
-        showInterlocutorDetailsUiOperation: ShowInterlocutorDetailsUiOperation
-    ) {
-        openInterlocutorDetailsSheet(showInterlocutorDetailsUiOperation.interlocutor)
-    }
+    override fun onChatFragmentMateRequestSent() {
+        super.onChatFragmentMateRequestSent()
 
-    private fun processUpdateInterlocutorDetailsUiOperation(
-        updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
-    ) {
-        adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
-    }
-
-    private fun processMateRequestSentToInterlocutorUiOperation(
-        mateRequestSentToInterlocutorUiOperation: MateRequestSentToInterlocutorUiOperation
-    ) {
-        onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_mate_request_sent)
         mInterlocutorDetailsSheet!!.setMateButtonEnabled(false)
     }
 
-    private fun processChatDeletedUiOperation(chatDeletedUiOperation: ChatDeletedUiOperation) {
+    fun onMateChatFragmentChatDeleted() {
         Navigation.findNavController(requireView()).navigateUp()
-    }
-
-    private fun processMessageSentUiOperation(messageSentUiOperation: MessageSentUiOperation) {
-        //onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_message_sent) // not a nice thing actually;
     }
 
     override fun runInitWithUiState(uiState: MateChatUiState) {
@@ -220,7 +193,7 @@ class MateChatFragment(
     }
 
     private fun initUiWithUiState(uiState: MateChatUiState) {
-        adjustUiWithInterlocutor(uiState.chatContext!!.user)
+        adjustInterlocutorFragmentUiWithInterlocutor(uiState.chatContext!!.user)
     }
 
     private fun initMessageListView() {
@@ -335,7 +308,6 @@ class MateChatFragment(
     }
 
     private fun initMateChat() {
-//        if (mModel.uiState.prevMessages.isEmpty()) mModel.getNextMessageChunk()
         if (mModel.areMessageChunksInitialized()) resetMessageChunks()
 
         mModel.getNextMessageChunk()
@@ -354,8 +326,8 @@ class MateChatFragment(
         mModel.getNextMessageChunk()
     }
 
-    private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
-        setupInterlocutorDetailsSheet(interlocutor)
+    override fun adjustInterlocutorFragmentUiWithInterlocutor(interlocutor: UserPresentation) {
+        super.adjustInterlocutorFragmentUiWithInterlocutor(interlocutor)
 
         mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username
 
@@ -399,7 +371,7 @@ class MateChatFragment(
         if (isMate) launchDeleteChat()
         else launchAddInterlocutorAsMate()
 
-        mInterlocutorDetailsSheet!!.close()
+        closeInterlocutorDetailsSheet()
     }
 
     private fun launchAddInterlocutorAsMate() {
@@ -469,5 +441,9 @@ class MateChatFragment(
     override fun navigateToLogin() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_mateChatFragment_to_loginFragment)
+    }
+
+    override fun getPopupFragmentForChatFragment(): PopupFragment {
+        return this
     }
 }

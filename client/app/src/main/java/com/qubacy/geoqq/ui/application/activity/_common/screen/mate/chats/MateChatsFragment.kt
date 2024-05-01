@@ -24,18 +24,17 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.operation.handler.MateChatsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -65,6 +64,12 @@ class MateChatsFragment(
     private lateinit var mPermissionRunner: PermissionRunner<MateChatsFragment>
 
     private lateinit var mSurfacePlaceholderViewProvider: SurfacePlaceholderViewProvider
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(AuthorizedUiOperationHandler(this))
+            .plus(MateChatsUiOperationHandler(this))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,54 +174,39 @@ class MateChatsFragment(
         mAdapter.resetItems()
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
+    fun onMateChatsFragmentInsertChats(
+        chats: List<MateChatPresentation>,
+        position: Int
+    ) {
+        val chatItems = chats.map { it.toMateChatItemData() }
 
-        when (uiOperation::class) {
-            InsertChatsUiOperation::class ->
-                processInsertChatsUiOperation(uiOperation as InsertChatsUiOperation)
-            UpdateChatChunkUiOperation::class ->
-                processUpdateChatChunkUiOperation(uiOperation as UpdateChatChunkUiOperation)
-            LogoutUiOperation::class ->
-                processLogoutOperation(uiOperation as LogoutUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
-    private fun processInsertChatsUiOperation(insertChatsUiOperation: InsertChatsUiOperation) {
-        val chatItems = insertChatsUiOperation.chats.map { it.toMateChatItemData() }
-
-        mAdapter.insertMateChats(chatItems, insertChatsUiOperation.position)
+        mAdapter.insertMateChats(chatItems, position)
 
         checkMateChatListEmpty()
     }
 
-    private fun processUpdateChatChunkUiOperation(
-        updateChatChunkUiOperation: UpdateChatChunkUiOperation
+    fun onMateChatsFragmentUpdateChats(
+        chats: List<MateChatPresentation>,
+        position: Int,
+        chatChunkSizeDelta: Int
     ) {
-        val chatItems = updateChatChunkUiOperation.chats.map { it.toMateChatItemData() }
+        val chatItems = chats.map { it.toMateChatItemData() }
 
-        if (updateChatChunkUiOperation.chatChunkSizeDelta < 0) {
-            val itemsToInsertCount = -updateChatChunkUiOperation.chatChunkSizeDelta
-            val itemsToUpdateCount = updateChatChunkUiOperation.chats.size - itemsToInsertCount
+        if (chatChunkSizeDelta < 0) {
+            val itemsToInsertCount = -chatChunkSizeDelta
+            val itemsToUpdateCount = chats.size - itemsToInsertCount
 
-            val itemsToInsert = chatItems.subList(
-                itemsToUpdateCount, updateChatChunkUiOperation.chats.size)
+            val itemsToInsert = chatItems.subList(itemsToUpdateCount, chats.size)
             val itemsToUpdate = chatItems.subList(0, itemsToUpdateCount)
 
             mAdapter.insertMateChats(itemsToInsert, itemsToUpdateCount)
             mAdapter.updateMateChatsChunk(itemsToUpdate, 0)
 
         } else {
-            mAdapter.updateMateChatsChunk(chatItems, updateChatChunkUiOperation.position)
+            mAdapter.updateMateChatsChunk(chatItems, position)
 
-            if (updateChatChunkUiOperation.chatChunkSizeDelta > 0) {
-                mAdapter.deleteMateChats(
-                    updateChatChunkUiOperation.position + updateChatChunkUiOperation.chats.size,
-                    updateChatChunkUiOperation.chatChunkSizeDelta
-                )
+            if (chatChunkSizeDelta > 0) {
+                mAdapter.deleteMateChats(position + chats.size, chatChunkSizeDelta)
             }
         }
 

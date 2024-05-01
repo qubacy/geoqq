@@ -20,20 +20,26 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.LoadingFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.operation.handler.LoadingUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.LocationFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.operation.handler.LocationUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListener
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.popup.PopupFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common.error.type.UiGeoErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapViewCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
@@ -56,7 +62,8 @@ class GeoSettingsFragment(
 
 ) : StatefulFragment<
     FragmentGeoSettingsBinding, GeoSettingsUiState, GeoSettingsViewModel
->(), LoadingFragment, LocationFragment,
+>(),
+    LoadingFragment, LocationFragment, PopupFragment,
     PermissionRunnerCallback, LocationListenerCallback, GeoMapViewCallback,
     MapLoadedListener
 {
@@ -86,10 +93,16 @@ class GeoSettingsFragment(
 
     private var mCircleMapObject: CircleMapObject? = null
 
+    override var messageSnackbar: Snackbar? = null
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(LoadingUiOperationHandler(this))
+            .plus(LocationUiOperationHandler(this))
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        mSnackbarAnchorView = mBinding.fragmentGeoSettingsButtonGo
 
         initLocationListener()
         initPermissionRunner()
@@ -97,6 +110,14 @@ class GeoSettingsFragment(
         initUiControls()
 
         initHintViewProvider()
+    }
+
+    override fun getPopupAnchorView(): View {
+        return mBinding.fragmentGeoSettingsButtonGo
+    }
+
+    override fun getPopupFragmentBaseFragment(): BaseFragment<*> {
+        return this
     }
 
     override fun getFragmentDestinationId(): Int {
@@ -145,7 +166,7 @@ class GeoSettingsFragment(
         adjustUiWithRadius(uiState.radius)
     }
 
-    private fun adjustUiWithLocationPoint(locationPoint: Point) {
+    override fun adjustUiWithLocationPoint(locationPoint: Point) {
         adjustMapWithLocationPoint(locationPoint)
         adjustGoButtonWithLocationPoint(locationPoint)
     }
@@ -311,34 +332,11 @@ class GeoSettingsFragment(
         mModel.retrieveError(UiGeoErrorType.LOCATION_REQUEST_FAILED)
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            SetLoadingStateUiOperation::class ->
-                processSetLoadingOperation(uiOperation as SetLoadingStateUiOperation)
-            LocationPointChangedUiOperation::class ->
-                processLocationPointChangedUiOperation(
-                    uiOperation as LocationPointChangedUiOperation)
-            ChangeRadiusUiOperation::class ->
-                processChangeRadiusUiOperation(uiOperation as ChangeRadiusUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
-    private fun processChangeRadiusUiOperation(changeRadiusUiOperation: ChangeRadiusUiOperation) {
-        changeCircleRadius(changeRadiusUiOperation.radius)
+    fun onGeoSettingsFragmentChangeRadius(radius: Int) {
+        changeCircleRadius(radius)
         setCameraPositionForRadiusCircle(true)
 
-        adjustUiWithRadius(changeRadiusUiOperation.radius)
-    }
-
-    override fun processLocationPointChangedUiOperation(
-        locationPointChangedUiOperation: LocationPointChangedUiOperation
-    ) {
-        adjustUiWithLocationPoint(locationPointChangedUiOperation.locationPoint)
+        adjustUiWithRadius(radius)
     }
 
     private fun adjustMapWithLocationPoint(locationPoint: Point) {

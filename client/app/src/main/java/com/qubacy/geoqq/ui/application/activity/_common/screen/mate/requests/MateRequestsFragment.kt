@@ -29,13 +29,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.InterlocutorFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.operation.handler.InterlocutorUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapter
@@ -44,10 +42,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.com
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.toMateRequestItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.operation.handler.MateRequestsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -61,7 +57,7 @@ class MateRequestsFragment(
     BaseRecyclerViewCallback,
     MateRequestsListAdapterCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment,
+    InterlocutorFragment,
     AuthorizedFragment
 {
     companion object {
@@ -84,6 +80,13 @@ class MateRequestsFragment(
     private lateinit var mSurfacePlaceholderViewProvider: SurfacePlaceholderViewProvider
 
     private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(AuthorizedUiOperationHandler(this))
+            .plus(InterlocutorUiOperationHandler(this))
+            .plus(MateRequestsUiOperationHandler(this))
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -192,69 +195,29 @@ class MateRequestsFragment(
         mAdapter.setMateRequests(requestsItemData)
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            InsertRequestsUiOperation::class ->
-                processInsertRequestsUiOperation(uiOperation as InsertRequestsUiOperation)
-            ShowInterlocutorDetailsUiOperation::class ->
-                processShowInterlocutorDetailsUiOperation(
-                    uiOperation as ShowInterlocutorDetailsUiOperation)
-            UpdateInterlocutorDetailsUiOperation::class ->
-                processUpdateInterlocutorDetailsUiOperation(
-                    uiOperation as UpdateInterlocutorDetailsUiOperation)
-            RemoveRequestUiOperation::class ->
-                processRemoveRequestUiOperation(uiOperation as RemoveRequestUiOperation)
-            ReturnAnsweredRequestUiOperation::class ->
-                processReturnAnsweredRequestUiOperation(
-                    uiOperation as ReturnAnsweredRequestUiOperation)
-            LogoutUiOperation::class ->
-                processLogoutOperation(uiOperation as LogoutUiOperation)
-            else -> return false
-        }
-
-        return true
+    fun onMateRequestsFragmentReturnAnsweredRequest(
+        position: Int
+    ) {
+        mBinding.fragmentMateRequestsList.returnSwipedItem(position)
     }
 
-    private fun processReturnAnsweredRequestUiOperation(
-        returnAnsweredRequestUiOperation: ReturnAnsweredRequestUiOperation
+    fun onMateRequestsFragmentRemoveRequest(
+        position: Int
     ) {
-        mBinding.fragmentMateRequestsList.returnSwipedItem(returnAnsweredRequestUiOperation.position)
-    }
-
-    private fun processRemoveRequestUiOperation(
-        removeRequestUiOperation: RemoveRequestUiOperation
-    ) {
-        mAdapter.removeItemAtPosition(removeRequestUiOperation.position)
+        mAdapter.removeItemAtPosition(position)
 
         checkMateRequestListEmpty()
     }
 
-    private fun processInsertRequestsUiOperation(
-        insertRequestsUiOperation: InsertRequestsUiOperation
+    fun onMateRequestsFragmentInsertRequests(
+        requests: List<MateRequestPresentation>,
+        position: Int
     ) {
-        val mateRequestsData = insertRequestsUiOperation.requests.map { it.toMateRequestItemData() }
+        val mateRequestsData = requests.map { it.toMateRequestItemData() }
 
-        mAdapter.insertMateRequests(mateRequestsData, insertRequestsUiOperation.position)
+        mAdapter.insertMateRequests(mateRequestsData, position)
 
         checkMateRequestListEmpty()
-    }
-
-    private fun processShowInterlocutorDetailsUiOperation(
-        showInterlocutorDetailsUiOperation: ShowInterlocutorDetailsUiOperation
-    ) {
-        openInterlocutorDetailsSheet(showInterlocutorDetailsUiOperation.interlocutor)
-    }
-
-    private fun processUpdateInterlocutorDetailsUiOperation(
-        updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
-    ) {
-        adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
-    }
-
-    override fun processSetLoadingOperation(loadingOperation: SetLoadingStateUiOperation) {
-        adjustUiWithLoadingState(loadingOperation.isLoading)
     }
 
     private fun checkMateRequestListEmpty() {
@@ -267,8 +230,8 @@ class MateRequestsFragment(
         mSurfacePlaceholderViewProvider.setIsVisible(isHintVisible) // todo: mb it'd be better to optimize this;
     }
 
-    private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
-        setupInterlocutorDetailsSheet(interlocutor)
+    override fun adjustInterlocutorFragmentUiWithInterlocutor(interlocutor: UserPresentation) {
+        super.adjustInterlocutorFragmentUiWithInterlocutor(interlocutor)
 
         // todo: changing Mate Request preview..
 

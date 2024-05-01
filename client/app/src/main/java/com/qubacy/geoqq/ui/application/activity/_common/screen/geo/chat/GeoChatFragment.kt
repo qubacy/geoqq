@@ -20,34 +20,39 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.ChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.error.type.UiChatErrorType
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MessageSentUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.operation.handler.ChatUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListener
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.util.listener.LocationListenerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.InterlocutorFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.operation.handler.InterlocutorUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.LocationFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.operation.handler.LocationUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.popup.PopupFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common.error.type.UiGeoErrorType
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.GeoMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.GeoMessageListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.AddGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.operation.handler.GeoChatUiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessageItemData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -60,8 +65,11 @@ class GeoChatFragment(
     LocationListenerCallback,
     GeoMessageListAdapterCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment,
-    AuthorizedFragment
+    PopupFragment,
+    LocationFragment,
+    InterlocutorFragment,
+    AuthorizedFragment,
+    ChatFragment
 {
     companion object {
         const val TAG = "GeoChatFragment"
@@ -85,6 +93,17 @@ class GeoChatFragment(
     private var mInterlocutorDetailsSheet: UserBottomSheetViewContainer? = null
     private var mLastWindowInsets: WindowInsetsCompat? = null
 
+    override var messageSnackbar: Snackbar? = null
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(GeoChatUiOperationHandler(this))
+            .plus(ChatUiOperationHandler(this))
+            .plus(LocationUiOperationHandler(this))
+            .plus(InterlocutorUiOperationHandler(this))
+            .plus(AuthorizedUiOperationHandler(this))
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -92,10 +111,16 @@ class GeoChatFragment(
         initLocationListener()
         initPermissionRunner()
 
-        mSnackbarAnchorView = mBinding.fragmentGeoChatInputMessageWrapper
-
         initMessageListView()
         initUiControls()
+    }
+
+    override fun getPopupAnchorView(): View {
+        return mBinding.fragmentGeoChatInputMessageWrapper
+    }
+
+    override fun getPopupFragmentBaseFragment(): BaseFragment<*> {
+        return this
     }
 
     override fun onStart() {
@@ -108,7 +133,8 @@ class GeoChatFragment(
     override fun onStop() {
         super.onStop()
 
-        mInterlocutorDetailsSheet?.close()
+        closePopupMessage()
+        closeInterlocutorDetailsSheet()
     }
 
     private fun initLocationListener() {
@@ -133,64 +159,15 @@ class GeoChatFragment(
         return getString(R.string.fragment_geo_chat_top_bar_title_text)
     }
 
-    override fun processUiOperation(uiOperation: UiOperation): Boolean {
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            AddGeoMessagesUiOperation::class ->
-                processAddGeoMessagesUiOperation(uiOperation as AddGeoMessagesUiOperation)
-            ShowInterlocutorDetailsUiOperation::class ->
-                processShowInterlocutorDetailsUiOperation(
-                    uiOperation as ShowInterlocutorDetailsUiOperation)
-            UpdateInterlocutorDetailsUiOperation::class ->
-                processUpdateInterlocutorDetailsUiOperation(
-                    uiOperation as UpdateInterlocutorDetailsUiOperation)
-            MateRequestSentToInterlocutorUiOperation::class ->
-                processMateRequestSentToInterlocutorUiOperation(
-                    uiOperation as MateRequestSentToInterlocutorUiOperation)
-            MessageSentUiOperation::class ->
-                processMessageSentUiOperation(uiOperation as MessageSentUiOperation)
-            LogoutUiOperation::class ->
-                processLogoutOperation(uiOperation as LogoutUiOperation)
-            else -> return false
-        }
-
-        return true
-    }
-
-    private fun processAddGeoMessagesUiOperation(
-        addGeoMessagesUiOperation: AddGeoMessagesUiOperation
+    fun onGeoChatFragmentAddGeoMessages(
+        messages: List<GeoMessagePresentation>
     ) {
         Log.d(TAG, "processAddGeoMessagesUiOperation(): entering..")
 
         val localUserId = mModel.getLocalUserId()
-        val geoMessageItems = addGeoMessagesUiOperation.messages
-            .map { it.toGeoMessageItemData(localUserId) }
+        val geoMessageItems = messages.map { it.toGeoMessageItemData(localUserId) }
 
         mAdapter.addMessages(geoMessageItems)
-    }
-
-    private fun processShowInterlocutorDetailsUiOperation(
-        showInterlocutorDetailsUiOperation: ShowInterlocutorDetailsUiOperation
-    ) {
-        openInterlocutorDetailsSheet(showInterlocutorDetailsUiOperation.interlocutor)
-    }
-
-    private fun processUpdateInterlocutorDetailsUiOperation(
-        updateInterlocutorDetailsUiOperation: UpdateInterlocutorDetailsUiOperation
-    ) {
-        adjustUiWithInterlocutor(updateInterlocutorDetailsUiOperation.interlocutor)
-    }
-
-    private fun processMateRequestSentToInterlocutorUiOperation(
-        mateRequestSentToInterlocutorUiOperation: MateRequestSentToInterlocutorUiOperation
-    ) {
-        onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_mate_request_sent)
-        mInterlocutorDetailsSheet!!.setMateButtonEnabled(false)
-    }
-
-    private fun processMessageSentUiOperation(messageSentUiOperation: MessageSentUiOperation) {
-        //onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_message_sent) // not a nice thing actually;
     }
 
     override fun runInitWithUiState(uiState: GeoChatUiState) {
@@ -307,10 +284,6 @@ class GeoChatFragment(
         mModel.resetMessages()
     }
 
-    private fun adjustUiWithInterlocutor(interlocutor: UserPresentation) {
-        setupInterlocutorDetailsSheet(interlocutor)
-    }
-
     override fun onMateButtonClicked(userId: Long) {
         launchAddInterlocutorAsMate(userId)
         mInterlocutorDetailsSheet!!.close()
@@ -402,5 +375,9 @@ class GeoChatFragment(
     override fun navigateToLogin() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_geoChatFragment_to_loginFragment)
+    }
+
+    override fun getPopupFragmentForChatFragment(): PopupFragment {
+        return this
     }
 }

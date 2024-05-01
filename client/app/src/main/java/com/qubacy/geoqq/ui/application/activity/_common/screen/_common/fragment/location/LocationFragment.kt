@@ -1,9 +1,11 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
+import com.yandex.mapkit.geometry.Point
 
 interface LocationFragment {
-    fun processLocationPointChangedUiOperation(
-        locationPointChangedUiOperation: LocationPointChangedUiOperation
-    )
+    fun onLocationFragmentLocationPointChanged(locationPoint: Point) {
+        adjustUiWithLocationPoint(locationPoint)
+    }
+
+    fun adjustUiWithLocationPoint(locationPoint: Point) { }
 }

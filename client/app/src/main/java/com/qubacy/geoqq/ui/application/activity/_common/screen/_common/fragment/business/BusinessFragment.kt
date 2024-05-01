@@ -2,11 +2,12 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.LoadingFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.operation.handler.LoadingUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.operation.handler._common.UiOperationHandler
 
 abstract class BusinessFragment<
     ViewBindingType : ViewBinding,
@@ -18,6 +19,11 @@ abstract class BusinessFragment<
     }
 
     override val mStartTransitionOnPreDraw: Boolean = false
+
+    override fun generateUiOperationHandlers(): Array<UiOperationHandler<*>> {
+        return super.generateUiOperationHandlers()
+            .plus(LoadingUiOperationHandler(this))
+    }
 
     override fun afterDestinationChange() {
         super.afterDestinationChange()
@@ -35,15 +41,7 @@ abstract class BusinessFragment<
     protected override fun processUiOperation(uiOperation: UiOperation): Boolean {
         onBackendResponded()
 
-        if (super.processUiOperation(uiOperation)) return true
-
-        when (uiOperation::class) {
-            SetLoadingStateUiOperation::class ->
-                processSetLoadingOperation(uiOperation as SetLoadingStateUiOperation)
-            else -> return false
-        }
-
-        return true
+        return super.processUiOperation(uiOperation)
     }
 
     protected open fun onBackendResponded() {

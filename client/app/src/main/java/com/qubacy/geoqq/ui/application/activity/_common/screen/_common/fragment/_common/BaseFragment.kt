@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
-import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -19,7 +18,6 @@ import androidx.navigation.Navigation
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
@@ -41,9 +39,6 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
 
     private var mErrorDialog: AlertDialog? = null
     private var mRequestDialog: AlertDialog? = null
-
-    private var mMessageSnackbar: Snackbar? = null
-    protected var mSnackbarAnchorView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,7 +137,6 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         mErrorDialog?.dismiss()
         mRequestDialog?.dismiss()
 
-        closePopupMessage()
         closeSoftKeyboard()
 
         super.onStop()
@@ -154,27 +148,6 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
     }
 
     protected open fun adjustViewToInsets(insets: Insets, insetsRes: WindowInsetsCompat) { }
-
-    open fun onPopupMessageOccurred(
-        message: String,
-        duration: Int = Toast.LENGTH_SHORT
-    ) {
-        mMessageSnackbar = Snackbar.make(requireContext(), requireView(), message, duration)
-            .setAnchorView(mSnackbarAnchorView)
-
-        mMessageSnackbar!!.show()
-    }
-
-    fun onPopupMessageOccurred(
-        @StringRes message: Int,
-        duration: Int = Toast.LENGTH_SHORT
-    ) {
-        onPopupMessageOccurred(getString(message), duration)
-    }
-
-    open fun closePopupMessage() {
-        mMessageSnackbar?.dismiss()
-    }
 
     protected open fun onErrorHandled(error: Error) { }
 

@@ -1,9 +1,10 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
+import androidx.annotation.CallSuper
 
 interface AuthorizedFragment {
-    fun processLogoutOperation(logoutUiOperation: LogoutUiOperation) {
+    @CallSuper
+    fun onAuthorizedFragmentLogout() {
         navigateToLogin()
     }
 
