@@ -59,11 +59,6 @@ class UserDataRepository @Inject constructor(
             val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
             val getUsersResponse = mHttpCallExecutor.executeNetworkRequest(getUsersCall)
 
-            // todo: an impossible case:
-//            if (getUsersResponse.users.size < userIds.size) //&& localUsers == null)
-//                throw ErrorAppException(mErrorDataRepository
-//                    .getError(UserErrorType.USERS_GETTING_FAILURE.getErrorCode()))
-
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 
             if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch

@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 open class HttpCallExecutor @Inject constructor(
     private val mErrorDataRepository: ErrorDataRepository,
-    private val mHttpClient: OkHttpClient,
+    val httpClient: OkHttpClient,
     private val mRetrofit: Retrofit
 ) {
     open fun <ResponseBodyType>executeNetworkRequest(
@@ -50,7 +50,7 @@ open class HttpCallExecutor @Inject constructor(
             if (e is AppException) throw e
 
             e.printStackTrace()
-            mHttpClient.dispatcher().cancelAll() // todo: is it ok?
+            httpClient.dispatcher().cancelAll() // todo: is it ok?
 
             throw ErrorAppException(
                 mErrorDataRepository.getError(

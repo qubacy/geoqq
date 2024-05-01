@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.data.token.repository
 
+import android.util.Log
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.DataRepository
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
@@ -28,6 +28,8 @@ class TokenDataRepository @Inject constructor(
     }
 
     suspend fun getTokens(): GetTokensDataResult {
+        Log.d(TAG, "getTokens(): entering..")
+
         val localAccessToken = mLocalStoreTokenDataSource.getAccessToken()
         val localRefreshToken = mLocalStoreTokenDataSource.getRefreshToken()
 
@@ -43,8 +45,11 @@ class TokenDataRepository @Inject constructor(
             if (localAccessToken != null) checkTokenForValidity(localAccessToken)
             else false
 
-        if (isLocalAccessTokenValid)
+        if (isLocalAccessTokenValid) {
+            Log.d(TAG, "getTokens(): leaving..")
+
             return GetTokensDataResult(localAccessToken!!, localRefreshToken!!)
+        }
 
         val updateTokensResponse = runUpdateTokensRequest(localRefreshToken!!)
 
@@ -53,6 +58,8 @@ class TokenDataRepository @Inject constructor(
             updateTokensResponse.refreshToken
         )
 
+        Log.d(TAG, "getTokens(): leaving..")
+
         return GetTokensDataResult(
             updateTokensResponse.accessToken,
             updateTokensResponse.refreshToken
@@ -60,6 +67,8 @@ class TokenDataRepository @Inject constructor(
     }
 
     suspend fun signIn() {
+        Log.d(TAG, "signIn(): entering..")
+
         val localRefreshToken = mLocalStoreTokenDataSource.getRefreshToken()
 
         val isRefreshTokenValid =
@@ -76,6 +85,8 @@ class TokenDataRepository @Inject constructor(
             updateTokensResponse.accessToken,
             updateTokensResponse.refreshToken
         )
+
+        Log.d(TAG, "signIn(): leaving..")
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -83,6 +94,8 @@ class TokenDataRepository @Inject constructor(
         login: String,
         password: String
     ) {
+        Log.d(TAG, "signIn(): entering..")
+
         val passwordHashBytes = HasherUtil.hashString(password, HasherUtil.HashAlgorithm.SHA256)
         val passwordHash = passwordHashBytes.toHexString()
 
@@ -93,6 +106,8 @@ class TokenDataRepository @Inject constructor(
             signInResponse.accessToken,
             signInResponse.refreshToken
         )
+
+        Log.d(TAG, "signIn(): leaving..")
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -139,7 +154,7 @@ class TokenDataRepository @Inject constructor(
             return false
         }
 
-        return !jwtToken.isExpired(0)
+        return !jwtToken.isExpired(10) // todo: reconsider this one;
     }
 
     fun getTokenPayload(token: String): Map<String, Claim>? {

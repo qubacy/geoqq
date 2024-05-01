@@ -9,13 +9,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-abstract class UseCase(
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+abstract class UseCase @OptIn(ExperimentalCoroutinesApi::class) constructor(
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1), // todo: not good;
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     protected val mErrorDataRepository: ErrorDataRepository
 ) : CoroutineUser(coroutineDispatcher, coroutineScope) {

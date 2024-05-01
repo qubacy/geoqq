@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.api
 
 import android.os.Build
 import android.os.LocaleList
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoChatDataSource
 import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
@@ -10,6 +11,9 @@ import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequest
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.token.repository.source.http.HttpTokenDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor
@@ -64,6 +68,7 @@ class HttpApi {
 
     private val mMoshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
+        .add(String::class.java, StringJsonAdapter())
         .build()
 
     val retrofit = Retrofit.Builder()
