@@ -12,6 +12,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.LoadingViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.changeLoadingState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.preserveLoadingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -79,6 +80,10 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         mUiState.error = error
 
         return listOf(ErrorUiOperation(error))
+    }
+
+    override fun preserveLoadingState(isLoading: Boolean) {
+        preserveLoadingState(isLoading, mUiState)
     }
 
     override fun changeLoadingState(isLoading: Boolean) {

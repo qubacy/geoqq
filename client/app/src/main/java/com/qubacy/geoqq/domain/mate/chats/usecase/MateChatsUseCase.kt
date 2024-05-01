@@ -6,6 +6,9 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
+import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
+import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
@@ -15,8 +18,9 @@ import javax.inject.Inject
 
 class MateChatsUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
+    private val mLogoutUseCase: LogoutUseCase,
     private val mMateChatDataRepository: MateChatDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository) {
+) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
     companion object {
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
     }
@@ -33,9 +37,9 @@ class MateChatsUseCase @Inject constructor(
 
             mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk))
 
-        }) {
+        }, {
             GetChatChunkDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     override fun onCoroutineScopeSet() {
@@ -61,5 +65,9 @@ class MateChatsUseCase @Inject constructor(
         val chatChunk = MateChatChunk(getChatsResult.offset, chats)
 
         mResultFlow.emit(UpdateChatChunkDomainResult(chunk = chatChunk))
+    }
+
+    override fun getLogoutUseCase(): LogoutUseCase {
+        return mLogoutUseCase
     }
 }

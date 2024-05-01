@@ -4,6 +4,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import dagger.Module
@@ -19,6 +20,7 @@ object MateChatUseCaseModule {
         errorDataRepository: ErrorDataRepository,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
+        mLogoutUseCase: LogoutUseCase,
         mateMessageDataRepository: MateMessageDataRepository,
         mateChatDataRepository: MateChatDataRepository
     ): MateChatUseCase {
@@ -26,6 +28,7 @@ object MateChatUseCaseModule {
             errorDataRepository,
             mateRequestUseCase,
             interlocutorUseCase,
+            mLogoutUseCase,
             mateMessageDataRepository,
             mateChatDataRepository
         )

@@ -16,6 +16,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.MaterialToolbar
@@ -26,6 +27,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.component.list.item.animator.MessageItemAnimator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.error.type.UiChatErrorType
@@ -57,7 +60,8 @@ class GeoChatFragment(
     LocationListenerCallback,
     GeoMessageListAdapterCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment
+    MateableFragment,
+    AuthorizedFragment
 {
     companion object {
         const val TAG = "GeoChatFragment"
@@ -146,6 +150,8 @@ class GeoChatFragment(
                     uiOperation as MateRequestSentToInterlocutorUiOperation)
             MessageSentUiOperation::class ->
                 processMessageSentUiOperation(uiOperation as MessageSentUiOperation)
+            LogoutUiOperation::class ->
+                processLogoutOperation(uiOperation as LogoutUiOperation)
             else -> return false
         }
 
@@ -336,6 +342,8 @@ class GeoChatFragment(
     }
 
     override fun isInterlocutorDetailsMateButtonVisible(interlocutor: UserPresentation): Boolean {
+        Log.d(TAG, "isInterlocutorDetailsMateButtonVisible(): interlocutor.isMate = ${interlocutor.isMate};")
+
         return !interlocutor.isMate
     }
 
@@ -389,5 +397,10 @@ class GeoChatFragment(
 
     override fun onRequestingLocationUpdatesFailed(exception: Exception) {
         mModel.retrieveError(UiGeoErrorType.LOCATION_REQUEST_FAILED)
+    }
+
+    override fun navigateToLogin() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_geoChatFragment_to_loginFragment)
     }
 }

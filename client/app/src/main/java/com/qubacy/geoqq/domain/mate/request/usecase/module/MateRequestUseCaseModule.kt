@@ -2,6 +2,7 @@ package com.qubacy.geoqq.domain.mate.request.usecase.module
 
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import dagger.Module
 import dagger.Provides
@@ -14,8 +15,9 @@ object MateRequestUseCaseModule {
     @Provides
     fun provideMateRequestUseCase(
         errorDataRepository: ErrorDataRepository,
+        logoutUseCase: LogoutUseCase,
         mateRequestDataRepository: MateRequestDataRepository
     ): MateRequestUseCase {
-        return MateRequestUseCase(errorDataRepository, mateRequestDataRepository)
+        return MateRequestUseCase(errorDataRepository, logoutUseCase, mateRequestDataRepository)
     }
 }

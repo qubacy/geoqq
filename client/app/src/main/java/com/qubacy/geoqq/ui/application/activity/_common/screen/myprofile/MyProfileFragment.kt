@@ -26,6 +26,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.password.PasswordValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
@@ -47,6 +48,7 @@ import javax.inject.Inject
 class MyProfileFragment(
 
 ) : BusinessFragment<FragmentMyProfileBinding, MyProfileUiState, MyProfileViewModel>(),
+    AuthorizedFragment,
     PermissionRunnerCallback
 {
     @Inject
@@ -228,11 +230,7 @@ class MyProfileFragment(
         navigateToLogin()
     }
 
-    private fun processLogoutOperation(logoutUiOperation: LogoutUiOperation) {
-        navigateToLogin()
-    }
-
-    private fun navigateToLogin() {
+    override fun navigateToLogin() {
         Log.d(TAG, "navigateToLogin(): view.tag = " +
                 "${requireView().getTag(androidx.navigation.R.id.nav_controller_view_tag)}")
         Log.d(TAG, "navigateToLogin(): navController = ${Navigation.findNavController(requireView())};")

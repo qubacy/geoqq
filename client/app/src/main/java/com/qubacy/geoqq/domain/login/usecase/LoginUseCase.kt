@@ -14,20 +14,20 @@ class LoginUseCase @Inject constructor(
         executeLogic({
             mTokenDataRepository.signIn()
             mResultFlow.emit(SignedInDomainResult())
-        }) { SignedInDomainResult(it) }
+        }, { SignedInDomainResult(it) })
     }
 
     fun signIn(login: String, password: String) {
         executeLogic({
             mTokenDataRepository.signIn(login, password)
             mResultFlow.emit(SignedInDomainResult())
-        }) { SignedInDomainResult(it) }
+        }, { SignedInDomainResult(it) })
     }
 
     fun signUp(login: String, password: String) {
         executeLogic({
             mTokenDataRepository.signUp(login, password)
             mResultFlow.emit(SignedInDomainResult())
-        }) { SignedInDomainResult(it) }
+        }, { SignedInDomainResult(it) })
     }
 }

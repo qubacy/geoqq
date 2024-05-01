@@ -28,6 +28,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
@@ -57,7 +59,8 @@ class MateChatFragment(
     PermissionRunnerCallback,
     BaseRecyclerViewCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment
+    MateableFragment,
+    AuthorizedFragment
 {
     companion object {
         const val TAG = "MateChatFragment"
@@ -119,20 +122,19 @@ class MateChatFragment(
                 processUpdateChatChunkUiOperation(uiOperation as UpdateMessageChunkUiOperation)
             ShowInterlocutorDetailsUiOperation::class ->
                 processShowInterlocutorDetailsUiOperation(
-                    uiOperation as ShowInterlocutorDetailsUiOperation
-                )
+                    uiOperation as ShowInterlocutorDetailsUiOperation)
             UpdateInterlocutorDetailsUiOperation::class ->
                 processUpdateInterlocutorDetailsUiOperation(
-                    uiOperation as UpdateInterlocutorDetailsUiOperation
-                )
+                    uiOperation as UpdateInterlocutorDetailsUiOperation)
             MateRequestSentToInterlocutorUiOperation::class ->
                 processMateRequestSentToInterlocutorUiOperation(
-                    uiOperation as MateRequestSentToInterlocutorUiOperation
-                )
+                    uiOperation as MateRequestSentToInterlocutorUiOperation)
             ChatDeletedUiOperation::class ->
                 processChatDeletedUiOperation(uiOperation as ChatDeletedUiOperation)
             MessageSentUiOperation::class ->
                 processMessageSentUiOperation(uiOperation as MessageSentUiOperation)
+            LogoutUiOperation::class ->
+                processLogoutOperation(uiOperation as LogoutUiOperation)
             else -> return false
         }
 
@@ -462,5 +464,10 @@ class MateChatFragment(
     private fun changeLoadingIndicatorState(isVisible: Boolean) {
         mBinding.fragmentMateChatProgressBar.visibility =
             if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun navigateToLogin() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_mateChatFragment_to_loginFragment)
     }
 }

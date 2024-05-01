@@ -50,7 +50,7 @@ class HttpApi {
      */
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(LanguageHeaderInterceptor())
-        .callTimeout(30, TimeUnit.SECONDS)
+        .callTimeout(10, TimeUnit.SECONDS)
         .connectTimeout(10, TimeUnit.SECONDS)
 //        .addInterceptor {
 //            val request = it.request()

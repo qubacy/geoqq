@@ -5,10 +5,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.logout.LogoutDomainResult
+import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
@@ -75,6 +76,8 @@ open class MyProfileViewModel @Inject constructor(
                 processDeleteMyProfileDomainResult(domainResult as DeleteMyProfileDomainResult)
             LogoutDomainResult::class ->
                 processLogoutDomainResult(domainResult as LogoutDomainResult)
+            ErrorWithLogoutDomainResult::class ->
+                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
             else -> listOf()
         }
     }

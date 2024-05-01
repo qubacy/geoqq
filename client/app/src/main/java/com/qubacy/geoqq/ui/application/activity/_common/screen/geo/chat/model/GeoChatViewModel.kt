@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
@@ -15,6 +16,7 @@ import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateIn
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.message.text.MessageTextValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
@@ -38,7 +40,7 @@ open class GeoChatViewModel @Inject constructor(
     mGeoChatUseCase: GeoChatUseCase
 ) : BusinessViewModel<GeoChatUiState, GeoChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mGeoChatUseCase
-), LocationViewModel {
+), LocationViewModel, AuthorizedViewModel {
     companion object {
         const val RADIUS_KEY = "radius"
         const val LONGITUDE_KEY = "longitude"
@@ -143,6 +145,8 @@ open class GeoChatViewModel @Inject constructor(
                     domainResult as SendMateRequestDomainResult)
             SendGeoMessageDomainResult::class ->
                 processSendMessageDomainResult(domainResult as SendGeoMessageDomainResult)
+            ErrorWithLogoutDomainResult::class ->
+                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
             else -> listOf()
         }
     }

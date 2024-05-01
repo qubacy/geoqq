@@ -4,7 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 
 class LoginValidator : Validator<String> {
     companion object {
-        val REGEX = Regex("^\\S{8,32}$")
+        val REGEX = Regex("^\\w{6,32}$")
     }
 
     override fun isValid(value: String): Boolean {

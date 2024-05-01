@@ -23,6 +23,8 @@ import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
@@ -45,7 +47,12 @@ class MateChatsFragment(
     FragmentMateChatsBinding,
     MateChatsUiState,
     MateChatsViewModel
->(), PermissionRunnerCallback, BaseRecyclerViewCallback, MateChatsListAdapterCallback {
+>(),
+    AuthorizedFragment,
+    PermissionRunnerCallback,
+    BaseRecyclerViewCallback,
+    MateChatsListAdapterCallback
+{
     @Inject
     @MateChatsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -170,6 +177,8 @@ class MateChatsFragment(
                 processInsertChatsUiOperation(uiOperation as InsertChatsUiOperation)
             UpdateChatChunkUiOperation::class ->
                 processUpdateChatChunkUiOperation(uiOperation as UpdateChatChunkUiOperation)
+            LogoutUiOperation::class ->
+                processLogoutOperation(uiOperation as LogoutUiOperation)
             else -> return false
         }
 
@@ -280,5 +289,10 @@ class MateChatsFragment(
             .actionMateChatsFragmentToMateChatFragment(chat)
 
         Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    override fun navigateToLogin() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_mateChatsFragment_to_loginFragment)
     }
 }

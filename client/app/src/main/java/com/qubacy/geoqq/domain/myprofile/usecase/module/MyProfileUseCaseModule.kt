@@ -3,6 +3,7 @@ package com.qubacy.geoqq.domain.myprofile.usecase.module
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import dagger.Module
 import dagger.Provides
@@ -15,11 +16,13 @@ object MyProfileUseCaseModule {
     @Provides
     fun provideMyProfileUseCase(
         errorDataRepository: ErrorDataRepository,
+        logoutUseCase: LogoutUseCase,
         myProfileDataRepository: MyProfileDataRepository,
         tokenDataRepository: TokenDataRepository
     ): MyProfileUseCase {
         return MyProfileUseCase(
             errorDataRepository,
+            logoutUseCase,
             myProfileDataRepository,
             tokenDataRepository
         )

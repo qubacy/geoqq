@@ -176,12 +176,16 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         mMessageSnackbar?.dismiss()
     }
 
-    protected open fun onErrorHandled() { }
+    protected open fun onErrorHandled(error: Error) { }
 
-    open fun onErrorOccurred(error: Error) {
+    open fun onErrorOccurred(
+        error: Error,
+        onErrorDismissedAction: ((error: Error) -> Unit) = { error -> onErrorDismissed(error) },
+        onErrorHandledAction: ((error: Error) -> Unit) = { error -> onErrorHandled(error) }
+    ) {
         val onDismissedWithButton = {
-            onErrorDismissed(error)
-            onErrorHandled()
+            onErrorDismissedAction(error)
+            onErrorHandledAction(error)
         }
 
         mErrorDialog = MaterialAlertDialogBuilder(requireContext())

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.LoadingViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.changeLoadingState
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.extension.preserveLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
@@ -36,6 +37,10 @@ open class GeoSettingsViewModel @Inject constructor(
 
     override fun generateDefaultUiState(): GeoSettingsUiState {
         return GeoSettingsUiState(radius = DEFAULT_RADIUS_METERS)
+    }
+
+    override fun preserveLoadingState(isLoading: Boolean) {
+        preserveLoadingState(isLoading, mUiState)
     }
 
     override fun changeLoadingState(isLoading: Boolean) {

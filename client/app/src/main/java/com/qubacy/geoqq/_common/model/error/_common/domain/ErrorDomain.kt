@@ -24,8 +24,9 @@ enum class ErrorDomain(
     companion object {
         fun getOffsetForDomain(domain: ErrorDomain): Int {
             var offset = domain.type.offset
+            val entriesOfType = entries.filter { it.type == domain.type }
 
-            for (entry in entries) {
+            for (entry in entriesOfType) {
                 if (entry == domain) break
 
                 offset += entry.type.size

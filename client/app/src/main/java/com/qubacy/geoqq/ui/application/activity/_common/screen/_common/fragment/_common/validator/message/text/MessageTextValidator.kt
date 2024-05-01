@@ -4,11 +4,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 
 class MessageTextValidator : Validator<String> {
     companion object {
-        val REGEX = Regex("\\s*\\S+\\s*")
-        val MAX_LENGTH = 200
+        val REGEX = Regex("^.{0,512}$")
     }
 
     override fun isValid(value: String): Boolean {
-        return REGEX.matches(value) && (value.length <= MAX_LENGTH)
+        return REGEX.matches(value)
     }
 }

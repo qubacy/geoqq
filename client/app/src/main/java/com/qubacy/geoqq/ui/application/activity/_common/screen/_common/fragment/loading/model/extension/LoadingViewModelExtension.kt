@@ -8,12 +8,19 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
+fun StatefulViewModel<*>.preserveLoadingState(
+    isLoading: Boolean,
+    uiState: LoadingUiState
+) {
+    uiState.isLoading = isLoading
+}
+
 fun StatefulViewModel<*>.changeLoadingState(
     isLoading: Boolean,
     uiState: LoadingUiState,
     uiOperationFlow: MutableSharedFlow<UiOperation>
 ) {
-    uiState.isLoading = isLoading
+    preserveLoadingState(isLoading, uiState)
 
     viewModelScope.launch {
         uiOperationFlow.emit(SetLoadingStateUiOperation(isLoading))

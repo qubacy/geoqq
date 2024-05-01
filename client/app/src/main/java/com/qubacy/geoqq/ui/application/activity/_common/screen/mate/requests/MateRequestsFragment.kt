@@ -28,6 +28,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.util.permission.PermissionRunnerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.MateableFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
@@ -59,7 +61,8 @@ class MateRequestsFragment(
     BaseRecyclerViewCallback,
     MateRequestsListAdapterCallback,
     UserBottomSheetViewContainerCallback,
-    MateableFragment
+    MateableFragment,
+    AuthorizedFragment
 {
     companion object {
         const val HINT_TEXT_ANIMATION_APPEARANCE_TIMEOUT = 1000L
@@ -206,6 +209,8 @@ class MateRequestsFragment(
             ReturnAnsweredRequestUiOperation::class ->
                 processReturnAnsweredRequestUiOperation(
                     uiOperation as ReturnAnsweredRequestUiOperation)
+            LogoutUiOperation::class ->
+                processLogoutOperation(uiOperation as LogoutUiOperation)
             else -> return false
         }
 
@@ -414,5 +419,10 @@ class MateRequestsFragment(
         Log.d(TAG, "onEndReached(): entering..")
 
         mModel.getNextRequestChunk()
+    }
+
+    override fun navigateToLogin() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_mateRequestsFragment_to_loginFragment)
     }
 }

@@ -28,12 +28,18 @@ abstract class UseCase(
 
     protected fun <ResultType : DomainResult>executeLogic(
         logicAction: suspend () -> Unit,
-        errorResultProducer: (error: Error) -> ResultType
+        errorResultProducer: (error: Error) -> ResultType,
+        errorMiddleware: (error: Error, errorResultProducer: (error: Error) -> ResultType, useCase: UseCase) -> DomainResult =
+            { error, producer, useCase -> producer(error) }
     ) {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             runBlocking {
-                if (exception is ErrorAppException)
-                    return@runBlocking mResultFlow.emit(errorResultProducer(exception.error))
+                if (exception is ErrorAppException) {
+                    val domainResult = errorMiddleware(
+                        exception.error, errorResultProducer, this@UseCase)
+
+                    return@runBlocking mResultFlow.emit(domainResult)
+                }
 
                 exception.printStackTrace()
 

@@ -34,6 +34,7 @@ class UserBottomSheetViewContainer(
     private lateinit var mBehavior: BottomSheetBehavior<MotionLayout>
 
     private var mIsMateButtonEnabled: Boolean = true
+    private var mIsMateButtonVisible: Boolean = true
 
     init {
         inflate(context, parent)
@@ -171,8 +172,13 @@ class UserBottomSheetViewContainer(
     }
 
     fun setMateButtonVisible(isVisible: Boolean) {
-        if (mBinding.componentBottomSheetUserButtonMate.isVisible == isVisible)
-            return
+        Log.d(TAG, "setMateButtonVisible(): isVisible = $isVisible;")
+
+        if (mIsMateButtonVisible == isVisible) return
+
+        mIsMateButtonVisible = isVisible
+
+        Log.d(TAG, "setMateButtonVisible(): passed;")
 
         val topViewId =
             if (isVisible) R.id.component_bottom_sheet_user_button_mate

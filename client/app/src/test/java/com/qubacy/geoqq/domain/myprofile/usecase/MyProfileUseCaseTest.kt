@@ -22,7 +22,7 @@ import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.logout.LogoutDomainResult
+import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert

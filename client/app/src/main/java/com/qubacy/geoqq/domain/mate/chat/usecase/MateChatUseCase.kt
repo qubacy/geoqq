@@ -8,7 +8,10 @@ import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
+import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
@@ -25,9 +28,10 @@ class MateChatUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
+    private val mLogoutUseCase: LogoutUseCase,
     private val mMateMessageDataRepository: MateMessageDataRepository,
     private val mMateChatDataRepository: MateChatDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository) {
+) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
     companion object {
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }
@@ -50,9 +54,9 @@ class MateChatUseCase @Inject constructor(
 
             mResultFlow.emit(GetMessageChunkDomainResult(chunk = messageChunk))
 
-        }) {
+        }, {
             GetMessageChunkDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     fun sendMateRequestToInterlocutor(interlocutorId: Long) {
@@ -69,9 +73,9 @@ class MateChatUseCase @Inject constructor(
 
             mResultFlow.emit(DeleteChatDomainResult())
 
-        }) {
+        }, {
             DeleteChatDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     fun sendMessage(chatId: Long, text: String) {
@@ -80,9 +84,9 @@ class MateChatUseCase @Inject constructor(
 
             mResultFlow.emit(SendMateMessageDomainResult())
 
-        }) {
+        }, {
             SendMateMessageDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     override fun onCoroutineScopeSet() {
@@ -113,5 +117,9 @@ class MateChatUseCase @Inject constructor(
         val messageChunk = MateMessageChunk(getMessagesResult.offset, messages)
 
         mResultFlow.emit(UpdateMessageChunkDomainResult(chunk = messageChunk))
+    }
+
+    override fun getLogoutUseCase(): LogoutUseCase {
+        return mLogoutUseCase
     }
 }

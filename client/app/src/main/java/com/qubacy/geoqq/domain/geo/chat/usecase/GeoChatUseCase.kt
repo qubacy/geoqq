@@ -7,11 +7,14 @@ import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataRes
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
+import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.send.SendGeoMessageDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
@@ -22,9 +25,10 @@ class GeoChatUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val mGeoMessageDataRepository: GeoMessageDataRepository,
     private val mUserDataRepository: UserDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository) {
+) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
         mMateRequestUseCase.resultFlow,
@@ -44,9 +48,9 @@ class GeoChatUseCase @Inject constructor(
 
             mResultFlow.emit(GetGeoMessagesDomainResult(messages = messages))
 
-        }) {
+        }, {
             GetGeoMessagesDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     fun sendMessage(
@@ -59,9 +63,9 @@ class GeoChatUseCase @Inject constructor(
             mGeoMessageDataRepository.sendMessage(text, radius, longitude, latitude)
 
             mResultFlow.emit(SendGeoMessageDomainResult())
-        }) {
+        }, {
             SendGeoMessageDomainResult(error = it)
-        }
+        }, ::authorizedErrorMiddleware)
     }
 
     fun getLocalUserId(): Long {
@@ -103,5 +107,9 @@ class GeoChatUseCase @Inject constructor(
         val messages = getMessagesResult.messages.map { it.toGeoMessage() }
 
         mResultFlow.emit(NewGeoMessagesDomainResult(messages = messages))
+    }
+
+    override fun getLogoutUseCase(): LogoutUseCase {
+        return logoutUseCase
     }
 }

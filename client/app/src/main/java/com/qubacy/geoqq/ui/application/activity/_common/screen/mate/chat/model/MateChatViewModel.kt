@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
@@ -16,6 +17,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.message.SendMateMessageD
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.message.text.MessageTextValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -42,7 +44,7 @@ open class MateChatViewModel @Inject constructor(
     mMateChatUseCase: MateChatUseCase
 ) : BusinessViewModel<MateChatUiState, MateChatUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateChatUseCase
-) {
+), AuthorizedViewModel {
     private var mIsGettingNextMessageChunk = false
 
     override fun generateDefaultUiState(): MateChatUiState {
@@ -158,6 +160,8 @@ open class MateChatViewModel @Inject constructor(
                 processDeleteChatDomainResult(domainResult as DeleteChatDomainResult)
             SendMateMessageDomainResult::class ->
                 processSendMessageDomainResult(domainResult as SendMateMessageDomainResult)
+            ErrorWithLogoutDomainResult::class ->
+                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
             else -> listOf()
         }
     }

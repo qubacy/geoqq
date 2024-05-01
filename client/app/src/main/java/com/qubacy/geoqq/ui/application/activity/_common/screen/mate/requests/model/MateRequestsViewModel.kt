@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.GetRequestChunkDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.mateable.model.operation.UpdateInterlocutorDetailsUiOperation
@@ -35,7 +37,7 @@ open class MateRequestsViewModel @Inject constructor(
     mMateRequestsUseCase: MateRequestsUseCase
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
     mSavedStateHandle, mErrorDataRepository, mMateRequestsUseCase
-) {
+), AuthorizedViewModel {
     private var mIsGettingNextRequestChunk = false
 
     override fun generateDefaultUiState(): MateRequestsUiState {
@@ -103,6 +105,8 @@ open class MateRequestsViewModel @Inject constructor(
                 processUpdateInterlocutorDomainResult(domainResult as UpdateInterlocutorDomainResult)
             AnswerMateRequestDomainResult::class ->
                 processAnswerMateRequestDomainResult(domainResult as AnswerMateRequestDomainResult)
+            ErrorWithLogoutDomainResult::class ->
+                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
             else -> listOf()
         }
     }

@@ -6,10 +6,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.authorized.result.error.ErrorWithLogoutDomainResult
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
@@ -28,7 +30,7 @@ open class MateChatsViewModel @Inject constructor(
     mUseCase: MateChatsUseCase
 ) : BusinessViewModel<MateChatsUiState, MateChatsUseCase>(
     mSavedStateHandle, mErrorDataRepository, mUseCase
-) {
+), AuthorizedViewModel {
     companion object {
         const val TAG = "MateChatsViewModel"
     }
@@ -49,6 +51,8 @@ open class MateChatsViewModel @Inject constructor(
                 processGetChatChunkDomainResult(domainResult as GetChatChunkDomainResult)
             UpdateChatChunkDomainResult::class ->
                 processUpdateChatChunkDomainResult(domainResult as UpdateChatChunkDomainResult)
+            ErrorWithLogoutDomainResult::class ->
+                processErrorWithLogoutDomainResult(domainResult as ErrorWithLogoutDomainResult)
             else -> listOf()
         }
     }

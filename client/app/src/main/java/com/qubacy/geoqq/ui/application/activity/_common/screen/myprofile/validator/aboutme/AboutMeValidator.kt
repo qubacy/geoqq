@@ -4,7 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 
 class AboutMeValidator : Validator<String> {
     companion object {
-        val REGEX = Regex("\\s*\\S+\\s*")
+        val REGEX = Regex("^.{0,2048}$")
     }
 
     override fun isValid(value: String): Boolean {
