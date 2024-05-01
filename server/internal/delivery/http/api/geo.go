@@ -44,7 +44,7 @@ func (h *Handler) registerGeoRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
+	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err) // server error!
 		return
@@ -58,7 +58,7 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 
 	// <---> services
 
-	geoMessages, err := h.services.GetGeoChatMessages(ctx,
+	geoMessages, err := h.services.GetGeoChatMessages(ctx, userId,
 		radius, lat, lon, offset, count)
 	if err != nil {
 		resWithErrorForClient(ctx, err)
@@ -79,7 +79,7 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 // -----------------------------------------------------------------------
 
 func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
-	_, clientCode, err := extractUserIdFromContext(ctx)
+	userId, clientCode, err := extractUserIdFromContext(ctx)
 	if err != nil {
 		resWithServerErr(ctx, clientCode, err)
 		return
@@ -91,7 +91,7 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 
 	// <---> services
 
-	geoMessages, err := h.services.GetGeoChatAllMessages(ctx,
+	geoMessages, err := h.services.GetGeoChatAllMessages(ctx, userId,
 		radius, lat, lon)
 	if err != nil {
 		resWithErrorForClient(ctx, err)

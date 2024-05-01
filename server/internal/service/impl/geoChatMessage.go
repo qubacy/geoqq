@@ -32,8 +32,7 @@ func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 // -----------------------------------------------------------------------
 
 func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
-	userId uint64, text string,
-	longitude, latitude float64) error {
+	userId uint64, text string, longitude, latitude float64) error {
 
 	if len(text) > int(s.chatParams.MaxMessageLength) {
 		return ec.New(ErrMessageTooLong(s.chatParams.MaxMessageLength),
@@ -56,14 +55,15 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 
 	// TODO: send the push message to users?
 
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 
 // -----------------------------------------------------------------------
 
 func (s *GeoChatMessageService) GetGeoChatAllMessages(
-	ctx context.Context, distance uint64,
-	latitude, longitude float64) (
+	ctx context.Context, userId uint64,
+	distance uint64, latitude, longitude float64) (
 	domain.GeoMessageList, error,
 ) {
 	err := validateLatAndLon(longitude, latitude)
@@ -82,12 +82,14 @@ func (s *GeoChatMessageService) GetGeoChatAllMessages(
 		return nil, ec.New(utl.NewFuncError(s.GetGeoChatAllMessages, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return geoMessages, nil
 }
 
 func (s *GeoChatMessageService) GetGeoChatMessages(
-	ctx context.Context, distance uint64,
-	latitude, longitude float64,
+	ctx context.Context, userId uint64,
+	distance uint64, latitude, longitude float64,
 	offset, count uint64) (
 	domain.GeoMessageList, error,
 ) {
@@ -109,6 +111,8 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 		return nil, ec.New(utl.NewFuncError(s.GetGeoChatMessages, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return geoMessages, nil
 }
 

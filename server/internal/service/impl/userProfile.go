@@ -39,7 +39,7 @@ func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) 
 			p.GetUserProfile, ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
-	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return userProfile, nil
 }
 
@@ -71,7 +71,7 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
-	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 
@@ -101,7 +101,7 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
-	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 
@@ -112,8 +112,8 @@ func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint6
 			ec.Server, ec.DomainStorageError)
 	}
 
-	p.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
-	p.domainStorage.DeleteBgrMateChatsForUser(userId)
+	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+	p.domainStorage.DeleteBgrMateChatsForUser(userId) // !
 
 	return nil
 }

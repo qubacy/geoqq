@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"geoqq/internal/domain"
+	storage "geoqq/internal/storage/domain"
 	utl "geoqq/pkg/utility"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -64,7 +65,20 @@ var (
 // public
 // -----------------------------------------------------------------------
 
-func (s *PublicUserStorage) GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (
+func (s *PublicUserStorage) GetPublicUserById(ctx context.Context,
+	userId, targetUserId uint64) (*domain.PublicUser, error) {
+	return s.GetTransformedPublicUserById(ctx, userId, targetUserId, nil)
+}
+
+func (s *PublicUserStorage) GetPublicUsersByIds(ctx context.Context,
+	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
+	return s.GetTransformedPublicUsersByIds(ctx, userId, targetUserIds, nil)
+}
+
+// -----------------------------------------------------------------------
+
+func (s *PublicUserStorage) GetTransformedPublicUserById(ctx context.Context,
+	userId uint64, targetUserId uint64, transform storage.PublicUserTransform) (
 	*domain.PublicUser, error,
 ) {
 	conn, err := s.pool.Acquire(ctx)
@@ -84,11 +98,17 @@ func (s *PublicUserStorage) GetPublicUserById(ctx context.Context, userId, targe
 	if err != nil {
 		return nil, utl.NewFuncError(s.GetPublicUserById, err)
 	}
+
+	if transform != nil {
+		transform(&publicUser)
+	}
 	return &publicUser, nil
 }
 
-func (s *PublicUserStorage) GetPublicUsersByIds(ctx context.Context,
-	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
+func (s *PublicUserStorage) GetTransformedPublicUsersByIds(ctx context.Context,
+	userId uint64, targetUserIds []uint64, transform storage.PublicUserTransform) (
+	domain.PublicUserList, error,
+) {
 	if len(targetUserIds) == 0 {
 		return domain.PublicUserList{}, nil
 	}
@@ -120,6 +140,9 @@ func (s *PublicUserStorage) GetPublicUsersByIds(ctx context.Context,
 			return nil, utl.NewFuncError(s.GetPublicUsersByIds, err)
 		}
 
+		if transform != nil {
+			transform(&publicUser)
+		}
 		publicUsers = append(publicUsers, &publicUser)
 	}
 

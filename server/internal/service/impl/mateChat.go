@@ -47,6 +47,7 @@ func (s *MateChatService) GetMateChat(ctx context.Context, chatId, userId uint64
 			ec.Server, ec.DomainStorageError)
 	}
 
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return mateChat, nil
 }
 
@@ -66,6 +67,7 @@ func (s *MateChatService) GetMateChatsForUser(ctx context.Context,
 			ec.Server, ec.DomainStorageError)
 	}
 
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return mateChats, nil // same types!
 }
 
@@ -97,5 +99,6 @@ func (s *MateChatService) DeleteMateChatForUser(ctx context.Context,
 			ec.Server, ec.DomainStorageError)
 	}
 
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }

@@ -269,8 +269,7 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 		userId, mateChatId, requestDto.Text)
 
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -300,8 +299,7 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
 		userId, offset, count)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -312,10 +310,6 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
-
-	bytes, _ := json.Marshal(responseDto)
-	logger.Trace("%v", string(bytes))
-
 	ctx.JSON(http.StatusOK, responseDto)
 }
 
@@ -331,8 +325,7 @@ func (h *Handler) getMateRequestCount(ctx *gin.Context) {
 
 	count, err := h.services.GetIncomingMateRequestCountForUser(ctx, userId)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -389,8 +382,7 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 
 	err = h.services.AddMateRequest(ctx, userId, uint64(requestDto.UserId))
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -429,9 +421,9 @@ func (h *Handler) putMateRequest(ctx *gin.Context) {
 	mateRequestId := uriParams.Id
 	err = h.services.SetResultForMateRequest(ctx, userId, mateRequestId,
 		table.MakeMateResultFromBool(accepted))
+
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 

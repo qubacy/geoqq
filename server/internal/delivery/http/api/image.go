@@ -41,6 +41,7 @@ type uriParamsGetImage struct {
 }
 
 func (h *Handler) getImage(ctx *gin.Context) {
+	userId := ctx.GetUint64(contextUserId)
 	uriParams := uriParamsGetImage{}
 	if err := ctx.ShouldBindUri(&uriParams); err != nil {
 		resWithClientError(ctx, ec.ParseRequestQueryParamsFailed, err)
@@ -49,7 +50,7 @@ func (h *Handler) getImage(ctx *gin.Context) {
 
 	// ***
 
-	image, err := h.services.GetImageById(ctx, uriParams.Id)
+	image, err := h.services.GetImageById(ctx, userId, uriParams.Id)
 	if err != nil {
 		resWithErrorForClient(ctx, err)
 		return
@@ -90,6 +91,7 @@ func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
 }
 
 func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
+	userId := ctx.GetUint64(contextUserId)
 	anyRequestDto, exists := ctx.Get(contextRequestDto)
 	if !exists {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
@@ -103,7 +105,7 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 
 	// *** to service
 
-	images, err := h.services.GetImagesByIds(ctx,
+	images, err := h.services.GetImagesByIds(ctx, userId,
 		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
 		resWithErrorForClient(ctx, err)

@@ -61,6 +61,8 @@ LEFT JOIN "Mate" ON (
 )
 WHERE "UserEntry"."Id" = 5;
 
+
+-- GetPublicUsersByIds
 -- -----------------------------------------------------------------------
 
 SELECT * FROM "UserEntry";
@@ -69,7 +71,10 @@ WITH "srcUserId" AS (VALUES (1)),
      "targetUserId" AS (VALUES (2))
 SELECT 
     "UserEntry"."Id" AS "Id",
-    "Username",
+    case 
+        when "DeletedUser"."UserId" is null then "Username"
+        else '<deleted>'
+    end as "Username", /* ? */
     "Description",
     "AvatarId",
     "LastActionTime",

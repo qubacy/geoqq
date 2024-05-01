@@ -38,7 +38,7 @@ func newImageService(deps Dependencies) *ImageService {
 // public
 // -----------------------------------------------------------------------
 
-func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
+func (s *ImageService) GetImageById(ctx context.Context, _, imageId uint64) (
 	*file.Image, error,
 ) {
 	/*
@@ -92,7 +92,7 @@ func (s *ImageService) GetImageById(ctx context.Context, imageId uint64) (
 	return image, nil
 }
 
-func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error) {
+func (s *ImageService) GetImagesByIds(ctx context.Context, userId uint64, imageIds []uint64) (*file.Images, error) {
 	sourceFunc := s.GetImagesByIds
 	imageIds = utl.RemoveDuplicatesFromSlice(imageIds)
 
@@ -110,13 +110,15 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, imageIds []uint64) (*
 
 	images := make([]*file.Image, 0, len(imageIds)) // reserver mem
 	for _, imageId := range imageIds {
-		image, err := s.GetImageById(ctx, imageId) // TODO: don't have to do a second check
+		image, err := s.GetImageById(ctx, userId, imageId) // TODO: don't have to do a second check
 		if err != nil {
 			return nil, utl.NewFuncError(sourceFunc, err) // with error for client!
 		}
 
 		images = append(images, image)
 	}
+
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return file.NewImages(images), nil
 }
 
@@ -141,6 +143,7 @@ func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 		}
 	}
 
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return imageId, nil // Use for update user profile...
 }
 

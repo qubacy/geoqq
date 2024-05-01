@@ -1,7 +1,7 @@
 package domain
 
 type UserStorageBackground interface {
-	UpdateBgrLastActivityTimeForUser(id uint64)
+	UpdateBgrLastActionTimeForUser(id uint64)
 	DeleteBgrMateChatsForUser(id uint64)
 }
 

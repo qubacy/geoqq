@@ -118,7 +118,7 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 		changeNameToDeletedForUserInsideTx(ctx, tx, userId),
 		changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
 
-		updateUserDescriptionInsideTx(ctx, tx, userId, ""),
+		updateUserDescriptionInsideTx(ctx, tx, userId, "bb"),
 		updateHashRefreshTokenInsideTx(ctx, tx, userId, ""),
 		resetPrivacyForUserInsideTx(ctx, tx, userId),
 
@@ -164,9 +164,12 @@ func deleteMateRequestsForUserInsideTx(ctx context.Context,
 
 func changeNameToDeletedForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
+
+	name := uuid.NewString()
+
 	return updateInsideTx(ctx, changeNameToDeletedForUserInsideTx,
 		tx, templateChangeNameForUser,
-		uuid.NewString(), userId,
+		name, userId,
 	)
 }
 

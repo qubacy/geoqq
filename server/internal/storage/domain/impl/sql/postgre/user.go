@@ -51,7 +51,7 @@ var (
 		Order:
 			1. userId
 	*/
-	templateUpdateLastActivityTimeForUser = utl.RemoveAdjacentWs(`
+	templateUpdateLastActionTimeForUser = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" 
 			SET "LastActionTime" = NOW()::timestamp
 		WHERE "Id" = $1`)
@@ -450,7 +450,7 @@ func (us *UserStorage) UpdateLastActivityTimeForUser(
 	defer conn.Release()
 
 	cmdTag, err := conn.Exec(ctx,
-		templateUpdateLastActivityTimeForUser+`;`, id)
+		templateUpdateLastActionTimeForUser+`;`, id)
 	if err != nil {
 		return utl.NewFuncError(us.UpdateLastActivityTimeForUser, err)
 	}

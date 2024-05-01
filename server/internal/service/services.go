@@ -68,17 +68,17 @@ type GeoChatMessageService interface {
 	AddMessageToGeoChat(ctx context.Context, userId uint64,
 		text string, longitude, latitude float64) error
 
-	GetGeoChatAllMessages(ctx context.Context, distance uint64,
+	GetGeoChatAllMessages(ctx context.Context, userId uint64, distance uint64,
 		latitude, longitude float64) (domain.GeoMessageList, error)
-	GetGeoChatMessages(ctx context.Context, distance uint64,
+	GetGeoChatMessages(ctx context.Context, userId uint64, distance uint64,
 		latitude, longitude float64, offset, count uint64) (domain.GeoMessageList, error)
 }
 
 // -----------------------------------------------------------------------
 
 type ImageService interface {
-	GetImageById(ctx context.Context, imageId uint64) (*file.Image, error)
-	GetImagesByIds(ctx context.Context, imageIds []uint64) (*file.Images, error)
+	GetImageById(ctx context.Context, userId, imageId uint64) (*file.Image, error)
+	GetImagesByIds(ctx context.Context, userId uint64, imageIds []uint64) (*file.Images, error)
 
 	AddImageToUser(ctx context.Context, userId uint64,
 		input dto.ImageForAddToUserInp) (uint64, error)

@@ -62,9 +62,22 @@ type UserStorage interface {
 	UpdateLastActivityTimeForUser(ctx context.Context, id uint64) error
 }
 
+type PublicUserTransform = func(*domain.PublicUser)
+
 type PublicUserStorage interface {
 	GetPublicUserById(ctx context.Context, userId, targetUserId uint64) (*domain.PublicUser, error)
 	GetPublicUsersByIds(ctx context.Context, userId uint64, targetUserIds []uint64) (domain.PublicUserList, error)
+
+	// ***
+
+	GetTransformedPublicUserById(ctx context.Context,
+		userId uint64, targetUserId uint64,
+		transform PublicUserTransform,
+	) (*domain.PublicUser, error)
+	GetTransformedPublicUsersByIds(ctx context.Context,
+		userId uint64, targetUserIds []uint64,
+		transform PublicUserTransform,
+	) (domain.PublicUserList, error)
 }
 
 type UserProfileStorage interface {

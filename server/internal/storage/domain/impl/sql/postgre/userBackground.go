@@ -28,15 +28,15 @@ func newUserStorageBackground(
 
 // -----------------------------------------------------------------------
 
-func (s *UserStorageBackground) channelIndex() int {
+func (s *UserStorageBackground) randomChannelIndex() int {
 	return rand.Intn(len(s.channels))
 }
 
-func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
-	sourceFunc := s.UpdateBgrLastActivityTimeForUser
-	s.channels[s.channelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
+func (s *UserStorageBackground) UpdateBgrLastActionTimeForUser(id uint64) {
+	sourceFunc := s.UpdateBgrLastActionTimeForUser
+	s.channels[s.randomChannelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
 		cmdTag, err := conn.Exec(ctx,
-			templateUpdateLastActivityTimeForUser+`;`, id,
+			templateUpdateLastActionTimeForUser+`;`, id,
 		)
 
 		if err != nil {
@@ -46,14 +46,14 @@ func (s *UserStorageBackground) UpdateBgrLastActivityTimeForUser(id uint64) {
 			return ErrUpdateFailed
 		}
 
-		logger.Trace("update last activity time for user %v", id)
+		logger.Trace("update last action time for user %v", id)
 		return nil
 	}
 }
 
 func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 	sourceFunc := s.DeleteBgrMateChatsForUser
-	s.channels[s.channelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
+	s.channels[s.randomChannelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
 
 		// TODO: if something goes wrong?
 
@@ -71,9 +71,11 @@ func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 				return utl.NewFuncError(sourceFunc, err)
 			}
 
+			firstUserId := id
 			err = stepsToDeleteMateChatForUserInsideTx(ctx, tx,
-				!mateChat.DeletedForSecond,
-				mateChat.Id, id, mateChat.SecondUserId)
+				!mateChat.DeletedForSecond, mateChat.Id,
+				firstUserId, mateChat.SecondUserId,
+			)
 
 			if err != nil {
 				err = errors.Join(err, tx.Rollback(ctx)) // ?

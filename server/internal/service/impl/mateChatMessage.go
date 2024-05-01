@@ -48,6 +48,8 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 		return nil, ec.New(utl.NewFuncError(s.ReadMateChatMessagesByChatId, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return mateMessages, nil
 }
 
@@ -70,7 +72,7 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
-	/// TODO : mate remove me!!!
+	// TODO: bug. My friend removed me!
 
 	// write to database
 
@@ -79,5 +81,7 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }

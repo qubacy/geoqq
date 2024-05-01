@@ -36,7 +36,7 @@ func (mrs *MateRequestService) GetAllIncomingMateRequestsForUser(ctx context.Con
 
 	// ***
 
-	mrs.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	mrs.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return dto.NewMateRequestsForUserOutFromDomain(
 		mateRequests, userId), nil
 }
@@ -52,7 +52,7 @@ func (mrs *MateRequestService) GetIncomingMateRequestsForUser(ctx context.Contex
 
 	// ***
 
-	mrs.domainStorage.UpdateBgrLastActivityTimeForUser(userId)
+	mrs.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return dto.NewMateRequestsForUserOutFromDomain(
 		mateRequests, userId), nil
 }
@@ -65,6 +65,7 @@ func (mrs *MateRequestService) GetIncomingMateRequestCountForUser(
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
+	mrs.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return count, nil
 }
 
@@ -107,6 +108,7 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 			ec.Server, ec.DomainStorageError)
 	}
 
+	mrs.domainStorage.UpdateBgrLastActionTimeForUser(sourceUserId)
 	return nil
 }
 
@@ -158,6 +160,8 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 		return ec.New(utl.NewFuncError(mrs.SetResultForMateRequest, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	mrs.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 

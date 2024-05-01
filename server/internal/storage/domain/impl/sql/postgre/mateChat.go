@@ -438,7 +438,6 @@ func stepsToDeleteMateChatForUserInsideTx(ctx context.Context, tx pgx.Tx,
 	availableForSecond bool, chatId, firstUserId, secondUserId uint64) error {
 	if !availableForSecond {
 		return errors.Join(
-			// TODO :test delete mate message!!!
 			removeDeletedMateChatByChatIdInsideTx(ctx, tx, chatId),
 			removeAllMessagesFromMateChatInsideTx(ctx, tx, chatId),
 			deleteMateChatInsideTx(ctx, tx, chatId),
