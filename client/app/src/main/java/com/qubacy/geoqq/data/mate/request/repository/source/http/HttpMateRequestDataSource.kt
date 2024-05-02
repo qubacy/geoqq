@@ -1,42 +1,47 @@
 package com.qubacy.geoqq.data.mate.request.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
-import com.qubacy.geoqq.data.mate.request.repository.source.http.request.PostMateRequestRequest
-import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestCountResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestsResponse
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.request.PostMateRequestRequest
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestsResponse
+import javax.inject.Inject
 
-interface HttpMateRequestDataSource : DataSource {
-    @GET("/api/mate/request")
+class HttpMateRequestDataSource @Inject constructor(
+    private val mMateRequestDataSourceApi: HttpMateRequestDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
     fun getMateRequests(
-        @Query("offset") offset: Int,
-        @Query("count") count: Int,
-        @Query("accessToken") accessToken: String
-    ): Call<GetMateRequestsResponse>
+        offset: Int,
+        count: Int
+    ): GetMateRequestsResponse {
+        val getMateRequestsCall = mMateRequestDataSourceApi.getMateRequests(offset, count)
+        val getMateRequestsResponse = mHttpCallExecutor.executeNetworkRequest(getMateRequestsCall)
 
-    @GET("/api/mate/request/count")
-    fun getMateRequestCount(
-        @Query("accessToken") accessToken: String
-    ): Call<GetMateRequestCountResponse>
+        return getMateRequestsResponse
+    }
 
-    @POST("/api/mate/request")
-    fun postMateRequest(
-        @Body body: PostMateRequestRequest
-    ): Call<Unit>
+    fun getMateRequestCount(): GetMateRequestCountResponse {
+        val getMateRequestCountCall = mMateRequestDataSourceApi.getMateRequestCount()
+        val getMateRequestCountResponse = mHttpCallExecutor
+            .executeNetworkRequest(getMateRequestCountCall)
 
-    @FormUrlEncoded
-    @PUT("/api/mate/request/{id}")
+        return getMateRequestCountResponse
+    }
+
+    fun postMateRequest(userId: Long) {
+        val postMateRequestRequest = PostMateRequestRequest(userId)
+        val postMateRequestCall = mMateRequestDataSourceApi.postMateRequest(postMateRequestRequest)
+
+        mHttpCallExecutor.executeNetworkRequest(postMateRequestCall)
+    }
+
     fun answerMateRequest(
-        @Path("id") id: Long,
-        @Field("access-token") accessToken: String,
-        @Field("accepted") accepted: Boolean
-    ): Call<Unit>
+        id: Long,
+        accepted: Boolean
+    ) {
+        val answerMateRequestCall = mMateRequestDataSourceApi.answerMateRequest(id, accepted)
+
+        mHttpCallExecutor.executeNetworkRequest(answerMateRequestCall)
+    }
 }

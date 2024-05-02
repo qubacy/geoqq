@@ -1,6 +1,6 @@
-package com.qubacy.geoqq.data.myprofile.repository.source.http.response
+package com.qubacy.geoqq.data.myprofile.repository.source.http.api.response
 
-import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api._common.MyProfilePrivacy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

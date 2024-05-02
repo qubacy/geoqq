@@ -2,12 +2,13 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.api
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.api.HttpTokenDataSourceApi
+import com.qubacy.geoqq.data.auth.repository.source.http.api.HttpAuthDataSourceApi
 import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
 import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
-import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
-import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
-import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.HttpMateChatDataSourceApi
+import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
 import com.qubacy.geoqq.data.user.repository.source.http.api.HttpUserDataSourceApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -36,14 +37,18 @@ class HttpApi(httpClient: OkHttpClient) {
         .build()
 
     val tokenApi: HttpTokenDataSourceApi = retrofit.create(HttpTokenDataSourceApi::class.java)
-    val mateMessageApi: HttpMateMessageDataSource =
-        retrofit.create(HttpMateMessageDataSource::class.java)
-    val mateChatApi: HttpMateChatDataSource =
-        retrofit.create(HttpMateChatDataSource::class.java)
-    val mateRequestApi: HttpMateRequestDataSource =
-        retrofit.create(HttpMateRequestDataSource::class.java)
+    val authApi: HttpAuthDataSourceApi = retrofit.create(HttpAuthDataSourceApi::class.java)
+
+    val mateMessageApi: HttpMateMessageDataSourceApi =
+        retrofit.create(HttpMateMessageDataSourceApi::class.java)
+    val mateChatApi: HttpMateChatDataSourceApi =
+        retrofit.create(HttpMateChatDataSourceApi::class.java)
+    val mateRequestApi: HttpMateRequestDataSourceApi =
+        retrofit.create(HttpMateRequestDataSourceApi::class.java)
+
     val userApi: HttpUserDataSourceApi = retrofit.create(HttpUserDataSourceApi::class.java)
     val imageApi: HttpImageDataSourceApi = retrofit.create(HttpImageDataSourceApi::class.java)
-    val myProfileApi: HttpMyProfileDataSource = retrofit.create(HttpMyProfileDataSource::class.java)
+
+    val myProfileApi: HttpMyProfileDataSourceApi = retrofit.create(HttpMyProfileDataSourceApi::class.java)
     val geoChatApi: HttpGeoChatDataSourceApi = retrofit.create(HttpGeoChatDataSourceApi::class.java)
 }

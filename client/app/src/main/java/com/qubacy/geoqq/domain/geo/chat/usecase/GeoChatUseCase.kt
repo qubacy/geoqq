@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.geo.chat.usecase
 
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -22,13 +22,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class GeoChatUseCase @Inject constructor(
-    errorDataRepository: ErrorDataRepository,
+    errorSource: LocalErrorDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val mGeoMessageDataRepository: GeoMessageDataRepository,
     private val mUserDataRepository: UserDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
+) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
         mMateRequestUseCase.resultFlow,

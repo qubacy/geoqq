@@ -1,23 +1,21 @@
 package com.qubacy.geoqq.data.mate.message.repository.source.http.module
 
-import android.content.Context
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
-import com.qubacy.geoqq.ui.application.CustomApplication
+import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class HttpMateMessageDataSourceModule {
+object HttpMateMessageDataSourceModule {
     @Provides
-    fun provideHttpMateMessageDataSourceModule(
-        @ApplicationContext context: Context
+    fun provideHttpMateMessageDataSource(
+        httpMateMessageDataSourceApi: HttpMateMessageDataSourceApi,
+        httpCallExecutor: HttpCallExecutor
     ): HttpMateMessageDataSource {
-        val application = (context as CustomApplication)
-
-        return application.httpApi.mateMessageApi
+        return HttpMateMessageDataSource(httpMateMessageDataSourceApi, httpCallExecutor)
     }
 }

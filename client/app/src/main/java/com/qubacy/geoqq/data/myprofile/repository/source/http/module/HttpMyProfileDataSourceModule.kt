@@ -1,12 +1,11 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.http.module
 
-import android.content.Context
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
-import com.qubacy.geoqq.ui.application.CustomApplication
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -14,10 +13,9 @@ import dagger.hilt.components.SingletonComponent
 object HttpMyProfileDataSourceModule {
     @Provides
     fun provideHttpMyProfileDataSource(
-        @ApplicationContext context: Context
+        httpMyProfileDataSourceApi: HttpMyProfileDataSourceApi,
+        httpCallExecutor: HttpCallExecutor
     ): HttpMyProfileDataSource {
-        val httpApi = (context as CustomApplication).httpApi
-
-        return httpApi.myProfileApi
+        return HttpMyProfileDataSource(httpMyProfileDataSourceApi, httpCallExecutor)
     }
 }

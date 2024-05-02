@@ -4,18 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
-import com.qubacy.geoqq.data.mate.message.repository.source.http.request.SendMateMessageRequest
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -27,12 +24,10 @@ import kotlin.coroutines.coroutineContext
 class MateMessageDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
-    private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: AuthDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateMessageDataSource: LocalMateMessageDataSource,
-    private val mHttpMateMessageDataSource: HttpMateMessageDataSource,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpMateMessageDataSource: HttpMateMessageDataSource
     // todo: provide a websocket data source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope), MessageDataRepository {
     suspend fun getMessages(
@@ -50,11 +45,7 @@ class MateMessageDataRepository @Inject constructor(
             if (localMessages.isNotEmpty())
                 resultLiveData.postValue(GetMessagesDataResult(offset, localDataMessages))
 
-            val accessToken = mTokenDataRepository.getTokens().accessToken
-
-            val getMessagesCall = mHttpMateMessageDataSource
-                .getMateMessages(chatId, offset, count, accessToken)
-            val getMessagesResponse = mHttpCallExecutor.executeNetworkRequest(getMessagesCall)
+            val getMessagesResponse = mHttpMateMessageDataSource.getMateMessages(chatId, offset, count)
 
             val httpDataMessages = resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
 
@@ -99,12 +90,7 @@ class MateMessageDataRepository @Inject constructor(
         // todo: implement using the websocket data source;
 
         // todo: delete:
-        val accessToken = mTokenDataRepository.getTokens().accessToken
-
-        val sendMessageRequest = SendMateMessageRequest(accessToken, text)
-        val sendMessageCall = mHttpMateMessageDataSource.sendMateMessage(chatId, sendMessageRequest)
-
-        mHttpCallExecutor.executeNetworkRequest(sendMessageCall)
+        mHttpMateMessageDataSource.sendMateMessage(chatId, text)
     }
 
     private suspend fun resolveMessageEntities(

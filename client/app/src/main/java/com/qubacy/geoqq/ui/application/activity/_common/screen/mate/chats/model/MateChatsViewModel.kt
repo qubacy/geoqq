@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
@@ -26,10 +26,10 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateChatsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorDataRepository: ErrorDataRepository,
+    mErrorSource: LocalErrorDataSource,
     mUseCase: MateChatsUseCase
 ) : BusinessViewModel<MateChatsUiState, MateChatsUseCase>(
-    mSavedStateHandle, mErrorDataRepository, mUseCase
+    mSavedStateHandle, mErrorSource, mUseCase
 ), AuthorizedViewModel {
     companion object {
         const val TAG = "MateChatsViewModel"
@@ -192,7 +192,7 @@ open class MateChatsViewModel @Inject constructor(
 annotation class MateChatsViewModelFactoryQualifier
 
 class MateChatsViewModelFactory(
-    private val mErrorDataRepository: ErrorDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mMateChatsUseCase: MateChatsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
@@ -203,6 +203,6 @@ class MateChatsViewModelFactory(
         if (!modelClass.isAssignableFrom(MateChatsViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MateChatsViewModel(handle, mErrorDataRepository, mMateChatsUseCase) as T
+        return MateChatsViewModel(handle, mErrorSource, mMateChatsUseCase) as T
     }
 }

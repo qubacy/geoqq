@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.interlocutor.usecase.module
 
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -14,10 +14,10 @@ import dagger.hilt.components.SingletonComponent
 object InterlocutorUseCaseModule {
     @Provides
     fun provideInterlocutorUseCase(
-        errorDataRepository: ErrorDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         logoutUseCase: LogoutUseCase,
         userDataRepository: UserDataRepository
     ): InterlocutorUseCase {
-        return InterlocutorUseCase(errorDataRepository, logoutUseCase, userDataRepository)
+        return InterlocutorUseCase(localErrorDataSource, logoutUseCase, userDataRepository)
     }
 }

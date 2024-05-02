@@ -1,12 +1,10 @@
 package com.qubacy.geoqq.data.myprofile.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
-import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,20 +15,16 @@ import dagger.hilt.components.SingletonComponent
 object MyProfileDataRepositoryModule {
     @Provides
     fun provideMyProfileDataRepository(
-        errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: AuthDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         imageDataRepository: ImageDataRepository,
         localMyProfileDataSource: LocalMyProfileDataSource,
-        httpMyProfileDataSource: HttpMyProfileDataSource,
-        httpCallExecutor: HttpCallExecutor
+        httpMyProfileDataSource: HttpMyProfileDataSource
     ): MyProfileDataRepository {
         return MyProfileDataRepository(
-            mErrorDataRepository = errorDataRepository,
-            mTokenDataRepository = tokenDataRepository,
+            mErrorSource = localErrorDataSource,
             mImageDataRepository = imageDataRepository,
             mLocalMyProfileDataSource = localMyProfileDataSource,
-            mHttpMyProfileDataSource = httpMyProfileDataSource,
-            mHttpCallExecutor = httpCallExecutor
+            mHttpMyProfileDataSource = httpMyProfileDataSource
         )
     }
 }

@@ -6,10 +6,10 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
-import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
-import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestCountResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestsResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestResponse
+import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestsResponse
 import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
@@ -66,13 +66,13 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
         )
     }
 
-    private fun mockHttpMateRequestDataSource(): HttpMateRequestDataSource {
+    private fun mockHttpMateRequestDataSource(): HttpMateRequestDataSourceApi {
         val getMateRequestsCallMock = Mockito.mock(Call::class.java)
         val getMateRequestCountCallMock = Mockito.mock(Call::class.java)
         val postMateRequestCallMock = Mockito.mock(Call::class.java)
         val answerMateRequestCallMock = Mockito.mock(Call::class.java)
 
-        val httpMateRequestDataSourceMock = Mockito.mock(HttpMateRequestDataSource::class.java)
+        val httpMateRequestDataSourceMock = Mockito.mock(HttpMateRequestDataSourceApi::class.java)
 
         Mockito.`when`(httpMateRequestDataSourceMock.getMateRequests(
             Mockito.anyInt(),

@@ -20,7 +20,7 @@ class AuthorizationHttpInterceptor @Inject constructor(
 ) : Interceptor {
     companion object {
         const val AUTH_TOKEN_HEADER_NAME = "Authorization"
-        const val AUTH_TOKEN_HEADER_VALUE_FORMAT = "Bearer %1"
+        const val AUTH_TOKEN_HEADER_VALUE_FORMAT = "Bearer %1\$s"
 
         val AUTH_URL_PATH_SEGMENTS = arrayOf("sign-in", "sign-up")
     }

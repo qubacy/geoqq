@@ -1,12 +1,11 @@
-package com.qubacy.geoqq.data.myprofile.repository.source.http.request
+package com.qubacy.geoqq.data.myprofile.repository.source.http.api.request
 
-import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api._common.MyProfilePrivacy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class UpdateMyProfileRequest(
-    @Json(name = "access-token") val accessToken: String,
     @Json(name = "description") val aboutMe: String?,
     @Json(name = "avatar-id") val avatarId: Long?,
     @Json(name = "security") val security: MyProfileSecurityRequest?,

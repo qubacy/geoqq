@@ -12,9 +12,9 @@ import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsResponse
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.HttpMateChatDataSourceApi
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatResponse
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
@@ -191,11 +191,11 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         return localMateChatDataSourceMock
     }
 
-    private fun mockHttpMateChatDataSource(): HttpMateChatDataSource {
+    private fun mockHttpMateChatDataSource(): HttpMateChatDataSourceApi {
         val getChatCallMock = Mockito.mock(Call::class.java)
         val getChatsCallMock = Mockito.mock(Call::class.java)
 
-        val httpMateChatDataSourceMock = Mockito.mock(HttpMateChatDataSource::class.java)
+        val httpMateChatDataSourceMock = Mockito.mock(HttpMateChatDataSourceApi::class.java)
 
         Mockito.`when`(httpMateChatDataSourceMock.getChat(
             Mockito.anyLong(), Mockito.anyString()

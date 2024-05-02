@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.myprofile.repository.source.http._common
+package com.qubacy.geoqq.data.myprofile.repository.source.http.api._common
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

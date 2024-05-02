@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.module
 
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
@@ -16,9 +16,9 @@ object MateChatsViewModelModule {
     @Provides
     @MateChatsViewModelFactoryQualifier
     fun provideMateChatsViewModel(
-        errorDataRepository: ErrorDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         mateChatsUseCase: MateChatsUseCase
     ): ViewModelProvider.Factory {
-        return MateChatsViewModelFactory(errorDataRepository, mateChatsUseCase)
+        return MateChatsViewModelFactory(localErrorDataSource, mateChatsUseCase)
     }
 }

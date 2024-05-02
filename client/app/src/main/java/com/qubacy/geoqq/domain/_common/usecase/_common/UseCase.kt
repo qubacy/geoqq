@@ -3,7 +3,7 @@ package com.qubacy.geoqq.domain._common.usecase._common
 import com.qubacy.geoqq._common.coroutine.CoroutineUser
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -18,7 +18,7 @@ import kotlinx.coroutines.runBlocking
 abstract class UseCase @OptIn(ExperimentalCoroutinesApi::class) constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1), // todo: not good;
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
-    protected val mErrorDataRepository: ErrorDataRepository
+    protected val mErrorSource: LocalErrorDataSource
 ) : CoroutineUser(coroutineDispatcher, coroutineScope) {
     companion object {
         const val TAG = "UseCase"

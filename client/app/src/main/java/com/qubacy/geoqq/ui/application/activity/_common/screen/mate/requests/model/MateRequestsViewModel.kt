@@ -4,7 +4,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
@@ -32,10 +32,10 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateRequestsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorDataRepository: ErrorDataRepository,
+    mErrorSource: LocalErrorDataSource,
     mMateRequestsUseCase: MateRequestsUseCase
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
-    mSavedStateHandle, mErrorDataRepository, mMateRequestsUseCase
+    mSavedStateHandle, mErrorSource, mMateRequestsUseCase
 ), AuthorizedViewModel, InterlocutorViewModel {
     private var mIsGettingNextRequestChunk = false
 
@@ -162,7 +162,7 @@ open class MateRequestsViewModel @Inject constructor(
 annotation class MateRequestsViewModelFactoryQualifier
 
 class MateRequestsViewModelFactory(
-    private val mErrorDataRepository: ErrorDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
@@ -173,6 +173,6 @@ class MateRequestsViewModelFactory(
         if (!modelClass.isAssignableFrom(MateRequestsViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MateRequestsViewModel(handle, mErrorDataRepository, mMateRequestsUseCase) as T
+        return MateRequestsViewModel(handle, mErrorSource, mMateRequestsUseCase) as T
     }
 }

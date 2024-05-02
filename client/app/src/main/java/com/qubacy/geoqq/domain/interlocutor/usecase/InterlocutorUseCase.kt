@@ -3,7 +3,7 @@ package com.qubacy.geoqq.domain.interlocutor.usecase
 import android.util.Log
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
@@ -17,10 +17,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class InterlocutorUseCase @Inject constructor(
-    errorDataRepository: ErrorDataRepository,
+    errorSource: LocalErrorDataSource,
     private val mLogoutUseCase: LogoutUseCase,
     private val mUserDataRepository: UserDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
+) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     fun getInterlocutor(interlocutorId: Long) {
         executeLogic({
             val getUsersResult = mUserDataRepository.getUsersByIds(listOf(interlocutorId))

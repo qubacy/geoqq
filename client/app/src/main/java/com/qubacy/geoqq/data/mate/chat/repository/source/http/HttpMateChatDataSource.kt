@@ -1,33 +1,32 @@
 package com.qubacy.geoqq.data.mate.chat.repository.source.http
 
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.request.DeleteChatRequest
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsResponse
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.HTTP
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.HttpMateChatDataSourceApi
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatResponse
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatsResponse
+import javax.inject.Inject
 
-interface HttpMateChatDataSource {
-    @GET("/api/mate/chat")
-    fun getChats(
-        @Query("offset") offset: Int,
-        @Query("count") count: Int,
-        @Query("accessToken") accessToken: String
-    ): Call<GetChatsResponse>
+class HttpMateChatDataSource @Inject constructor(
+    private val mHttpMateChatDataSourceApi: HttpMateChatDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
+    fun getChats(offset: Int, count: Int): GetChatsResponse {
+        val getChatsCall = mHttpMateChatDataSourceApi.getChats(offset, count)
+        val getChatsResponse = mHttpCallExecutor.executeNetworkRequest(getChatsCall)
 
-    @GET("/api/mate/chat/{id}")
-    fun getChat(
-        @Path("id") id: Long,
-        @Query("accessToken") accessToken: String
-    ): Call<GetChatResponse>
+        return getChatsResponse
+    }
 
-    @HTTP(method = "DELETE", path = "/api/mate/chat/{id}", hasBody = true)
-    fun deleteChat(
-        @Path("id") id: Long,
-        @Body body: DeleteChatRequest
-    ): Call<Unit>
+    fun getChat(id: Long): GetChatResponse {
+        val getChatCall = mHttpMateChatDataSourceApi.getChat(id)
+        val getChatResponse = mHttpCallExecutor.executeNetworkRequest(getChatCall)
+
+        return getChatResponse
+    }
+
+    fun deleteChat(id: Long) {
+        val deleteChatCall = mHttpMateChatDataSourceApi.deleteChat(id)
+
+        mHttpCallExecutor.executeNetworkRequest(deleteChatCall)
+    }
 }

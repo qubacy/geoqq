@@ -1,29 +1,33 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
-import com.qubacy.geoqq.data.myprofile.repository.source.http.request.DeleteMyProfileRequest
-import com.qubacy.geoqq.data.myprofile.repository.source.http.request.UpdateMyProfileRequest
-import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.HTTP
-import retrofit2.http.PUT
-import retrofit2.http.Query
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.UpdateMyProfileRequest
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse
+import javax.inject.Inject
 
-interface HttpMyProfileDataSource : DataSource {
-    @GET("/api/my-profile")
-    fun getMyProfile(
-        @Query("accessToken") accessToken: String
-    ): Call<GetMyProfileResponse>
+class HttpMyProfileDataSource @Inject constructor(
+    private val mHttpMyProfileDataSourceApi: HttpMyProfileDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
+    fun getMyProfile(): GetMyProfileResponse {
+        val getMyProfileCall = mHttpMyProfileDataSourceApi.getMyProfile()
+        val getMyProfileResponse = mHttpCallExecutor.executeNetworkRequest(getMyProfileCall)
 
-    @PUT("/api/my-profile")
+        return getMyProfileResponse
+    }
+
     fun updateMyProfile(
-        @Body body: UpdateMyProfileRequest
-    ): Call<Unit>
+         updateMyProfileRequest: UpdateMyProfileRequest
+    ) {
+        val updateMyProfileCall = mHttpMyProfileDataSourceApi.updateMyProfile(updateMyProfileRequest)
 
-    @HTTP(method = "DELETE", path = "/api/my-profile", hasBody = true)
-    fun deleteMyProfile(
-        @Body body: DeleteMyProfileRequest
-    ): Call<Unit>
+        mHttpCallExecutor.executeNetworkRequest(updateMyProfileCall)
+    }
+
+    fun deleteMyProfile() {
+        val deleteMyProfileCall = mHttpMyProfileDataSourceApi.deleteMyProfile()
+
+        mHttpCallExecutor.executeNetworkRequest(deleteMyProfileCall)
+    }
 }

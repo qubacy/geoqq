@@ -1,15 +1,15 @@
 package com.qubacy.geoqq.domain.logout.usecase
 
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
 import javax.inject.Inject
 
 class LogoutUseCase @Inject constructor(
-    errorDataRepository: ErrorDataRepository,
+    errorSource: LocalErrorDataSource,
     private var mTokenDataRepository: AuthDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository) {
+) : UseCase(mErrorSource = errorSource) {
     fun logout() {
         executeLogic({
             mTokenDataRepository.logout()

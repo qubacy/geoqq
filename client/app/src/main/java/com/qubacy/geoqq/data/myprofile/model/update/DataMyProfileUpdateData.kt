@@ -5,8 +5,8 @@ import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model._common.toMyProfilePrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.request.MyProfileSecurityRequest
-import com.qubacy.geoqq.data.myprofile.repository.source.http.request.UpdateMyProfileRequest
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.MyProfileSecurityRequest
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.UpdateMyProfileRequest
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 
 data class DataMyProfileUpdateData(
@@ -37,13 +37,12 @@ fun DataSecurity.toMyProfileSecurityRequest(): MyProfileSecurityRequest {
 }
 
 fun DataMyProfileUpdateData.toUpdateMyProfileRequest(
-    accessToken: String,
     avatarId: Long? = null
 ): UpdateMyProfileRequest {
     val security = security?.toMyProfileSecurityRequest()
     val privacy = privacy?.toMyProfilePrivacy()
 
-    return UpdateMyProfileRequest(accessToken, aboutMe, avatarId, security, privacy)
+    return UpdateMyProfileRequest(aboutMe, avatarId, security, privacy)
 }
 
 /**

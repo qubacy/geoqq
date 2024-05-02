@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq._common.model.error._common.type.ErrorType
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.state.BaseUiState
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 abstract class StatefulViewModel<UiStateType: BaseUiState>(
     protected val mSavedStateHandle: SavedStateHandle,
-    protected val mErrorDataRepository: ErrorDataRepository
+    protected val mErrorSource: LocalErrorDataSource
 ) : ViewModel() {
     companion object {
         const val UI_STATE_KEY = "uiState"
@@ -43,7 +43,7 @@ abstract class StatefulViewModel<UiStateType: BaseUiState>(
 
     open fun retrieveError(errorType: ErrorType) {
         viewModelScope.launch(Dispatchers.IO) {
-            val error = mErrorDataRepository.getError(errorType.getErrorCode())
+            val error = mErrorSource.getError(errorType.getErrorCode())
 
             mUiOperationFlow.emit(ErrorUiOperation(error))
         }

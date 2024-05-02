@@ -4,7 +4,7 @@ import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model._common.toDataPrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 
 data class DataMyProfile(

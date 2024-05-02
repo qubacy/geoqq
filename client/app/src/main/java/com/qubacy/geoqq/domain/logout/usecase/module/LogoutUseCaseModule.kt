@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.logout.usecase.module
 
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import dagger.Module
@@ -13,9 +13,9 @@ import dagger.hilt.components.SingletonComponent
 object LogoutUseCaseModule {
     @Provides
     fun provideLogoutUseCase(
-        errorDataRepository: ErrorDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         tokenDataRepository: AuthDataRepository
     ): LogoutUseCase {
-        return LogoutUseCase(errorDataRepository, tokenDataRepository)
+        return LogoutUseCase(localErrorDataSource, tokenDataRepository)
     }
 }

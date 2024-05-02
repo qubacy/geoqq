@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
@@ -32,10 +32,10 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MyProfileViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorDataRepository: ErrorDataRepository,
+    mErrorSource: LocalErrorDataSource,
     mMyProfileUseCase: MyProfileUseCase
 ) : BusinessViewModel<MyProfileUiState, MyProfileUseCase>(
-    mSavedStateHandle, mErrorDataRepository, mMyProfileUseCase
+    mSavedStateHandle, mErrorSource, mMyProfileUseCase
 ), AuthorizedViewModel {
     companion object {
         const val TAG = "MyProfileViewModel"
@@ -155,7 +155,7 @@ open class MyProfileViewModel @Inject constructor(
 annotation class MyProfileViewModelFactoryQualifier
 
 class MyProfileViewModelFactory(
-    private val mErrorDataRepository: ErrorDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mMyProfileUseCase: MyProfileUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
@@ -166,6 +166,6 @@ class MyProfileViewModelFactory(
         if (!modelClass.isAssignableFrom(MyProfileViewModel::class.java))
             throw IllegalArgumentException()
 
-        return MyProfileViewModel(handle, mErrorDataRepository, mMyProfileUseCase) as T
+        return MyProfileViewModel(handle, mErrorSource, mMyProfileUseCase) as T
     }
 }

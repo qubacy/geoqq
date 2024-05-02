@@ -17,9 +17,9 @@ import com.qubacy.geoqq.data.myprofile.model.update.DataMyProfileUpdateData
 import com.qubacy.geoqq.data.myprofile.model.update.DataSecurity
 import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
-import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
-import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfilePrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api._common.MyProfilePrivacy
+import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
@@ -136,12 +136,12 @@ class MyProfileDataRepositoryTest(
         return localMyProfileDataSourceMock
     }
 
-    private fun mockHttpMyProfileDataSource(): HttpMyProfileDataSource {
+    private fun mockHttpMyProfileDataSource(): HttpMyProfileDataSourceApi {
         val getMyProfileCallMock = Mockito.mock(Call::class.java)
         val updateMyProfileCallMock = Mockito.mock(Call::class.java)
         val deleteMyProfileCallMock = Mockito.mock(Call::class.java)
 
-        val httpMyProfileDataSourceMock = Mockito.mock(HttpMyProfileDataSource::class.java)
+        val httpMyProfileDataSourceMock = Mockito.mock(HttpMyProfileDataSourceApi::class.java)
 
         Mockito.`when`(httpMyProfileDataSourceMock.getMyProfile(Mockito.anyString())).thenAnswer {
             mHttpSourceGetMyProfileCallFlag = true

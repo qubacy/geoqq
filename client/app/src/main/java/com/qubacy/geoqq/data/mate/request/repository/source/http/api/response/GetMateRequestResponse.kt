@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.mate.request.repository.source.http.response
+package com.qubacy.geoqq.data.mate.request.repository.source.http.api.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

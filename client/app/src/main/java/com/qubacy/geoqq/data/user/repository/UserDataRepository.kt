@@ -92,7 +92,7 @@ class UserDataRepository @Inject constructor(
         var localUserId: Long? = null
 
         runBlocking {
-            val localAccessToken = mLocalTokenDataStoreDataSource.getAccessToken()!!
+            val localAccessToken = mLocalTokenDataStoreDataSource.getAccessToken()!! // todo: is it ok?
             val accessTokenPayload = TokenUtils.getTokenPayload(localAccessToken, mErrorSource)
             val localUserIdClaim = accessTokenPayload[ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME]
 

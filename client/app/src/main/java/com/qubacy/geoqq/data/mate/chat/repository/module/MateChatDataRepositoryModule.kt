@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.data.mate.chat.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import dagger.Module
 import dagger.Provides
@@ -17,20 +15,16 @@ import dagger.hilt.components.SingletonComponent
 object MateChatDataRepositoryModule {
     @Provides
     fun provideMateChatDataRepository(
-        errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: AuthDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         userDataRepository: UserDataRepository,
         localMateChatDataSource: LocalMateChatDataSource,
-        httpMateChatDataSource: HttpMateChatDataSource,
-        httpCallExecutor: HttpCallExecutor
+        httpMateChatDataSource: HttpMateChatDataSource
     ): MateChatDataRepository {
         return MateChatDataRepository(
-            mErrorDataRepository = errorDataRepository,
-            mTokenDataRepository = tokenDataRepository,
+            mErrorSource = localErrorDataSource,
             mUserDataRepository = userDataRepository,
             mLocalMateChatDataSource = localMateChatDataSource,
-            mHttpMateChatDataSource = httpMateChatDataSource,
-            mHttpCallExecutor = httpCallExecutor
+            mHttpMateChatDataSource = httpMateChatDataSource
         )
     }
 }

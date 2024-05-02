@@ -2,7 +2,7 @@ package com.qubacy.geoqq.domain.mate.chat.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
@@ -25,13 +25,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MateChatUseCase @Inject constructor(
-    errorDataRepository: ErrorDataRepository,
+    errorSource: LocalErrorDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMateMessageDataRepository: MateMessageDataRepository,
     private val mMateChatDataRepository: MateChatDataRepository
-) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
+) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     companion object {
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }

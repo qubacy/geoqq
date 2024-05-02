@@ -14,7 +14,7 @@ import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock
 import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
-import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
+import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
@@ -176,10 +176,10 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         return localMateMessageDataSourceMock
     }
 
-    private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSource {
+    private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSourceApi {
         val getMateMessagesCallMock = Mockito.mock(Call::class.java)
 
-        val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSource::class.java)
+        val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSourceApi::class.java)
 
         Mockito.`when`(httpMateMessageDataSourceMock.getMateMessages(
             Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()

@@ -4,7 +4,7 @@ import android.location.Location
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
@@ -33,10 +33,10 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class GeoChatViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorDataRepository: ErrorDataRepository,
+    mErrorSource: LocalErrorDataSource,
     mGeoChatUseCase: GeoChatUseCase
 ) : BusinessViewModel<GeoChatUiState, GeoChatUseCase>(
-    mSavedStateHandle, mErrorDataRepository, mGeoChatUseCase
+    mSavedStateHandle, mErrorSource, mGeoChatUseCase
 ), LocationViewModel, AuthorizedViewModel, ChatViewModel, InterlocutorViewModel {
     companion object {
         const val RADIUS_KEY = "radius"
@@ -191,7 +191,7 @@ open class GeoChatViewModel @Inject constructor(
 annotation class GeoChatViewModelFactoryQualifier
 
 class GeoChatViewModelFactory(
-    private val mErrorDataRepository: ErrorDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mGeoChatUseCase: GeoChatUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
@@ -202,6 +202,6 @@ class GeoChatViewModelFactory(
         if (!modelClass.isAssignableFrom(GeoChatViewModel::class.java))
             throw IllegalArgumentException()
 
-        return GeoChatViewModel(handle, mErrorDataRepository, mGeoChatUseCase) as T
+        return GeoChatViewModel(handle, mErrorSource, mGeoChatUseCase) as T
     }
 }

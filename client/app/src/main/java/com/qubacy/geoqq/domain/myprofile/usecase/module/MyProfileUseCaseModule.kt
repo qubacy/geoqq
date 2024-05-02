@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.myprofile.usecase.module
 
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -15,13 +15,13 @@ import dagger.hilt.components.SingletonComponent
 object MyProfileUseCaseModule {
     @Provides
     fun provideMyProfileUseCase(
-        errorDataRepository: ErrorDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         logoutUseCase: LogoutUseCase,
         myProfileDataRepository: MyProfileDataRepository,
         tokenDataRepository: AuthDataRepository
     ): MyProfileUseCase {
         return MyProfileUseCase(
-            errorDataRepository,
+            localErrorDataSource,
             logoutUseCase,
             myProfileDataRepository,
             tokenDataRepository

@@ -6,7 +6,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.LoadingViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.changeLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.preserveLoadingState
@@ -24,9 +24,9 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class GeoSettingsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorDataRepository: ErrorDataRepository
+    mErrorSource: LocalErrorDataSource,
 ) : StatefulViewModel<GeoSettingsUiState>(
-    mSavedStateHandle, mErrorDataRepository
+    mSavedStateHandle, mErrorSource
 ), LoadingViewModel, LocationViewModel {
     companion object {
         const val DEFAULT_RADIUS_METERS = 1000
@@ -96,7 +96,7 @@ open class GeoSettingsViewModel @Inject constructor(
 annotation class GeoSettingsViewModelFactoryQualifier
 
 class GeoSettingsViewModelFactory(
-    private val mErrorDataRepository: ErrorDataRepository
+    private val mErrorSource: LocalErrorDataSource
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
         key: String,
@@ -106,6 +106,6 @@ class GeoSettingsViewModelFactory(
         if (!modelClass.isAssignableFrom(GeoSettingsViewModel::class.java))
             throw IllegalArgumentException()
 
-        return GeoSettingsViewModel(handle, mErrorDataRepository) as T
+        return GeoSettingsViewModel(handle, mErrorSource) as T
     }
 }

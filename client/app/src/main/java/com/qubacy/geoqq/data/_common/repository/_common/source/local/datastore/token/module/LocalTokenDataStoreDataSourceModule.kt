@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.local.datastore.
 
 import android.content.Context
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data.auth.repository.source.local.store.tokenDataStore
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.tokenDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

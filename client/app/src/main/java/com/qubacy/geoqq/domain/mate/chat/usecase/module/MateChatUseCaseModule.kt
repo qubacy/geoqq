@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase.module
 
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
@@ -17,7 +17,7 @@ import dagger.hilt.components.SingletonComponent
 object MateChatUseCaseModule {
     @Provides
     fun provideMateChatUseCase(
-        errorDataRepository: ErrorDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
         mLogoutUseCase: LogoutUseCase,
@@ -25,7 +25,7 @@ object MateChatUseCaseModule {
         mateChatDataRepository: MateChatDataRepository
     ): MateChatUseCase {
         return MateChatUseCase(
-            errorDataRepository,
+            localErrorDataSource,
             mateRequestUseCase,
             interlocutorUseCase,
             mLogoutUseCase,

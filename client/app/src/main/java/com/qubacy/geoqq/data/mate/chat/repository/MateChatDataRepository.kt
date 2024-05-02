@@ -2,22 +2,19 @@ package com.qubacy.geoqq.data.mate.chat.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toMateChatLastMessageEntityPair
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatByIdDataResult
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.request.DeleteChatRequest
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatResponse
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsResponse
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatResponse
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -30,12 +27,10 @@ import kotlin.coroutines.coroutineContext
 class MateChatDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
-    private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: AuthDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateChatDataSource: LocalMateChatDataSource,
-    private val mHttpMateChatDataSource: HttpMateChatDataSource,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpMateChatDataSource: HttpMateChatDataSource
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
@@ -56,9 +51,7 @@ class MateChatDataRepository @Inject constructor(
             if (localChats.isNotEmpty())
                 resultLiveData.postValue(GetChatsDataResult(offset, localDataChats))
 
-            val accessToken = mTokenDataRepository.getTokens().accessToken
-            val getChatsCall = mHttpMateChatDataSource.getChats(offset, count, accessToken)
-            val getChatsResponse = mHttpCallExecutor.executeNetworkRequest(getChatsCall)
+            val getChatsResponse = mHttpMateChatDataSource.getChats(offset, count)
 
             val httpDataChats = resolveGetChatsResponse(getChatsResponse)
 
@@ -98,10 +91,7 @@ class MateChatDataRepository @Inject constructor(
             if (localDataChat != null)
                 resultLiveData.postValue(GetChatByIdDataResult(localDataChat))
 
-            val accessToken = mTokenDataRepository.getTokens().accessToken
-
-            val getChatCall = mHttpMateChatDataSource.getChat(chatId, accessToken)
-            val getChatResponse = mHttpCallExecutor.executeNetworkRequest(getChatCall)
+            val getChatResponse = mHttpMateChatDataSource.getChat(chatId)
 
             val httpDataChat = resolveGetChatResponse(getChatResponse)
 
@@ -123,13 +113,7 @@ class MateChatDataRepository @Inject constructor(
         val localChat = mLocalMateChatDataSource.getChatById(chatId).keys.first()
 
         mLocalMateChatDataSource.deleteChat(localChat)
-
-        val accessToken = mTokenDataRepository.getTokens().accessToken
-
-        val deleteChatRequest = DeleteChatRequest(accessToken)
-        val deleteChatCall = mHttpMateChatDataSource.deleteChat(chatId, deleteChatRequest)
-
-        mHttpCallExecutor.executeNetworkRequest(deleteChatCall)
+        mHttpMateChatDataSource.deleteChat(chatId)
     }
 
     private fun deleteOverdueChats(
