@@ -15,8 +15,8 @@ import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
@@ -103,7 +103,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
         mUseCase = MyProfileUseCase(
             dependencies[0] as ErrorDataRepository,
             dependencies[1] as MyProfileDataRepository,
-            dependencies[2] as TokenDataRepository
+            dependencies[2] as AuthDataRepository
         )
     }
 

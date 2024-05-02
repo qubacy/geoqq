@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.user.repository.source.local.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.Database
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import dagger.Module
 import dagger.Provides

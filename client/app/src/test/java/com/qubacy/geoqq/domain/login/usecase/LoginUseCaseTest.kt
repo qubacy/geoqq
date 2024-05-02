@@ -3,9 +3,9 @@ package com.qubacy.geoqq.domain.login.usecase
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
-import com.qubacy.geoqq.data.token.repository.result.GetTokensDataResult
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import kotlinx.coroutines.test.runTest
@@ -32,7 +32,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = LoginUseCase(
             dependencies[0] as ErrorDataRepository,
-            dependencies[1] as TokenDataRepository
+            dependencies[1] as AuthDataRepository
         )
     }
 

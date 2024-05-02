@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
@@ -24,7 +24,7 @@ class MyProfileUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMyProfileDataRepository: MyProfileDataRepository,
-    private val mTokenDataRepository: TokenDataRepository
+    private val mTokenDataRepository: AuthDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository), AuthorizedUseCase {
     fun getMyProfile() {
         executeLogic({

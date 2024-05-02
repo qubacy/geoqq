@@ -12,13 +12,13 @@ import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.RawImage
-import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
-import com.qubacy.geoqq.data.image.repository.source.http.response.GetImageResponse
-import com.qubacy.geoqq.data.image.repository.source.http.response.GetImagesResponse
-import com.qubacy.geoqq.data.image.repository.source.http.response.UploadImageResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImageResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImagesResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.UploadImageResponse
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -126,29 +126,29 @@ class ImageDataRepositoryTest(
         return localImageDataSourceMock
     }
 
-    private fun mockHttpImageDataSource(): HttpImageDataSource {
+    private fun mockHttpImageDataSource(): HttpImageDataSourceApi {
         val getImageCallMock = Mockito.mock(Call::class.java)
         val getImagesCallMock = Mockito.mock(Call::class.java)
         val uploadImageCallMock = Mockito.mock(Call::class.java)
 
-        val httpImageDataSourceMock = Mockito.mock(HttpImageDataSource::class.java)
+        val httpImageDataSourceApiMock = Mockito.mock(HttpImageDataSourceApi::class.java)
 
-        Mockito.`when`(httpImageDataSourceMock.getImage(
+        Mockito.`when`(httpImageDataSourceApiMock.getImage(
             Mockito.anyLong(), Mockito.anyString()
         )).thenAnswer {
             mHttpSourceGetImageCallFlag = true
             getImageCallMock
         }
-        Mockito.`when`(httpImageDataSourceMock.getImages(AnyMockUtil.anyObject())).thenAnswer {
+        Mockito.`when`(httpImageDataSourceApiMock.getImages(AnyMockUtil.anyObject())).thenAnswer {
             mHttpSourceGetImagesCallFlag = true
             getImagesCallMock
         }
-        Mockito.`when`(httpImageDataSourceMock.uploadImage(AnyMockUtil.anyObject())).thenAnswer {
+        Mockito.`when`(httpImageDataSourceApiMock.uploadImage(AnyMockUtil.anyObject())).thenAnswer {
             mHttpSourceUploadImageCallFlag = true
             uploadImageCallMock
         }
 
-        return httpImageDataSourceMock
+        return httpImageDataSourceApiMock
     }
 
     @Test

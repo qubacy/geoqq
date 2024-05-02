@@ -4,7 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.execu
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import dagger.Module
 import dagger.Provides
@@ -17,7 +17,7 @@ class MateRequestDataRepositoryModule {
     @Provides
     fun provideMateRequestDataRepository(
         errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: TokenDataRepository,
+        tokenDataRepository: AuthDataRepository,
         userDataRepository: UserDataRepository,
         httpMateRequestDataSource: HttpMateRequestDataSource,
         httpCallExecutor: HttpCallExecutor

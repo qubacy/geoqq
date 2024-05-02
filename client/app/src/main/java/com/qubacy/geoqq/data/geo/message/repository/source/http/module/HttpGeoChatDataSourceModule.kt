@@ -1,12 +1,11 @@
 package com.qubacy.geoqq.data.geo.message.repository.source.http.module
 
-import android.content.Context
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoChatDataSource
-import com.qubacy.geoqq.ui.application.CustomApplication
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -14,10 +13,9 @@ import dagger.hilt.components.SingletonComponent
 object HttpGeoChatDataSourceModule {
     @Provides
     fun provideHttpGeoChatDataSource(
-        @ApplicationContext context: Context
+        httpGeoChatDataSourceApi: HttpGeoChatDataSourceApi,
+        httpCallExecutor: HttpCallExecutor
     ): HttpGeoChatDataSource {
-        val httpApi = (context as CustomApplication).httpApi
-
-        return httpApi.geoChatApi
+        return HttpGeoChatDataSource(httpGeoChatDataSourceApi, httpCallExecutor)
     }
 }

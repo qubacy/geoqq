@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data.image.repository.ImageDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +18,7 @@ object MyProfileDataRepositoryModule {
     @Provides
     fun provideMyProfileDataRepository(
         errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: TokenDataRepository,
+        tokenDataRepository: AuthDataRepository,
         imageDataRepository: ImageDataRepository,
         localMyProfileDataSource: LocalMyProfileDataSource,
         httpMyProfileDataSource: HttpMyProfileDataSource,

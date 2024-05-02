@@ -1,15 +1,20 @@
 package com.qubacy.geoqq.data.user.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
-import com.qubacy.geoqq.data.user.repository.source.http.request.GetUsersRequest
-import com.qubacy.geoqq.data.user.repository.source.http.response.GetUsersResponse
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.POST
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data.user.repository.source.http.api.HttpUserDataSourceApi
+import com.qubacy.geoqq.data.user.repository.source.http.api.request.GetUsersRequest
+import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUsersResponse
+import javax.inject.Inject
 
-interface HttpUserDataSource : DataSource {
-    @POST("/api/user")
-    fun getUsers(
-        @Body getUsersRequestBody: GetUsersRequest
-    ): Call<GetUsersResponse>
+class HttpUserDataSource @Inject constructor(
+    private val mHttpUserDataSourceApi: HttpUserDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
+    fun getUsers(ids: List<Long>): GetUsersResponse {
+        val getUsersRequest = GetUsersRequest(ids)
+        val getUsersCall = mHttpUserDataSourceApi.getUsers(getUsersRequest)
+        val getUsersResponse = mHttpCallExecutor.executeNetworkRequest(getUsersCall)
+
+        return getUsersResponse
+    }
 }

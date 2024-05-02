@@ -14,7 +14,7 @@ import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
 import com.qubacy.geoqq.data.image.repository._common.RawImage
 
 class LocalImageDataSource(
-    val contentResolver: ContentResolver
+    private val mContentResolver: ContentResolver
 ) : DataSource {
     companion object {
         const val TAG = "LocalImageDataSource"
@@ -35,7 +35,7 @@ class LocalImageDataSource(
         val selection = "${MediaStore.Images.ImageColumns.TITLE} == ?"
         val selectionArgs = arrayOf(title)
 
-        contentResolver.query(
+        mContentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_COLUMNS_TO_LOAD,
             selection, selectionArgs, null
         )?.use {
@@ -73,11 +73,11 @@ class LocalImageDataSource(
         val imageContentValues = createImageContentValues(title, mimeType)
 
         try {
-            val contentUri = contentResolver.insert(
+            val contentUri = mContentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageContentValues
             ) ?: return null
 
-            contentResolver.openOutputStream(contentUri)?.use {
+            mContentResolver.openOutputStream(contentUri)?.use {
                 rawImage.content.compress(rawImage.extension, DEFAULT_IMAGE_QUALITY, it)
             }
 
@@ -102,8 +102,8 @@ class LocalImageDataSource(
     }
 
     fun getImageDataByUri(imageUri: Uri): RawImage? {
-        val extensionString = contentResolver.getFileExtensionByUri(imageUri)
-        val bitmap = contentResolver.getImageBitmapByUri(imageUri)
+        val extensionString = mContentResolver.getFileExtensionByUri(imageUri)
+        val bitmap = mContentResolver.getImageBitmapByUri(imageUri)
 
         if (bitmap == null) return null
 

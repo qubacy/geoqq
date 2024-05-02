@@ -19,7 +19,7 @@ import com.qubacy.geoqq.data.myprofile.repository.source.http.request.DeleteMyPr
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +31,7 @@ class MyProfileDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: TokenDataRepository,
+    private val mTokenDataRepository: AuthDataRepository,
     private val mImageDataRepository: ImageDataRepository,
     private val mLocalMyProfileDataSource: LocalMyProfileDataSource,
     private val mHttpMyProfileDataSource: HttpMyProfileDataSource,

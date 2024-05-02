@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsDataR
 import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
 import com.qubacy.geoqq.data.mate.request.repository.source.http.request.PostMateRequestRequest
 import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestsResponse
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +20,7 @@ class MateRequestDataRepository(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: TokenDataRepository,
+    private val mTokenDataRepository: AuthDataRepository,
     private val mUserDataRepository: UserDataRepository,
     private val mHttpMateRequestDataSource: HttpMateRequestDataSource,
     private val mHttpCallExecutor: HttpCallExecutor

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository.source.local.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.Database
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import dagger.Module
 import dagger.Provides

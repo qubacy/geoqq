@@ -1,13 +1,11 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.module
 
-import android.content.Context
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.ui.application.CustomApplication
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter.ErrorJsonAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -15,11 +13,9 @@ import dagger.hilt.components.SingletonComponent
 object HttpCallExecutorModule {
     @Provides
     fun provideHttpCallExecutor(
-        errorDataRepository: ErrorDataRepository,
-        @ApplicationContext context: Context
+        errorSource: LocalErrorDataSource,
+        errorJsonAdapter: ErrorJsonAdapter
     ): HttpCallExecutor {
-        val httpApi = (context as CustomApplication).httpApi
-
-        return HttpCallExecutor(errorDataRepository, httpApi.okHttpClient, httpApi.retrofit)
+        return HttpCallExecutor(errorSource, errorJsonAdapter)
     }
 }

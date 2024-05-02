@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestCountResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.response.GetMateRequestsResponse
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After

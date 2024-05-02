@@ -1,27 +1,35 @@
 package com.qubacy.geoqq.data.geo.message.repository.source.http
 
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
-import com.qubacy.geoqq.data.geo.message.repository.source.http.request.SendMessageRequest
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.request.SendMessageRequest
+import javax.inject.Inject
 
-interface HttpGeoChatDataSource {
-    @GET("/api/geo/chat/message/all")
+class HttpGeoChatDataSource @Inject constructor(
+    private val mHttpGeoChatDataSourceApi: HttpGeoChatDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
     fun getMessages(
-        @Query("accessToken") accessToken: String,
-        @Query("radius") radius: Int,
-        @Query("lon") longitude: Float,
-        @Query("lat") latitude: Float
-    ): Call<GetMessagesResponse>
+        radius: Int,
+        longitude: Float,
+        latitude: Float
+    ): GetMessagesResponse {
+        val getMessagesCall = mHttpGeoChatDataSourceApi.getMessages(radius, longitude, latitude)
+        val getMessagesResponse = mHttpCallExecutor.executeNetworkRequest(getMessagesCall)
 
-    /**
-     * Only for debug purposes:
-     */
-    @POST("/api/geo/chat/message")
+        return getMessagesResponse
+    }
+
     fun sendMessage(
-        @Body body: SendMessageRequest
-    ): Call<Unit>
+        text: String,
+        radius: Int,
+        longitude: Float,
+        latitude: Float
+    ) {
+        val sendMessageRequest = SendMessageRequest(text, radius, longitude, latitude)
+        val sendMessageCall = mHttpGeoChatDataSourceApi.sendMessage(sendMessageRequest)
+
+        mHttpCallExecutor.executeNetworkRequest(sendMessageCall)
+    }
 }

@@ -18,7 +18,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsR
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After

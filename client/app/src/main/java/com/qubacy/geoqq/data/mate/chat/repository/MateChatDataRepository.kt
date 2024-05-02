@@ -17,7 +17,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.http.response.GetChatsR
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,7 +31,7 @@ class MateChatDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: TokenDataRepository,
+    private val mTokenDataRepository: AuthDataRepository,
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateChatDataSource: LocalMateChatDataSource,
     private val mHttpMateChatDataSource: HttpMateChatDataSource,

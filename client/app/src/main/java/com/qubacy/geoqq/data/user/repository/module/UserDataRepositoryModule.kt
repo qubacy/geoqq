@@ -1,9 +1,8 @@
 package com.qubacy.geoqq.data.user.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
@@ -17,20 +16,18 @@ import dagger.hilt.components.SingletonComponent
 object UserDataRepositoryModule {
     @Provides
     fun provideUserDataRepository(
-        errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: TokenDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
+        localTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
         imageDataRepository: ImageDataRepository,
         localUserDataSource: LocalUserDataSource,
-        httpUserDataSource: HttpUserDataSource,
-        httpCallExecutor: HttpCallExecutor
+        httpUserDataSource: HttpUserDataSource
     ): UserDataRepository {
         return UserDataRepository(
-            mErrorDataRepository = errorDataRepository,
-            mTokenDataRepository = tokenDataRepository,
+            mErrorSource = localErrorDataSource,
+            mLocalTokenDataStoreDataSource = localTokenDataStoreDataSource,
             mImageDataRepository = imageDataRepository,
             mLocalUserDataSource = localUserDataSource,
-            mHttpUserDataSource = httpUserDataSource,
-            mHttpCallExecutor = httpCallExecutor
+            mHttpUserDataSource = httpUserDataSource
         )
     }
 }

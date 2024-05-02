@@ -1,14 +1,14 @@
 package com.qubacy.geoqq.domain.login.usecase
 
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
     errorDataRepository: ErrorDataRepository,
-    private var mTokenDataRepository: TokenDataRepository
+    private var mTokenDataRepository: AuthDataRepository
 ) : UseCase(mErrorDataRepository = errorDataRepository) {
     fun signIn() {
         executeLogic({

@@ -5,8 +5,7 @@ import android.graphics.Bitmap.CompressFormat
 import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image._common.util.base64.extension.base64ToBitmap
 import com.qubacy.geoqq.data.image._common.util.bitmap.extension.toBase64
-import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequestImage
-import com.qubacy.geoqq.data.image.repository.source.http.response.GetImageResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImageResponse
 
 data class RawImage(
     val id: Long? = null,
@@ -30,8 +29,8 @@ fun GetImageResponse.toRawImage(): RawImage {
     return RawImage(id, extension, bitmap)
 }
 
-fun RawImage.toUploadImageRequest(): UploadImageRequestImage {
+fun RawImage.toExtensionBase64Content(): Pair<Int, String> {
     val extension = ImageExtension.getIdByFormat(extension)
 
-    return UploadImageRequestImage(extension, content.toBase64(this.extension))
+    return Pair(extension, content.toBase64(this.extension))
 }

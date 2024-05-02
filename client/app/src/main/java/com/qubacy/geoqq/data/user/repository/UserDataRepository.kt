@@ -4,20 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.token.error.type.DataTokenErrorType
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.http.request.GetUsersRequest
-import com.qubacy.geoqq.data.user.repository.source.http.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,12 +30,11 @@ import kotlin.coroutines.coroutineContext
 class UserDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
-    private val mErrorDataRepository: ErrorDataRepository,
-    private val mTokenDataRepository: TokenDataRepository,
+    private val mErrorSource: LocalErrorDataSource,
     private val mImageDataRepository: ImageDataRepository,
+    private val mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
     private val mLocalUserDataSource: LocalUserDataSource,
-    private val mHttpUserDataSource: HttpUserDataSource,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpUserDataSource: HttpUserDataSource
     // todo: add a websocket source..
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
@@ -53,11 +51,7 @@ class UserDataRepository @Inject constructor(
             if (localUsers != null)
                 resultLiveData.postValue(GetUsersByIdsDataResult(localDataUsers!!))
 
-            val accessToken = mTokenDataRepository.getTokens().accessToken
-
-            val getUsersRequest = GetUsersRequest(accessToken, userIds)
-            val getUsersCall = mHttpUserDataSource.getUsers(getUsersRequest)
-            val getUsersResponse = mHttpCallExecutor.executeNetworkRequest(getUsersCall)
+            val getUsersResponse = mHttpUserDataSource.getUsers(userIds)
 
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 
@@ -98,11 +92,12 @@ class UserDataRepository @Inject constructor(
         var localUserId: Long? = null
 
         runBlocking {
-            val accessTokenPayload = mTokenDataRepository.getAccessTokenPayload()
+            val localAccessToken = mLocalTokenDataStoreDataSource.getAccessToken()!!
+            val accessTokenPayload = TokenUtils.getTokenPayload(localAccessToken, mErrorSource)
             val localUserIdClaim = accessTokenPayload[ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME]
 
             if (localUserIdClaim?.asLong() == null)
-                throw ErrorAppException(mErrorDataRepository.getError(
+                throw ErrorAppException(mErrorSource.getError(
                     DataTokenErrorType.INVALID_TOKEN_PAYLOAD.getErrorCode()))
 
             localUserId = localUserIdClaim.asLong()

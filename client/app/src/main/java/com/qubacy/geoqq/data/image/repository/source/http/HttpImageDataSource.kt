@@ -1,31 +1,43 @@
 package com.qubacy.geoqq.data.image.repository.source.http
 
-import com.qubacy.geoqq.data.image.repository.source.http.request.GetImagesRequest
-import com.qubacy.geoqq.data.image.repository.source.http.request.UploadImageRequest
-import com.qubacy.geoqq.data.image.repository.source.http.response.GetImageResponse
-import com.qubacy.geoqq.data.image.repository.source.http.response.GetImagesResponse
-import com.qubacy.geoqq.data.image.repository.source.http.response.UploadImageResponse
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
+import com.qubacy.geoqq.data.image.repository.source.http.api.request.GetImagesRequest
+import com.qubacy.geoqq.data.image.repository.source.http.api.request.UploadImageRequest
+import com.qubacy.geoqq.data.image.repository.source.http.api.request.UploadImageRequestImage
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImageResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImagesResponse
+import com.qubacy.geoqq.data.image.repository.source.http.api.response.UploadImageResponse
+import javax.inject.Inject
 
-interface HttpImageDataSource {
-    @GET("/api/image/{id}")
-    fun getImage(
-        @Path("id") id: Long,
-        @Query("accessToken") accessToken: String
-    ): Call<GetImageResponse>
+class HttpImageDataSource @Inject constructor(
+    private val mHttpImageDataSourceApi: HttpImageDataSourceApi,
+    private val mHttpCallExecutor: HttpCallExecutor
+) {
+    fun getImage(id: Long): GetImageResponse {
+        val getImageCall = mHttpImageDataSourceApi.getImage(id)
+        val getImageResponse = mHttpCallExecutor.executeNetworkRequest(getImageCall)
 
-    @POST("/api/image")
-    fun getImages(
-        @Body getImagesRequestBody: GetImagesRequest
-    ): Call<GetImagesResponse>
+        return getImageResponse
+    }
 
-    @POST("/api/image/new")
+    fun getImages(ids: List<Long>): GetImagesResponse {
+        val getImagesRequest = GetImagesRequest(ids)
+        val getImagesCall = mHttpImageDataSourceApi.getImages(getImagesRequest)
+        val getImagesResponse = mHttpCallExecutor.executeNetworkRequest(getImagesCall)
+
+        return getImagesResponse
+    }
+
     fun uploadImage(
-        @Body uploadImageRequestBody: UploadImageRequest
-    ): Call<UploadImageResponse>
+        extension: Int,
+        base64Content: String
+    ): UploadImageResponse {
+        val uploadImageRequestContent = UploadImageRequestImage(extension, base64Content)
+        val uploadImageRequest = UploadImageRequest(uploadImageRequestContent)
+        val uploadImageCall = mHttpImageDataSourceApi.uploadImage(uploadImageRequest)
+        val uploadImageResponse = mHttpCallExecutor.executeNetworkRequest(uploadImageCall)
+
+        return uploadImageResponse
+    }
 }

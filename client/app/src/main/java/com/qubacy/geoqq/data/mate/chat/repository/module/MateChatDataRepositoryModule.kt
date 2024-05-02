@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.source.local.LocalMateChatDataSource
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import dagger.Module
 import dagger.Provides
@@ -18,7 +18,7 @@ object MateChatDataRepositoryModule {
     @Provides
     fun provideMateChatDataRepository(
         errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: TokenDataRepository,
+        tokenDataRepository: AuthDataRepository,
         userDataRepository: UserDataRepository,
         localMateChatDataSource: LocalMateChatDataSource,
         httpMateChatDataSource: HttpMateChatDataSource,

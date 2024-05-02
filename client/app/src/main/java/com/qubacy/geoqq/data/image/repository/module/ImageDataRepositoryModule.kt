@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.data.image.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
-import com.qubacy.geoqq.data.token.repository.TokenDataRepository
+import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,18 +14,14 @@ import dagger.hilt.components.SingletonComponent
 object ImageDataRepositoryModule {
     @Provides
     fun provideImageDataRepository(
-        errorDataRepository: ErrorDataRepository,
-        tokenDataRepository: TokenDataRepository,
+        localErrorDataSource: LocalErrorDataSource,
         localImageDataSource: LocalImageDataSource,
-        httpImageDataSource: HttpImageDataSource,
-        httpCallExecutor: HttpCallExecutor
+        httpImageDataSource: HttpImageDataSource
     ): ImageDataRepository {
         return ImageDataRepository(
-            errorDataRepository,
-            tokenDataRepository,
+            localErrorDataSource,
             localImageDataSource,
-            httpImageDataSource,
-            httpCallExecutor
+            httpImageDataSource
         )
     }
 }

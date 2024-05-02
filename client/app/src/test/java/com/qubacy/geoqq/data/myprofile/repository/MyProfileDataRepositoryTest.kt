@@ -22,7 +22,7 @@ import com.qubacy.geoqq.data.myprofile.repository.source.http._common.MyProfileP
 import com.qubacy.geoqq.data.myprofile.repository.source.http.response.GetMyProfileResponse
 import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
-import com.qubacy.geoqq.data.token.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -32,7 +32,6 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 import retrofit2.Call
-import retrofit2.Response
 
 class MyProfileDataRepositoryTest(
 
