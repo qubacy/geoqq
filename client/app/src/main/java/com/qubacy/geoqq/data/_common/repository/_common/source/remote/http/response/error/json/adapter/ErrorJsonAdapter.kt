@@ -14,11 +14,6 @@ class ErrorJsonAdapter : JsonAdapter<ErrorResponse>() {
         p0.skipName()
 
         val errorId = p0.nextLong()
-
-        while (p0.hasNext()) p0.skipName()
-
-        p0.endObject()
-
         val errorContent = ErrorResponseContent(errorId)
 
         return ErrorResponse(errorContent)

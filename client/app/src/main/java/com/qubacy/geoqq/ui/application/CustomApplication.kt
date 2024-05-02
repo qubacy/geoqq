@@ -47,10 +47,11 @@ class CustomApplication : Application() {
 
         val httpCallExecutor = HttpCallExecutor(errorDataSource, ErrorJsonAdapter())
         val httpTokenDataSource = HttpTokenDataSource(httpCallExecutor)
+        val errorJsonAdapter = ErrorJsonAdapter()
 
         val authorizationHttpInterceptor = AuthorizationHttpInterceptorModule
             .provideAuthorizationHttpInterceptor(
-                errorDataSource, localTokenDataSource, httpTokenDataSource)
+                errorDataSource, errorJsonAdapter, localTokenDataSource, httpTokenDataSource)
         val okHttpClient = HttpClientModule
             .provideHttpClient(errorDataSource, authorizationHttpInterceptor)
 

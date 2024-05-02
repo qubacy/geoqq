@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.clie
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.interceptor.auth.AuthorizationHttpInterceptor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter.ErrorJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.HttpTokenDataSource
 import dagger.Module
 import dagger.Provides
@@ -15,11 +16,13 @@ object AuthorizationHttpInterceptorModule {
     @Provides
     fun provideAuthorizationHttpInterceptor(
         errorDataSource: LocalErrorDataSource,
+        errorJsonAdapter: ErrorJsonAdapter,
         localTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
         httpTokenDataSource: HttpTokenDataSource
     ): AuthorizationHttpInterceptor {
         return AuthorizationHttpInterceptor(
             errorDataSource,
+            errorJsonAdapter,
             localTokenDataStoreDataSource,
             httpTokenDataSource
         )
