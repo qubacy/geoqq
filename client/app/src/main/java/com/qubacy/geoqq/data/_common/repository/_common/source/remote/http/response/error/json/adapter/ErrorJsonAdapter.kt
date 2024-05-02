@@ -9,13 +9,14 @@ import com.squareup.moshi.JsonWriter
 class ErrorJsonAdapter : JsonAdapter<ErrorResponse>() {
     override fun fromJson(p0: JsonReader): ErrorResponse? {
         p0.beginObject() // {
-        p0.beginObject() // "error": {..}
+        p0.skipName()
+        p0.beginObject()
+        p0.skipName()
 
         val errorId = p0.nextLong()
 
         while (p0.hasNext()) p0.skipName()
 
-        p0.endObject()
         p0.endObject()
 
         val errorContent = ErrorResponseContent(errorId)
