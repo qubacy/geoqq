@@ -15,9 +15,10 @@ server:
 
 delivery: # or service?
   token:
-    access_ttl: 30m
+    access_ttl: 15s
     refresh_ttl: 1000h
     signing_key: "signing_key"
+    refresh_signing_key: ""
 
 service:
   general:
@@ -87,7 +88,7 @@ storage:
         #...
 
 cache:
-  enable: true
+  enable: false
 
   type: "redis"
   max_init_time: 5s

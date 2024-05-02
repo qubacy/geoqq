@@ -15,22 +15,23 @@ func (h *Handler) registerGeoRoutes() {
 		chat := router.Group("/chat")
 		{
 			chat.GET("/message",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireOffsetAndCount,
 				requireLonAndLat, requireRadius,
 				h.getGeoChatMessages,
 			)
 
 			chat.GET("/message/all",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireLonAndLat, requireRadius,
 				h.getGeoChatAllMessages,
 			)
 
 			// for debug?
 
-			chat.POST("/message", h.extractBodyForPostGeoChatMessage,
-				h.userIdentityByContextData, h.userNotDeleted,
+			chat.POST("/message",
+				h.userIdentityByHeader, h.userNotDeleted,
+				h.extractBodyForPostGeoChatMessage,
 				h.postGeoChatMessage,
 			)
 		}
@@ -72,7 +73,8 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err) // impossible error!
 		return
 	}
-	ctx.JSON(http.StatusOK, responseDto)
+
+	resJsonWithOK(ctx, responseDto)
 }
 
 // GET /api/geo/chat/message/all
@@ -107,7 +109,7 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 	}
 
 	logger.Trace("%v", responseDto)
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // POST /api/geo/chat/message
@@ -141,23 +143,12 @@ func (h *Handler) extractBodyForPostGeoChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	// ***
-
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestAccessTokenFailed,
-			ErrEmptyAccessToken)
-		return
-	}
-
 	if len(requestDto.Text) == 0 {
 		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
 			ErrEmptyBodyParameterWithName("Text"))
 		return
 	}
 
-	// ***
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
 }
 

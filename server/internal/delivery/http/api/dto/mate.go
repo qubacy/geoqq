@@ -102,8 +102,7 @@ func MakeMateMessageFromDomain(mateMessage *domain.MateMessage) (MateMessage, er
 // -----------------------------------------------------------------------
 
 type MateChatMessagePostReq struct {
-	AccessToken string `json:"access-token" binding:"required"` // ?
-	Text        string `json:"text" binding:"required"`
+	Text string `json:"text" binding:"required"`
 }
 
 // GET /api/mate/chat/{id}/message
@@ -194,6 +193,5 @@ type MateRequestCountRes struct {
 // -----------------------------------------------------------------------
 
 type MateRequestPostReq struct {
-	AccessToken string  `json:"access-token" binding:"required"` // ?
-	UserId      float64 `json:"user-id" binding:"required"`
+	UserId float64 `json:"user-id" binding:"required"`
 }

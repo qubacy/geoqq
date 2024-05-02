@@ -6,9 +6,10 @@ import (
 )
 
 var (
-	ErrEmptyRequestParameter = errors.New("empty request parameter") // uri, x-www-form-urlencoded
-	ErrEmptyBodyParameter    = errors.New("empty body parameter")    // body
-	ErrEmptyAccessToken      = errors.New("empty access token")
+	ErrEmptyRequestParameter      = errors.New("empty request parameter") // uri, x-www-form-urlencoded
+	ErrEmptyBodyParameter         = errors.New("empty body parameter")    // body
+	ErrEmptyAccessToken           = errors.New("empty access token")
+	ErrInvalidAuthorizationHeader = errors.New("invalid authorization header")
 
 	ErrEmptyContextParam      = errors.New("empty context param")
 	ErrUnexpectedContextParam = errors.New("unexpected context param")

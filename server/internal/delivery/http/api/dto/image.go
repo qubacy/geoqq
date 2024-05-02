@@ -13,8 +13,7 @@ type ImageByIdRes struct {
 // -----------------------------------------------------------------------
 
 type SomeImagesReq struct {
-	AccessToken string    `json:"access-token" binding:"required"` // ?
-	Ids         []float64 `json:"ids" binding:"required"`
+	Ids []float64 `json:"ids" binding:"required"`
 }
 
 // -----------------------------------------------------------------------
@@ -37,8 +36,7 @@ type Image struct {
 // -----------------------------------------------------------------------
 
 type ImagePostReq struct {
-	AccessToken string         `json:"access-token" binding:"required"`
-	Image       ImageWithoutId `json:"image,omitempty"` // TODO: why this omitempty!!???
+	Image ImageWithoutId `json:"image"`
 }
 
 func (s *ImagePostReq) ToInp() serviceDto.ImageForAddToUserInp {

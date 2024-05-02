@@ -15,28 +15,26 @@ func (h *Handler) registerUserRoutes() {
 	myProfileRouter := h.router.Group("/my-profile", h.parseAnyForm)
 	{
 		myProfileRouter.GET("",
-			h.userIdentityForGetRequest,
-			h.userNotDeleted,
+			h.userIdentityByHeader, h.userNotDeleted,
 			h.getMyProfile,
 		)
 
 		myProfileRouter.PUT("",
+			h.userIdentityByHeader, h.userNotDeleted,
 			h.extractBodyForPutMyProfile,
-			h.userIdentityByContextData,
-			h.userNotDeleted,
 			h.putMyProfile,
 		)
 
 		// deprecated!
 		myProfileRouter.PUT("/with-attached-avatar",
+			h.userIdentityByHeader, h.userNotDeleted,
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
-			h.userIdentityByContextData, h.userNotDeleted,
 			h.putMyProfileWithAttachedAvatar,
 		)
 
 		myProfileRouter.DELETE("",
-			h.userIdentityByBodyWithAccessToken,
-			h.userNotDeleted, h.deleteMyProfile,
+			h.userIdentityByHeader, h.userNotDeleted,
+			h.deleteMyProfile,
 		)
 	}
 
@@ -45,14 +43,12 @@ func (h *Handler) registerUserRoutes() {
 	userRouter := h.router.Group("/user", h.parseAnyForm)
 	{
 		userRouter.GET("/:id",
-			h.userIdentityForGetRequest,
-			h.userNotDeleted,
+			h.userIdentityByHeader, h.userNotDeleted,
 			h.getUser,
 		)
 		userRouter.POST("",
+			h.userIdentityByHeader, h.userNotDeleted,
 			h.extractBodyForGetSomeUsers,
-			h.userIdentityByContextData,
-			h.userNotDeleted,
 			h.getSomeUsers,
 		)
 	}
@@ -80,8 +76,8 @@ func (h *Handler) getMyProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK,
-		dto.MakeMyProfileRes(userProfile))
+	responseDto := dto.MakeMyProfileRes(userProfile)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // PUT /api/my-profile/with-attached-avatar
@@ -97,10 +93,6 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 
 	// *** validate json body
 
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
-		return
-	}
 	if requestDto.Avatar != nil {
 		if len(requestDto.Avatar.Content) == 0 {
 			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
@@ -130,9 +122,6 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 		}
 	*/
 
-	// ***
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
 }
 
@@ -181,10 +170,6 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 
 	// *** validate json body
 
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
-		return
-	}
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
 			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
@@ -208,9 +193,6 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	*/
 
-	// ***
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
 }
 
@@ -299,7 +281,7 @@ func (h *Handler) getUser(ctx *gin.Context) {
 	}
 
 	logger.Trace(fmt.Sprintf("%v", responseDto))
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // GET /api/user
@@ -314,10 +296,6 @@ func (h *Handler) extractBodyForGetSomeUsers(ctx *gin.Context) {
 
 	// ***
 
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
-		return
-	}
 	/*
 		if len(requestDto.Ids) == 0 {
 			resWithClientError(ctx, ec.ValidateRequestFailed, ErrEmptyBodyParameter)
@@ -325,9 +303,6 @@ func (h *Handler) extractBodyForGetSomeUsers(ctx *gin.Context) {
 		}
 	*/
 
-	// ***
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
 }
 
@@ -363,12 +338,12 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 
 	// ---> delivery
 
-	responseDto, err := dto.MakeSomeUsersResFromDomain(publicUsers)
+	responseDto, err := dto.NewSomeUsersResFromDomain(publicUsers) // TODO: struct to pointer!
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
 
 	logger.Trace(fmt.Sprintf("%v", responseDto))
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }

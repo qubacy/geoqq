@@ -49,6 +49,7 @@ const (
 	*/
 	ParseRequestJsonBodyFailed // (Request.Body)
 
+	ValidateAuthorizationHeaderFailed
 	/*
 		Weak checks of any parameters
 			after binding.
@@ -83,6 +84,8 @@ const (
 */
 
 const ( // general (middleware, ...)
+	GeneralError = clientErrorOffset + errorGroupSize + iota // 1200
+
 	/*
 		The token is not valid for one of the reasons:
 			- incorrect format;
@@ -90,7 +93,6 @@ const ( // general (middleware, ...)
 
 			- when a user is deleted.
 	*/
-	GeneralError = clientErrorOffset + errorGroupSize + iota // 1200
 	ValidateAccessTokenFailed
 
 	UserWasPreviouslyDeleted
@@ -117,7 +119,7 @@ const ( // Auth
 		Invalid token when trying to update a pair.
 			Check request: PUT /api/sign-in
 	*/
-	ValidateRefreshTokenFailed
+	ValidateRefreshTokenFailed // 1402
 
 	/*
 		Actions:

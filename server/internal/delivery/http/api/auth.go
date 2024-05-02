@@ -6,7 +6,6 @@ import (
 	"geoqq/internal/service"
 	serviceDto "geoqq/internal/service/dto"
 	"geoqq/pkg/logger"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,7 +60,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	// ***
 
-	ctx.JSON(http.StatusOK, dto.MakeSignInPostRes(
+	resJsonWithOK(ctx, dto.MakeSignInPostRes(
 		out.AccessToken, out.RefreshToken))
 }
 
@@ -88,7 +87,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 
 	// ***
 
-	ctx.JSON(http.StatusOK, dto.MakeSignUpPostRes(
+	resJsonWithOK(ctx, dto.MakeSignUpPostRes(
 		out.AccessToken, out.RefreshToken))
 }
 
@@ -98,6 +97,7 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 func (h *Handler) putSignIn(ctx *gin.Context) {
 
 	refreshToken := ctx.GetString(contextRefreshToken)
+	logger.Trace("refresh token: %v", refreshToken)
 
 	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
@@ -109,7 +109,7 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 
 	// ***
 
-	ctx.JSON(http.StatusOK, dto.MakeSignUpPutRes(
+	resJsonWithOK(ctx, dto.MakeSignUpPutRes(
 		out.AccessToken, out.RefreshToken))
 }
 

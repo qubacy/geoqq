@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"crypto/md5"
+	"fmt"
 	"geoqq/internal/domain"
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq/internal/storage/domain"
@@ -109,5 +110,6 @@ func transformUsernameToDeleted(pu *domain.PublicUser) { // not nil!
 		index += int(h[i])
 	}
 	index = index % len(usernamesForDeleted)
-	pu.Username = "<" + usernamesForDeleted[index] + ">"
+	pu.Username = fmt.Sprintf("<%v>",
+		usernamesForDeleted[index])
 }

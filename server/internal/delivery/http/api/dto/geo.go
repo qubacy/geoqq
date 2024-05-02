@@ -64,8 +64,7 @@ func MakeGeoMessageFromDomain(geoMessage *domain.GeoMessage) (GeoMessage, error)
 // -----------------------------------------------------------------------
 
 type GeoChatMessagePostReq struct {
-	AccessToken string `json:"access-token" binding:"required"` // ?
-	Text        string `json:"text" binding:"required"`
+	Text string `json:"text" binding:"required"`
 
 	Longitude float64 `json:"longitude" binding:"required"`
 	Latitude  float64 `json:"latitude" binding:"required"`

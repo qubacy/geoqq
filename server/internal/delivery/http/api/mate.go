@@ -19,20 +19,20 @@ func (h *Handler) registerMateRoutes() {
 		chat := router.Group("/chat")
 		{
 			chat.GET("",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireOffsetAndCount, h.getMateChats,
 			)
 			chat.GET("/:id",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireRouteItemId, h.getMateChat,
 			)
 
 			chat.DELETE("/:id",
-				h.userIdentityByBodyWithAccessToken, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireRouteItemId, h.deleteMateChat,
 			)
 			chat.GET("/:id/message",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				requireRouteItemId, requireOffsetAndCount,
 				h.getMateChatMessages,
 			) // maybe group?
@@ -40,32 +40,35 @@ func (h *Handler) registerMateRoutes() {
 			// for debug?
 
 			chat.POST("/:id/message",
+				h.userIdentityByHeader, h.userNotDeleted,
 				h.extractBodyForPostMateChatMessage,
-				h.userIdentityByContextData, h.userNotDeleted,
 				h.postMateChatMessage,
 			)
 		}
 
 		request := router.Group("/request")
 		{
-			request.GET("", requireOffsetAndCount,
-				h.userIdentityForGetRequest, h.userNotDeleted,
+			request.GET("",
+				h.userIdentityByHeader, h.userNotDeleted,
+				requireOffsetAndCount,
 				h.getMateRequests,
 			)
 			request.GET("/count",
-				h.userIdentityForGetRequest, h.userNotDeleted,
+				h.userIdentityByHeader, h.userNotDeleted,
 				h.getMateRequestCount,
 			)
 
 			// ***
 
-			request.POST("", h.extractBodyForPostMateRequest,
-				h.userIdentityByContextData, h.userNotDeleted,
+			request.POST("",
+				h.userIdentityByHeader, h.userNotDeleted,
+				h.extractBodyForPostMateRequest,
 				h.postMateRequest,
 			)
 
-			request.PUT("/:id", h.userIdentityForFormRequest,
-				h.userNotDeleted, h.putMateRequest,
+			request.PUT("/:id",
+				h.userIdentityByHeader, h.userNotDeleted,
+				h.putMateRequest,
 			)
 		}
 	}
@@ -107,7 +110,7 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 	bytes, _ := json.Marshal(responseDto)
 	logger.Trace(string(bytes))
 
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // GET /api/mate/chat/{id}
@@ -133,7 +136,7 @@ func (h *Handler) getMateChat(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // DELETE /api/mate/chat/{id}
@@ -183,7 +186,8 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, responseDto)
+
+	resJsonWithOK(ctx, responseDto)
 }
 
 // POST /api/mate/chat/{id}/message
@@ -215,21 +219,13 @@ func (h *Handler) extractBodyForPostMateChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
-			ErrEmptyBodyParameterWithName("AccessToken"))
-		return
-	}
 	if len(requestDto.Text) == 0 {
 		resWithClientError(ctx, ec.ValidateRequestParamsFailed,
 			ErrEmptyBodyParameterWithName("Text"))
 		return
 	}
 
-	// ***
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
-	ctx.Set(contextRequestDto, requestDto) // all body with access token.
+	ctx.Set(contextRequestDto, requestDto)
 }
 
 type uriParamsPostMateChatMessage struct {
@@ -310,7 +306,8 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, responseDto)
+
+	resJsonWithOK(ctx, responseDto)
 }
 
 // GET /api/mate/request/count
@@ -333,7 +330,7 @@ func (h *Handler) getMateRequestCount(ctx *gin.Context) {
 		Count: float64(count),
 	}
 
-	ctx.JSON(http.StatusOK, responseDto)
+	resJsonWithOK(ctx, responseDto)
 }
 
 // POST /api/mate/request
@@ -345,15 +342,6 @@ func (h *Handler) extractBodyForPostMateRequest(ctx *gin.Context) {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
 	}
-
-	// simple request validation...
-
-	if len(requestDto.AccessToken) == 0 {
-		resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
-		return
-	}
-
-	ctx.Set(contextAccessToken, requestDto.AccessToken)
 	ctx.Set(contextRequestDto, requestDto)
 }
 

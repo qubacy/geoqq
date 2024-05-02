@@ -5,6 +5,7 @@ import (
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,80 +29,25 @@ const (
 	contextPassword = "password"
 )
 
+// Header
 // -----------------------------------------------------------------------
 
-// only there are authorization errors!
-func (h *Handler) userIdentityForGetRequest(ctx *gin.Context) {
-	accessToken, clientCode, err := extractAccessTokenAsGetParam(ctx)
+func (h *Handler) userIdentityByHeader(ctx *gin.Context) {
+	accessToken, clientCode, err := extractAccessTokenAsHeader(ctx)
 	if err != nil {
 		resWithAuthError(ctx, clientCode, err)
 		return
 	}
 
-	// TODO: into a separate function?
 	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
-
-	ctx.Set(contextUserId, payload.UserId)
-}
-
-// some put requests...
-func (h *Handler) userIdentityForFormRequest(ctx *gin.Context) {
-	accessToken, clientCode, err := extractAccessTokenAsFormParam(ctx)
-	if err != nil {
-		resWithAuthError(ctx, clientCode, err)
-		return
-	}
-
-	payload, err := h.tokenExtractor.ParseAccess(accessToken)
-	if err != nil {
-		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
-		return
-	}
-
-	ctx.Set(contextUserId, payload.UserId)
-}
-
-func (h *Handler) userIdentityByContextData(ctx *gin.Context) {
-	accessToken, clientCode, err := extractAccessTokenFromContext(ctx)
-	if err != nil {
-		resWithAuthError(ctx, clientCode, err)
-		return
-	}
-
-	payload, err := h.tokenExtractor.ParseAccess(accessToken)
-	if err != nil {
-		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
-		return
-	}
-
 	ctx.Set(contextUserId, payload.UserId)
 }
 
 // -----------------------------------------------------------------------
-
-type bodyWithAccessToken struct {
-	AccessToken string `json:"access-token" binding:"required"`
-}
-
-func (h *Handler) userIdentityByBodyWithAccessToken(ctx *gin.Context) {
-	requestDto := bodyWithAccessToken{} // ?
-	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
-		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
-		return
-	}
-
-	payload, err := h.tokenExtractor.ParseAccess(requestDto.AccessToken)
-	if err != nil {
-		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
-		return
-	}
-
-	ctx.Set(contextUserId, payload.UserId)
-}
 
 func (h *Handler) userNotDeleted(ctx *gin.Context) {
 
@@ -248,34 +194,27 @@ func requireRouteItemId(ctx *gin.Context) {
 	ctx.Set(contextRouteItemId, uriParams.Id)
 }
 
-// help
+// Help
 // -----------------------------------------------------------------------
 
-func extractAccessTokenAsGetParam(ctx *gin.Context) (string, int, error) {
+func extractAccessTokenAsHeader(ctx *gin.Context) (string, int, error) {
+	authValue := ctx.Request.Header.Get("Authorization")
+	authParts := strings.Split(authValue, " ")
 
-	// as get-parameter!
+	if len(authParts) != 2 {
+		return "", ec.ValidateAuthorizationHeaderFailed,
+			ErrInvalidAuthorizationHeader
+	}
+	if authParts[0] != "Bearer" {
+		return "", ec.ValidateAuthorizationHeaderFailed,
+			ErrInvalidAuthorizationHeader
+	}
 
-	if !ctx.Request.Form.Has("accessToken") {
+	accessToken := authParts[1]
+	if len(accessToken) == 0 {
 		return "", ec.ValidateRequestAccessTokenFailed,
-			ErrSomeParametersAreMissingWithNames([]string{"AccessToken"})
-	}
-
-	accessToken := ctx.Request.Form.Get("accessToken")
-	if len(accessToken) == 0 {
-		return "", ec.ValidateRequestAccessTokenFailed, // ?
 			ErrEmptyAccessToken
 	}
-
-	return accessToken, ec.NoError, nil
-}
-
-func extractAccessTokenAsFormParam(ctx *gin.Context) (string, int, error) {
-	accessToken := ctx.Request.FormValue("access-token")
-	if len(accessToken) == 0 {
-		return "", ec.ValidateRequestAccessTokenFailed, // ?
-			ErrEmptyAccessToken
-	}
-
 	return accessToken, ec.NoError, nil
 }
 
@@ -288,13 +227,4 @@ func extractUserIdFromContext(ctx *gin.Context) (uint64, int, error) {
 	}
 
 	return ctx.GetUint64(contextUserId), ec.NoError, nil
-}
-
-func extractAccessTokenFromContext(ctx *gin.Context) (string, int, error) {
-	_, exists := ctx.Get(contextAccessToken)
-	if !exists {
-		return "", ec.ServerError, ErrEmptyContextParam
-	}
-
-	return ctx.GetString(contextAccessToken), ec.NoError, nil
 }

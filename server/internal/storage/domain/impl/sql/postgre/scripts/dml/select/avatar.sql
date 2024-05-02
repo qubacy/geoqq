@@ -2,6 +2,9 @@ SELECT * FROM "Avatar"
 ORDER BY "Time" DESC;
 ORDER BY "UserId" NULLS FIRST;
 
+SELECT "HashUpdToken" FROM "UserEntry"
+WHERE "Username" = 'test_user3';
+
 -- -----------------------------------------------------------------------
 
 SELECT COUNT(*) FROM "Avatar"

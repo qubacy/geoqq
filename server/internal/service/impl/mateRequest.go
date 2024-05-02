@@ -86,10 +86,12 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
-	err = assertUserWithIdNotDeleted(ctx, mrs.domainStorage, targetUserId)
+	err = assertUserWithIdNotDeleted(ctx, mrs.domainStorage, targetUserId) // marked!
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
+
+	// TODO: check privacy!!!
 
 	// ***
 

@@ -57,8 +57,6 @@ func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
 // -----------------------------------------------------------------------
 
 type PartMyProfileForPutReq struct {
-	AccessToken string `json:"access-token" binding:"required"` // ?
-
 	Description *string `json:"description,omitempty"`
 
 	Privacy  *Privacy  `json:"privacy,omitempty"`
@@ -169,13 +167,6 @@ func (s *Avatar) ToDynamicInp() *serviceDto.Avatar {
 	}
 }
 
-// DELETE /api/my-profile
-// -----------------------------------------------------------------------
-
-type MyProfileDeleteReq struct {
-	AccessToken string `json:"access-token" binding:"required"` // ?
-}
-
 // GET /api/user/{userId}
 // -----------------------------------------------------------------------
 
@@ -234,33 +225,32 @@ func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 // -----------------------------------------------------------------------
 
 type SomeUsersReq struct {
-	AccessToken string    `json:"access-token" binding:"required"` // ?
-	Ids         []float64 `json:"ids" binding:"required"`
+	Ids []float64 `json:"ids" binding:"required"`
 }
 
 type SomeUsersRes struct {
 	Users []User `json:"users"`
 }
 
-func MakeSomeUsersResFromDomain(publicUsers []*domain.PublicUser) (
-	SomeUsersRes, error,
+func NewSomeUsersResFromDomain(publicUsers []*domain.PublicUser) (
+	*SomeUsersRes, error,
 ) {
 	if publicUsers == nil {
-		return SomeUsersRes{}, ErrInputParameterIsNil
+		return nil, ErrInputParameterIsNil
 	}
 
 	users := make([]User, 0, len(publicUsers))
 	for i := range publicUsers {
 		user, err := MakeUserFromDomain(publicUsers[i])
 		if err != nil {
-			return SomeUsersRes{}, utility.NewFuncError(
-				MakeSomeUsersResFromDomain, err)
+			return nil, utility.NewFuncError(
+				NewSomeUsersResFromDomain, err)
 		}
 
 		users = append(users, user)
 	}
 
-	return SomeUsersRes{
+	return &SomeUsersRes{
 		Users: users,
 	}, nil
 }

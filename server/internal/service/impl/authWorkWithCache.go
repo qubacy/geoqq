@@ -9,6 +9,10 @@ import (
 // Keys
 // -----------------------------------------------------------------------
 
+func keyUserWithIdDeleted(value uint64) string {
+	return fmt.Sprintf("failed_sin_attempts_by_%v", value)
+}
+
 func keySignInFailedAttemptCount(username string) string {
 	return fmt.Sprintf("failed_sin_attempts_by_%v", username)
 }

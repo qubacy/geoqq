@@ -9,6 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func resJsonWithOK(ctx *gin.Context, obj any) {
+	ctx.JSON(http.StatusOK, obj)
+}
+
 func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
 	shortErr := utility.UnwrapErrorsToLast(err) // <--- very first reason!
 	ctx.JSON(httpCode, dto.MakeResWithTraceError(

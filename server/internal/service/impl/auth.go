@@ -48,6 +48,9 @@ func newAuthService(deps Dependencies) *AuthService {
 		authParams: deps.AuthParams,
 	}
 
+	logger.Trace("access token ttl: %v", deps.AccessTokenTTL)
+	logger.Trace("refresh token ttl: %v", deps.RefreshTokenTTL)
+
 	// ***
 
 	instance.initializeValidators()
