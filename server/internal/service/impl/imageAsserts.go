@@ -17,7 +17,8 @@ func (s *ImageService) assertAddImageNotBlockedForUser(
 		return nil
 	}
 
-	addImageBlocked, err := s.cache.Exists(ctx, keyAddImageBlockedForUser(userId))
+	addImageBlocked, err := s.cache.Exists(ctx,
+		imageCacheKey.AddImageBlockedForUser(userId))
 	if err != nil {
 		return ec.New(utl.NewFuncError(s.assertAddImageNotBlockedForUser, err),
 			ec.Server, ec.CacheError)

@@ -9,21 +9,25 @@ import (
 // Keys
 // -----------------------------------------------------------------------
 
-func keyUserWithIdDeleted(value uint64) string {
-	return fmt.Sprintf("failed_sin_attempts_by_%v", value)
+type authCacheKeyFormatter struct{}
+
+func (*authCacheKeyFormatter) DeletedUser(id uint64) string {
+	return fmt.Sprintf("deleted_user_%v", id)
 }
 
-func keySignInFailedAttemptCount(username string) string {
-	return fmt.Sprintf("failed_sin_attempts_by_%v", username)
+func (*authCacheKeyFormatter) SignInFailedAttemptCount(username string) string {
+	return fmt.Sprintf("sin_failed_attempts_by_%v", username)
 }
 
-func keySignInByNameBlocked(username string) string {
+func (*authCacheKeyFormatter) SignInByNameBlocked(username string) string {
 	return fmt.Sprintf("sin_by_%v_blocked", username)
 }
 
-func keySignUpByIpAddrBlocked(ipAddr string) string {
+func (*authCacheKeyFormatter) SignUpByIpAddrBlocked(ipAddr string) string {
 	return fmt.Sprintf("sup_by_ip_%v_blocked", ipAddr)
 }
+
+var authCacheKey = authCacheKeyFormatter{}
 
 // Actions
 // -----------------------------------------------------------------------
@@ -31,8 +35,8 @@ func keySignUpByIpAddrBlocked(ipAddr string) string {
 func (a *AuthService) updateSignInCache(ctx context.Context, username string) error {
 	sourceFunc := a.updateHashRefreshToken
 
-	keyLoginBlocked := keySignInByNameBlocked(username)
-	keyAttemptCount := keySignInFailedAttemptCount(username)
+	keyLoginBlocked := authCacheKey.SignInByNameBlocked(username)
+	keyAttemptCount := authCacheKey.SignInFailedAttemptCount(username)
 
 	singleChar := "1"
 	maxAttemptCount := a.authParams.SignIn.FailedAttemptCount
@@ -74,7 +78,7 @@ func (a *AuthService) updateSignInCache(ctx context.Context, username string) er
 
 func (a *AuthService) updateSignUpCache(ctx context.Context, ipAddr string) error {
 	err := a.cache.SetWithTTL(ctx,
-		keySignUpByIpAddrBlocked(ipAddr), "1",
+		authCacheKey.SignUpByIpAddrBlocked(ipAddr), "1",
 		a.authParams.SignUp.BlockingTime,
 	)
 	if err != nil {

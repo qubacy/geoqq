@@ -7,16 +7,19 @@ import (
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
 	dsDto "geoqq/internal/storage/domain/dto"
+	"geoqq/pkg/logger"
 	utl "geoqq/pkg/utility"
+	"time"
 )
 
 type UserProfileService struct {
 	HasherAndStorages
+	accessTokenTTL time.Duration
 }
 
 func newUserProfileService(deps Dependencies) *UserProfileService {
 	instance := &UserProfileService{
-		HasherAndStorages{
+		HasherAndStorages: HasherAndStorages{
 			enableCache: deps.EnableCache,
 			cache:       deps.Cache,
 
@@ -24,6 +27,7 @@ func newUserProfileService(deps Dependencies) *UserProfileService {
 			fileStorage:   deps.FileStorage,
 			hashManager:   deps.HashManager,
 		},
+		accessTokenTTL: deps.AccessTokenTTL,
 	}
 	return instance
 }
@@ -110,6 +114,16 @@ func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint6
 	if err != nil {
 		return ec.New(utl.NewFuncError(p.DeleteUserProfile, err),
 			ec.Server, ec.DomainStorageError)
+	}
+
+	if p.enableCache {
+		if err = p.updateDeletedUserCache(ctx, userId); err != nil {
+			logger.Warning("%v", err)
+		} else {
+			logger.Debug("user %v added to cache as deleted", userId)
+		}
+	} else {
+		logger.Warning("cache disabled")
 	}
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)

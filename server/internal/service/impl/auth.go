@@ -230,15 +230,25 @@ func (a *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (
 // -----------------------------------------------------------------------
 
 func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool, error) {
+	var err error = nil
+	var wasDeleted bool = false
 
-	// TODO: create cache? Try Redis?
-
-	wasDeleted, err := a.domainStorage.WasUserDeleted(ctx, id)
-	if err != nil {
-		return false, ec.New(utl.NewFuncError(a.WasUserWithIdDeleted, err),
-			ec.Server, ec.DomainStorageError)
+	if a.enableCache {
+		wasDeleted, err = a.cache.Exists(ctx, authCacheKey.DeletedUser(id))
+		if err != nil {
+			logger.Warning("%v", err)
+		} else {
+			return wasDeleted, nil
+		}
 	}
 
+	if !a.enableCache || err != nil {
+		wasDeleted, err = a.domainStorage.WasUserDeleted(ctx, id)
+		if err != nil {
+			return false, ec.New(utl.NewFuncError(a.WasUserWithIdDeleted, err),
+				ec.Server, ec.DomainStorageError)
+		}
+	}
 	return wasDeleted, nil
 }
 

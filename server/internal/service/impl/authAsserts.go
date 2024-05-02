@@ -58,7 +58,7 @@ func (a *AuthService) assertSignInByNameNotBlocked(
 		return nil
 	}
 
-	loginBlocked, err := a.cache.Exists(ctx, keySignInByNameBlocked(username))
+	loginBlocked, err := a.cache.Exists(ctx, authCacheKey.SignInByNameBlocked(username))
 	if err != nil {
 		return ec.New(utl.NewFuncError(a.assertSignInByNameNotBlocked, err),
 			ec.Server, ec.CacheError)
@@ -77,7 +77,7 @@ func (a *AuthService) assertSignUpByIpAddrNotBlocked(
 		return nil
 	}
 
-	ipAddrBlocked, err := a.cache.Exists(ctx, keySignUpByIpAddrBlocked(ipAddr))
+	ipAddrBlocked, err := a.cache.Exists(ctx, authCacheKey.SignUpByIpAddrBlocked(ipAddr))
 	if err != nil {
 		return ec.New(utl.NewFuncError(a.assertSignUpByIpAddrNotBlocked, err),
 			ec.Server, ec.CacheError)

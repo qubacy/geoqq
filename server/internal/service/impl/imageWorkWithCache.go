@@ -8,25 +8,29 @@ import (
 	utl "geoqq/pkg/utility"
 )
 
+// In a separate class?
+
 // Keys
 // -----------------------------------------------------------------------
 
-func keyAddImageBlockedForUser(id uint64) string {
-	return fmt.Sprintf("add_image_blocked_for_%v", id)
+type imageCacheKeyFormatter struct{}
+
+func (*imageCacheKeyFormatter) AddImageBlockedForUser(id uint64) string {
+	return fmt.Sprintf("add_image_blocked_for_user_%v", id)
 }
 
-func keyImageInCache(id uint64) string {
-	return fmt.Sprintf("image_%v_in_cache", id)
+func (*imageCacheKeyFormatter) SavedImage(id uint64) string {
+	return fmt.Sprintf("saved_image_%v", id)
 }
+
+var imageCacheKey = imageCacheKeyFormatter{}
 
 // Actions
 // -----------------------------------------------------------------------
 
-// In a separate class?
-
 func (s *ImageService) updateAddImageCache(ctx context.Context, userId uint64) error {
 	err := s.cache.SetWithTTL(ctx,
-		keyAddImageBlockedForUser(userId), "1",
+		imageCacheKey.AddImageBlockedForUser(userId), "1",
 		s.ImageParams.AddImageParams.BlockingTime,
 	)
 	if err != nil {
@@ -37,9 +41,9 @@ func (s *ImageService) updateAddImageCache(ctx context.Context, userId uint64) e
 
 func (s *ImageService) loadImageFromCache(ctx context.Context, id uint64) (*file.Image, error) {
 	sourceFunc := s.loadImageFromCache
-	keyImage := keyImageInCache(id)
+	keySavedImage := imageCacheKey.SavedImage(id)
 
-	imageInCache, err := s.cache.Exists(ctx, keyImage)
+	imageInCache, err := s.cache.Exists(ctx, keySavedImage)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
@@ -47,7 +51,7 @@ func (s *ImageService) loadImageFromCache(ctx context.Context, id uint64) (*file
 		return nil, ErrImageWithIdNotInCache(id)
 	}
 
-	jsonStr, err := s.cache.Get(ctx, keyImage)
+	jsonStr, err := s.cache.Get(ctx, keySavedImage)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
@@ -70,7 +74,7 @@ func (s *ImageService) saveImageToCache(ctx context.Context, image *file.Image) 
 	}
 
 	err = s.cache.SetWithTTL(ctx,
-		keyImageInCache(image.Id), string(jsonBytes),
+		imageCacheKey.SavedImage(image.Id), string(jsonBytes),
 		s.ImageParams.CacheTtl,
 	)
 	if err != nil {
