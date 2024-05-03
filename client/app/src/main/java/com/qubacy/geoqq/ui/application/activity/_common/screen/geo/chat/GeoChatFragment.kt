@@ -25,6 +25,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizedFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
@@ -100,11 +101,7 @@ class GeoChatFragment(
             .plus(ChatUiOperationHandler(this))
             .plus(LocationUiOperationHandler(this))
             .plus(InterlocutorUiOperationHandler(this))
-            .plus(
-                com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler(
-                    this
-                )
-            )
+            .plus(AuthorizedUiOperationHandler(this))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -134,10 +131,12 @@ class GeoChatFragment(
     }
 
     override fun onStop() {
-        super.onStop()
+        mLocationListener.reset()
 
         closePopupMessage()
         closeInterlocutorDetailsSheet()
+
+        super.onStop()
     }
 
     private fun initLocationListener() {

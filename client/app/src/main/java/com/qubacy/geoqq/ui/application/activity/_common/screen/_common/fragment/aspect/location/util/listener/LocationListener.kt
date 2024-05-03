@@ -41,6 +41,8 @@ class LocationListener(
 
     @SuppressLint("MissingPermission")
     fun startLocationListening(activity: Activity) {
+        if (mFusedLocationClient != null && mLocationCallback != null) return
+
         Log.d(TAG, "startLocationListening(): entering..")
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
@@ -58,6 +60,8 @@ class LocationListener(
     }
 
     fun reset() {
+        Log.d(TAG, "reset(): entering..")
+
         if (mFusedLocationClient != null && mLocationCallback != null)
             mFusedLocationClient!!.removeLocationUpdates(mLocationCallback!!)
     }
