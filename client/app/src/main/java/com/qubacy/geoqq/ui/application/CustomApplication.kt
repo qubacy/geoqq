@@ -9,7 +9,8 @@ import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.api.HttpApi
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.module.LocalErrorDataSourceModule
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.module.LocalTokenDataStoreDataSourceModule
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.tokenDataStore
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.interceptor.auth.module.AuthorizationHttpInterceptorModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
@@ -20,11 +21,18 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class CustomApplication : Application() {
+    companion object {
+        const val TAG = "CustomApplication"
+    }
+
     private lateinit var mHttpApi: HttpApi
     val httpApi get() = mHttpApi
 
     private lateinit var mDB: Database
     val db get() = mDB
+
+    private lateinit var mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource
+    val localTokenDataStoreDataSource get() = mLocalTokenDataStoreDataSource
 
     private val mSettingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
     val settingsDataStore get() = mSettingsDataStore
@@ -33,17 +41,27 @@ class CustomApplication : Application() {
         super.onCreate()
 
         mDB = buildDatabase()
-        mHttpApi = buildHttpApi(mDB)
+
+        initSharedLocalDataSources(mDB)
+
+        mHttpApi = buildHttpApi(mDB, mLocalTokenDataStoreDataSource)
 
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
     }
 
+    private fun initSharedLocalDataSources(database: Database) {
+        val tokenDataStore = this.tokenDataStore
+
+        mLocalTokenDataStoreDataSource = LocalTokenDataStoreDataSource(tokenDataStore)
+    }
+
     // todo: is this ok?:
-    private fun buildHttpApi(database: Database): HttpApi {
+    private fun buildHttpApi(
+        database: Database,
+        localTokenDataSource: LocalTokenDataStoreDataSource
+    ): HttpApi {
         val errorDataSource = LocalErrorDataSourceModule
             .provideLocalErrorDataSourceModule(database.errorDao())
-        val localTokenDataSource = LocalTokenDataStoreDataSourceModule
-            .provideLocalTokenDataStoreDataSource(this)
 
         val httpCallExecutor = HttpCallExecutor(errorDataSource, ErrorJsonAdapter())
         val httpTokenDataSource = HttpTokenDataSource(httpCallExecutor)

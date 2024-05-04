@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter
 
+import androidx.annotation.UiThread
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.adapter.MessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.component.list.item.data.side.SenderSide
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.component.list.adapter.producer.GeoMessageItemViewProducer
@@ -33,6 +34,20 @@ class GeoMessageListAdapter(
     ): MessageListAdapter.ViewHolder<GeoMessageItemData, GeoMessageItemView> {
         return ViewHolder(itemView) {
             mGeoCallback.onGeoMessageClicked(it)
+        }
+    }
+
+    @UiThread
+    fun updateItems(
+        positions: List<Int>,
+        items: List<GeoMessageItemData>
+    ) {
+        for (i in positions.indices) {
+            val position = positions[i]
+
+            mItems[position] = items[i]
+
+            notifyItemChanged(position) // todo: isn't it overwhelming for the UI?
         }
     }
 }

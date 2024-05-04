@@ -24,6 +24,8 @@ class AuthorizationHttpInterceptor @Inject constructor(
     private val mTokenHttpSource: HttpTokenDataSource
 ) : Interceptor {
     companion object {
+        const val TAG = "AuthHttpIntercptr"
+
         const val AUTH_TOKEN_HEADER_NAME = "Authorization"
         const val AUTH_TOKEN_HEADER_VALUE_FORMAT = "Bearer %1\$s"
 

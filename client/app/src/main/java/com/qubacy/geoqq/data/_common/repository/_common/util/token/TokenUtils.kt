@@ -7,6 +7,8 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
 
 object TokenUtils {
+    const val TAG = "TokenUtils"
+
     fun getTokenPayload(
         token: String,
         errorSource: LocalErrorDataSource
@@ -33,6 +35,6 @@ object TokenUtils {
             return false
         }
 
-        return !jwtToken.isExpired(10) // todo: reconsider this one;
+        return !jwtToken.isExpired(0) // todo: reconsider this one;
     }
 }

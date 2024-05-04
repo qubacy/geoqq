@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -8,16 +9,17 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.qubacy.geoqq.data._common.repository._common.source._common.DataSource
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 
 val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(
     LocalTokenDataStoreDataSource.TOKEN_DATASTORE_NAME
 )
 
-class LocalTokenDataStoreDataSource @Inject constructor(
+class LocalTokenDataStoreDataSource(
     private val mTokenDataStore: DataStore<Preferences>
 ) : DataSource {
     companion object {
+        const val TAG = "LclTokenDataStoreDtSrc"
+
         const val TOKEN_DATASTORE_NAME = "token"
 
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refreshToken")
@@ -57,6 +59,8 @@ class LocalTokenDataStoreDataSource @Inject constructor(
         val preferences = mTokenDataStore.data.first()
 
         mLastRefreshToken = preferences[REFRESH_TOKEN_KEY]
+
+        Log.d(TAG, "loadRefreshToken(): mLastRefreshToken = $mLastRefreshToken;")
     }
 
     suspend fun getAccessToken(): String? {
@@ -69,5 +73,7 @@ class LocalTokenDataStoreDataSource @Inject constructor(
         val preferences = mTokenDataStore.data.first()
 
         mLastAccessToken = preferences[ACCESS_TOKEN_KEY]
+
+        Log.d(TAG, "loadAccessToken(): mLastAccessToken = $mLastAccessToken;")
     }
 }

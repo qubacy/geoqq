@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
@@ -23,8 +24,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.LocationViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.result.handler.GeoChatDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -152,6 +155,31 @@ open class GeoChatViewModel @Inject constructor(
         // todo: implement..
 
         return listOf()
+    }
+
+    override fun onInterlocutorUpdateInterlocutor(
+        domainResult: UpdateInterlocutorDomainResult
+    ): List<UiOperation> {
+        val superUiOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+
+        if (!domainResult.isSuccessful()) return superUiOperations
+
+        val userPresentation = domainResult.interlocutor!!.toUserPresentation()
+
+        val updatedMessagesPositions = mutableListOf<Int>()
+        val updatedMessages = mutableListOf<GeoMessagePresentation>()
+
+        mUiState.messages.forEachIndexed { index, geoMessagePresentation ->
+            if (geoMessagePresentation.user.id == userPresentation.id) {
+                mUiState.messages[index] = geoMessagePresentation.copy(user = userPresentation)
+
+                updatedMessagesPositions.add(index)
+                updatedMessages.add(geoMessagePresentation)
+            }
+        }
+
+        return superUiOperations
+            .plus(UpdateGeoMessagesUiOperation(updatedMessagesPositions, updatedMessages))
     }
 
     override fun onInterlocutorInterlocutor(

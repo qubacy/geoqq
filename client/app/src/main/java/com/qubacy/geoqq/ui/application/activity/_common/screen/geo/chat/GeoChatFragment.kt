@@ -164,12 +164,24 @@ class GeoChatFragment(
     fun onGeoChatFragmentAddGeoMessages(
         messages: List<GeoMessagePresentation>
     ) {
-        Log.d(TAG, "processAddGeoMessagesUiOperation(): entering..")
+        Log.d(TAG, "onGeoChatFragmentAddGeoMessages(): entering..")
 
         val localUserId = mModel.getLocalUserId()
         val geoMessageItems = messages.map { it.toGeoMessageItemData(localUserId) }
 
         mAdapter.addMessages(geoMessageItems)
+    }
+
+    fun onGeoChatFragmentUpdateGeoMessages(
+        positions: List<Int>,
+        messages: List<GeoMessagePresentation>
+    ) {
+        Log.d(TAG, "onGeoChatFragmentUpdateGeoMessages(): entering..")
+
+        val localUserId = mModel.getLocalUserId()
+        val geoMessageItems = messages.map { it.toGeoMessageItemData(localUserId) }
+
+        mAdapter.updateItems(positions, geoMessageItems)
     }
 
     override fun runInitWithUiState(uiState: GeoChatUiState) {
