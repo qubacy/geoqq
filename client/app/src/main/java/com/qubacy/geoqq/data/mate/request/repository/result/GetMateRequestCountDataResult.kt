@@ -1,9 +1,9 @@
 package com.qubacy.geoqq.data.mate.request.repository.result
 
-import com.qubacy.geoqq.data._common.repository._common.result.DataResult
+import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 
 class GetMateRequestCountDataResult(
     val count: Int
-) : DataResult {
+) : ProducingDataResult(isNewest = true) {
 
 }

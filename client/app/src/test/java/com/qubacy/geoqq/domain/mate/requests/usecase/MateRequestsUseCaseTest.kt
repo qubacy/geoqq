@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCa
 import com.qubacy.geoqq.domain.mate.request.model.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test

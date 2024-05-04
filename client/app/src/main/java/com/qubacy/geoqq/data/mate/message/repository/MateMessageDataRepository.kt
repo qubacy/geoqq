@@ -2,10 +2,11 @@ package com.qubacy.geoqq.data.mate.message.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq.data._common.model.message.DataMessage
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
+import com.qubacy.geoqq.data._common.repository.message.result.ResolveMessagesDataResult
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
@@ -35,42 +36,53 @@ class MateMessageDataRepository @Inject constructor(
         loadedMessageIds: List<Long>,
         offset: Int,
         count: Int
-    ): LiveData<GetMessagesDataResult?> {
-        val resultLiveData = MutableLiveData<GetMessagesDataResult?>()
+    ): LiveData<GetMessagesDataResult> {
+        val resultLiveData = MutableLiveData<GetMessagesDataResult>()
 
         CoroutineScope(coroutineContext).launch {
             val localMessages = mLocalMateMessageDataSource.getMessages(chatId, offset, count)
-            val localDataMessages = resolveMessageEntities(localMessages)
+            val localDataMessagesResult = resolveMessageEntities(localMessages)
+            val localDataMessages = localDataMessagesResult.messages
 
             if (localMessages.isNotEmpty())
-                resultLiveData.postValue(GetMessagesDataResult(offset, localDataMessages))
+                resultLiveData.postValue(
+                    GetMessagesDataResult(false, offset, localDataMessages))
 
             val getMessagesResponse = mHttpMateMessageDataSource.getMateMessages(chatId, offset, count)
 
-            val httpDataMessages = resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
+            val resolveGetMessagesResponseResultLiveData =
+                resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
 
-            if (localDataMessages.size == httpDataMessages.size
-                && localDataMessages.containsAll(httpDataMessages)
-            ) {
-                if (localDataMessages.isEmpty()) resultLiveData.postValue(null)
-                else return@launch
+            while (true) {
+                val resolveGetMessagesResponseResult =
+                    resolveGetMessagesResponseResultLiveData.await()
+                val httpDataMessages = resolveGetMessagesResponseResult.messages
+
+                if (localDataMessages.size == httpDataMessages.size
+                    && localDataMessages.containsAll(httpDataMessages)
+                ) {
+                    resultLiveData.postValue(GetMessagesDataResult(
+                        resolveGetMessagesResponseResult.isNewest))
+
+                    if (resolveGetMessagesResponseResult.isNewest) return@launch
+                    else continue
+                }
+
+                resultLiveData.postValue(GetMessagesDataResult(
+                    resolveGetMessagesResponseResult.isNewest, offset, httpDataMessages))
+
+                if (localDataMessages.size - httpDataMessages.size > 0) {
+                    val finalLoadedMessageIds = loadedMessageIds.plus(httpDataMessages.map { it.id })
+
+                    deleteOverdueMessages(chatId, finalLoadedMessageIds)
+                }
+
+                val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
+
+                mLocalMateMessageDataSource.saveMessages(messagesToSave)
+
+                if (resolveGetMessagesResponseResult.isNewest) return@launch
             }
-
-            if (localDataMessages.isNotEmpty())
-                mResultFlow.emit(GetMessagesDataResult(offset, httpDataMessages))
-            else resultLiveData.postValue(GetMessagesDataResult(offset, httpDataMessages))
-
-            //Log.d("TEST", "localDataMessages.size = ${localDataMessages.size}; httpDataMessages.size = ${httpDataMessages.size};")
-
-            if (localDataMessages.size - httpDataMessages.size > 0) {
-                val finalLoadedMessageIds = loadedMessageIds.plus(httpDataMessages.map { it.id })
-
-                deleteOverdueMessages(chatId, finalLoadedMessageIds)
-            }
-
-            val messagesToSave = httpDataMessages.map { it.toMateMessageEntity(chatId) }
-
-            mLocalMateMessageDataSource.saveMessages(messagesToSave)
         }
 
         return resultLiveData
@@ -80,8 +92,6 @@ class MateMessageDataRepository @Inject constructor(
         chatId: Long,
         loadedMessageIds: List<Long>
     ) {
-        //Log.d("TEST", "deleteOverdueMessages(): chatId = $chatId; loadedMessageIds: $loadedMessageIds;")
-
         if (loadedMessageIds.isEmpty()) mLocalMateMessageDataSource.deleteAllMessages(chatId)
         else mLocalMateMessageDataSource.deleteOtherMessagesByIds(chatId, loadedMessageIds)
     }
@@ -93,16 +103,24 @@ class MateMessageDataRepository @Inject constructor(
         mHttpMateMessageDataSource.sendMateMessage(chatId, text)
     }
 
+    /**
+     * There's no need for this method to resolve messages with the newest data about users;
+     */
     private suspend fun resolveMessageEntities(
         messageEntities: List<MateMessageEntity>
-    ): List<DataMessage> {
+    ): ResolveMessagesDataResult {
         val userIds = messageEntities.map { it.userId }.toSet().toList()
-        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
-        return messageEntities.mapNotNull {
-            val user = users[it.userId] ?: return@mapNotNull null // todo: think of this;
+        val resolveUsersResultLiveData = mUserDataRepository.resolveUsersWithLocalUser(userIds)
+        val resolveUsersResult = resolveUsersResultLiveData.await()
+        val userIdUserMap = resolveUsersResult.userIdUserMap
 
-            it.toDataMessage(user)
+        val resolvedMessages = messageEntities.map {
+            it.toDataMessage(userIdUserMap[it.userId]!!)
         }
+
+        // todo: there's actually no need to return ResolveMessagesDataResult:
+        return ResolveMessagesDataResult(
+            resolveUsersResult.isNewest, resolvedMessages)
     }
 }

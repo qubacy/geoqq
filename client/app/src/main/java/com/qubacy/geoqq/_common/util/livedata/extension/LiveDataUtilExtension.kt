@@ -28,3 +28,30 @@ suspend fun <T>LiveData<T>.await(): T {
         }
     }
 }
+
+suspend fun <T>LiveData<T>.awaitUntilVersion(version: Int): T {
+    return withContext(Dispatchers.Main.immediate) {
+        var curVersion = 0
+
+        suspendCancellableCoroutine { continuation ->
+            val observer = object : Observer<T> {
+                override fun onChanged(value: T) {
+                    ++curVersion
+
+                    if (curVersion < version) return
+
+                    removeObserver(this)
+                    continuation.resume(value)
+                }
+            }
+
+            observeForever(observer)
+
+            continuation.invokeOnCancellation {
+                launch(Dispatchers.Main.immediate) {
+                    removeObserver(observer)
+                }
+            }
+        }
+    }
+}

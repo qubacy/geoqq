@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data.mate.chat.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
@@ -41,69 +42,87 @@ class MateChatDataRepository @Inject constructor(
         loadedChatIds: List<Long>,
         offset: Int,
         count: Int
-    ): LiveData<GetChatsDataResult?> {
-        val resultLiveData = MutableLiveData<GetChatsDataResult?>()
+    ): LiveData<GetChatsDataResult> {
+        val resultLiveData = MutableLiveData<GetChatsDataResult>()
 
         CoroutineScope(coroutineContext).launch {
             val localChats = mLocalMateChatDataSource.getChats(offset, count)
             val localDataChats = resolveChatWithLastMessageMap(localChats)
 
             if (localChats.isNotEmpty())
-                resultLiveData.postValue(GetChatsDataResult(offset, localDataChats))
+                resultLiveData.postValue(GetChatsDataResult(false, offset, localDataChats))
 
             val getChatsResponse = mHttpMateChatDataSource.getChats(offset, count)
 
-            val httpDataChats = resolveGetChatsResponse(getChatsResponse)
+            val resolveGetChatsResultLiveData = resolveGetChatsResponse(offset, getChatsResponse)
 
-            if (localDataChats.size == httpDataChats.size
-             && localDataChats.containsAll(httpDataChats)
-            ) {
-                if (localDataChats.isEmpty()) resultLiveData.postValue(null)
-                else return@launch
+            while (true) {
+                val resolveGetChatsResult = resolveGetChatsResultLiveData.await()
+                val httpDataChats = resolveGetChatsResult.chats!!
+
+                if (localDataChats.size == httpDataChats.size
+                    && localDataChats.containsAll(httpDataChats)
+                ) {
+                    resultLiveData.postValue(GetChatsDataResult(resolveGetChatsResult.isNewest))
+
+                    if (resolveGetChatsResult.isNewest) return@launch
+                    else continue
+                }
+
+                resultLiveData.postValue(GetChatsDataResult(
+                    resolveGetChatsResult.isNewest, offset, httpDataChats))
+
+                if (localDataChats.size - httpDataChats.size > 0) {
+                    val finalLoadedChatIds = loadedChatIds.plus(httpDataChats.map { it.id })
+
+                    deleteOverdueChats(finalLoadedChatIds)
+                }
+
+                val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
+
+                mLocalMateChatDataSource.saveChats(chatsToSave)
             }
-
-            if (localDataChats.isNotEmpty())
-                mResultFlow.emit(GetChatsDataResult(offset, httpDataChats))
-            else resultLiveData.postValue(GetChatsDataResult(offset, httpDataChats))
-
-            if (localDataChats.size - httpDataChats.size > 0) {
-                val finalLoadedChatIds = loadedChatIds.plus(httpDataChats.map { it.id })
-
-                deleteOverdueChats(finalLoadedChatIds)
-            }
-
-            val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
-
-            mLocalMateChatDataSource.saveChats(chatsToSave)
         }
 
         return resultLiveData
     }
 
-    suspend fun getChatById(chatId: Long): LiveData<GetChatByIdDataResult> {
-        val resultLiveData = MutableLiveData<GetChatByIdDataResult>()
+    suspend fun getChatById(chatId: Long): LiveData<GetChatByIdDataResult?> {
+        val resultLiveData = MutableLiveData<GetChatByIdDataResult?>()
 
         CoroutineScope(coroutineContext).launch {
+
             val localChat = mLocalMateChatDataSource.getChatById(chatId)
             val localDataChat = resolveChatWithLastMessageMap(localChat)
                 .let { if (it.isNotEmpty()) it.first() else null }
 
             if (localDataChat != null)
-                resultLiveData.postValue(GetChatByIdDataResult(localDataChat))
+                resultLiveData.postValue(GetChatByIdDataResult(false, localDataChat))
 
             val getChatResponse = mHttpMateChatDataSource.getChat(chatId)
 
-            val httpDataChat = resolveGetChatResponse(getChatResponse)
+            val resolveGetChatResultLiveData = resolveGetChatResponse(getChatResponse)
 
-            if (localDataChat == httpDataChat) return@launch
+            while (true) {
+                val resolveGetChatResult = resolveGetChatResultLiveData.await()
+                val httpDataChat = resolveGetChatResult.chat
 
-            if (localDataChat != null)
-                mResultFlow.emit(GetChatByIdDataResult(httpDataChat))
-            else resultLiveData.postValue(GetChatByIdDataResult(httpDataChat))
+                if (localDataChat == httpDataChat) {
+                    resultLiveData.postValue(null)
 
-            val chatToSave = httpDataChat.toMateChatLastMessageEntityPair()
+                    if (resolveGetChatResult.isNewest) return@launch
+                    else continue
+                }
 
-            mLocalMateChatDataSource.saveChats(listOf(chatToSave))
+                resultLiveData.postValue(GetChatByIdDataResult(
+                    resolveGetChatResult.isNewest, httpDataChat))
+
+                val chatToSave = httpDataChat.toMateChatLastMessageEntityPair()
+
+                mLocalMateChatDataSource.saveChats(listOf(chatToSave))
+
+                if (resolveGetChatResult.isNewest) return@launch
+            }
         }
 
         return resultLiveData
@@ -123,6 +142,9 @@ class MateChatDataRepository @Inject constructor(
         else mLocalMateChatDataSource.deleteOtherChatsByIds(loadedChatIds)
     }
 
+    /**
+     * There's no need to await for the newest user data;
+     */
     private suspend fun resolveChatWithLastMessageMap(
         chatWithLastMessageMap: Map<MateChatEntity, MateMessageEntity?>
     ): List<DataMateChat> {
@@ -131,40 +153,79 @@ class MateChatDataRepository @Inject constructor(
         val userIds = chatWithLastMessageMap.flatMap {
             mutableListOf(it.key.userId).also { _ -> it.value?.userId ?: return@also }
         }.toSet().toList()
-        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
+        val resolveUsersResultLiveData = mUserDataRepository.resolveUsersWithLocalUser(userIds)
+        val resolveUsersResult = resolveUsersResultLiveData.await()
+        val userIdUserMap = resolveUsersResult.userIdUserMap
 
         return chatWithLastMessageMap.mapNotNull {
-            val chatUser = users[it.key.userId] ?: return@mapNotNull null
-            val lastMessageUser = it.value?.let { lastMessage -> users[lastMessage.userId] }
+            val chatUser = userIdUserMap[it.key.userId] ?: return@mapNotNull null
+            val lastMessageUser = it.value?.let { lastMessage -> userIdUserMap[lastMessage.userId] }
 
             it.toDataMateChat(chatUser, lastMessageUser)
         }
     }
 
     private suspend fun resolveGetChatsResponse(
+        offset: Int,
         getChatsResponse: GetChatsResponse
-    ): List<DataMateChat> {
-        if (getChatsResponse.chats.isEmpty()) return emptyList()
+    ): LiveData<GetChatsDataResult> {
+        val resultLiveData = MutableLiveData<GetChatsDataResult>()
+
+        if (getChatsResponse.chats.isEmpty()) {
+            resultLiveData.postValue(GetChatsDataResult(true, offset, emptyList()))
+
+            return resultLiveData
+        }
 
         val userIds = getChatsResponse.chats.flatMap { chat ->
             mutableListOf(chat.userId).apply {
                 chat.lastMessage?.also { add(it.userId) } ?: return@apply
             }
         }.toSet().toList()
-        val users = mUserDataRepository.resolveUsersWithLocalUser(userIds)
+        val resolveUsersResultLiveData = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
-        return getChatsResponse.chats.map {
-            mapGetChatResponseToDataMateChat(it, users)
+        CoroutineScope(coroutineContext).launch {
+            while (true) {
+                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                val chats = getChatsResponse.chats.map {
+                    mapGetChatResponseToDataMateChat(it, userIdUserMap)
+                }
+
+                resultLiveData.postValue(GetChatsDataResult(
+                    resolveUsersResult.isNewest, offset, chats))
+
+                if (resolveUsersResult.isNewest) return@launch
+            }
         }
+
+        return resultLiveData
     }
 
     private suspend fun resolveGetChatResponse(
         getChatResponse: GetChatResponse
-    ): DataMateChat {
-        val userId = getChatResponse.userId
-        val users = mUserDataRepository.resolveUsersWithLocalUser(listOf(userId))
+    ): LiveData<GetChatByIdDataResult> {
+        val resultLiveData = MutableLiveData<GetChatByIdDataResult>()
 
-        return mapGetChatResponseToDataMateChat(getChatResponse, users)
+        val userId = getChatResponse.userId
+        val resolveUsersResultLiveData =
+            mUserDataRepository.resolveUsersWithLocalUser(listOf(userId))
+
+        CoroutineScope(coroutineContext).launch {
+            while (true) {
+                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                val chat = mapGetChatResponseToDataMateChat(getChatResponse, userIdUserMap)
+
+                resultLiveData.postValue(GetChatByIdDataResult(resolveUsersResult.isNewest, chat))
+
+                if (resolveUsersResult.isNewest) return@launch
+            }
+        }
+
+        return resultLiveData
     }
 
     private fun mapGetChatResponseToDataMateChat(

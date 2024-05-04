@@ -15,6 +15,7 @@ import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
 import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
@@ -49,7 +50,7 @@ class UserDataRepository @Inject constructor(
             val localDataUsers = localUsers?.let { resolveUserEntities(it) }
 
             if (localUsers != null)
-                resultLiveData.postValue(GetUsersByIdsDataResult(localDataUsers!!))
+                resultLiveData.postValue(GetUsersByIdsDataResult(false, localDataUsers!!))
 
             val getUsersResponse = mHttpUserDataSource.getUsers(userIds)
 
@@ -57,8 +58,7 @@ class UserDataRepository @Inject constructor(
 
             if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch
 
-            if (localUsers == null) resultLiveData.postValue(GetUsersByIdsDataResult(httpDataUsers))
-            else mResultFlow.emit(GetUsersByIdsDataResult(httpDataUsers))
+            resultLiveData.postValue(GetUsersByIdsDataResult(true, httpDataUsers))
 
             val usersToSave = httpDataUsers.map { it.toUserEntity() }
 
@@ -68,11 +68,24 @@ class UserDataRepository @Inject constructor(
         return resultLiveData
     }
 
-    suspend fun resolveUsers(userIds: List<Long>): Map<Long, DataUser> {
-        val getUsersByIdsLiveData = getUsersByIds(userIds)
-        val getUsersByIdsResult = getUsersByIdsLiveData.await()
+    suspend fun resolveUsers(userIds: List<Long>): LiveData<ResolveUsersDataResult> {
+        val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
 
-        return getUsersByIdsResult.users.associateBy { it.id }
+        CoroutineScope(coroutineContext).launch {
+            val getUsersByIdsLiveData = getUsersByIds(userIds)
+
+            while (true) {
+                val getUsersByIdsResult = getUsersByIdsLiveData.await()
+                val userIdUserMap = getUsersByIdsResult.users.associateBy { it.id }
+
+                resultLiveData.postValue(ResolveUsersDataResult(
+                    getUsersByIdsResult.isNewest, userIdUserMap))
+
+                if (getUsersByIdsResult.isNewest) return@launch
+            }
+        }
+
+        return resultLiveData
     }
 
     suspend fun resolveLocalUser(): DataUser {
@@ -81,7 +94,9 @@ class UserDataRepository @Inject constructor(
         return getUsersByIds(listOf(localUserId)).await().users.first()
     }
 
-    suspend fun resolveUsersWithLocalUser(userIds: List<Long>): Map<Long, DataUser> {
+    suspend fun resolveUsersWithLocalUser(
+        userIds: List<Long>
+    ): LiveData<ResolveUsersDataResult> {
         val localUserId = getLocalUserId()
 
         return if (userIds.contains(localUserId)) resolveUsers(userIds)

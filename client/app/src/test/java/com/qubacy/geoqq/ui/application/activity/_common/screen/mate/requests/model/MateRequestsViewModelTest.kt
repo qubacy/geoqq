@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.mate.request.model.MateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation

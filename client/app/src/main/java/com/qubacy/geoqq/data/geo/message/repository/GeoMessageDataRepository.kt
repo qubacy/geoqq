@@ -1,5 +1,8 @@
 package com.qubacy.geoqq.data.geo.message.repository
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
@@ -10,7 +13,9 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 class GeoMessageDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -24,12 +29,26 @@ class GeoMessageDataRepository @Inject constructor(
         radius: Int,
         longitude: Float,
         latitude: Float
-    ): GetGeoMessagesDataResult {
+    ): LiveData<GetGeoMessagesDataResult> {
+        val resultLiveData = MutableLiveData<GetGeoMessagesDataResult>()
+
         val getMessagesResponse = mHttpGeoChatDataSource.getMessages(radius, longitude, latitude)
+        val resolveGetMessagesResultLiveData = resolveGetMessagesResponse(
+            mUserDataRepository, getMessagesResponse)
 
-        val dataMessages = resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
+        CoroutineScope(coroutineContext).launch {
+            while (true) {
+                val resolveGetMessagesResult = resolveGetMessagesResultLiveData.await()
+                val messages = resolveGetMessagesResult.messages
 
-        return GetGeoMessagesDataResult(dataMessages)
+                resultLiveData.postValue(GetGeoMessagesDataResult(
+                    resolveGetMessagesResult.isNewest, messages))
+
+                if (resolveGetMessagesResult.isNewest) return@launch
+            }
+        }
+
+        return resultLiveData
     }
 
     suspend fun sendMessage(

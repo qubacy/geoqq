@@ -1,11 +1,12 @@
 package com.qubacy.geoqq.data.mate.chat.repository.result
 
-import com.qubacy.geoqq.data._common.repository._common.result.DataResult
+import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 
 class GetChatsDataResult(
-    val offset: Int,
-    val chats: List<DataMateChat>
-) : DataResult {
+    isNewest: Boolean,
+    val offset: Int? = null,
+    val chats: List<DataMateChat>? = null
+) : ProducingDataResult(isNewest) {
 
 }

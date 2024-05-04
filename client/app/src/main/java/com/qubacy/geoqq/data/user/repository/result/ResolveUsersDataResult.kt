@@ -3,9 +3,9 @@ package com.qubacy.geoqq.data.user.repository.result
 import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 import com.qubacy.geoqq.data.user.model.DataUser
 
-class GetUsersByIdsDataResult(
+class ResolveUsersDataResult(
     isNewest: Boolean,
-    val users: List<DataUser>
+    val userIdUserMap: Map<Long, DataUser>
 ) : ProducingDataResult(isNewest) {
 
 }

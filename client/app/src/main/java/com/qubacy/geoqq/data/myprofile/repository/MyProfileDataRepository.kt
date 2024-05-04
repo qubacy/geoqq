@@ -41,16 +41,14 @@ class MyProfileDataRepository @Inject constructor(
             if (localMyProfile != null) {
                 val localDataMyProfile = resolveMyProfileDataStoreModel(localMyProfile)
 
-                resultLiveData.postValue(GetMyProfileDataResult(localDataMyProfile))
+                resultLiveData.postValue(GetMyProfileDataResult(false, localDataMyProfile))
             }
 
             val myProfileResponse = mHttpMyProfileDataSource.getMyProfile()
 
             val httpDataMyProfile = resolveGetMyProfileResponse(myProfileResponse)
 
-            if (localMyProfile == null)
-                resultLiveData.postValue(GetMyProfileDataResult(httpDataMyProfile))
-            else mResultFlow.emit(GetMyProfileDataResult(httpDataMyProfile))
+            resultLiveData.postValue(GetMyProfileDataResult(true, httpDataMyProfile))
 
             val myProfileToSave = httpDataMyProfile.toMyProfileDataStoreModel()
 

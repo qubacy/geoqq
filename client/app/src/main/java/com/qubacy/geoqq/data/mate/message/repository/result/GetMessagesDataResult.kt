@@ -1,11 +1,12 @@
 package com.qubacy.geoqq.data.mate.message.repository.result
 
 import com.qubacy.geoqq.data._common.model.message.DataMessage
-import com.qubacy.geoqq.data._common.repository._common.result.DataResult
+import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 
 class GetMessagesDataResult(
-    val offset: Int,
-    val messages: List<DataMessage>
-) : DataResult {
+    isNewest: Boolean,
+    val offset: Int? = null,
+    val messages: List<DataMessage>? = null
+) : ProducingDataResult(isNewest) {
 
 }

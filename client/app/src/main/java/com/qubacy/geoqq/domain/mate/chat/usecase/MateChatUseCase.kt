@@ -5,7 +5,6 @@ import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
@@ -42,17 +41,27 @@ class MateChatUseCase @Inject constructor(
         mInterlocutorUseCase.resultFlow
     )
 
+    // todo: Optimization?:
     fun getMessageChunk(chatId: Long, loadedMessageIds: List<Long>, offset: Int) {
         executeLogic({
             val count = DEFAULT_MESSAGE_CHUNK_SIZE
 
-            val getMessagesResult = mMateMessageDataRepository
-                .getMessages(chatId, loadedMessageIds, offset, count).await()
+            val getMessagesResultLiveData = mMateMessageDataRepository
+                .getMessages(chatId, loadedMessageIds, offset, count)
 
-            val messages = getMessagesResult?.messages?.map { it.toMateMessage() }
-            val messageChunk = messages?.let { MateMessageChunk(offset, messages)}
+            val initGetMessagesResult = getMessagesResultLiveData.await()
+            val initMessages = initGetMessagesResult.messages?.map { it.toMateMessage() }
+            val initMessageChunk = initMessages?.let { MateMessageChunk(offset, it)}
 
-            mResultFlow.emit(GetMessageChunkDomainResult(chunk = messageChunk))
+            mResultFlow.emit(GetMessageChunkDomainResult(chunk = initMessageChunk))
+
+            if (initGetMessagesResult.isNewest) return@executeLogic
+
+            val newestGetMessagesResult = getMessagesResultLiveData.await()
+            val newestMessages = newestGetMessagesResult.messages?.map { it.toMateMessage() }
+            val newestMessageChunk = newestMessages?.let { MateMessageChunk(offset, it)}
+
+            mResultFlow.emit(UpdateMessageChunkDomainResult(chunk = newestMessageChunk))
 
         }, {
             GetMessageChunkDomainResult(error = it)
@@ -104,19 +113,8 @@ class MateChatUseCase @Inject constructor(
 
     private suspend fun processCollectedDataResult(dataResult: DataResult) {
         when (dataResult::class) {
-            GetMessagesDataResult::class ->
-                processGetMessagesDataResult(dataResult as GetMessagesDataResult)
             else -> throw IllegalArgumentException()
         }
-    }
-
-    private suspend fun processGetMessagesDataResult(
-        getMessagesResult: GetMessagesDataResult
-    ) {
-        val messages = getMessagesResult.messages.map { it.toMateMessage() }
-        val messageChunk = MateMessageChunk(getMessagesResult.offset, messages)
-
-        mResultFlow.emit(UpdateMessageChunkDomainResult(chunk = messageChunk))
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

@@ -4,7 +4,6 @@ import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
@@ -25,17 +24,27 @@ class MateChatsUseCase @Inject constructor(
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
     }
 
+    // TODO: Optimization?:
     fun getChatChunk(loadedChatIds: List<Long>, offset: Int) {
         executeLogic({
             val count = DEFAULT_CHAT_CHUNK_SIZE
 
-            val getChatsResult = mMateChatDataRepository
-                .getChats(loadedChatIds, offset, count).await()
+            val getChatsResultLiveData = mMateChatDataRepository
+                .getChats(loadedChatIds, offset, count)
 
-            val chats = getChatsResult?.chats?.map { it.toMateChat() }
-            val chatChunk = chats?.let { MateChatChunk(offset, chats)}
+            val initGetChatsResult = getChatsResultLiveData.await()
+            val initChats = initGetChatsResult.chats?.map { it.toMateChat() }
+            val initChatChunk = initChats?.let { MateChatChunk(offset, it)}
 
-            mResultFlow.emit(GetChatChunkDomainResult(chunk = chatChunk))
+            mResultFlow.emit(GetChatChunkDomainResult(chunk = initChatChunk))
+
+            if (initGetChatsResult.isNewest) return@executeLogic
+
+            val newestGetChatsResult = getChatsResultLiveData.await()
+            val newestChats = newestGetChatsResult.chats?.map { it.toMateChat() }
+            val newestChatChunk = newestChats?.let { MateChatChunk(offset, it)}
+
+            mResultFlow.emit(UpdateChatChunkDomainResult(chunk = newestChatChunk))
 
         }, {
             GetChatChunkDomainResult(error = it)
@@ -54,17 +63,8 @@ class MateChatsUseCase @Inject constructor(
 
     private suspend fun processCollectedDataResult(dataResult: DataResult) {
         when (dataResult::class) {
-            GetChatsDataResult::class ->
-                processGetChatsDataResult(dataResult as GetChatsDataResult)
             else -> throw IllegalArgumentException()
         }
-    }
-
-    private suspend fun processGetChatsDataResult(getChatsResult: GetChatsDataResult) {
-        val chats = getChatsResult.chats.map { it.toMateChat() }
-        val chatChunk = MateChatChunk(getChatsResult.offset, chats)
-
-        mResultFlow.emit(UpdateChatChunkDomainResult(chunk = chatChunk))
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

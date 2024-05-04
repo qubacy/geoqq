@@ -1,5 +1,8 @@
 package com.qubacy.geoqq.data.mate.request.repository
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
@@ -12,6 +15,8 @@ import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 class MateRequestDataRepository(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -21,12 +26,27 @@ class MateRequestDataRepository(
     private val mHttpMateRequestDataSource: HttpMateRequestDataSource
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
-    suspend fun getMateRequests(offset: Int, count: Int): GetMateRequestsDataResult {
-        val getMateRequestsResponse = mHttpMateRequestDataSource.getMateRequests(offset, count)
+    suspend fun getMateRequests(
+        offset: Int,
+        count: Int
+    ): LiveData<GetMateRequestsDataResult> {
+        val resultLiveData = MutableLiveData<GetMateRequestsDataResult>()
 
-        val dataMateRequests = resolveGetMateRequestsResponse(getMateRequestsResponse)
+        CoroutineScope(coroutineContext).launch {
+            val getMateRequestsResponse = mHttpMateRequestDataSource.getMateRequests(offset, count)
 
-        return GetMateRequestsDataResult(dataMateRequests)
+            while (true) {
+                val resolveMateRequestsLiveData =
+                    resolveGetMateRequestsResponse(getMateRequestsResponse)
+                val resolveMateRequestsResult = resolveMateRequestsLiveData.await()
+
+                resultLiveData.postValue(resolveMateRequestsResult)
+
+                if (resolveMateRequestsResult.isNewest) return@launch
+            }
+        }
+
+        return resultLiveData
     }
 
     fun getMateRequestCount(): GetMateRequestCountDataResult {
@@ -45,12 +65,28 @@ class MateRequestDataRepository(
 
     private suspend fun resolveGetMateRequestsResponse(
         getMateRequestsResponse: GetMateRequestsResponse
-    ) : List<DataMateRequest> {
-        val userIds = getMateRequestsResponse.requests.map { it.userId }.toSet().toList()
-        val userIdUserMap = mUserDataRepository.resolveUsers(userIds)
+    ) : LiveData<GetMateRequestsDataResult> {
+        val resultLiveData = MutableLiveData<GetMateRequestsDataResult>()
 
-        return getMateRequestsResponse.requests.map {
-            it.toDataMateRequest(userIdUserMap[it.userId]!!)
+        val userIds = getMateRequestsResponse.requests.map { it.userId }.toSet().toList()
+        val resolveUsersResultLiveData = mUserDataRepository.resolveUsers(userIds)
+
+        CoroutineScope(coroutineContext).launch {
+            while (true) {
+                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                val dataMateRequests = getMateRequestsResponse.requests.map {
+                    it.toDataMateRequest(userIdUserMap[it.userId]!!)
+                }
+
+                resultLiveData.postValue(GetMateRequestsDataResult(
+                    resolveUsersResult.isNewest, dataMateRequests))
+
+                if (resolveUsersResult.isNewest) return@launch
+            }
         }
+
+        return resultLiveData
     }
 }
