@@ -4546,7 +4546,7 @@ You can change the output number format using this parameter. If it is left blan
             <stringProp name="110095">okk</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-69567146">
+            <collectionProp name="1561761494">
               <stringProp name="-69567177">\{\s*\&quot;id\&quot;\s*:\s*1\s*,\s*\&quot;login\&quot;\s*:\s*\&quot;test_user\&quot;\s*,\s*\&quot;description\&quot;\s*:\s*\&quot;.*?\&quot;\s*,\s*\&quot;avatar-id\&quot;\s*:\s*\d+\s*,\s*\&quot;privacy\&quot;\s*:\s*\{\s*\&quot;hit-me-up\&quot;\s*:\s*\d+\s*\}\s*\}</stringProp>
             </collectionProp>
           </collectionProp>
@@ -4666,9 +4666,9 @@ You can change the output number format using this parameter. If it is left blan
             </ResponseAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-              <stringProp name="JSON_PATH">.</stringProp>
+              <stringProp name="JSON_PATH">$</stringProp>
               <stringProp name="EXPECTED_VALUE">${okk}</stringProp>
-              <boolProp name="JSONVALIDATION">false</boolProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">true</boolProp>

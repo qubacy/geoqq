@@ -16,7 +16,7 @@ func (a *AuthService) initializeValidators() error {
 
 	// ***
 
-	a.validators = make(map[string]*regexp.Regexp)
+	a.validators = make(Validators)
 	for fieldName, sourceRe := range sourceRegexp {
 		re, err := regexp.Compile(sourceRe)
 		if err != nil {

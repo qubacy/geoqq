@@ -9,6 +9,8 @@ import (
 	"geoqq/pkg/hash"
 	"geoqq/pkg/token"
 	"time"
+
+	utl "geoqq/pkg/utility"
 )
 
 type GeneralParams struct {
@@ -52,7 +54,12 @@ type GeoChatParams struct {
 }
 
 type UserParams struct {
-	NamePattern string
+	NamePattern          string
+	UpdateUsernameParams UpdateUsernameParams
+}
+
+type UpdateUsernameParams struct {
+	BlockingTime time.Duration
 }
 
 type Dependencies struct {
@@ -96,10 +103,22 @@ type Services struct {
 }
 
 func NewServices(deps Dependencies) (*Services, error) {
-	return &Services{
-		AuthService: newAuthService(deps),
+	authService, err := newAuthService(deps)
+	if err != nil {
+		return nil, utl.NewFuncError(NewServices, err)
+	}
 
-		UserProfileService: newUserProfileService(deps),
+	userProfileService, err := newUserProfileService(deps)
+	if err != nil {
+		return nil, utl.NewFuncError(NewServices, err)
+	}
+
+	// ***
+
+	return &Services{
+		AuthService: authService,
+
+		UserProfileService: userProfileService,
 		UserService:        newUserService(deps),
 
 		ImageService: newImageService(deps), // or avatar service?

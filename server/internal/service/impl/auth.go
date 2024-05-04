@@ -11,7 +11,6 @@ import (
 	"geoqq/pkg/logger"
 	"geoqq/pkg/token"
 	utl "geoqq/pkg/utility"
-	"regexp"
 	"time"
 )
 
@@ -25,11 +24,11 @@ type AuthService struct {
 
 	authParams AuthParams
 
-	validators map[string]*regexp.Regexp
+	validators Validators
 }
 
 // without check?
-func newAuthService(deps Dependencies) *AuthService {
+func newAuthService(deps Dependencies) (*AuthService, error) {
 	instance := &AuthService{
 		HasherAndStorages: HasherAndStorages{
 			enableCache: deps.EnableCache,
@@ -53,8 +52,10 @@ func newAuthService(deps Dependencies) *AuthService {
 
 	// ***
 
-	instance.initializeValidators()
-	return instance
+	if err := instance.initializeValidators(); err != nil {
+		return nil, utl.NewFuncError(newAuthService, err)
+	}
+	return instance, nil
 }
 
 // public

@@ -14,9 +14,11 @@ import (
 type UserProfileService struct {
 	HasherAndStorages
 	accessTokenTTL time.Duration
+	userParams     UserParams
+	validators     Validators
 }
 
-func newUserProfileService(deps Dependencies) *UserProfileService {
+func newUserProfileService(deps Dependencies) (*UserProfileService, error) {
 	instance := &UserProfileService{
 		HasherAndStorages: HasherAndStorages{
 			enableCache: deps.EnableCache,
@@ -27,8 +29,15 @@ func newUserProfileService(deps Dependencies) *UserProfileService {
 			hashManager:   deps.HashManager,
 		},
 		accessTokenTTL: deps.AccessTokenTTL,
+		userParams:     deps.UserParams,
 	}
-	return instance
+
+	// ***
+
+	if err := instance.initializeValidators(); err != nil {
+		return nil, utl.NewFuncError(newUserProfileService, err)
+	}
+	return instance, nil
 }
 
 // -----------------------------------------------------------------------
@@ -48,13 +57,33 @@ func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) 
 
 func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, userId uint64,
 	input dto.ProfileWithAvatarForUpdateInp) error {
+	sourceFunc := p.UpdateUserProfile
+
+	// TODO: block adding images?
+
+	if input.Username != nil {
+		if p.enableCache {
+			if err := p.assertChangeUsernameNotBlockedForUser(ctx, userId); err != nil {
+				return utl.NewFuncError(sourceFunc, err)
+			}
+		} else {
+			logger.Warning("cache disabled")
+		}
+
+		if err := p.validateUsername(*input.Username); err != nil {
+			return ec.New(utl.NewFuncError(sourceFunc, err),
+				ec.Client, ec.ValidateUsernameFailed)
+		}
+
+		// TODO: check duplicate!!! in database!!!
+	}
+
+	// ***
 
 	storageDto, err := p.preparePartUpdateUserPartsInp(ctx, userId, input.PartProfileForUpdate)
 	if err != nil {
 		return utl.NewFuncError(p.UpdateUserProfileWithAvatar, err)
 	}
-
-	// ***
 
 	if input.Avatar != nil {
 		avatarId, err := p.addImageToUser(ctx,
@@ -74,6 +103,9 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
+	p.executeUpdateChangeUsernameCacheIfNeeded(ctx,
+		userId, storageDto.Username != nil)
+
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
@@ -81,6 +113,16 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	userId uint64, input dto.ProfileForUpdateInp) error {
 	sourceFunc := p.UpdateUserProfile
+
+	if input.Username != nil {
+		if p.enableCache {
+			if err := p.assertChangeUsernameNotBlockedForUser(ctx, userId); err != nil {
+				return utl.NewFuncError(sourceFunc, err)
+			}
+		} else {
+			logger.Warning("cache disabled")
+		}
+	}
 
 	if input.AvatarId != nil {
 		err := assertImageWithIdExists(ctx,
@@ -106,6 +148,9 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
+
+	p.executeUpdateChangeUsernameCacheIfNeeded(ctx,
+		userId, storageDto.Username != nil)
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
@@ -193,4 +238,17 @@ func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 	}
 
 	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func (p *UserProfileService) executeUpdateChangeUsernameCacheIfNeeded(
+	ctx context.Context, userId uint64, usernameWasChanged bool) {
+	if p.enableCache && usernameWasChanged {
+		if err := p.updateChangeUsernameCache(ctx, userId); err != nil {
+			logger.Warning("%v", err)
+		} else {
+			logger.Debug("change username cache updated for user %v", userId)
+		}
+	}
 }

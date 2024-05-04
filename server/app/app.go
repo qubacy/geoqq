@@ -303,6 +303,9 @@ func servicesInstance(
 
 		UserParams: serviceImpl.UserParams{
 			NamePattern: viper.GetString("service.user.name_pattern"),
+			UpdateUsernameParams: serviceImpl.UpdateUsernameParams{
+				BlockingTime: viper.GetDuration("service.user.update_name.blocking_time"),
+			},
 		},
 
 		ChatParams: serviceImpl.ChatParams{

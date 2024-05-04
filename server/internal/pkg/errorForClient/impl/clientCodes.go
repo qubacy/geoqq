@@ -145,6 +145,8 @@ const ( // My Profile (User Profile?)
 	MyProfileError = clientErrorOffset + errorGroupSize*4 + iota // 1800
 	IncorrectPasswordWhenUpdate
 	ImageNotFoundWhenUpdate
+	ChangeUsernameBlockedForUser // temporarily!
+	ValidateUsernameFailed
 )
 
 const ( // Image

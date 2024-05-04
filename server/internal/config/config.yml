@@ -38,7 +38,10 @@ service:
       blocking_time: 30m # after registration!
 
   user:
-    name_pattern: ^...$ # TODO:!!!
+    name_pattern: ^[А-Яа-яA-Za-z\d_\-\s]{6,50}$ 
+    
+    update_name:
+      blocking_time: 1h
 
   chat:
     max_message_length: 1024

@@ -9,6 +9,7 @@ import (
 	"geoqq/pkg/cache"
 	"geoqq/pkg/hash"
 	utl "geoqq/pkg/utility"
+	"regexp"
 )
 
 type HasherAndStorages struct {
@@ -19,6 +20,8 @@ type HasherAndStorages struct {
 	fileStorage   fileStorage.Storage
 	hashManager   hash.HashManager
 }
+
+type Validators = map[string]*regexp.Regexp
 
 // -----------------------------------------------------------------------
 

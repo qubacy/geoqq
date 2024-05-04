@@ -5,6 +5,7 @@ import (
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -97,7 +98,8 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 
 	if requestDto.Avatar != nil {
 		if len(requestDto.Avatar.Content) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Avatar.Content"))
 			return
 		}
 
@@ -105,24 +107,16 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 	}
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Security.Password"))
 			return
 		}
 		if len(requestDto.Security.NewPassword) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Security.NewPassword"))
 			return
 		}
 	}
-
-	if requestDto.Description == nil { // as reset description!
-		requestDto.Description = new(string)
-		*requestDto.Description = ""
-	}
-
-	/*
-		if requestDto.Privacy != nil {
-		}
-	*/
 
 	ctx.Set(contextRequestDto, &requestDto)
 }
@@ -171,28 +165,31 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 
 	// *** validate json body
 
+	// TODO: common function for validation!!!!
+
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Security.Password"))
 			return
 		}
 		if len(requestDto.Security.NewPassword) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed, ErrEmptyBodyParameter)
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Security.NewPassword"))
 			return
 		}
 	}
 
-	/*
-		if requestDto.Description == nil { // as reset description?
-			requestDto.Description = new(string)
-			*requestDto.Description = ""
-		}
-	*/
+	if requestDto.Username != nil {
+		trimmedUsername := strings.TrimSpace(*requestDto.Username)
+		*requestDto.Username = trimmedUsername
 
-	/*
-		if requestDto.Privacy != nil {
+		if len(*requestDto.Username) == 0 {
+			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
+				ErrEmptyBodyParameterWithName("Username"))
+			return
 		}
-	*/
+	}
 
 	ctx.Set(contextRequestDto, &requestDto)
 }

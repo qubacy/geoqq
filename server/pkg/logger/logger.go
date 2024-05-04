@@ -47,7 +47,7 @@ type CallerInfo struct {
 
 func MakeCallerInfo(skip int) CallerInfo {
 	_, file, line, ok := runtime.Caller(skip + 1)
-	if !ok {
+	if !ok || len(file) == 0 { // ?
 
 		// ok is false if it was not possible
 		// to recover the information.
@@ -55,16 +55,21 @@ func MakeCallerInfo(skip int) CallerInfo {
 		return CallerInfo{
 			FullFileName:  "_",
 			ShortFileName: "_",
-			Line:          0,
+			Line:          -1,
 		}
 	}
 
 	// os.PathSeparator not working!
-	parts := strings.Split(file, "/")
+	sep := "/"
+	parts := strings.Split(file, sep)
+	shortFileName := parts[len(parts)-1]
+	if len(parts) > 1 {
+		shortFileName = strings.Join(parts[len(parts)-2:], sep)
+	}
 
 	return CallerInfo{
 		FullFileName:  file,
-		ShortFileName: parts[len(parts)-1],
+		ShortFileName: shortFileName,
 		Line:          line,
 	}
 }

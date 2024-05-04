@@ -125,7 +125,7 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, userId uint64, imageI
 func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 	input *dto.ImageForAddToUserInp) (uint64, error) {
 	if input == nil {
-		return 0, ec.New(ErrNilInputParameterWithName("Dto"),
+		return 0, ec.New(ErrNilInputParameterWithName("ImageForAddToUserInp"),
 			ec.Server, ec.ServerError)
 	}
 	sourceFunc := s.AddImageToUser
@@ -141,8 +141,9 @@ func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 
 	if s.enableCache {
 		if err := s.updateAddImageCache(ctx, userId); err != nil {
-			return 0, ec.New(utl.NewFuncError(sourceFunc, err),
-				ec.Server, ec.CacheError)
+			logger.Warning("%v", err)
+		} else {
+			logger.Debug("add image cache updated for user %v", userId)
 		}
 	}
 
