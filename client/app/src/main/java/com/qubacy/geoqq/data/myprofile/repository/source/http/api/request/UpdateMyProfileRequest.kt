@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class UpdateMyProfileRequest(
+    @Json(name = "username") val username: String?,
     @Json(name = "description") val aboutMe: String?,
     @Json(name = "avatar-id") val avatarId: Long?,
     @Json(name = "security") val security: MyProfileSecurityRequest?,

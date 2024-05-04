@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMy
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 
 data class DataMyProfile(
+    val login: String,
     val username: String,
     val aboutMe: String,
     val avatar: DataImage,
@@ -19,13 +20,13 @@ data class DataMyProfile(
 fun MyProfileDataStoreModel.toDataMyProfile(avatar: DataImage): DataMyProfile {
     val hitMeUpType = HitMeUpType.getHitMeUpTypeById(hitMeUpId)
 
-    return DataMyProfile(username, aboutMe, avatar, DataPrivacy(hitMeUpType))
+    return DataMyProfile(login, username, aboutMe, avatar, DataPrivacy(hitMeUpType))
 }
 
 fun GetMyProfileResponse.toDataMyProfile(avatar: DataImage): DataMyProfile {
-    return DataMyProfile(username, aboutMe, avatar, privacy.toDataPrivacy())
+    return DataMyProfile(login, username, aboutMe, avatar, privacy.toDataPrivacy())
 }
 
 fun DataMyProfile.toMyProfileDataStoreModel(): MyProfileDataStoreModel {
-    return MyProfileDataStoreModel(avatar.id, username, aboutMe, privacy.hitMeUp.id)
+    return MyProfileDataStoreModel(avatar.id, login, username, aboutMe, privacy.hitMeUp.id)
 }

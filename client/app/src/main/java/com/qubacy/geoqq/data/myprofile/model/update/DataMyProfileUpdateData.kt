@@ -10,6 +10,7 @@ import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.Update
 import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
 
 data class DataMyProfileUpdateData(
+    val username: String? = null,
     val aboutMe: String? = null,
     val avatarUri: Uri? = null,
     val security: DataSecurity? = null,
@@ -42,7 +43,7 @@ fun DataMyProfileUpdateData.toUpdateMyProfileRequest(
     val security = security?.toMyProfileSecurityRequest()
     val privacy = privacy?.toMyProfilePrivacy()
 
-    return UpdateMyProfileRequest(aboutMe, avatarId, security, privacy)
+    return UpdateMyProfileRequest(username, aboutMe, avatarId, security, privacy)
 }
 
 /**

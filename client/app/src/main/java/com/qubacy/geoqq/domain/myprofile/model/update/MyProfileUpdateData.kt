@@ -7,6 +7,7 @@ import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model._common.toDataPrivacy
 
 data class MyProfileUpdateData(
+    val username: String? = null,
     val aboutMe: String? = null,
     val avatarUri: Uri? = null,
     val security: Security? = null,
@@ -28,5 +29,5 @@ fun Security.toDataSecurity(): DataSecurity {
 
 fun MyProfileUpdateData.toDataMyProfileUpdateData(): DataMyProfileUpdateData {
     return DataMyProfileUpdateData(
-        aboutMe, avatarUri, security?.toDataSecurity(), privacy?.toDataPrivacy())
+        username, aboutMe, avatarUri, security?.toDataSecurity(), privacy?.toDataPrivacy())
 }

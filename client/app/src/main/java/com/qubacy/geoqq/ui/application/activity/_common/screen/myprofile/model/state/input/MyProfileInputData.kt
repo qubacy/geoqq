@@ -9,6 +9,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common
 
 data class MyProfileInputData(
     val avatarUri: Uri? = null,
+    val username: String? = null,
     val aboutMe: String? = null,
     val password: String? = null,
     val newPassword: String? = null,
@@ -17,7 +18,7 @@ data class MyProfileInputData(
 ) {
     fun isEmpty(): Boolean {
         return (
-            avatarUri == null && aboutMe == null &&
+            avatarUri == null && aboutMe == null && username == null &&
             password == null && newPassword == null &&
             newPasswordAgain == null && hitMeUp == null
         )
@@ -29,13 +30,14 @@ fun MyProfileInputData.toMyProfileUpdateData(): MyProfileUpdateData {
         Security(password, newPassword) else null
     val privacy = if (hitMeUp != null) Privacy(hitMeUp) else null
 
-    return MyProfileUpdateData(aboutMe, avatarUri, security, privacy)
+    return MyProfileUpdateData(username, aboutMe, avatarUri, security, privacy)
 }
 
 fun MyProfileInputData.toUpdatedMyProfilePresentation(
     prevMyProfilePresentation: MyProfilePresentation
 ): MyProfilePresentation {
     return prevMyProfilePresentation.copy(
+        username = username ?: prevMyProfilePresentation.username,
         avatarUri = avatarUri ?: prevMyProfilePresentation.avatarUri,
         aboutMe = aboutMe ?: prevMyProfilePresentation.aboutMe,
         hitMeUp = hitMeUp ?: prevMyProfilePresentation.hitMeUp

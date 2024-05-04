@@ -26,6 +26,7 @@
     <string name="fragment_mate_chats_surface_placeholder_text">No chats for now!</string>
 
     <string name="fragment_my_profile_top_bar_title_text">My profile</string>
+    <string name="fragment_my_profile_input_username_hint_text">Username</string>
     <string name="fragment_my_profile_input_about_me_hint_text">About me</string>
     <string name="fragment_my_profile_input_password_hint_text">Password</string>
     <string name="fragment_my_profile_input_new_password_hint_text">New password</string>

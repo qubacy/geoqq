@@ -26,7 +26,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.FakeMyProfileViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -114,7 +113,7 @@ class MyProfileFragmentTest : BusinessFragmentTest<
 
         Espresso.onView(withId(R.id.fragment_my_profile_avatar))
             .check(ViewAssertions.matches(CommonImageViewMatcher(expectedAvatarUri)))
-        Espresso.onView(withId(R.id.fragment_my_profile_text_username))
+        Espresso.onView(withId(R.id.fragment_my_profile_text_login))
             .check(ViewAssertions.matches(withText(expectedUsername)))
         Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
             .check(ViewAssertions.matches(withText(expectedAboutMe)))

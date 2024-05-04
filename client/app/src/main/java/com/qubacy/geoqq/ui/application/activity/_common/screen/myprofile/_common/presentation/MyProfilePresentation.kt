@@ -6,6 +6,7 @@ import com.qubacy.geoqq.domain.myprofile.model.profile.MyProfile
 
 data class MyProfilePresentation(
     val avatarUri: Uri,
+    val login: String,
     val username: String,
     val aboutMe: String,
     val hitMeUp: HitMeUpType
@@ -14,5 +15,5 @@ data class MyProfilePresentation(
 }
 
 fun MyProfile.toMyProfilePresentation(): MyProfilePresentation {
-    return MyProfilePresentation(avatar.uri, username, aboutMe, privacy.hitMeUp)
+    return MyProfilePresentation(avatar.uri, login, username, aboutMe, privacy.hitMeUp)
 }

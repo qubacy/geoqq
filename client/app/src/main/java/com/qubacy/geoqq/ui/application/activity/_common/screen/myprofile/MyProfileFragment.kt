@@ -41,6 +41,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.operation.handler.MyProfileUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme.AboutMeValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.username.UsernameValidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -167,7 +168,11 @@ class MyProfileFragment(
             if (myProfileInputData.avatarUri == null) setImageURI(myProfilePresentation.avatarUri)
             else changeUpdatedAvatarUri(myProfileInputData.avatarUri)
         }
-        mBinding.fragmentMyProfileTextUsername.text = myProfilePresentation.username
+        mBinding.fragmentMyProfileTextLogin.text = myProfilePresentation.login
+        mBinding.fragmentMyProfileInputUsername.apply {
+            if (myProfileInputData.username == null) setText(myProfilePresentation.username)
+            else setText(myProfileInputData.username)
+        }
         mBinding.fragmentMyProfileInputAboutMe.apply {
             if (myProfileInputData.aboutMe == null) setText(myProfilePresentation.aboutMe)
             else setText(myProfileInputData.aboutMe)
@@ -209,7 +214,8 @@ class MyProfileFragment(
 
     private fun setupUiWithMyProfilePresentation(myProfilePresentation: MyProfilePresentation) {
         mBinding.fragmentMyProfileAvatar.setImageURI(myProfilePresentation.avatarUri)
-        mBinding.fragmentMyProfileTextUsername.text = myProfilePresentation.username
+        mBinding.fragmentMyProfileTextLogin.text = myProfilePresentation.login
+        mBinding.fragmentMyProfileInputUsername.setText(myProfilePresentation.username)
         mBinding.fragmentMyProfileInputAboutMe.setText(myProfilePresentation.aboutMe)
 
         changeHitMeUpInputByHitMeUpType(myProfilePresentation.hitMeUp)
@@ -242,13 +248,14 @@ class MyProfileFragment(
 
     private fun getInputData(): MyProfileInputData {
         val aboutMe = mBinding.fragmentMyProfileInputAboutMe.text?.toString()
+        val username = mBinding.fragmentMyProfileInputUsername.text?.toString()
         val password = mBinding.fragmentMyProfileInputPassword.text?.toString()
         val newPassword = mBinding.fragmentMyProfileInputNewPassword.text?.toString()
         val newPasswordAgain = mBinding.fragmentMyProfileInputNewPasswordAgain.text?.toString()
         val hitMeUp = getHitMeUpInputType()
 
         return MyProfileInputData(
-            mUpdatedAvatarUri, aboutMe,
+            mUpdatedAvatarUri, username, aboutMe,
             password, newPassword, newPasswordAgain,
             hitMeUp
         )
@@ -260,6 +267,9 @@ class MyProfileFragment(
 
         val avatarUri = inputData.avatarUri.let {
             if (it == myProfilePresentation.avatarUri) null else it
+        }
+        val username = inputData.username.let {
+            if (it == myProfilePresentation.username) null else it
         }
         val aboutMe = inputData.aboutMe.let {
             if (it == myProfilePresentation.aboutMe) null else it
@@ -278,7 +288,7 @@ class MyProfileFragment(
         }
 
         return MyProfileInputData(
-            avatarUri, aboutMe,
+            avatarUri, username, aboutMe,
             password, newPassword, newPasswordAgain,
             hitMeUp
         )
@@ -378,6 +388,9 @@ class MyProfileFragment(
     fun validateInputs(inputData: MyProfileInputData): HashSet<Int> {
         val invalidInputSet = hashSetOf<Int>()
 
+        if (inputData.username != null && !UsernameValidator().isValid(inputData.username)) {
+            invalidInputSet.add(R.id.fragment_my_profile_input_username)
+        }
         if (inputData.aboutMe != null && !AboutMeValidator().isValid(inputData.aboutMe)) {
             invalidInputSet.add(R.id.fragment_my_profile_input_about_me)
         }

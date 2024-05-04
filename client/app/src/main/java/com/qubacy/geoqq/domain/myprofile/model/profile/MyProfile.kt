@@ -7,6 +7,7 @@ import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model._common.toPrivacy
 
 data class MyProfile(
+    val login: String,
     val username: String,
     val aboutMe: String,
     val avatar: Image,
@@ -16,5 +17,5 @@ data class MyProfile(
 }
 
 fun DataMyProfile.toMyProfile(): MyProfile {
-    return MyProfile(username, aboutMe, avatar.toImage(), privacy.toPrivacy())
+    return MyProfile(login, username, aboutMe, avatar.toImage(), privacy.toPrivacy())
 }

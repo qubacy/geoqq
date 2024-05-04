@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class GetMyProfileResponse(
+    @Json(name = "login") val login: String,
     @Json(name = "username") val username: String,
     @Json(name = "description") val aboutMe: String,
     @Json(name = "avatar-id") val avatarId: Long,
