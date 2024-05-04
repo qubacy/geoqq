@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.repository.ImageDataRepository
@@ -74,9 +75,13 @@ class UserDataRepository @Inject constructor(
         CoroutineScope(coroutineContext).launch {
             val getUsersByIdsLiveData = getUsersByIds(userIds)
 
+            var version = 0
+
             while (true) {
-                val getUsersByIdsResult = getUsersByIdsLiveData.await()
+                val getUsersByIdsResult = getUsersByIdsLiveData.awaitUntilVersion(version)
                 val userIdUserMap = getUsersByIdsResult.users.associateBy { it.id }
+
+                ++version
 
                 resultLiveData.postValue(ResolveUsersDataResult(
                     getUsersByIdsResult.isNewest, userIdUserMap))

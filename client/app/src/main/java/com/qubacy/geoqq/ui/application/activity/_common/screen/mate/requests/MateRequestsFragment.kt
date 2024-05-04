@@ -220,6 +220,28 @@ class MateRequestsFragment(
         checkMateRequestListEmpty()
     }
 
+    fun onMateRequestsFragmentUpdateRequests(
+        requests: List<MateRequestPresentation>,
+        position: Int
+    ) {
+        val mateRequestsData = requests.map { it.toMateRequestItemData() }
+
+        mAdapter.updateMateRequests(mateRequestsData, position)
+
+        //checkMateRequestListEmpty()
+    }
+
+    fun onMateRequestsFragmentUpdateRequest(
+        request: MateRequestPresentation,
+        position: Int
+    ) {
+        val mateRequestData = request.toMateRequestItemData()
+
+        mAdapter.updateMateRequestAtPosition(mateRequestData, position)
+
+        //checkMateRequestListEmpty()
+    }
+
     private fun checkMateRequestListEmpty() {
         val isHintVisible = mAdapter.itemCount <= 0
 

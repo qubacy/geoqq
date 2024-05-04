@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.domain.interlocutor.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
@@ -23,14 +24,18 @@ class InterlocutorUseCase @Inject constructor(
         executeLogic({
             val getUsersResultLiveData = mUserDataRepository.getUsersByIds(listOf(interlocutorId))
 
-            val initGetUsersResult = getUsersResultLiveData.await()
+            var version = 0
+
+            val initGetUsersResult = getUsersResultLiveData.awaitUntilVersion(version)
             val initInterlocutor = initGetUsersResult.users.first().toUser()
 
             mResultFlow.emit(GetInterlocutorDomainResult(interlocutor = initInterlocutor))
 
             if (initGetUsersResult.isNewest) return@executeLogic
 
-            val newestGetUsersResult = getUsersResultLiveData.await()
+            ++version
+
+            val newestGetUsersResult = getUsersResultLiveData.awaitUntilVersion(version)
             val newestInterlocutor = newestGetUsersResult.users.first().toUser()
 
             mResultFlow.emit(UpdateInterlocutorDomainResult(interlocutor = newestInterlocutor))

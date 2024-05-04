@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.geo.message.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
@@ -37,9 +38,14 @@ class GeoMessageDataRepository @Inject constructor(
             mUserDataRepository, getMessagesResponse)
 
         CoroutineScope(coroutineContext).launch {
+            var version = 0
+
             while (true) {
-                val resolveGetMessagesResult = resolveGetMessagesResultLiveData.await()
+                val resolveGetMessagesResult = resolveGetMessagesResultLiveData
+                    .awaitUntilVersion(version)
                 val messages = resolveGetMessagesResult.messages
+
+                ++version
 
                 resultLiveData.postValue(GetGeoMessagesDataResult(
                     resolveGetMessagesResult.isNewest, messages))

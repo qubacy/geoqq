@@ -1,11 +1,11 @@
 package com.qubacy.geoqq.data.mate.request.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountDataResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsDataResult
@@ -26,6 +26,10 @@ class MateRequestDataRepository(
     private val mHttpMateRequestDataSource: HttpMateRequestDataSource
     // todo: add a websocket source;
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val TAG = "MateRequestDtRepstry"
+    }
+
     suspend fun getMateRequests(
         offset: Int,
         count: Int
@@ -35,10 +39,14 @@ class MateRequestDataRepository(
         CoroutineScope(coroutineContext).launch {
             val getMateRequestsResponse = mHttpMateRequestDataSource.getMateRequests(offset, count)
 
+            val resolveMateRequestsLiveData = resolveGetMateRequestsResponse(getMateRequestsResponse)
+
+            var version = 0
+
             while (true) {
-                val resolveMateRequestsLiveData =
-                    resolveGetMateRequestsResponse(getMateRequestsResponse)
-                val resolveMateRequestsResult = resolveMateRequestsLiveData.await()
+                val resolveMateRequestsResult = resolveMateRequestsLiveData.awaitUntilVersion(version)
+
+                ++version
 
                 resultLiveData.postValue(resolveMateRequestsResult)
 
@@ -72,9 +80,13 @@ class MateRequestDataRepository(
         val resolveUsersResultLiveData = mUserDataRepository.resolveUsers(userIds)
 
         CoroutineScope(coroutineContext).launch {
+            var version = 0
+
             while (true) {
-                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val resolveUsersResult = resolveUsersResultLiveData.awaitUntilVersion(version)
                 val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                ++version
 
                 val dataMateRequests = getMateRequestsResponse.requests.map {
                     it.toDataMateRequest(userIdUserMap[it.userId]!!)

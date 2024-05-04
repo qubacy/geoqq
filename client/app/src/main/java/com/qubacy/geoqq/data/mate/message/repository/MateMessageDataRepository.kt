@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.mate.message.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
@@ -53,10 +54,14 @@ class MateMessageDataRepository @Inject constructor(
             val resolveGetMessagesResponseResultLiveData =
                 resolveGetMessagesResponse(mUserDataRepository, getMessagesResponse)
 
+            var version = 0
+
             while (true) {
                 val resolveGetMessagesResponseResult =
-                    resolveGetMessagesResponseResultLiveData.await()
+                    resolveGetMessagesResponseResultLiveData.awaitUntilVersion(version)
                 val httpDataMessages = resolveGetMessagesResponseResult.messages
+
+                ++version
 
                 if (localDataMessages.size == httpDataMessages.size
                     && localDataMessages.containsAll(httpDataMessages)

@@ -71,10 +71,26 @@ class MateRequestsListAdapter(
     fun updateMateRequest(mateRequest: MateRequestItemData): Int {
         val mateRequestPosition = mItems.indexOfFirst { it.id == mateRequest.id }
 
-        mItems[mateRequestPosition] = mateRequest
+        return updateMateRequestAtPosition(mateRequest, mateRequestPosition)
+    }
 
-        wrappedNotifyItemChanged(mateRequestPosition)
+    @UiThread
+    fun updateMateRequestAtPosition(mateRequest: MateRequestItemData, position: Int): Int {
+        mItems[position] = mateRequest
 
-        return mateRequestPosition
+        wrappedNotifyItemChanged(position)
+
+        return position
+    }
+
+    @UiThread
+    fun updateMateRequests(mateRequests: List<MateRequestItemData>, position: Int) {
+        for (i in position until mateRequests.size) {
+            val updatedRequest = mateRequests[i - position]
+
+            mItems[position] = updatedRequest
+        }
+
+        wrappedNotifyItemRangeChanged(position, mateRequests.size)
     }
 }

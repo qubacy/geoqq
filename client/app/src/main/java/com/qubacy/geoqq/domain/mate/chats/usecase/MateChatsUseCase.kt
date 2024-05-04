@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.domain.mate.chats.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
@@ -32,7 +33,9 @@ class MateChatsUseCase @Inject constructor(
             val getChatsResultLiveData = mMateChatDataRepository
                 .getChats(loadedChatIds, offset, count)
 
-            val initGetChatsResult = getChatsResultLiveData.await()
+            var version = 0
+
+            val initGetChatsResult = getChatsResultLiveData.awaitUntilVersion(version)
             val initChats = initGetChatsResult.chats?.map { it.toMateChat() }
             val initChatChunk = initChats?.let { MateChatChunk(offset, it)}
 
@@ -40,7 +43,9 @@ class MateChatsUseCase @Inject constructor(
 
             if (initGetChatsResult.isNewest) return@executeLogic
 
-            val newestGetChatsResult = getChatsResultLiveData.await()
+            ++version
+
+            val newestGetChatsResult = getChatsResultLiveData.awaitUntilVersion(version)
             val newestChats = newestGetChatsResult.chats?.map { it.toMateChat() }
             val newestChatChunk = newestChats?.let { MateChatChunk(offset, it)}
 

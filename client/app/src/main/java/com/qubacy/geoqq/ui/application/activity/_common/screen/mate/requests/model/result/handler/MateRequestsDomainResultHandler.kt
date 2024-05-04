@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mo
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase.result.update.UpdateRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
@@ -16,6 +17,11 @@ class MateRequestsDomainResultHandler(
                 domainResult as GetRequestChunkDomainResult
 
                 viewModel.onMateRequestsGetRequestChunk(domainResult)
+            }
+            UpdateRequestChunkDomainResult::class -> {
+                domainResult as UpdateRequestChunkDomainResult
+
+                viewModel.onMateRequestsUpdateRequestChunk(domainResult)
             }
             AnswerMateRequestDomainResult::class -> {
                 domainResult as AnswerMateRequestDomainResult

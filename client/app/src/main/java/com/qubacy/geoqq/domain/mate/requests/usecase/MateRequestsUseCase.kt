@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.domain.mate.requests.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
@@ -42,17 +43,21 @@ class MateRequestsUseCase @Inject constructor(
             val getRequestsResultLiveData = mMateRequestDataRepository
                 .getMateRequests(offset, count)
 
-            val initGetRequestsResult = getRequestsResultLiveData.await()
+            var version = 0
+
+            val initGetRequestsResult = getRequestsResultLiveData.awaitUntilVersion(version)
             val initRequests = initGetRequestsResult.requests.map { it.toMateRequest() }
-            val initRequestChunk = MateRequestChunk(initRequests)
+            val initRequestChunk = MateRequestChunk(offset, initRequests)
 
             mResultFlow.emit(GetRequestChunkDomainResult(chunk = initRequestChunk))
 
             if (initGetRequestsResult.isNewest) return@executeLogic
 
-            val newestGetRequestsResult = getRequestsResultLiveData.await()
+            ++version
+
+            val newestGetRequestsResult = getRequestsResultLiveData.awaitUntilVersion(version)
             val newestRequests = newestGetRequestsResult.requests.map { it.toMateRequest() }
-            val newestRequestChunk = MateRequestChunk(newestRequests)
+            val newestRequestChunk = MateRequestChunk(offset, newestRequests)
 
             mResultFlow.emit(UpdateRequestChunkDomainResult(chunk = newestRequestChunk))
 

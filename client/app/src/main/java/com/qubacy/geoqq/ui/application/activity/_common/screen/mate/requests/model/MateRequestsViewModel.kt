@@ -5,10 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase.result.update.UpdateRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
@@ -19,9 +21,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.InsertRequestsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.RemoveRequestUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.ReturnAnsweredRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.insert.InsertRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.answer.ReturnAnsweredRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.update.UpdateRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.UpdateRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.result.handler.MateRequestsDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -116,6 +120,26 @@ open class MateRequestsViewModel @Inject constructor(
         return listOf(InsertRequestsUiOperation(requestChunkPosition, requests))
     }
 
+    fun onMateRequestsUpdateRequestChunk(
+        updateRequestChunkResult: UpdateRequestChunkDomainResult
+    ): List<UiOperation> {
+        if (!updateRequestChunkResult.isSuccessful())
+            return onError(updateRequestChunkResult.error!!)
+
+        val requestChunk = updateRequestChunkResult.chunk!!
+        val requestChunkPosition = requestChunk.offset
+        val updatedRequests = requestChunk.requests.map { it.toMateRequestPresentation() }
+
+        // todo: is it alright?:
+        for (i in requestChunkPosition until requestChunkPosition + requestChunk.requests.size) {
+            val updatedRequest = updatedRequests[i - requestChunkPosition]
+
+            mUiState.requests[i] = updatedRequest
+        }
+
+        return listOf(UpdateRequestsUiOperation(requestChunkPosition, updatedRequests))
+    }
+
     fun onMateRequestsAnswerMateRequest(
         answerRequestResult: AnswerMateRequestDomainResult
     ): List<UiOperation> {
@@ -134,6 +158,27 @@ open class MateRequestsViewModel @Inject constructor(
         mUiState.answeredRequestCount++
 
         return listOf(RemoveRequestUiOperation(requestPosition))
+    }
+
+    override fun onInterlocutorUpdateInterlocutor(
+        domainResult: UpdateInterlocutorDomainResult
+    ): List<UiOperation> {
+        val superUiOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+
+        if (!domainResult.isSuccessful()) return superUiOperations
+
+        val interlocutor = domainResult.interlocutor!!
+
+        val requestPosition = mUiState.requests.indexOfFirst { it.user.id == interlocutor.id }
+        val updatedRequest = mUiState.requests.let {
+            val request = it[requestPosition].copy(user = interlocutor.toUserPresentation())
+
+            it[requestPosition] = request
+
+            request
+        }
+
+        return superUiOperations.plus(UpdateRequestUiOperation(requestPosition, updatedRequest))
     }
 
     override fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation {

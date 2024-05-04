@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.mate.chat.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
@@ -56,9 +57,13 @@ class MateChatDataRepository @Inject constructor(
 
             val resolveGetChatsResultLiveData = resolveGetChatsResponse(offset, getChatsResponse)
 
+            var version = 0
+
             while (true) {
-                val resolveGetChatsResult = resolveGetChatsResultLiveData.await()
+                val resolveGetChatsResult = resolveGetChatsResultLiveData.awaitUntilVersion(version)
                 val httpDataChats = resolveGetChatsResult.chats!!
+
+                ++version
 
                 if (localDataChats.size == httpDataChats.size
                     && localDataChats.containsAll(httpDataChats)
@@ -81,6 +86,8 @@ class MateChatDataRepository @Inject constructor(
                 val chatsToSave = httpDataChats.map { it.toMateChatLastMessageEntityPair() }
 
                 mLocalMateChatDataSource.saveChats(chatsToSave)
+
+                if (resolveGetChatsResult.isNewest) return@launch
             }
         }
 
@@ -103,9 +110,13 @@ class MateChatDataRepository @Inject constructor(
 
             val resolveGetChatResultLiveData = resolveGetChatResponse(getChatResponse)
 
+            var version = 0
+
             while (true) {
-                val resolveGetChatResult = resolveGetChatResultLiveData.await()
+                val resolveGetChatResult = resolveGetChatResultLiveData.awaitUntilVersion(version)
                 val httpDataChat = resolveGetChatResult.chat
+
+                ++version
 
                 if (localDataChat == httpDataChat) {
                     resultLiveData.postValue(null)
@@ -185,9 +196,13 @@ class MateChatDataRepository @Inject constructor(
         val resolveUsersResultLiveData = mUserDataRepository.resolveUsersWithLocalUser(userIds)
 
         CoroutineScope(coroutineContext).launch {
+            var version = 0
+
             while (true) {
-                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val resolveUsersResult = resolveUsersResultLiveData.awaitUntilVersion(version)
                 val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                ++version
 
                 val chats = getChatsResponse.chats.map {
                     mapGetChatResponseToDataMateChat(it, userIdUserMap)
@@ -213,9 +228,13 @@ class MateChatDataRepository @Inject constructor(
             mUserDataRepository.resolveUsersWithLocalUser(listOf(userId))
 
         CoroutineScope(coroutineContext).launch {
+            var version = 0
+
             while (true) {
-                val resolveUsersResult = resolveUsersResultLiveData.await()
+                val resolveUsersResult = resolveUsersResultLiveData.awaitUntilVersion(version)
                 val userIdUserMap = resolveUsersResult.userIdUserMap
+
+                ++version
 
                 val chat = mapGetChatResponseToDataMateChat(getChatResponse, userIdUserMap)
 

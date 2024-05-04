@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data._common.repository.message.util.extension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.result.ResolveMessagesDataResult
@@ -22,9 +23,13 @@ suspend fun MessageDataRepository.resolveGetMessagesResponse(
     val resolveUsersResultLiveData = userDataRepository.resolveUsersWithLocalUser(userIds)
 
     CoroutineScope(coroutineContext).launch {
+        var version = 0
+
         while (true) {
-            val resolveUsersResult = resolveUsersResultLiveData.await()
+            val resolveUsersResult = resolveUsersResultLiveData.awaitUntilVersion(version)
             val userIdUserMap = resolveUsersResult.userIdUserMap
+
+            ++version
 
             val resolvedMessages = getMessagesResponse.messages.map {
                 it.toDataMessage(userIdUserMap[it.userId]!!)
