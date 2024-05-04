@@ -42,8 +42,7 @@ func SetLumberjackLoggerForStdOutput(
 	log.SetOutput(multiWriter)
 
 	log.SetFlags(
-		log.Ldate | log.Ltime | log.Lmicroseconds |
-			log.LUTC,
+		log.Ldate | log.Ltime | log.Lmicroseconds,
 	)
 
 	return &LumberjackLogger{

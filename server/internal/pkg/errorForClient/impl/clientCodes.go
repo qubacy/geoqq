@@ -125,13 +125,13 @@ const ( // Auth
 		Actions:
 			- registration.
 	*/
-	UserWithNameAlreadyExists
+	UserWithLoginAlreadyExists
 	/*
 		Actions:
 			- sign in.
 	*/
 	UserByCredentialsNotFound // 1404
-	SignInByNameBlocked
+	SignInByLoginBlocked
 	SignUpByIpAddrBlocked
 )
 

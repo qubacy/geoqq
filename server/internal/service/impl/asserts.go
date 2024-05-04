@@ -7,17 +7,17 @@ import (
 	utl "geoqq/pkg/utility"
 )
 
-func assertUserWithNameNotDeleted(ctx context.Context,
-	storage domainStorage.Storage, name string) error {
+func assertUserWithLoginNotDeleted(ctx context.Context,
+	storage domainStorage.Storage, login string) error {
 
-	wasDeleted, err := storage.WasUserWithNameDeleted(ctx, name)
+	wasDeleted, err := storage.WasUserWithLoginDeleted(ctx, login)
 	if err != nil {
-		return ec.New(utl.NewFuncError(assertUserWithNameNotDeleted, err),
+		return ec.New(utl.NewFuncError(assertUserWithLoginNotDeleted, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
 	if wasDeleted {
-		return ec.New(ErrUserWithNameHasBeenDeleted,
+		return ec.New(ErrUserWithLoginHasBeenDeleted,
 			ec.Client, ec.UserWasPreviouslyDeleted)
 	}
 

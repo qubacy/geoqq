@@ -25,7 +25,7 @@ const (
 
 	contextRouteItemId = "routeItemId"
 
-	contextUsername = "username"
+	contextLogin    = "login"
 	contextPassword = "password"
 )
 

@@ -1,12 +1,16 @@
 SELECT * FROM "UserEntry";
+SELECT * FROM "UserDetails";
 
-INSERT INTO "UserEntry" ("Username",
+-- InsertUser (parts)
+-- -----------------------------------------------------------------------
+
+INSERT INTO "UserEntry" ("Login",
                          "HashPassword",
                          "HashUpdToken",
                          "SignUpTime",
                          "SignInTime",
                          "LastActionTime")
-VALUES ('Test',
+VALUES ('Test6',
         '878172e71ca3b32ad5acb7c2a9ffea20465f93e4',
         '12e63aa178b4aea553a7e9c0fa4d253405325109',
         NOW()::timestamp, 
@@ -15,16 +19,19 @@ VALUES ('Test',
         ) RETURNING "Id";
 
 -- -----------------------------------------------------------------------
- -- skipped HashUpdToken
+-- skipped HashUpdToken...
 
-INSERT INTO "UserEntry" ("Username",
+INSERT INTO "UserEntry" ("Login",
                          "HashPassword",
                          "SignUpTime",
-                         "SignInTime")
-VALUES ('Test',
+                         "SignInTime",
+                         "LastActionTime")
+VALUES ('Test2',
         '878172e71ca3b32ad5acb7c2a9ffea20465f93e4',
         NOW()::timestamp,
-        NULL) RETURNING "Id";
+        NOW()::timestamp,
+        NOW()::timestamp
+        ) RETURNING "Id";
 
 -- -----------------------------------------------------------------------
 
@@ -32,7 +39,7 @@ INSERT INTO "UserLocation" ("UserId",
                             "Longitude",
                             "Latitude",
                             "Time")
-VALUES (1,
+VALUES (3,
         100.100,
         100.100,
         NOW()::timestamp);
@@ -40,14 +47,13 @@ VALUES (1,
 -- -----------------------------------------------------------------------
  -- skipped Description
 
-INSERT INTO "UserDetails" ("UserId")
-VALUES (1);
+INSERT INTO "UserDetails" ("UserId",
+                           "Username",
+                           "AvatarId")
+VALUES (3, 'Test', 1);
 
 -- -----------------------------------------------------------------------
 
 INSERT INTO "UserOptions" ("UserId",
                            "HitMeUp")
-VALUES (1,
-        0);
-
--- -----------------------------------------------------------------------
+VALUES (3, 0);

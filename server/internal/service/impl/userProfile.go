@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"geoqq/internal/domain"
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/internal/service/dto"
@@ -35,12 +34,12 @@ func newUserProfileService(deps Dependencies) *UserProfileService {
 // -----------------------------------------------------------------------
 
 func (p *UserProfileService) GetUserProfile(ctx context.Context, userId uint64) (
-	domain.UserProfile, error,
+	*domain.UserProfile, error,
 ) {
 	userProfile, err := p.domainStorage.GetUserProfile(ctx, userId) // should be in storage!
 	if err != nil {
-		return domain.UserProfile{}, utl.NewFuncError(
-			p.GetUserProfile, ec.New(err, ec.Server, ec.DomainStorageError))
+		return nil, ec.New(utl.NewFuncError(p.GetUserProfile, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
@@ -81,12 +80,15 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 
 func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	userId uint64, input dto.ProfileForUpdateInp) error {
+	sourceFunc := p.UpdateUserProfile
+
 	if input.AvatarId != nil {
 		err := assertImageWithIdExists(ctx,
 			p.domainStorage, *input.AvatarId,
-			ec.ImageNotFoundWhenUpdate)
+			ec.ImageNotFoundWhenUpdate,
+		)
 		if err != nil {
-			return utl.NewFuncError(p.UpdateUserProfile, err)
+			return utl.NewFuncError(sourceFunc, err)
 		}
 	}
 
@@ -95,14 +97,14 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	storageDto, err := p.preparePartUpdateUserPartsInp(ctx,
 		userId, input.PartProfileForUpdate)
 	if err != nil {
-		return utl.NewFuncError(p.UpdateUserProfile, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 	storageDto.AvatarId = input.AvatarId
 
 	err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto)
 	if err != nil {
-		return utl.NewFuncError(p.UpdateUserProfile,
-			ec.New(err, ec.Server, ec.DomainStorageError))
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
 	}
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
@@ -136,23 +138,20 @@ func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint6
 // -----------------------------------------------------------------------
 
 func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
-	userId uint64, input dto.PartProfileForUpdate) (dsDto.UpdateUserPartsInp, error) {
+	userId uint64, input dto.PartProfileForUpdate) (*dsDto.UpdateUserPartsInp, error) {
+	sourceFunc := p.preparePartUpdateUserPartsInp
 
 	storageDto := dsDto.UpdateUserPartsInp{}
 	if input.Security != nil {
 		err := p.checkPasswordForUpdate(ctx, userId, input.Security.PasswordHash)
 		if err != nil {
-			return dsDto.UpdateUserPartsInp{},
-				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
-
-		fmt.Println(input.Security.NewPasswordHash)
 
 		passwordDoubleHash, err := passwordHashInHexToPasswordDoubleHash(
 			p.hashManager, input.Security.NewPasswordHash)
 		if err != nil {
-			return dsDto.UpdateUserPartsInp{},
-				utl.NewFuncError(p.preparePartUpdateUserPartsInp, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
 		storageDto.PasswordDoubleHash = &passwordDoubleHash // new!
 	}
@@ -161,10 +160,11 @@ func (p *UserProfileService) preparePartUpdateUserPartsInp(ctx context.Context,
 		storageDto.Privacy = input.Privacy.ToDynamicDsInp()
 	}
 
+	storageDto.Username = input.Username
 	storageDto.Description = input.Description // maybe nil
 	storageDto.AvatarId = nil                  // !
 
-	return storageDto, nil
+	return &storageDto, nil
 }
 
 func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
@@ -174,6 +174,7 @@ func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 		passwordHashInHexToPasswordDoubleHash(p.hashManager, passwordHash)
 
 	if err != nil {
+
 		// Contains general client code for user!
 		return utl.NewFuncError(p.checkPasswordForUpdate, err)
 	}

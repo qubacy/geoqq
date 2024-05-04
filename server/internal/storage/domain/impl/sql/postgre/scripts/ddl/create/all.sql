@@ -3,7 +3,7 @@
 CREATE TABLE "UserEntry"
 (
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
-    "Username" CHARACTER VARYING(128) UNIQUE NOT NULL,
+    "Login" CHARACTER VARYING(128) UNIQUE NOT NULL,
     "HashPassword" VARCHAR(512) NOT NULL,
     "HashUpdToken" VARCHAR(512) NOT NULL DEFAULT '',
 
@@ -38,13 +38,15 @@ CREATE TABLE "UserLocation"
 CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
+    "Username" CHARACTER VARYING(128) UNIQUE NOT NULL, -- public (alias)!
+    
     "Description" CHARACTER VARYING(4096) NOT NULL DEFAULT '',
     "AvatarId" BIGINT NOT NULL,
     
-    "Gender" INT NULL,
-    "Age" INT NULL,
+    -- "Gender" INT NULL,
+    -- "Age" INT NULL,
 
-	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id"),
     FOREIGN KEY ("AvatarId") REFERENCES "Avatar"("Id")
 );
 
@@ -53,7 +55,7 @@ CREATE TABLE "UserOptions"
     "UserId" BIGINT NOT NULL,
     "HitMeUp" INTEGER NOT NULL,
     
-	FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
+    FOREIGN KEY ("UserId") REFERENCES "UserEntry"("Id")
 );
 
 CREATE TABLE "DeletedUser"

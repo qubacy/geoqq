@@ -3,6 +3,7 @@ package domain
 // or Profile?
 type UserProfile struct {
 	Id          uint64
+	Login       string
 	Username    string
 	Description string
 	AvatarId    uint64
@@ -14,11 +15,13 @@ type Privacy struct {
 }
 
 func MakeUserProfile(
-	id uint64, username, description string,
-	avatarId uint64, hitMeUp int) UserProfile {
+	id uint64, login, username, description string,
+	avatarId uint64, hitMeUp int,
+) UserProfile {
 
 	return UserProfile{
 		Id:          id,
+		Login:       login,
 		Username:    username,
 		Description: description,
 		AvatarId:    avatarId,

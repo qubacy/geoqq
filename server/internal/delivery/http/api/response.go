@@ -3,6 +3,7 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
+	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 	"net/http"
 
@@ -10,7 +11,13 @@ import (
 )
 
 func resJsonWithOK(ctx *gin.Context, obj any) {
+	logger.Trace("%v", obj)
+
 	ctx.JSON(http.StatusOK, obj)
+}
+
+func resWithOK(ctx *gin.Context) {
+	ctx.Status(http.StatusOK)
 }
 
 func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
@@ -24,14 +31,17 @@ func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
 // -----------------------------------------------------------------------
 
 func resWithClientError(ctx *gin.Context, errorId int, err error) {
+	logger.Warning("%v", err)
 	resWithErr(ctx, http.StatusBadRequest, errorId, err)
 }
 
 func resWithAuthError(ctx *gin.Context, errorId int, err error) {
+	logger.Warning("%v", err)
 	resWithErr(ctx, http.StatusUnauthorized, errorId, err)
 }
 
 func resWithServerErr(ctx *gin.Context, errorId int, err error) {
+	logger.Error("%v", err)
 	resWithErr(ctx, http.StatusInternalServerError, errorId, err)
 }
 

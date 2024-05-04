@@ -16,7 +16,7 @@ server:
 delivery: # or service?
   token:
     access_ttl: 15s
-    refresh_ttl: 1000h
+    refresh_ttl: 168h
     signing_key: "signing_key"
     refresh_signing_key: ""
 
@@ -26,7 +26,7 @@ service:
       max_page_size: 100 # ..]
   
   auth:
-    username_pattern: ^\w{6,32}$ # ^[A-Za-z0-9_]{5,64}$
+    login_pattern: ^\w{6,32}$ # ^[A-Za-z0-9_]{5,64}$
     password_pattern: ^\S{8,}$   # ^[\s\S]+$
 
     sign_in:
@@ -36,6 +36,9 @@ service:
 
     sign_up:
       blocking_time: 30m # after registration!
+
+  user:
+    name_pattern: ^...$ # TODO:!!!
 
   chat:
     max_message_length: 1024
@@ -96,7 +99,8 @@ cache:
   redis:
     host: "127.0.0.1"
     port: 6379
-    username: ""
+    
+    user: ""
     password: ""
     db_index: 0
     

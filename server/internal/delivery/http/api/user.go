@@ -1,12 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -71,12 +69,16 @@ func (h *Handler) getMyProfile(ctx *gin.Context) {
 
 	userProfile, err := h.services.GetUserProfile(ctx, userId)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	responseDto := dto.MakeMyProfileRes(userProfile)
+	responseDto, err := dto.NewMyProfileRes(userProfile)
+	if err != nil {
+		resWithServerErr(ctx, ec.ServerError, err)
+		return
+	}
+
 	resJsonWithOK(ctx, responseDto)
 }
 
@@ -122,7 +124,7 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 		}
 	*/
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
@@ -139,7 +141,7 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.MyProfileWithAttachedAvatarPutReq)
+	requestDto, converted := anyRequestDto.(*dto.MyProfileWithAttachedAvatarPutReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -149,12 +151,11 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 
 	err = h.services.UpdateUserProfileWithAvatar(ctx, userId, requestDto.ToInp())
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // PUT /api/my-profile
@@ -193,7 +194,7 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		}
 	*/
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) putMyProfile(ctx *gin.Context) {
@@ -206,7 +207,7 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 	// ***
 
 	anyRequestDto, _ := ctx.Get(contextRequestDto)
-	requestDto, converted := anyRequestDto.(dto.MyProfilePutReq)
+	requestDto, converted := anyRequestDto.(*dto.MyProfilePutReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -216,12 +217,11 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 
 	err = h.services.UpdateUserProfile(ctx, userId, requestDto.ToInp())
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // DELETE /api/my-profile
@@ -235,7 +235,7 @@ func (h *Handler) deleteMyProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // user
@@ -267,8 +267,7 @@ func (h *Handler) getUser(ctx *gin.Context) {
 
 	publicUser, err := h.services.GetPublicUserById(ctx, userId, uriParams.Id)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -280,7 +279,6 @@ func (h *Handler) getUser(ctx *gin.Context) {
 		return
 	}
 
-	logger.Trace(fmt.Sprintf("%v", responseDto))
 	resJsonWithOK(ctx, responseDto)
 }
 
@@ -303,7 +301,7 @@ func (h *Handler) extractBodyForGetSomeUsers(ctx *gin.Context) {
 		}
 	*/
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) getSomeUsers(ctx *gin.Context) {
@@ -320,7 +318,7 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.SomeUsersReq)
+	requestDto, converted := anyRequestDto.(*dto.SomeUsersReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -328,22 +326,21 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 
 	// <---> services
 
+	logger.Trace("%v", requestDto.Ids)
 	publicUsers, err := h.services.GetPublicUserByIds(ctx, userId,
 		utility.ConvertSliceFloat64ToUint64(requestDto.Ids))
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
 	// ---> delivery
 
-	responseDto, err := dto.NewSomeUsersResFromDomain(publicUsers) // TODO: struct to pointer!
+	responseDto, err := dto.NewSomeUsersResFromDomain(publicUsers)
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
 
-	logger.Trace(fmt.Sprintf("%v", responseDto))
 	resJsonWithOK(ctx, responseDto)
 }

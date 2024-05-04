@@ -1,7 +1,14 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
-	ErrInputParameterIsNil = errors.New("input parameter is nil")
+	ErrNilInputParameter = errors.New("nil input parameter")
 )
+
+func ErrNilInputParameterWithName(name string) error {
+	return fmt.Errorf("nil input parameter `%v", name)
+}

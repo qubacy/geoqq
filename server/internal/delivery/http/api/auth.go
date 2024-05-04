@@ -43,22 +43,26 @@ func (h *Handler) registerAuthRoutes() {
 // -----------------------------------------------------------------------
 
 func (h *Handler) postSignIn(ctx *gin.Context) {
-	username := ctx.GetString(contextUsername)
+	login := ctx.GetString(contextLogin)
 	passwordHash := ctx.GetString(contextPassword)
 
 	// ***
 
 	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.SignIn(ctx,
-		serviceDto.MakeSignInInp(username, passwordHash))
+		serviceDto.MakeSignInInp(login, passwordHash))
 
 	if err != nil { // error may belong to different sides!
 		logger.Warning("%v", err)
-		resWithErrorForClient(ctx, err)
+		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		resWithSideErr(ctx, side, code, err)
 		return
 	}
 
 	// ***
+
+	logger.Trace("access token: %v", out.AccessToken)
+	logger.Trace("refresh token: %v", out.RefreshToken)
 
 	resJsonWithOK(ctx, dto.MakeSignInPostRes(
 		out.AccessToken, out.RefreshToken))
@@ -69,19 +73,18 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 
 func (h *Handler) postSignUp(ctx *gin.Context) {
 
-	username := ctx.GetString(contextUsername)
+	login := ctx.GetString(contextLogin)
 	passwordHash := ctx.GetString(contextPassword)
 
 	// ***
 
 	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.SignUp(ctx,
-		serviceDto.MakeSignUpInp(username, passwordHash))
+		serviceDto.MakeSignUpInp(login, passwordHash))
 
 	if err != nil {
 		logger.Warning("%v", err)
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
@@ -120,10 +123,10 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 
 func extractLoginAndPassword(ctx *gin.Context) {
 	var (
-		username = ctx.Request.FormValue("login")
+		login    = ctx.Request.FormValue("login")
 		password = ctx.Request.FormValue("password") // password hash in hex!
 	)
-	if len(username) == 0 || len(password) == 0 {
+	if len(login) == 0 || len(password) == 0 {
 		resWithClientError(ctx,
 			se.ValidateRequestParamsFailed,
 			ErrEmptyRequestParameter,
@@ -134,7 +137,7 @@ func extractLoginAndPassword(ctx *gin.Context) {
 	// ***
 
 	ctx.Set(contextPassword, password)
-	ctx.Set(contextUsername, username)
+	ctx.Set(contextLogin, login)
 }
 
 func extractRefreshToken(ctx *gin.Context) {

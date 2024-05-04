@@ -4,12 +4,18 @@ SELECT * FROM "DeletedUser";
 INSERT INTO "DeletedUser"("UserId", "Time")
 VALUES (9, NOW()::timestamp);
 
+-- WasUserDeleted
+-- -----------------------------------------------------------------------
+
 SELECT case
            when COUNT(*) > 0 then TRUE
            else FALSE
        end as "IsDeleted"
 FROM "DeletedUser"
-WHERE "UserId" = 9; -- has username 'test_user8'
+WHERE "UserId" = 3;
+
+-- WasUserWithLoginDeleted
+-- -----------------------------------------------------------------------
 
 SELECT case
            when COUNT(*) > 0 then TRUE
@@ -17,15 +23,17 @@ SELECT case
        end as "IsDeleted"
 FROM "DeletedUser"
 INNER JOIN "UserEntry" ON (
-    "UserEntry"."Id" = "DeletedUser"."UserId" AND
-    "UserEntry"."Username" = 'test_user8');
+    "Id" = "UserId" AND "Login" = 'test_user2');
 
-SELECT 
-    "Id", "Username",
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "UserEntry";
+
+SELECT  "Id",
     case
         when "DeletedUser"."UserId" IS NULL then FALSE
         else TRUE
     end as "IsDeleted"
 FROM "UserEntry" 
 LEFT JOIN "DeletedUser" ON "UserId" = "Id"
-WHERE "Username" = 'test_user8';
+WHERE "Login" = 'Test';

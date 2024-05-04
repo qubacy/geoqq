@@ -74,11 +74,11 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 
 	// some asserts
 
-	err = a.assertSignInByNameNotBlocked(ctx, input.Login) // using cache.
+	err = a.assertSignInByLoginNotBlocked(ctx, input.Login) // using cache.
 	if err != nil {
 		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
-	err = assertUserWithNameNotDeleted(ctx, a.domainStorage, input.Login)
+	err = assertUserWithLoginNotDeleted(ctx, a.domainStorage, input.Login)
 	if err != nil {
 		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}
@@ -102,7 +102,7 @@ func (a *AuthService) SignIn(ctx context.Context, input dto.SignInInp) (
 
 	// generate tokens
 
-	userId, err := a.domainStorage.GetUserIdByByName(ctx, input.Login)
+	userId, err := a.domainStorage.GetUserIdByByLogin(ctx, input.Login)
 	if err != nil {
 		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
@@ -141,7 +141,7 @@ func (a *AuthService) SignUp(ctx context.Context, input dto.SignUpInp) (
 		return nilResult, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Client, ec.ValidateAuthParamsFailed)
 	}
-	err = a.assertUserWithNameNotExists(ctx, input.Login)
+	err = a.assertUserWithLoginNotExists(ctx, input.Login)
 	if err != nil {
 		return nilResult, utl.NewFuncError(sourceFunc, err)
 	}

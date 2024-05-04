@@ -3,7 +3,6 @@ package api
 import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
-	"geoqq/pkg/logger"
 	"geoqq/pkg/utility"
 
 	"github.com/gin-gonic/gin"
@@ -57,6 +56,8 @@ func (h *Handler) getImage(ctx *gin.Context) {
 		return
 	}
 
+	// TODO: does it need to be converted?
+
 	resJsonWithOK(ctx, image)
 }
 
@@ -76,7 +77,7 @@ func (h *Handler) extractBodyFromPostForGetSomeImages(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
@@ -86,7 +87,7 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.SomeImagesReq)
+	requestDto, converted := anyRequestDto.(*dto.SomeImagesReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -115,7 +116,6 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 	requestDto := dto.ImagePostReq{}
 	if err := ctx.ShouldBindJSON(&requestDto); err != nil {
-		logger.Error("%v", err)
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
 	}
@@ -126,14 +126,14 @@ func (h *Handler) extractBodyFromPostNewImage(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) postNewImage(ctx *gin.Context) {
 	userId := ctx.GetUint64(contextUserId)
 
 	anyRequestDto, _ := ctx.Get(contextRequestDto) // always exists!
-	requestDto, converted := anyRequestDto.(dto.ImagePostReq)
+	requestDto, converted := anyRequestDto.(*dto.ImagePostReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -142,12 +142,12 @@ func (h *Handler) postNewImage(ctx *gin.Context) {
 	// ***
 
 	imageId, err := h.services.AddImageToUser(ctx,
-		userId, requestDto.ToInp())
+		userId, requestDto.ToDynamicInp())
 	if err != nil {
 		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	responseDto := dto.MakeImagePostRes(imageId)
+	responseDto := dto.MakeImagePostRes(imageId) // one number.
 	resJsonWithOK(ctx, responseDto)
 }

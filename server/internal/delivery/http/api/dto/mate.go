@@ -3,44 +3,36 @@ package dto
 import (
 	"geoqq/internal/domain"
 	"geoqq/internal/service/dto"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 )
 
 // GET /api/mate/chat
 // -----------------------------------------------------------------------
 
 type MateChatsRes struct {
-	Chats []MateChat `json:"chats"`
+	Chats []*MateChat `json:"chats"`
 }
 
-func MakeMateChatsRes() MateChatsRes {
-	return MateChatsRes{
-		Chats: make([]MateChat, 0),
-	}
-}
-
-func MakeMateChatsResFromOutput(outputMateChats domain.MateChatList) (
-	MateChatsRes, error,
+func NewMateChatsResFromOutput(outputMateChats domain.MateChatList) (
+	*MateChatsRes, error,
 ) {
 	if outputMateChats == nil {
-		return MateChatsRes{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameterWithName("MateChatList")
 	}
 
-	responseDto := MateChatsRes{
-		Chats: make([]MateChat, 0, len(outputMateChats)),
-	}
+	mateChats := make([]*MateChat, 0, len(outputMateChats))
 	for i := range outputMateChats {
-		mateChat, err := MakeMateChatFromOutput(outputMateChats[i])
+		mateChat, err := NewMateChatFromOutput(outputMateChats[i])
 		if err != nil {
-			return MateChatsRes{},
-				utility.NewFuncError(MakeMateChatsResFromOutput, err)
+			return nil, utl.NewFuncError(NewMateChatsResFromOutput, err)
 		}
 
-		responseDto.Chats = append(
-			responseDto.Chats, mateChat)
+		mateChats = append(mateChats, mateChat)
 	}
 
-	return responseDto, nil
+	return &MateChatsRes{
+		Chats: mateChats,
+	}, nil
 }
 
 type MateChat struct {
@@ -51,9 +43,9 @@ type MateChat struct {
 	LastMessage     *MateMessage `json:"last-message"`
 }
 
-func MakeMateChatFromOutput(outputMateChat *domain.MateChat) (MateChat, error) {
+func NewMateChatFromOutput(outputMateChat *domain.MateChat) (*MateChat, error) {
 	if outputMateChat == nil {
-		return MateChat{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameterWithName("MateChat")
 	}
 
 	mateChat := MateChat{
@@ -64,16 +56,15 @@ func MakeMateChatFromOutput(outputMateChat *domain.MateChat) (MateChat, error) {
 	}
 
 	if outputMateChat.LastMessage != nil {
-		mateMessage, err := MakeMateMessageFromDomain(outputMateChat.LastMessage)
+		mateMessage, err := NewMateMessageFromDomain(outputMateChat.LastMessage)
 		if err != nil {
-			return MateChat{},
-				utility.NewFuncError(MakeMateChatFromOutput, err)
+			return nil, utl.NewFuncError(NewMateChatFromOutput, err)
 		}
 
-		mateChat.LastMessage = &mateMessage
+		mateChat.LastMessage = mateMessage
 	}
 
-	return mateChat, nil
+	return &mateChat, nil
 }
 
 type MateMessage struct {
@@ -84,12 +75,14 @@ type MateMessage struct {
 	Read   bool    `json:"read"`
 }
 
-func MakeMateMessageFromDomain(mateMessage *domain.MateMessage) (MateMessage, error) {
+func NewMateMessageFromDomain(mateMessage *domain.MateMessage) (
+	*MateMessage, error,
+) {
 	if mateMessage == nil {
-		return MateMessage{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameter
 	}
 
-	return MateMessage{
+	return &MateMessage{
 		Id:     float64(mateMessage.Id),
 		Text:   mateMessage.Text,
 		Time:   float64(mateMessage.Time.Unix()), // utc ---> unix or not?
@@ -109,29 +102,28 @@ type MateChatMessagePostReq struct {
 // -----------------------------------------------------------------------
 
 type MessagesFromMateChatWithIdRes struct {
-	MateMessages []MateMessage `json:"messages"`
+	MateMessages []*MateMessage `json:"messages"`
 }
 
-func MakeMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList) (
-	MessagesFromMateChatWithIdRes, error,
+func NewMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList) (
+	*MessagesFromMateChatWithIdRes, error,
 ) {
+	sourceFunc := NewMateChatMessagesResFromDomain
 	if domainMateMessages == nil {
-		return MessagesFromMateChatWithIdRes{},
-			ErrInputParameterIsNil
+		return nil, ErrNilInputParameterWithName("MateMessageList")
 	}
 
-	mateMessages := make([]MateMessage, 0, len(domainMateMessages))
+	mateMessages := make([]*MateMessage, 0, len(domainMateMessages))
 	for i := range domainMateMessages {
-		mateMessage, err := MakeMateMessageFromDomain(domainMateMessages[i])
+		mateMessage, err := NewMateMessageFromDomain(domainMateMessages[i])
 		if err != nil {
-			return MessagesFromMateChatWithIdRes{},
-				utility.NewFuncError(MakeMateChatFromOutput, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
 
 		mateMessages = append(mateMessages, mateMessage)
 	}
 
-	return MessagesFromMateChatWithIdRes{
+	return &MessagesFromMateChatWithIdRes{
 		MateMessages: mateMessages,
 	}, nil
 }
@@ -140,28 +132,30 @@ func MakeMateChatMessagesResFromDomain(domainMateMessages domain.MateMessageList
 // -----------------------------------------------------------------------
 
 type MateRequestsRes struct {
-	Requests []MateRequest `json:"requests"`
+	Requests []*MateRequest `json:"requests"`
 }
 
-func MakeRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) (MateRequestsRes, error) {
+func NewRequestsResFromOutput(outputMateRequests *dto.MateRequestsForUserOut) (
+	*MateRequestsRes, error,
+) {
 	if outputMateRequests == nil {
-		return MateRequestsRes{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameterWithName("MateRequestsForUserOut")
 	}
 
-	requests := make([]MateRequest, 0,
+	requests := make([]*MateRequest, 0,
 		len(outputMateRequests.MateRequests))
 
 	mateRequests := outputMateRequests.MateRequests
 	for i := range mateRequests {
-		mateRequest, err := MakeMateRequestFromOutput(mateRequests[i])
+		mateRequest, err := NewMateRequestFromOutput(mateRequests[i])
 		if err != nil {
-			return MateRequestsRes{}, err
+			return nil, utl.NewFuncError(NewRequestsResFromOutput, err)
 		}
 
 		requests = append(requests, mateRequest)
 	}
 
-	return MateRequestsRes{
+	return &MateRequestsRes{
 		Requests: requests,
 	}, nil
 }
@@ -171,12 +165,12 @@ type MateRequest struct {
 	UserId float64 `json:"user-id"`
 }
 
-func MakeMateRequestFromOutput(outputMateRequest *dto.MateRequest) (MateRequest, error) {
+func NewMateRequestFromOutput(outputMateRequest *dto.MateRequest) (*MateRequest, error) {
 	if outputMateRequest == nil {
-		return MateRequest{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameter
 	}
 
-	return MateRequest{
+	return &MateRequest{
 		Id:     float64(outputMateRequest.Id),
 		UserId: float64(outputMateRequest.SourceUserId),
 	}, nil

@@ -65,7 +65,7 @@ func (s *ImageService) loadImageFromCache(ctx context.Context, id uint64) (*file
 
 func (s *ImageService) saveImageToCache(ctx context.Context, image *file.Image) error {
 	if image == nil {
-		return ErrInputParameterIsNil
+		return ErrNilInputParameterWithName("Image")
 	}
 
 	jsonBytes, err := json.Marshal(image) // as response?

@@ -290,7 +290,7 @@ func servicesInstance(
 				BlockingTime: viper.GetDuration("service.auth.sign_up.blocking_time"),
 			},
 
-			UsernamePattern: viper.GetString("service.auth.username_pattern"),
+			LoginPattern:    viper.GetString("service.auth.login_pattern"),
 			PasswordPattern: viper.GetString("service.auth.password_pattern"),
 		},
 
@@ -299,6 +299,10 @@ func servicesInstance(
 			AddImageParams: serviceImpl.AddImageParams{
 				BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
 			},
+		},
+
+		UserParams: serviceImpl.UserParams{
+			NamePattern: viper.GetString("service.user.name_pattern"),
 		},
 
 		ChatParams: serviceImpl.ChatParams{
@@ -332,9 +336,11 @@ func createCacheInstance() (cache.Cache, error) {
 	if cacheType == "redis" {
 		cacheInstance, err = redisCache.New(ctxForInit,
 			redisCache.Dependencies{
-				Host:    viper.GetString("cache.redis.host"),
-				Port:    viper.GetUint16("cache.redis.port"),
-				DbIndex: viper.GetInt("cache.redis.db_index"),
+				Host:     viper.GetString("cache.redis.host"),
+				Port:     viper.GetUint16("cache.redis.port"),
+				User:     viper.GetString("cache.redis.user"),
+				Password: viper.GetString("cache.redis.password"),
+				DbIndex:  viper.GetInt("cache.redis.db_index"),
 				//...
 			},
 		)

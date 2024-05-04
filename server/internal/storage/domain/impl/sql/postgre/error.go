@@ -1,6 +1,9 @@
 package postgre
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrNoRows           = errors.New("no rows")
@@ -13,3 +16,7 @@ var (
 
 	ErrInvalidParams = errors.New("invalid params")
 )
+
+func ErrNilInputParameterWithName(name string) error {
+	return fmt.Errorf("nil input parameter `%v", name)
+}

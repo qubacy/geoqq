@@ -5,6 +5,7 @@ import (
 )
 
 type UpdateUserPartsInp struct {
+	Username           *string
 	Description        *string
 	Privacy            *Privacy
 	PasswordDoubleHash *string

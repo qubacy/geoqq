@@ -5,6 +5,7 @@ import (
 )
 
 type PartProfileForUpdate struct {
+	Username    *string
 	Description *string
 	Privacy     *Privacy
 	Security    *Security

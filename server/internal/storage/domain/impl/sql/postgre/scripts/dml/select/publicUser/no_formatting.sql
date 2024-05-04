@@ -67,7 +67,7 @@ WHERE "UserEntry"."Id" = 5;
 
 SELECT * FROM "UserEntry";
 
-WITH "srcUserId" AS (VALUES (1)),
+WITH "srcUserId" AS (VALUES (3)),
      "targetUserId" AS (VALUES (2))
 SELECT 
     "UserEntry"."Id" AS "Id",

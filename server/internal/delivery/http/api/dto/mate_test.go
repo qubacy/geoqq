@@ -23,7 +23,7 @@ func Test_MateChatsRes_toJson(t *testing.T) {
 
 func Test_MateChatsRes_toJson_v2(t *testing.T) {
 	res := MateChatsRes{
-		Chats: make([]MateChat, 0),
+		Chats: make([]*MateChat, 0),
 	}
 	if res.Chats == nil {
 		t.Error("chats is nil")
@@ -40,7 +40,7 @@ func Test_MateChatsRes_toJson_v2(t *testing.T) {
 // -----------------------------------------------------------------------
 
 func Test_MakeMateChatsResFromOutput_toJson(t *testing.T) {
-	res, err := MakeMateChatsResFromOutput(
+	res, err := NewMateChatsResFromOutput(
 		make(domain.MateChatList, 0),
 	)
 	if err != nil {

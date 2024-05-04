@@ -35,7 +35,7 @@ var (
 	templateSelectPublicUsers = utl.RemoveAdjacentWs(`
 		SELECT 
 			"UserEntry"."Id" AS "Id",
-			"Username",
+			"UserDetails"."Username" AS "Username", /* public */
 			"Description",
 			"AvatarId",
 			"LastActionTime",
@@ -100,9 +100,9 @@ func (s *PublicUserStorage) GetTransformedPublicUserById(ctx context.Context,
 	}
 
 	if transform != nil {
-		transform(&publicUser)
+		transform(publicUser)
 	}
-	return &publicUser, nil
+	return publicUser, nil
 }
 
 func (s *PublicUserStorage) GetTransformedPublicUsersByIds(ctx context.Context,
@@ -141,9 +141,9 @@ func (s *PublicUserStorage) GetTransformedPublicUsersByIds(ctx context.Context,
 		}
 
 		if transform != nil {
-			transform(&publicUser)
+			transform(publicUser)
 		}
-		publicUsers = append(publicUsers, &publicUser)
+		publicUsers = append(publicUsers, publicUser)
 	}
 
 	return publicUsers, nil
@@ -153,7 +153,7 @@ func (s *PublicUserStorage) GetTransformedPublicUsersByIds(ctx context.Context,
 // -----------------------------------------------------------------------
 
 func publicUserFromQueryResult(queryResult QueryResultScanner) (
-	domain.PublicUser, error,
+	*domain.PublicUser, error,
 ) {
 	publicUser := domain.PublicUser{}
 	err := queryResult.Scan(
@@ -167,9 +167,8 @@ func publicUserFromQueryResult(queryResult QueryResultScanner) (
 		&publicUser.HitMeUp,
 	)
 	if err != nil {
-		return domain.PublicUser{},
-			utl.NewFuncError(publicUserFromQueryResult, err)
+		return nil, utl.NewFuncError(publicUserFromQueryResult, err)
 	}
 
-	return publicUser, nil
+	return &publicUser, nil
 }

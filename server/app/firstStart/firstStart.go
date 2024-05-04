@@ -16,12 +16,6 @@ import (
 	fileStorage "geoqq/internal/storage/file"
 )
 
-const (
-	LabelDeletedUser = "deletedUser"
-)
-
-// -----------------------------------------------------------------------
-
 func InsertDataIntoStorages(
 	ctxForInit context.Context,
 	ds domainStorage.Storage,
@@ -30,7 +24,7 @@ func InsertDataIntoStorages(
 ) error {
 	sourceFunc := InsertDataIntoStorages
 
-	has, err := ds.HasAvatarsWithLabel(ctxForInit, LabelDeletedUser)
+	has, err := ds.HasAvatarsWithLabel(ctxForInit, domainStorage.LabelDeletedUser)
 	if err != nil {
 		return utility.NewFuncError(sourceFunc, err)
 	}
@@ -101,7 +95,7 @@ func insertAvatarsForDeletedUsers(
 		// ***
 
 		id, err := ds.InsertServerGeneratedAvatarWithLabel(ctxForInit,
-			imageHash, LabelDeletedUser)
+			imageHash, domainStorage.LabelDeletedUser)
 		if err != nil {
 			return utility.NewFuncError(sourceFunc, err)
 		}

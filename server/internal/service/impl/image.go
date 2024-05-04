@@ -123,22 +123,25 @@ func (s *ImageService) GetImagesByIds(ctx context.Context, userId uint64, imageI
 }
 
 func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
-	input dto.ImageForAddToUserInp) (uint64, error) {
+	input *dto.ImageForAddToUserInp) (uint64, error) {
+	if input == nil {
+		return 0, ec.New(ErrNilInputParameterWithName("Dto"),
+			ec.Server, ec.ServerError)
+	}
+	sourceFunc := s.AddImageToUser
 
 	if err := s.assertAddImageNotBlockedForUser(ctx, userId); err != nil {
-		return 0, utl.NewFuncError(s.addImageToUser, err)
+		return 0, utl.NewFuncError(sourceFunc, err)
 	}
-
-	// ***
 
 	imageId, err := s.addImageToUser(ctx, input.Ext, input.Content, userId)
 	if err != nil {
-		return 0, utl.NewFuncError(s.AddImageToUser, err)
+		return 0, utl.NewFuncError(sourceFunc, err)
 	}
 
 	if s.enableCache {
 		if err := s.updateAddImageCache(ctx, userId); err != nil {
-			return 0, ec.New(utl.NewFuncError(s.AddImageToUser, err),
+			return 0, ec.New(utl.NewFuncError(sourceFunc, err),
 				ec.Server, ec.CacheError)
 		}
 	}

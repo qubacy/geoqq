@@ -13,20 +13,26 @@ type MyProfileRes struct {
 	Profile
 }
 
-func MakeMyProfileRes(value domain.UserProfile) MyProfileRes {
-	return MyProfileRes{
+func NewMyProfileRes(value *domain.UserProfile) (*MyProfileRes, error) {
+	if value == nil {
+		return nil, ErrNilInputParameterWithName("UserProfile")
+	}
+
+	return &MyProfileRes{
 		Profile: Profile{
 			Id:          float64(value.Id),
+			Login:       value.Login,
 			Username:    value.Username,
 			Description: value.Description,
 			AvatarId:    float64(value.AvatarId), // or null/optional?
 			Privacy:     MakePrivacy(value.Privacy),
 		},
-	}
+	}, nil
 }
 
 type Profile struct { // not equal struct user!
 	Id          float64 `json:"id"`
+	Login       string  `json:"login"`
 	Username    string  `json:"username"`
 	Description string  `json:"description"`
 	AvatarId    float64 `json:"avatar-id"`
@@ -57,6 +63,7 @@ func (s *Privacy) ToDynamicInp() *serviceDto.Privacy {
 // -----------------------------------------------------------------------
 
 type PartMyProfileForPutReq struct {
+	Username    *string `json:"username,omitempty"`
 	Description *string `json:"description,omitempty"`
 
 	Privacy  *Privacy  `json:"privacy,omitempty"`
@@ -75,9 +82,11 @@ func (s *PartMyProfileForPutReq) ToPartProfileForUpdate() serviceDto.PartProfile
 	}
 
 	return serviceDto.PartProfileForUpdate{
+		Username:    s.Username,
 		Description: s.Description,
-		Security:    security,
-		Privacy:     privacy,
+
+		Security: security,
+		Privacy:  privacy,
 	}
 }
 
@@ -177,7 +186,7 @@ type UserByIdRes struct {
 func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, error,
 ) {
 	if publicUser == nil {
-		return UserByIdRes{}, ErrInputParameterIsNil
+		return UserByIdRes{}, ErrNilInputParameter
 	}
 
 	user, err := MakeUserFromDomain(publicUser)
@@ -195,7 +204,7 @@ func MakeUserByIdResFromDomain(publicUser *domain.PublicUser) (UserByIdRes, erro
 
 type User struct {
 	Id             float64 `json:"id"`
-	Username       string  `json:"username"`
+	Username       string  `json:"username"` // public!
 	Description    string  `json:"description"`
 	AvatarId       float64 `json:"avatar-id"`
 	LastActionTime float64 `json:"last-action-time"`
@@ -206,7 +215,7 @@ type User struct {
 
 func MakeUserFromDomain(publicUser *domain.PublicUser) (User, error) {
 	if publicUser == nil {
-		return User{}, ErrInputParameterIsNil
+		return User{}, ErrNilInputParameter
 	}
 
 	return User{
@@ -236,7 +245,7 @@ func NewSomeUsersResFromDomain(publicUsers []*domain.PublicUser) (
 	*SomeUsersRes, error,
 ) {
 	if publicUsers == nil {
-		return nil, ErrInputParameterIsNil
+		return nil, ErrNilInputParameter
 	}
 
 	users := make([]User, 0, len(publicUsers))

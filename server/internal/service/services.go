@@ -23,7 +23,7 @@ type AuthService interface {
 // -----------------------------------------------------------------------
 
 type UserProfileService interface {
-	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
+	GetUserProfile(ctx context.Context, userId uint64) (*domain.UserProfile, error)
 	UpdateUserProfileWithAvatar(ctx context.Context,
 		userId uint64, input dto.ProfileWithAvatarForUpdateInp) error
 
@@ -81,7 +81,7 @@ type ImageService interface {
 	GetImagesByIds(ctx context.Context, userId uint64, imageIds []uint64) (*file.Images, error)
 
 	AddImageToUser(ctx context.Context, userId uint64,
-		input dto.ImageForAddToUserInp) (uint64, error)
+		input *dto.ImageForAddToUserInp) (uint64, error)
 }
 
 // -----------------------------------------------------------------------

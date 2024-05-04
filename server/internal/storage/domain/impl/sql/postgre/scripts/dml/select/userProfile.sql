@@ -1,13 +1,19 @@
+-- GetUserProfile
+-- -----------------------------------------------------------------------
+
+SELECT * FROM "UserEntry";
+SELECT * FROM "UserDetails";
+
 SELECT 
-	"UserEntry"."Id" AS "Id",
+	"Id",
+	"Login",
 	"Username", 
 	"Description",
 	"AvatarId",
 	"HitMeUp"
 FROM "UserEntry"
 INNER JOIN "UserDetails"
-	ON "UserDetails"."UserId" = "UserEntry"."Id"
+	ON "UserDetails"."UserId" = "Id"
 INNER JOIN "UserOptions" 
-	ON "UserOptions"."UserId" = "UserEntry"."Id";
-
-SELECT * FROM "UserDetails";
+	ON "UserOptions"."UserId" = "Id"
+WHERE "Id" = 3;

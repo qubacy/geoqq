@@ -32,18 +32,18 @@ func (a *AuthService) assertUserByCredentialsExists(
 	return nil
 }
 
-func (a *AuthService) assertUserWithNameNotExists(
+func (a *AuthService) assertUserWithLoginNotExists(
 	ctx context.Context, login string) error {
-	sourceFunc := a.assertUserWithNameNotExists
+	sourceFunc := a.assertUserWithLoginNotExists
 
-	exists, err := a.domainStorage.HasUserWithName(ctx, login)
+	exists, err := a.domainStorage.HasUserWithLogin(ctx, login)
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 	if exists {
 		return ec.New(ErrUserWithThisLoginAlreadyExists,
-			ec.Client, ec.UserWithNameAlreadyExists)
+			ec.Client, ec.UserWithLoginAlreadyExists)
 	}
 	return nil
 }
@@ -51,21 +51,21 @@ func (a *AuthService) assertUserWithNameNotExists(
 // From Cache
 // -----------------------------------------------------------------------
 
-func (a *AuthService) assertSignInByNameNotBlocked(
-	ctx context.Context, username string) error {
+func (a *AuthService) assertSignInByLoginNotBlocked(
+	ctx context.Context, login string) error {
 	if !a.enableCache {
 		logger.Warning("cache disabled")
 		return nil
 	}
 
-	loginBlocked, err := a.cache.Exists(ctx, authCacheKey.SignInByNameBlocked(username))
+	loginBlocked, err := a.cache.Exists(ctx, authCacheKey.SignInByLoginBlocked(login))
 	if err != nil {
-		return ec.New(utl.NewFuncError(a.assertSignInByNameNotBlocked, err),
+		return ec.New(utl.NewFuncError(a.assertSignInByLoginNotBlocked, err),
 			ec.Server, ec.CacheError)
 	}
 	if loginBlocked {
-		return ec.New(ErrSignInByNameIsBlocked(username),
-			ec.Client, ec.SignInByNameBlocked)
+		return ec.New(ErrSignInByLoginIsBlocked(login),
+			ec.Client, ec.SignInByLoginBlocked)
 	}
 	return nil
 }

@@ -19,7 +19,7 @@ type AuthParams struct {
 	SignIn SignInParams
 	SignUp SignUpParams
 
-	UsernamePattern string
+	LoginPattern    string
 	PasswordPattern string
 }
 
@@ -51,6 +51,10 @@ type GeoChatParams struct {
 	MaxMessageCountReturned uint64
 }
 
+type UserParams struct {
+	NamePattern string
+}
+
 type Dependencies struct {
 	HashManager  hash.HashManager
 	TokenManager token.TokenManager
@@ -70,6 +74,7 @@ type Dependencies struct {
 	GeneralParams GeneralParams
 	AuthParams    AuthParams
 	ImageParams   ImageParams
+	UserParams    UserParams
 	ChatParams    ChatParams
 }
 

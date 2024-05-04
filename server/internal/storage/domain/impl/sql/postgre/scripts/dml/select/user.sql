@@ -1,46 +1,34 @@
-SELECT *
-FROM "UserEntry"
-ORDER BY "Id";
+SELECT * FROM "UserEntry" ORDER BY "Id";
 
-SELECT "Id", "Username", "SignInTime", "LastActionTime"
-FROM "UserEntry"
-ORDER BY "Id";
+SELECT "Id", "Login", "SignInTime", "LastActionTime"
+FROM "UserEntry" ORDER BY "Id";
 
-UPDATE "UserEntry" 
-SET "HashPassword" = 'adf20ec5664499c609ad141057e9bf94212eb337' WHERE "Id" = 1;
-
-
-SELECT *
-FROM "UserDetails";
+SELECT * FROM "UserDetails" ORDER BY "UserId";
 
 UPDATE "UserDetails"
 SET "AvatarId" = 2 WHERE "UserId" = 12;
 
 SELECT * FROM "Avatar";
-
-
-SELECT *
-FROM "UserOptions";
-
-
-SELECT *
-FROM "UserLocation";
+SELECT * FROM "UserOptions";
+SELECT * FROM "UserLocation";
 
 SELECT * FROM "UserEntry"
 INNER JOIN "UserDetails" ON "UserEntry"."Id" = "UserDetails"."UserId"
 INNER JOIN "UserOptions" ON "UserEntry"."Id" = "UserOptions"."UserId"
 INNER JOIN "UserLocation" ON "UserEntry"."Id" = "UserLocation"."UserId";
 
+-- HasUserWithName
 -- -----------------------------------------------------------------------
 
 SELECT COUNT(*) AS "Count"
-FROM "UserEntry"
-WHERE "Username" = 'Test';
+FROM "UserEntry" WHERE "Login" = 'Test';
 
+
+-- HasUserWithId
+-- -----------------------------------------------------------------------
 
 SELECT COUNT(*) AS "Count"
-FROM "UserEntry"
-WHERE "Id" = 1;
+FROM "UserEntry" WHERE "Id" = 1;
 
 select
     case when exists (select true

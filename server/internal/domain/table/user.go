@@ -20,7 +20,7 @@ type Users []User
 
 type UserEntry struct {
 	Id           uint64 // <--- bigserial
-	Username     string
+	Login        string // only for sign in!
 	HashPassword string
 	HashUpdToken string
 	SignUpTime   time.Time
@@ -36,6 +36,7 @@ type UserLocation struct {
 
 type UserDetails struct {
 	UserId      uint64
+	Username    string // public!
 	Description string
 	AvatarId    *uint64
 }

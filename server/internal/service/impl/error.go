@@ -8,12 +8,12 @@ import (
 var (
 	ErrNotImplemented = errors.New("not implemented")
 
-	ErrIncorrectUsername = errors.New("incorrect username")
+	ErrIncorrectLogin    = errors.New("incorrect login")
 	ErrIncorrectPassword = errors.New("incorrect password")
 
 	ErrUserWithThisLoginAlreadyExists = errors.New("user with this login already exists")
 	ErrIncorrectLoginOrPassword       = errors.New("incorrect login or password") // no details?
-	ErrUserWithNameHasBeenDeleted     = errors.New("user with name has been deleted")
+	ErrUserWithLoginHasBeenDeleted    = errors.New("user with login has been deleted")
 	ErrTargetUserDeleted              = errors.New("target user deleted")
 	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
 
@@ -41,22 +41,22 @@ var (
 	ErrWrongLongitude = errors.New("wrong longitude")
 	ErrWrongLatitude  = errors.New("wrong latitude")
 
-	ErrInputParameterIsNil = errors.New("input parameter is nil")
+	ErrNilInputParameter = errors.New("nil input parameter")
 )
 
 // with params
 // -----------------------------------------------------------------------
 
-func ErrSignInByNameIsBlocked(name string) error {
-	return fmt.Errorf("sign in by `%v` is blocked", name)
+func ErrSignInByLoginIsBlocked(login string) error {
+	return fmt.Errorf("sign in by `%v` is blocked", login)
 }
 
 func ErrSignUpByIpAddrBlocked(ipAddr string) error {
 	return fmt.Errorf("sign up by ip `%v` is blocked", ipAddr)
 }
 
-func ErrIncorrectUsernameWithPattern(pattern string) error {
-	return fmt.Errorf("incorrect username. Pattern `%v`", pattern)
+func ErrIncorrectLoginWithPattern(pattern string) error {
+	return fmt.Errorf("incorrect login. Pattern `%v`", pattern)
 }
 
 func ErrAddImageBlockedForUserWithId(userId uint64) error {
@@ -69,4 +69,8 @@ func ErrMessageTooLong(maxMsgLength uint64) error {
 
 func ErrImageWithIdNotInCache(id uint64) error {
 	return fmt.Errorf("image %v is not in cache", id)
+}
+
+func ErrNilInputParameterWithName(name string) error {
+	return fmt.Errorf("nil input parameter `%v", name)
 }

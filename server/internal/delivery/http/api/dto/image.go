@@ -39,8 +39,8 @@ type ImagePostReq struct {
 	Image ImageWithoutId `json:"image"`
 }
 
-func (s *ImagePostReq) ToInp() serviceDto.ImageForAddToUserInp {
-	return serviceDto.ImageForAddToUserInp{
+func (s *ImagePostReq) ToDynamicInp() *serviceDto.ImageForAddToUserInp {
+	return &serviceDto.ImageForAddToUserInp{
 		Ext:     int(s.Image.Ext),
 		Content: s.Image.Content,
 	}

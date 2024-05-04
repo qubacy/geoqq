@@ -245,7 +245,7 @@ func assertUserWithIdNotDeleted(ctx context.Context,
 	}
 
 	if wasDeleted {
-		return ec.New(ErrUserWithNameHasBeenDeleted,
+		return ec.New(ErrUserWithLoginHasBeenDeleted,
 			ec.Client, ec.UserWasPreviouslyDeleted)
 	}
 

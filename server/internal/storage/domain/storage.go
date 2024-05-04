@@ -9,6 +9,10 @@ import (
 
 // avatar == image
 
+const (
+	LabelDeletedUser = "deletedUser"
+)
+
 type AvatarStorage interface {
 	HasAvatar(ctx context.Context, id uint64) (bool, error)
 	HasAvatars(ctx context.Context, uniqueIds []uint64) (bool, error)
@@ -28,24 +32,24 @@ type AvatarStorage interface {
 // -----------------------------------------------------------------------
 
 type UserStorage interface {
-	GetUserIdByByName(ctx context.Context, username string) (uint64, error)
+	GetUserIdByByLogin(ctx context.Context, login string) (uint64, error)
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
 
 	HasUserWithId(ctx context.Context, id uint64) (bool, error)
 	HasUserWithIds(ctx context.Context, uniqueIds []uint64) (bool, error)
 
-	HasUserWithName(ctx context.Context, value string) (bool, error)
+	HasUserWithLogin(ctx context.Context, login string) (bool, error)
 	InsertUser(ctx context.Context,
-		username, passwordDoubleHash string,
+		login, passwordDoubleHash string,
 		avatarId uint64) (uint64, error)
 
 	HasUserByCredentials(ctx context.Context,
-		username, passwordDoubleHash string) (bool, error)
+		login, passwordDoubleHash string) (bool, error)
 	HasUserByIdAndHashPassword(ctx context.Context,
 		id uint64, passwordDoubleHash string) (bool, error)
 
 	WasUserDeleted(ctx context.Context, id uint64) (bool, error)
-	WasUserWithNameDeleted(ctx context.Context, username string) (bool, error)
+	WasUserWithLoginDeleted(ctx context.Context, login string) (bool, error)
 
 	UpdateUserLocation(ctx context.Context, id uint64,
 		longitude, latitude float64) error
@@ -55,7 +59,7 @@ type UserStorage interface {
 		id uint64, value string) error
 
 	UpdateUserParts(ctx context.Context, id uint64,
-		input dto.UpdateUserPartsInp) error
+		input *dto.UpdateUserPartsInp) error
 
 	// ***
 
@@ -81,7 +85,7 @@ type PublicUserStorage interface {
 }
 
 type UserProfileStorage interface {
-	GetUserProfile(ctx context.Context, userId uint64) (domain.UserProfile, error)
+	GetUserProfile(ctx context.Context, userId uint64) (*domain.UserProfile, error)
 	DeleteUserProfile(ctx context.Context, userId uint64) error
 }
 

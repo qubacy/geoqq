@@ -15,12 +15,12 @@ func (*authCacheKeyFormatter) DeletedUser(id uint64) string {
 	return fmt.Sprintf("deleted_user_%v", id)
 }
 
-func (*authCacheKeyFormatter) SignInFailedAttemptCount(username string) string {
-	return fmt.Sprintf("sin_failed_attempts_by_%v", username)
+func (*authCacheKeyFormatter) SignInFailedAttemptCount(login string) string {
+	return fmt.Sprintf("sin_failed_attempts_by_%v", login)
 }
 
-func (*authCacheKeyFormatter) SignInByNameBlocked(username string) string {
-	return fmt.Sprintf("sin_by_%v_blocked", username)
+func (*authCacheKeyFormatter) SignInByLoginBlocked(login string) string {
+	return fmt.Sprintf("sin_by_%v_blocked", login)
 }
 
 func (*authCacheKeyFormatter) SignUpByIpAddrBlocked(ipAddr string) string {
@@ -32,11 +32,11 @@ var authCacheKey = authCacheKeyFormatter{}
 // Actions
 // -----------------------------------------------------------------------
 
-func (a *AuthService) updateSignInCache(ctx context.Context, username string) error {
+func (a *AuthService) updateSignInCache(ctx context.Context, login string) error {
 	sourceFunc := a.updateHashRefreshToken
 
-	keyLoginBlocked := authCacheKey.SignInByNameBlocked(username)
-	keyAttemptCount := authCacheKey.SignInFailedAttemptCount(username)
+	keyLoginBlocked := authCacheKey.SignInByLoginBlocked(login)
+	keyAttemptCount := authCacheKey.SignInFailedAttemptCount(login)
 
 	singleChar := "1"
 	maxAttemptCount := a.authParams.SignIn.FailedAttemptCount

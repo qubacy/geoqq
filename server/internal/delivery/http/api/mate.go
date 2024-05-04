@@ -1,12 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"geoqq/internal/delivery/http/api/dto"
 	"geoqq/internal/domain/table"
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -94,21 +92,17 @@ func (h *Handler) getMateChats(ctx *gin.Context) {
 	output, err := h.services.GetMateChatsForUser(ctx,
 		userId, offset, count)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
 	// ---> delivery
 
-	responseDto, err := dto.MakeMateChatsResFromOutput(output)
+	responseDto, err := dto.NewMateChatsResFromOutput(output)
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
-
-	bytes, _ := json.Marshal(responseDto)
-	logger.Trace(string(bytes))
 
 	resJsonWithOK(ctx, responseDto)
 }
@@ -130,7 +124,7 @@ func (h *Handler) getMateChat(ctx *gin.Context) {
 
 	// ---> delivery
 
-	responseDto, err := dto.MakeMateChatFromOutput(outputMateChat)
+	responseDto, err := dto.NewMateChatFromOutput(outputMateChat)
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
@@ -148,12 +142,11 @@ func (h *Handler) deleteMateChat(ctx *gin.Context) {
 
 	err := h.services.DeleteMateChatForUser(ctx, mateChatId, userId)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // GET /api/mate/chat/{id}/message
@@ -174,14 +167,13 @@ func (h *Handler) getMateChatMessages(ctx *gin.Context) {
 	output, err := h.services.ReadMateChatMessagesByChatId(ctx,
 		userId, chatId, offset, count)
 	if err != nil {
-		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
-		resWithSideErr(ctx, side, code, err)
+		resWithErrorForClient(ctx, err)
 		return
 	}
 
 	// to delivery!
 
-	responseDto, err := dto.MakeMateChatMessagesResFromDomain(output)
+	responseDto, err := dto.NewMateChatMessagesResFromDomain(output)
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
@@ -225,7 +217,7 @@ func (h *Handler) extractBodyForPostMateChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 type uriParamsPostMateChatMessage struct {
@@ -252,7 +244,7 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.MateChatMessagePostReq)
+	requestDto, converted := anyRequestDto.(*dto.MateChatMessagePostReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -269,7 +261,7 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // mate-request
@@ -289,8 +281,8 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 
 	// to-from services
 
-	logger.Debug("offset: %v", offset)
 	logger.Debug("count: %v", count)
+	logger.Debug("offset: %v", offset)
 
 	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
 		userId, offset, count)
@@ -301,7 +293,7 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 
 	// to delivery!
 
-	responseDto, err := dto.MakeRequestsResFromOutput(output)
+	responseDto, err := dto.NewRequestsResFromOutput(output)
 	if err != nil {
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
@@ -342,7 +334,7 @@ func (h *Handler) extractBodyForPostMateRequest(ctx *gin.Context) {
 		resWithClientError(ctx, ec.ParseRequestJsonBodyFailed, err)
 		return
 	}
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) postMateRequest(ctx *gin.Context) {
@@ -360,7 +352,7 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.MateRequestPostReq)
+	requestDto, converted := anyRequestDto.(*dto.MateRequestPostReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -374,7 +366,7 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }
 
 // PUT /api/mate/request/{id}
@@ -415,5 +407,5 @@ func (h *Handler) putMateRequest(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }

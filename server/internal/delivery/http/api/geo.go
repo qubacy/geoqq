@@ -4,7 +4,6 @@ import (
 	"geoqq/internal/delivery/http/api/dto"
 	ec "geoqq/internal/pkg/errorForClient/impl"
 	"geoqq/pkg/logger"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -62,14 +61,16 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatMessages(ctx, userId,
 		radius, lat, lon, offset, count)
 	if err != nil {
+		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
 
 	// ---> delivery
 
-	responseDto, err := dto.MakeGeoChatMessagesResFromDomain(geoMessages)
+	responseDto, err := dto.NewGeoChatMessagesResFromDomain(geoMessages)
 	if err != nil {
+		logger.Error("%v", err)
 		resWithServerErr(ctx, ec.ServerError, err) // impossible error!
 		return
 	}
@@ -96,19 +97,20 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatAllMessages(ctx, userId,
 		radius, lat, lon)
 	if err != nil {
+		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
 
 	// ---> delivery
 
-	responseDto, err := dto.MakeGeoChatMessagesResFromDomain(geoMessages)
+	responseDto, err := dto.NewGeoChatMessagesResFromDomain(geoMessages)
 	if err != nil {
+		logger.Error("%v", err)
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}
 
-	logger.Trace("%v", responseDto)
 	resJsonWithOK(ctx, responseDto)
 }
 
@@ -149,7 +151,7 @@ func (h *Handler) extractBodyForPostGeoChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(contextRequestDto, requestDto)
+	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) postGeoChatMessage(ctx *gin.Context) {
@@ -166,7 +168,7 @@ func (h *Handler) postGeoChatMessage(ctx *gin.Context) {
 		resWithServerErr(ctx, ec.ServerError, ErrEmptyContextParam)
 		return
 	}
-	requestDto, converted := anyRequestDto.(dto.GeoChatMessagePostReq)
+	requestDto, converted := anyRequestDto.(*dto.GeoChatMessagePostReq)
 	if !converted {
 		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
 		return
@@ -184,5 +186,5 @@ func (h *Handler) postGeoChatMessage(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	resWithOK(ctx)
 }

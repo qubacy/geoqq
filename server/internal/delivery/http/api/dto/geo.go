@@ -2,42 +2,40 @@ package dto
 
 import (
 	"geoqq/internal/domain"
-	"geoqq/pkg/utility"
+	utl "geoqq/pkg/utility"
 )
 
 // GET /api/geo/chat/message
 // -----------------------------------------------------------------------
 
 type GeoChatMessagesRes struct {
-	Messages []GeoMessage `json:"messages"`
+	Messages []*GeoMessage `json:"messages"`
 }
 
-func MakeGeoChatMessagesResFromDomain(
+func NewGeoChatMessagesResFromDomain(
 	domainGeoMessages domain.GeoMessageList) (
-	GeoChatMessagesRes, error,
+	*GeoChatMessagesRes, error,
 ) {
-	sourceFunc := MakeGeoChatMessagesResFromDomain
+	sourceFunc := NewGeoChatMessagesResFromDomain
 	if domainGeoMessages == nil {
-		return GeoChatMessagesRes{},
-			ErrInputParameterIsNil
+		return nil, ErrNilInputParameter
 	}
 
-	res := GeoChatMessagesRes{
-		Messages: make([]GeoMessage, 0, len(domainGeoMessages)),
-	}
+	geoMessages := make([]*GeoMessage, 0, len(domainGeoMessages))
 	for i := range domainGeoMessages {
-		geoMessage, err := MakeGeoMessageFromDomain(
+		geoMessage, err := NewGeoMessageFromDomain(
 			domainGeoMessages[i],
 		)
 		if err != nil {
-			return GeoChatMessagesRes{},
-				utility.NewFuncError(sourceFunc, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
 
-		res.Messages = append(res.Messages, geoMessage)
+		geoMessages = append(geoMessages, geoMessage)
 	}
 
-	return res, nil
+	return &GeoChatMessagesRes{
+		Messages: geoMessages,
+	}, nil
 }
 
 type GeoMessage struct {
@@ -47,12 +45,12 @@ type GeoMessage struct {
 	Time   float64 `json:"time"`
 }
 
-func MakeGeoMessageFromDomain(geoMessage *domain.GeoMessage) (GeoMessage, error) {
+func NewGeoMessageFromDomain(geoMessage *domain.GeoMessage) (*GeoMessage, error) {
 	if geoMessage == nil {
-		return GeoMessage{}, ErrInputParameterIsNil
+		return nil, ErrNilInputParameter
 	}
 
-	return GeoMessage{
+	return &GeoMessage{
 		Id:     float64(geoMessage.Id),
 		Text:   geoMessage.Text,
 		UserId: float64(geoMessage.UserId),

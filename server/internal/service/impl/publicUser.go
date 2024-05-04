@@ -97,6 +97,7 @@ var usernamesForDeleted = []string{
 	"abandoned",
 	"extinct",
 	"missing",
+	//...
 }
 
 func transformUsernameToDeleted(pu *domain.PublicUser) { // not nil!

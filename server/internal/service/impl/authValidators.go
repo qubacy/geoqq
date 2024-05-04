@@ -10,7 +10,7 @@ func (a *AuthService) initializeValidators() error {
 
 	// can create global variables!
 	sourceRegexp := map[string]string{
-		"login":    a.authParams.UsernamePattern,
+		"login":    a.authParams.LoginPattern,
 		"password": a.authParams.PasswordPattern,
 	}
 
@@ -39,7 +39,7 @@ func (a *AuthService) validateLoginAndPassword(
 
 	if len(loginValidator.String()) != 0 {
 		if !loginValidator.MatchString(login) {
-			return ErrIncorrectUsernameWithPattern(
+			return ErrIncorrectLoginWithPattern(
 				loginValidator.String())
 		}
 	}

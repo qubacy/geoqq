@@ -3,7 +3,6 @@ package postgre
 import (
 	"context"
 	"errors"
-	"geoqq/app/firstStart"
 	"geoqq/internal/domain"
 	"geoqq/internal/domain/table"
 	"geoqq/internal/storage/domain/dto"
@@ -13,6 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+
+	domainStorage "geoqq/internal/storage/domain"
 )
 
 type UserProfileStorage struct {
@@ -34,28 +35,43 @@ func newUserProfileStorage(pool *pgxpool.Pool) *UserProfileStorage {
 var (
 	templateGetUserProfile = utl.RemoveAdjacentWs(`
 		SELECT 
-			"UserEntry"."Id" AS "Id",
+			"Id", "Login",
 			"Username", "Description",
 			"AvatarId", "HitMeUp"
 		FROM "UserEntry"
-		INNER JOIN "UserDetails"
-			ON "UserDetails"."UserId" = "UserEntry"."Id"
-		INNER JOIN "UserOptions" 
-			ON "UserOptions"."UserId" = "UserEntry"."Id"
+		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "Id"
+		INNER JOIN "UserOptions" ON "UserOptions"."UserId" = "Id"
 		WHERE "UserEntry"."Id" = $1`)
 
 	templateInsertUserToDeleted = utl.RemoveAdjacentWs(`
 		INSERT INTO "DeletedUser" ("UserId", "Time")
 		VALUES ($1, NOW()::timestamp)`)
 
-	templateChangeNameForUser = utl.RemoveAdjacentWs(`
-		UPDATE "UserEntry" SET "Username" = $1
-		WHERE "Id" = $2`)
+	/*
+		Order:
+			1. userId
+			2. newLogin
+	*/
+	templateChangeLoginForUser = utl.RemoveAdjacentWs(`
+		UPDATE "UserEntry" SET "Login" = $2
+		WHERE "Id" = $1`)
+
+	/*
+		Order:
+			1. userId
+			2. newUsername
+	*/
+	templateChangeUsernameForUser = utl.RemoveAdjacentWs(`
+		UPDATE "UserDetails" SET "Username" = $2
+		WHERE "UserId" = $1`)
 
 	/*
 		Order:
 			1. userId
 			2. label
+
+		Image with the label
+		must exist in the database!
 	*/
 	templateSetRandomAvatarWithLabelForUser = utl.RemoveAdjacentWs(`
 		UPDATE "UserDetails" SET "AvatarId" = (
@@ -68,12 +84,11 @@ var (
 // -----------------------------------------------------------------------
 
 func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
-	domain.UserProfile, error,
+	*domain.UserProfile, error,
 ) {
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return domain.UserProfile{},
-			utl.NewFuncError(s.GetUserProfile, err)
+		return nil, utl.NewFuncError(s.GetUserProfile, err)
 	}
 	defer conn.Release()
 
@@ -82,16 +97,17 @@ func (s *UserProfileStorage) GetUserProfile(ctx context.Context, id uint64) (
 	)
 
 	userProfile := domain.UserProfile{}
-	err = row.Scan(&userProfile.Id, &userProfile.Username, &userProfile.Description,
+	err = row.Scan(
+		&userProfile.Id, &userProfile.Login,
+		&userProfile.Username, &userProfile.Description,
 		&userProfile.AvatarId, &userProfile.Privacy.HitMeUp,
 	)
 
 	if err != nil {
-		return domain.UserProfile{},
-			utl.NewFuncError(s.GetUserProfile, err)
+		return nil, utl.NewFuncError(s.GetUserProfile, err)
 	}
 
-	return userProfile, nil
+	return &userProfile, nil
 }
 
 func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint64) error {
@@ -109,13 +125,13 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 	// ***
 
+	newLogin := uuid.NewString()
 	err = errors.Join(
 		insertUserToDeletedInsideTx(ctx, tx, userId),
 		deleteMateRequestsForUserInsideTx(ctx, tx, table.Waiting, userId),
 
-		// ***
-
-		changeNameToDeletedForUserInsideTx(ctx, tx, userId),
+		changeLoginForUserInsideTx(ctx, tx, userId, newLogin),
+		changeUsernameForUserInsideTx(ctx, tx, userId, newLogin),
 		changeAvatarToDeletedForUserInsideTx(ctx, tx, userId),
 
 		updateUserDescriptionInsideTx(ctx, tx, userId, "bb"),
@@ -145,6 +161,7 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 // private
 // -----------------------------------------------------------------------
 
+// or mark user as deleted?
 func insertUserToDeletedInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
 	return insertInsideTx(ctx, insertDeletedMateChatInsideTx,
@@ -162,14 +179,19 @@ func deleteMateRequestsForUserInsideTx(ctx context.Context,
 
 // -----------------------------------------------------------------------
 
-func changeNameToDeletedForUserInsideTx(ctx context.Context,
-	tx pgx.Tx, userId uint64) error {
+func changeLoginForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64, newLogin string) error {
+	return updateInsideTx(ctx, changeLoginForUserInsideTx,
+		tx, templateChangeLoginForUser,
+		userId, newLogin,
+	)
+}
 
-	name := uuid.NewString()
-
-	return updateInsideTx(ctx, changeNameToDeletedForUserInsideTx,
-		tx, templateChangeNameForUser,
-		name, userId,
+func changeUsernameForUserInsideTx(ctx context.Context,
+	tx pgx.Tx, userId uint64, newUsername string) error {
+	return updateInsideTx(ctx, changeUsernameForUserInsideTx,
+		tx, templateChangeUsernameForUser,
+		userId, newUsername,
 	)
 }
 
@@ -177,9 +199,11 @@ func changeAvatarToDeletedForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
 	return updateInsideTx(ctx, changeAvatarToDeletedForUserInsideTx,
 		tx, templateSetRandomAvatarWithLabelForUser,
-		userId, firstStart.LabelDeletedUser,
+		userId, domainStorage.LabelDeletedUser,
 	)
 }
+
+// -----------------------------------------------------------------------
 
 func resetPrivacyForUserInsideTx(ctx context.Context,
 	tx pgx.Tx, userId uint64) error {
