@@ -148,6 +148,10 @@ var (
 				"SignInTime" = NOW()::timestamp,
 				"LastActionTime" = NOW()::timestamp
 		WHERE "Id" = $1`)
+
+	templateGetUserOptionsById = utl.RemoveAdjacentWs(`
+		SELECT "UserId", "HitMeUp"
+		FROM "UserOptions" WHERE "UserId" = $1`)
 )
 
 // public
@@ -196,6 +200,29 @@ func (us *UserStorage) GetHashRefreshToken(ctx context.Context, id uint64) (
 		return "", utl.NewFuncError(us.GetHashRefreshToken, err)
 	}
 	return hashRefreshToken, nil
+}
+
+func (us *UserStorage) GetUserOptionsById(ctx context.Context, id uint64) (
+	*table.UserOptions, error,
+) {
+	sourceFunc := us.GetUserOptionsById
+	row, err := queryRowWithConnectionAcquire(us.pool, ctx, func(conn *pgxpool.Conn, ctx context.Context) pgx.Row {
+		return conn.QueryRow(ctx,
+			templateGetUserOptionsById+`;`, id)
+	})
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	userOptions := table.UserOptions{}
+	err = row.Scan(
+		&userOptions.UserId,
+		&userOptions.HitMeUp,
+	)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+	return &userOptions, nil
 }
 
 // -----------------------------------------------------------------------

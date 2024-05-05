@@ -188,6 +188,7 @@ const ( // Mate
 	MateChatNotAvailable // 2211
 
 	MateMessageTooLong
+	TargetUserHitMeUpOff
 )
 
 const ( // Geo

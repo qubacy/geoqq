@@ -34,6 +34,7 @@ type AvatarStorage interface {
 type UserStorage interface {
 	GetUserIdByByLogin(ctx context.Context, login string) (uint64, error)
 	GetHashRefreshToken(ctx context.Context, id uint64) (string, error)
+	GetUserOptionsById(ctx context.Context, id uint64) (*table.UserOptions, error)
 
 	HasUserWithId(ctx context.Context, id uint64) (bool, error)
 	HasUserWithIds(ctx context.Context, uniqueIds []uint64) (bool, error)

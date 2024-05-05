@@ -79,19 +79,21 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 	// asserts
 
-	err := assertUserWithIdExists(ctx, mrs.domainStorage, targetUserId,
+	err := assertUserWithIdExists(ctx,
+		mrs.domainStorage, targetUserId,
 		ec.TargetUserNotFound)
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
-	err = mrs.assertUserWithIdNotDeleted(ctx, targetUserId) // marked!
+
+	err = assertUserWithIdNotDeleted(ctx,
+		mrs.domainStorage, targetUserId,
+		ec.TargetUserDeleted) // marked!
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
 
-	// TODO: check privacy!!!
-
-	// ***
+	// other checks
 
 	err = mrs.partialValidateInputBeforeAddMateRequest(ctx,
 		sourceUserId, targetUserId)
@@ -168,28 +170,28 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 // private
 // -----------------------------------------------------------------------
 
-// TODO: changed error return style!
 func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
 	/*
 		Check List:
-			1. Target user may be deleted. // remove it!
+			1. User allows mate requests to be sent to him.
+
 			2. They might already be mates.
 			3. The request may already be sent.
 			4. There is already an incoming request.
 	*/
-
-	// target user deleted
-
 	sourceFunc := mrs.partialValidateInputBeforeAddMateRequest
-	wasDeleted, err := mrs.domainStorage.WasUserDeleted(ctx, targetUserId)
+
+	// privacy field `hit-me-up` in true
+
+	targetUserOptions, err := mrs.domainStorage.GetUserOptionsById(ctx, targetUserId)
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
-	if wasDeleted {
-		return ec.New(ErrTargetUserDeleted,
-			ec.Client, ec.TargetUserDeleted) // TODO: user wrapper?
+	if targetUserOptions.HitMeUp == table.HitMeUpNo {
+		return ec.New(ErrAlreadyAreMates,
+			ec.Client, ec.TargetUserHitMeUpOff)
 	}
 
 	// are mates
@@ -228,22 +230,6 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	if exists {
 		return ec.New(ErrMateRequestAlreadySentToYou,
 			ec.Client, ec.MateRequestAlreadySentToYou)
-	}
-
-	return nil
-}
-
-func (mrs *MateRequestService) assertUserWithIdNotDeleted(ctx context.Context, id uint64) error {
-
-	wasDeleted, err := mrs.domainStorage.WasUserDeleted(ctx, id)
-	if err != nil {
-		return ec.New(utl.NewFuncError(mrs.assertUserWithIdNotDeleted, err),
-			ec.Server, ec.DomainStorageError)
-	}
-
-	if wasDeleted {
-		return ec.New(ErrUserWithLoginHasBeenDeleted,
-			ec.Client, ec.UserWasPreviouslyDeleted)
 	}
 
 	return nil

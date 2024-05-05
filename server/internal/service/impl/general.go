@@ -61,6 +61,26 @@ func assertUserWithIdExists(ctx context.Context,
 		return ec.New(ErrUserNotFound, // !
 			ec.Client, expectedClientCodeForError)
 	}
+
+	return nil
+}
+
+func assertUserWithIdNotDeleted(ctx context.Context,
+	storage domainStorage.Storage, id uint64,
+	expectedClientCodeForError int) error {
+	sourceFunc := assertUserWithIdNotDeleted
+
+	wasDeleted, err := storage.WasUserDeleted(ctx, id)
+	if err != nil {
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+
+	if wasDeleted {
+		return ec.New(ErrUserWithLoginHasBeenDeleted,
+			ec.Client, expectedClientCodeForError)
+	}
+
 	return nil
 }
 
