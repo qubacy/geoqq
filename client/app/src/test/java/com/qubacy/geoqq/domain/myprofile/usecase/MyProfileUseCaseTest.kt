@@ -21,9 +21,9 @@ import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -170,7 +170,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
             Assert.assertTrue(mUpdateMyProfileCallFlag)
             Assert.assertFalse(result.isSuccessful())
-            Assert.assertEquals(UpdateMyProfileDomainResult::class, result::class)
+            Assert.assertEquals(MyProfileUpdatedDomainResult::class, result::class)
 
             val gottenError = result.error!!
 
@@ -191,9 +191,9 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
             Assert.assertTrue(mUpdateMyProfileCallFlag)
             Assert.assertTrue(result.isSuccessful())
-            Assert.assertEquals(UpdateMyProfileDomainResult::class, result::class)
+            Assert.assertEquals(MyProfileUpdatedDomainResult::class, result::class)
 
-            result as UpdateMyProfileDomainResult
+            result as MyProfileUpdatedDomainResult
 
             val gottenIsSuccessful = result.isSuccessful()
 

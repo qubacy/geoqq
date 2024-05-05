@@ -6,21 +6,23 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.update.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.result.handler.MyProfileDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toMyProfileUpdateData
@@ -76,8 +78,7 @@ open class MyProfileViewModel @Inject constructor(
 
         val myProfilePresentation = getMyProfileResult.myProfile?.toMyProfilePresentation()
 
-        if (!getMyProfileResult.isSuccessful())
-            return onError(getMyProfileResult.error!!)
+        if (!getMyProfileResult.isSuccessful()) return onError(getMyProfileResult.error!!)
 
         mUiState.myProfilePresentation = myProfilePresentation!!
 
@@ -85,7 +86,19 @@ open class MyProfileViewModel @Inject constructor(
     }
 
     fun onMyProfileUpdateMyProfile(
-        updateMyProfileDomainResult: UpdateMyProfileDomainResult
+        updateMyProfileResult: UpdateMyProfileDomainResult
+    ): List<UiOperation> {
+        val myProfilePresentation = updateMyProfileResult.myProfile?.toMyProfilePresentation()
+
+        if (!updateMyProfileResult.isSuccessful()) return onError(updateMyProfileResult.error!!)
+
+        mUiState.myProfilePresentation = myProfilePresentation!!
+
+        return listOf(UpdateMyProfileUiOperation(myProfilePresentation))
+    }
+
+    fun onMyProfileMyProfileUpdated(
+        updateMyProfileDomainResult: MyProfileUpdatedDomainResult
     ): List<UiOperation> {
         changeLoadingState(false)
 
@@ -94,7 +107,7 @@ open class MyProfileViewModel @Inject constructor(
 
         mUiState.myProfilePresentation = getUpdatedMyProfilePresentation()
 
-        return listOf(UpdateMyProfileUiOperation())
+        return listOf(MyProfileUpdatedUiOperation())
     }
 
     private fun getUpdatedMyProfilePresentation(): MyProfilePresentation {
@@ -113,7 +126,7 @@ open class MyProfileViewModel @Inject constructor(
         if (!deleteMyProfileDomainResult.isSuccessful())
             return onError(deleteMyProfileDomainResult.error!!)
 
-        return listOf(DeleteMyProfileUiOperation())
+        return listOf(MyProfileDeletedUiOperation())
     }
 
     fun onMyProfileLogout(

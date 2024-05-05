@@ -212,6 +212,10 @@ class MyProfileFragment(
         setupUiWithMyProfilePresentation(myProfile)
     }
 
+    fun onMyProfileFragmentUpdateMyProfile(myProfile: MyProfilePresentation) {
+        setupUiWithMyProfilePresentation(myProfile)
+    }
+
     private fun setupUiWithMyProfilePresentation(myProfilePresentation: MyProfilePresentation) {
         mBinding.fragmentMyProfileAvatar.setImageURI(myProfilePresentation.avatarUri)
         mBinding.fragmentMyProfileTextLogin.text = myProfilePresentation.login
@@ -221,7 +225,7 @@ class MyProfileFragment(
         changeHitMeUpInputByHitMeUpType(myProfilePresentation.hitMeUp)
     }
 
-    fun onMyProfileFragmentUpdateMyProfile() {
+    fun onMyProfileFragmentMyProfileUpdated() {
         onPopupMessageOccurred(R.string.fragment_my_profile_snackbar_message_profile_updated)
     }
 

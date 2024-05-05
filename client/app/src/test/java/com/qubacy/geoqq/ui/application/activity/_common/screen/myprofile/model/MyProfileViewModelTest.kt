@@ -12,17 +12,16 @@ import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model.profile.MyProfile
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileUpdatedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toUpdatedMyProfilePresentation
@@ -313,7 +312,7 @@ class MyProfileViewModelTest(
 
         val expectedError = TestError.normal
         val expectedIsLoading = false
-        val errorDomainResult = UpdateMyProfileDomainResult(expectedError)
+        val errorDomainResult = MyProfileUpdatedDomainResult(expectedError)
 
         setUiState(MyProfileUiState(isLoading = initIsLoading))
 
@@ -345,7 +344,7 @@ class MyProfileViewModelTest(
         val expectedIsLoading = false
         val expectedMyProfilePresentation = initMyProfileInputData
             .toUpdatedMyProfilePresentation(initMyProfilePresentation)
-        val updateMyProfileResult = UpdateMyProfileDomainResult()
+        val updateMyProfileResult = MyProfileUpdatedDomainResult()
 
         setUiState(MyProfileUiState(
             isLoading = initIsLoading,
@@ -359,7 +358,7 @@ class MyProfileViewModelTest(
             val updateMyProfileOperation = awaitItem()
             val setLoadingOperation = awaitItem()
 
-            Assert.assertEquals(UpdateMyProfileUiOperation::class, updateMyProfileOperation::class)
+            Assert.assertEquals(MyProfileUpdatedUiOperation::class, updateMyProfileOperation::class)
             Assert.assertEquals(SetLoadingStateUiOperation::class, setLoadingOperation::class)
             Assert.assertEquals(expectedMyProfilePresentation, mModel.uiState.myProfilePresentation)
             Assert.assertEquals(expectedIsLoading, mModel.uiState.isLoading)
@@ -414,7 +413,7 @@ class MyProfileViewModelTest(
             val deleteMyProfileUiOperation = awaitItem()
             val setLoadingOperation = awaitItem()
 
-            Assert.assertEquals(DeleteMyProfileUiOperation::class, deleteMyProfileUiOperation::class)
+            Assert.assertEquals(MyProfileDeletedUiOperation::class, deleteMyProfileUiOperation::class)
             Assert.assertEquals(SetLoadingStateUiOperation::class, setLoadingOperation::class)
             Assert.assertEquals(expectedIsLoading, mModel.uiState.isLoading)
 

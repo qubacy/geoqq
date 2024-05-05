@@ -14,7 +14,15 @@ data class DataMyProfile(
     val avatar: DataImage,
     val privacy: DataPrivacy
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is DataMyProfile) return false
 
+        return (
+            login == other.login && username == other.username &&
+            aboutMe == other.aboutMe &&
+            avatar == other.avatar && privacy == other.privacy
+        )
+    }
 }
 
 fun MyProfileDataStoreModel.toDataMyProfile(avatar: DataImage): DataMyProfile {

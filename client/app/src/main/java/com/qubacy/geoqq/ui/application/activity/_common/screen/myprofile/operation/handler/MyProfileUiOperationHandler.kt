@@ -3,9 +3,10 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.operat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.MyProfileFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.update.UpdateMyProfileUiOperation
 
 class MyProfileUiOperationHandler(
     fragment: MyProfileFragment
@@ -18,9 +19,14 @@ class MyProfileUiOperationHandler(
                 fragment.onMyProfileFragmentGetMyProfile(uiOperation.myProfile)
             }
             UpdateMyProfileUiOperation::class -> {
-                fragment.onMyProfileFragmentUpdateMyProfile()
+                uiOperation as UpdateMyProfileUiOperation
+
+                fragment.onMyProfileFragmentUpdateMyProfile(uiOperation.myProfile)
             }
-            DeleteMyProfileUiOperation::class -> {
+            MyProfileUpdatedUiOperation::class -> {
+                fragment.onMyProfileFragmentMyProfileUpdated()
+            }
+            MyProfileDeletedUiOperation::class -> {
                 fragment.onMyProfileFragmentDeleteMyProfile()
             }
             else -> return false

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.domain.myprofile.usecase
 
-import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
@@ -14,9 +14,10 @@ import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.model.update.toDataMyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,10 +29,24 @@ class MyProfileUseCase @Inject constructor(
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     fun getMyProfile() {
         executeLogic({
-            val getMyProfileResult = mMyProfileDataRepository.getMyProfile().await()
-            val myProfile = getMyProfileResult.myProfile.toMyProfile()
+            var version = 0
 
-            mResultFlow.emit(GetMyProfileDomainResult(myProfile = myProfile))
+            val getMyProfileResultLiveData = mMyProfileDataRepository.getMyProfile()
+
+            val initGetMyProfileResult = getMyProfileResultLiveData.awaitUntilVersion(version)
+            val initMyProfile = initGetMyProfileResult.myProfile.toMyProfile()
+
+            mResultFlow.emit(GetMyProfileDomainResult(myProfile = initMyProfile))
+
+            if (initGetMyProfileResult.isNewest) return@executeLogic
+
+            ++version
+
+            val newestGetMyProfileResult = getMyProfileResultLiveData.awaitUntilVersion(version)
+            val newestMyProfile = newestGetMyProfileResult.myProfile.toMyProfile()
+
+            mResultFlow.emit(UpdateMyProfileDomainResult(myProfile = newestMyProfile))
+
         }, { GetMyProfileDomainResult(error = it) }, ::authorizedErrorMiddleware)
     }
 
@@ -41,8 +56,8 @@ class MyProfileUseCase @Inject constructor(
 
             if (myProfileUpdateData.security != null) logout()
 
-            mResultFlow.emit(UpdateMyProfileDomainResult())
-        }, { UpdateMyProfileDomainResult(error = it) }, ::authorizedErrorMiddleware)
+            mResultFlow.emit(MyProfileUpdatedDomainResult())
+        }, { MyProfileUpdatedDomainResult(error = it) }, ::authorizedErrorMiddleware)
     }
 
     fun deleteMyProfile() {

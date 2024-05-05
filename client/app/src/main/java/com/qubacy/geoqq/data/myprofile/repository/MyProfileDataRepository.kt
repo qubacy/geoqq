@@ -37,18 +37,19 @@ class MyProfileDataRepository @Inject constructor(
 
         CoroutineScope(coroutineContext).launch {
             val localMyProfile = mLocalMyProfileDataSource.getMyProfile()
+            val localDataMyProfile = localMyProfile?.let {
+                resolveMyProfileDataStoreModel(localMyProfile) }
 
-            if (localMyProfile != null) {
-                val localDataMyProfile = resolveMyProfileDataStoreModel(localMyProfile)
-
+            if (localDataMyProfile != null)
                 resultLiveData.postValue(GetMyProfileDataResult(false, localDataMyProfile))
-            }
 
             val myProfileResponse = mHttpMyProfileDataSource.getMyProfile()
 
             val httpDataMyProfile = resolveGetMyProfileResponse(myProfileResponse)
 
             resultLiveData.postValue(GetMyProfileDataResult(true, httpDataMyProfile))
+
+            if (localDataMyProfile == httpDataMyProfile) return@launch
 
             val myProfileToSave = httpDataMyProfile.toMyProfileDataStoreModel()
 
