@@ -46,8 +46,11 @@ class MateChatsUseCase @Inject constructor(
             ++version
 
             val newestGetChatsResult = getChatsResultLiveData.awaitUntilVersion(version)
-            val newestChats = newestGetChatsResult.chats?.map { it.toMateChat() }
-            val newestChatChunk = newestChats?.let { MateChatChunk(offset, it)}
+
+            if (newestGetChatsResult.chats == null) return@executeLogic
+
+            val newestChats = newestGetChatsResult.chats.map { it.toMateChat() }
+            val newestChatChunk = MateChatChunk(offset, newestChats)
 
             mResultFlow.emit(UpdateChatChunkDomainResult(chunk = newestChatChunk))
 

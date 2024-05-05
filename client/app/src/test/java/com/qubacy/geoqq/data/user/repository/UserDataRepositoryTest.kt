@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data.user.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
@@ -34,17 +33,8 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     companion object {
         const val DEFAULT_LOCAL_USER_ID = 0L
 
-        val DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM = object : Claim {
-            override fun asBoolean(): Boolean? = null
-            override fun asInt(): Int? = null
-            override fun asLong(): Long = DEFAULT_LOCAL_USER_ID
-            override fun asDouble(): Double? = null
-            override fun asString(): String? = null
-            override fun asDate(): Date? = null
-            override fun <T : Any?> asArray(tClazz: Class<T>?): Array<T> = null as Array<T>
-            override fun <T : Any?> asList(tClazz: Class<T>?): MutableList<T> = mutableListOf()
-            override fun <T : Any?> asObject(tClazz: Class<T>?): T? = null
-        }
+        const val DEFAULT_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+                "eyJleHAiOjE5MDAwMDAwMDAsInVzZXItaWQiOjB9.4BS0ogDvWxgxfaHYkYfQhLw-Csg-y7vgTmHTz4jTqA4"
 
         val DEFAULT_USER_ENTITY = UserEntity(
             DEFAULT_LOCAL_USER_ID,
@@ -282,15 +272,11 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val avatars = listOf(DEFAULT_AVATAR)
         val localUser = localUsers.first()
             .toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
-        val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
-        val getAccessTokenPayload = mapOf(
-            UserDataRepository.ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME to accessTokenUserIdClaim
-        )
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
         mHttpSourceGetUsersResponse = httpUsers
-        mLocalSourceGetAccessToken =
+        mLocalSourceGetAccessToken = DEFAULT_ACCESS_TOKEN
 
         val expectedLocalUser = localUser
 
@@ -309,15 +295,11 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val httpUsers = GetUsersResponse(listOf(DEFAULT_GET_USER_RESPONSE))
         val avatars = listOf(DEFAULT_AVATAR)
         val userIds = localUsers.map { it.id }
-        val accessTokenUserIdClaim = DEFAULT_ACCESS_TOKEN_USER_ID_CLAIM
-        val getAccessTokenPayload = mapOf(
-            UserDataRepository.ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME to accessTokenUserIdClaim
-        )
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
         mHttpSourceGetUsersResponse = httpUsers
-        mLocalSourceGetAccessToken =
+        mLocalSourceGetAccessToken = DEFAULT_ACCESS_TOKEN
 
         val expectedResolvedUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)

@@ -2,10 +2,9 @@ package com.qubacy.geoqq.domain.login.usecase
 
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
-import com.qubacy.geoqq.data.auth.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import kotlinx.coroutines.test.runTest
@@ -31,26 +30,21 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = LoginUseCase(
-            dependencies[0] as ErrorDataRepository,
+            dependencies[0] as LocalErrorDataSource,
             dependencies[1] as AuthDataRepository
         )
     }
 
     @Test
     fun signInWithTokenSucceededTest() = runTest {
-        val expectedGetTokensDataResult =
-            GetTokensDataResult("accessToken", "refreshToken")
-
-        mAuthDataRepositoryMockContainer.getTokensDataResult = expectedGetTokensDataResult
-
         mUseCase.resultFlow.test {
             mUseCase.signIn()
 
             val result = awaitItem()
 
+            Assert.assertEquals(SignedInDomainResult::class, result::class)
             Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithTokenCallFlag)
             Assert.assertTrue(result.isSuccessful())
-            Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
     }
 
@@ -82,9 +76,9 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
+            Assert.assertEquals(SignedInDomainResult::class, result::class)
             Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertTrue(result.isSuccessful())
-            Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
     }
 
@@ -102,10 +96,10 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
+            Assert.assertEquals(SignedInDomainResult::class, result::class)
             Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
-            Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
     }
 
@@ -119,9 +113,9 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
+            Assert.assertEquals(SignedInDomainResult::class, result::class)
             Assert.assertTrue(mAuthDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertTrue(result.isSuccessful())
-            Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
     }
 
@@ -139,10 +133,10 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
+            Assert.assertEquals(SignedInDomainResult::class, result::class)
             Assert.assertTrue(mAuthDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
-            Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
     }
 }

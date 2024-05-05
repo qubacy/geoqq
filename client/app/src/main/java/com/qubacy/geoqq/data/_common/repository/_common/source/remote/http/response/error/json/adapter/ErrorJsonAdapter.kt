@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 
 class ErrorJsonAdapter : JsonAdapter<ErrorResponse>() {
-    override fun fromJson(p0: JsonReader): ErrorResponse? {
+    override fun fromJson(p0: JsonReader): ErrorResponse {
         p0.beginObject() // {
         p0.skipName()
         p0.beginObject()

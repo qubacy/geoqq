@@ -69,8 +69,6 @@ open class MateChatsViewModel @Inject constructor(
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
-        mIsGettingNextChatChunk = false
-
         if (!updateChatChunkResult.isSuccessful())
             return onError(updateChatChunkResult.error!!)
 

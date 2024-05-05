@@ -8,6 +8,9 @@ import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMock
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -21,8 +24,9 @@ class UserDataRepositoryMockContainer {
             false, false
         )
 
-        val DEFAULT_GET_USERS_BY_IDS = GetUsersByIdsDataResult(listOf(DEFAULT_DATA_USER))
-        val DEFAULT_RESOLVE_USERS = DEFAULT_GET_USERS_BY_IDS.users.associateBy { it.id }
+        val DEFAULT_GET_USERS_BY_IDS = GetUsersByIdsDataResult(true, listOf(DEFAULT_DATA_USER))
+        val DEFAULT_RESOLVE_USERS = ResolveUsersDataResult(
+            true, DEFAULT_GET_USERS_BY_IDS.users.associateBy { it.id })
         val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = DEFAULT_RESOLVE_USERS
     }
 
@@ -30,9 +34,10 @@ class UserDataRepositoryMockContainer {
 
     var error: Error? = null
 
-    var getUsersByIds: GetUsersByIdsDataResult = DEFAULT_GET_USERS_BY_IDS
-    var resolveUsers: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS
-    var resolveUsersWithLocalUser: Map<Long, DataUser> = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+    var getUsersByIdsResults: List<GetUsersByIdsDataResult> = listOf(DEFAULT_GET_USERS_BY_IDS)
+    var resolveUsersResults: List<ResolveUsersDataResult> = listOf(DEFAULT_RESOLVE_USERS)
+    var resolveUsersWithLocalUserResults: List<ResolveUsersDataResult> =
+        listOf(DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER)
 
     private var mGetUsersByIdsCallFlag = false
     val getUsersByIdsCallFlag get() = mGetUsersByIdsCallFlag
@@ -56,7 +61,13 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                MutableLiveData(getUsersByIds)
+                val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
+
+                CoroutineScope(coroutineContext).launch {
+                    for (result in getUsersByIdsResults) resultLiveData.postValue(result)
+                }
+
+                resultLiveData
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsers(
                 AnyMockUtil.anyObject()
@@ -65,7 +76,13 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                resolveUsers
+                val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
+
+                CoroutineScope(coroutineContext).launch {
+                    for (result in resolveUsersResults) resultLiveData.postValue(result)
+                }
+
+                resultLiveData
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsersWithLocalUser(
                 AnyMockUtil.anyObject()
@@ -74,7 +91,14 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                resolveUsersWithLocalUser
+                val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
+
+                CoroutineScope(coroutineContext).launch {
+                    for (result in resolveUsersWithLocalUserResults)
+                        resultLiveData.postValue(result)
+                }
+
+                resolveUsersWithLocalUserResults
             }
         }
 
@@ -84,9 +108,9 @@ class UserDataRepositoryMockContainer {
     fun reset() {
         error = null
 
-        getUsersByIds = DEFAULT_GET_USERS_BY_IDS
-        resolveUsers = DEFAULT_RESOLVE_USERS
-        resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+        getUsersByIdsResults = listOf(DEFAULT_GET_USERS_BY_IDS)
+        resolveUsersResults = listOf(DEFAULT_RESOLVE_USERS)
+        resolveUsersWithLocalUserResults = listOf(DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER)
 
         mGetUsersByIdsCallFlag = false
         mResolveUsersCallFlag = false

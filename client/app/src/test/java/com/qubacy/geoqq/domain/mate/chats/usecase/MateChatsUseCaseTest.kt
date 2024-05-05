@@ -8,13 +8,15 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
@@ -31,12 +33,16 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
+    private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
+
     private var mGetChatsDataResult: GetChatsDataResult? = null
 
     private var mGetChatsCallFlag = false
 
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
+
+        mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
 
         val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepository::class.java)
 
@@ -55,13 +61,16 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
             }
         }
 
-        return superDependencies.plus(mateChatDataRepositoryMock)
+        return superDependencies
+            .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
+            .plus(mateChatDataRepositoryMock)
     }
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateChatsUseCase(
-            dependencies[0] as ErrorDataRepository,
-            dependencies[1] as MateChatDataRepository
+            dependencies[0] as LocalErrorDataSource,
+            dependencies[1] as LogoutUseCase,
+            dependencies[2] as MateChatDataRepository
         )
     }
 
