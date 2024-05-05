@@ -169,6 +169,12 @@ func initializeLogging() error {
 		return ErrLoggingTypeIsNotDefined
 	}
 
+	logger.Trace("trace")
+	logger.Debug("debug")
+	logger.Info("info")
+	logger.Warning("warning")
+	logger.Error("error")
+
 	return nil
 }
 

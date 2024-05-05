@@ -58,7 +58,7 @@ func SetLumberjackLoggerForStdOutput(
 var stackFrameCountToSkip int = 2
 
 func (l *LumberjackLogger) Trace(format string, a ...interface{}) {
-	if l.level < logger.LevelTrace {
+	if l.level > logger.LevelTrace {
 		return
 	}
 
@@ -67,7 +67,7 @@ func (l *LumberjackLogger) Trace(format string, a ...interface{}) {
 }
 
 func (l *LumberjackLogger) Debug(format string, a ...interface{}) {
-	if l.level < logger.LevelDebug {
+	if l.level > logger.LevelDebug {
 		return
 	}
 
@@ -76,7 +76,7 @@ func (l *LumberjackLogger) Debug(format string, a ...interface{}) {
 }
 
 func (l *LumberjackLogger) Info(format string, a ...interface{}) {
-	if l.level < logger.LevelInfo {
+	if l.level > logger.LevelInfo {
 		return
 	}
 
@@ -85,7 +85,7 @@ func (l *LumberjackLogger) Info(format string, a ...interface{}) {
 }
 
 func (l *LumberjackLogger) Warning(format string, a ...interface{}) {
-	if l.level < logger.LevelWarning {
+	if l.level > logger.LevelWarning {
 		return
 	}
 
