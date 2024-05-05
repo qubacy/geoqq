@@ -16,7 +16,7 @@ import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
-import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
@@ -37,7 +37,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
 
     private var mGetMyProfile: GetMyProfileDataResult? = null
 
@@ -89,12 +89,12 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             }
         }
 
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
 
         return superDependencies.plus(
             listOf(
                 myProfileDataRepositoryMock,
-                mTokenDataRepositoryMockContainer.tokenDataRepositoryMock
+                mAuthDataRepositoryMockContainer.authDataRepositoryMock
             )
         )
     }
@@ -232,7 +232,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             val result = awaitItem()
 
             Assert.assertTrue(mDeleteMyProfileCallFlag)
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.clearTokensCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.clearTokensCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(DeleteMyProfileDomainResult::class, result::class)
 
@@ -251,7 +251,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.clearTokensCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.clearTokensCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(LogoutDomainResult::class, result::class)
         }

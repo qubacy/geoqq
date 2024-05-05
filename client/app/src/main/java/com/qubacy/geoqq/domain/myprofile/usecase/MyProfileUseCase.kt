@@ -25,7 +25,7 @@ class MyProfileUseCase @Inject constructor(
     errorSource: LocalErrorDataSource,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMyProfileDataRepository: MyProfileDataRepository,
-    private val mTokenDataRepository: AuthDataRepository
+    private val mAuthDataRepository: AuthDataRepository
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     fun getMyProfile() {
         executeLogic({
@@ -63,7 +63,7 @@ class MyProfileUseCase @Inject constructor(
     fun deleteMyProfile() {
         executeLogic({
             mMyProfileDataRepository.deleteMyProfile()
-            mTokenDataRepository.logout()
+            mAuthDataRepository.logout()
 
             mResultFlow.emit(DeleteMyProfileDomainResult())
         }, { DeleteMyProfileDomainResult(error = it) }, ::authorizedErrorMiddleware)
@@ -71,7 +71,7 @@ class MyProfileUseCase @Inject constructor(
 
     fun logout() {
         executeLogic({
-            mTokenDataRepository.logout()
+            mAuthDataRepository.logout()
 
             mResultFlow.emit(LogoutDomainResult())
         }, { LogoutDomainResult(error = it) }, ::authorizedErrorMiddleware)

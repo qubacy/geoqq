@@ -2,15 +2,14 @@ package com.qubacy.geoqq.data.mate.request.repository
 
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
-import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestsResponse
-import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -18,7 +17,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import retrofit2.Call
 
 class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataRepository>() {
     companion object {
@@ -26,10 +24,11 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
         val DEFAULT_MATE_REQUEST = GetMateRequestResponse(0, DEFAULT_USER.id)
     }
 
-    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
-    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
+
+    private var mHttpSourceGetMateRequestsResponse: GetMateRequestsResponse? = null
+    private var mHttpSourceGetMateRequestCountResponse: GetMateRequestCountResponse? = null
 
     private var mHttpSourceGetMateRequestsCallFlag = false
     private var mHttpSourceGetMateRequestCountCallFlag = false
@@ -43,6 +42,9 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
 
     @After
     fun clear() {
+        mHttpSourceGetMateRequestsResponse = null
+        mHttpSourceGetMateRequestCountResponse = null
+
         mHttpSourceGetMateRequestsCallFlag = false
         mHttpSourceGetMateRequestCountCallFlag = false
         mHttpSourcePostMateRequestCallFlag = false
@@ -50,57 +52,46 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
     }
 
     private fun initMateRequestDataRepository() {
-        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
-        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val httpMateRequestDataSourceMock = mockHttpMateRequestDataSource()
 
         mDataRepository = MateRequestDataRepository(
-            mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
-            mHttpMateRequestDataSource = httpMateRequestDataSourceMock,
-            mHttpCallExecutor = mHttpCallExecutorMockContainer.httpCallExecutor
+            mHttpMateRequestDataSource = httpMateRequestDataSourceMock
         )
     }
 
-    private fun mockHttpMateRequestDataSource(): HttpMateRequestDataSourceApi {
-        val getMateRequestsCallMock = Mockito.mock(Call::class.java)
-        val getMateRequestCountCallMock = Mockito.mock(Call::class.java)
-        val postMateRequestCallMock = Mockito.mock(Call::class.java)
-        val answerMateRequestCallMock = Mockito.mock(Call::class.java)
-
-        val httpMateRequestDataSourceMock = Mockito.mock(HttpMateRequestDataSourceApi::class.java)
+    private fun mockHttpMateRequestDataSource(): HttpMateRequestDataSource {
+        val httpMateRequestDataSourceMock = Mockito.mock(HttpMateRequestDataSource::class.java)
 
         Mockito.`when`(httpMateRequestDataSourceMock.getMateRequests(
             Mockito.anyInt(),
-            Mockito.anyInt(),
-            Mockito.anyString()
+            Mockito.anyInt()
         )).thenAnswer {
             mHttpSourceGetMateRequestsCallFlag = true
-            getMateRequestsCallMock
+            mHttpSourceGetMateRequestsResponse
         }
-        Mockito.`when`(httpMateRequestDataSourceMock.getMateRequestCount(
-            Mockito.anyString()
-        )).thenAnswer {
+        Mockito.`when`(httpMateRequestDataSourceMock.getMateRequestCount()).thenAnswer {
             mHttpSourceGetMateRequestCountCallFlag = true
-            getMateRequestCountCallMock
+            mHttpSourceGetMateRequestCountResponse
         }
         Mockito.`when`(httpMateRequestDataSourceMock.postMateRequest(
             AnyMockUtil.anyObject()
         )).thenAnswer {
             mHttpSourcePostMateRequestCallFlag = true
-            postMateRequestCallMock
+
+            Unit
         }
         Mockito.`when`(httpMateRequestDataSourceMock.answerMateRequest(
             Mockito.anyLong(),
-            Mockito.anyString(),
             Mockito.anyBoolean()
         )).thenAnswer {
             mHttpSourceAnswerMateRequestCallFlag = true
-            answerMateRequestCallMock
+
+            Unit
         }
 
         return httpMateRequestDataSourceMock
@@ -121,15 +112,13 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
             it.toDataMateRequest(resolveUsers[it.userId]!!)
         }
 
-        mHttpCallExecutorMockContainer.response = getMateRequestsResponse
+        mHttpSourceGetMateRequestsResponse = getMateRequestsResponse
         mUserDataRepositoryMockContainer.resolveUsers = resolveUsers
 
         val getMateRequestsResult = mDataRepository.getMateRequests(offset, count)
-        val gottenDataMateRequests = getMateRequestsResult.requests
+        val gottenDataMateRequests = getMateRequestsResult.await().requests
 
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
         Assert.assertTrue(mHttpSourceGetMateRequestsCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertTrue(mUserDataRepositoryMockContainer.resolveUsersCallFlag)
         AssertUtils.assertEqualContent(expectedDataMateRequests, gottenDataMateRequests)
     }
@@ -140,14 +129,12 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
 
         val expectedMateRequestCount = getMateRequestCountResponse.count
 
-        mHttpCallExecutorMockContainer.response = getMateRequestCountResponse
+        mHttpSourceGetMateRequestCountResponse = getMateRequestCountResponse
 
         val getMateRequestCountResult = mDataRepository.getMateRequestCount()
         val gottenDataMateRequestCount = getMateRequestCountResult.count
 
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
         Assert.assertTrue(mHttpSourceGetMateRequestCountCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertEquals(expectedMateRequestCount, gottenDataMateRequestCount)
     }
 
@@ -157,9 +144,7 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
 
         mDataRepository.createMateRequest(userId)
 
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
         Assert.assertTrue(mHttpSourcePostMateRequestCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
     }
 
     @Test
@@ -169,8 +154,6 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
 
         mDataRepository.answerMateRequest(id, isAccepted)
 
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
         Assert.assertTrue(mHttpSourceAnswerMateRequestCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
     }
 }

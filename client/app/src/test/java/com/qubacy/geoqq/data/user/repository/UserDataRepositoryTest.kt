@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data.user.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.turbine.test
 import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
@@ -9,14 +8,13 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
-import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
-import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.toDataUser
-import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository.source.http.api.HttpUserDataSourceApi
+import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
 import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUserResponse
 import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
@@ -30,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
-import retrofit2.Call
 import java.util.Date
 
 class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
@@ -67,10 +64,8 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
-    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
     private lateinit var mImageDataRepositoryMockContainer: ImageDataRepositoryMockContainer
-    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceGetUsersByIds: List<UserEntity>? = null
     private var mLocalSourceGetUserById: UserEntity? = null
@@ -81,6 +76,12 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
     private var mLocalSourceInsertUserCallFlag = false
     private var mLocalSourceDeleteUserCallFlag = false
     private var mLocalSourceSaveUsersCallFlag = false
+
+    private var mLocalSourceGetAccessToken: String? = null
+
+    private var mLocalSourceGetAccessTokenCallFlag = false
+
+    private var mHttpSourceGetUsersResponse: GetUsersResponse? = null
 
     private var mHttpSourceGetUsersCallFlag = false
 
@@ -101,25 +102,29 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         mLocalSourceDeleteUserCallFlag = false
         mLocalSourceSaveUsersCallFlag = false
 
+        mLocalSourceGetAccessToken = null
+
+        mLocalSourceGetAccessTokenCallFlag = false
+
+        mHttpSourceGetUsersResponse = null
+
         mHttpSourceGetUsersCallFlag = false
     }
 
     private fun initUserDataRepository() {
-        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
         mImageDataRepositoryMockContainer = ImageDataRepositoryMockContainer()
-        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localUserDataSourceMock = mockLocalUserDataSource()
+        val localTokenDataStoreDataSourceMock = mockTokenDataStoreDataSource()
         val httpUserDataSourceMock = mockHttpUserDataSource()
 
         mDataRepository = UserDataRepository(
-            mErrorSource = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
             mLocalUserDataSource = localUserDataSourceMock,
-            mHttpUserDataSource = httpUserDataSourceMock,
-            mHttpCallExecutor = mHttpCallExecutorMockContainer.httpCallExecutor
+            mLocalTokenDataStoreDataSource = localTokenDataStoreDataSourceMock,
+            mHttpUserDataSource = httpUserDataSourceMock
         )
     }
 
@@ -158,14 +163,29 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         return localUserDataSource
     }
 
-    private fun mockHttpUserDataSource(): HttpUserDataSourceApi {
-        val getUsersCallMock = Mockito.mock(Call::class.java)
+    private fun mockTokenDataStoreDataSource(): LocalTokenDataStoreDataSource {
+        val tokenDataStoreDataSourceMock = Mockito.mock(LocalTokenDataStoreDataSource::class.java)
 
-        val httpUserDataSource = Mockito.mock(HttpUserDataSourceApi::class.java)
+        runTest {
+            Mockito.`when`(tokenDataStoreDataSourceMock.getAccessToken()).thenAnswer {
+                mLocalSourceGetAccessTokenCallFlag = true
+                mLocalSourceGetAccessToken
+            }
+        }
+
+        return tokenDataStoreDataSourceMock
+    }
+
+    private fun mockHttpUserDataSource(): HttpUserDataSource {
+        val httpUserDataSource = Mockito.mock(HttpUserDataSource::class.java)
 
         Mockito.`when`(httpUserDataSource.getUsers(AnyMockUtil.anyObject())).thenAnswer {
             mHttpSourceGetUsersCallFlag = true
-            getUsersCallMock
+
+            if (mErrorDataSourceMockContainer.getError != null)
+                throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
+
+            mHttpSourceGetUsersResponse
         }
 
         return httpUserDataSource
@@ -179,37 +199,32 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val userIds = httpUsers.users.map { it.id }
 
         mLocalSourceGetUsersByIds = localUsers
-        mHttpCallExecutorMockContainer.response = httpUsers
+        mHttpSourceGetUsersResponse = httpUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
 
         val expectedLocalDataUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }
-        val expectedHttpDataUsers = httpUsers.users.map {
+        val expectedRemoteDataUsers = httpUsers.users.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }
 
-        mDataRepository.resultFlow.test {
-            val gottenGetUsersByIdsResult = mDataRepository.getUsersByIds(userIds).await()
+        val getUsersResult = mDataRepository.getUsersByIds(userIds)
 
-            Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+        val gottenLocalGetUsersResult = getUsersResult.awaitUntilVersion(0)
 
-            val gottenLocalDataUsers = gottenGetUsersByIdsResult.users
+        Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
 
-            AssertUtils.assertEqualContent(expectedLocalDataUsers, gottenLocalDataUsers)
+        val gottenLocalDataUsers = gottenLocalGetUsersResult.users
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        AssertUtils.assertEqualContent(expectedLocalDataUsers, gottenLocalDataUsers)
 
-            val gottenHttpResult = awaitItem()
+        Assert.assertTrue(mHttpSourceGetUsersCallFlag)
 
-            Assert.assertTrue(mHttpSourceGetUsersCallFlag)
-            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
-            Assert.assertEquals(GetUsersByIdsDataResult::class, gottenHttpResult::class)
+        val gottenRemoteGetUsersResult = getUsersResult.awaitUntilVersion(1)
+        val gottenRemoteDataUsers = gottenRemoteGetUsersResult.users
 
-            val gottenHttpDataUsers = (gottenHttpResult as GetUsersByIdsDataResult).users
-
-            AssertUtils.assertEqualContent(expectedHttpDataUsers, gottenHttpDataUsers)
-        }
+        AssertUtils.assertEqualContent(expectedRemoteDataUsers, gottenRemoteDataUsers)
     }
 
     @Test
@@ -219,8 +234,8 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val expectedError = Error(0, String(), false)
 
         mLocalSourceGetUsersByIds = listOf()
-        mHttpCallExecutorMockContainer.response = httpUsers
-        mHttpCallExecutorMockContainer.error = expectedError
+        mHttpSourceGetUsersResponse = httpUsers
+        mErrorDataSourceMockContainer.getError = expectedError
 
         val exception = Assert.assertThrows(ErrorAppException::class.java) {
             runBlocking {
@@ -229,7 +244,6 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         }
 
         Assert.assertTrue(mHttpSourceGetUsersCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
         Assert.assertEquals(ErrorAppException::class, exception::class)
 
         val gottenError = (exception as ErrorAppException).error
@@ -246,17 +260,18 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpCallExecutorMockContainer.response = httpUsers
+        mHttpSourceGetUsersResponse = httpUsers
 
         val expectedResolvedUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }.associateBy { it.id }
 
-        val gottenResolvedUsers = mDataRepository.resolveUsers(userIds)
+        val gottenResolveUsersResult = mDataRepository.resolveUsers(userIds).await()
+        val gottenResolvedUsers = gottenResolveUsersResult.userIdUserMap
 
         Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
         Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
+        Assert.assertTrue(mHttpSourceGetUsersCallFlag)
         AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
     }
 
@@ -274,17 +289,17 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpCallExecutorMockContainer.response = httpUsers
-        mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
+        mHttpSourceGetUsersResponse = httpUsers
+        mLocalSourceGetAccessToken =
 
         val expectedLocalUser = localUser
 
         val gottenLocalUser = mDataRepository.resolveLocalUser()
 
         Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getAccessTokenPayloadCallFlag)
+        Assert.assertTrue(mLocalSourceGetAccessTokenCallFlag)
         Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
+        Assert.assertTrue(mHttpSourceGetUsersCallFlag)
         Assert.assertEquals(expectedLocalUser, gottenLocalUser)
     }
 
@@ -301,18 +316,21 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
         mLocalSourceGetUsersByIds = localUsers
         mImageDataRepositoryMockContainer.getImagesByIds = avatars
-        mHttpCallExecutorMockContainer.response = httpUsers
-        mTokenDataRepositoryMockContainer.getAccessTokenPayload = getAccessTokenPayload
+        mHttpSourceGetUsersResponse = httpUsers
+        mLocalSourceGetAccessToken =
 
         val expectedResolvedUsers = localUsers.map {
             it.toDataUser(ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE)
         }.associateBy { it.id }
 
-        val gottenResolvedUsers = mDataRepository.resolveUsersWithLocalUser(userIds)
+        val resolveUsersResult = mDataRepository.resolveUsersWithLocalUser(userIds)
+        val gottenResolvedUsers = resolveUsersResult.await().userIdUserMap
 
         Assert.assertTrue(mLocalSourceGetUsersByIdsCallFlag)
+        Assert.assertTrue(mLocalSourceGetAccessTokenCallFlag)
+        Assert.assertTrue(mHttpSourceGetUsersCallFlag)
         Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
-        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
+
         AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
     }
 }

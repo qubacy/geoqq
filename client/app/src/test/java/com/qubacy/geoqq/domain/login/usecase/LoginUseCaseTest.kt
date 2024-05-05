@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
-import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.auth.repository.result.GetTokensDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
@@ -13,20 +13,20 @@ import org.junit.Assert
 import org.junit.Test
 
 class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
 
     override fun clear() {
         super.clear()
 
-        mTokenDataRepositoryMockContainer.clear()
+        mAuthDataRepositoryMockContainer.clear()
     }
 
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
 
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
 
-        return superDependencies.plus(mTokenDataRepositoryMockContainer.tokenDataRepositoryMock)
+        return superDependencies.plus(mAuthDataRepositoryMockContainer.authDataRepositoryMock)
     }
 
     override fun initUseCase(dependencies: List<Any>) {
@@ -41,14 +41,14 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
         val expectedGetTokensDataResult =
             GetTokensDataResult("accessToken", "refreshToken")
 
-        mTokenDataRepositoryMockContainer.getTokensDataResult = expectedGetTokensDataResult
+        mAuthDataRepositoryMockContainer.getTokensDataResult = expectedGetTokensDataResult
 
         mUseCase.resultFlow.test {
             mUseCase.signIn()
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithTokenCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithTokenCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -58,14 +58,14 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
     fun signInWithTokenFailedTest() = runTest {
         val expectedError = TestError.normal
 
-        mTokenDataRepositoryMockContainer.error = expectedError
+        mAuthDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn()
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithTokenCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithTokenCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
@@ -82,7 +82,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithLoginDataCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -95,14 +95,14 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
         val expectedError = TestError.normal
 
-        mTokenDataRepositoryMockContainer.error = expectedError
+        mAuthDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signIn(login, password)
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signInWithLoginDataCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signInWithLoginDataCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)
@@ -119,7 +119,7 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signUpCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(SignedInDomainResult::class, result::class)
         }
@@ -132,14 +132,14 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
         val expectedError = TestError.normal
 
-        mTokenDataRepositoryMockContainer.error = expectedError
+        mAuthDataRepositoryMockContainer.error = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.signUp(login, password)
 
             val result = awaitItem()
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.signUpCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.signUpCallFlag)
             Assert.assertFalse(result.isSuccessful())
             Assert.assertEquals(expectedError, result.error)
             Assert.assertEquals(SignedInDomainResult::class, result::class)

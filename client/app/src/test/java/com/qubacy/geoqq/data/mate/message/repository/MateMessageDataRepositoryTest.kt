@@ -1,23 +1,20 @@
 package com.qubacy.geoqq.data.mate.message.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
-import com.qubacy.geoqq.data._common.repository.source.remote.http.executor.mock.HttpCallExecutorMockContainer
-import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
-import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.auth.repository._test.mock.TokenDataRepositoryMockContainer
+import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -27,7 +24,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
-import retrofit2.Call
 
 class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataRepository>() {
     companion object {
@@ -45,10 +41,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
-    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
-    private lateinit var mHttpCallExecutorMockContainer: HttpCallExecutorMockContainer
 
     private var mLocalSourceGetMateMessages: List<MateMessageEntity> = listOf()
     private var mLocalSourceGetMateMessage: MateMessageEntity? = null
@@ -62,6 +56,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
     private var mLocalSourceSaveMateMessageCallFlag = false
     private var mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
     private var mLocalSourceDeleteAllMessagesCallFlag = false
+
+    private var mHttpSourceGetMateMessagesResponse: GetMessagesResponse? = null
 
     private var mHttpSourceGetMateMessagesCallFlag = false
 
@@ -85,25 +81,23 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         mLocalSourceDeleteOtherMessagesByIdsCallFlag = false
         mLocalSourceDeleteAllMessagesCallFlag = false
 
+        mHttpSourceGetMateMessagesResponse = null
+
         mHttpSourceGetMateMessagesCallFlag = false
     }
 
     private fun initMateMessageRepository() = runTest {
-        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
-        mHttpCallExecutorMockContainer = HttpCallExecutorMockContainer()
 
         val localMateMessageDataSourceMock = mockLocalMateMessageDataSource()
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
 
         mDataRepository = MateMessageDataRepository(
-            mErrorDataRepository = mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepositoryMock,
+            mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
             mLocalMateMessageDataSource = localMateMessageDataSourceMock,
-            mHttpMateMessageDataSource = httpMateMessageDataSourceMock,
-            mHttpCallExecutor = mHttpCallExecutorMockContainer.httpCallExecutor
+            mHttpMateMessageDataSource = httpMateMessageDataSourceMock
         )
     }
 
@@ -176,16 +170,14 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         return localMateMessageDataSourceMock
     }
 
-    private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSourceApi {
-        val getMateMessagesCallMock = Mockito.mock(Call::class.java)
-
-        val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSourceApi::class.java)
+    private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSource {
+        val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSource::class.java)
 
         Mockito.`when`(httpMateMessageDataSourceMock.getMateMessages(
-            Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()
+            Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
         )).thenAnswer {
             mHttpSourceGetMateMessagesCallFlag = true
-            getMateMessagesCallMock
+            mHttpSourceGetMateMessagesResponse
         }
 
         return httpMateMessageDataSourceMock
@@ -204,33 +196,30 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
-        mHttpCallExecutorMockContainer.response = httpMessages
+        mHttpSourceGetMateMessagesResponse = httpMessages
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
-        val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
+        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
 
-        mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count).await()
+        val getMessagesResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count)
 
-            Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
+        val gottenLocalResult = getMessagesResult.awaitUntilVersion(0)
 
-            val gottenLocalDataMessages = gottenLocalResult!!.messages
+        Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
 
-            AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
+        val gottenLocalDataMessages = gottenLocalResult.messages!!
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
 
-            val gottenHttpResult = awaitItem()
+        val gottenRemoteResult = getMessagesResult.awaitUntilVersion(1)
 
-            Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
-            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
-            Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
+        Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
+        Assert.assertEquals(GetMessagesDataResult::class, gottenRemoteResult::class)
 
-            val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
+        val gottenRemoteDataMessages = gottenRemoteResult.messages!!
 
-            AssertUtils.assertEqualContent(expectedHttpDataMessages, gottenHttpDataMessages)
-        }
+        AssertUtils.assertEqualContent(expectedRemoteDataMessages, gottenRemoteDataMessages)
     }
 
     @Test
@@ -246,34 +235,29 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
-        mHttpCallExecutorMockContainer.response = httpMessages
+        mHttpSourceGetMateMessagesResponse = httpMessages
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
 
         val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
-        val expectedHttpDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
+        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
 
-        mDataRepository.resultFlow.test {
-            val gottenLocalResult = mDataRepository
-                .getMessages(chatId, loadedMessageIds, offset, count).await()
+        val getMessagesResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count)
 
-            Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
+        val gottenLocalResult = getMessagesResult.awaitUntilVersion(0)
 
-            val gottenLocalDataMessages = gottenLocalResult!!.messages
+        Assert.assertTrue(mLocalSourceGetMateMessagesCallFlag)
 
-            AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
+        val gottenLocalDataMessages = gottenLocalResult.messages!!
 
-            Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        AssertUtils.assertEqualContent(expectedLocalDataMessages, gottenLocalDataMessages)
 
-            val gottenHttpResult = awaitItem()
+        val gottenRemoteResult = getMessagesResult.awaitUntilVersion(1)
 
-            Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
-            Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
-            Assert.assertTrue(mLocalSourceDeleteOtherMessagesByIdsCallFlag)
-            Assert.assertEquals(GetMessagesDataResult::class, gottenHttpResult::class)
+        Assert.assertTrue(mHttpSourceGetMateMessagesCallFlag)
+        Assert.assertTrue(mLocalSourceDeleteOtherMessagesByIdsCallFlag)
 
-            val gottenHttpDataMessages = (gottenHttpResult as GetMessagesDataResult).messages
+        val gottenRemoteDataMessages = gottenRemoteResult.messages!!
 
-            AssertUtils.assertEqualContent(expectedHttpDataMessages, gottenHttpDataMessages)
-        }
+        AssertUtils.assertEqualContent(expectedRemoteDataMessages, gottenRemoteDataMessages)
     }
 }

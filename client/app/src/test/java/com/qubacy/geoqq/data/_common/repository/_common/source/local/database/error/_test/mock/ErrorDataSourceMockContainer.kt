@@ -1,11 +1,11 @@
-package com.qubacy.geoqq.data.error.repository._test.mock
+package com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock
 
 import com.qubacy.geoqq._common.model.error._common.Error
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import org.mockito.Mockito
 
-class ErrorDataRepositoryMockContainer {
-    val errorDataRepositoryMock: ErrorDataRepository
+class ErrorDataSourceMockContainer {
+    val errorDataSourceMock: LocalErrorDataSource
 
     var getError: Error? = null
 
@@ -13,11 +13,11 @@ class ErrorDataRepositoryMockContainer {
     val getErrorCallFlag get() = mGetErrorCallFlag
 
     init {
-        errorDataRepositoryMock = mockErrorDataRepository()
+        errorDataSourceMock = mockErrorDataSource()
     }
 
-    private fun mockErrorDataRepository(): ErrorDataRepository {
-        val errorDataRepositoryMock = Mockito.mock(ErrorDataRepository::class.java)
+    private fun mockErrorDataSource(): LocalErrorDataSource {
+        val errorDataRepositoryMock = Mockito.mock(LocalErrorDataSource::class.java)
 
         Mockito.`when`(errorDataRepositoryMock.getError(Mockito.anyLong())).thenAnswer {
             mGetErrorCallFlag = true

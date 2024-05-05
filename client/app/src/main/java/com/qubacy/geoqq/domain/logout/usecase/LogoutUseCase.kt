@@ -8,11 +8,11 @@ import javax.inject.Inject
 
 class LogoutUseCase @Inject constructor(
     errorSource: LocalErrorDataSource,
-    private var mTokenDataRepository: AuthDataRepository
+    private var mAuthDataRepository: AuthDataRepository
 ) : UseCase(mErrorSource = errorSource) {
     fun logout() {
         executeLogic({
-            mTokenDataRepository.logout()
+            mAuthDataRepository.logout()
 
             mResultFlow.emit(LogoutDomainResult())
         }, { LogoutDomainResult(error = it) })

@@ -1,15 +1,13 @@
 package com.qubacy.geoqq.data._common.repository.source.remote.http.executor
 
-import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
-import okhttp3.Dispatcher
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import okhttp3.MediaType
-import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okio.Buffer
 import okio.BufferedSource
@@ -19,9 +17,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import retrofit2.Call
-import retrofit2.Converter
 import retrofit2.Response
-import retrofit2.Retrofit
 
 class HttpExecutorUtilTest {
     class TestResponseBody()
@@ -42,9 +38,8 @@ class HttpExecutorUtilTest {
 
     private lateinit var mHttpCallExecutor: HttpCallExecutor
 
-    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
-    private lateinit var mHttpClientMock: OkHttpClient
-    private lateinit var mRetrofitMock: Retrofit
+    private lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
+    private lateinit var mErrorJsonAdapter: ErrorJsonAdapter
 
     private lateinit var mCallMock: Call<TestResponseBody>
 
@@ -69,9 +64,8 @@ class HttpExecutorUtilTest {
         initExecuteNetworkRequestContext()
 
         mHttpCallExecutor = HttpCallExecutor(
-            mErrorDataRepositoryMockContainer.errorDataRepositoryMock,
-            mHttpClientMock,
-            mRetrofitMock
+            mErrorDataRepositoryMockContainer.errorDataSourceMock,
+            mErrorJsonAdapter
         )
     }
 
@@ -95,51 +89,15 @@ class HttpExecutorUtilTest {
     }
 
     private fun initExecuteNetworkRequestContext() {
-        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
+        mErrorDataRepositoryMockContainer = ErrorDataSourceMockContainer()
 
-        initHttpClientMock()
-        initRetrofitMock()
+        initErrorJsonAdapter()
 
         initCallMock()
     }
 
-    private fun initHttpClientMock() {
-        val dispatcherMock = Mockito.mock(Dispatcher::class.java)
-
-        Mockito.`when`(dispatcherMock.cancelAll()).thenAnswer {
-            this.mHttpClientCancelAllCallFlag = true
-
-            Unit
-        }
-
-        val httpClientMock = Mockito.mock(OkHttpClient::class.java)
-
-        Mockito.`when`(httpClientMock.dispatcher()).thenAnswer {
-            dispatcherMock
-        }
-
-        mHttpClientMock = httpClientMock
-    }
-
-    private fun initRetrofitMock() {
-        val converterMock = Mockito.mock(Converter::class.java)
-
-        Mockito.`when`(converterMock.convert(AnyMockUtil.anyObject())).thenAnswer {
-            mRetrofitConvertCallFlag = true
-            mRetrofitConvert
-        }
-
-        val retrofitMock = Mockito.mock(Retrofit::class.java)
-
-        Mockito.`when`(retrofitMock.responseBodyConverter<ErrorResponse>(
-            AnyMockUtil.anyObject(), AnyMockUtil.anyObject()
-        )).thenAnswer {
-            mRetrofitGetResponseConverterCallFlag = true
-
-            converterMock
-        }
-
-        mRetrofitMock = retrofitMock
+    private fun initErrorJsonAdapter() {
+        mErrorJsonAdapter = ErrorJsonAdapter()
     }
 
     private fun initCallMock() {

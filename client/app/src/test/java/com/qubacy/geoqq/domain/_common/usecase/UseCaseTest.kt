@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain._common.usecase
 
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq.data.error.repository._test.mock.ErrorDataRepositoryMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import kotlinx.coroutines.Dispatchers
 import org.junit.After
@@ -15,7 +15,7 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
 
     protected lateinit var mUseCase: UseCaseType
 
-    protected lateinit var mErrorDataRepositoryMockContainer: ErrorDataRepositoryMockContainer
+    protected lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
 
     @Before
     open fun setup() {
@@ -36,9 +36,9 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
     }
 
     protected open fun initDependencies(): List<Any> {
-        mErrorDataRepositoryMockContainer = ErrorDataRepositoryMockContainer()
+        mErrorDataRepositoryMockContainer = ErrorDataSourceMockContainer()
 
-        return listOf(mErrorDataRepositoryMockContainer.errorDataRepositoryMock)
+        return listOf(mErrorDataRepositoryMockContainer.errorDataSourceMock)
     }
 
     protected abstract fun initUseCase(dependencies: List<Any>)
