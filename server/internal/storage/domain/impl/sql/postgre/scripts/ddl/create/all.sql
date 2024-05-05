@@ -38,7 +38,7 @@ CREATE TABLE "UserLocation"
 CREATE TABLE "UserDetails"
 (
     "UserId" BIGINT NOT NULL,
-    "Username" CHARACTER VARYING(128) UNIQUE NOT NULL, -- public (alias)!
+    "Username" CHARACTER VARYING(128) NOT NULL, -- public (alias)!
     
     "Description" CHARACTER VARYING(4096) NOT NULL DEFAULT '',
     "AvatarId" BIGINT NOT NULL,

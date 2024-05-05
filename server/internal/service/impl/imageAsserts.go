@@ -10,7 +10,7 @@ import (
 // From Cache
 // -----------------------------------------------------------------------
 
-func (s *ImageService) assertAddImageNotBlockedForUser(
+func (s *HasherAndStorages) assertAddImageNotBlockedForUser(
 	ctx context.Context, userId uint64) error {
 	if !s.enableCache {
 		logger.Warning("cache disabled")

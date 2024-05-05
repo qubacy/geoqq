@@ -79,14 +79,12 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 	// asserts
 
-	err := assertUserWithIdExists(ctx,
-		mrs.domainStorage, targetUserId,
-		ec.TargetUserNotFound,
-	)
+	err := assertUserWithIdExists(ctx, mrs.domainStorage, targetUserId,
+		ec.TargetUserNotFound)
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
-	err = assertUserWithIdNotDeleted(ctx, mrs.domainStorage, targetUserId) // marked!
+	err = mrs.assertUserWithIdNotDeleted(ctx, targetUserId) // marked!
 	if err != nil {
 		return utl.NewFuncError(mrs.AddMateRequest, err)
 	}
@@ -175,7 +173,7 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	sourceUserId, targetUserId uint64) error {
 	/*
 		Check List:
-			1. Target user may be deleted.
+			1. Target user may be deleted. // remove it!
 			2. They might already be mates.
 			3. The request may already be sent.
 			4. There is already an incoming request.
@@ -235,12 +233,11 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	return nil
 }
 
-func assertUserWithIdNotDeleted(ctx context.Context,
-	storage domainStorage.Storage, id uint64) error {
+func (mrs *MateRequestService) assertUserWithIdNotDeleted(ctx context.Context, id uint64) error {
 
-	wasDeleted, err := storage.WasUserDeleted(ctx, id)
+	wasDeleted, err := mrs.domainStorage.WasUserDeleted(ctx, id)
 	if err != nil {
-		return ec.New(utl.NewFuncError(assertUserWithIdNotDeleted, err),
+		return ec.New(utl.NewFuncError(mrs.assertUserWithIdNotDeleted, err),
 			ec.Server, ec.DomainStorageError)
 	}
 

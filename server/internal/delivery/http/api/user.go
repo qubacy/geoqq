@@ -21,6 +21,7 @@ func (h *Handler) registerUserRoutes() {
 		myProfileRouter.PUT("",
 			h.userIdentityByHeader, h.userNotDeleted,
 			h.extractBodyForPutMyProfile,
+			h.validateBodyForPutMyProfile,
 			h.putMyProfile,
 		)
 
@@ -28,6 +29,7 @@ func (h *Handler) registerUserRoutes() {
 		myProfileRouter.PUT("/with-attached-avatar",
 			h.userIdentityByHeader, h.userNotDeleted,
 			h.extractBodyForPutMyProfileWithAttachedAvatar,
+			h.validateBodyForPutMyProfile,
 			h.putMyProfileWithAttachedAvatar,
 		)
 
@@ -94,7 +96,7 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 		return
 	}
 
-	// *** validate json body
+	// part validate json body
 
 	if requestDto.Avatar != nil {
 		if len(requestDto.Avatar.Content) == 0 {
@@ -104,18 +106,6 @@ func (h *Handler) extractBodyForPutMyProfileWithAttachedAvatar(ctx *gin.Context)
 		}
 
 		// validate avatar extension?
-	}
-	if requestDto.Security != nil {
-		if len(requestDto.Security.Password) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
-				ErrEmptyBodyParameterWithName("Security.Password"))
-			return
-		}
-		if len(requestDto.Security.NewPassword) == 0 {
-			resWithClientError(ctx, ec.ValidateRequestParamsFailed,
-				ErrEmptyBodyParameterWithName("Security.NewPassword"))
-			return
-		}
 	}
 
 	ctx.Set(contextRequestDto, &requestDto)
@@ -163,9 +153,18 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 		return
 	}
 
-	// *** validate json body
+	// validate next middleware func.
 
-	// TODO: common function for validation!!!!
+	ctx.Set(contextRequestDto, &requestDto)
+}
+
+func (h *Handler) validateBodyForPutMyProfile(ctx *gin.Context) {
+	anyRequestDto, _ := ctx.Get(contextRequestDto)
+	requestDto, converted := anyRequestDto.(*dto.MyProfilePutReq)
+	if !converted {
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		return
+	}
 
 	if requestDto.Security != nil {
 		if len(requestDto.Security.Password) == 0 {
@@ -181,6 +180,7 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 	}
 
 	if requestDto.Username != nil {
+
 		trimmedUsername := strings.TrimSpace(*requestDto.Username)
 		*requestDto.Username = trimmedUsername
 
@@ -190,8 +190,6 @@ func (h *Handler) extractBodyForPutMyProfile(ctx *gin.Context) {
 			return
 		}
 	}
-
-	ctx.Set(contextRequestDto, &requestDto)
 }
 
 func (h *Handler) putMyProfile(ctx *gin.Context) {
