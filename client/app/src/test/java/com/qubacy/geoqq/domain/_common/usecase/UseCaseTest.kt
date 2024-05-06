@@ -15,7 +15,7 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
 
     protected lateinit var mUseCase: UseCaseType
 
-    protected lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
+    protected lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
 
     @Before
     open fun setup() {
@@ -24,7 +24,7 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
 
     @After
     open fun clear() {
-        mErrorDataRepositoryMockContainer.reset()
+        mErrorDataSourceMockContainer.reset()
     }
 
     private fun init() {
@@ -36,9 +36,9 @@ abstract class UseCaseTest<UseCaseType : UseCase>() {
     }
 
     protected open fun initDependencies(): List<Any> {
-        mErrorDataRepositoryMockContainer = ErrorDataSourceMockContainer()
+        mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
 
-        return listOf(mErrorDataRepositoryMockContainer.errorDataSourceMock)
+        return listOf(mErrorDataSourceMockContainer.errorDataSourceMock)
     }
 
     protected abstract fun initUseCase(dependencies: List<Any>)

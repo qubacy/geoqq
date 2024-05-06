@@ -88,8 +88,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             )).thenAnswer {
                 mGetMessagesCallFlag = true
 
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
 
                 val resultLiveData = MutableLiveData<GetMessagesDataResult>()
 
@@ -105,8 +105,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             )).thenAnswer {
                 mSendMessageCallFlag = true
 
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
             }
         }
 
@@ -122,8 +122,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
             )).thenAnswer {
                 mDeleteChatCallFlag = true
 
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
             }
         }
 

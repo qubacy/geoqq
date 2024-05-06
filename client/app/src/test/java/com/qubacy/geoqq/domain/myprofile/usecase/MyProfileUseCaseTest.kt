@@ -9,7 +9,7 @@ import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
@@ -18,12 +18,17 @@ import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -32,14 +37,23 @@ import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
 class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
+    companion object {
+        val DEFAULT_AVATAR = DataImage(0L, UriMockUtil.getMockedUri())
+        val DEFAULT_DATA_PRIVACY = DataPrivacy(HitMeUpType.EVERYBODY)
+        val DEFAULT_DATA_MY_PROFILE = DataMyProfile(
+            "test", "test", "test", DEFAULT_AVATAR, DEFAULT_DATA_PRIVACY
+        )
+    }
+
     @get:Rule
     override val rule = RuleChain
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
+    private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
 
-    private var mGetMyProfile: GetMyProfileDataResult? = null
+    private var mGetMyProfileResults: List<GetMyProfileDataResult>? = null
 
     private var mGetMyProfileCallFlag = false
     private var mUpdateMyProfileCallFlag = false
@@ -48,7 +62,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     override fun clear() {
         super.clear()
 
-        mGetMyProfile = null
+        mGetMyProfileResults = null
 
         mGetMyProfileCallFlag = false
         mUpdateMyProfileCallFlag = false
@@ -58,52 +72,68 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
 
-        val myProfileDataRepositoryMock = Mockito.mock(MyProfileDataRepository::class.java)
-
-        runTest {
-            Mockito.`when`(myProfileDataRepositoryMock.getMyProfile()).thenAnswer {
-                mGetMyProfileCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-
-                MutableLiveData(mGetMyProfile!!)
-            }
-            Mockito.`when`(myProfileDataRepositoryMock.updateMyProfile(
-                AnyMockUtil.anyObject()
-            )).thenAnswer {
-                mUpdateMyProfileCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-
-                Unit
-            }
-            Mockito.`when`(myProfileDataRepositoryMock.deleteMyProfile()).thenAnswer {
-                mDeleteMyProfileCallFlag = true
-
-                if (mErrorDataRepositoryMockContainer.getError != null)
-                    throw ErrorAppException(mErrorDataRepositoryMockContainer.getError!!)
-
-                Unit
-            }
-        }
-
+        mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
         mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
+
+        val myProfileDataRepositoryMock = mockMyProfileDataRepository()
 
         return superDependencies.plus(
             listOf(
+                mLogoutUseCaseMockContainer.logoutUseCaseMock,
                 myProfileDataRepositoryMock,
                 mAuthDataRepositoryMockContainer.authDataRepositoryMock
             )
         )
     }
 
+    private fun mockMyProfileDataRepository(): MyProfileDataRepository {
+        val myProfileDataRepositoryMock = Mockito.mock(MyProfileDataRepository::class.java)
+
+        runTest {
+            Mockito.`when`(myProfileDataRepositoryMock.getMyProfile()).thenAnswer {
+                mGetMyProfileCallFlag = true
+
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
+
+                val resultLiveData = MutableLiveData<GetMyProfileDataResult>()
+
+                CoroutineScope(coroutineContext).launch {
+                    for (result in mGetMyProfileResults!!)
+                        resultLiveData.postValue(result)
+                }
+
+                resultLiveData
+            }
+            Mockito.`when`(myProfileDataRepositoryMock.updateMyProfile(
+                AnyMockUtil.anyObject()
+            )).thenAnswer {
+                mUpdateMyProfileCallFlag = true
+
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
+
+                Unit
+            }
+            Mockito.`when`(myProfileDataRepositoryMock.deleteMyProfile()).thenAnswer {
+                mDeleteMyProfileCallFlag = true
+
+                if (mErrorDataSourceMockContainer.getError != null)
+                    throw ErrorAppException(mErrorDataSourceMockContainer.getError!!)
+
+                Unit
+            }
+        }
+
+        return myProfileDataRepositoryMock
+    }
+
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MyProfileUseCase(
-            dependencies[0] as ErrorDataRepository,
-            dependencies[1] as MyProfileDataRepository,
-            dependencies[2] as AuthDataRepository
+            dependencies[0] as LocalErrorDataSource,
+            dependencies[1] as LogoutUseCase,
+            dependencies[2] as MyProfileDataRepository,
+            dependencies[3] as AuthDataRepository
         )
     }
 
@@ -111,7 +141,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     fun getMyProfileFailedTest() = runTest {
         val expectedError = TestError.normal
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        mErrorDataSourceMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.getMyProfile()
@@ -130,28 +160,38 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
     @Test
     fun getMyProfileSucceededTest() = runTest {
-        val dataAvatar = DataImage(0L, UriMockUtil.getMockedUri())
-        val dataPrivacy = DataPrivacy(HitMeUpType.EVERYBODY)
-        val dataMyProfile = DataMyProfile("test", "test", dataAvatar, dataPrivacy)
+        val localDataMyProfile = DEFAULT_DATA_MY_PROFILE
+        val remoteDataMyProfile = DEFAULT_DATA_MY_PROFILE.copy(login = "updated test")
 
-        val expectedMyProfile = dataMyProfile.toMyProfile()
+        val expectedLocalMyProfile = localDataMyProfile.toMyProfile()
+        val expectedRemoteMyProfile = remoteDataMyProfile.toMyProfile()
 
-        mGetMyProfile = GetMyProfileDataResult(dataMyProfile)
+        mGetMyProfileResults = listOf(
+            GetMyProfileDataResult(false, localDataMyProfile),
+            GetMyProfileDataResult(true, remoteDataMyProfile)
+        )
 
         mUseCase.resultFlow.test {
             mUseCase.getMyProfile()
 
-            val result = awaitItem()
+            val localResult = awaitItem()
 
             Assert.assertTrue(mGetMyProfileCallFlag)
-            Assert.assertTrue(result.isSuccessful())
-            Assert.assertEquals(GetMyProfileDomainResult::class, result::class)
+            Assert.assertTrue(localResult.isSuccessful())
+            Assert.assertEquals(GetMyProfileDomainResult::class, localResult::class)
 
-            result as GetMyProfileDomainResult
+            val gottenLocalMyProfile = (localResult as GetMyProfileDomainResult).myProfile
 
-            val gottenMyProfile = result.myProfile
+            Assert.assertEquals(expectedLocalMyProfile, gottenLocalMyProfile)
 
-            Assert.assertEquals(expectedMyProfile, gottenMyProfile)
+            val remoteResult = awaitItem()
+
+            Assert.assertTrue(remoteResult.isSuccessful())
+            Assert.assertEquals(UpdateMyProfileDomainResult::class, remoteResult::class)
+
+            val gottenRemoteMyProfile = (remoteResult as UpdateMyProfileDomainResult).myProfile
+
+            Assert.assertEquals(expectedRemoteMyProfile, gottenRemoteMyProfile)
         }
     }
 
@@ -161,7 +201,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
         val expectedError = TestError.normal
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        mErrorDataSourceMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.updateMyProfile(myProfileUpdateData)
@@ -205,7 +245,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     fun deleteMyProfileFailedTest() = runTest {
         val expectedError = TestError.normal
 
-        mErrorDataRepositoryMockContainer.getError = expectedError
+        mErrorDataSourceMockContainer.getError = expectedError
 
         mUseCase.resultFlow.test {
             mUseCase.deleteMyProfile()
@@ -232,7 +272,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
             val result = awaitItem()
 
             Assert.assertTrue(mDeleteMyProfileCallFlag)
-            Assert.assertTrue(mAuthDataRepositoryMockContainer.clearTokensCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.logoutCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(DeleteMyProfileDomainResult::class, result::class)
 
@@ -251,7 +291,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
             val result = awaitItem()
 
-            Assert.assertTrue(mAuthDataRepositoryMockContainer.clearTokensCallFlag)
+            Assert.assertTrue(mAuthDataRepositoryMockContainer.logoutCallFlag)
             Assert.assertTrue(result.isSuccessful())
             Assert.assertEquals(LogoutDomainResult::class, result::class)
         }
