@@ -94,7 +94,7 @@ storage:
         #...
 
 cache:
-  enable: true
+  enable: false
 
   type: "redis"
   max_init_time: 5s
