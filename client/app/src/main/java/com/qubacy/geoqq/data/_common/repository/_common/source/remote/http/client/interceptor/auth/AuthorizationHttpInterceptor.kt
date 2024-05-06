@@ -50,8 +50,8 @@ class AuthorizationHttpInterceptor @Inject constructor(
                     response = tryRequest(originalRequest, chain, isRetry)
 
                     if (!response.isSuccessful && response.code() in 400 until 500) {
-                        val errorBody = response.body()!!
-                        val error = mErrorJsonAdapter.fromJson(errorBody.source())!!.error
+                        val errorBodySource = response.body()!!.source().peek()
+                        val error = mErrorJsonAdapter.fromJson(errorBodySource)!!.error
 
                         if (error.id == GeneralErrorType.INVALID_ACCESS_TOKEN.getErrorCode()) {
                             if (!isRetry) isRetry = true

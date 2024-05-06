@@ -17,6 +17,8 @@ class LoggerHttpInterceptor : Interceptor {
         val requestPathQuery = requestUrl.encodedPath() +
                 if (requestQuery == null) "" else "?$requestQuery"
 
+        Log.d(TAG, "before proceeding..")
+
         val response = chain.proceed(request)
         val responseBodyChunk = response.peekBody(256)
 

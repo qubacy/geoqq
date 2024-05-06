@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor
 
+import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
@@ -13,6 +14,10 @@ open class HttpCallExecutor @Inject constructor(
     private val mErrorSource: LocalErrorDataSource,
     private val mErrorJsonAdapter: ErrorJsonAdapter
 ) {
+    companion object {
+        const val TAG = "HttpCallExecutor"
+    }
+
     open fun <ResponseBodyType>executeNetworkRequest(
         call: Call<ResponseBodyType>
     ): ResponseBodyType {
@@ -38,6 +43,8 @@ open class HttpCallExecutor @Inject constructor(
     }
 
     private fun parseErrorBody(errorBody: ResponseBody): ErrorResponseContent {
+        Log.d(TAG, "parseErrorBody(): errorBody = ${errorBody.source().peek().readUtf8()};")
+
         val errorResponse = mErrorJsonAdapter.fromJson(errorBody.source())!!
 
         return errorResponse.error
