@@ -38,7 +38,7 @@ class ErrorJsonAdapter : JsonAdapter<ErrorResponse>() {
             endObject()
         }
 
-        Log.d(TAG, "fromJson(): errorId = $errorId;")
+//        Log.d(TAG, "fromJson(): errorId = $errorId;")
 
         val errorContent = ErrorResponseContent(errorId!!)
 

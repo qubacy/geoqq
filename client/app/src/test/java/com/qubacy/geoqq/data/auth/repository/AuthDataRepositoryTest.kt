@@ -4,11 +4,11 @@ import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil.mockBase64
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.HttpTokenDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.api.response.UpdateTokensResponse
 import com.qubacy.geoqq.data.auth.repository.source.http.HttpAuthDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._test.mock.LocalTokenDataStoreDataSourceMockContainer
 import com.qubacy.geoqq.data.auth.repository.source.http.api.response.SignInResponse
 import com.qubacy.geoqq.data.auth.repository.source.http.api.response.SignUpResponse
 import com.qubacy.geoqq.data.auth.repository.source.local.database.LocalAuthDatabaseDataSource
@@ -18,7 +18,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import retrofit2.Call
 
 class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
     companion object {
@@ -35,6 +34,8 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
     }
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
+    private lateinit var mLocalTokenDataStoreDataSourceMockContainer:
+        LocalTokenDataStoreDataSourceMockContainer
 
     private var mLocalSourceLastAccessToken: String? = null
     private var mLocalSourceRefreshToken: String? = null
@@ -86,53 +87,23 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
 
     private fun initTokenDataRepository() = runTest {
         mErrorDataRepositoryMockContainer = ErrorDataSourceMockContainer()
+        mLocalTokenDataStoreDataSourceMockContainer = LocalTokenDataStoreDataSourceMockContainer()
 
-        val localTokenDataStoreDataSourceMock = mockLocalTokenDataStoreDataSource()
-        val localAuthDatabaseDataSourceMock = mockLocalTokenDatabaseDataSource()
+        val localAuthDatabaseDataSourceMock = mockLocalAuthDatabaseDataSource()
 
         val httpTokenDataSourceMock = mockHttpTokenDataSource()
         val httpAuthDataSourceMock = mockHttpAuthDataSource()
 
         mDataRepository = AuthDataRepository(
             mErrorDataRepositoryMockContainer.errorDataSourceMock,
-            localTokenDataStoreDataSourceMock,
+            mLocalTokenDataStoreDataSourceMockContainer.localTokenDataStoreDataSourceMock,
             localAuthDatabaseDataSourceMock,
             httpTokenDataSourceMock,
             httpAuthDataSourceMock
         )
     }
 
-    private suspend fun mockLocalTokenDataStoreDataSource(): LocalTokenDataStoreDataSource {
-        val localTokenDataStoreDataSourceMock = Mockito.mock(LocalTokenDataStoreDataSource::class.java)
-
-        Mockito.`when`(localTokenDataStoreDataSourceMock.getAccessToken()).thenAnswer {
-            mLocalSourceLastAccessToken
-        }
-        Mockito.`when`(localTokenDataStoreDataSourceMock.getRefreshToken()).thenAnswer {
-            mLocalSourceGetRefreshTokenCallFlag = true
-            mLocalSourceRefreshToken
-        }
-        Mockito.`when`(localTokenDataStoreDataSourceMock.saveTokens(
-            Mockito.anyString(), Mockito.anyString()
-        )).thenAnswer {
-            val accessToken = it.arguments[0] as String
-            val refreshToken = it.arguments[1] as String
-
-            mLocalSourceSaveTokensAccessToken = accessToken
-            mLocalSourceSaveTokensRefreshToken = refreshToken
-
-            Unit
-        }
-        Mockito.`when`(localTokenDataStoreDataSourceMock.clearTokens()).thenAnswer {
-            mLocalSourceClearTokensCallFlag = true
-
-            Unit
-        }
-
-        return localTokenDataStoreDataSourceMock
-    }
-
-    private fun mockLocalTokenDatabaseDataSource(): LocalAuthDatabaseDataSource {
+    private fun mockLocalAuthDatabaseDataSource(): LocalAuthDatabaseDataSource {
         val localAuthDatabaseDataSourceMock = Mockito.mock(LocalAuthDatabaseDataSource::class.java)
 
         Mockito.`when`(localAuthDatabaseDataSourceMock.dropDataTables()).thenAnswer {
