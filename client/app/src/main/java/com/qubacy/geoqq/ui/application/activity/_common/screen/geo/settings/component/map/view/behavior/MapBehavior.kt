@@ -25,8 +25,6 @@ class MapBehavior(
         child: MapView,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "layoutDependsOn(): entered..")
-
         return when (dependency.id) {
             R.id.fragment_geo_settings_top_bar_wrapper -> {
                 mAppBarLayout = dependency as AppBarLayout
@@ -47,8 +45,6 @@ class MapBehavior(
         child: MapView,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "onDependentViewChanged(): entered..")
-
         child.requestLayout()
 
         return super.onDependentViewChanged(parent, child, dependency)
@@ -60,8 +56,6 @@ class MapBehavior(
         layoutDirection: Int
     ): Boolean {
         val top = getTop()
-
-        Log.d(TAG, "onLayoutChild(): top = $top;")
 
         child.layout(0, top, parent.right, parent.bottom)
 

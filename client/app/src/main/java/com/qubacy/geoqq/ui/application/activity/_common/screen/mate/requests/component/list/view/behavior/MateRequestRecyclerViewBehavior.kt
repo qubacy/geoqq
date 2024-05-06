@@ -26,8 +26,6 @@ class MateRequestRecyclerViewBehavior(
         child: BaseRecyclerView,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "layoutDependsOn(): entered..")
-
         return when (dependency.id) {
             R.id.component_hint_text -> {
                 mHintTextView = dependency as MaterialTextView
@@ -48,8 +46,6 @@ class MateRequestRecyclerViewBehavior(
         child: BaseRecyclerView,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "onDependentViewChanged(): entered..")
-
         child.requestLayout()
 
         return super.onDependentViewChanged(parent, child, dependency)
@@ -61,8 +57,6 @@ class MateRequestRecyclerViewBehavior(
         layoutDirection: Int
     ): Boolean {
         val top = getTop()
-
-        Log.d(TAG, "onLayoutChild(): top = $top;")
 
         child.layout(0, top, parent.right, parent.bottom)
 

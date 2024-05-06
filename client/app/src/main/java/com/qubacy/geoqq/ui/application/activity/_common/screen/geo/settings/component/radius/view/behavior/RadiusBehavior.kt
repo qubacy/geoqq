@@ -23,8 +23,6 @@ class RadiusBehavior(
         child: View,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "layoutDependsOn(): entered..")
-
         return when (dependency.id) {
             R.id.fragment_geo_settings_button_go -> {
                 mFAB = dependency as FloatingActionButton
@@ -40,8 +38,6 @@ class RadiusBehavior(
         child: View,
         dependency: View
     ): Boolean {
-        Log.d(TAG, "onDependentViewChanged(): entered..")
-
         child.requestLayout()
 
         return super.onDependentViewChanged(parent, child, dependency)
@@ -60,8 +56,6 @@ class RadiusBehavior(
         val top = fabVerticalCenter - child.measuredHeight / 2
         val right = left + child.measuredWidth
         val bottom = top + child.measuredHeight
-
-        Log.d(TAG, "onLayoutChild(): left = $left; top = $top; right = $right; bottom = $bottom;")
 
         child.layout(left, top, right, bottom)
 

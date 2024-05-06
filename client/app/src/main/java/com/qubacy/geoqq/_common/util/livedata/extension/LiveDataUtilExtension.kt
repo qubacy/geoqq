@@ -1,6 +1,5 @@
 package com.qubacy.geoqq._common.util.livedata.extension
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.Dispatchers
@@ -38,9 +37,6 @@ suspend fun <T>LiveData<T>.awaitUntilVersion(version: Int): T {
                     // todo: a temporal solution:
                     val curVersion = LiveData::class.java.getDeclaredField("mVersion")
                         .apply { isAccessible = true }.get(this@awaitUntilVersion) as Int
-
-                    Log.d("LiveDataUtilExtension", "awaitUntilVersion(): onChanged() was called; " +
-                            "version = $version; curVersion = $curVersion;")
 
                     if (curVersion < version) return
 
