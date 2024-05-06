@@ -130,8 +130,8 @@ var (
 	*/
 	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
 		UPDATE "UserLocation" 
-			SET "Longitude" = $1,
-			    "Latitude" = $2
+			SET "Longitude" = $1, "Latitude" = $2,
+				"Time" = NOW()::timestamp
 		WHERE "UserId" = $3`)
 
 	templateUpdateOnlyHashRefreshTokenById = utl.RemoveAdjacentWs(`

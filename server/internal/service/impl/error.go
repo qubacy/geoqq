@@ -6,7 +6,11 @@ import (
 )
 
 var (
-	ErrNotImplemented = errors.New("not implemented")
+	// general
+
+	ErrNotImplemented           = errors.New("not implemented")
+	ErrNilInputParameter        = errors.New("nil input parameter")
+	ErrCountMoreThanPermissible = errors.New("count is more than permissible")
 
 	ErrIncorrectLogin    = errors.New("incorrect login")
 	ErrIncorrectPassword = errors.New("incorrect password")
@@ -28,20 +32,22 @@ var (
 	ErrMateRequestNotFound      = errors.New("mate request not found")
 	ErrUnknownMateRequestResult = errors.New("unknown mate request result")
 
-	ErrMateChatNotFound         = errors.New("mate chat not found")
-	ErrMateChatNotAvailable     = errors.New("mate chat not available for user")
-	ErrCountMoreThanPermissible = errors.New("count is more than permissible")
+	ErrMateChatNotFound     = errors.New("mate chat not found")
+	ErrMateChatNotAvailable = errors.New("mate chat not available for user")
 
-	ErrMateRequestAlreadySentFromYou = errors.New("mate request already sent from you")
-	ErrMateRequestAlreadySentToYou   = errors.New("mate request already sent to you")
-	ErrMateRequestNotWaiting         = errors.New("mate request not waiting")
-	ErrAlreadyAreMates               = errors.New("already are mates")
-	ErrMateRequestToSelf             = errors.New("mate request to self")
+	// mate request
+
+	ErrMateRequestToSelf               = errors.New("mate request to self")
+	ErrMateRequestNotWaiting           = errors.New("mate request not waiting")
+	ErrAlreadyAreMates                 = errors.New("already are mates")
+	ErrMateRequestAlreadySentFromYou   = errors.New("mate request already sent from you")
+	ErrMateRequestAlreadySentToYou     = errors.New("mate request already sent to you")
+	ErrTargetUserForbadeHittingHimself = errors.New("target user forbade hitting himself")
+
+	// geo chat message
 
 	ErrWrongLongitude = errors.New("wrong longitude")
 	ErrWrongLatitude  = errors.New("wrong latitude")
-
-	ErrNilInputParameter = errors.New("nil input parameter")
 )
 
 // with params

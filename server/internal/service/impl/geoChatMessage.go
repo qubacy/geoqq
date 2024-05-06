@@ -56,6 +56,8 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 	// TODO: send the push message to users?
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+	s.domainStorage.UpdateBgrLocationForUser(userId, longitude, latitude)
+
 	return nil
 }
 

@@ -51,6 +51,25 @@ func (s *UserStorageBackground) UpdateBgrLastActionTimeForUser(id uint64) {
 	}
 }
 
+func (s *UserStorageBackground) UpdateBgrLocationForUser(id uint64, longitude, latitude float64) {
+	sourceFunc := s.UpdateBgrLocationForUser
+	s.channels[s.randomChannelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {
+		cmdTag, err := conn.Exec(ctx,
+			templateUpdateUserLocation+`;`,
+			longitude, latitude, id,
+		)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+		if !cmdTag.Update() {
+			return ErrUpdateFailed
+		}
+
+		logger.Trace("update location for user %v", id)
+		return nil
+	}
+}
+
 func (s *UserStorageBackground) DeleteBgrMateChatsForUser(id uint64) {
 	sourceFunc := s.DeleteBgrMateChatsForUser
 	s.channels[s.randomChannelIndex()] <- func(conn *pgxpool.Conn, ctx context.Context) error {

@@ -188,7 +188,7 @@ const ( // Mate
 	MateChatNotAvailable // 2211
 
 	MateMessageTooLong
-	TargetUserHitMeUpOff
+	TargetUserForbadeHittingHimself
 )
 
 const ( // Geo

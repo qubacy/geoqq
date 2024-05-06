@@ -174,25 +174,13 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	sourceUserId, targetUserId uint64) error {
 	/*
 		Check List:
-			1. User allows mate requests to be sent to him.
+			1. They might already be mates.
 
-			2. They might already be mates.
+			2. User allows mate requests to be sent to him!
 			3. The request may already be sent.
 			4. There is already an incoming request.
 	*/
 	sourceFunc := mrs.partialValidateInputBeforeAddMateRequest
-
-	// privacy field `hit-me-up` in true
-
-	targetUserOptions, err := mrs.domainStorage.GetUserOptionsById(ctx, targetUserId)
-	if err != nil {
-		return ec.New(utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.DomainStorageError)
-	}
-	if targetUserOptions.HitMeUp == table.HitMeUpNo {
-		return ec.New(ErrAlreadyAreMates,
-			ec.Client, ec.TargetUserHitMeUpOff)
-	}
 
 	// are mates
 
@@ -204,6 +192,18 @@ func (mrs *MateRequestService) partialValidateInputBeforeAddMateRequest(ctx cont
 	if areMates {
 		return ec.New(ErrAlreadyAreMates,
 			ec.Client, ec.AlreadyAreMates)
+	}
+
+	// privacy field `hit-me-up` in true
+
+	targetUserOptions, err := mrs.domainStorage.GetUserOptionsById(ctx, targetUserId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
+	if targetUserOptions.HitMeUp == table.HitMeUpNo {
+		return ec.New(ErrAlreadyAreMates,
+			ec.Client, ec.TargetUserForbadeHittingHimself)
 	}
 
 	// sent from you
