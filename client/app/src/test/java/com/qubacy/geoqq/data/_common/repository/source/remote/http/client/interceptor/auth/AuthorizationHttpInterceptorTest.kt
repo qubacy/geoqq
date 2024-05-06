@@ -2,6 +2,7 @@ package com.qubacy.geoqq.data._common.repository.source.remote.http.client.inter
 
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
+import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._test.mock.LocalTokenDataStoreDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.interceptor.auth.AuthorizationHttpInterceptor
@@ -44,6 +45,8 @@ class AuthorizationHttpInterceptorTest {
 
     private var mUpdateTokensCallFlag = false
 
+    private var mOnUpdateTokens: (() -> Unit)? = null
+
     @Before
     fun setup() {
         Base64MockUtil.mockBase64()
@@ -62,6 +65,8 @@ class AuthorizationHttpInterceptorTest {
         mUpdateTokensResponse = null
 
         mUpdateTokensCallFlag = false
+
+        mOnUpdateTokens = null
     }
 
     private fun initAuthorizationHttpInterceptor() {
@@ -128,16 +133,20 @@ class AuthorizationHttpInterceptorTest {
             requestMock
         }
         Mockito.`when`(chainMock.proceed(AnyMockUtil.anyObject())).thenAnswer {
-            Response.Builder()
-                .code(mResponseCode!!)
-                .request(requestMock)
-                .protocol(Protocol.HTTP_1_1)
-                .body(responseBodyMock)
-                .message(String())
-                .build()
+            createResponse(mResponseCode!!, requestMock, responseBodyMock)
         }
 
         return chainMock
+    }
+
+    private fun createResponse(code: Int, request: Request, body: ResponseBody? = null): Response {
+        return Response.Builder()
+            .code(code)
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .body(body)
+            .message(String())
+            .build()
     }
 
     private fun mockErrorJsonAdapter(errorBodySource: BufferedSource): ErrorJsonAdapter {
@@ -156,6 +165,9 @@ class AuthorizationHttpInterceptorTest {
 
         Mockito.`when`(httpTokenDataSource.updateTokens(Mockito.anyString())).thenAnswer {
             mUpdateTokensCallFlag = true
+
+            mOnUpdateTokens?.invoke()
+
             mUpdateTokensResponse
         }
 
@@ -163,7 +175,7 @@ class AuthorizationHttpInterceptorTest {
     }
 
     @Test
-    fun interceptAuthRequest() {
+    fun interceptAuthRequestTest() {
         mResponseCode = 200
         mRequestUrlContainsAuthSegments = true
 
@@ -174,7 +186,7 @@ class AuthorizationHttpInterceptorTest {
     }
 
     @Test
-    fun interceptSuccessfulRequest() {
+    fun interceptSuccessfulRequestTest() {
         mLocalTokenDataStoreDataSourceMockContainer.getAccessToken =
             LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
         mLocalTokenDataStoreDataSourceMockContainer.getRefreshToken =
@@ -187,8 +199,9 @@ class AuthorizationHttpInterceptorTest {
     }
 
     @Test
-    fun interceptErrorRequest() {
+    fun interceptErrorRequestTest() {
         mResponseCode = 400
+        mErrorJsonAdapterFromJson = ErrorResponse(ErrorResponseContent(1))
 
         mLocalTokenDataStoreDataSourceMockContainer.getAccessToken =
             LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
@@ -200,5 +213,34 @@ class AuthorizationHttpInterceptorTest {
         Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
         Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getAccessTokenCallFlag)
         Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getRefreshTokenCallFlag)
+    }
+
+    @Test
+    fun interceptAccessTokenErrorRequestTest() {
+        mResponseCode = 400
+        mErrorJsonAdapterFromJson = ErrorResponse(ErrorResponseContent(
+            GeneralErrorType.INVALID_ACCESS_TOKEN.getErrorCode()))
+
+        mLocalTokenDataStoreDataSourceMockContainer.getRefreshToken =
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
+        mLocalTokenDataStoreDataSourceMockContainer.getAccessToken =
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
+        mUpdateTokensResponse = UpdateTokensResponse(
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
+        )
+        mOnUpdateTokens = {
+            Mockito.`when`(mChainMock.proceed(AnyMockUtil.anyObject())).thenAnswer {
+                createResponse(200, mChainMock.request())
+            }
+        }
+
+        mAuthorizationHttpInterceptor.intercept(mChainMock)
+
+        Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getAccessTokenCallFlag)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getRefreshTokenCallFlag)
+        Assert.assertTrue(mUpdateTokensCallFlag)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
     }
 }
