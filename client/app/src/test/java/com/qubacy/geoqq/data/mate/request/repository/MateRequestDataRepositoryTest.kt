@@ -1,21 +1,26 @@
 package com.qubacy.geoqq.data.mate.request.repository
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
-import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common.util.livedata.extension.await
+import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepositoryTest
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestsResponse
 import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
 class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataRepository>() {
@@ -23,6 +28,11 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
         val DEFAULT_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val DEFAULT_MATE_REQUEST = GetMateRequestResponse(0, DEFAULT_USER.id)
     }
+
+    @get:Rule
+    val rule = RuleChain
+        .outerRule(InstantTaskExecutorRule())
+        .around(MainDispatcherRule())
 
     private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
@@ -79,7 +89,7 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
             mHttpSourceGetMateRequestCountResponse
         }
         Mockito.`when`(httpMateRequestDataSourceMock.postMateRequest(
-            AnyMockUtil.anyObject()
+            Mockito.anyLong()
         )).thenAnswer {
             mHttpSourcePostMateRequestCallFlag = true
 
@@ -104,23 +114,29 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
         val getMateRequestsResponse = GetMateRequestsResponse(listOf(
             DEFAULT_MATE_REQUEST
         ))
-        val resolveUsers = mapOf(
+
+        val userIdUserMap = mutableMapOf(
             DEFAULT_USER.id to DEFAULT_USER
         )
 
-        val expectedDataMateRequests = getMateRequestsResponse.requests.map {
-            it.toDataMateRequest(resolveUsers[it.userId]!!)
+        val remoteUser = userIdUserMap[MateChatDataRepositoryTest.DEFAULT_DATA_USER.id]!!
+
+        val expectedRemoteDataMateRequests = getMateRequestsResponse.requests.map {
+            it.toDataMateRequest(remoteUser)
         }
 
         mHttpSourceGetMateRequestsResponse = getMateRequestsResponse
-        mUserDataRepositoryMockContainer.resolveUsers = resolveUsers
+        mUserDataRepositoryMockContainer.resolveUsersResult =
+            ResolveUsersDataResult(true, userIdUserMap)
 
         val getMateRequestsResult = mDataRepository.getMateRequests(offset, count)
-        val gottenDataMateRequests = getMateRequestsResult.await().requests
+
+        val gottenRemoteDataMateRequests = getMateRequestsResult.awaitUntilVersion(0).requests
 
         Assert.assertTrue(mHttpSourceGetMateRequestsCallFlag)
         Assert.assertTrue(mUserDataRepositoryMockContainer.resolveUsersCallFlag)
-        AssertUtils.assertEqualContent(expectedDataMateRequests, gottenDataMateRequests)
+
+        AssertUtils.assertEqualContent(expectedRemoteDataMateRequests, gottenRemoteDataMateRequests)
     }
 
     @Test

@@ -120,7 +120,7 @@ class HttpExecutorUtilTest {
         Mockito.`when`(callMock.execute()).thenAnswer {
             mCallExecuteCallFlag = true
 
-            if (mCallRequestFails == true) throw IllegalStateException()
+            if (mCallRequestFails == true) throw ErrorAppException(DEFAULT_ERROR)
 
             responseMock
         }

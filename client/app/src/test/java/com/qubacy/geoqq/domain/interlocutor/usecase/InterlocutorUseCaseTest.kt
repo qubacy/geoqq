@@ -10,7 +10,9 @@ import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -27,14 +29,18 @@ class InterlocutorUseCaseTest : UseCaseTest<InterlocutorUseCase>() {
         .outerRule(InstantTaskExecutorRule())
         .around(MainDispatcherRule())
 
+    private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
 
     override fun initDependencies(): List<Any> {
         val superDependencies =  super.initDependencies()
 
+        mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
-        return superDependencies.plus(mUserDataRepositoryMockContainer.userDataRepository)
+        return superDependencies
+            .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
+            .plus(mUserDataRepositoryMockContainer.userDataRepository)
     }
 
     override fun initUseCase(dependencies: List<Any>) {
@@ -47,32 +53,27 @@ class InterlocutorUseCaseTest : UseCaseTest<InterlocutorUseCase>() {
 
     @Test
     fun getInterlocutorTest() = runTest {
-        val user = DEFAULT_DATA_USER
+        val remoteUser = DEFAULT_DATA_USER.copy(username = "updated user")
 
-        val localGetUsersByIdsResult = GetUsersByIdsDataResult(false, listOf(user))
-        val remoteGetUsersByIdsResult = GetUsersByIdsDataResult(true, listOf(user))
+        val remoteGetUsersByIdsResult = GetUsersByIdsDataResult(true, listOf(remoteUser))
 
-        val getUsersByIdsDataResults = listOf(
-            localGetUsersByIdsResult,
-            remoteGetUsersByIdsResult
-        )
+        val expectedRemoteUser = remoteUser.toUser()
 
-        val expectedUser = user.toUser()
-
-        mUserDataRepositoryMockContainer.getUsersByIdsResults = getUsersByIdsDataResults
+        mUserDataRepositoryMockContainer.getUsersByIdsResult = remoteGetUsersByIdsResult
 
         mUseCase.resultFlow.test {
-            mUseCase.getInterlocutor(user.id)
-
-            val result = awaitItem()
+            mUseCase.getInterlocutor(remoteUser.id)
 
             Assert.assertTrue(mUserDataRepositoryMockContainer.getUsersByIdsCallFlag)
-            Assert.assertEquals(GetInterlocutorDomainResult::class, result::class)
-            Assert.assertTrue(result.isSuccessful())
 
-            val gottenUser = (result as GetInterlocutorDomainResult).interlocutor
+            val remoteResult = awaitItem()
 
-            Assert.assertEquals(expectedUser, gottenUser)
+            Assert.assertEquals(GetInterlocutorDomainResult::class, remoteResult::class)
+            Assert.assertTrue(remoteResult.isSuccessful())
+
+            val gottenRemoteUser = (remoteResult as GetInterlocutorDomainResult).interlocutor
+
+            Assert.assertEquals(expectedRemoteUser, gottenRemoteUser)
         }
     }
 }

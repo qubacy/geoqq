@@ -3,12 +3,12 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
 import kotlinx.coroutines.test.runTest
@@ -61,9 +61,9 @@ class LoginViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataRepository: ErrorDataRepository
+        errorDataSource: LocalErrorDataSource
     ): LoginViewModel {
-        return LoginViewModel(savedStateHandle, errorDataRepository, mUseCase)
+        return LoginViewModel(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test

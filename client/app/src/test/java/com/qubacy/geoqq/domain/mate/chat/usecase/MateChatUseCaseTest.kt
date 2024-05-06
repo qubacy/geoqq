@@ -25,6 +25,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunk
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -93,7 +94,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
 
                 val resultLiveData = MutableLiveData<GetMessagesDataResult>()
 
-                CoroutineScope(coroutineContext).launch {
+                CoroutineScope(Dispatchers.Unconfined).launch {
                     for (result in mGetMessagesResults!!) resultLiveData.postValue(result)
                 }
 

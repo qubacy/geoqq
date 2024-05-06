@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain.mate.requests.usecase
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
@@ -19,9 +20,13 @@ import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkD
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.update.UpdateRequestChunkDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Rule
 import org.junit.Test
 
 class MateRequestsUseCaseTest : UseCaseTest<MateRequestsUseCase>() {
+    @get:Rule
+    override val rule = super.rule.around(InstantTaskExecutorRule())
+
     private lateinit var mMateRequestUseCaseMockContainer: MateRequestUseCaseMockContainer
     private lateinit var mInterlocutorUseCaseMockContainer: InterlocutorUseCaseMockContainer
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
@@ -57,42 +62,28 @@ class MateRequestsUseCaseTest : UseCaseTest<MateRequestsUseCase>() {
     fun getRequestChunkTest() = runTest {
         val offset = 0
 
-        val localGetMateRequestsDataResult = GetMateRequestsDataResult(
-            false,
-            listOf(DEFAULT_DATA_REQUEST)
-        )
         val remoteGetMateRequestsDataResult = GetMateRequestsDataResult(
             false,
             listOf(DEFAULT_DATA_REQUEST, DEFAULT_DATA_REQUEST)
         )
 
-        val expectedLocalMateRequests = localGetMateRequestsDataResult.requests.map { it.toMateRequest() }
-        val expectedRemoteMateRequests = remoteGetMateRequestsDataResult.requests.map { it.toMateRequest() }
+        val expectedRemoteMateRequests = remoteGetMateRequestsDataResult.requests
+            .map { it.toMateRequest() }
 
-        mMateRequestDataRepositoryMockContainer.getMateRequestsDataResults = listOf(
-            localGetMateRequestsDataResult, remoteGetMateRequestsDataResult
-        )
+        mMateRequestDataRepositoryMockContainer.getMateRequestsDataResult =
+            remoteGetMateRequestsDataResult
 
         mUseCase.resultFlow.test {
             mUseCase.getRequestChunk(offset)
 
-            val localResult = awaitItem()
-
             Assert.assertTrue(mMateRequestDataRepositoryMockContainer.getMateRequestsCallFlag)
-            Assert.assertEquals(GetRequestChunkDomainResult::class, localResult::class)
-            Assert.assertTrue(localResult.isSuccessful())
-
-            val gottenLocalMateRequests = (localResult as GetRequestChunkDomainResult)
-                .chunk!!.requests
-
-            AssertUtils.assertEqualContent(expectedLocalMateRequests, gottenLocalMateRequests)
 
             val remoteResult = awaitItem()
 
-            Assert.assertEquals(UpdateRequestChunkDomainResult::class, localResult::class)
+            Assert.assertEquals(GetRequestChunkDomainResult::class, remoteResult::class)
             Assert.assertTrue(remoteResult.isSuccessful())
 
-            val gottenRemoteMateRequests = (remoteResult as UpdateRequestChunkDomainResult)
+            val gottenRemoteMateRequests = (remoteResult as GetRequestChunkDomainResult)
                 .chunk!!.requests
 
             AssertUtils.assertEqualContent(expectedRemoteMateRequests, gottenRemoteMateRequests)

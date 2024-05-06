@@ -6,7 +6,7 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model.profile.MyProfile
@@ -15,9 +15,9 @@ import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDo
 import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
 import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
@@ -38,7 +38,8 @@ class MyProfileViewModelTest(
     companion object {
         val DEFAULT_IMAGE = Image(0L, Mockito.mock(Uri::class.java))
         val DEFAULT_MY_PROFILE = MyProfile(
-            "test", "test", DEFAULT_IMAGE, Privacy(HitMeUpType.NOBODY))
+            "test", "test", "test", DEFAULT_IMAGE, Privacy(HitMeUpType.NOBODY)
+        )
     }
 
     private var mUseCaseGetMyProfileCallFlag = false
@@ -84,9 +85,9 @@ class MyProfileViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataRepository: ErrorDataRepository
+        errorDataSource: LocalErrorDataSource
     ): MyProfileViewModel {
-        return MyProfileViewModel(savedStateHandle, errorDataRepository, mUseCase)
+        return MyProfileViewModel(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test

@@ -9,8 +9,6 @@ import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -34,10 +32,10 @@ class UserDataRepositoryMockContainer {
 
     var error: Error? = null
 
-    var getUsersByIdsResults: List<GetUsersByIdsDataResult> = listOf(DEFAULT_GET_USERS_BY_IDS)
-    var resolveUsersResults: List<ResolveUsersDataResult> = listOf(DEFAULT_RESOLVE_USERS)
-    var resolveUsersWithLocalUserResults: List<ResolveUsersDataResult> =
-        listOf(DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER)
+    var getUsersByIdsResult: GetUsersByIdsDataResult = DEFAULT_GET_USERS_BY_IDS
+    var resolveUsersResult: ResolveUsersDataResult = DEFAULT_RESOLVE_USERS
+    var resolveUsersWithLocalUserResult: ResolveUsersDataResult =
+        DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
 
     private var mGetUsersByIdsCallFlag = false
     val getUsersByIdsCallFlag get() = mGetUsersByIdsCallFlag
@@ -61,13 +59,7 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
-
-                CoroutineScope(coroutineContext).launch {
-                    for (result in getUsersByIdsResults) resultLiveData.postValue(result)
-                }
-
-                resultLiveData
+                MutableLiveData(getUsersByIdsResult)
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsers(
                 AnyMockUtil.anyObject()
@@ -76,13 +68,7 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
-
-                CoroutineScope(coroutineContext).launch {
-                    for (result in resolveUsersResults) resultLiveData.postValue(result)
-                }
-
-                resultLiveData
+                MutableLiveData(resolveUsersResult)
             }
             Mockito.`when`(userDataRepositoryMock.resolveUsersWithLocalUser(
                 AnyMockUtil.anyObject()
@@ -91,14 +77,7 @@ class UserDataRepositoryMockContainer {
 
                 if (error != null) throw ErrorAppException(error!!)
 
-                val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
-
-                CoroutineScope(coroutineContext).launch {
-                    for (result in resolveUsersWithLocalUserResults)
-                        resultLiveData.postValue(result)
-                }
-
-                resolveUsersWithLocalUserResults
+                MutableLiveData(resolveUsersWithLocalUserResult)
             }
         }
 
@@ -108,9 +87,9 @@ class UserDataRepositoryMockContainer {
     fun reset() {
         error = null
 
-        getUsersByIdsResults = listOf(DEFAULT_GET_USERS_BY_IDS)
-        resolveUsersResults = listOf(DEFAULT_RESOLVE_USERS)
-        resolveUsersWithLocalUserResults = listOf(DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER)
+        getUsersByIdsResult = DEFAULT_GET_USERS_BY_IDS
+        resolveUsersResult = DEFAULT_RESOLVE_USERS
+        resolveUsersWithLocalUserResult = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
 
         mGetUsersByIdsCallFlag = false
         mResolveUsersCallFlag = false

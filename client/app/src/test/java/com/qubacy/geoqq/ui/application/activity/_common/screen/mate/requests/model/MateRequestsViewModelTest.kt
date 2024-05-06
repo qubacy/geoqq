@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
@@ -14,15 +14,16 @@ import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDoma
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
 import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.insert.InsertRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.UpdateRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -92,9 +93,9 @@ class MateRequestsViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataRepository: ErrorDataRepository
+        errorDataSource: LocalErrorDataSource
     ): MateRequestsViewModel {
-        return MateRequestsViewModel(savedStateHandle, errorDataRepository, mUseCase)
+        return MateRequestsViewModel(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -384,6 +385,7 @@ class MateRequestsViewModelTest(
         val updateInterlocutorDomainResult = UpdateInterlocutorDomainResult(interlocutor = user)
 
         val expectedUserPresentation = user.toUserPresentation()
+        val expectedUpdatedRequest = initRequest.copy(user = expectedUserPresentation)
         val expectedRequests = initRequests.map {
             if (it.user.id == user.id) it.copy(user = expectedUserPresentation) else it
         }
@@ -393,15 +395,24 @@ class MateRequestsViewModelTest(
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateInterlocutorDomainResult)
 
-            val operation = awaitItem()
+            val interlocutorOperation = awaitItem()
 
-            Assert.assertEquals(UpdateInterlocutorDetailsUiOperation::class, operation::class)
+            Assert.assertEquals(UpdateInterlocutorDetailsUiOperation::class,
+                interlocutorOperation::class)
 
-            val gottenUserPresentation = (operation as UpdateInterlocutorDetailsUiOperation)
-                .interlocutor
+            val gottenUserPresentation =
+                (interlocutorOperation as UpdateInterlocutorDetailsUiOperation).interlocutor
+            Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
+
+            val requestOperation = awaitItem()
+
+            Assert.assertEquals(UpdateRequestUiOperation::class, requestOperation::class)
+
+            val gottenUpdatedRequest = (requestOperation as UpdateRequestUiOperation).request
             val gottenRequests = mModel.uiState.requests
 
-            Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
+            Assert.assertEquals(expectedUpdatedRequest, gottenUpdatedRequest)
+
             AssertUtils.assertEqualContent(expectedRequests, gottenRequests)
         }
     }
@@ -410,13 +421,14 @@ class MateRequestsViewModelTest(
     fun processGetRequestChunkDomainResultTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextRequestChunk = true
-        val initRequests = mutableListOf<MateRequestPresentation>(DEFAULT_MATE_REQUEST_PRESENTATION)
+        val initRequests = mutableListOf(DEFAULT_MATE_REQUEST_PRESENTATION)
         val initUiState = MateRequestsUiState(
             isLoading = initLoadingState,
             requests = initRequests,
         )
 
-        val requestChunk = MateRequestChunk(mutableListOf(DEFAULT_MATE_REQUEST))
+        val offset = 0
+        val requestChunk = MateRequestChunk(offset, mutableListOf(DEFAULT_MATE_REQUEST))
         val getRequestChunkDomainResult = GetRequestChunkDomainResult(chunk = requestChunk)
 
         val expectedLoadingState = false

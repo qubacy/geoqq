@@ -17,6 +17,7 @@ import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEn
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.HttpMateChatDataSource
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -29,7 +30,7 @@ import org.mockito.Mockito
 class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
-        val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = mapOf(
+        val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = mutableMapOf(
             DEFAULT_DATA_USER.id to DEFAULT_DATA_USER
         )
 
@@ -212,20 +213,25 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = DEFAULT_DATA_USER
+        val remoteUserIdUserMap = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER.apply {
+            this[DEFAULT_DATA_USER.id] = DEFAULT_DATA_USER.copy(username = "updated test")
+        }
+
+        val remoteUser = remoteUserIdUserMap[DEFAULT_DATA_USER.id]!!
+
         val localChats = mapOf(DEFAULT_MATE_CHAT_ENTITY to DEFAULT_LAST_MESSAGE_ENTITY)
-        val httpChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
+        val remoteChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
 
         mLocalSourceGetChats = localChats
-        mHttpSourceGetChatsResponse = httpChats
-        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+        mHttpSourceGetChatsResponse = remoteChats
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
+            ResolveUsersDataResult(true, remoteUserIdUserMap)
 
         val expectedLocalDataChats = localChats.map {
-            it.toDataMateChat(user, user)
+            it.toDataMateChat(remoteUser, remoteUser)
         }
-        val expectedRemoteDataChats = httpChats.chats.map {
-            it.toDataMateChat(user, user)
+        val expectedRemoteDataChats = remoteChats.chats.map {
+            it.toDataMateChat(remoteUser, remoteUser)
         }
 
         val getChatsResult = mDataRepository.getChats(loadedChatIds, offset, count)
@@ -254,8 +260,12 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = DEFAULT_DATA_USER
+        val remoteUserIdUserMap = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER.apply {
+            this[DEFAULT_DATA_USER.id] = DEFAULT_DATA_USER.copy(username = "updated test")
+        }
+
+        val remoteUser = remoteUserIdUserMap[DEFAULT_DATA_USER.id]!!
+
         val localChats = mapOf(
             DEFAULT_MATE_CHAT_ENTITY to DEFAULT_LAST_MESSAGE_ENTITY,
             DEFAULT_MATE_CHAT_ENTITY.copy(id = 1L) to DEFAULT_LAST_MESSAGE_ENTITY.copy(id = 1L)
@@ -264,13 +274,14 @@ class MateChatDataRepositoryTest : DataRepositoryTest<MateChatDataRepository>() 
 
         mLocalSourceGetChats = localChats
         mHttpSourceGetChatsResponse = httpChats
-        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
+            ResolveUsersDataResult(true, remoteUserIdUserMap)
 
         val expectedLocalDataChats = localChats.map {
-            it.toDataMateChat(user, user)
+            it.toDataMateChat(remoteUser, remoteUser)
         }
         val expectedRemoteDataChats = httpChats.chats.map {
-            it.toDataMateChat(user, user)
+            it.toDataMateChat(remoteUser, remoteUser)
         }
 
         val getChatsResult = mDataRepository.getChats(loadedChatIds, offset, count)

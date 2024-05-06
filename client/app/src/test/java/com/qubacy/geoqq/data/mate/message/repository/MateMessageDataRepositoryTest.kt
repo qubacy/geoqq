@@ -10,12 +10,14 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepositoryTest
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
 import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -190,17 +192,22 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = DEFAULT_DATA_USER
+        val remoteUserIdUserMap = MateChatDataRepositoryTest.DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER.apply {
+            this[MateChatDataRepositoryTest.DEFAULT_DATA_USER.id] = DEFAULT_DATA_USER.copy(username = "updated test")
+        }
+
+        val remoteUser = remoteUserIdUserMap[MateChatDataRepositoryTest.DEFAULT_DATA_USER.id]!!
+
         val localMessages = listOf(DEFAULT_MESSAGE_ENTITY)
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
         mHttpSourceGetMateMessagesResponse = httpMessages
-        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
+            ResolveUsersDataResult(true, remoteUserIdUserMap)
 
-        val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
-        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
+        val expectedLocalDataMessages = localMessages.map { it.toDataMessage(remoteUser) }
+        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(remoteUser) }
 
         val getMessagesResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count)
 
@@ -229,17 +236,22 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val offset = 0
         val count = 5
 
-        val resolveUsersWithLocalUser = DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
-        val user = DEFAULT_DATA_USER
+        val remoteUserIdUserMap = MateChatDataRepositoryTest.DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER.apply {
+            this[MateChatDataRepositoryTest.DEFAULT_DATA_USER.id] = DEFAULT_DATA_USER.copy(username = "updated test")
+        }
+
+        val remoteUser = remoteUserIdUserMap[MateChatDataRepositoryTest.DEFAULT_DATA_USER.id]!!
+
         val localMessages = listOf(DEFAULT_MESSAGE_ENTITY, DEFAULT_MESSAGE_ENTITY.copy(id = 1L))
         val httpMessages = GetMessagesResponse(listOf(DEFAULT_GET_MESSAGE_RESPONSE))
 
         mLocalSourceGetMateMessages = localMessages
         mHttpSourceGetMateMessagesResponse = httpMessages
-        mUserDataRepositoryMockContainer.resolveUsersWithLocalUser = resolveUsersWithLocalUser
+        mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
+            ResolveUsersDataResult(true, remoteUserIdUserMap)
 
-        val expectedLocalDataMessages = localMessages.map { it.toDataMessage(user) }
-        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(user) }
+        val expectedLocalDataMessages = localMessages.map { it.toDataMessage(remoteUser) }
+        val expectedRemoteDataMessages = httpMessages.messages.map { it.toDataMessage(remoteUser) }
 
         val getMessagesResult = mDataRepository.getMessages(chatId, loadedMessageIds, offset, count)
 

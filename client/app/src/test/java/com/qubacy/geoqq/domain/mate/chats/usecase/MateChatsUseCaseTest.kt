@@ -20,6 +20,7 @@ import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -79,7 +80,7 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
                 val resultLiveData = MutableLiveData<GetChatsDataResult>()
 
-                CoroutineScope(coroutineContext).launch {
+                CoroutineScope(Dispatchers.Unconfined).launch {
                     for (result in mGetChatsDataResults!!) {
                         resultLiveData.postValue(result)
                     }
@@ -145,7 +146,7 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
         val remoteChats = remoteDataChats.map { it.toMateChat() }
 
         val localGetChatsResult = GetChatsDataResult(false, offset, localDataChats)
-        val remoteGetChatsResult = GetChatsDataResult(true, offset, localDataChats)
+        val remoteGetChatsResult = GetChatsDataResult(true, offset, remoteDataChats)
 
         val expectedLocalChatChunk = MateChatChunk(chunkIndex, localChats)
         val expectedRemoteChatChunk = MateChatChunk(chunkIndex, remoteChats)

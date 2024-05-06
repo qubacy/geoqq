@@ -6,11 +6,11 @@ import com.qubacy.geoqq.data.auth.repository.source.http.api.response.SignInResp
 import com.qubacy.geoqq.data.auth.repository.source.http.api.response.SignUpResponse
 import javax.inject.Inject
 
-class HttpAuthDataSource @Inject constructor(
+open class HttpAuthDataSource @Inject constructor(
     private val mHttpAuthDataSourceApi: HttpAuthDataSourceApi,
     private val mHttpCallExecutor: HttpCallExecutor
 ) {
-    fun signIn(
+    open fun signIn(
         login: String,
         passwordHash: String
     ): SignInResponse {
@@ -20,7 +20,7 @@ class HttpAuthDataSource @Inject constructor(
         return signInResponse
     }
 
-    fun signUp(
+    open fun signUp(
         login: String,
         passwordHash: String
     ): SignUpResponse {

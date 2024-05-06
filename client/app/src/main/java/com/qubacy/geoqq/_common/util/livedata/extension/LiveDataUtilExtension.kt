@@ -38,6 +38,8 @@ suspend fun <T>LiveData<T>.awaitUntilVersion(version: Int): T {
                     val curVersion = LiveData::class.java.getDeclaredField("mVersion")
                         .apply { isAccessible = true }.get(this@awaitUntilVersion) as Int
 
+                    println("awaitUntilVersion(): version = $version; curVersion = $curVersion; value = $value;")
+
                     if (curVersion < version) return
 
                     removeObserver(this)

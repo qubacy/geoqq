@@ -28,6 +28,7 @@ import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -98,7 +99,7 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
                 val resultLiveData = MutableLiveData<GetMyProfileDataResult>()
 
-                CoroutineScope(coroutineContext).launch {
+                CoroutineScope(Dispatchers.Unconfined).launch {
                     for (result in mGetMyProfileResults!!)
                         resultLiveData.postValue(result)
                 }

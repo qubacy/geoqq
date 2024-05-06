@@ -29,7 +29,7 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
-class UserDataRepository @Inject constructor(
+open class UserDataRepository @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDataSource,
@@ -43,7 +43,7 @@ class UserDataRepository @Inject constructor(
         const val ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME = "user-id"
     }
 
-    suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
+    open suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
         val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
 
         CoroutineScope(coroutineContext).launch {
@@ -69,7 +69,7 @@ class UserDataRepository @Inject constructor(
         return resultLiveData
     }
 
-    suspend fun resolveUsers(userIds: List<Long>): LiveData<ResolveUsersDataResult> {
+    open suspend fun resolveUsers(userIds: List<Long>): LiveData<ResolveUsersDataResult> {
         val resultLiveData = MutableLiveData<ResolveUsersDataResult>()
 
         CoroutineScope(coroutineContext).launch {
@@ -93,13 +93,13 @@ class UserDataRepository @Inject constructor(
         return resultLiveData
     }
 
-    suspend fun resolveLocalUser(): DataUser {
+    open suspend fun resolveLocalUser(): DataUser {
         val localUserId = getLocalUserId()
 
         return getUsersByIds(listOf(localUserId)).await().users.first()
     }
 
-    suspend fun resolveUsersWithLocalUser(
+    open suspend fun resolveUsersWithLocalUser(
         userIds: List<Long>
     ): LiveData<ResolveUsersDataResult> {
         val localUserId = getLocalUserId()
@@ -108,7 +108,7 @@ class UserDataRepository @Inject constructor(
         else resolveUsers(userIds.plus(localUserId))
     }
 
-    fun getLocalUserId(): Long {
+    open fun getLocalUserId(): Long {
         var localUserId: Long? = null
 
         runBlocking {

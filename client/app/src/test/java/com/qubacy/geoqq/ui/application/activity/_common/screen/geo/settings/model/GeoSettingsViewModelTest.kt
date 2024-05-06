@@ -1,13 +1,12 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model
 
-import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.LocationMockUtil
 import com.qubacy.geoqq._common.point._test.util.PointUtils
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
@@ -15,22 +14,21 @@ import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import org.mockito.Mockito
 
 class GeoSettingsViewModelTest(
 
 ) : StatefulViewModelTest<GeoSettingsUiState, GeoSettingsViewModel>() {
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataRepository: ErrorDataRepository
+        errorDataSource: LocalErrorDataSource
     ): GeoSettingsViewModel {
-        return GeoSettingsViewModel(savedStateHandle, errorDataRepository)
+        return GeoSettingsViewModel(savedStateHandle, errorDataSource)
     }
 
     @Test
     fun changeLastLocationTest() = runTest {
         val initLocationPoint = Point(0.0, 0.0)
-        val initRadius = 0f
+        val initRadius = 0
         val initUiState = GeoSettingsUiState(
             lastLocationPoint = initLocationPoint, radius = initRadius)
 
@@ -59,7 +57,7 @@ class GeoSettingsViewModelTest(
     @Test
     fun setMapLoadingStatusTest() = runTest {
         val initLoadingState = false
-        val initRadius = 0f
+        val initRadius = 0
         val initUiState = GeoSettingsUiState(isLoading = initLoadingState, radius = initRadius)
 
         val isLoaded = false
@@ -87,9 +85,9 @@ class GeoSettingsViewModelTest(
     @Test
     fun getScaledRadiusTest() {
         class TestCase(
-            val radius: Float,
+            val radius: Int,
             val scaleCoefficient: Float,
-            val expectedScaledRadius: Float
+            val expectedScaledRadius: Int
         )
 
         val testCases = listOf(
@@ -98,8 +96,8 @@ class GeoSettingsViewModelTest(
                 0.5f,
                 GeoSettingsViewModel.DEFAULT_MIN_RADIUS
             ),
-            TestCase(200f, 1.2f, 240f),
-            TestCase(1000f, 0.5f, 500f),
+            TestCase(200, 1.2f, 240),
+            TestCase(1000, 0.5f, 500),
             TestCase(
                 GeoSettingsViewModel.DEFAULT_MAX_RADIUS,
                 1.5f,
@@ -111,18 +109,18 @@ class GeoSettingsViewModelTest(
             val gottenScaledRadius = mModel.getScaledRadius(
                 testCase.radius, testCase.scaleCoefficient)
 
-            Assert.assertEquals(testCase.expectedScaledRadius, gottenScaledRadius, 0.01f)
+            Assert.assertEquals(testCase.expectedScaledRadius, gottenScaledRadius)
         }
     }
 
     @Test
     fun applyScaleForRadiusTest() = runTest {
-        val initRadius = 1000f
+        val initRadius = 1000
         val initUiState = GeoSettingsUiState(radius = initRadius)
 
         val scaleCoefficient = 0.5f
 
-        val expectedRadius = initRadius * scaleCoefficient
+        val expectedRadius = (initRadius * scaleCoefficient).toInt()
 
         setUiState(initUiState)
 

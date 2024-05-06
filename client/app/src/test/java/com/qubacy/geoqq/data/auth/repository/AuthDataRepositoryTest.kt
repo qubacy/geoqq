@@ -147,43 +147,34 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
     private fun mockHttpTokenDataSource(): HttpTokenDataSource {
         val httpTokenDataSourceMock = Mockito.mock(HttpTokenDataSource::class.java)
 
-        val updateTokensRequestMock = Mockito.mock(Call::class.java)
-
         Mockito.`when`(httpTokenDataSourceMock.updateTokens(
             Mockito.anyString()
         )).thenAnswer {
             mHttpSourceUpdateTokensCallFlag = true
-
-            updateTokensRequestMock
+            mHttpSourceUpdateTokensResponse
         }
 
         return httpTokenDataSourceMock
     }
 
     private fun mockHttpAuthDataSource(): HttpAuthDataSource {
-        val httpTokenDataSourceMock = Mockito.mock(HttpAuthDataSource::class.java)
+        val httpAuthDataSourceMock = Mockito.mock(HttpAuthDataSource::class.java)
 
-        val signInRequestMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(httpTokenDataSourceMock.signIn(
+        Mockito.`when`(httpAuthDataSourceMock.signIn(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
             mHttpSourceSignInCallFlag = true
-
-            signInRequestMock
+            mHttpSourceSignInResponse
         }
 
-        val signUpRequestMock = Mockito.mock(Call::class.java)
-
-        Mockito.`when`(httpTokenDataSourceMock.signUp(
+        Mockito.`when`(httpAuthDataSourceMock.signUp(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
             mHttpSourceSignUpCallFlag = true
-
-            signUpRequestMock
+            mHttpSourceSignUpResponse
         }
 
-        return httpTokenDataSourceMock
+        return httpAuthDataSourceMock
     }
 
 //    @Test

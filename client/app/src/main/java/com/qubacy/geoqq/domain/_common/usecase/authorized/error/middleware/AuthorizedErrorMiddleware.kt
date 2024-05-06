@@ -16,7 +16,7 @@ fun <ResultType : DomainResult>authorizedErrorMiddleware(
 ): DomainResult {
     useCase as AuthorizedUseCase
 
-    Log.d("TEST", "authorizedErrorMiddleware(): error.code = ${error.id};")
+    //Log.d("TEST", "authorizedErrorMiddleware(): error.code = ${error.id};")
 
     if (error.id in listOf(
         AuthErrorType.INVALID_REFRESH_TOKEN.getErrorCode(),

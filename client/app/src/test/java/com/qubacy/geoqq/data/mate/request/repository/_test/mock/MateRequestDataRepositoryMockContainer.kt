@@ -6,8 +6,6 @@ import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountDataResult
 import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -19,7 +17,7 @@ class MateRequestDataRepositoryMockContainer {
 
     val mateRequestDataRepositoryMock: MateRequestDataRepository
 
-    var getMateRequestsDataResults: List<GetMateRequestsDataResult>? = null
+    var getMateRequestsDataResult: GetMateRequestsDataResult? = null
     var getMateRequestCountDataResult: GetMateRequestCountDataResult? = null
 
     private var mGetMateRequestsCallFlag = false
@@ -29,14 +27,14 @@ class MateRequestDataRepositoryMockContainer {
     private var mAnswerMateRequestCallFlag = false
     val answerMateRequestCallFlag get() = mAnswerMateRequestCallFlag
     private var mGetMateRequestCountCallFlag = false
-    val getMateRequestCountCallFlag get() = getMateRequestsDataResults
+    val getMateRequestCountCallFlag get() = getMateRequestsDataResult
 
     init {
         mateRequestDataRepositoryMock = mockMateRequestDataRepository()
     }
 
     fun clear() {
-        getMateRequestsDataResults = null
+        getMateRequestsDataResult = null
         getMateRequestCountDataResult = null
 
         mGetMateRequestsCallFlag = false
@@ -53,15 +51,7 @@ class MateRequestDataRepositoryMockContainer {
                 Mockito.anyInt(), Mockito.anyInt()
             )).thenAnswer {
                 mGetMateRequestsCallFlag = true
-
-                val resultLiveData = MutableLiveData<GetMateRequestsDataResult>()
-
-                CoroutineScope(coroutineContext).launch {
-                    for (result in getMateRequestsDataResults!!)
-                        resultLiveData.postValue(result)
-                }
-
-                resultLiveData
+                MutableLiveData(getMateRequestsDataResult)
             }
             Mockito.`when`(mateRequestDataRepositoryMock.createMateRequest(
                 Mockito.anyLong()

@@ -6,7 +6,7 @@ import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.data.error.repository.ErrorDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
@@ -14,9 +14,9 @@ import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
@@ -84,9 +84,9 @@ class MateChatsViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataRepository: ErrorDataRepository
+        errorDataSource: LocalErrorDataSource
     ): MateChatsViewModel {
-        return MateChatsViewModel(savedStateHandle, errorDataRepository, mUseCase)
+        return MateChatsViewModel(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -266,11 +266,9 @@ class MateChatsViewModelTest(
     @Test
     fun processUpdateChatChunkDomainResultWithErrorTest() = runTest {
         val initIsLoading = true
-        val initIsGettingNextChatChunk = true
 
         val expectedError = TestError.normal
         val expectedLoadingState = false
-        val expectedIsGettingNextChatChunk = false
 
         val updateChatChunkDomainResult = UpdateChatChunkDomainResult(error = expectedError)
 
@@ -280,7 +278,6 @@ class MateChatsViewModelTest(
                 error = null
             )
         )
-        setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateChatChunkDomainResult)
@@ -298,7 +295,6 @@ class MateChatsViewModelTest(
 
             Assert.assertEquals(expectedError, gottenError)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
             Assert.assertEquals(expectedError, finalUiState.error)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
         }
@@ -307,7 +303,6 @@ class MateChatsViewModelTest(
     @Test
     fun processUpdateChatChunkDomainResultTest() = runTest {
         val initIsLoading = true
-        val initIsGettingNextChatChunk = true
         val initChats = mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
         val initChatSizes = mutableMapOf(0 to initChats.size)
 
@@ -327,7 +322,6 @@ class MateChatsViewModelTest(
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
         val expectedChatChunkSizeDelta = initChats.size - chatChunk.chats.size
         val expectedLoadingState = false
-        val expectedIsGettingNextChatChunk = false
 
         setUiState(
             MateChatsUiState(
@@ -336,7 +330,6 @@ class MateChatsViewModelTest(
                 chatChunkSizes = initChatSizes
             )
         )
-        setIsGettingNextChatChunkValue(initIsGettingNextChatChunk)
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateChatChunkDomainResult)
@@ -353,14 +346,12 @@ class MateChatsViewModelTest(
             val gottenChatPresentationChunk = updateChatChunkOperation.chats
             val gottenChatChunkSizeDelta = updateChatChunkOperation.chatChunkSizeDelta
             val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenIsGettingNextChatChunk = getIsGettingNextChatChunkValue()
             val finalUiState = mModel.uiState
 
             Assert.assertEquals(expectedChatChunkPosition, gottenChatChunkPosition)
             AssertUtils.assertEqualContent(expectedChatPresentationChunk, gottenChatPresentationChunk)
             Assert.assertEquals(expectedChatChunkSizeDelta, gottenChatChunkSizeDelta)
             Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedIsGettingNextChatChunk, gottenIsGettingNextChatChunk)
             Assert.assertEquals(expectedChatCount, finalUiState.chats.size)
             AssertUtils.assertEqualMaps(expectedChatChunkSizes, finalUiState.chatChunkSizes)
             AssertUtils.assertEqualContent(expectedChatPresentationChunk, finalUiState.chats)
