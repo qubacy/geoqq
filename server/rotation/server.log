@@ -1,0 +1,757 @@
+2024/05/07 21:37:55.165414 app/app.go:172 | TRACE | trace
+2024/05/07 21:37:55.181092 app/app.go:173 | DEBUG | debug
+2024/05/07 21:37:55.181092 app/app.go:174 | INFO | info
+2024/05/07 21:37:55.181092 app/app.go:175 | WARNING | warning
+2024/05/07 21:37:55.181092 app/app.go:176 | ERROR | error
+2024/05/07 21:37:55.181613 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:37:55.355405 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:37:55.356109 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:37:55.400537 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:37:55.549399 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:37:55.550286 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:37:55.559042 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:37:55.559042 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:37:55.559042 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:37:55.562760 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:38:02.326058 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:38:02.326058 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:39:30.399649 app/app.go:172 | TRACE | trace
+2024/05/07 21:39:30.414901 app/app.go:173 | DEBUG | debug
+2024/05/07 21:39:30.414901 app/app.go:174 | INFO | info
+2024/05/07 21:39:30.415429 app/app.go:175 | WARNING | warning
+2024/05/07 21:39:30.415429 app/app.go:176 | ERROR | error
+2024/05/07 21:39:30.415429 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:39:30.467703 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:39:30.468458 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:39:30.514713 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:39:30.562726 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:39:30.562726 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:39:30.562726 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:39:30.562726 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:39:30.563255 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:39:30.565881 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:39:53.096933 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:39:53.096933 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:40:20.959806 app/app.go:172 | TRACE | trace
+2024/05/07 21:40:20.977286 app/app.go:173 | DEBUG | debug
+2024/05/07 21:40:20.977286 app/app.go:174 | INFO | info
+2024/05/07 21:40:20.977286 app/app.go:175 | WARNING | warning
+2024/05/07 21:40:20.977286 app/app.go:176 | ERROR | error
+2024/05/07 21:40:20.977286 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:40:21.133784 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:40:21.133784 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:40:21.179329 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:40:21.226449 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:40:21.226449 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:40:21.226449 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:40:21.226449 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:40:21.226988 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:40:21.229636 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:40:24.779603 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:40:24.779603 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:03.741042 app/app.go:172 | TRACE | trace
+2024/05/07 21:44:03.756164 app/app.go:173 | DEBUG | debug
+2024/05/07 21:44:03.756164 app/app.go:174 | INFO | info
+2024/05/07 21:44:03.756164 app/app.go:175 | WARNING | warning
+2024/05/07 21:44:03.756164 app/app.go:176 | ERROR | error
+2024/05/07 21:44:03.756164 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:44:03.803911 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:44:03.804390 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:44:03.848950 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:44:03.909975 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:44:03.909975 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:44:03.909975 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:44:03.909975 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:44:03.910503 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:44:03.913131 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:44:18.317370 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:18.317370 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:20.061176 app/app.go:172 | TRACE | trace
+2024/05/07 21:44:20.077641 app/app.go:173 | DEBUG | debug
+2024/05/07 21:44:20.077641 app/app.go:174 | INFO | info
+2024/05/07 21:44:20.077641 app/app.go:175 | WARNING | warning
+2024/05/07 21:44:20.077641 app/app.go:176 | ERROR | error
+2024/05/07 21:44:20.077641 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:44:20.127862 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:44:20.128296 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:44:20.171331 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:44:20.217184 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:44:20.217184 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:44:20.217184 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:44:20.217711 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:44:20.217711 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:44:20.220921 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:44:24.575060 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:24.575060 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:30.230165 app/app.go:172 | TRACE | trace
+2024/05/07 21:44:30.246669 app/app.go:173 | DEBUG | debug
+2024/05/07 21:44:30.246669 app/app.go:174 | INFO | info
+2024/05/07 21:44:30.246669 app/app.go:175 | WARNING | warning
+2024/05/07 21:44:30.247200 app/app.go:176 | ERROR | error
+2024/05/07 21:44:30.247200 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:44:30.397292 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:44:30.397956 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:44:30.442882 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:44:30.492051 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:44:30.492051 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:44:30.492051 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:44:30.492569 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:44:30.492569 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:44:30.495668 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:44:41.653161 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:44:41.653161 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:45:11.264780 app/app.go:172 | TRACE | trace
+2024/05/07 21:45:11.279971 app/app.go:173 | DEBUG | debug
+2024/05/07 21:45:11.279971 app/app.go:174 | INFO | info
+2024/05/07 21:45:11.279971 app/app.go:175 | WARNING | warning
+2024/05/07 21:45:11.279971 app/app.go:176 | ERROR | error
+2024/05/07 21:45:11.280501 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:45:11.329639 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:45:11.330143 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:45:11.374324 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:45:11.420477 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:45:11.420477 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:45:11.420477 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:45:11.421006 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:45:11.421006 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:45:11.424183 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:47:24.323050 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:47:24.323050 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:47:26.313183 app/app.go:172 | TRACE | trace
+2024/05/07 21:47:26.330078 app/app.go:173 | DEBUG | debug
+2024/05/07 21:47:26.330078 app/app.go:174 | INFO | info
+2024/05/07 21:47:26.330599 app/app.go:175 | WARNING | warning
+2024/05/07 21:47:26.330599 app/app.go:176 | ERROR | error
+2024/05/07 21:47:26.330599 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:47:26.379661 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:47:26.380022 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:47:26.422818 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:47:26.472068 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:47:26.472068 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:47:26.472068 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:47:26.472597 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:47:26.472597 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:47:26.476354 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:47:29.714952 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:47:29.714952 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:48:00.017198 app/app.go:172 | TRACE | trace
+2024/05/07 21:48:00.032450 app/app.go:173 | DEBUG | debug
+2024/05/07 21:48:00.032450 app/app.go:174 | INFO | info
+2024/05/07 21:48:00.032450 app/app.go:175 | WARNING | warning
+2024/05/07 21:48:00.032450 app/app.go:176 | ERROR | error
+2024/05/07 21:48:00.032956 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:48:00.080947 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:48:00.081368 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:48:00.125504 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:48:00.171588 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:48:00.171588 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:48:00.171588 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:48:00.172112 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:48:00.172633 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:48:00.175793 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:48:00.995445 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:48:00.995445 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:10.476370 app/app.go:172 | TRACE | trace
+2024/05/07 21:50:10.493493 app/app.go:173 | DEBUG | debug
+2024/05/07 21:50:10.493493 app/app.go:174 | INFO | info
+2024/05/07 21:50:10.493493 app/app.go:175 | WARNING | warning
+2024/05/07 21:50:10.493493 app/app.go:176 | ERROR | error
+2024/05/07 21:50:10.494020 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:50:10.542974 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:50:10.543458 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:50:10.586762 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:50:10.634395 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:50:10.634395 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:50:10.634395 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:50:10.634928 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:50:10.634928 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:50:10.638106 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:50:11.580570 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:11.580570 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:17.128576 app/app.go:172 | TRACE | trace
+2024/05/07 21:50:17.144456 app/app.go:173 | DEBUG | debug
+2024/05/07 21:50:17.144456 app/app.go:174 | INFO | info
+2024/05/07 21:50:17.144987 app/app.go:175 | WARNING | warning
+2024/05/07 21:50:17.144987 app/app.go:176 | ERROR | error
+2024/05/07 21:50:17.144987 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:50:17.192621 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:50:17.193047 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:50:17.347536 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:50:17.396558 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:50:17.396558 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:50:17.397079 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:50:17.397079 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:50:17.397079 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:50:17.400779 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:50:34.472436 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:34.472436 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:48.893815 app/app.go:172 | TRACE | trace
+2024/05/07 21:50:48.910278 app/app.go:173 | DEBUG | debug
+2024/05/07 21:50:48.910278 app/app.go:174 | INFO | info
+2024/05/07 21:50:48.910278 app/app.go:175 | WARNING | warning
+2024/05/07 21:50:48.910278 app/app.go:176 | ERROR | error
+2024/05/07 21:50:48.910805 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:50:48.960860 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:50:48.961503 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:50:49.005781 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:50:49.052656 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:50:49.052656 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:50:49.053187 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:50:49.053187 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:50:49.053724 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:50:49.056402 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:50:58.944949 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:50:58.944949 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:51:06.003634 app/app.go:172 | TRACE | trace
+2024/05/07 21:51:06.019825 app/app.go:173 | DEBUG | debug
+2024/05/07 21:51:06.019825 app/app.go:174 | INFO | info
+2024/05/07 21:51:06.020352 app/app.go:175 | WARNING | warning
+2024/05/07 21:51:06.020352 app/app.go:176 | ERROR | error
+2024/05/07 21:51:06.020352 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:51:06.069242 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:51:06.069822 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:51:06.114734 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:51:06.163702 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:51:06.163702 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:51:06.163702 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:51:06.164208 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:51:06.164287 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:51:06.174884 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:52:51.010556 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:52:51.010556 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:52:53.819830 app/app.go:172 | TRACE | trace
+2024/05/07 21:52:53.835652 app/app.go:173 | DEBUG | debug
+2024/05/07 21:52:53.836652 app/app.go:174 | INFO | info
+2024/05/07 21:52:53.836652 app/app.go:175 | WARNING | warning
+2024/05/07 21:52:53.836652 app/app.go:176 | ERROR | error
+2024/05/07 21:52:53.836652 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 21:52:53.886926 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 21:52:53.887567 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 21:52:53.930759 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 21:52:54.081335 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 21:52:54.081335 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 21:52:54.081335 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 21:52:54.081867 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 21:52:54.081867 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> geoqq/internal/delivery/http.NewHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).postSignIn-fm (5 handlers)
+[GIN-debug] POST   /api/sign-up              --> geoqq/internal/delivery/http/api.(*Handler).postSignUp-fm (5 handlers)
+[GIN-debug] PUT    /api/sign-in              --> geoqq/internal/delivery/http/api.(*Handler).putSignIn-fm (5 handlers)
+[GIN-debug] GET    /api/mate/chat            --> geoqq/internal/delivery/http/api.(*Handler).getMateChats-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).getMateChat-fm (7 handlers)
+[GIN-debug] DELETE /api/mate/chat/:id        --> geoqq/internal/delivery/http/api.(*Handler).deleteMateChat-fm (7 handlers)
+[GIN-debug] GET    /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).getMateChatMessages-fm (8 handlers)
+[GIN-debug] POST   /api/mate/chat/:id/message --> geoqq/internal/delivery/http/api.(*Handler).postMateChatMessage-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).getMateRequests-fm (7 handlers)
+[GIN-debug] GET    /api/mate/request/count   --> geoqq/internal/delivery/http/api.(*Handler).getMateRequestCount-fm (6 handlers)
+[GIN-debug] POST   /api/mate/request         --> geoqq/internal/delivery/http/api.(*Handler).postMateRequest-fm (7 handlers)
+[GIN-debug] PUT    /api/mate/request/:id     --> geoqq/internal/delivery/http/api.(*Handler).putMateRequest-fm (6 handlers)
+[GIN-debug] GET    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).getMyProfile-fm (6 handlers)
+[GIN-debug] PUT    /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).putMyProfile-fm (8 handlers)
+[GIN-debug] PUT    /api/my-profile/with-attached-avatar --> geoqq/internal/delivery/http/api.(*Handler).putMyProfileWithAttachedAvatar-fm (8 handlers)
+[GIN-debug] DELETE /api/my-profile           --> geoqq/internal/delivery/http/api.(*Handler).deleteMyProfile-fm (6 handlers)
+[GIN-debug] GET    /api/user/:id             --> geoqq/internal/delivery/http/api.(*Handler).getUser-fm (6 handlers)
+[GIN-debug] POST   /api/user                 --> geoqq/internal/delivery/http/api.(*Handler).getSomeUsers-fm (7 handlers)
+[GIN-debug] GET    /api/image/:id            --> geoqq/internal/delivery/http/api.(*Handler).getImage-fm (6 handlers)
+[GIN-debug] POST   /api/image                --> geoqq/internal/delivery/http/api.(*Handler).postForGetSomeImages-fm (7 handlers)
+[GIN-debug] POST   /api/image/new            --> geoqq/internal/delivery/http/api.(*Handler).postNewImage-fm (7 handlers)
+[GIN-debug] GET    /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatMessages-fm (9 handlers)
+[GIN-debug] GET    /api/geo/chat/message/all --> geoqq/internal/delivery/http/api.(*Handler).getGeoChatAllMessages-fm (8 handlers)
+[GIN-debug] POST   /api/geo/chat/message     --> geoqq/internal/delivery/http/api.(*Handler).postGeoChatMessage-fm (7 handlers)
+2024/05/07 21:52:54.085012 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 21:53:04.979064 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 21:53:04.979064 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:17:14.883880 app/app.go:172 | TRACE | trace
+2024/05/07 22:17:14.914011 app/app.go:173 | DEBUG | debug
+2024/05/07 22:17:14.914011 app/app.go:174 | INFO | info
+2024/05/07 22:17:14.914011 app/app.go:175 | WARNING | warning
+2024/05/07 22:17:14.914011 app/app.go:176 | ERROR | error
+2024/05/07 22:17:14.914530 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 22:17:14.968979 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 22:17:14.969527 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 22:17:15.013266 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 22:17:15.072669 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 22:17:15.072669 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 22:17:15.072669 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 22:17:15.073190 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 22:17:15.073190 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+2024/05/07 22:17:15.073190 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 22:17:18.538797 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:17:18.538797 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:17:55.167006 app/app.go:172 | TRACE | trace
+2024/05/07 22:17:55.185006 app/app.go:173 | DEBUG | debug
+2024/05/07 22:17:55.185006 app/app.go:174 | INFO | info
+2024/05/07 22:17:55.185006 app/app.go:175 | WARNING | warning
+2024/05/07 22:17:55.185006 app/app.go:176 | ERROR | error
+2024/05/07 22:17:55.185006 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 22:17:55.234585 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 22:17:55.235106 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 22:17:55.391123 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 22:17:55.436837 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 22:17:55.436837 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 22:17:55.436837 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 22:17:55.437356 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 22:17:55.437356 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+2024/05/07 22:17:55.437356 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 22:18:05.618842 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:18:05.618842 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:21:00.226897 app/app.go:172 | TRACE | trace
+2024/05/07 22:21:00.242152 app/app.go:173 | DEBUG | debug
+2024/05/07 22:21:00.242687 app/app.go:174 | INFO | info
+2024/05/07 22:21:00.242687 app/app.go:175 | WARNING | warning
+2024/05/07 22:21:00.242687 app/app.go:176 | ERROR | error
+2024/05/07 22:21:00.242687 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 22:21:00.295923 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 22:21:00.295923 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 22:21:00.340907 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 22:21:00.388683 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 22:21:00.388683 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 22:21:00.388683 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 22:21:00.389207 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 22:21:00.389207 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+2024/05/07 22:21:00.389207 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 22:21:05.746184 impl/authAsserts.go:57 | WARNING | cache disabled
+2024/05/07 22:21:05.899572 api/auth.go:64 | TRACE | access token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUwOTUyODAsInVzZXItaWQiOjEsInB1cnBvc2UiOjF9.04ajAPxc4_l21trWI5QiOfUJkZ7vJKhxWils5JRFsIM
+2024/05/07 22:21:05.900101 api/auth.go:65 | TRACE | refresh token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU3MDAwNjUsInVzZXItaWQiOjEsInB1cnBvc2UiOjJ9.7RXkO3-01dmsyUFcPpMuRP-MPNtvtLS-khUl170iGKc
+2024/05/07 22:21:05.900101 api/response.go:14 | TRACE | {{eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUwOTUyODAsInVzZXItaWQiOjEsInB1cnBvc2UiOjF9.04ajAPxc4_l21trWI5QiOfUJkZ7vJKhxWils5JRFsIM eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU3MDAwNjUsInVzZXItaWQiOjEsInB1cnBvc2UiOjJ9.7RXkO3-01dmsyUFcPpMuRP-MPNtvtLS-khUl170iGKc}}
+[GIN] 2024/05/07 - 22:21:05 | 200 |     154.446ms |       127.0.0.1 | POST     "/api/sign-in"
+2024/05/07 22:21:05.907553 api/response.go:14 | TRACE | &{{1 test_user test_user  77 {0}}}
+[GIN] 2024/05/07 - 22:21:05 | 200 |      4.1684ms |       127.0.0.1 | GET      "/api/my-profile?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUwOTUyODAsInVzZXItaWQiOjEsInB1cnBvc2UiOjF9.04ajAPxc4_l21trWI5QiOfUJkZ7vJKhxWils5JRFsIM"
+2024/05/07 22:21:05.910534 postgre/userBackground.go:49 | TRACE | update last action time for user 1
+2024/05/07 22:21:05.936814 impl/imageAsserts.go:16 | WARNING | cache disabled
+2024/05/07 22:21:05.974456 api/response.go:14 | TRACE | {78}
+[GIN] 2024/05/07 - 22:21:05 | 200 |     38.6923ms |       127.0.0.1 | POST     "/api/image/new"
+2024/05/07 22:21:05.976978 postgre/userBackground.go:49 | TRACE | update last action time for user 1
+[GIN] 2024/05/07 - 22:21:06 | 200 |    106.1699ms |       127.0.0.1 | PUT      "/api/my-profile"
+2024/05/07 22:21:06.082060 postgre/userBackground.go:49 | TRACE | update last action time for user 1
+2024/05/07 22:21:06.084596 api/response.go:14 | TRACE | &{{1 test_user test_user  78 {0}}}
+[GIN] 2024/05/07 - 22:21:06 | 200 |      2.1739ms |       127.0.0.1 | GET      "/api/my-profile"
+2024/05/07 22:21:06.087615 postgre/userBackground.go:49 | TRACE | update last action time for user 1
+2024/05/07 22:21:14.045235 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:21:14.045235 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:22:34.266143 app/app.go:172 | TRACE | trace
+2024/05/07 22:22:34.282816 app/app.go:173 | DEBUG | debug
+2024/05/07 22:22:34.282816 app/app.go:174 | INFO | info
+2024/05/07 22:22:34.283335 app/app.go:175 | WARNING | warning
+2024/05/07 22:22:34.283335 app/app.go:176 | ERROR | error
+2024/05/07 22:22:34.283335 app/app.go:186 | INFO | storage type: postgre
+2024/05/07 22:22:34.334099 postgre/background.go:34 | TRACE | max query count: 2
+2024/05/07 22:22:34.334099 postgre/background.go:35 | TRACE | max worker count: 2
+2024/05/07 22:22:34.468916 postgre/background.go:50 | INFO | background storage has captured [2] conns
+2024/05/07 22:22:34.515493 impl/auth.go:50 | TRACE | access token ttl: 15s
+2024/05/07 22:22:34.515493 impl/auth.go:51 | TRACE | refresh token ttl: 168h0m0s
+2024/05/07 22:22:34.515493 impl/authValidators.go:27 | INFO | password pattern: ^\S{8,}$
+2024/05/07 22:22:34.516019 impl/authValidators.go:27 | INFO | login pattern: ^\w{6,32}$
+2024/05/07 22:22:34.516019 impl/userProfileValidators.go:26 | INFO | username pattern: ^.{6,50}$
+2024/05/07 22:22:34.516019 cmd/main.go:63 | INFO | Server Is Running
+2024/05/07 22:22:39.667356 postgre/background.go:99 | WARNING | queries canceled
+2024/05/07 22:22:39.667356 postgre/background.go:99 | WARNING | queries canceled

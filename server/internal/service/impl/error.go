@@ -12,6 +12,8 @@ var (
 	ErrNilInputParameter        = errors.New("nil input parameter")
 	ErrCountMoreThanPermissible = errors.New("count is more than permissible")
 
+	// auth
+
 	ErrIncorrectLogin    = errors.New("incorrect login")
 	ErrIncorrectPassword = errors.New("incorrect password")
 
@@ -20,6 +22,8 @@ var (
 	ErrUserWithLoginHasBeenDeleted    = errors.New("user with login has been deleted")
 	ErrTargetUserDeleted              = errors.New("target user deleted")
 	ErrNotSameHashesForRefreshTokens  = errors.New("not same hashes for refresh tokens")
+
+	// image
 
 	ErrAddImageBlocked         = errors.New("add image blocked")
 	ErrImageNotFound           = errors.New("image not found")

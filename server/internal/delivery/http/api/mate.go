@@ -246,7 +246,7 @@ func (h *Handler) postMateChatMessage(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.MateChatMessagePostReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 
@@ -354,7 +354,7 @@ func (h *Handler) postMateRequest(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.MateRequestPostReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 

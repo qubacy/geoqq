@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"os"
 	"strings"
 
@@ -14,8 +14,6 @@ const (
 	ConfigFileExt  = "yml"
 )
 
-// TODO: flag already initialized!
-
 func Initialize() error {
 	configPath, err := currentConfigPathToFile()
 	if err != nil {
@@ -25,7 +23,7 @@ func Initialize() error {
 		return err
 	}
 
-	log.Println("Config path:", configPath)
+	fmt.Println("Config path:", configPath)
 
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(ConfigFileName)
@@ -57,6 +55,11 @@ func currentConfigPathToFile() (string, error) {
 	}
 
 	cur = "../internal/config"
+	if existsConfigFile(cur) {
+		return cur, nil
+	}
+
+	cur = "./internal/config"
 	if existsConfigFile(cur) {
 		return cur, nil
 	}

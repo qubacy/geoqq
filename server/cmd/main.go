@@ -15,21 +15,21 @@ import (
 func printlnWd() {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Get wd failed. Error: %v", err.Error())
+		log.Fatalf("get wd failed. Error: %v", err.Error())
 		return // ?
 	}
 
-	fmt.Printf("Wd: %v\n", wd)
+	fmt.Printf("wd: %v\n", wd)
 }
 
 func printlnExecutable() {
 	path, err := os.Executable()
 	if err != nil {
-		log.Fatalf("Get executable failed. Error: %v", err.Error())
+		log.Fatalf("get executable failed. Error: %v", err.Error())
 		return // ?
 	}
 
-	fmt.Printf("Path: %v", path)
+	fmt.Printf("executable path: %v\n", path)
 }
 
 func main() {

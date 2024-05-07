@@ -170,7 +170,7 @@ func (h *Handler) postGeoChatMessage(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.GeoChatMessagePostReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 

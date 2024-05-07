@@ -89,7 +89,7 @@ func (h *Handler) postForGetSomeImages(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.SomeImagesReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 
@@ -135,7 +135,7 @@ func (h *Handler) postNewImage(ctx *gin.Context) {
 	anyRequestDto, _ := ctx.Get(contextRequestDto) // always exists!
 	requestDto, converted := anyRequestDto.(*dto.ImagePostReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 

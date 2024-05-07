@@ -127,7 +127,7 @@ func (h *Handler) putMyProfileWithAttachedAvatar(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.MyProfileWithAttachedAvatarPutReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 
@@ -162,7 +162,7 @@ func (h *Handler) validateBodyForPutMyProfile(ctx *gin.Context) {
 	anyRequestDto, _ := ctx.Get(contextRequestDto)
 	requestDto, converted := anyRequestDto.(*dto.MyProfilePutReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 
@@ -204,7 +204,7 @@ func (h *Handler) putMyProfile(ctx *gin.Context) {
 	anyRequestDto, _ := ctx.Get(contextRequestDto)
 	requestDto, converted := anyRequestDto.(*dto.MyProfilePutReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 
@@ -315,7 +315,7 @@ func (h *Handler) getSomeUsers(ctx *gin.Context) {
 	}
 	requestDto, converted := anyRequestDto.(*dto.SomeUsersReq)
 	if !converted {
-		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedContextParam)
+		resWithServerErr(ctx, ec.ServerError, ErrUnexpectedTypeContextParam)
 		return
 	}
 

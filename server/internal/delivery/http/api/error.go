@@ -6,13 +6,14 @@ import (
 )
 
 var (
-	ErrEmptyRequestParameter      = errors.New("empty request parameter") // uri, x-www-form-urlencoded
-	ErrEmptyBodyParameter         = errors.New("empty body parameter")    // body
-	ErrEmptyAccessToken           = errors.New("empty access token")
-	ErrInvalidAuthorizationHeader = errors.New("invalid authorization header")
+	ErrEmptyRequestParameter = errors.New("empty request parameter") // uri, x-www-form-urlencoded
+	ErrEmptyBodyParameter    = errors.New("empty body parameter")    // body
 
-	ErrEmptyContextParam      = errors.New("empty context param")
-	ErrUnexpectedContextParam = errors.New("unexpected context param")
+	ErrInvalidAuthorizationHeader = errors.New("invalid authorization header")
+	ErrEmptyAccessToken           = errors.New("empty access token")
+
+	ErrEmptyContextParam          = errors.New("empty context param")
+	ErrUnexpectedTypeContextParam = errors.New("unexpected type context param")
 
 	ErrRequestFromDeletedUser = errors.New("request from deleted user")
 )

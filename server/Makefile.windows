@@ -1,0 +1,9 @@
+
+# release or debug?
+build:
+	go build -o ./cmd/main.exe ./cmd/main.go
+
+# can't put a space after "release"!
+run: build 
+	set GIN_MODE=release&& "./cmd/main.exe"
+
