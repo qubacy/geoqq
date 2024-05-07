@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.domain.geo.chat.usecase
 
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource

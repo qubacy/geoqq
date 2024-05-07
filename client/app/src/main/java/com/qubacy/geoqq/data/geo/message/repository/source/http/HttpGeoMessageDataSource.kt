@@ -2,12 +2,12 @@ package com.qubacy.geoqq.data.geo.message.repository.source.http
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
-import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoMessageDataSourceApi
 import com.qubacy.geoqq.data.geo.message.repository.source.http.api.request.SendMessageRequest
 import javax.inject.Inject
 
-class HttpGeoChatDataSource @Inject constructor(
-    private val mHttpGeoChatDataSourceApi: HttpGeoChatDataSourceApi,
+class HttpGeoMessageDataSource @Inject constructor(
+    private val mHttpGeoMessageDataSourceApi: HttpGeoMessageDataSourceApi,
     private val mHttpCallExecutor: HttpCallExecutor
 ) {
     fun getMessages(
@@ -15,7 +15,7 @@ class HttpGeoChatDataSource @Inject constructor(
         longitude: Float,
         latitude: Float
     ): GetMessagesResponse {
-        val getMessagesCall = mHttpGeoChatDataSourceApi.getMessages(radius, longitude, latitude)
+        val getMessagesCall = mHttpGeoMessageDataSourceApi.getMessages(radius, longitude, latitude)
         val getMessagesResponse = mHttpCallExecutor.executeNetworkRequest(getMessagesCall)
 
         return getMessagesResponse
@@ -28,7 +28,7 @@ class HttpGeoChatDataSource @Inject constructor(
         latitude: Float
     ) {
         val sendMessageRequest = SendMessageRequest(text, radius, longitude, latitude)
-        val sendMessageCall = mHttpGeoChatDataSourceApi.sendMessage(sendMessageRequest)
+        val sendMessageCall = mHttpGeoMessageDataSourceApi.sendMessage(sendMessageRequest)
 
         mHttpCallExecutor.executeNetworkRequest(sendMessageCall)
     }

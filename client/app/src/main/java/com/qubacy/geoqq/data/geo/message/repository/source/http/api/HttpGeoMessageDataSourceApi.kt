@@ -8,7 +8,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-interface HttpGeoChatDataSourceApi {
+interface HttpGeoMessageDataSourceApi {
     @GET("/api/geo/chat/message/all")
     fun getMessages(
         @Query("radius") radius: Int,

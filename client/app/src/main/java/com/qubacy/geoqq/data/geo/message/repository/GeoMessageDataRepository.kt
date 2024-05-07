@@ -2,14 +2,13 @@ package com.qubacy.geoqq.data.geo.message.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataResult
-import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoChatDataSource
+import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoMessageDataSource
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +22,7 @@ class GeoMessageDataRepository @Inject constructor(
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDataSource,
     private val mUserDataRepository: UserDataRepository,
-    private val mHttpGeoChatDataSource: HttpGeoChatDataSource,
+    private val mHttpGeoMessageDataSource: HttpGeoMessageDataSource,
     // todo: add a ws source..
 ) : ProducingDataRepository(coroutineDispatcher, coroutineScope), MessageDataRepository {
     suspend fun getMessages(
@@ -33,7 +32,7 @@ class GeoMessageDataRepository @Inject constructor(
     ): LiveData<GetGeoMessagesDataResult> {
         val resultLiveData = MutableLiveData<GetGeoMessagesDataResult>()
 
-        val getMessagesResponse = mHttpGeoChatDataSource.getMessages(radius, longitude, latitude)
+        val getMessagesResponse = mHttpGeoMessageDataSource.getMessages(radius, longitude, latitude)
         val resolveGetMessagesResultLiveData = resolveGetMessagesResponse(
             mUserDataRepository, getMessagesResponse)
 
@@ -67,6 +66,6 @@ class GeoMessageDataRepository @Inject constructor(
 
 
         // todo: delete (for debug only!):
-        mHttpGeoChatDataSource.sendMessage(text, radius, longitude, latitude)
+        mHttpGeoMessageDataSource.sendMessage(text, radius, longitude, latitude)
     }
 }

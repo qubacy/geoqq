@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.api
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.api.HttpTokenDataSourceApi
 import com.qubacy.geoqq.data.auth.repository.source.http.api.HttpAuthDataSourceApi
-import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoMessageDataSourceApi
 import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
 import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.HttpMateChatDataSourceApi
 import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
@@ -50,5 +50,5 @@ class HttpApi(httpClient: OkHttpClient) {
     val imageApi: HttpImageDataSourceApi = retrofit.create(HttpImageDataSourceApi::class.java)
 
     val myProfileApi: HttpMyProfileDataSourceApi = retrofit.create(HttpMyProfileDataSourceApi::class.java)
-    val geoChatApi: HttpGeoChatDataSourceApi = retrofit.create(HttpGeoChatDataSourceApi::class.java)
+    val geoChatApi: HttpGeoMessageDataSourceApi = retrofit.create(HttpGeoMessageDataSourceApi::class.java)
 }

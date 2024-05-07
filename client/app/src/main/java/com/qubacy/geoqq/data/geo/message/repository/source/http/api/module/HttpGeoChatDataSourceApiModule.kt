@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.geo.message.repository.source.http.api.module
 
 import android.content.Context
-import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoChatDataSourceApi
+import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoMessageDataSourceApi
 import com.qubacy.geoqq.ui.application.CustomApplication
 import dagger.Module
 import dagger.Provides
@@ -15,7 +15,7 @@ object HttpGeoChatDataSourceApiModule {
     @Provides
     fun provideHttpGeoChatDataSourceApi(
         @ApplicationContext context: Context
-    ): HttpGeoChatDataSourceApi {
+    ): HttpGeoMessageDataSourceApi {
         val httpApi = (context as CustomApplication).httpApi
 
         return httpApi.geoChatApi
