@@ -12,6 +12,7 @@ import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataRes
 import com.qubacy.geoqq.data.user.repository.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.update.UpdateGeoMessagesDomainResult
@@ -51,6 +52,15 @@ class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
 
     private var mGeoMessageGetMessagesCallFlag = false
     private var mGeoMessageSendMessageCallFlag = false
+
+    override fun clear() {
+        super.clear()
+
+        mGeoMessageGetMessagesResults = null
+
+        mGeoMessageGetMessagesCallFlag = false
+        mGeoMessageSendMessageCallFlag = false
+    }
 
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
@@ -168,6 +178,23 @@ class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
             val gottenRemoteGeoMessages = (remoteResult as UpdateGeoMessagesDomainResult).messages!!
 
             AssertUtils.assertEqualContent(expectedRemoteGeoMessages, gottenRemoteGeoMessages)
+        }
+    }
+
+    @Test
+    fun sendMessageTest() = runTest {
+        val text = "test"
+        val radius = 0
+        val longitude = 0f
+        val latitude = 0f
+
+        mUseCase.resultFlow.test {
+            mUseCase.sendMessage(text, radius, latitude, longitude)
+
+            val result = awaitItem()
+
+            Assert.assertTrue(mGeoMessageSendMessageCallFlag)
+            Assert.assertEquals(SendMessageDomainResult::class, result::class)
         }
     }
 }

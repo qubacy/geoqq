@@ -4,7 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 
 class MessageTextValidator : Validator<String> {
     companion object {
-        val REGEX = Regex("^.{0,512}$")
+        val REGEX = Regex("^.{1,512}$")
     }
 
     override fun isValid(value: String): Boolean {

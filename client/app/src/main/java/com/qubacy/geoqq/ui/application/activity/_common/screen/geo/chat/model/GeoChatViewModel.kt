@@ -113,6 +113,9 @@ open class GeoChatViewModel @Inject constructor(
         return mUiState.messages.isNotEmpty()
     }
 
+    /**
+     * It's supposed that the text is already trimmed;
+     */
     open fun isMessageTextValid(text: String): Boolean {
         return MessageTextValidator().isValid(text)
     }

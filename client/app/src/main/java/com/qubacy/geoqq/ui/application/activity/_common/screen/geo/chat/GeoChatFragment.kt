@@ -308,7 +308,7 @@ class GeoChatFragment(
     }
 
     private fun launchSendingMessage() {
-        val messageText = mBinding.fragmentGeoChatInputMessage.text.toString()
+        val messageText = mBinding.fragmentGeoChatInputMessage.text.toString().trim()
 
         if (!mModel.isMessageTextValid(messageText))
             return mModel.retrieveError(UiChatErrorType.INVALID_MESSAGE)

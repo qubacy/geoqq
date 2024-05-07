@@ -388,7 +388,7 @@ class MateChatFragment(
     }
 
     private fun launchSendingMessage() {
-        val messageText = mBinding.fragmentMateInputMessage.text.toString()
+        val messageText = mBinding.fragmentMateInputMessage.text.toString().trim()
 
         if (!mModel.isMessageTextValid(messageText))
             return mModel.retrieveError(UiChatErrorType.INVALID_MESSAGE)

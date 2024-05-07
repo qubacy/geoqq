@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
@@ -45,6 +46,9 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         )
         val DEFAULT_AVATAR = ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
             .copy(id = DEFAULT_USER_ENTITY.avatarId)
+
+        const val DEFAULT_TOKEN_WITH_USER_ID_0 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" +
+            ".eyJ1c2VyLWlkIjowfQ.NLUO7-jk654bGjYSRVfTlWPVZNgm0hxYlYo_FTMQ1Qg"
     }
 
     @get:Rule
@@ -73,6 +77,7 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
 
     @Before
     fun setup() {
+        Base64MockUtil.mockBase64()
         initUserDataRepository()
     }
 
@@ -294,5 +299,18 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         Assert.assertTrue(mImageDataRepositoryMockContainer.getImagesByIdsCallFlag)
 
         AssertUtils.assertEqualMaps(expectedResolvedUsers, gottenResolvedUsers)
+    }
+
+    @Test
+    fun getLocalUserIdTest() {
+        val accessToken = DEFAULT_TOKEN_WITH_USER_ID_0
+
+        val expectedLocalUserId = 0L
+
+        mLocalTokenDataStoreDataSourceMockContainer.getAccessToken = accessToken
+
+        val gottenLocalUserId = mDataRepository.getLocalUserId()
+
+        Assert.assertEquals(expectedLocalUserId, gottenLocalUserId)
     }
 }

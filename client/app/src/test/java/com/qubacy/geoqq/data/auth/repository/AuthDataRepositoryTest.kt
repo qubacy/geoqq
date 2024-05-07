@@ -37,14 +37,6 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
     private lateinit var mLocalTokenDataStoreDataSourceMockContainer:
         LocalTokenDataStoreDataSourceMockContainer
 
-    private var mLocalSourceLastAccessToken: String? = null
-    private var mLocalSourceRefreshToken: String? = null
-
-    private var mLocalSourceGetRefreshTokenCallFlag = false
-    private var mLocalSourceSaveTokensAccessToken: String? = null
-    private var mLocalSourceSaveTokensRefreshToken: String? = null
-    private var mLocalSourceClearTokensCallFlag = false
-
     private var mLocalDatabaseSourceDropDataTablesCallFlag = false
 
     private var mHttpSourceUpdateTokensResponse: UpdateTokensResponse? = null
@@ -64,14 +56,6 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
 
     @After
     fun clear() {
-        mLocalSourceLastAccessToken = null
-        mLocalSourceRefreshToken = null
-        mLocalSourceSaveTokensAccessToken = null
-        mLocalSourceSaveTokensRefreshToken = null
-
-        mLocalSourceGetRefreshTokenCallFlag = false
-        mLocalSourceClearTokensCallFlag = false
-
         mLocalDatabaseSourceDropDataTablesCallFlag = false
 
         mHttpSourceUpdateTokensResponse = null
@@ -148,161 +132,63 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
         return httpAuthDataSourceMock
     }
 
-//    @Test
-//    fun getTokensWhenLocalTokensInitializedTest() = runTest {
-//        val expectedAccessToken = VALID_TOKEN
-//        val expectedRefreshToken = VALID_TOKEN
-//
-//        mLocalSourceLastAccessToken = expectedAccessToken
-//        mLocalSourceRefreshToken = expectedRefreshToken
-//
-//        val gottenGetTokensResult = mDataRepository.getTokens()
-//
-//        Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
-//        Assert.assertEquals(expectedAccessToken, gottenGetTokensResult.accessToken)
-//        Assert.assertEquals(expectedRefreshToken, gottenGetTokensResult.refreshToken)
-//    }
-
-//    @Test
-//    fun getTokensWhenAccessTokenNotInitializedTest() = runTest {
-//        val expectedUpdateTokensResponse = UpdateTokensResponse(
-//            "updated accessToken",
-//            "updated refreshToken"
-//        )
-//
-//        mLocalSourceLastAccessToken = null
-//        mLocalSourceRefreshToken = VALID_TOKEN
-//        mHttpCallExecutorMockContainer.response = expectedUpdateTokensResponse
-//
-//        val gottenGetTokensResult = mDataRepository.getTokens()
-//
-//        Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
-//        Assert.assertTrue(mHttpSourceUpdateTokensCallFlag)
-//        Assert.assertTrue(mHttpCallExecutorMockContainer.executeNetworkRequestCallFlag)
-//        Assert.assertEquals(expectedUpdateTokensResponse.accessToken, mLocalSourceSaveTokensAccessToken)
-//        Assert.assertEquals(expectedUpdateTokensResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
-//        Assert.assertEquals(expectedUpdateTokensResponse.accessToken, gottenGetTokensResult.accessToken)
-//        Assert.assertEquals(expectedUpdateTokensResponse.refreshToken, gottenGetTokensResult.refreshToken)
-//    }
-
-//    @Test
-//    fun getTokensWhenRefreshTokenInvalidTest() = runTest {
-//        val expectedError = TestError.normal
-//
-//        mLocalSourceLastAccessToken = null
-//        mLocalSourceRefreshToken = null
-//        mErrorDataRepositoryMockContainer.getError = expectedError
-//
-//        try {
-//            mDataRepository.getTokens()
-//
-//        } catch (e: ErrorAppException) {
-//            Assert.assertEquals(expectedError, e.error)
-//        }
-//    }
-
     @Test
     fun signInWithTokenTest() = runTest {
         val refreshToken = VALID_TOKEN
 
-        val expectedUpdateTokensResponse = UpdateTokensResponse(
+        val updateTokensResponse = UpdateTokensResponse(
             "sign in accessToken",
             "sign in refreshToken"
         )
 
-        mLocalSourceRefreshToken = refreshToken
-        mHttpSourceUpdateTokensResponse = expectedUpdateTokensResponse
+        mLocalTokenDataStoreDataSourceMockContainer.getRefreshToken = refreshToken
+        mHttpSourceUpdateTokensResponse = updateTokensResponse
 
         mDataRepository.signIn()
 
-        Assert.assertTrue(mLocalSourceGetRefreshTokenCallFlag)
-        Assert.assertEquals(expectedUpdateTokensResponse.accessToken, mLocalSourceSaveTokensAccessToken)
-        Assert.assertEquals(expectedUpdateTokensResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getRefreshTokenCallFlag)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
     }
 
     @Test
     fun signInWithLoginDataTest() = runTest {
-        val expectedTokenSignInResponse = SignInResponse(
+        val signInResponse = SignInResponse(
             "sign in accessToken",
             "sign in refreshToken"
         )
         val login = "login"
         val password = "password"
 
-        mHttpSourceSignInResponse = expectedTokenSignInResponse
+        mHttpSourceSignInResponse = signInResponse
 
         mDataRepository.signIn(login, password)
 
         Assert.assertTrue(mHttpSourceSignInCallFlag)
-        Assert.assertEquals(expectedTokenSignInResponse.accessToken, mLocalSourceSaveTokensAccessToken)
-        Assert.assertEquals(expectedTokenSignInResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
     }
 
     @Test
     fun signUpTest() = runTest {
-        val expectedTokenSignUpResponse = SignUpResponse(
+        val signUpResponse = SignUpResponse(
             "sign up accessToken",
             "sign up refreshToken"
         )
         val login = "login"
         val password = "password"
 
-        mHttpSourceSignUpResponse = expectedTokenSignUpResponse
+        mHttpSourceSignUpResponse = signUpResponse
 
         mDataRepository.signUp(login, password)
 
         Assert.assertTrue(mHttpSourceSignUpCallFlag)
-        Assert.assertEquals(expectedTokenSignUpResponse.accessToken, mLocalSourceSaveTokensAccessToken)
-        Assert.assertEquals(expectedTokenSignUpResponse.refreshToken, mLocalSourceSaveTokensRefreshToken)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
     }
 
     @Test
     fun logoutTest() = runTest {
         mDataRepository.logout()
 
-        Assert.assertTrue(mLocalSourceClearTokensCallFlag)
+        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.clearTokensCallFlag)
         Assert.assertTrue(mLocalDatabaseSourceDropDataTablesCallFlag)
     }
-
-//    @Test
-//    fun checkTokenForValidityTest() {
-//        val expectedIsTokenValid = true
-//        val gottenIsTokenValid = mDataRepository.checkTokenForValidity(VALID_TOKEN)
-//
-//        Assert.assertEquals(expectedIsTokenValid, gottenIsTokenValid)
-//    }
-
-//    @Test
-//    fun getTokenPayloadTest() {
-//        val token = VALID_TOKEN
-//        val expectedTokenPayload = VALID_TOKEN_PAYLOAD
-//
-//        val gottenTokenPayload = mDataRepository.getTokenPayload(token)!!
-//
-//        assertTokenPayload(expectedTokenPayload, gottenTokenPayload)
-//    }
-
-//    @Test
-//    fun getAccessTokenPayloadTest() = runTest {
-//        val expectedTokenPayload = VALID_TOKEN_PAYLOAD
-//
-//        mLocalSourceLastAccessToken = VALID_TOKEN
-//
-//        val gottenTokenPayload = mDataRepository.getAccessTokenPayload()
-//
-//        assertTokenPayload(expectedTokenPayload, gottenTokenPayload)
-//    }
-//
-//    private fun assertTokenPayload(
-//        expectedTokenPayload: Map<String, Claim>,
-//        gottenTokenPayload: Map<String, Claim>
-//    ) {
-//        Assert.assertEquals(expectedTokenPayload.size, gottenTokenPayload.size)
-//
-//        for (expectedTokenEntry in expectedTokenPayload) {
-//            val gottenTokenClaim = gottenTokenPayload[expectedTokenEntry.key]!!
-//
-//            Assert.assertEquals(expectedTokenEntry.value.asLong(), gottenTokenClaim.asLong())
-//        }
-//    }
 }

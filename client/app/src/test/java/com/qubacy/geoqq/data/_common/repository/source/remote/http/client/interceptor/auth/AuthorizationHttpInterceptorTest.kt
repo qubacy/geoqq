@@ -187,6 +187,8 @@ class AuthorizationHttpInterceptorTest {
 
     @Test
     fun interceptSuccessfulRequestTest() {
+        mResponseCode = 200
+
         mLocalTokenDataStoreDataSourceMockContainer.getAccessToken =
             LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
         mLocalTokenDataStoreDataSourceMockContainer.getRefreshToken =

@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class GeoChatUseCase @Inject constructor(
+open class GeoChatUseCase @Inject constructor(
     errorSource: LocalErrorDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
@@ -36,7 +36,7 @@ class GeoChatUseCase @Inject constructor(
     )
 
     // TODO: Optimization?:
-    fun getMessages(
+    open fun getMessages(
         radius: Int,
         longitude: Float,
         latitude: Float
@@ -66,7 +66,7 @@ class GeoChatUseCase @Inject constructor(
         }, ::authorizedErrorMiddleware)
     }
 
-    fun sendMessage(
+    open fun sendMessage(
         text: String,
         radius: Int,
         latitude: Float,
@@ -81,15 +81,15 @@ class GeoChatUseCase @Inject constructor(
         }, ::authorizedErrorMiddleware)
     }
 
-    fun getLocalUserId(): Long {
+    open fun getLocalUserId(): Long {
         return mUserDataRepository.getLocalUserId()
     }
 
-    fun getInterlocutor(interlocutorId: Long) {
+    open fun getInterlocutor(interlocutorId: Long) {
         mInterlocutorUseCase.getInterlocutor(interlocutorId)
     }
 
-    fun sendMateRequestToInterlocutor(interlocutorId: Long) {
+    open fun sendMateRequestToInterlocutor(interlocutorId: Long) {
         mMateRequestUseCase.sendMateRequest(interlocutorId)
     }
 
