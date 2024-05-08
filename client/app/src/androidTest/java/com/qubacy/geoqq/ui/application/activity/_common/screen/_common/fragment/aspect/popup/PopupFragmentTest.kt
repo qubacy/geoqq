@@ -17,7 +17,8 @@ interface PopupFragmentTest<FragmentType>
         const val TEST_MESSAGE = "test message"
     }
 
-    fun beforePopupMessageOccurredTest() { }
+    fun beforePopupMessageOccurredTest()
+
     @Test
     fun onPopupMessageOccurredTest() = runTest {
         beforePopupMessageOccurredTest()
@@ -28,8 +29,9 @@ interface PopupFragmentTest<FragmentType>
 
         Espresso.onView(withText(TEST_MESSAGE))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-
     }
+
     fun getPopupActivityScenario(): ActivityScenario<*>
+
     fun getPopupFragment(): FragmentType
 }

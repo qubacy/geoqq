@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings
 
 import android.Manifest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -22,8 +23,12 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.pinch.PinchZoomViewAct
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.changed.MapViewChangedViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.loaded.MapViewLoadedViewAssertion
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.LoadingFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.LocationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.operation.LocationPointChangedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module.GeoSettingsViewModelModule
@@ -50,7 +55,11 @@ class GeoSettingsFragmentTest(
     GeoSettingsViewModel,
     GeoSettingsViewModelMockContext,
     GeoSettingsFragment
->() {
+>(),
+    LoadingFragmentTest<GeoSettingsFragment>,
+    LocationFragmentTest,
+    PopupFragmentTest<GeoSettingsFragment>
+{
     companion object {
         const val DEFAULT_MAX_MAP_LOADING_DURATION = 10000L
 
@@ -250,27 +259,57 @@ class GeoSettingsFragmentTest(
                 ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
-    @Test
-    fun processLocationPointChangedUiOperationTest() = runTest {
+    private fun retrieveMapView(): GeoMapView {
+        val binding = BaseFragment::class.java.getDeclaredField("mBinding")
+            .apply { isAccessible = true }.get(mFragment) as FragmentGeoSettingsBinding
+
+        return binding.fragmentGeoSettingsMap
+    }
+
+    override fun beforeAdjustUiWithLoadingStateTest() {
+        defaultInit()
+    }
+
+    override fun getLoadingFragmentFragment(): GeoSettingsFragment {
+        return mFragment
+    }
+
+    override fun getLoadingFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun assertAdjustUiWithFalseLoadingState() {
+        Espresso.onView(withId(R.id.fragment_geo_settings_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+    }
+
+    override fun assertAdjustUiWithTrueLoadingState() {
+        Espresso.onView(withId(R.id.fragment_geo_settings_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    override fun adjustUiWithLocationPointTest() = runTest {
         val initLocationPoint = DEFAULT_LOCATION_POINT
         val initRadius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
         val initUiState = GeoSettingsUiState(
             lastLocationPoint = initLocationPoint,
             radius = initRadius
         )
-        val initLocationPointChangedUiOperation = LocationPointChangedUiOperation(initLocationPoint)
 
         val locationPoint = Point(
             initLocationPoint.latitude.plus(1),
             initLocationPoint.longitude.plus(1)
         )
-        val locationPointChangedUiOperation = LocationPointChangedUiOperation(locationPoint)
 
         initWithModelContext(GeoSettingsViewModelMockContext(initUiState))
 
         Espresso.onView(isRoot()).perform(WaitViewAction(DEFAULT_MAX_MAP_LOADING_DURATION))
 
-        mViewModelMockContext.uiOperationFlow.emit(initLocationPointChangedUiOperation)
+        mActivityScenario.onActivity {
+            mFragment.adjustUiWithLocationPoint(initLocationPoint)
+        }
 
         val mapView = retrieveMapView()
         lateinit var prevVisibleRegion: VisibleRegion
@@ -279,17 +318,24 @@ class GeoSettingsFragmentTest(
             prevVisibleRegion = mapView.mapWindow.map.visibleRegion
         }
 
-        mViewModelMockContext.uiOperationFlow.emit(locationPointChangedUiOperation)
+        mActivityScenario.onActivity {
+            mFragment.adjustUiWithLocationPoint(locationPoint)
+        }
 
         Espresso.onView(withId(R.id.fragment_geo_settings_map))
             .perform(WaitViewAction(1000))
             .check(MapViewChangedViewAssertion(prevVisibleRegion))
     }
 
-    private fun retrieveMapView(): GeoMapView {
-        val binding = com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment::class.java.getDeclaredField("mBinding")
-            .apply { isAccessible = true }.get(mFragment) as FragmentGeoSettingsBinding
+    override fun beforePopupMessageOccurredTest() {
+        defaultInit()
+    }
 
-        return binding.fragmentGeoSettingsMap
+    override fun getPopupActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getPopupFragment(): GeoSettingsFragment {
+        return mFragment
     }
 }

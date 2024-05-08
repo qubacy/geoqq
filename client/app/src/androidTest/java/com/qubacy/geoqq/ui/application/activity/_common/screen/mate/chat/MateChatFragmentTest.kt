@@ -365,7 +365,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         mViewModelMockContext.uiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(interlocutor))
         mViewModelMockContext.uiOperationFlow.emit(MateRequestSentToInterlocutorUiOperation())
 
-        Espresso.onView(withText(R.string.fragment_mate_chat_snackbar_message_mate_request_sent))
+        Espresso.onView(withText(R.string.fragment_chat_snackbar_message_mate_request_sent))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 

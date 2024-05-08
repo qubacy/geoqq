@@ -12,6 +12,6 @@ interface ChatFragment {
     @CallSuper
     fun onChatFragmentMateRequestSent() {
         getPopupFragmentForChatFragment()
-            .onPopupMessageOccurred(R.string.fragment_mate_chat_snackbar_message_mate_request_sent)
+            .onPopupMessageOccurred(R.string.fragment_chat_snackbar_message_mate_request_sent)
     }
 }
