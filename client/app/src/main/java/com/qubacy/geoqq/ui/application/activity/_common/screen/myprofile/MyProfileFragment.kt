@@ -251,11 +251,11 @@ class MyProfileFragment(
     }
 
     private fun getInputData(): MyProfileInputData {
-        val aboutMe = mBinding.fragmentMyProfileInputAboutMe.text?.toString()
-        val username = mBinding.fragmentMyProfileInputUsername.text?.toString()
-        val password = mBinding.fragmentMyProfileInputPassword.text?.toString()
-        val newPassword = mBinding.fragmentMyProfileInputNewPassword.text?.toString()
-        val newPasswordAgain = mBinding.fragmentMyProfileInputNewPasswordAgain.text?.toString()
+        val username = mBinding.fragmentMyProfileInputUsername.text?.toString()?.trim()
+        val aboutMe = mBinding.fragmentMyProfileInputAboutMe.text?.toString()?.trim()
+        val password = mBinding.fragmentMyProfileInputPassword.text?.toString()?.trim()
+        val newPassword = mBinding.fragmentMyProfileInputNewPassword.text?.toString()?.trim()
+        val newPasswordAgain = mBinding.fragmentMyProfileInputNewPasswordAgain.text?.toString()?.trim()
         val hitMeUp = getHitMeUpInputType()
 
         return MyProfileInputData(
@@ -278,22 +278,23 @@ class MyProfileFragment(
         val aboutMe = inputData.aboutMe.let {
             if (it == myProfilePresentation.aboutMe) null else it
         }
-        val password = inputData.password.let {
-            if (it.isNullOrEmpty()) null else it
-        }
-        val newPassword = inputData.newPassword.let {
-            if (it.isNullOrEmpty()) null else it
-        }
-        val newPasswordAgain = inputData.newPasswordAgain.let {
-                if (it.isNullOrEmpty()) null else it
-            }
+        // todo: is it necessary?:
+//        val password = inputData.password.let {
+//            if (it.isNullOrEmpty()) null else it
+//        }
+//        val newPassword = inputData.newPassword.let {
+//            if (it.isNullOrEmpty()) null else it
+//        }
+//        val newPasswordAgain = inputData.newPasswordAgain.let {
+//            if (it.isNullOrEmpty()) null else it
+//        }
         val hitMeUp = inputData.hitMeUp.let {
             if (it == myProfilePresentation.hitMeUp) null else it
         }
 
         return MyProfileInputData(
             avatarUri, username, aboutMe,
-            password, newPassword, newPasswordAgain,
+            inputData.password, inputData.newPassword, inputData.newPasswordAgain,
             hitMeUp
         )
     }
@@ -417,6 +418,10 @@ class MyProfileFragment(
     }
 
     private fun setInputErrors(invalidInputSet: HashSet<Int>) {
+        if (invalidInputSet.contains(R.id.fragment_my_profile_input_username)) {
+            mBinding.fragmentMyProfileInputWrapperUsername.error =
+                getString(R.string.fragment_my_profile_input_error_username)
+        }
         if (invalidInputSet.contains(R.id.fragment_my_profile_input_about_me)) {
             mBinding.fragmentMyProfileInputWrapperAboutMe.error =
                 getString(R.string.fragment_my_profile_input_error_about_me)

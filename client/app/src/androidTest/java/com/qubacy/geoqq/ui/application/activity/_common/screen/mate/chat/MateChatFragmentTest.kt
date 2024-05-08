@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -22,6 +23,10 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.Re
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
@@ -29,9 +34,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.chat.model.operation.MateRequestSentToInterlocutorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
@@ -49,7 +51,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     MateChatViewModel,
     MateChatViewModelMockContext,
     MateChatFragment
->() {
+>(), PopupFragmentTest<MateChatFragment> {
     companion object {
         val DEFAULT_AVATAR_RES_ID = R.drawable.test
     }
@@ -442,5 +444,17 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
             MateMessagePresentation(id, user, "test $id", "TEST")
         }.toMutableList()
+    }
+
+    override fun beforePopupMessageOccurredTest() {
+        defaultInit()
+    }
+
+    override fun getPopupActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getPopupFragment(): MateChatFragment {
+        return mFragment
     }
 }

@@ -28,7 +28,7 @@ class LocalMyProfileDataSourceTest() {
     @Test
     fun saveMyProfileThenGetItTest() = runTest {
         val expectedMyProfileDataStoreModel = MyProfileDataStoreModel(
-            0, "test", "test", HitMeUpType.EVERYBODY.id
+            0, "test", "test", "test", HitMeUpType.EVERYBODY.id
         )
 
         mMyProfileDataSource.saveMyProfile(expectedMyProfileDataStoreModel)
@@ -41,7 +41,7 @@ class LocalMyProfileDataSourceTest() {
     @Test
     fun resetMyProfileTest() = runTest {
         val initMyProfileDataStoreModel = MyProfileDataStoreModel(
-            0, "test", "test", HitMeUpType.EVERYBODY.id
+            0, "test", "test", "test", HitMeUpType.EVERYBODY.id
         )
 
         mMyProfileDataSource.saveMyProfile(initMyProfileDataStoreModel)

@@ -34,6 +34,7 @@
     <string name="fragment_my_profile_text_hit_me_up_text">Anybody can hit me up</string>
     <string name="fragment_my_profile_dialog_request_message_delete_account">Do you actually want to delete your account?</string>
     <string name="fragment_my_profile_snackbar_message_profile_updated">Your profile has been updated</string>
+    <string name="fragment_my_profile_input_error_username">Username has to contain up to 128 characters!</string>
     <string name="fragment_my_profile_input_error_about_me">About me has to contain any characters!</string>
     <string name="fragment_my_profile_button_update_text">UPDATE</string>
 

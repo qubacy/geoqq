@@ -22,10 +22,9 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.pinch.PinchZoomViewAct
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.changed.MapViewChangedViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.mapview.loaded.MapViewLoadedViewAssertion
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.component.hint.view.HintViewProvider
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.location.model.operation.LocationPointChangedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.operation.LocationPointChangedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module.GeoSettingsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation

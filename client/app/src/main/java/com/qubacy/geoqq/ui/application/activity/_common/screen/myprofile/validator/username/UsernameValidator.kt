@@ -4,7 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 
 class UsernameValidator : Validator<String> {
     companion object {
-        val REGEX = Regex("^.*$")
+        val REGEX = Regex("^.{6,128}$")
     }
 
     override fun isValid(value: String): Boolean {

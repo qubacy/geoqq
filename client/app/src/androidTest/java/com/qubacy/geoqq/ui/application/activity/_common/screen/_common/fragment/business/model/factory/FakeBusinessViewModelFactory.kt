@@ -1,13 +1,10 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory
 
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.state.BusinessUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory._test.mock.BusinessViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.state.BusinessUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory._test.mock.ViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
 import org.mockito.Mockito
 
 abstract class FakeBusinessViewModelFactory<

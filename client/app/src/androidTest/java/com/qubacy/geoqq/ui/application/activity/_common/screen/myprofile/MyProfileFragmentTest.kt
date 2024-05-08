@@ -1,11 +1,13 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile
 
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,14 +21,18 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.s
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
+import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.FakeMyProfileViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.DeleteMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.UpdateMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.update.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
@@ -45,12 +51,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     MyProfileViewModel,
     MyProfileViewModelMockContext,
     MyProfileFragment
->() {
+>(), PopupFragmentTest<MyProfileFragment> {
     companion object {
         val DEFAULT_AVATAR_RES_ID = R.drawable.test
     }
 
     private lateinit var mAvatarImagePresentation: ImagePresentation
+    private lateinit var mDefaultMyProfilePresentation: MyProfilePresentation
 
     override fun setup() {
         super.setup()
@@ -59,6 +66,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
             .targetContext.getUriFromResId(DEFAULT_AVATAR_RES_ID)
 
         mAvatarImagePresentation = ImagePresentation(0, imageUri)
+        mDefaultMyProfilePresentation = MyProfilePresentation(
+            mAvatarImagePresentation.uri,
+            "test",
+            "test",
+            "test about",
+            HitMeUpType.EVERYBODY
+        )
     }
 
     override fun createDefaultViewModelMockContext(): MyProfileViewModelMockContext {
@@ -92,15 +106,10 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processGetMyProfileOperationTest() = runTest {
+    fun onMyProfileFragmentGetMyProfileTest() = runTest {
         val viewModelMockContext = MyProfileViewModelMockContext(MyProfileUiState())
 
-        val myProfilePresentation = MyProfilePresentation(
-            mAvatarImagePresentation.uri,
-            "test",
-            "test about",
-            HitMeUpType.EVERYBODY
-        )
+        val myProfilePresentation = mDefaultMyProfilePresentation
         val getMyProfileOperation = GetMyProfileUiOperation(myProfilePresentation)
 
         val expectedAvatarUri = myProfilePresentation.avatarUri
@@ -123,14 +132,10 @@ class MyProfileFragmentTest : BusinessFragmentTest<
 
     @Test
     fun recoveringDataFromUiStateOnStartTest() {
-        val initMyProfile = MyProfilePresentation(
-            mAvatarImagePresentation.uri,
-            "test",
-            "test about",
-            HitMeUpType.EVERYBODY
-        )
+        val initMyProfile = mDefaultMyProfilePresentation
         val initMyProfileInputData = MyProfileInputData(
             initMyProfile.avatarUri,
+            initMyProfile.username,
             initMyProfile.aboutMe,
             String(), String(), String(),
             initMyProfile.hitMeUp
@@ -160,8 +165,9 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun preservingInputDataTest() {
+    fun preservingInputDataTest() = runTest {
         val expectedMyProfileInputData = MyProfileInputData(
+            username = "test",
             aboutMe = "test",
             password = "testtest",
             newPassword = "testtest2",
@@ -171,6 +177,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
 
         defaultInit()
 
+        mViewModelMockContext.uiOperationFlow.emit(SetLoadingStateUiOperation(false))
+
+        Espresso.onView(withId(R.id.fragment_my_profile_input_username))
+            .perform(
+                ViewActions.typeText(expectedMyProfileInputData.username),
+                ViewActions.closeSoftKeyboard()
+            )
         Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
             .perform(
                 ViewActions.typeText(expectedMyProfileInputData.aboutMe),
@@ -209,15 +222,45 @@ class MyProfileFragmentTest : BusinessFragmentTest<
         val testCases = listOf(
             TestCase(
                 MyProfileInputData(
+                    username = ""
+                ),
+                hashSetOf(R.id.fragment_my_profile_input_username)
+            ),
+            TestCase(
+                MyProfileInputData(
+                    username = " "
+                ),
+                hashSetOf(R.id.fragment_my_profile_input_username)
+            ),
+            TestCase(
+                MyProfileInputData(
+                    username = " f"
+                ),
+                hashSetOf(R.id.fragment_my_profile_input_username)
+            ),
+            TestCase(
+                MyProfileInputData(
+                    username = "qqqq "
+                ),
+                hashSetOf(R.id.fragment_my_profile_input_username)
+            ),
+            TestCase(
+                MyProfileInputData(
+                    username = "qqqqqq"
+                ),
+                hashSetOf()
+            ),
+            TestCase(
+                MyProfileInputData(
                     aboutMe = ""
                 ),
-                hashSetOf(R.id.fragment_my_profile_input_about_me)
+                hashSetOf()
             ),
             TestCase(
                 MyProfileInputData(
                     aboutMe = " "
                 ),
-                hashSetOf(R.id.fragment_my_profile_input_about_me)
+                hashSetOf()
             ),
             TestCase(
                 MyProfileInputData(
@@ -327,36 +370,36 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun errorsAppearOnClickingUpdateWithInvalidInputsAndDisappearOnChangingTheirContentTest() {
-        val initMyProfilePresentation = MyProfilePresentation(
-            mAvatarImagePresentation.uri,
-            "test",
-            "test",
-            HitMeUpType.NOBODY
-        )
+    fun errorsAppearOnClickingUpdateWithInvalidInputsAndDisappearOnChangingTheirContentTest() = runTest {
+        val initMyProfilePresentation = mDefaultMyProfilePresentation
         val initUiState = MyProfileUiState(
             myProfilePresentation = initMyProfilePresentation
         )
 
-        val invalidAboutMe = " "
+        val invalidUsername = " "
         val invalidPassword = " "
         val invalidNewPassword = " "
         val invalidNewPasswordAgain = " "
 
         initWithModelContext(MyProfileViewModelMockContext(initUiState))
 
-        Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
-            .perform(ViewActions.clearText(), ViewActions.typeText(invalidAboutMe), ViewActions.closeSoftKeyboard())
+        mViewModelMockContext.uiOperationFlow.emit(SetLoadingStateUiOperation(false))
+
+        Espresso.onView(withId(R.id.fragment_my_profile_input_username))
+            .perform(ViewActions.clearText(), ViewActions.typeText(invalidUsername), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.fragment_my_profile_input_password))
             .perform(ViewActions.typeText(invalidPassword), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.fragment_my_profile_input_new_password))
             .perform(ViewActions.typeText(invalidNewPassword), ViewActions.closeSoftKeyboard())
         Espresso.onView(withId(R.id.fragment_my_profile_input_new_password_again))
             .perform(ViewActions.typeText(invalidNewPasswordAgain), ViewActions.closeSoftKeyboard())
+
         Espresso.onView(withId(R.id.fragment_my_profile_button_update))
             .perform(ViewActions.click())
 
-        Espresso.onView(withText(R.string.fragment_my_profile_input_error_about_me))
+        Espresso.onView(isRoot()).perform(WaitViewAction(3000))
+
+        Espresso.onView(withText(R.string.fragment_my_profile_input_error_username))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(Matchers.allOf(
             isDescendantOfA(withId(R.id.fragment_my_profile_input_wrapper_password)),
@@ -373,18 +416,14 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun updateMyProfileTest() {
-        val initMyProfilePresentation = MyProfilePresentation(
-            mAvatarImagePresentation.uri,
-            "test",
-            "test",
-            HitMeUpType.NOBODY
-        )
+    fun updateMyProfileTest() = runTest {
+        val initMyProfilePresentation = mDefaultMyProfilePresentation
         val initUiState = MyProfileUiState(
             myProfilePresentation = initMyProfilePresentation
         )
 
         val updatedMyProfileInputData = MyProfileInputData(
+            username = "updated username",
             aboutMe = "updated about me",
             password = "testtest",
             newPassword = "testtest2",
@@ -397,6 +436,14 @@ class MyProfileFragmentTest : BusinessFragmentTest<
             initUiState, isUpdateDataValid = isUpdateDataValid
         ))
 
+        mViewModelMockContext.uiOperationFlow.emit(SetLoadingStateUiOperation(false))
+
+        Espresso.onView(withId(R.id.fragment_my_profile_input_username))
+            .perform(
+                ViewActions.clearText(),
+                ViewActions.typeText(updatedMyProfileInputData.username),
+                ViewActions.closeSoftKeyboard()
+            )
         Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
             .perform(
                 ViewActions.clearText(),
@@ -458,11 +505,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     @Test
     fun processSetLoadingOperationTest() = runTest {
         val initIsLoadingState = false
-        val initMyProfileUiState = MyProfileUiState(initIsLoadingState)
+        val initSetLoadingStateOperation = SetLoadingStateUiOperation(initIsLoadingState)
 
         val setLoadingStateOperation = SetLoadingStateUiOperation(true)
 
-        initWithModelContext(MyProfileViewModelMockContext(initMyProfileUiState))
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(initSetLoadingStateOperation)
 
         Espresso.onView(withId(R.id.fragment_my_profile_button_avatar))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
@@ -494,8 +543,57 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processUpdateMyProfileOperationTest() = runTest {
-        val updateMyProfileOperation = UpdateMyProfileUiOperation()
+    fun onMyProfileFragmentUpdateMyProfile() = runTest {
+        val viewModelMockContext = MyProfileViewModelMockContext(MyProfileUiState())
+
+        val initMyProfilePresentation = mDefaultMyProfilePresentation
+        val updatedMyProfilePresentation = mDefaultMyProfilePresentation
+            .copy(
+                username = "updated username",
+                aboutMe = "updated about me",
+                hitMeUp = HitMeUpType.NOBODY
+            )
+
+        val getMyProfileOperation = GetMyProfileUiOperation(initMyProfilePresentation)
+        val updateMyProfileOperation = UpdateMyProfileUiOperation(updatedMyProfilePresentation)
+
+        val expectedInitAvatarUri = initMyProfilePresentation.avatarUri
+        val expectedInitUsername = initMyProfilePresentation.username
+        val expectedInitAboutMe = initMyProfilePresentation.aboutMe
+        val expectedInitHitMeUp = initMyProfilePresentation.hitMeUp == HitMeUpType.EVERYBODY
+
+        val expectedUsername = updatedMyProfilePresentation.username
+        val expectedAboutMe = updatedMyProfilePresentation.aboutMe
+        val expectedHitMeUp = updatedMyProfilePresentation.hitMeUp == HitMeUpType.EVERYBODY
+
+        initWithModelContext(viewModelMockContext)
+
+        mViewModelMockContext.uiOperationFlow.emit(getMyProfileOperation)
+
+        Espresso.onView(withId(R.id.fragment_my_profile_avatar))
+            .check(ViewAssertions.matches(CommonImageViewMatcher(expectedInitAvatarUri)))
+        Espresso.onView(withId(R.id.fragment_my_profile_input_username))
+            .check(ViewAssertions.matches(withText(expectedInitUsername)))
+        Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
+            .check(ViewAssertions.matches(withText(expectedInitAboutMe)))
+        Espresso.onView(withId(R.id.fragment_my_profile_switch_hit_me_up))
+            .check(ViewAssertions.matches(
+                if (expectedInitHitMeUp) ViewMatchers.isChecked() else ViewMatchers.isNotChecked()))
+
+        mViewModelMockContext.uiOperationFlow.emit(updateMyProfileOperation)
+
+        Espresso.onView(withId(R.id.fragment_my_profile_input_username))
+            .check(ViewAssertions.matches(withText(expectedUsername)))
+        Espresso.onView(withId(R.id.fragment_my_profile_input_about_me))
+            .check(ViewAssertions.matches(withText(expectedAboutMe)))
+        Espresso.onView(withId(R.id.fragment_my_profile_switch_hit_me_up))
+            .check(ViewAssertions.matches(
+                if (expectedHitMeUp) ViewMatchers.isChecked() else ViewMatchers.isNotChecked()))
+    }
+
+    @Test
+    fun onMyProfileFragmentMyProfileUpdatedTest() = runTest {
+        val updateMyProfileOperation = MyProfileUpdatedUiOperation()
 
         defaultInit()
 
@@ -508,7 +606,7 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     @Deprecated("Poorly synchronized so can fail.")
     @Test
     fun processDeleteMyProfileOperationTest() = runTest {
-        val deleteOperation = DeleteMyProfileUiOperation()
+        val deleteOperation = MyProfileDeletedUiOperation()
 
         val expectedDestination = R.id.loginFragment
 
@@ -524,8 +622,7 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     @Deprecated("Poorly synchronized so can fail.")
     @Test
     fun processLogoutOperationTest() = runTest {
-        val logoutOperation =
-            com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation()
+        val logoutOperation = LogoutUiOperation()
 
         val expectedDestination = R.id.loginFragment
 
@@ -536,5 +633,17 @@ class MyProfileFragmentTest : BusinessFragmentTest<
         val gottenDestination = mNavController.currentDestination!!.id
 
         Assert.assertEquals(expectedDestination, gottenDestination)
+    }
+
+    override fun beforePopupMessageOccurredTest() {
+        defaultInit()
+    }
+
+    override fun getPopupActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getPopupFragment(): MyProfileFragment {
+        return mFragment
     }
 }

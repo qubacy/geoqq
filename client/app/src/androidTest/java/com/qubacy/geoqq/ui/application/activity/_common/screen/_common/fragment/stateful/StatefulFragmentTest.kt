@@ -11,11 +11,12 @@ import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.BaseFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.StatefulFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.StatefulViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.state.BaseUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory._test.mock.ViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.operation.error.ErrorUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.state.BaseUiState
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
