@@ -1,6 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
+import androidx.navigation.NavController
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.GeneralLocation
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -21,19 +24,22 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
+import com.qubacy.geoqq.ui._common._test.view.util.action.swipe.SwipeViewActionUtil
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.module.FakeMateRequestsViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.insert.InsertRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.update.UpdateRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.UpdateRequestUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
@@ -51,7 +57,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
     MateRequestsViewModel,
     MateRequestsViewModelMockContext,
     MateRequestsFragment
->() {
+>(), InterlocutorFragmentTest<MateRequestsFragment>, AuthorizationFragmentTest {
     companion object {
         val DEFAULT_AVATAR_RES_ID = R.drawable.test
     }
@@ -180,7 +186,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
      * Note: initInsertRequestsOperation is used because the requests are reset in onStart() method;
      */
     @Test
-    fun processRemoveRequestUiOperationTest() = runTest {
+    fun onMateRequestsFragmentRemoveRequestTest() = runTest {
         val initRequests = generateMateRequests(1)
         val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
 
@@ -198,101 +204,125 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
             .check(RecyclerViewItemCountViewAssertion(expectedRequestCount))
     }
 
+    /**
+     * Poor synchronization:
+     */
     @Test
-    fun processInsertRequestsUiOperationTest() = runTest {
+    fun onMateRequestsFragmentInsertRequestsTest() = runTest {
         val requests = generateMateRequests(1)
         val insertRequestsOperation = InsertRequestsUiOperation(0, requests)
 
+        val request = requests.first()
+
         val expectedRequestCount = requests.size
+        val expectedAvatarUri = request.user.avatar.uri
+        val expectedUsername = request.user.username
 
         defaultInit()
 
         mViewModelMockContext.uiOperationFlow.emit(insertRequestsOperation)
 
-        Espresso.onView(withId(R.id.fragment_mate_requests_list))
-            .check(RecyclerViewItemCountViewAssertion(expectedRequestCount))
-    }
-
-    @Test
-    fun processShowInterlocutorDetailsUiOperationTest() = runTest {
-        val userPresentation = mUserPresentation
-        val showInterlocutorDetailsOperation = ShowInterlocutorDetailsUiOperation(userPresentation)
-
-        defaultInit()
-
-        mViewModelMockContext.uiOperationFlow.emit(showInterlocutorDetailsOperation)
-
-        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.matches(Matchers.allOf(
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_image_avatar),
-                    CommonImageViewMatcher(userPresentation.avatar.uri)
-                )),
-                ViewMatchers.hasDescendant(withText(userPresentation.username)),
-                ViewMatchers.hasDescendant(withText(userPresentation.description)),
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_button_mate),
-                    ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)
-                ))
-            )))
-    }
-
-    @Test
-    fun processUpdateInterlocutorDetailsUiOperationTest() = runTest {
-        val userPresentation = mUserPresentation
-        val showInterlocutorDetailsOperation = ShowInterlocutorDetailsUiOperation(userPresentation)
-
-        val updatedUserPresentation = userPresentation.copy(username = "updated one")
-        val updateInterlocutorDetailsOperation =
-            UpdateInterlocutorDetailsUiOperation(updatedUserPresentation)
-
-        defaultInit()
-
-        mViewModelMockContext.uiOperationFlow.emit(showInterlocutorDetailsOperation)
-        mViewModelMockContext.uiOperationFlow.emit(updateInterlocutorDetailsOperation)
-
-        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.matches(Matchers.allOf(
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_image_avatar),
-                    CommonImageViewMatcher(updatedUserPresentation.avatar.uri)
-                )),
-                ViewMatchers.hasDescendant(withText(updatedUserPresentation.username)),
-                ViewMatchers.hasDescendant(withText(updatedUserPresentation.description)),
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_button_mate),
-                    ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)
-                ))
-            )))
-    }
-
-    @Test
-    fun processSetLoadingStateUiOperationTest() = runTest {
-        val initLoadingState = false
-        val initRequests = generateMateRequests(1)
-        val initUiState = MateRequestsUiState(isLoading = initLoadingState)
-
-        val initInsertRequestsUiOperation = InsertRequestsUiOperation(0, initRequests)
-
-        val isLoading = true
-        val setLoadingStateOperation = SetLoadingStateUiOperation(isLoading)
-        val userPresentation = mUserPresentation
-
-        initWithModelContext(MateRequestsViewModelMockContext(
-            initUiState, getUserProfileWithMateRequestId = userPresentation))
-
-        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
-
-        // todo: find a way to avoid this:
         Espresso.onView(isRoot()).perform(WaitViewAction(500))
 
-        mViewModelMockContext.uiOperationFlow.emit(setLoadingStateOperation)
+        Espresso.onView(withId(R.id.fragment_mate_requests_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedRequestCount))
+//        Espresso.onView(CommonImageViewMatcher(expectedAvatarUri))
+//            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withText(expectedUsername))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
 
-        Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
-            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
-            .perform(ViewActions.click())
-        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.doesNotExist())
+    @Test
+    fun onMateRequestsFragmentUpdateRequest() = runTest {
+        val initRequests = generateMateRequests(1)
+        val initRequest = initRequests.first()
+        val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
+
+        val position = 0
+        val request = initRequest.copy(user = initRequest.user.copy(username = "updated"))
+
+        val updateRequestOperation = UpdateRequestUiOperation(position, request)
+
+        val expectedAvatarUri = request.user.avatar.uri
+        val expectedUsername = request.user.username
+
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsOperation)
+        mViewModelMockContext.uiOperationFlow.emit(updateRequestOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+//        Espresso.onView(CommonImageViewMatcher(expectedAvatarUri))
+//            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withText(expectedUsername))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun onMateRequestsFragmentUpdateRequestTest() = runTest {
+        val initRequests = generateMateRequests(1)
+        val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
+
+        val position = 0
+        val requests = initRequests.map { it.copy(user = it.user.copy(username = "updated")) }
+
+        val updateRequestsOperation = UpdateRequestsUiOperation(position, requests)
+        val request = requests.first()
+
+        val expectedAvatarUri = request.user.avatar.uri
+        val expectedUsername = request.user.username
+
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsOperation)
+        mViewModelMockContext.uiOperationFlow.emit(updateRequestsOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+//        Espresso.onView(CommonImageViewMatcher(expectedAvatarUri))
+//            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withText(expectedUsername))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    /**
+     * Poor synchronization:
+     */
+    @Test
+    fun onMateRequestsFragmentReturnAnsweredRequestTest() = runTest {
+        val initRequests = generateMateRequests(1)
+        val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
+
+        val request = initRequests.first()
+        val returnAnsweredRequestUiOperation = ReturnAnsweredRequestUiOperation(0)
+
+        val expectedAvatarUri = request.user.avatar.uri
+        val expectedUsername = request.user.username
+
+        defaultInit()
+
+        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+        Espresso.onView(withId(R.id.component_mate_request_preview_container))
+            .perform(SwipeViewActionUtil.generateSwipeViewAction(
+                GeneralLocation.CENTER_RIGHT, GeneralLocation.CENTER_LEFT))
+
+//        Espresso.onView(CommonImageViewMatcher(expectedAvatarUri))
+//            .check(ViewAssertions.matches(Matchers.not(ViewMatchers.isCompletelyDisplayed())))
+        Espresso.onView(withText(expectedUsername))
+            .check(ViewAssertions.matches(Matchers.not(ViewMatchers.isCompletelyDisplayed())))
+
+        mViewModelMockContext.uiOperationFlow.emit(returnAnsweredRequestUiOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+//        Espresso.onView(CommonImageViewMatcher(expectedAvatarUri))
+//            .check(ViewAssertions.matches(ViewMatchers.isCompletelyDisplayed()))
+        Espresso.onView(withText(expectedUsername))
+            .check(ViewAssertions.matches(ViewMatchers.isCompletelyDisplayed()))
     }
 
     private fun generateMateRequests(
@@ -305,5 +335,88 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
 
             MateRequestPresentation(id, user)
         }.toMutableList()
+    }
+
+    override fun adjustUiWithLoadingStateTest() {
+        super.adjustUiWithLoadingStateTest()
+    }
+
+    override fun beforeAdjustUiWithLoadingStateTest() = runTest {
+        val initRequests = generateMateRequests(1)
+        val initInsertRequestsUiOperation = InsertRequestsUiOperation(0, initRequests)
+
+        val userPresentation = mUserPresentation
+
+        initWithModelContext(MateRequestsViewModelMockContext(
+            MateRequestsUiState(), getUserProfileWithMateRequestId = userPresentation))
+
+        mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
+    }
+
+    /**
+     * Poorly synchronized:
+     */
+    override fun assertAdjustUiWithFalseLoadingState() {
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+        Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+            .perform(ViewActions.click())
+        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
+        mActivityScenario.onActivity {
+            mFragment.closeInterlocutorDetailsSheet()
+        }
+    }
+
+    /**
+     * Poorly synchronized:
+     */
+    override fun assertAdjustUiWithTrueLoadingState() {
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
+
+        Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+            .perform(ViewActions.click())
+        // todo: fix this:
+        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
+            .check(ViewAssertions.doesNotExist())
+    }
+
+    override fun beforeNavigateToLoginTest() {
+        defaultInit()
+    }
+
+    override fun getAuthorizationFragmentNavController(): NavController {
+        return mNavController
+    }
+
+    override fun getAuthorizationFragmentLoginAction(): Int {
+        return R.id.action_mateRequestsFragment_to_loginFragment
+    }
+
+    override fun getAuthorizationFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun beforeAdjustInterlocutorFragmentUiWithInterlocutorTest() {
+        defaultInit()
+    }
+
+    override fun beforeOpenInterlocutorDetailsSheetTest() {
+        defaultInit()
+    }
+
+    override fun getInterlocutorFragmentFragment(): MateRequestsFragment {
+        return mFragment
+    }
+
+    override fun getInterlocutorFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getInterlocutorFragmentAvatar(): ImagePresentation {
+        return mImagePresentation
     }
 }

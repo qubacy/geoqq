@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
+import androidx.navigation.NavController
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -13,12 +15,14 @@ import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.MateChatItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.factory._test.mock.MateChatsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.module.FakeMateChatsViewModelModule
@@ -42,7 +46,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     MateChatsViewModel,
     MateChatsViewModelMockContext,
     MateChatsFragment
->() {
+>(), AuthorizationFragmentTest {
     companion object {
         val DEFAULT_AVATAR_RES_ID = R.drawable.test
     }
@@ -144,7 +148,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processInsertChatsUiOperationTest() = runTest {
+    fun onMateChatsFragmentInsertChatsTest() = runTest {
         val initChats = mutableListOf<MateChatPresentation>()
         val initInsertChatsOperation = InsertChatsUiOperation(0, initChats)
 
@@ -168,7 +172,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processUpdateChatChunkUiOperationTest() = runTest {
+    fun onMateChatsFragmentUpdateChatsTest() = runTest {
         val initChats = generateMateChatPresentations(1)
         val initInsertChatsOperation = InsertChatsUiOperation(0, initChats)
 
@@ -219,5 +223,45 @@ class MateChatsFragmentTest : BusinessFragmentTest<
         return MateMessagePresentation(
             0, user, "test in chat $chatId", "timestamp"
         )
+    }
+
+    override fun beforeAdjustUiWithLoadingStateTest() {
+        val initChats = generateMateChatPresentations(1)
+        val initUiState = MateChatsUiState(chats = initChats)
+
+        initWithModelContext(MateChatsViewModelMockContext(initUiState))
+    }
+
+    override fun assertAdjustUiWithFalseLoadingState() {
+        Espresso.onView(withId(R.id.fragment_mate_chats_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        Espresso.onView(ViewMatchers.isAssignableFrom(MateChatItemView::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+    }
+
+    override fun assertAdjustUiWithTrueLoadingState() {
+        Espresso.onView(withId(R.id.fragment_mate_chats_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        // todo: fix this (doesn't work):
+        Espresso.onView(ViewMatchers.isAssignableFrom(MateChatItemView::class.java))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+    }
+
+    override fun beforeNavigateToLoginTest() {
+        defaultInit()
+    }
+
+    override fun getAuthorizationFragmentNavController(): NavController {
+        return mNavController
+    }
+
+    override fun getAuthorizationFragmentLoginAction(): Int {
+        return R.id.action_mateChatsFragment_to_loginFragment
+    }
+
+    override fun getAuthorizationFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
     }
 }

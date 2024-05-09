@@ -238,6 +238,8 @@ class MateChatsFragment(
 
     override fun adjustUiWithLoadingState(loadingState: Boolean) {
         changeLoadingIndicatorState(loadingState)
+
+        mBinding.fragmentMateChatsList.setIsEnabled(!loadingState)
     }
 
     private fun initMateChatListView() {

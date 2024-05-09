@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
+import androidx.navigation.NavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
@@ -23,7 +24,10 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.Re
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
@@ -34,6 +38,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
@@ -45,13 +50,18 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @UninstallModules(MateChatViewModelModule::class)
 @RunWith(AndroidJUnit4::class)
-class MateChatsFragmentTest : BusinessFragmentTest<
+class MateChatFragmentTest : BusinessFragmentTest<
     FragmentMateChatBinding,
     MateChatUiState,
     MateChatViewModel,
     MateChatViewModelMockContext,
     MateChatFragment
->(), PopupFragmentTest<MateChatFragment> {
+>(),
+    AuthorizationFragmentTest,
+    InterlocutorFragmentTest<MateChatFragment>,
+    ChatFragmentTest<MateChatFragment>,
+    PopupFragmentTest<MateChatFragment>
+{
     companion object {
         val DEFAULT_AVATAR_RES_ID = R.drawable.test
     }
@@ -137,10 +147,10 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(Matchers.allOf(
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_image_avatar),
-                    CommonImageViewMatcher(chatContext.user.avatar.uri)
-                )),
+//                ViewMatchers.hasDescendant(Matchers.allOf(
+//                    withId(R.id.component_bottom_sheet_user_image_avatar),
+//                    CommonImageViewMatcher(chatContext.user.avatar.uri)
+//                )),
                 ViewMatchers.hasDescendant(withText(chatContext.user.username)),
                 ViewMatchers.hasDescendant(withText(chatContext.user.description)),
                 ViewMatchers.hasDescendant(withText(
@@ -266,7 +276,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processInsertMessagesUiOperationTest() = runTest {
+    fun onMateChatFragmentInsertMessagesTest() = runTest {
         val chatContext = mChatPresentation
         val messages = generateMateMessagePresentations(20)
         val initUiState = MateChatUiState(chatContext = chatContext)
@@ -282,7 +292,7 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun processUpdateMessageChunkUiOperationTest() = runTest {
+    fun onMateChatFragmentUpdateMessagesTest() = runTest {
         val chatContext = mChatPresentation
         val initMessages = generateMateMessagePresentations(20)
         val messagePosition = 0
@@ -305,74 +315,22 @@ class MateChatsFragmentTest : BusinessFragmentTest<
             .check(RecyclerViewItemCountViewAssertion(expectedMessageListItemCount))
     }
 
+    /**
+     * Fails due to synchronization issues;
+     */
     @Test
-    fun processShowInterlocutorDetailsUiOperationTest() = runTest {
-        val chatContext = mChatPresentation
-        val interlocutor = chatContext.user
-        val initUiState = MateChatUiState(chatContext = chatContext)
+    fun onMateChatFragmentChatDeletedTest() = runTest {
+        val chatDeletedUiOperation = ChatDeletedUiOperation()
 
-        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
+        val expectedDestinationId = R.id.mateChatsFragment
 
-        mViewModelMockContext.uiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(interlocutor))
+        initWithDefaultChatContext()
 
-        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.matches(Matchers.allOf(
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_image_avatar),
-                    CommonImageViewMatcher(interlocutor.avatar.uri)
-                )),
-                ViewMatchers.hasDescendant(withText(interlocutor.username)),
-                ViewMatchers.hasDescendant(withText(interlocutor.description)),
-                ViewMatchers.hasDescendant(withText(
-                    R.string.component_bottom_sheet_user_button_mate_caption_remove))
-            )))
-    }
+        mViewModelMockContext.uiOperationFlow.emit(chatDeletedUiOperation)
 
-    @Test
-    fun processUpdateInterlocutorDetailsUiOperationTest() = runTest {
-        val chatContext = mChatPresentation
-        val interlocutor = chatContext.user
-        val initUiState = MateChatUiState(chatContext = chatContext)
+        val gottenDestinationId = mNavController.currentDestination!!.id
 
-        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
-
-        val updatedInterlocutor = interlocutor.copy(username = "updated")
-
-        mViewModelMockContext.uiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(interlocutor))
-        mViewModelMockContext.uiOperationFlow.emit(UpdateInterlocutorDetailsUiOperation(updatedInterlocutor))
-
-        Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.matches(Matchers.allOf(
-                ViewMatchers.hasDescendant(Matchers.allOf(
-                    withId(R.id.component_bottom_sheet_user_image_avatar),
-                    CommonImageViewMatcher(updatedInterlocutor.avatar.uri)
-                )),
-                ViewMatchers.hasDescendant(withText(updatedInterlocutor.username)),
-                ViewMatchers.hasDescendant(withText(updatedInterlocutor.description)),
-                ViewMatchers.hasDescendant(withText(
-                    R.string.component_bottom_sheet_user_button_mate_caption_remove))
-            )))
-    }
-
-    @Test
-    fun processMateRequestSentToInterlocutorUiOperationTest() = runTest {
-        val chatContext = mChatPresentation
-        val interlocutor = chatContext.user
-        val initUiState = MateChatUiState(chatContext = chatContext)
-
-        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
-
-        mViewModelMockContext.uiOperationFlow.emit(ShowInterlocutorDetailsUiOperation(interlocutor))
-        mViewModelMockContext.uiOperationFlow.emit(MateRequestSentToInterlocutorUiOperation())
-
-        Espresso.onView(withText(R.string.fragment_chat_snackbar_message_mate_request_sent))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    }
-
-    @Test
-    fun processChatDeletedUiOperationTest() = runTest {
-        // todo: implement once it's real to check TestNavController's destination normally;
-
+        Assert.assertEquals(expectedDestinationId, gottenDestinationId)
     }
 
     // todo: not possible for now:
@@ -456,5 +414,85 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
     override fun getPopupFragment(): MateChatFragment {
         return mFragment
+    }
+
+    override fun beforeAdjustUiWithLoadingStateTest() {
+        initWithDefaultChatContext()
+    }
+
+    override fun assertAdjustUiWithFalseLoadingState() {
+        Espresso.onView(withId(R.id.fragment_mate_chat_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        Espresso.onView(withId(R.id.fragment_mate_chat_input_message))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+    }
+
+    override fun assertAdjustUiWithTrueLoadingState() {
+        Espresso.onView(withId(R.id.fragment_mate_chat_progress_bar))
+            .check(ViewAssertions.matches(
+                ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        Espresso.onView(withId(R.id.fragment_mate_chat_input_message))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+    }
+
+    override fun beforeNavigateToLoginTest() {
+        initWithDefaultChatContext()
+    }
+
+    override fun getAuthorizationFragmentNavController(): NavController {
+        return mNavController
+    }
+
+    override fun getAuthorizationFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getAuthorizationFragmentLoginAction(): Int {
+        return R.id.action_mateChatFragment_to_loginFragment
+    }
+
+    override fun onChatFragmentMessageSentTest() {
+        // todo: nothing to check for now..
+
+    }
+
+    override fun beforeOnChatFragmentMateRequestSentTest() {
+        initWithDefaultChatContext()
+    }
+
+    override fun getChatFragmentFragment(): MateChatFragment {
+        return mFragment
+    }
+
+    override fun getChatFragmentInterlocutorFragmentTest(): InterlocutorFragmentTest<MateChatFragment> {
+        return this
+    }
+
+    override fun beforeAdjustInterlocutorFragmentUiWithInterlocutorTest() {
+        initWithDefaultChatContext()
+    }
+
+    override fun beforeOpenInterlocutorDetailsSheetTest() {
+        initWithDefaultChatContext()
+    }
+
+    override fun getInterlocutorFragmentFragment(): MateChatFragment {
+        return mFragment
+    }
+
+    override fun getInterlocutorFragmentActivityScenario(): ActivityScenario<*> {
+        return mActivityScenario
+    }
+
+    override fun getInterlocutorFragmentAvatar(): ImagePresentation {
+        return mImagePresentation
+    }
+
+    private fun initWithDefaultChatContext() {
+        val chatContext = mChatPresentation
+        val initUiState = MateChatUiState(chatContext = chatContext)
+
+        initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
     }
 }

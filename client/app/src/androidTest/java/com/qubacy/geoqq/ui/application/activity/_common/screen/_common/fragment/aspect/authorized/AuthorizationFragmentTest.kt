@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized
 
 import androidx.navigation.NavController
+import androidx.test.core.app.ActivityScenario
 import com.qubacy.geoqq.R
 import org.junit.Assert
 import org.junit.Test
@@ -20,7 +21,9 @@ interface AuthorizationFragmentTest {
 
         val expectedDestinationId = R.id.loginFragment
 
-        navController.navigate(loginAction)
+        getAuthorizationFragmentActivityScenario().onActivity {
+            navController.navigate(loginAction)
+        }
 
         val gottenDestinationId = navController.currentDestination!!.id
 
@@ -30,6 +33,8 @@ interface AuthorizationFragmentTest {
     fun beforeNavigateToLoginTest()
 
     fun getAuthorizationFragmentNavController(): NavController
+
+    fun getAuthorizationFragmentActivityScenario(): ActivityScenario<*>
 
     fun getAuthorizationFragmentLoginAction(): Int
 }

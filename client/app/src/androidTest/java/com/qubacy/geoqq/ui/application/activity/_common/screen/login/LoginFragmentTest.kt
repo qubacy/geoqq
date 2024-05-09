@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.login
 
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -248,7 +249,7 @@ class LoginFragmentTest : BusinessFragmentTest<
 
     @Deprecated("Poorly synchronized so can fail.")
     @Test
-    fun processSignInOperationTest() = runTest {
+    fun onLoginFragmentSignInTest() = runTest {
         val signInOperation = SignInUiOperation()
 
         val expectedDestination = R.id.mateChatsFragment
@@ -262,16 +263,20 @@ class LoginFragmentTest : BusinessFragmentTest<
         Assert.assertEquals(expectedDestination, currentDestination)
     }
 
-    @Test
-    fun processSetLoadingOperationTest() = runTest {
-        val initUiState = LoginUiState(isLoading = false)
+    override fun assertAdjustUiWithFalseLoadingState() {
+        Espresso.onView(withId(R.id.fragment_login_text_input_login))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_text_input_password))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_text_input_repeat_password))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_button_login))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        Espresso.onView(withId(R.id.fragment_login_button_change_login_type))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+    }
 
-        val setLoadingStateOperation = SetLoadingStateUiOperation(true)
-
-        initWithModelContext(LoginViewModelMockContext(initUiState))
-
-        mViewModelMockContext.uiOperationFlow.emit(setLoadingStateOperation)
-
+    override fun assertAdjustUiWithTrueLoadingState() {
         Espresso.onView(withId(R.id.fragment_login_text_input_login))
             .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
         Espresso.onView(withId(R.id.fragment_login_text_input_password))

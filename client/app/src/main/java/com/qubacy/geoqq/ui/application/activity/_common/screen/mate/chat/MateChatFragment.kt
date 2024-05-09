@@ -95,7 +95,7 @@ class MateChatFragment(
     }
 
     override fun getPopupAnchorView(): View {
-        return mBinding.fragmentMateInputMessageWrapper
+        return mBinding.fragmentMateChatInputMessageWrapper
     }
 
     override fun getPopupFragmentBaseFragment(): BaseFragment<*> {
@@ -225,7 +225,7 @@ class MateChatFragment(
         mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
-        mBinding.fragmentMateInputMessage.setOnKeyListener { _, keyCode, event ->
+        mBinding.fragmentMateChatInputMessage.setOnKeyListener { _, keyCode, event ->
             onMessageInputKeyPressed(keyCode, event)
         }
     }
@@ -275,13 +275,13 @@ class MateChatFragment(
         mBinding.fragmentMateChatTopBarWrapper.apply {
             updatePadding(top = insets.top)
         }
-        mBinding.fragmentMateInputMessageWrapper.apply {
+        mBinding.fragmentMateChatInputMessageWrapper.apply {
             updatePadding(bottom = insets.bottom)
         }
         mBinding.fragmentMateChatList.apply {
             updateLayoutParams<CoordinatorLayout.LayoutParams> {
                 this@updateLayoutParams.bottomMargin =
-                    mBinding.fragmentMateInputMessageWrapper.measuredHeight
+                    mBinding.fragmentMateChatInputMessageWrapper.measuredHeight
             }
         }
 
@@ -338,13 +338,13 @@ class MateChatFragment(
     private fun adjustMessageInputWithInterlocutor(interlocutor: UserPresentation) {
         val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
 
-        mBinding.fragmentMateInputMessage.apply {
+        mBinding.fragmentMateChatInputMessage.apply {
             isEnabled = isInterlocutorChatable
 
             if (!isInterlocutorChatable) clearFocus()
         }
 
-        mBinding.fragmentMateInputMessageWrapper
+        mBinding.fragmentMateChatInputMessageWrapper
             .setHint(getMessageInputHintByInterlocutor(interlocutor))
     }
 
@@ -388,12 +388,12 @@ class MateChatFragment(
     }
 
     private fun launchSendingMessage() {
-        val messageText = mBinding.fragmentMateInputMessage.text.toString().trim()
+        val messageText = mBinding.fragmentMateChatInputMessage.text.toString().trim()
 
         if (!mModel.isMessageTextValid(messageText))
             return mModel.retrieveError(UiChatErrorType.INVALID_MESSAGE)
 
-        mBinding.fragmentMateInputMessage.text!!.clear()
+        mBinding.fragmentMateChatInputMessage.text!!.clear()
 
         mModel.sendMessage(messageText)
     }
@@ -431,6 +431,8 @@ class MateChatFragment(
 
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
         changeLoadingIndicatorState(isLoading)
+
+        mBinding.fragmentMateChatInputMessage.isEnabled = !isLoading
     }
 
     private fun changeLoadingIndicatorState(isVisible: Boolean) {

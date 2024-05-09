@@ -51,7 +51,7 @@
         tools:itemCount="3"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_mate_input_message_wrapper"
+        android:id="@+id/fragment_mate_chat_input_message_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -59,7 +59,7 @@
         android:hint="@string/fragment_mate_chat_input_message_hint_text_chatable">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fragment_mate_input_message"
+            android:id="@+id/fragment_mate_chat_input_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputEditText.FilledBox" />
