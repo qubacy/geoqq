@@ -337,10 +337,6 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
         }.toMutableList()
     }
 
-    override fun adjustUiWithLoadingStateTest() {
-        super.adjustUiWithLoadingStateTest()
-    }
-
     override fun beforeAdjustUiWithLoadingStateTest() = runTest {
         val initRequests = generateMateRequests(1)
         val initInsertRequestsUiOperation = InsertRequestsUiOperation(0, initRequests)
@@ -353,12 +349,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
         mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
     }
 
-    /**
-     * Poorly synchronized:
-     */
     override fun assertAdjustUiWithFalseLoadingState() {
-        Espresso.onView(isRoot()).perform(WaitViewAction(500))
-
         Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
             .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
             .perform(ViewActions.click())
@@ -370,18 +361,12 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
         }
     }
 
-    /**
-     * Poorly synchronized:
-     */
     override fun assertAdjustUiWithTrueLoadingState() {
-        Espresso.onView(isRoot()).perform(WaitViewAction(500))
-
         Espresso.onView(isAssignableFrom(ChoosableItemViewProvider::class.java))
             .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
             .perform(ViewActions.click())
-        // todo: fix this:
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
-            .check(ViewAssertions.doesNotExist())
+            .check(ViewAssertions.matches(Matchers.not(ViewMatchers.isDisplayed())))
     }
 
     override fun beforeNavigateToLoginTest() {
