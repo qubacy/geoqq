@@ -36,7 +36,11 @@ class CommonImageViewMatcher : BaseMatcher<View> {
         val imageBitmap = getBitmap(mImage)
         val itemImageBitmap = getBitmap(item.drawable)
 
-        return (itemImageBitmap.sameAs(imageBitmap))
+        val imageState = mImage.constantState
+        val itemImageState = item.drawable.constantState
+
+        return (imageState != null && itemImageState != null && imageState == itemImageState ||
+            itemImageBitmap.sameAs(imageBitmap))
     }
 
     private fun getBitmap(drawable: Drawable): Bitmap {

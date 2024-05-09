@@ -196,6 +196,8 @@ class GeoChatFragment(
     }
 
     private fun initUiWithUiState(uiState: GeoChatUiState) {
+        // todo: should it stay empty?
+
 
     }
 
@@ -359,6 +361,8 @@ class GeoChatFragment(
 
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
         changeLoadingIndicatorState(isLoading)
+
+        mBinding.fragmentGeoChatInputMessage.isEnabled = !isLoading
     }
 
     private fun changeLoadingIndicatorState(isVisible: Boolean) {

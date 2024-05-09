@@ -77,6 +77,10 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
     override fun setup() {
         super.setup()
 
+        initVariables()
+    }
+
+    private fun initVariables() {
         val imageUri = InstrumentationRegistry.getInstrumentation()
             .targetContext.getUriFromResId(DEFAULT_AVATAR_RES_ID)
 
