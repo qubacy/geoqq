@@ -2,10 +2,10 @@ package com.qubacy.geoqq.data._common.repository.source.remote.http.executor
 
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponse
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import okhttp3.MediaType
 import okhttp3.ResponseBody

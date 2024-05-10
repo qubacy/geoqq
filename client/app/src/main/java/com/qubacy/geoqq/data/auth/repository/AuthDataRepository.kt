@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.HttpTokenDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
 import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
 import com.qubacy.geoqq.data.auth.repository.source.http.HttpAuthDataSource
 import com.qubacy.geoqq.data.auth.repository.source.local.database.LocalAuthDatabaseDataSource
@@ -16,7 +16,7 @@ class AuthDataRepository @Inject constructor(
     private val mErrorSource: LocalErrorDataSource,
     private val mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
     private val mLocalAuthDatabaseDataSource: LocalAuthDatabaseDataSource,
-    private val mHttpTokenDataSource: HttpTokenDataSource,
+    private val mRemoteTokenHttpRestDataSource: RemoteTokenHttpRestDataSource,
     private val mHttpAuthDataSource: HttpAuthDataSource
 ) : DataRepository {
     companion object {
@@ -34,7 +34,7 @@ class AuthDataRepository @Inject constructor(
             throw ErrorAppException(mErrorSource.getError(
                 DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
 
-        val updateTokensResponse = mHttpTokenDataSource.updateTokens(localRefreshToken!!)
+        val updateTokensResponse = mRemoteTokenHttpRestDataSource.updateTokens(localRefreshToken!!)
 
         mLocalTokenDataStoreDataSource.saveTokens(
             updateTokensResponse.accessToken,

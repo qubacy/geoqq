@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository.source.http.api.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.api.HttpApi
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.HttpRestApi
 import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
 import dagger.Module
 import dagger.Provides
@@ -12,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 class HttpMateMessageDataSourceModuleApi {
     @Provides
     fun provideHttpMateMessageDataSourceModule(
-        httpApi: HttpApi
+        httpRestApi: HttpRestApi
     ): HttpMateMessageDataSourceApi {
-        return httpApi.mateMessageApi
+        return httpRestApi.mateMessageApi
     }
 }

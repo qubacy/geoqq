@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.request.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.request.PostMateRequestRequest
 import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse

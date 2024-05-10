@@ -6,16 +6,16 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.qubacy.geoqq.BuildConfig
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.api.HttpApi
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.HttpRestApi
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.module.LocalErrorDataSourceModule
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.tokenDataStore
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.interceptor.auth.module.AuthorizationHttpInterceptorModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.client.module.HttpClientModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter.ErrorJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.HttpTokenDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.module.AuthorizationHttpRestInterceptorModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
 
@@ -25,8 +25,8 @@ class CustomApplication : Application() {
         const val TAG = "CustomApplication"
     }
 
-    private lateinit var mHttpApi: HttpApi
-    val httpApi get() = mHttpApi
+    private lateinit var mHttpRestApi: HttpRestApi
+    val httpRestApi get() = mHttpRestApi
 
     private lateinit var mDB: Database
     val db get() = mDB
@@ -44,7 +44,7 @@ class CustomApplication : Application() {
 
         initSharedLocalDataSources(mDB)
 
-        mHttpApi = buildHttpApi(mDB, mLocalTokenDataStoreDataSource)
+        mHttpRestApi = buildHttpApi(mDB, mLocalTokenDataStoreDataSource)
 
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
     }
@@ -59,22 +59,22 @@ class CustomApplication : Application() {
     private fun buildHttpApi(
         database: Database,
         localTokenDataSource: LocalTokenDataStoreDataSource
-    ): HttpApi {
+    ): HttpRestApi {
         val errorDataSource = LocalErrorDataSourceModule
             .provideLocalErrorDataSourceModule(database.errorDao())
 
         val httpCallExecutor = HttpCallExecutor(errorDataSource, ErrorJsonAdapter())
-        val httpTokenDataSource = HttpTokenDataSource(httpCallExecutor)
+        val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSource(httpCallExecutor)
         val errorJsonAdapter = ErrorJsonAdapter()
 
-        val authorizationHttpInterceptor = AuthorizationHttpInterceptorModule
-            .provideAuthorizationHttpInterceptor(
-                errorDataSource, errorJsonAdapter, localTokenDataSource, httpTokenDataSource)
+        val authorizationHttpInterceptor = AuthorizationHttpRestInterceptorModule
+            .provideAuthorizationHttpRestInterceptor(
+                errorDataSource, errorJsonAdapter, localTokenDataSource, remoteTokenHttpRestDataSource)
         val okHttpClient = HttpClientModule
-            .provideHttpClient(errorDataSource, authorizationHttpInterceptor)
+            .provideHttpClientBuilder(errorDataSource, authorizationHttpInterceptor)
 
-        return HttpApi(okHttpClient).also {
-            httpTokenDataSource.setHttpTokenDataSourceApi(it.tokenApi) // todo: dirty..;
+        return HttpRestApi(okHttpClient).also {
+            remoteTokenHttpRestDataSource.setHttpTokenDataSourceApi(it.tokenApi) // todo: dirty..;
         }
     }
 

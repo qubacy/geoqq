@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.image.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
 import com.qubacy.geoqq.data.image.repository.source.http.api.request.GetImagesRequest
 import com.qubacy.geoqq.data.image.repository.source.http.api.request.UploadImageRequest

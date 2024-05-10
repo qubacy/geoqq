@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.http
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
 import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.UpdateMyProfileRequest
 import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse

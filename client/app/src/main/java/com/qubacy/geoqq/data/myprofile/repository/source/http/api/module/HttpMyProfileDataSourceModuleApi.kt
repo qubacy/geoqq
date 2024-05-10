@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.myprofile.repository.source.http.api.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.api.HttpApi
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.HttpRestApi
 import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
 import dagger.Module
 import dagger.Provides
@@ -12,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 object HttpMyProfileDataSourceModuleApi {
     @Provides
     fun provideHttpMyProfileDataSourceApi(
-        httpApi: HttpApi
+        httpRestApi: HttpRestApi
     ): HttpMyProfileDataSourceApi {
-        return httpApi.myProfileApi
+        return httpRestApi.myProfileApi
     }
 }

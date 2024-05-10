@@ -4,8 +4,8 @@ import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil.mockBase64
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.HttpTokenDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.token.api.response.UpdateTokensResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.api.response.UpdateTokensResponse
 import com.qubacy.geoqq.data.auth.repository.source.http.HttpAuthDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._test.mock.LocalTokenDataStoreDataSourceMockContainer
@@ -99,17 +99,17 @@ class AuthDataRepositoryTest : DataRepositoryTest<AuthDataRepository>() {
         return localAuthDatabaseDataSourceMock
     }
 
-    private fun mockHttpTokenDataSource(): HttpTokenDataSource {
-        val httpTokenDataSourceMock = Mockito.mock(HttpTokenDataSource::class.java)
+    private fun mockHttpTokenDataSource(): RemoteTokenHttpRestDataSource {
+        val remoteTokenHttpRestDataSourceMock = Mockito.mock(RemoteTokenHttpRestDataSource::class.java)
 
-        Mockito.`when`(httpTokenDataSourceMock.updateTokens(
+        Mockito.`when`(remoteTokenHttpRestDataSourceMock.updateTokens(
             Mockito.anyString()
         )).thenAnswer {
             mHttpSourceUpdateTokensCallFlag = true
             mHttpSourceUpdateTokensResponse
         }
 
-        return httpTokenDataSourceMock
+        return remoteTokenHttpRestDataSourceMock
     }
 
     private fun mockHttpAuthDataSource(): HttpAuthDataSource {

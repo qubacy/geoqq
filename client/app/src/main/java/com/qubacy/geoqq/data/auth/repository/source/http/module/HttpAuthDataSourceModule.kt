@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.auth.repository.source.http.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data.auth.repository.source.http.HttpAuthDataSource
 import com.qubacy.geoqq.data.auth.repository.source.http.api.HttpAuthDataSourceApi
 import dagger.Module

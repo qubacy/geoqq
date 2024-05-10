@@ -1,7 +1,8 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.json.adapter
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponse
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.response.error.ErrorResponseContent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

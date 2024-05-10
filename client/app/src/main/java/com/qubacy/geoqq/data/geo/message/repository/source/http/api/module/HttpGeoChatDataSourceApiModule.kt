@@ -16,7 +16,7 @@ object HttpGeoChatDataSourceApiModule {
     fun provideHttpGeoChatDataSourceApi(
         @ApplicationContext context: Context
     ): HttpGeoMessageDataSourceApi {
-        val httpApi = (context as CustomApplication).httpApi
+        val httpApi = (context as CustomApplication).httpRestApi
 
         return httpApi.geoChatApi
     }
