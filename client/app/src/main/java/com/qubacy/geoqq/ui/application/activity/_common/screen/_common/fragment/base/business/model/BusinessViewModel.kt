@@ -41,9 +41,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     @OptIn(ExperimentalCoroutinesApi::class)
     override val uiOperationFlow = merge(
         mUiOperationFlow,
-        mUseCase.resultFlow
-            .flowOn(Dispatchers.Default.limitedParallelism(1)) // todo: doesn't work for API 21;
-            .flatMapMerge { mapDomainResultFlow(it) }
+        mUseCase.resultFlow.flatMapMerge(1) { mapDomainResultFlow(it) }
     )
     private lateinit var mBusinessScope: CoroutineScope
 

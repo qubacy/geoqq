@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -73,7 +74,6 @@ open class MateChatsViewModel @Inject constructor(
             return onError(updateChatChunkResult.error!!)
 
         val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
-        //Log.d(TAG, "processUpdateChatChunkDomainResult(): prevChatChunkOffset = $prevChatChunkOffset; mUiState.chatChunkSizes = ${mUiState.chatChunkSizes.map { "${it.key} -> ${it.value}, " }};")
         val prevChatChunkSize = mUiState.chatChunkSizes[prevChatChunkOffset]!!
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
@@ -101,7 +101,8 @@ open class MateChatsViewModel @Inject constructor(
             val prevChatChunkSize = mUiState.chatChunkSizes[chunkOffset]!!
             val prevChatToRemovePosition = chatChunk.offset
             val prevChatsToRemove = mUiState.chats.subList(
-                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize)
+                prevChatToRemovePosition, prevChatToRemovePosition + prevChatChunkSize
+            ).toMutableList()
 
             mUiState.chats.removeAll(prevChatsToRemove)
             mUiState.chats.addAll(prevChatToRemovePosition, chatPresentationChunk)

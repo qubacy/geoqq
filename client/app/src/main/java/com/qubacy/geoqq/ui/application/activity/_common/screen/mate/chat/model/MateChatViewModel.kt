@@ -226,7 +226,8 @@ open class MateChatViewModel @Inject constructor(
             val prevMessageChunkSize = mUiState.messageChunkSizes[chunkOffset]!!
             val prevMessageToRemovePosition = messageChunk.offset
             val prevMessagesToRemove = mUiState.messages.subList(
-                prevMessageToRemovePosition, prevMessageToRemovePosition + prevMessageChunkSize)
+                prevMessageToRemovePosition, prevMessageToRemovePosition + prevMessageChunkSize
+            ).toMutableList()
 
             mUiState.messages.removeAll(prevMessagesToRemove)
             mUiState.messages.addAll(prevMessageToRemovePosition, messagePresentationChunk)
