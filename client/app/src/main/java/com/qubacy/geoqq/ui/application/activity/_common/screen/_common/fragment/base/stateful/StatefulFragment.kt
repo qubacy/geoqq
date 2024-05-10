@@ -96,6 +96,7 @@ abstract class StatefulFragment<
 
     override fun onErrorHandled(error: Error) {
         mModel.absorbCurrentError()
-        mErrorMutex.unlock()
+
+        if (mErrorMutex.isLocked) mErrorMutex.unlock()
     }
 }

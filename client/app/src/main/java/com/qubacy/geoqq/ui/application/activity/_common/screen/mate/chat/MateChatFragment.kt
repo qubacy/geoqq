@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
 import android.graphics.Shader
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -220,11 +221,14 @@ class MateChatFragment(
     }
 
     private fun initUiControls() {
-        // todo: implement..
-
         mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
+
+        val interlocutor = mModel.uiState.chatContext!!.user
+
+        adjustMessageInputWithInterlocutor(interlocutor)
+
         mBinding.fragmentMateChatInputMessage.setOnKeyListener { _, keyCode, event ->
             onMessageInputKeyPressed(keyCode, event)
         }
@@ -336,16 +340,26 @@ class MateChatFragment(
     }
 
     private fun adjustMessageInputWithInterlocutor(interlocutor: UserPresentation) {
-        val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
-
-        mBinding.fragmentMateChatInputMessage.apply {
-            isEnabled = isInterlocutorChatable
-
-            if (!isInterlocutorChatable) clearFocus()
-        }
+        setMessageInputEnabledWithInterlocutor(interlocutor)
 
         mBinding.fragmentMateChatInputMessageWrapper
             .setHint(getMessageInputHintByInterlocutor(interlocutor))
+    }
+
+    private fun setMessageInputEnabledWithInterlocutor(interlocutor: UserPresentation) {
+        val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
+
+        setMessageInputEnabled(isInterlocutorChatable)
+    }
+
+    private fun setMessageInputEnabled(enable: Boolean) {
+        Log.d(TAG, "setMessageInputEnabled(): enable = $enable;")
+
+        mBinding.fragmentMateChatInputMessage.apply {
+            isEnabled = enable
+
+            if (!enable) clearFocus()
+        }
     }
 
     @StringRes
@@ -431,8 +445,7 @@ class MateChatFragment(
 
     override fun adjustUiWithLoadingState(isLoading: Boolean) {
         changeLoadingIndicatorState(isLoading)
-
-        mBinding.fragmentMateChatInputMessage.isEnabled = !isLoading
+        setMessageInputEnabled(!isLoading && mModel.isInterlocutorChatable())
     }
 
     private fun changeLoadingIndicatorState(isVisible: Boolean) {

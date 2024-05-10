@@ -156,7 +156,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         onErrorDismissedAction: ((error: Error) -> Unit) = { error -> onErrorDismissed(error) },
         onErrorHandledAction: ((error: Error) -> Unit) = { error -> onErrorHandled(error) }
     ) {
-        val onDismissedWithButton = {
+        val onDismissed = {
             onErrorDismissedAction(error)
             onErrorHandledAction(error)
         }
@@ -164,7 +164,8 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         mErrorDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.component_error_dialog_title_text)
             .setMessage(error.message)
-            .setNeutralButton(R.string.component_error_dialog_button_neutral_caption) { _, _ -> onDismissedWithButton() }
+            .setNeutralButton(R.string.component_error_dialog_button_neutral_caption) { _, _ -> onDismissed() }
+            .setOnDismissListener { onDismissed() }
             .create()
 
         mErrorDialog!!.show()
