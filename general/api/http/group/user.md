@@ -12,6 +12,7 @@
 ```json
 {
     "id": "<id>",
+    "login": "<string>",
     "username": "<string>",
     "description": "<string>",
     "avatar-id": "<image-id>",
@@ -27,6 +28,7 @@
 ```json
 {       
     /* optional */
+    "username": "<string>",
     "description": "<string>",
     "avatar-id": "<image-id>",
     "privacy": {
@@ -50,6 +52,7 @@
 ```json
 {       
     /* optional */
+    "username": "<string>",
     "description": "<string>",
     "avatar": {
         "ext": "<int>",
