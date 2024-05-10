@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator.message.text.MessageTextValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation

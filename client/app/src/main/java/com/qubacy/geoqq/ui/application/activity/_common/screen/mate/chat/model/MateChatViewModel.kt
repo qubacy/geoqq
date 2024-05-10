@@ -11,7 +11,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunk
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator.message.text.MessageTextValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel

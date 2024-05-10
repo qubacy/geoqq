@@ -174,7 +174,7 @@ class LoginFragment(
         }
 
         mModel.signIn(login, password)
-        clearLoginInputs()
+        //clearLoginInputs()
     }
 
     private fun validateSignInInputs(login: String, password: String): Boolean {
@@ -192,7 +192,7 @@ class LoginFragment(
         }
 
         mModel.signUp(login, password)
-        clearLoginInputs()
+        //clearLoginInputs()
     }
 
     private fun validateSignUpInputs(

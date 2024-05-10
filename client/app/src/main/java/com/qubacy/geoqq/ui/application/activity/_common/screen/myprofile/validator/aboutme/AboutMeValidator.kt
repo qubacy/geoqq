@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator._common.Validator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.Validator
 
 class AboutMeValidator : Validator<String> {
     companion object {
