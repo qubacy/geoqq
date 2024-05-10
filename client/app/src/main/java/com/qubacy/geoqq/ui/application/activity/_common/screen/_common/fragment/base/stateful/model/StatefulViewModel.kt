@@ -42,10 +42,8 @@ abstract class StatefulViewModel<UiStateType: BaseUiState>(
 
     protected abstract fun generateDefaultUiState() : UiStateType
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     open fun retrieveError(errorType: ErrorType) {
-        // todo: is it alright?:
-        viewModelScope.launch(Dispatchers.Default.limitedParallelism(1)) {
+        viewModelScope.launch(Dispatchers.Default) {
             val error = mErrorSource.getError(errorType.getErrorCode())
 
             mUiOperationFlow.emit(ErrorUiOperation(error))

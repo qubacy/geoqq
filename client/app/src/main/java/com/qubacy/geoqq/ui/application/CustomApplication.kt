@@ -63,10 +63,10 @@ class CustomApplication : Application() {
     ): HttpRestApi {
         val errorDataSource = LocalErrorDataSourceModule
             .provideLocalErrorDataSourceModule(database.errorDao())
-
-        val httpCallExecutor = HttpCallExecutor(errorDataSource, ErrorJsonAdapter())
-        val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSource(httpCallExecutor)
         val errorJsonAdapter = ErrorJsonAdapter()
+
+        val httpCallExecutor = HttpCallExecutor(errorDataSource, errorJsonAdapter)
+        val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSource(httpCallExecutor)
 
         val authorizationHttpInterceptor = AuthorizationHttpRestInterceptorModule
             .provideAuthorizationHttpRestInterceptor(

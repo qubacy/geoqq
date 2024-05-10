@@ -16,10 +16,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.preserveLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.merge
 
 abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : UseCase>(
@@ -35,9 +38,12 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
         const val BACKEND_RESPONDED_KEY = "backendResponded"
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val uiOperationFlow = merge(
         mUiOperationFlow,
-        mUseCase.resultFlow.flatMapMerge { mapDomainResultFlow(it) }
+        mUseCase.resultFlow
+            .flowOn(Dispatchers.Default.limitedParallelism(1)) // todo: doesn't work for API 21;
+            .flatMapMerge { mapDomainResultFlow(it) }
     )
     private lateinit var mBusinessScope: CoroutineScope
 
