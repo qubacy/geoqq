@@ -1,10 +1,14 @@
 # Geo 🗺
 
+### General Headers
+| Name | Value Type | 
+| ---- | -----------|
+| Authorization | Bearer `<jwt-string>` |
+
 ## GET /api/geo/chat/message/all
 
 ### Parameters
 #### Required
-- accessToken=`"<jwt-string>"`
 - radius=`"<int>"`
 - lon=`"<real>"`
 - lat=`"<real>"`
@@ -30,7 +34,6 @@
 
 ### Parameters
 #### Required
-- accessToken=`"<jwt-string>"`
 - radius=`"<int>"`
 - lon=`"<real>"`
 - lat=`"<real>"`
@@ -63,7 +66,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "text": "<string>",
     "longitude": "<real>",
     "latitude": "<real>"

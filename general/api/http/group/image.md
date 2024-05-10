@@ -1,10 +1,11 @@
 # Image (eq Avatar?) ⬛️
 
-## GET /api/image/{`id`}
+### General Headers
+| Name | Value Type | 
+| ---- | -----------|
+| Authorization | Bearer `<jwt-string>` |
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
+## GET /api/image/{`id`}
 
 ### Responses
 - *200*
@@ -24,7 +25,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "ids": [
         "<id>",
         ...
@@ -54,7 +54,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "image": {
         "ext": "<int>",
         "content": "<base64-string>"

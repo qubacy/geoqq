@@ -1,10 +1,14 @@
 # Mate
 
+### General Headers
+| Name | Value Type | 
+| ---- | -----------|
+| Authorization | Bearer `<jwt-string>` |
+
 ## GET /api/mate/chat
 
 ### Parameters
 #### Required
-- accessToken=`"<jwt-string>"`
 - offset=`"<int>"`
 - count=`"<int>"`
 
@@ -32,10 +36,6 @@
 
 ## GET /api/mate/chat/{`id`}
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-
 ### Responses
 - *200*
 ```json
@@ -56,13 +56,6 @@
 
 ## DELETE /api/mate/chat/{`id`}
 
-### Request body
-```json
-{
-    "access-token": "<jwt-string>",
-}
-```
-
 ### Responses
 - *200*
 
@@ -72,7 +65,6 @@
 
 ### Parameters
 #### Required
-- accessToken=`"<jwt-string>"`
 - offset=`"<int>"`
 - count=`"<int>"`
 
@@ -94,10 +86,6 @@
 
 ## GET /api/mate/chat/{`id`}/new-message/count
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-
 ### Responses
 - *200*
 ```json
@@ -112,7 +100,6 @@
 
 ### Parameters
 #### Required
-- accessToken=`"<jwt-string>"`
 - offset=`"<int>"`
 - count=`"<int>"`
 
@@ -132,10 +119,6 @@
 
 ## GET /api/mate/request/count
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
-
 ### Responses
 - *200*
 ```json
@@ -149,7 +132,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "user-id": "<id>",
 }
 ```
@@ -163,7 +145,6 @@
 #### Type: *application/x-www-form-urlencoded*
 | Key | Value Type |
 |-----|------------|
-| access-token | `jwt-string` | 
 | accepted | `bool` | 
 
 ### Responses
@@ -178,7 +159,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "text": "<string>"
 }
 ```

@@ -1,10 +1,11 @@
 # User 👨‍💻
 
-## GET /api/my-profile
+### General Headers
+| Name | Value Type | 
+| ---- | -----------|
+| Authorization | Bearer `<jwt-string>` |
 
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
+## GET /api/my-profile
 
 ### Responses
 - *200*
@@ -24,10 +25,7 @@
 
 ### Request body
 ```json
-{
-    /* required */
-    "access-token": "<jwt-string>",
-       
+{       
     /* optional */
     "description": "<string>",
     "avatar-id": "<image-id>",
@@ -50,10 +48,7 @@
 
 ### Request body
 ```json
-{
-    /* required */
-    "access-token": "<jwt-string>",
-       
+{       
     /* optional */
     "description": "<string>",
     "avatar": {
@@ -77,23 +72,12 @@
 
 ## DELETE /api/my-profile
 
-### Request body
-```json
-{
-    "access-token": "<jwt-string>",
-}
-```
-
 ### Responses
 - *200*
   
 <!-- -------------------------------------------- -->
 
 ## GET /api/user/{`id`}
-
-### Parameters
-#### Required
-- accessToken=`"<jwt-string>"`
 
 ### Responses
 - *200*
@@ -115,7 +99,6 @@
 ### Request body
 ```json
 {
-    "access-token": "<jwt-string>",
     "ids": [
         "<id>",
         ...
