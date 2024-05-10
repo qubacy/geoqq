@@ -6,6 +6,7 @@ server:
     host: "0.0.0.0"
     port: 57000
 
+    max_header_kb: 1000
     read_timeout: 25s
     write_timeout: 25s
     shutdown_timeout: 5s

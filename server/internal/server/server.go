@@ -17,8 +17,9 @@ type Server struct {
 type Dependencies struct {
 	Engine *gin.Engine
 
-	Host string
-	Port uint16
+	Host        string
+	Port        uint16
+	MaxHeaderKb int
 
 	ReadTimeout     time.Duration
 	WriteTimeout    time.Duration
@@ -29,7 +30,7 @@ func NewServer(deps Dependencies) (*Server, error) {
 	return &Server{
 		httpServer: &http.Server{
 			Addr:           fmt.Sprintf("%s:%v", deps.Host, deps.Port),
-			MaxHeaderBytes: 1 << 20,
+			MaxHeaderBytes: deps.MaxHeaderKb * 1024,
 			ReadTimeout:    deps.ReadTimeout,
 			WriteTimeout:   deps.WriteTimeout,
 			Handler:        deps.Engine,

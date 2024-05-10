@@ -18,6 +18,7 @@
         "Hasher",
         "Infof",
         "jackc",
+        "ldflags",
         "mlog",
         "mockaroo",
         "natefinch",

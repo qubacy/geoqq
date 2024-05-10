@@ -117,8 +117,9 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 	serverDeps := server.Dependencies{
 		Engine: httpHandler.GetEngine(),
 
-		Host: viper.GetString("server.http.host"),
-		Port: viper.GetUint16("server.http.port"),
+		Host:        viper.GetString("server.http.host"),
+		Port:        viper.GetUint16("server.http.port"),
+		MaxHeaderKb: viper.GetInt("server.http.max_header_kb"),
 
 		ReadTimeout:  viper.GetDuration("server.http.read_timeout"),
 		WriteTimeout: viper.GetDuration("server.http.write_timeout"),

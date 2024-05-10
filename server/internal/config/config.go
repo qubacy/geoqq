@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	utl "geoqq/pkg/utility"
+
 	"github.com/spf13/viper"
 )
 
@@ -17,18 +19,29 @@ const (
 func Initialize() error {
 	configPath, err := currentConfigPathToFile()
 	if err != nil {
-		// TODO: build default config!
-
-		configPath = "."
-		return err
+		return utl.NewFuncError(Initialize, err)
 	}
+	fmt.Printf("config path: %v\n", configPath)
 
-	fmt.Println("Config path:", configPath)
+	// ***
 
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(ConfigFileName)
 
-	return viper.ReadInConfig()
+	if err = viper.ReadInConfig(); err != nil {
+		return utl.NewFuncError(Initialize, err)
+	}
+
+	// ***
+
+	if host := os.Getenv("HTTP_HOST"); len(host) != 0 {
+		viper.Set("server.http.host", host)
+	}
+	if port := os.Getenv("HTTP_PORT"); len(port) != 0 {
+		viper.Set("server.http.port", port)
+	}
+
+	return nil
 }
 
 // private
@@ -47,22 +60,23 @@ func existsConfigFile(rootCatalog string) bool {
 	return true
 }
 
-// temp solution!
 func currentConfigPathToFile() (string, error) {
-	cur := "."
+	rootCatalog := "."
 	if existsConfigFile(".") {
-		return cur, nil
+		return rootCatalog, nil
 	}
 
-	cur = "../internal/config"
-	if existsConfigFile(cur) {
-		return cur, nil
+	rootCatalog = "../internal/config"
+	if existsConfigFile(rootCatalog) {
+		return rootCatalog, nil
 	}
 
-	cur = "./internal/config"
-	if existsConfigFile(cur) {
-		return cur, nil
+	rootCatalog = "./internal/config"
+	if existsConfigFile(rootCatalog) {
+		return rootCatalog, nil
 	}
 
 	return "", ErrConfigNotFound
 }
+
+// -----------------------------------------------------------------------
