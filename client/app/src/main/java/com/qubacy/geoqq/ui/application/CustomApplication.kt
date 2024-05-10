@@ -15,6 +15,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.initializer.RestHttpClientInitializer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
@@ -70,8 +71,11 @@ class CustomApplication : Application() {
         val authorizationHttpInterceptor = AuthorizationHttpRestInterceptorModule
             .provideAuthorizationHttpRestInterceptor(
                 errorDataSource, errorJsonAdapter, localTokenDataSource, remoteTokenHttpRestDataSource)
-        val okHttpClient = HttpClientModule
-            .provideHttpClientBuilder(errorDataSource, authorizationHttpInterceptor)
+
+        val restHttpClientInitializer = RestHttpClientInitializer(authorizationHttpInterceptor)
+
+        val okHttpClient = HttpClientModule.provideHttpClient(
+            errorDataSource, restHttpClientInitializer)
 
         return HttpRestApi(okHttpClient).also {
             remoteTokenHttpRestDataSource.setHttpTokenDataSourceApi(it.tokenApi) // todo: dirty..;
