@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mo
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelFactoryQualifier
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

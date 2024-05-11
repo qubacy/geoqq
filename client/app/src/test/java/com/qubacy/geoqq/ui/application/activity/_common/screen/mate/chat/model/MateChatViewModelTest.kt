@@ -28,11 +28,12 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.impl.MateChatViewModelImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -41,7 +42,7 @@ import java.lang.reflect.Field
 
 class MateChatViewModelTest(
 
-) : BusinessViewModelTest<MateChatUiState, MateChatUseCaseImpl, MateChatViewModel>(
+) : BusinessViewModelTest<MateChatUiState, MateChatUseCaseImpl, MateChatViewModelImpl>(
     MateChatUseCaseImpl::class.java
 ) {
     companion object {
@@ -72,7 +73,7 @@ class MateChatViewModelTest(
     override fun preInit() {
         super.preInit()
 
-        mIsGettingNextMessageChunkFieldReflection = MateChatViewModel::class.java
+        mIsGettingNextMessageChunkFieldReflection = MateChatViewModelImpl::class.java
             .getDeclaredField("mIsGettingNextMessageChunk")
             .apply { isAccessible = true }
     }
@@ -120,8 +121,8 @@ class MateChatViewModelTest(
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): MateChatViewModel {
-        return MateChatViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): MateChatViewModelImpl {
+        return MateChatViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -216,9 +217,11 @@ class MateChatViewModelTest(
         for (testCase in testCases) {
             val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
 
-            setUiState(MateChatUiState(
+            setUiState(
+                MateChatUiState(
                 isMateRequestSendingAllowed = testCase.isMateRequestSendingAllowed
-            ))
+            )
+            )
 
             val gottenIsMateable = mModel.isInterlocutorMateable(userPresentation)
 
@@ -244,9 +247,11 @@ class MateChatViewModelTest(
         for (testCase in testCases) {
             val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
 
-            setUiState(MateChatUiState(
+            setUiState(
+                MateChatUiState(
                 isMateRequestSendingAllowed = testCase.isMateRequestSendingAllowed
-            ))
+            )
+            )
 
             val gottenIsMateableOrDeletable = mModel.isInterlocutorMateableOrDeletable(
                 userPresentation)

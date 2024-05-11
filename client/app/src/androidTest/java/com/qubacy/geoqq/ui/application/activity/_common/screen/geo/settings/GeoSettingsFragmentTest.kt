@@ -14,10 +14,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.StatefulFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.impl.GeoSettingsViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.factory._test.mock.GeoSettingsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module.FakeGeoSettingsViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.state.GeoSettingsUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.ui._common._test.view.util.action.pinch.PinchZoomViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
@@ -32,7 +32,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module.GeoSettingsViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.operation.ChangeRadiusUiOperation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
@@ -51,8 +51,8 @@ class GeoSettingsFragmentTest(
 
 ) : StatefulFragmentTest<
     FragmentGeoSettingsBinding,
-    GeoSettingsUiState,
-    GeoSettingsViewModel,
+        GeoSettingsUiState,
+        GeoSettingsViewModelImpl,
     GeoSettingsViewModelMockContext,
     GeoSettingsFragment
 >(),
@@ -82,7 +82,7 @@ class GeoSettingsFragmentTest(
     override fun createDefaultViewModelMockContext(): GeoSettingsViewModelMockContext {
         return GeoSettingsViewModelMockContext(
             GeoSettingsUiState(
-            radius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS)
+            radius = GeoSettingsViewModelImpl.DEFAULT_RADIUS_METERS)
         )
     }
 
@@ -200,7 +200,7 @@ class GeoSettingsFragmentTest(
     @Test
     fun processChangeRadiusUiOperationTest() = runTest {
         val initLocationPoint = DEFAULT_LOCATION_POINT
-        val initRadius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+        val initRadius = GeoSettingsViewModelImpl.DEFAULT_RADIUS_METERS
         val initUiState = GeoSettingsUiState(
             lastLocationPoint = initLocationPoint,
             radius = initRadius
@@ -240,7 +240,7 @@ class GeoSettingsFragmentTest(
         val initLoadingState = false
         val initUiState = GeoSettingsUiState(
             isLoading = initLoadingState,
-            radius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+            radius = GeoSettingsViewModelImpl.DEFAULT_RADIUS_METERS
         )
 
         val loadingState = true
@@ -292,7 +292,7 @@ class GeoSettingsFragmentTest(
 
     override fun adjustUiWithLocationPointTest() = runTest {
         val initLocationPoint = DEFAULT_LOCATION_POINT
-        val initRadius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS
+        val initRadius = GeoSettingsViewModelImpl.DEFAULT_RADIUS_METERS
         val initUiState = GeoSettingsUiState(
             lastLocationPoint = initLocationPoint,
             radius = initRadius

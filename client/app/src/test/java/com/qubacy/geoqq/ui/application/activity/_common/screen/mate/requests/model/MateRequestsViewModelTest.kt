@@ -21,10 +21,11 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.chunk.insert.InsertRequestsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.RemoveRequestUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.operation.request.UpdateRequestUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.insert.InsertRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -33,7 +34,7 @@ import java.lang.reflect.Field
 
 class MateRequestsViewModelTest(
 
-) : BusinessViewModelTest<MateRequestsUiState, MateRequestsUseCaseImpl, MateRequestsViewModel>(
+) : BusinessViewModelTest<MateRequestsUiState, MateRequestsUseCaseImpl, MateRequestsViewModelImpl>(
     MateRequestsUseCaseImpl::class.java
 ) {
     companion object {
@@ -62,7 +63,7 @@ class MateRequestsViewModelTest(
     override fun preInit() {
         super.preInit()
 
-        mIsGettingNextChatChunkFieldReflection = MateRequestsViewModel::class.java
+        mIsGettingNextChatChunkFieldReflection = MateRequestsViewModelImpl::class.java
             .getDeclaredField("mIsGettingNextRequestChunk")
             .apply { isAccessible = true }
     }
@@ -94,8 +95,8 @@ class MateRequestsViewModelTest(
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): MateRequestsViewModel {
-        return MateRequestsViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): MateRequestsViewModelImpl {
+        return MateRequestsViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test

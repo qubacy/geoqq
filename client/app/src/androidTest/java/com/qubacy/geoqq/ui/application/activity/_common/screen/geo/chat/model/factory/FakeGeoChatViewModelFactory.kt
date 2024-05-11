@@ -3,18 +3,18 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.f
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.impl.GeoChatViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import org.mockito.Mockito
 
 class FakeGeoChatViewModelFactory(
     mockContext: GeoChatViewModelMockContext
 ) : FakeBusinessViewModelFactory<
-        GeoChatUiState, GeoChatViewModel, GeoChatViewModelMockContext
+        GeoChatUiState, GeoChatViewModelImpl, GeoChatViewModelMockContext
         >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as GeoChatViewModel
+        val viewModelMock = super.create(modelClass) as GeoChatViewModelImpl
 
         Mockito.`when`(viewModelMock.changeLastLocation(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.changeLastLocationCallFlag = true

@@ -2,10 +2,10 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.m
 
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.module.FakeViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.impl.GeoChatViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory.FakeGeoChatViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ActivityRetainedComponent
@@ -17,7 +17,7 @@ import dagger.hilt.testing.TestInstallIn
     replaces = [GeoChatViewModelModule::class]
 )
 object FakeGeoChatViewModelModule : FakeViewModelModule<
-    GeoChatUiState, GeoChatViewModelMockContext
+        GeoChatUiState, GeoChatViewModelMockContext
 >() {
     @Provides
     @GeoChatViewModelFactoryQualifier

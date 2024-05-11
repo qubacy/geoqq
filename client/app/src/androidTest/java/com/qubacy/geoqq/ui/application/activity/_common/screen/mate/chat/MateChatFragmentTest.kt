@@ -12,21 +12,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.impl.MateChatViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.factory._test.mock.MateChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.module.FakeMateChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.module.MateChatViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.state.MateChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.ui._common._test.view.util.action.click.soft.SoftClickViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
-import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
@@ -36,9 +34,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.message.UpdateMessageChunkUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.operation.request.ChatDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
@@ -52,8 +50,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MateChatFragmentTest : BusinessFragmentTest<
     FragmentMateChatBinding,
-    MateChatUiState,
-    MateChatViewModel,
+        MateChatUiState,
+        MateChatViewModelImpl,
     MateChatViewModelMockContext,
     MateChatFragment
 >(),
@@ -301,7 +299,8 @@ class MateChatFragmentTest : BusinessFragmentTest<
         initWithModelContext(MateChatViewModelMockContext(uiState = initUiState))
 
         mViewModelMockContext.uiOperationFlow.emit(
-            InsertMessagesUiOperation(messagePosition, initMessages))
+            InsertMessagesUiOperation(messagePosition, initMessages)
+        )
 
         val updatedMessages = generateMateMessagePresentations(5)
         val messageChunkSizeDelta = initMessages.size - updatedMessages.size
@@ -309,7 +308,8 @@ class MateChatFragmentTest : BusinessFragmentTest<
         val expectedMessageListItemCount = updatedMessages.size
 
         mViewModelMockContext.uiOperationFlow.emit(
-            UpdateMessageChunkUiOperation(messagePosition, updatedMessages, messageChunkSizeDelta))
+            UpdateMessageChunkUiOperation(messagePosition, updatedMessages, messageChunkSizeDelta)
+        )
 
         Espresso.onView(withId(R.id.fragment_mate_chat_list))
             .check(RecyclerViewItemCountViewAssertion(expectedMessageListItemCount))

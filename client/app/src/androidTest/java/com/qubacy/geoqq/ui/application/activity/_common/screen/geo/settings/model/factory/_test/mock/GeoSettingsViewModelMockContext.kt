@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.mod
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory._test.mock.ViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.impl.GeoSettingsViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.state.GeoSettingsUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class GeoSettingsViewModelMockContext(
@@ -20,7 +20,7 @@ class GeoSettingsViewModelMockContext(
     override fun reset() {
         super.reset()
 
-        uiState = GeoSettingsUiState(radius = GeoSettingsViewModel.DEFAULT_RADIUS_METERS)
+        uiState = GeoSettingsUiState(radius = GeoSettingsViewModelImpl.DEFAULT_RADIUS_METERS)
 
         changeLastLocationCallFlag = false
         setMapLoadingStatusCallFlag = false

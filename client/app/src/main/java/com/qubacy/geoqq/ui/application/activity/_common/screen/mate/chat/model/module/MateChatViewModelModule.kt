@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.MateChatViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.impl.MateChatViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.impl.MateChatViewModelFactoryQualifier
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

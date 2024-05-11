@@ -14,9 +14,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.AddGeoMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.operation.UpdateGeoMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.impl.GeoChatViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
 import kotlinx.coroutines.test.runTest
@@ -25,7 +26,7 @@ import org.junit.Test
 import org.mockito.Mockito
 
 class GeoChatViewModelTest : BusinessViewModelTest<
-    GeoChatUiState, GeoChatUseCaseImpl, GeoChatViewModel
+        GeoChatUiState, GeoChatUseCaseImpl, GeoChatViewModelImpl
 >(
     GeoChatUseCaseImpl::class.java
 ) {
@@ -95,8 +96,8 @@ class GeoChatViewModelTest : BusinessViewModelTest<
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): GeoChatViewModel {
-        return GeoChatViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): GeoChatViewModelImpl {
+        return GeoChatViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -440,42 +441,42 @@ class GeoChatViewModelTest : BusinessViewModelTest<
     }
 
     private fun setRadius(radius: Int?) {
-        GeoChatViewModel::class.java
+        GeoChatViewModelImpl::class.java
             .getDeclaredField("mRadius")
             .apply { isAccessible = true }
             .set(mModel, radius)
     }
 
     private fun setLatitude(latitude: Float?) {
-        GeoChatViewModel::class.java
+        GeoChatViewModelImpl::class.java
             .getDeclaredField("mLatitude")
             .apply { isAccessible = true }
             .set(mModel, latitude)
     }
 
     private fun setLongitude(longitude: Float?) {
-        GeoChatViewModel::class.java
+        GeoChatViewModelImpl::class.java
             .getDeclaredField("mLongitude")
             .apply { isAccessible = true }
             .set(mModel, longitude)
     }
 
     private fun getRadius(): Int? {
-        return GeoChatViewModel::class.java
+        return GeoChatViewModelImpl::class.java
             .getDeclaredField("mRadius")
             .apply { isAccessible = true }
             .get(mModel) as Int
     }
 
     private fun getLatitude(): Float? {
-        return GeoChatViewModel::class.java
+        return GeoChatViewModelImpl::class.java
             .getDeclaredField("mLatitude")
             .apply { isAccessible = true }
             .get(mModel) as Float
     }
 
     private fun getLongitude(): Float? {
-        return GeoChatViewModel::class.java
+        return GeoChatViewModelImpl::class.java
             .getDeclaredField("mLongitude")
             .apply { isAccessible = true }
             .get(mModel) as Float

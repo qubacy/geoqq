@@ -9,8 +9,9 @@ import com.qubacy.geoqq.domain.login.usecase._common.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.operation.SignInUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.operation.SignInUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.LoginViewModelImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -18,7 +19,7 @@ import org.mockito.Mockito
 
 class LoginViewModelTest(
 
-) : BusinessViewModelTest<LoginUiState, LoginUseCaseImpl, LoginViewModel>(
+) : BusinessViewModelTest<LoginUiState, LoginUseCaseImpl, LoginViewModelImpl>(
     LoginUseCaseImpl::class.java
 ) {
     private var mUseCaseSignInWithTokenCallFlag = false
@@ -62,8 +63,8 @@ class LoginViewModelTest(
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): LoginViewModel {
-        return LoginViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): LoginViewModelImpl {
+        return LoginViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -188,7 +189,8 @@ class LoginViewModelTest(
         val expectedAutoSignInAllowedState = false
         val errorDomainResult = SignedInDomainResult(expectedError)
 
-        setUiState(LoginUiState(
+        setUiState(
+            LoginUiState(
             autoSignInAllowed = initAutoSignInAllowedState,
             isLoading = initIsLoading)
         )
@@ -221,7 +223,8 @@ class LoginViewModelTest(
         val initAutoSignInAllowedState = true
         val expectedAutoSignInAllowedState = false
 
-        setUiState(LoginUiState(
+        setUiState(
+            LoginUiState(
             autoSignInAllowed = initAutoSignInAllowedState,
             isLoading = initIsLoading)
         )

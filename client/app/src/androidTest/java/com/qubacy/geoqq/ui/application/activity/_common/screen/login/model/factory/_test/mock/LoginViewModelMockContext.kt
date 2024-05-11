@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.fact
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory._test.mock.BusinessViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class LoginViewModelMockContext(

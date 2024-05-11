@@ -3,18 +3,18 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.fact
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.LoginViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import org.mockito.Mockito
 
 class FakeLoginViewModelFactory(
     mockContext: LoginViewModelMockContext
 ) : FakeBusinessViewModelFactory<
-    LoginUiState, LoginViewModel, LoginViewModelMockContext
+        LoginUiState, LoginViewModelImpl, LoginViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as LoginViewModel
+        val viewModelMock = super.create(modelClass) as LoginViewModelImpl
 
         Mockito.`when`(viewModelMock.isSignInDataValid(
             Mockito.anyString(), Mockito.anyString()

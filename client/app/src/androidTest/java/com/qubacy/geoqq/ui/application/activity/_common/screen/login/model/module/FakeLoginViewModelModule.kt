@@ -2,10 +2,10 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.modu
 
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.module.FakeViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.LoginViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory.FakeLoginViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ActivityRetainedComponent

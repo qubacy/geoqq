@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.myprofile.usecase._common.MyProfileUseCase
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.MyProfileViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.MyProfileViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelImplFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelFactoryQualifier
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +19,6 @@ object MyProfileViewModelModule {
         localErrorDataSource: LocalErrorDatabaseDataSource,
         myProfileUseCase: MyProfileUseCase
     ): ViewModelProvider.Factory {
-        return MyProfileViewModelFactory(localErrorDataSource, myProfileUseCase)
+        return MyProfileViewModelImplFactory(localErrorDataSource, myProfileUseCase)
     }
 }

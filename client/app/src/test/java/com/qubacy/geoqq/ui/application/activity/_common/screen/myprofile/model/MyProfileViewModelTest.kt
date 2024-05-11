@@ -19,12 +19,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileDeletedUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.profile.get.GetMyProfileUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.operation.MyProfileUpdatedUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.MyProfileUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.MyProfileInputData
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.state.input.toUpdatedMyProfilePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileDeletedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.profile.get.GetMyProfileUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.MyProfileInputData
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.toUpdatedMyProfilePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -32,7 +33,7 @@ import org.mockito.Mockito
 
 class MyProfileViewModelTest(
 
-) : BusinessViewModelTest<MyProfileUiState, MyProfileUseCaseImpl, MyProfileViewModel>(
+) : BusinessViewModelTest<MyProfileUiState, MyProfileUseCaseImpl, MyProfileViewModelImpl>(
     MyProfileUseCaseImpl::class.java
 ) {
     companion object {
@@ -86,8 +87,8 @@ class MyProfileViewModelTest(
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): MyProfileViewModel {
-        return MyProfileViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): MyProfileViewModelImpl {
+        return MyProfileViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test
@@ -347,7 +348,8 @@ class MyProfileViewModelTest(
             .toUpdatedMyProfilePresentation(initMyProfilePresentation)
         val updateMyProfileResult = MyProfileUpdatedDomainResult()
 
-        setUiState(MyProfileUiState(
+        setUiState(
+            MyProfileUiState(
             isLoading = initIsLoading,
             myProfilePresentation = initMyProfilePresentation,
             myProfileInputData = initMyProfileInputData)

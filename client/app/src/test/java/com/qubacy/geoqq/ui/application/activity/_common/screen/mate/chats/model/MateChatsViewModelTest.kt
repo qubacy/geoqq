@@ -22,9 +22,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.InsertChatsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.operation.UpdateChatChunkUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.UpdateChatChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.impl.MateChatsViewModelImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -33,7 +34,7 @@ import java.lang.reflect.Field
 
 class MateChatsViewModelTest(
 
-) : BusinessViewModelTest<MateChatsUiState, MateChatsUseCaseImpl, MateChatsViewModel>(
+) : BusinessViewModelTest<MateChatsUiState, MateChatsUseCaseImpl, MateChatsViewModelImpl>(
     MateChatsUseCaseImpl::class.java
 ) {
     companion object {
@@ -57,7 +58,7 @@ class MateChatsViewModelTest(
     override fun preInit() {
         super.preInit()
 
-        mIsGettingNextChatChunkFieldReflection = MateChatsViewModel::class.java
+        mIsGettingNextChatChunkFieldReflection = MateChatsViewModelImpl::class.java
             .getDeclaredField("mIsGettingNextChatChunk")
             .apply { isAccessible = true }
     }
@@ -85,8 +86,8 @@ class MateChatsViewModelTest(
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): MateChatsViewModel {
-        return MateChatsViewModel(savedStateHandle, errorDataSource, mUseCase)
+    ): MateChatsViewModelImpl {
+        return MateChatsViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
     @Test

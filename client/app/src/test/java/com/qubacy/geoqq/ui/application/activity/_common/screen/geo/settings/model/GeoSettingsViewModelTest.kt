@@ -8,8 +8,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.operation.ChangeRadiusUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.operation.ChangeRadiusUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.impl.GeoSettingsViewModelImpl
 import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -17,12 +18,12 @@ import org.junit.Test
 
 class GeoSettingsViewModelTest(
 
-) : StatefulViewModelTest<GeoSettingsUiState, GeoSettingsViewModel>() {
+) : StatefulViewModelTest<GeoSettingsUiState, GeoSettingsViewModelImpl>() {
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
         errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): GeoSettingsViewModel {
-        return GeoSettingsViewModel(savedStateHandle, errorDataSource)
+    ): GeoSettingsViewModelImpl {
+        return GeoSettingsViewModelImpl(savedStateHandle, errorDataSource)
     }
 
     @Test
@@ -92,16 +93,16 @@ class GeoSettingsViewModelTest(
 
         val testCases = listOf(
             TestCase(
-                GeoSettingsViewModel.DEFAULT_MIN_RADIUS,
+                GeoSettingsViewModelImpl.DEFAULT_MIN_RADIUS,
                 0.5f,
-                GeoSettingsViewModel.DEFAULT_MIN_RADIUS
+                GeoSettingsViewModelImpl.DEFAULT_MIN_RADIUS
             ),
             TestCase(200, 1.2f, 240),
             TestCase(1000, 0.5f, 500),
             TestCase(
-                GeoSettingsViewModel.DEFAULT_MAX_RADIUS,
+                GeoSettingsViewModelImpl.DEFAULT_MAX_RADIUS,
                 1.5f,
-                GeoSettingsViewModel.DEFAULT_MAX_RADIUS
+                GeoSettingsViewModelImpl.DEFAULT_MAX_RADIUS
             )
         )
 

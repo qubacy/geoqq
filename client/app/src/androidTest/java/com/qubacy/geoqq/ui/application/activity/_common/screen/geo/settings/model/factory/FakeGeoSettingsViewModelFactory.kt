@@ -3,18 +3,18 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.mod
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.impl.GeoSettingsViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.factory._test.mock.GeoSettingsViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.state.GeoSettingsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.state.GeoSettingsUiState
 import org.mockito.Mockito
 
 class FakeGeoSettingsViewModelFactory(
     mockContext: GeoSettingsViewModelMockContext
 ) : FakeStatefulViewModelFactory<
-    GeoSettingsUiState, GeoSettingsViewModel, GeoSettingsViewModelMockContext
+        GeoSettingsUiState, GeoSettingsViewModelImpl, GeoSettingsViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as GeoSettingsViewModel
+        val viewModelMock = super.create(modelClass) as GeoSettingsViewModelImpl
 
         Mockito.`when`(viewModelMock.changeLastLocation(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.changeLastLocationCallFlag = true

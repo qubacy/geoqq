@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.f
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory._test.mock.BusinessViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class GeoChatViewModelMockContext(

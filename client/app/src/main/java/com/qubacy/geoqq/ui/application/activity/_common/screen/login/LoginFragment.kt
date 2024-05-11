@@ -24,9 +24,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.type.UiLoginFragmentErrorType
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.state.LoginUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.LoginViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.LoginViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.operation.handler.LoginUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login.LoginValidator
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,8 +37,8 @@ class LoginFragment(
 
 ) : BusinessFragment<
     FragmentLoginBinding,
-    LoginUiState,
-    LoginViewModel
+        LoginUiState,
+        LoginViewModel
 >() {
     @Inject
     @LoginViewModelFactoryQualifier

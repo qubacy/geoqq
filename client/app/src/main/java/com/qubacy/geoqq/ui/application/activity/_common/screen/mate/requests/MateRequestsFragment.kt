@@ -40,9 +40,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.com
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.toMateRequestItemData
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.operation.handler.MateRequestsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,7 +51,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MateRequestsFragment(
 
-) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModel>(),
+) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModelImpl>(),
     PermissionRunnerCallback,
     ChoosableListItemTouchHelperCallback.Callback,
     BaseRecyclerViewCallback,
@@ -68,7 +68,7 @@ class MateRequestsFragment(
     @MateRequestsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    override val mModel: MateRequestsViewModel by viewModels(
+    override val mModel: MateRequestsViewModelImpl by viewModels(
         factoryProducer = { viewModelFactory }
     )
 

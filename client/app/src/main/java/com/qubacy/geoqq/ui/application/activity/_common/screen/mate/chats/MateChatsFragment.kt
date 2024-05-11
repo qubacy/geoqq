@@ -31,9 +31,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatItemData
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.adapter.MateChatsListAdapterCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.MateChatsViewModelFactoryQualifier
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.state.MateChatsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.impl.MateChatsViewModelFactoryQualifier
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.operation.handler.MateChatsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,8 +44,8 @@ class MateChatsFragment(
 
 ) : BusinessFragment<
     FragmentMateChatsBinding,
-    MateChatsUiState,
-    MateChatsViewModel
+        MateChatsUiState,
+        MateChatsViewModel
 >(),
     AuthorizedFragment,
     PermissionRunnerCallback,

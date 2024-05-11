@@ -2,18 +2,18 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mo
 
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.MateRequestsViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory._test.mock.MateRequestsViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.state.MateRequestsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
 import org.mockito.Mockito
 
 class FakeMateRequestsViewModelFactory(
     mockContext: MateRequestsViewModelMockContext
 ) : FakeBusinessViewModelFactory<
-    MateRequestsUiState, MateRequestsViewModel, MateRequestsViewModelMockContext
+        MateRequestsUiState, MateRequestsViewModelImpl, MateRequestsViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as MateRequestsViewModel
+        val viewModelMock = super.create(modelClass) as MateRequestsViewModelImpl
 
         Mockito.`when`(viewModelMock.getNextRequestChunk()).thenAnswer {
             mockContext.getNextRequestChunkCallFlag = true
