@@ -17,7 +17,7 @@ local-build:
 local-run: local-build
 	set GIN_MODE=release&& \
 	set HTTP_HOST=0.0.0.0&& \
-	set HTTP_PORT=57001&& \
+	set HTTP_PORT=57000&& \
 	 "./cmd/main.exe"
 
 # debug?

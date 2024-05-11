@@ -44,6 +44,7 @@ var (
 	ErrMateRequestToSelf               = errors.New("mate request to self")
 	ErrMateRequestNotWaiting           = errors.New("mate request not waiting")
 	ErrAlreadyAreMates                 = errors.New("already are mates")
+	ErrUsersAreNotMates                = errors.New("users are not mates")
 	ErrMateRequestAlreadySentFromYou   = errors.New("mate request already sent from you")
 	ErrMateRequestAlreadySentToYou     = errors.New("mate request already sent to you")
 	ErrTargetUserForbadeHittingHimself = errors.New("target user forbade hitting himself")

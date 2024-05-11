@@ -72,7 +72,16 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 		return utl.NewFuncError(s.AddMessageToMateChat, err)
 	}
 
-	// TODO: bug. My friend removed me!
+	mateChat, err := s.domainStorage.GetTableMateChatWithId(ctx, chatId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
+			ec.Server, ec.DomainStorageError)
+	}
+	err = assertUsersAreMates(ctx, s.domainStorage,
+		mateChat.FirstUserId, mateChat.SecondUserId) // one of these `userId`
+	if err != nil {
+		return utl.NewFuncError(s.AddMessageToMateChat, err)
+	}
 
 	// write to database
 

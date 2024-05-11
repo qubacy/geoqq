@@ -180,6 +180,7 @@ const ( // Mate
 
 	MateRequestToSelf
 	AlreadyAreMates
+	UsersAreNotMates
 
 	TargetUserNotFound
 	TargetUserDeleted

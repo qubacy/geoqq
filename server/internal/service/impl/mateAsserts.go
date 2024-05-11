@@ -38,3 +38,18 @@ func assertMateChatAvailableForUser(ctx context.Context,
 
 	return nil
 }
+
+func assertUsersAreMates(ctx context.Context,
+	domainStorage domainStorage.Storage, firstUserId, secondUserId uint64) error {
+	areMates, err := domainStorage.AreMates(ctx, firstUserId, secondUserId)
+	if err != nil {
+		return ec.New(utl.NewFuncError(assertUsersAreMates, err),
+			ec.Server, ec.DomainStorageError)
+	}
+	if !areMates {
+		return ec.New(ErrUsersAreNotMates,
+			ec.Client, ec.UsersAreNotMates)
+	}
+
+	return nil
+}
