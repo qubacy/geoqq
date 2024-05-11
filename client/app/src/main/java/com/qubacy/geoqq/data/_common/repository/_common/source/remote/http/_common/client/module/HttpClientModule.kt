@@ -4,7 +4,6 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.event.HttpCallFailEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.interceptor.lang.LanguageHeaderHttpInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.interceptor.logger.LoggerHttpInterceptor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.initializer.RestHttpClientInitializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,21 +17,17 @@ import java.util.concurrent.atomic.AtomicReference
 object HttpClientModule {
     @Provides
     fun provideHttpClient(
-        localErrorDataSource: LocalErrorDataSource,
-        restHttpClientInitializer: RestHttpClientInitializer
+        localErrorDataSource: LocalErrorDataSource
     ): OkHttpClient {
         val httpClientRef = AtomicReference<OkHttpClient>()
 
-        val httpClientBuilder = OkHttpClient.Builder()
+        val httpClient = OkHttpClient.Builder()
             .callTimeout(10, TimeUnit.SECONDS)
             .connectTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(LanguageHeaderHttpInterceptor())
             .addInterceptor(LoggerHttpInterceptor())
             .eventListener(HttpCallFailEventListener(localErrorDataSource, httpClientRef))
-
-        restHttpClientInitializer.initializeHttpClient(httpClientBuilder)
-
-        val httpClient = httpClientBuilder.build()
+            .build()
 
         httpClientRef.set(httpClient)
 
