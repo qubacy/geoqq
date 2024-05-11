@@ -9,21 +9,22 @@ import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.
 import javax.inject.Inject
 
 class RemoteMateRequestHttpRestDataSourceImpl @Inject constructor(
-    private val mMateRequestDataSourceApi: RemoteMateRequestHttpRestDataSourceApi,
+    private val mRemoteMateRequestHttpRestDataSourceApi: RemoteMateRequestHttpRestDataSourceApi,
     private val mHttpCallExecutor: HttpCallExecutor
 ) : RemoteMateRequestHttpRestDataSource {
     override fun getMateRequests(
         offset: Int,
         count: Int
     ): GetMateRequestsResponse {
-        val getMateRequestsCall = mMateRequestDataSourceApi.getMateRequests(offset, count)
+        val getMateRequestsCall = mRemoteMateRequestHttpRestDataSourceApi
+            .getMateRequests(offset, count)
         val getMateRequestsResponse = mHttpCallExecutor.executeNetworkRequest(getMateRequestsCall)
 
         return getMateRequestsResponse
     }
 
     override fun getMateRequestCount(): GetMateRequestCountResponse {
-        val getMateRequestCountCall = mMateRequestDataSourceApi.getMateRequestCount()
+        val getMateRequestCountCall = mRemoteMateRequestHttpRestDataSourceApi.getMateRequestCount()
         val getMateRequestCountResponse = mHttpCallExecutor
             .executeNetworkRequest(getMateRequestCountCall)
 
@@ -32,7 +33,8 @@ class RemoteMateRequestHttpRestDataSourceImpl @Inject constructor(
 
     override fun postMateRequest(userId: Long) {
         val postMateRequestRequest = PostMateRequestRequest(userId)
-        val postMateRequestCall = mMateRequestDataSourceApi.postMateRequest(postMateRequestRequest)
+        val postMateRequestCall = mRemoteMateRequestHttpRestDataSourceApi
+            .postMateRequest(postMateRequestRequest)
 
         mHttpCallExecutor.executeNetworkRequest(postMateRequestCall)
     }
@@ -41,7 +43,8 @@ class RemoteMateRequestHttpRestDataSourceImpl @Inject constructor(
         id: Long,
         accepted: Boolean
     ) {
-        val answerMateRequestCall = mMateRequestDataSourceApi.answerMateRequest(id, accepted)
+        val answerMateRequestCall = mRemoteMateRequestHttpRestDataSourceApi
+            .answerMateRequest(id, accepted)
 
         mHttpCallExecutor.executeNetworkRequest(answerMateRequestCall)
     }

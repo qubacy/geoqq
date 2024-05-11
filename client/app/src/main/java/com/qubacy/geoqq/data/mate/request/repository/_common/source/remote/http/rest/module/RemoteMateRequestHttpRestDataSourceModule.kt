@@ -14,10 +14,10 @@ import dagger.hilt.components.SingletonComponent
 object RemoteMateRequestHttpRestDataSourceModule {
     @Provides
     fun provideRemoteMateRequestHttpRestDataSource(
-        httpMateRequestDataSourceApi: RemoteMateRequestHttpRestDataSourceApi,
+        remoteMateRequestHttpRestDataSourceApi: RemoteMateRequestHttpRestDataSourceApi,
         httpCallExecutor: HttpCallExecutor
     ): RemoteMateRequestHttpRestDataSource {
         return RemoteMateRequestHttpRestDataSourceImpl(
-            httpMateRequestDataSourceApi, httpCallExecutor)
+            remoteMateRequestHttpRestDataSourceApi, httpCallExecutor)
     }
 }

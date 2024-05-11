@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.modu
 
 import androidx.lifecycle.ViewModelProvider
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
+import com.qubacy.geoqq.domain.login.usecase.impl.LoginUseCaseImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.LoginViewModelFactoryQualifier
 import dagger.Module
@@ -17,7 +17,7 @@ object LoginViewModelModule {
     @LoginViewModelFactoryQualifier
     fun provideLoginViewModelFactory(
         localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
-        loginUseCase: LoginUseCase
+        loginUseCase: LoginUseCaseImpl
     ): ViewModelProvider.Factory {
         return LoginViewModelFactory(localErrorDataSource, loginUseCase)
     }

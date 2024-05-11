@@ -3,14 +3,14 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
-import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
@@ -39,7 +39,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateChatViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     mMateChatUseCase: MateChatUseCase
 ) : BusinessViewModel<MateChatUiState, MateChatUseCase>(
     mSavedStateHandle, mErrorSource, mMateChatUseCase
@@ -276,7 +276,7 @@ open class MateChatViewModel @Inject constructor(
 annotation class MateChatViewModelFactoryQualifier
 
 class MateChatViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateChatUseCase: MateChatUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

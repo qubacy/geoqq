@@ -1,8 +1,9 @@
 package com.qubacy.geoqq.domain.logout.usecase.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,9 +14,9 @@ import dagger.hilt.components.SingletonComponent
 object LogoutUseCaseModule {
     @Provides
     fun provideLogoutUseCase(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
-        tokenDataRepository: AuthDataRepositoryImpl
+        localErrorDataSource: LocalErrorDatabaseDataSource,
+        tokenDataRepository: AuthDataRepository
     ): LogoutUseCase {
-        return LogoutUseCase(localErrorDataSource, tokenDataRepository)
+        return LogoutUseCaseImpl(localErrorDataSource, tokenDataRepository)
     }
 }

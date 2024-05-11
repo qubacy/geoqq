@@ -4,7 +4,7 @@ import androidx.annotation.CallSuper
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq._common.model.error._common.Error
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.StatefulViewModel
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.merge
 
 abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : UseCase>(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     protected val mUseCase: UseCaseType
 ) : StatefulViewModel<UiStateType>(mSavedStateHandle, mErrorSource),
     LoadingViewModel

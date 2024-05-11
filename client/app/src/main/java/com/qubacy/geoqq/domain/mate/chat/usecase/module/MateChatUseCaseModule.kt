@@ -1,12 +1,13 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImpl
-import com.qubacy.geoqq.data.mate.message.repository.impl.MateMessageDataRepositoryImpl
-import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
-import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
-import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
+import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
+import com.qubacy.geoqq.domain.mate.chat.usecase.impl.MateChatUseCaseImpl
+import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,14 +18,14 @@ import dagger.hilt.components.SingletonComponent
 object MateChatUseCaseModule {
     @Provides
     fun provideMateChatUseCase(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
+        localErrorDataSource: LocalErrorDatabaseDataSource,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
         mLogoutUseCase: LogoutUseCase,
-        mateMessageDataRepository: MateMessageDataRepositoryImpl,
-        mateChatDataRepository: MateChatDataRepositoryImpl
+        mateMessageDataRepository: MateMessageDataRepository,
+        mateChatDataRepository: MateChatDataRepository
     ): MateChatUseCase {
-        return MateChatUseCase(
+        return MateChatUseCaseImpl(
             localErrorDataSource,
             mateRequestUseCase,
             interlocutorUseCase,

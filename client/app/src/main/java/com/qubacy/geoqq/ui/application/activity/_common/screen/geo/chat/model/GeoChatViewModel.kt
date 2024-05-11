@@ -4,12 +4,12 @@ import android.location.Location
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.newer.NewGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
@@ -36,7 +36,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class GeoChatViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     mGeoChatUseCase: GeoChatUseCase
 ) : BusinessViewModel<GeoChatUiState, GeoChatUseCase>(
     mSavedStateHandle, mErrorSource, mGeoChatUseCase
@@ -222,7 +222,7 @@ open class GeoChatViewModel @Inject constructor(
 annotation class GeoChatViewModelFactoryQualifier
 
 class GeoChatViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mGeoChatUseCase: GeoChatUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

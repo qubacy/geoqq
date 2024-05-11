@@ -4,13 +4,13 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
-import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.update.UpdateRequestChunkDomainResult
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.update.UpdateRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
@@ -36,7 +36,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateRequestsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     mMateRequestsUseCase: MateRequestsUseCase
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
     mSavedStateHandle, mErrorSource, mMateRequestsUseCase
@@ -207,7 +207,7 @@ open class MateRequestsViewModel @Inject constructor(
 annotation class MateRequestsViewModelFactoryQualifier
 
 class MateRequestsViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

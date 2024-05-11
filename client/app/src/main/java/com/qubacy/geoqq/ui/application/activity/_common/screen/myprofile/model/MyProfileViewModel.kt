@@ -3,13 +3,13 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
-import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
-import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.delete.DeleteMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.profile.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.logout.usecase._common.result.LogoutDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.MyProfileUseCase
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.profile.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.update.MyProfileUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -34,7 +34,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MyProfileViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     mMyProfileUseCase: MyProfileUseCase
 ) : BusinessViewModel<MyProfileUiState, MyProfileUseCase>(
     mSavedStateHandle, mErrorSource, mMyProfileUseCase
@@ -168,7 +168,7 @@ open class MyProfileViewModel @Inject constructor(
 annotation class MyProfileViewModelFactoryQualifier
 
 class MyProfileViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMyProfileUseCase: MyProfileUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

@@ -18,15 +18,16 @@ import com.qubacy.geoqq.data.myprofile.repository._common.result.GetMyProfileDat
 import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
-import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
-import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.update.UpdateMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.delete.DeleteMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.profile.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.logout.usecase._common.result.LogoutDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.profile.update.UpdateMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.update.MyProfileUpdatedDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.impl.MyProfileUseCaseImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
+class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCaseImpl>() {
     companion object {
         val DEFAULT_AVATAR = DataImage(0L, UriMockUtil.getMockedUri())
         val DEFAULT_DATA_PRIVACY = DataPrivacy(HitMeUpType.EVERYBODY)
@@ -130,9 +131,9 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = MyProfileUseCase(
+        mUseCase = MyProfileUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            dependencies[1] as LogoutUseCase,
+            dependencies[1] as LogoutUseCaseImpl,
             dependencies[2] as MyProfileDataRepositoryImpl,
             dependencies[3] as AuthDataRepositoryImpl
         )

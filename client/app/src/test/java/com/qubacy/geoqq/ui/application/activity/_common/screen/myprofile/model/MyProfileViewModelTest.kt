@@ -10,11 +10,11 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model.profile.MyProfile
-import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
-import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
-import com.qubacy.geoqq.domain.logout.usecase.result.LogoutDomainResult
-import com.qubacy.geoqq.domain.myprofile.usecase.result.update.MyProfileUpdatedDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase.impl.MyProfileUseCaseImpl
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.delete.DeleteMyProfileDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.profile.get.GetMyProfileDomainResult
+import com.qubacy.geoqq.domain.logout.usecase._common.result.LogoutDomainResult
+import com.qubacy.geoqq.domain.myprofile.usecase._common.result.update.MyProfileUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -32,8 +32,8 @@ import org.mockito.Mockito
 
 class MyProfileViewModelTest(
 
-) : BusinessViewModelTest<MyProfileUiState, MyProfileUseCase, MyProfileViewModel>(
-    MyProfileUseCase::class.java
+) : BusinessViewModelTest<MyProfileUiState, MyProfileUseCaseImpl, MyProfileViewModel>(
+    MyProfileUseCaseImpl::class.java
 ) {
     companion object {
         val DEFAULT_IMAGE = Image(0L, Mockito.mock(Uri::class.java))
@@ -56,7 +56,7 @@ class MyProfileViewModelTest(
         mUseCaseLogoutCallFlag = false
     }
 
-    override fun initUseCase(): MyProfileUseCase {
+    override fun initUseCase(): MyProfileUseCaseImpl {
         val myProfileUseCaseMock = super.initUseCase()
 
         Mockito.`when`(myProfileUseCaseMock.getMyProfile()).thenAnswer {

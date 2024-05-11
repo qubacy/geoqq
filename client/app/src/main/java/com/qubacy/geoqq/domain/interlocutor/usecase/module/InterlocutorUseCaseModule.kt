@@ -1,9 +1,10 @@
 package com.qubacy.geoqq.domain.interlocutor.usecase.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
-import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
+import com.qubacy.geoqq.domain.interlocutor.usecase.impl.InterlocutorUseCaseImpl
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,10 +15,10 @@ import dagger.hilt.components.SingletonComponent
 object InterlocutorUseCaseModule {
     @Provides
     fun provideInterlocutorUseCase(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
+        localErrorDataSource: LocalErrorDatabaseDataSource,
         logoutUseCase: LogoutUseCase,
-        userDataRepository: UserDataRepositoryImpl
+        userDataRepository: UserDataRepository
     ): InterlocutorUseCase {
-        return InterlocutorUseCase(localErrorDataSource, logoutUseCase, userDataRepository)
+        return InterlocutorUseCaseImpl(localErrorDataSource, logoutUseCase, userDataRepository)
     }
 }

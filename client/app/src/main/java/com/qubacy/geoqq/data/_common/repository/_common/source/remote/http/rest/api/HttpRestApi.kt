@@ -20,7 +20,7 @@ class HttpRestApi(httpClient: OkHttpClient) {
     companion object {
         const val TAG = "HttpApi"
 
-        const val BASE_URL = "https://847c-5-101-44-221.ngrok-free.app"//"http://10.0.2.2:3001"
+        const val BASE_URL = "http://10.0.2.2:3001"
     }
 
     val okHttpClient = httpClient

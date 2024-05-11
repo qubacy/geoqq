@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
-import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
+import com.qubacy.geoqq.domain.login.usecase.impl.LoginUseCaseImpl
+import com.qubacy.geoqq.domain.login.usecase._common.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -18,8 +18,8 @@ import org.mockito.Mockito
 
 class LoginViewModelTest(
 
-) : BusinessViewModelTest<LoginUiState, LoginUseCase, LoginViewModel>(
-    LoginUseCase::class.java
+) : BusinessViewModelTest<LoginUiState, LoginUseCaseImpl, LoginViewModel>(
+    LoginUseCaseImpl::class.java
 ) {
     private var mUseCaseSignInWithTokenCallFlag = false
     private var mUseCaseSignInWithLoginDataCallFlag = false
@@ -33,7 +33,7 @@ class LoginViewModelTest(
         mUseCaseSignUpCallFlag = false
     }
 
-    override fun initUseCase(): LoginUseCase {
+    override fun initUseCase(): LoginUseCaseImpl {
         val loginUseCaseMock = super.initUseCase()
 
         Mockito.`when`(loginUseCaseMock.signIn()).thenAnswer {

@@ -16,13 +16,13 @@ object ImageDataRepositoryModule {
     @Provides
     fun provideImageDataRepository(
         localErrorDataSource: LocalErrorDatabaseDataSource,
-        localImageDataSource: LocalImageContentStoreDataSource,
-        httpImageDataSource: RemoteImageHttpRestDataSource
+        localImageContentStoreDataSource: LocalImageContentStoreDataSource,
+        remoteImageHttpRestDataSource: RemoteImageHttpRestDataSource
     ): ImageDataRepository {
         return ImageDataRepositoryImpl(
             localErrorDataSource,
-            localImageDataSource,
-            httpImageDataSource
+            localImageContentStoreDataSource,
+            remoteImageHttpRestDataSource
         )
     }
 }

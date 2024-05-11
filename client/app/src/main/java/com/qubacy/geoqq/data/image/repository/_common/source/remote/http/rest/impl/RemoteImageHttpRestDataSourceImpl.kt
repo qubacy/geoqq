@@ -12,11 +12,11 @@ import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._c
 import javax.inject.Inject
 
 class RemoteImageHttpRestDataSourceImpl @Inject constructor(
-    private val mHttpImageDataSourceApi: RemoteImageHttpRestDataSourceApi,
+    private val mRemoteImageHttpRestDataSourceApi: RemoteImageHttpRestDataSourceApi,
     private val mHttpCallExecutor: HttpCallExecutor
 ) : RemoteImageHttpRestDataSource {
     override fun getImage(id: Long): GetImageResponse {
-        val getImageCall = mHttpImageDataSourceApi.getImage(id)
+        val getImageCall = mRemoteImageHttpRestDataSourceApi.getImage(id)
         val getImageResponse = mHttpCallExecutor.executeNetworkRequest(getImageCall)
 
         return getImageResponse
@@ -24,7 +24,7 @@ class RemoteImageHttpRestDataSourceImpl @Inject constructor(
 
     override fun getImages(ids: List<Long>): GetImagesResponse {
         val getImagesRequest = GetImagesRequest(ids)
-        val getImagesCall = mHttpImageDataSourceApi.getImages(getImagesRequest)
+        val getImagesCall = mRemoteImageHttpRestDataSourceApi.getImages(getImagesRequest)
         val getImagesResponse = mHttpCallExecutor.executeNetworkRequest(getImagesCall)
 
         return getImagesResponse
@@ -36,7 +36,7 @@ class RemoteImageHttpRestDataSourceImpl @Inject constructor(
     ): UploadImageResponse {
         val uploadImageRequestContent = UploadImageRequestImage(extension, base64Content)
         val uploadImageRequest = UploadImageRequest(uploadImageRequestContent)
-        val uploadImageCall = mHttpImageDataSourceApi.uploadImage(uploadImageRequest)
+        val uploadImageCall = mRemoteImageHttpRestDataSourceApi.uploadImage(uploadImageRequest)
         val uploadImageResponse = mHttpCallExecutor.executeNetworkRequest(uploadImageCall)
 
         return uploadImageResponse

@@ -6,10 +6,10 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.geo.chat.model.GeoMessage
-import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCaseImpl
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -25,9 +25,9 @@ import org.junit.Test
 import org.mockito.Mockito
 
 class GeoChatViewModelTest : BusinessViewModelTest<
-    GeoChatUiState, GeoChatUseCase, GeoChatViewModel
+    GeoChatUiState, GeoChatUseCaseImpl, GeoChatViewModel
 >(
-    GeoChatUseCase::class.java
+    GeoChatUseCaseImpl::class.java
 ) {
     companion object {
         val DEFAULT_USER = InterlocutorUseCaseMockContainer.DEFAULT_USER
@@ -57,7 +57,7 @@ class GeoChatViewModelTest : BusinessViewModelTest<
         mUseCaseSendMateRequestToInterlocutorCallFlag = false
     }
 
-    override fun initUseCase(): GeoChatUseCase {
+    override fun initUseCase(): GeoChatUseCaseImpl {
         val useCase = super.initUseCase()
 
         Mockito.`when`(useCase.getMessages(

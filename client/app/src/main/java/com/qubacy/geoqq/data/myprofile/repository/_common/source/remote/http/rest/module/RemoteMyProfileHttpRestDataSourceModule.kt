@@ -14,9 +14,10 @@ import dagger.hilt.components.SingletonComponent
 object RemoteMyProfileHttpRestDataSourceModule {
     @Provides
     fun provideRemoteMyProfileHttpRestDataSource(
-        httpMyProfileDataSourceApi: RemoteMyProfileHttpRestDataSourceApi,
+        remoteMyProfileHttpRestDataSourceApi: RemoteMyProfileHttpRestDataSourceApi,
         httpCallExecutor: HttpCallExecutor
     ): RemoteMyProfileHttpRestDataSource {
-        return RemoteMyProfileHttpRestDataSourceImpl(httpMyProfileDataSourceApi, httpCallExecutor)
+        return RemoteMyProfileHttpRestDataSourceImpl(
+            remoteMyProfileHttpRestDataSourceApi, httpCallExecutor)
     }
 }

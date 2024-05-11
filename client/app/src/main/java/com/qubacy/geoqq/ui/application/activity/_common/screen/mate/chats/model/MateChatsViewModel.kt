@@ -3,11 +3,11 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
-import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
@@ -26,7 +26,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateChatsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
     mUseCase: MateChatsUseCase
 ) : BusinessViewModel<MateChatsUiState, MateChatsUseCase>(
     mSavedStateHandle, mErrorSource, mUseCase
@@ -190,7 +190,7 @@ open class MateChatsViewModel @Inject constructor(
 annotation class MateChatsViewModelFactoryQualifier
 
 class MateChatsViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateChatsUseCase: MateChatsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

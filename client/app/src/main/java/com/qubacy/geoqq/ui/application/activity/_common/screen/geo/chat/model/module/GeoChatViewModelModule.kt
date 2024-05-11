@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module
 
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.GeoChatViewModelFactoryQualifier
 import dagger.Module
@@ -16,7 +16,7 @@ object GeoChatViewModelModule {
     @Provides
     @GeoChatViewModelFactoryQualifier
     fun provideGeoChatViewModelFactory(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
+        localErrorDataSource: LocalErrorDatabaseDataSource,
         geoChatUseCase: GeoChatUseCase
     ): ViewModelProvider.Factory {
         return GeoChatViewModelFactory(localErrorDataSource, geoChatUseCase)

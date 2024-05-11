@@ -14,13 +14,13 @@ import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockCo
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.model.toGeoMessage
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.update.UpdateGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.impl.InterlocutorUseCaseImpl
 import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
-import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import com.qubacy.geoqq.domain.mate.request.usecase.impl.MateRequestUseCaseImpl
 import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
+class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val DEFAULT_DATA_MESSAGE = DataMessage(0, DEFAULT_DATA_USER, "test", 0)
@@ -116,11 +116,11 @@ class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = GeoChatUseCase(
+        mUseCase = GeoChatUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            dependencies[1] as MateRequestUseCase,
-            dependencies[2] as InterlocutorUseCase,
-            dependencies[3] as LogoutUseCase,
+            dependencies[1] as MateRequestUseCaseImpl,
+            dependencies[2] as InterlocutorUseCaseImpl,
+            dependencies[3] as LogoutUseCaseImpl,
             dependencies[4] as GeoMessageDataRepositoryImpl,
             dependencies[5] as UserDataRepositoryImpl
         )

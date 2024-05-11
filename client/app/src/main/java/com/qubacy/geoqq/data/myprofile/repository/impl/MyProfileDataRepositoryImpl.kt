@@ -29,21 +29,21 @@ class MyProfileDataRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mImageDataRepository: ImageDataRepository,
-    private val mLocalMyProfileDataSource: LocalMyProfileDataStoreDataSource,
-    private val mHttpMyProfileDataSource: RemoteMyProfileHttpRestDataSource
+    private val mLocalMyProfileDataStoreDataSource: LocalMyProfileDataStoreDataSource,
+    private val mRemoteMyProfileHttpRestDataSource: RemoteMyProfileHttpRestDataSource
 ) : MyProfileDataRepository(coroutineDispatcher, coroutineScope) {
     override suspend fun getMyProfile(): LiveData<GetMyProfileDataResult> {
         val resultLiveData = MutableLiveData<GetMyProfileDataResult>()
 
         CoroutineScope(coroutineContext).launch {
-            val localMyProfile = mLocalMyProfileDataSource.getMyProfile()
+            val localMyProfile = mLocalMyProfileDataStoreDataSource.getMyProfile()
             val localDataMyProfile = localMyProfile?.let {
                 resolveMyProfileDataStoreModel(localMyProfile) }
 
             if (localDataMyProfile != null)
                 resultLiveData.postValue(GetMyProfileDataResult(false, localDataMyProfile))
 
-            val myProfileResponse = mHttpMyProfileDataSource.getMyProfile()
+            val myProfileResponse = mRemoteMyProfileHttpRestDataSource.getMyProfile()
 
             val httpDataMyProfile = resolveGetMyProfileResponse(myProfileResponse)
 
@@ -53,7 +53,7 @@ class MyProfileDataRepositoryImpl @Inject constructor(
 
             val myProfileToSave = httpDataMyProfile.toMyProfileDataStoreModel()
 
-            mLocalMyProfileDataSource.saveMyProfile(myProfileToSave)
+            mLocalMyProfileDataStoreDataSource.saveMyProfile(myProfileToSave)
         }
 
         return resultLiveData
@@ -67,16 +67,16 @@ class MyProfileDataRepositoryImpl @Inject constructor(
 
         val updateMyProfileRequest = updateProfileData.toUpdateMyProfileRequest(avatar?.id)
 
-        mHttpMyProfileDataSource.updateMyProfile(updateMyProfileRequest)
+        mRemoteMyProfileHttpRestDataSource.updateMyProfile(updateMyProfileRequest)
 
         val myProfileToSave = getUpdatedMyProfileToSave(updateProfileData)
 
-        mLocalMyProfileDataSource.saveMyProfile(myProfileToSave)
+        mLocalMyProfileDataStoreDataSource.saveMyProfile(myProfileToSave)
     }
 
     override suspend fun deleteMyProfile() {
-        mHttpMyProfileDataSource.deleteMyProfile()
-        mLocalMyProfileDataSource.resetMyProfile()
+        mRemoteMyProfileHttpRestDataSource.deleteMyProfile()
+        mLocalMyProfileDataStoreDataSource.resetMyProfile()
     }
 
     private suspend fun resolveMyProfileDataStoreModel(
@@ -99,7 +99,7 @@ class MyProfileDataRepositoryImpl @Inject constructor(
         updateProfileData: DataMyProfileUpdateData,
         avatar: DataImage? = null
     ): MyProfileDataStoreModel {
-        val myProfileDataStoreModel = mLocalMyProfileDataSource.getMyProfile()!!
+        val myProfileDataStoreModel = mLocalMyProfileDataStoreDataSource.getMyProfile()!!
 
         return updateProfileData.toMyProfileDataStoreModel(myProfileDataStoreModel, avatar)
     }

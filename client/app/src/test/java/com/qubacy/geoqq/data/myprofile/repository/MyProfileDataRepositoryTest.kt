@@ -102,8 +102,8 @@ class MyProfileDataRepositoryTest(
         mDataRepository = MyProfileDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
-            mLocalMyProfileDataSource = localMyProfileDataSourceMock,
-            mHttpMyProfileDataSource = httpMyProfileDataSourceMock
+            mLocalMyProfileDataStoreDataSource = localMyProfileDataSourceMock,
+            mRemoteMyProfileHttpRestDataSource = httpMyProfileDataSourceMock
         )
     }
 

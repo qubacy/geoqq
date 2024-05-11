@@ -13,12 +13,13 @@ import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImp
 import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatsDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.impl.MateChatsUseCaseImpl
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
+class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
 
@@ -94,9 +95,9 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = MateChatsUseCase(
+        mUseCase = MateChatsUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            dependencies[1] as LogoutUseCase,
+            dependencies[1] as LogoutUseCaseImpl,
             dependencies[2] as MateChatDataRepositoryImpl
         )
     }
@@ -131,7 +132,7 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
     fun getChatChunkSucceededTest() = runTest {
         val loadedChatIds = listOf<Long>()
         val chunkIndex = 1
-        val count = MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE
+        val count = MateChatsUseCaseImpl.DEFAULT_CHAT_CHUNK_SIZE
         val offset = count * chunkIndex
 
         val localDataChats = listOf(

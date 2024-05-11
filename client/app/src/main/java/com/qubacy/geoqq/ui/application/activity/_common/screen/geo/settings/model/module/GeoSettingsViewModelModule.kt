@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.module
 
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model.GeoSettingsViewModelFactoryQualifier
 import dagger.Module
@@ -15,7 +15,7 @@ object GeoSettingsViewModelModule {
     @Provides
     @GeoSettingsViewModelFactoryQualifier
     fun provideGeoSettingsViewModelFactory(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl
+        localErrorDataSource: LocalErrorDatabaseDataSource
     ): ViewModelProvider.Factory {
         return GeoSettingsViewModelFactory(localErrorDataSource)
     }

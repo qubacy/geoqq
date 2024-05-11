@@ -11,9 +11,9 @@ import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.mate.chats.model.MateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
-import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase.impl.MateChatsUseCaseImpl
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -33,8 +33,8 @@ import java.lang.reflect.Field
 
 class MateChatsViewModelTest(
 
-) : BusinessViewModelTest<MateChatsUiState, MateChatsUseCase, MateChatsViewModel>(
-    MateChatsUseCase::class.java
+) : BusinessViewModelTest<MateChatsUiState, MateChatsUseCaseImpl, MateChatsViewModel>(
+    MateChatsUseCaseImpl::class.java
 ) {
     companion object {
         val DEFAULT_IMAGE_PRESENTATION = ImagePresentation(0, UriMockUtil.getMockedUri())
@@ -68,7 +68,7 @@ class MateChatsViewModelTest(
         mUseCaseGetChatChunkCallFlag = false
     }
 
-    override fun initUseCase(): MateChatsUseCase {
+    override fun initUseCase(): MateChatsUseCaseImpl {
         val mateChatsUseCaseMock = super.initUseCase()
 
         Mockito.`when`(mateChatsUseCaseMock.getChatChunk(
@@ -135,7 +135,7 @@ class MateChatsViewModelTest(
                 false
             ),
             TestCase(
-                mutableMapOf(0 to MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE),
+                mutableMapOf(0 to MateChatsUseCaseImpl.DEFAULT_CHAT_CHUNK_SIZE),
                 false,
                 true
             )

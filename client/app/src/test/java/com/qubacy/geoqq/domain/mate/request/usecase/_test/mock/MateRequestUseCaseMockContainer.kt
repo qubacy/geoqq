@@ -1,12 +1,12 @@
 package com.qubacy.geoqq.domain.mate.request.usecase._test.mock
 
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import com.qubacy.geoqq.domain.mate.request.usecase.impl.MateRequestUseCaseImpl
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.mockito.Mockito
 
 class MateRequestUseCaseMockContainer {
-    val mateRequestUseCaseMock: MateRequestUseCase
+    val mateRequestUseCaseMock: MateRequestUseCaseImpl
 
     val resultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
 
@@ -25,8 +25,8 @@ class MateRequestUseCaseMockContainer {
         mSendMateRequestCallFlag = false
     }
 
-    private fun mockMateRequestUseCase(): MateRequestUseCase {
-        val mateRequestUseCaseMock = Mockito.mock(MateRequestUseCase::class.java)
+    private fun mockMateRequestUseCase(): MateRequestUseCaseImpl {
+        val mateRequestUseCaseMock = Mockito.mock(MateRequestUseCaseImpl::class.java)
 
         Mockito.`when`(mateRequestUseCaseMock.resultFlow).thenReturn(resultFlow)
         Mockito.`when`(mateRequestUseCaseMock.answerMateRequest(

@@ -9,8 +9,9 @@ import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockCo
 import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase.impl.InterlocutorUseCaseImpl
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -18,7 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 
-class InterlocutorUseCaseTest : UseCaseTest<InterlocutorUseCase>() {
+class InterlocutorUseCaseTest : UseCaseTest<InterlocutorUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
     }
@@ -43,9 +44,9 @@ class InterlocutorUseCaseTest : UseCaseTest<InterlocutorUseCase>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = InterlocutorUseCase(
+        mUseCase = InterlocutorUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            dependencies[1] as LogoutUseCase,
+            dependencies[1] as LogoutUseCaseImpl,
             dependencies[2] as UserDataRepositoryImpl
         )
     }

@@ -5,7 +5,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.LoadingViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.changeLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.preserveLoadingState
@@ -23,7 +23,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class GeoSettingsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDatabaseDataSourceImpl,
+    mErrorSource: LocalErrorDatabaseDataSource,
 ) : StatefulViewModel<GeoSettingsUiState>(
     mSavedStateHandle, mErrorSource
 ), LoadingViewModel, LocationViewModel {
@@ -95,7 +95,7 @@ open class GeoSettingsViewModel @Inject constructor(
 annotation class GeoSettingsViewModelFactoryQualifier
 
 class GeoSettingsViewModelFactory(
-    private val mErrorSource: LocalErrorDatabaseDataSourceImpl
+    private val mErrorSource: LocalErrorDatabaseDataSource
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
         key: String,

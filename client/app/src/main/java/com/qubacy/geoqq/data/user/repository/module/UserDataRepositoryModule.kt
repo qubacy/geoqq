@@ -21,14 +21,14 @@ object UserDataRepositoryModule {
         localTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
         imageDataRepository: ImageDataRepository,
         localUserDatabaseDataSource: LocalUserDatabaseDataSource,
-        httpUserDataSource: RemoteUserHttpRestDataSource
+        remoteUserHttpRestDataSource: RemoteUserHttpRestDataSource
     ): UserDataRepository {
         return UserDataRepositoryImpl(
             mErrorSource = localErrorDataSource,
             mLocalTokenDataStoreDataSource = localTokenDataStoreDataSource,
             mImageDataRepository = imageDataRepository,
             mLocalUserDatabaseDataSource = localUserDatabaseDataSource,
-            mRemoteUserHttpRestDataSource = httpUserDataSource
+            mRemoteUserHttpRestDataSource = remoteUserHttpRestDataSource
         )
     }
 }

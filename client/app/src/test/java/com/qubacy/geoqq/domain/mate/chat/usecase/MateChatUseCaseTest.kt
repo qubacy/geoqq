@@ -13,16 +13,17 @@ import com.qubacy.geoqq.data.mate.message.repository.impl.MateMessageDataReposit
 import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.interlocutor.usecase.impl.InterlocutorUseCaseImpl
 import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
-import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
+import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
 import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.impl.MateChatUseCaseImpl
+import com.qubacy.geoqq.domain.mate.request.usecase.impl.MateRequestUseCaseImpl
 import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
+class MateChatUseCaseTest : UseCaseTest<MateChatUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val DEFAULT_DATA_MESSAGE = DataMessage(0, DEFAULT_DATA_USER, "test", 0L)
@@ -132,11 +133,11 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = MateChatUseCase(
+        mUseCase = MateChatUseCaseImpl(
             errorSource = dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            mMateRequestUseCase = dependencies[1] as MateRequestUseCase,
-            mInterlocutorUseCase = dependencies[2] as InterlocutorUseCase,
-            mLogoutUseCase = dependencies[3] as LogoutUseCase,
+            mMateRequestUseCase = dependencies[1] as MateRequestUseCaseImpl,
+            mInterlocutorUseCase = dependencies[2] as InterlocutorUseCaseImpl,
+            mLogoutUseCase = dependencies[3] as LogoutUseCaseImpl,
             mMateMessageDataRepository = dependencies[4] as MateMessageDataRepositoryImpl,
             mMateChatDataRepository = dependencies[5] as MateChatDataRepositoryImpl
         )
@@ -163,7 +164,7 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         val chatId = 0L
         val loadedMessageIds = listOf<Long>()
         val chunkIndex = 0
-        val offset = chunkIndex * MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE
+        val offset = chunkIndex * MateChatUseCaseImpl.DEFAULT_MESSAGE_CHUNK_SIZE
 
         val localMessages = listOf(
             DEFAULT_DATA_MESSAGE

@@ -7,13 +7,13 @@ import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.model.MateRequest
-import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
-import com.qubacy.geoqq.domain.mate.requests.usecase.MateRequestsUseCase
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase.impl.MateRequestsUseCaseImpl
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.get.GetRequestChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
@@ -33,8 +33,8 @@ import java.lang.reflect.Field
 
 class MateRequestsViewModelTest(
 
-) : BusinessViewModelTest<MateRequestsUiState, MateRequestsUseCase, MateRequestsViewModel>(
-    MateRequestsUseCase::class.java
+) : BusinessViewModelTest<MateRequestsUiState, MateRequestsUseCaseImpl, MateRequestsViewModel>(
+    MateRequestsUseCaseImpl::class.java
 ) {
     companion object {
         val DEFAULT_IMAGE = Image(0L, UriMockUtil.getMockedUri())
@@ -67,7 +67,7 @@ class MateRequestsViewModelTest(
             .apply { isAccessible = true }
     }
 
-    override fun initUseCase(): MateRequestsUseCase {
+    override fun initUseCase(): MateRequestsUseCaseImpl {
         val mateRequestsUseCaseMock = super.initUseCase()
 
         Mockito.`when`(mateRequestsUseCaseMock.getRequestChunk(Mockito.anyInt())).thenAnswer {
@@ -211,20 +211,20 @@ class MateRequestsViewModelTest(
             TestCase(
                 mutableListOf(),
                 0,
-                MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE - 1,
+                MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE - 1,
                 false,
                 false
             ),
             TestCase(
                 mutableListOf(),
                 0,
-                MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE,
+                MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE,
                 false,
                 true
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                    repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE - 1) {
+                    repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE - 1) {
                         add(DEFAULT_MATE_REQUEST_PRESENTATION)
                     }
                 },
@@ -235,7 +235,7 @@ class MateRequestsViewModelTest(
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                   repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE) {
+                   repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE) {
                        add(DEFAULT_MATE_REQUEST_PRESENTATION)
                    }
                 },
@@ -246,7 +246,7 @@ class MateRequestsViewModelTest(
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                    repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE - 1) {
+                    repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE - 1) {
                         add(DEFAULT_MATE_REQUEST_PRESENTATION)
                     }
                 },
@@ -257,7 +257,7 @@ class MateRequestsViewModelTest(
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                    repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE + 1) {
+                    repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE + 1) {
                         add(DEFAULT_MATE_REQUEST_PRESENTATION)
                     }
                 },
@@ -268,7 +268,7 @@ class MateRequestsViewModelTest(
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                    repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE - 2 + 1) {
+                    repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE - 2 + 1) {
                         add(DEFAULT_MATE_REQUEST_PRESENTATION)
                     }
                 },
@@ -279,7 +279,7 @@ class MateRequestsViewModelTest(
             ),
             TestCase(
                 mutableListOf<MateRequestPresentation>().apply {
-                    repeat(MateRequestsUseCase.DEFAULT_REQUEST_CHUNK_SIZE - 2 + 1) {
+                    repeat(MateRequestsUseCaseImpl.DEFAULT_REQUEST_CHUNK_SIZE - 2 + 1) {
                         add(DEFAULT_MATE_REQUEST_PRESENTATION)
                     }
                 },

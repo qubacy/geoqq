@@ -8,11 +8,11 @@ import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.res
 import javax.inject.Inject
 
 class RemoteMyProfileHttpRestDataSourceImpl @Inject constructor(
-    private val mHttpMyProfileDataSourceApi: RemoteMyProfileHttpRestDataSourceApi,
+    private val mRemoteMyProfileHttpRestDataSourceApi: RemoteMyProfileHttpRestDataSourceApi,
     private val mHttpCallExecutor: HttpCallExecutor
 ) : RemoteMyProfileHttpRestDataSource {
     override fun getMyProfile(): GetMyProfileResponse {
-        val getMyProfileCall = mHttpMyProfileDataSourceApi.getMyProfile()
+        val getMyProfileCall = mRemoteMyProfileHttpRestDataSourceApi.getMyProfile()
         val getMyProfileResponse = mHttpCallExecutor.executeNetworkRequest(getMyProfileCall)
 
         return getMyProfileResponse
@@ -21,13 +21,14 @@ class RemoteMyProfileHttpRestDataSourceImpl @Inject constructor(
     override fun updateMyProfile(
          updateMyProfileRequest: UpdateMyProfileRequest
     ) {
-        val updateMyProfileCall = mHttpMyProfileDataSourceApi.updateMyProfile(updateMyProfileRequest)
+        val updateMyProfileCall = mRemoteMyProfileHttpRestDataSourceApi
+            .updateMyProfile(updateMyProfileRequest)
 
         mHttpCallExecutor.executeNetworkRequest(updateMyProfileCall)
     }
 
     override fun deleteMyProfile() {
-        val deleteMyProfileCall = mHttpMyProfileDataSourceApi.deleteMyProfile()
+        val deleteMyProfileCall = mRemoteMyProfileHttpRestDataSourceApi.deleteMyProfile()
 
         mHttpCallExecutor.executeNetworkRequest(deleteMyProfileCall)
     }

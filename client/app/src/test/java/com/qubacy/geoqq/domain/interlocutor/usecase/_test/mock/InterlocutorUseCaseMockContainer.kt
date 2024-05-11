@@ -3,7 +3,7 @@ package com.qubacy.geoqq.domain.interlocutor.usecase._test.mock
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
+import com.qubacy.geoqq.domain.interlocutor.usecase.impl.InterlocutorUseCaseImpl
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.mockito.Mockito
 
@@ -12,7 +12,7 @@ class InterlocutorUseCaseMockContainer {
         val DEFAULT_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER.toUser()
     }
 
-    val interlocutorUseCaseMock: InterlocutorUseCase
+    val interlocutorUseCaseMock: InterlocutorUseCaseImpl
 
     val resultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
 
@@ -27,8 +27,8 @@ class InterlocutorUseCaseMockContainer {
         mGetInterlocutorCallFlag = false
     }
 
-    private fun mockInterlocutorUseCase(): InterlocutorUseCase {
-        val interlocutorUseCaseMock = Mockito.mock(InterlocutorUseCase::class.java)
+    private fun mockInterlocutorUseCase(): InterlocutorUseCaseImpl {
+        val interlocutorUseCaseMock = Mockito.mock(InterlocutorUseCaseImpl::class.java)
 
         Mockito.`when`(interlocutorUseCaseMock.resultFlow).thenReturn(resultFlow)
         Mockito.`when`(interlocutorUseCaseMock.getInterlocutor(Mockito.anyLong())).thenAnswer {

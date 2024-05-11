@@ -11,13 +11,13 @@ import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.mate.chat.model.MateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
-import com.qubacy.geoqq.domain.mate.chat.usecase.MateChatUseCase
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.GetMessageChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.mate.chat.usecase.result.chat.DeleteChatDomainResult
-import com.qubacy.geoqq.domain.mate.request.usecase.result.SendMateRequestDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase.impl.MateChatUseCaseImpl
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
@@ -41,8 +41,8 @@ import java.lang.reflect.Field
 
 class MateChatViewModelTest(
 
-) : BusinessViewModelTest<MateChatUiState, MateChatUseCase, MateChatViewModel>(
-    MateChatUseCase::class.java
+) : BusinessViewModelTest<MateChatUiState, MateChatUseCaseImpl, MateChatViewModel>(
+    MateChatUseCaseImpl::class.java
 ) {
     companion object {
         val DEFAULT_IMAGE = Image(0, UriMockUtil.getMockedUri())
@@ -86,7 +86,7 @@ class MateChatViewModelTest(
         mDeleteChatCallFlag = false
     }
 
-    override fun initUseCase(): MateChatUseCase {
+    override fun initUseCase(): MateChatUseCaseImpl {
         val mateChatUseCaseMock = super.initUseCase()
 
         Mockito.`when`(mateChatUseCaseMock.getMessageChunk(
@@ -326,12 +326,12 @@ class MateChatViewModelTest(
                 false
             ),
             TestCase(
-                mutableMapOf(0 to MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE - 1),
+                mutableMapOf(0 to MateChatUseCaseImpl.DEFAULT_MESSAGE_CHUNK_SIZE - 1),
                 false,
                 false
             ),
             TestCase(
-                mutableMapOf(0 to MateChatUseCase.DEFAULT_MESSAGE_CHUNK_SIZE),
+                mutableMapOf(0 to MateChatUseCaseImpl.DEFAULT_MESSAGE_CHUNK_SIZE),
                 false,
                 true
             )
