@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import dagger.Module
@@ -13,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 object HttpCallExecutorModule {
     @Provides
     fun provideHttpCallExecutor(
-        errorSource: LocalErrorDatabaseDataSourceImpl,
+        errorSource: LocalErrorDatabaseDataSource,
         errorJsonAdapter: ErrorJsonAdapter
     ): HttpCallExecutor {
         return HttpCallExecutor(errorSource, errorJsonAdapter)

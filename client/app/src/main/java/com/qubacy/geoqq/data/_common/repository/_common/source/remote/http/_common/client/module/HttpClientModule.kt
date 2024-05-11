@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.event.HttpCallFailEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.interceptor.lang.LanguageHeaderHttpInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.interceptor.logger.LoggerHttpInterceptor
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
 object HttpClientModule {
     @Provides
     fun provideHttpClient(
-        localErrorDataSource: LocalErrorDatabaseDataSourceImpl
+        localErrorDataSource: LocalErrorDatabaseDataSource
     ): OkHttpClient {
         val httpClientRef = AtomicReference<OkHttpClient>()
 
