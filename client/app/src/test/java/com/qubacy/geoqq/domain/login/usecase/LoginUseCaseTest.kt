@@ -2,8 +2,8 @@ package com.qubacy.geoqq.domain.login.usecase
 
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
@@ -30,8 +30,8 @@ class LoginUseCaseTest : UseCaseTest<LoginUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = LoginUseCase(
-            dependencies[0] as LocalErrorDataSource,
-            dependencies[1] as AuthDataRepository
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
+            dependencies[1] as AuthDataRepositoryImpl
         )
     }
 

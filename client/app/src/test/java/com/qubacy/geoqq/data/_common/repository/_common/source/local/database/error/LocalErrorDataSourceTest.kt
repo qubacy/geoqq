@@ -1,8 +1,9 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.database.error
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.LocalErrorDataSourceDao
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.model.ErrorEntity
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.model.toError
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.LocalErrorDataSourceDao
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.model.ErrorEntity
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.model.toError
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +14,7 @@ class LocalErrorDataSourceTest {
         val TEST_ERROR = ErrorEntity(0, "en", "test error", false)
     }
 
-    private lateinit var mLocalErrorDataSource: LocalErrorDataSource
+    private lateinit var mLocalErrorDataSource: LocalErrorDatabaseDataSourceImpl
 
     @Before
     fun setup() {
@@ -27,7 +28,7 @@ class LocalErrorDataSourceTest {
             Mockito.anyLong(), Mockito.anyString()
         )).thenReturn(getErrorByIdResult)
 
-        mLocalErrorDataSource = LocalErrorDataSource(localErrorDataSourceDaoMock)
+        mLocalErrorDataSource = LocalErrorDatabaseDataSourceImpl(localErrorDataSourceDaoMock)
     }
 
     @Test

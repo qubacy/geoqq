@@ -1,10 +1,9 @@
 package com.qubacy.geoqq.domain.interlocutor.usecase
 
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
@@ -16,9 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class InterlocutorUseCase @Inject constructor(
-    errorSource: LocalErrorDataSource,
+    errorSource: LocalErrorDatabaseDataSourceImpl,
     private val mLogoutUseCase: LogoutUseCase,
-    private val mUserDataRepository: UserDataRepository
+    private val mUserDataRepository: UserDataRepositoryImpl
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     fun getInterlocutor(interlocutorId: Long) {
         executeLogic({

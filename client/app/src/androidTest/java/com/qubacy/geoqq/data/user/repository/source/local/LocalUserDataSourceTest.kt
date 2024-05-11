@@ -1,12 +1,13 @@
 package com.qubacy.geoqq.data.user.repository.source.local
 
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.dao.LocalUserDatabaseDataSourceDao
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import org.junit.Assert
 import org.junit.Test
 
 class LocalUserDataSourceTest : LocalDatabaseDataSourceTest() {
-    private lateinit var mLocalUserDataSource: LocalUserDataSource
+    private lateinit var mLocalUserDataSource: LocalUserDatabaseDataSourceDao
 
     override fun setup() {
         super.setup()

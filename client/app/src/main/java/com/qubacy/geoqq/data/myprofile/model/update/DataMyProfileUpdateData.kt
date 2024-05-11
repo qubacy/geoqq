@@ -5,9 +5,9 @@ import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model._common.toMyProfilePrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.MyProfileSecurityRequest
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api.request.UpdateMyProfileRequest
-import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.request.MyProfileSecurityRequest
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.request.UpdateMyProfileRequest
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store._common.model.MyProfileDataStoreModel
 
 data class DataMyProfileUpdateData(
     val username: String? = null,

@@ -14,11 +14,12 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._test.mock.LocalTokenDataStoreDataSourceMockContainer
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.toDataUser
-import com.qubacy.geoqq.data.user.repository.source.http.HttpUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUserResponse
-import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUsersResponse
-import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest.impl.RemoteUserHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUserResponse
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUsersResponse
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.dao.LocalUserDatabaseDataSourceDao
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -29,7 +30,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
+class UserDataRepositoryTest : DataRepositoryTest<UserDataRepositoryImpl>() {
     companion object {
         const val DEFAULT_LOCAL_USER_ID = 0L
 
@@ -106,18 +107,18 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         val localUserDataSourceMock = mockLocalUserDataSource()
         val httpUserDataSourceMock = mockHttpUserDataSource()
 
-        mDataRepository = UserDataRepository(
+        mDataRepository = UserDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
-            mLocalUserDataSource = localUserDataSourceMock,
+            mLocalUserDatabaseDataSource = localUserDataSourceMock,
             mLocalTokenDataStoreDataSource =
                 mLocalTokenDataStoreDataSourceMockContainer.localTokenDataStoreDataSourceMock,
-            mHttpUserDataSource = httpUserDataSourceMock
+            mRemoteUserHttpRestDataSource = httpUserDataSourceMock
         )
     }
 
-    private fun mockLocalUserDataSource(): LocalUserDataSource {
-        val localUserDataSource = Mockito.mock(LocalUserDataSource::class.java)
+    private fun mockLocalUserDataSource(): LocalUserDatabaseDataSourceDao {
+        val localUserDataSource = Mockito.mock(LocalUserDatabaseDataSourceDao::class.java)
 
         Mockito.`when`(localUserDataSource.getUsersByIds(AnyMockUtil.anyObject())).thenAnswer {
             mLocalSourceGetUsersByIdsCallFlag = true
@@ -151,8 +152,8 @@ class UserDataRepositoryTest : DataRepositoryTest<UserDataRepository>() {
         return localUserDataSource
     }
 
-    private fun mockHttpUserDataSource(): HttpUserDataSource {
-        val httpUserDataSource = Mockito.mock(HttpUserDataSource::class.java)
+    private fun mockHttpUserDataSource(): RemoteUserHttpRestDataSourceImpl {
+        val httpUserDataSource = Mockito.mock(RemoteUserHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpUserDataSource.getUsers(AnyMockUtil.anyObject())).thenAnswer {
             mHttpSourceGetUsersCallFlag = true

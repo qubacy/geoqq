@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.GetInterlocutorDomainResult
@@ -93,7 +93,7 @@ class MateRequestsViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): MateRequestsViewModel {
         return MateRequestsViewModel(savedStateHandle, errorDataSource, mUseCase)
     }

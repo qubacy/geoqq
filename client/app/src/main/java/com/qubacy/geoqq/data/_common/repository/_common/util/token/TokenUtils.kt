@@ -3,15 +3,15 @@ package com.qubacy.geoqq.data._common.repository._common.util.token
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
 import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 
 object TokenUtils {
     const val TAG = "TokenUtils"
 
     fun getTokenPayload(
         token: String,
-        errorSource: LocalErrorDataSource
+        errorSource: LocalErrorDatabaseDataSource
     ): Map<String, Claim> {
         var jwtToken: JWT? = null
 

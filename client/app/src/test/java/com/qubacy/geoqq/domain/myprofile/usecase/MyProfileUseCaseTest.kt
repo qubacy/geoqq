@@ -9,13 +9,13 @@ import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
-import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
-import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.result.GetMyProfileDataResult
+import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -87,8 +87,8 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
         )
     }
 
-    private fun mockMyProfileDataRepository(): MyProfileDataRepository {
-        val myProfileDataRepositoryMock = Mockito.mock(MyProfileDataRepository::class.java)
+    private fun mockMyProfileDataRepository(): MyProfileDataRepositoryImpl {
+        val myProfileDataRepositoryMock = Mockito.mock(MyProfileDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(myProfileDataRepositoryMock.getMyProfile()).thenAnswer {
@@ -131,10 +131,10 @@ class MyProfileUseCaseTest : UseCaseTest<MyProfileUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MyProfileUseCase(
-            dependencies[0] as LocalErrorDataSource,
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             dependencies[1] as LogoutUseCase,
-            dependencies[2] as MyProfileDataRepository,
-            dependencies[3] as AuthDataRepository
+            dependencies[2] as MyProfileDataRepositoryImpl,
+            dependencies[3] as AuthDataRepositoryImpl
         )
     }
 

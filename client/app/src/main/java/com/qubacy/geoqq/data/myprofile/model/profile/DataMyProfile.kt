@@ -4,8 +4,8 @@ import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.myprofile.model._common.DataPrivacy
 import com.qubacy.geoqq.data.myprofile.model._common.toDataPrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse
-import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.response.GetMyProfileResponse
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store._common.model.MyProfileDataStoreModel
 
 data class DataMyProfile(
     val login: String,

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._test.mock
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.LocalTokenDataStoreDataSourceImpl
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -10,7 +10,7 @@ class LocalTokenDataStoreDataSourceMockContainer {
             "eyJleHAiOjE5MDAwMDAwMDAsInVzZXItaWQiOjB9.4BS0ogDvWxgxfaHYkYfQhLw-Csg-y7vgTmHTz4jTqA4"
     }
 
-    val localTokenDataStoreDataSourceMock: LocalTokenDataStoreDataSource
+    val localTokenDataStoreDataSourceMock: LocalTokenDataStoreDataSourceImpl
 
     var getAccessToken: String? = null
     var getRefreshToken: String? = null
@@ -25,7 +25,7 @@ class LocalTokenDataStoreDataSourceMockContainer {
     val clearTokensCallFlag get() = mClearTokensCallFlag
 
     init {
-        localTokenDataStoreDataSourceMock = Mockito.mock(LocalTokenDataStoreDataSource::class.java)
+        localTokenDataStoreDataSourceMock = Mockito.mock(LocalTokenDataStoreDataSourceImpl::class.java)
 
         runTest {
             Mockito.`when`(localTokenDataStoreDataSourceMock.getAccessToken()).thenAnswer {

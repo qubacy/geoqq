@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.image.repository._test.mock
 import android.net.Uri
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data.image.model.DataImage
-import com.qubacy.geoqq.data.image.repository.ImageDataRepository
+import com.qubacy.geoqq.data.image.repository.impl.ImageDataRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -12,7 +12,7 @@ class ImageDataRepositoryMockContainer {
         val DEFAULT_DATA_IMAGE = DataImage(0L, Mockito.mock(Uri::class.java))
     }
 
-    val imageDataRepositoryMock: ImageDataRepository
+    val imageDataRepositoryMock: ImageDataRepositoryImpl
 
     var getImageById: DataImage? = DEFAULT_DATA_IMAGE
     var getImagesByIds: List<DataImage>? = listOf(DEFAULT_DATA_IMAGE)
@@ -29,8 +29,8 @@ class ImageDataRepositoryMockContainer {
         imageDataRepositoryMock = mockImageDataRepository()
     }
 
-    private fun mockImageDataRepository(): ImageDataRepository {
-        val imageDataRepositoryMock = Mockito.mock(ImageDataRepository::class.java)
+    private fun mockImageDataRepository(): ImageDataRepositoryImpl {
+        val imageDataRepositoryMock = Mockito.mock(ImageDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(imageDataRepositoryMock.getImageById(Mockito.anyLong())).thenAnswer {

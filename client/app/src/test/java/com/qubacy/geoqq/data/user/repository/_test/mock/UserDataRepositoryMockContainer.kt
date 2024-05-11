@@ -6,9 +6,9 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data.image.repository._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
-import com.qubacy.geoqq.data.user.repository.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
+import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -28,7 +28,7 @@ class UserDataRepositoryMockContainer {
         val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = DEFAULT_RESOLVE_USERS
     }
 
-    val userDataRepository: UserDataRepository
+    val userDataRepository: UserDataRepositoryImpl
 
     var error: Error? = null
 
@@ -48,8 +48,8 @@ class UserDataRepositoryMockContainer {
         userDataRepository = mockUserDataRepository()
     }
 
-    private fun mockUserDataRepository(): UserDataRepository {
-        val userDataRepositoryMock = Mockito.mock(UserDataRepository::class.java)
+    private fun mockUserDataRepository(): UserDataRepositoryImpl {
+        val userDataRepositoryMock = Mockito.mock(UserDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(userDataRepositoryMock.getUsersByIds(

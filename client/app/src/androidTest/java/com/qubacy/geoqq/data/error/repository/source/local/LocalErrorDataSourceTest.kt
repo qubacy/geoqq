@@ -2,10 +2,10 @@ package com.qubacy.geoqq.data.error.repository.source.local
 
 import android.content.ContentValues
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.LocalErrorDataSourceDao
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.LocalErrorDataSourceDao
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
 import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.model.ErrorEntity
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.model.ErrorEntity
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

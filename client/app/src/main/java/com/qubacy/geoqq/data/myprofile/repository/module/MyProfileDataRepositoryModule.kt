@@ -1,10 +1,10 @@
 package com.qubacy.geoqq.data.myprofile.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.image.repository.ImageDataRepository
-import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
-import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
-import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.image.repository.impl.ImageDataRepositoryImpl
+import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store.impl.LocalMyProfileDataStoreDataSourceImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest.impl.RemoteMyProfileHttpRestDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,12 +15,12 @@ import dagger.hilt.components.SingletonComponent
 object MyProfileDataRepositoryModule {
     @Provides
     fun provideMyProfileDataRepository(
-        localErrorDataSource: LocalErrorDataSource,
-        imageDataRepository: ImageDataRepository,
-        localMyProfileDataSource: LocalMyProfileDataSource,
-        httpMyProfileDataSource: HttpMyProfileDataSource
-    ): MyProfileDataRepository {
-        return MyProfileDataRepository(
+        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
+        imageDataRepository: ImageDataRepositoryImpl,
+        localMyProfileDataSource: LocalMyProfileDataStoreDataSourceImpl,
+        httpMyProfileDataSource: RemoteMyProfileHttpRestDataSourceImpl
+    ): MyProfileDataRepositoryImpl {
+        return MyProfileDataRepositoryImpl(
             mErrorSource = localErrorDataSource,
             mImageDataRepository = imageDataRepository,
             mLocalMyProfileDataSource = localMyProfileDataSource,

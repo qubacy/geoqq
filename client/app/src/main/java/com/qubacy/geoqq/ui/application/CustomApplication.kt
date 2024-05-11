@@ -8,14 +8,14 @@ import androidx.room.Room
 import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.HttpRestApi
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.tokenDataStore
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.tokenDataStore
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.LocalTokenDataStoreDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.AuthorizationHttpRestInterceptor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.impl.RemoteTokenHttpRestDataSourceImpl
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.OkHttpClient
@@ -35,10 +35,10 @@ class CustomApplication : Application() {
     private lateinit var mDB: Database
     val db get() = mDB
 
-    private lateinit var mLocalErrorDataSource: LocalErrorDataSource
+    private lateinit var mLocalErrorDataSource: LocalErrorDatabaseDataSourceImpl
     val localErrorDataSource get() = mLocalErrorDataSource
 
-    private lateinit var mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource
+    private lateinit var mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSourceImpl
     val localTokenDataStoreDataSource get() = mLocalTokenDataStoreDataSource
 
     private val mSettingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -71,8 +71,8 @@ class CustomApplication : Application() {
         val errorDataSource = database.errorDao()
         val tokenDataStore = this.tokenDataStore
 
-        mLocalErrorDataSource = LocalErrorDataSource(errorDataSource)
-        mLocalTokenDataStoreDataSource = LocalTokenDataStoreDataSource(tokenDataStore)
+        mLocalErrorDataSource = LocalErrorDatabaseDataSourceImpl(errorDataSource)
+        mLocalTokenDataStoreDataSource = LocalTokenDataStoreDataSourceImpl(tokenDataStore)
     }
 
     private fun initRemotes() {
@@ -83,7 +83,7 @@ class CustomApplication : Application() {
     }
 
     private fun buildHttpClient(
-        localErrorDataSource: LocalErrorDataSource
+        localErrorDataSource: LocalErrorDatabaseDataSourceImpl
     ): OkHttpClient {
         return HttpClientModule.provideHttpClient(localErrorDataSource)
     }
@@ -94,7 +94,7 @@ class CustomApplication : Application() {
     ): HttpRestApi {
         val httpCallExecutor = HttpCallExecutor(mLocalErrorDataSource, errorJsonAdapter)
 
-        val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSource(httpCallExecutor)
+        val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSourceImpl(httpCallExecutor)
 
         val authorizationHttpRestInterceptor = AuthorizationHttpRestInterceptor(
             mLocalErrorDataSource,

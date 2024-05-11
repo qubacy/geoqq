@@ -8,12 +8,13 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepositoryTest
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestCountResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestsResponse
-import com.qubacy.geoqq.data.mate.request.repository.source.http.HttpMateRequestDataSource
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestCountResponse
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestResponse
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestsResponse
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest.impl.RemoteMateRequestHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -23,7 +24,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataRepository>() {
+class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataRepositoryImpl>() {
     companion object {
         val DEFAULT_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val DEFAULT_MATE_REQUEST = GetMateRequestResponse(0, DEFAULT_USER.id)
@@ -67,15 +68,15 @@ class MateRequestDataRepositoryTest : DataRepositoryTest<MateRequestDataReposito
 
         val httpMateRequestDataSourceMock = mockHttpMateRequestDataSource()
 
-        mDataRepository = MateRequestDataRepository(
+        mDataRepository = MateRequestDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
-            mHttpMateRequestDataSource = httpMateRequestDataSourceMock
+            mRemoteMateRequestHttpRestDataSource = httpMateRequestDataSourceMock
         )
     }
 
-    private fun mockHttpMateRequestDataSource(): HttpMateRequestDataSource {
-        val httpMateRequestDataSourceMock = Mockito.mock(HttpMateRequestDataSource::class.java)
+    private fun mockHttpMateRequestDataSource(): RemoteMateRequestHttpRestDataSourceImpl {
+        val httpMateRequestDataSourceMock = Mockito.mock(RemoteMateRequestHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpMateRequestDataSourceMock.getMateRequests(
             Mockito.anyInt(),

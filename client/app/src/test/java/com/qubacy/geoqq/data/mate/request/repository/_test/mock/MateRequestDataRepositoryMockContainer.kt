@@ -2,9 +2,9 @@ package com.qubacy.geoqq.data.mate.request.repository._test.mock
 
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
-import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestCountDataResult
-import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
+import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestCountDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
@@ -15,7 +15,7 @@ class MateRequestDataRepositoryMockContainer {
             0, UserDataRepositoryMockContainer.DEFAULT_DATA_USER)
     }
 
-    val mateRequestDataRepositoryMock: MateRequestDataRepository
+    val mateRequestDataRepositoryMock: MateRequestDataRepositoryImpl
 
     var getMateRequestsDataResult: GetMateRequestsDataResult? = null
     var getMateRequestCountDataResult: GetMateRequestCountDataResult? = null
@@ -43,8 +43,8 @@ class MateRequestDataRepositoryMockContainer {
         mGetMateRequestCountCallFlag = false
     }
 
-    private fun mockMateRequestDataRepository(): MateRequestDataRepository {
-        val mateRequestDataRepositoryMock = Mockito.mock(MateRequestDataRepository::class.java)
+    private fun mockMateRequestDataRepository(): MateRequestDataRepositoryImpl {
+        val mateRequestDataRepositoryMock = Mockito.mock(MateRequestDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(mateRequestDataRepositoryMock.getMateRequests(

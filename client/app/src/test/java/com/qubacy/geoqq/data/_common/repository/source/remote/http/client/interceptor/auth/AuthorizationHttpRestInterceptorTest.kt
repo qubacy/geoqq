@@ -9,8 +9,8 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.RemoteTokenHttpRestDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.api.response.UpdateTokensResponse
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.impl.RemoteTokenHttpRestDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.response.UpdateTokensResponse
 import okhttp3.HttpUrl
 import okhttp3.Interceptor.Chain
 import okhttp3.Protocol
@@ -160,8 +160,8 @@ class AuthorizationHttpRestInterceptorTest {
         return errorJsonAdapterMock
     }
 
-    private fun mockHttpTokenDataSource(): RemoteTokenHttpRestDataSource {
-        val remoteTokenHttpRestDataSource = Mockito.mock(RemoteTokenHttpRestDataSource::class.java)
+    private fun mockHttpTokenDataSource(): RemoteTokenHttpRestDataSourceImpl {
+        val remoteTokenHttpRestDataSource = Mockito.mock(RemoteTokenHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(remoteTokenHttpRestDataSource.updateTokens(Mockito.anyString())).thenAnswer {
             mUpdateTokensCallFlag = true

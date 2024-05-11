@@ -1,9 +1,8 @@
 package com.qubacy.geoqq.domain.mate.requests.usecase
 
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
@@ -20,11 +19,11 @@ import kotlinx.coroutines.flow.merge
 import javax.inject.Inject
 
 class MateRequestsUseCase @Inject constructor(
-    errorSource: LocalErrorDataSource,
+    errorSource: LocalErrorDatabaseDataSourceImpl,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
     private val mLogoutUseCase: LogoutUseCase,
-    private val mMateRequestDataRepository: MateRequestDataRepository
+    private val mMateRequestDataRepository: MateRequestDataRepositoryImpl
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     companion object {
         const val DEFAULT_REQUEST_CHUNK_SIZE = 20

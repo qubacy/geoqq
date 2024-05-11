@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.domain.mate.request.usecase
 
 import app.cash.turbine.test
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.data.mate.request.repository._test.mock.MateRequestDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -38,9 +38,9 @@ class MateRequestUseCaseTest : UseCaseTest<MateRequestUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateRequestUseCase(
-            dependencies[0] as LocalErrorDataSource,
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             dependencies[1] as LogoutUseCase,
-            dependencies[2] as MateRequestDataRepository
+            dependencies[2] as MateRequestDataRepositoryImpl
         )
     }
 

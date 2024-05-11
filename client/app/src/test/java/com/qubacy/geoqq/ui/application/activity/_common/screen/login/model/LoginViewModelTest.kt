@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common.error._test.TestError
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
@@ -61,7 +61,7 @@ class LoginViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): LoginViewModel {
         return LoginViewModel(savedStateHandle, errorDataSource, mUseCase)
     }

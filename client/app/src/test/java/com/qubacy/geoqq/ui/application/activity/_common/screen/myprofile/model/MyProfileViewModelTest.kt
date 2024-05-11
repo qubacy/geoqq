@@ -6,7 +6,7 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain._common.model.image.Image
 import com.qubacy.geoqq.domain.myprofile.model._common.Privacy
 import com.qubacy.geoqq.domain.myprofile.model.profile.MyProfile
@@ -85,7 +85,7 @@ class MyProfileViewModelTest(
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): MyProfileViewModel {
         return MyProfileViewModel(savedStateHandle, errorDataSource, mUseCase)
     }

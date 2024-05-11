@@ -4,7 +4,7 @@ import android.location.Location
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.newer.NewGeoMessagesDomainResult
@@ -36,7 +36,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class GeoChatViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDataSource,
+    mErrorSource: LocalErrorDatabaseDataSourceImpl,
     mGeoChatUseCase: GeoChatUseCase
 ) : BusinessViewModel<GeoChatUiState, GeoChatUseCase>(
     mSavedStateHandle, mErrorSource, mGeoChatUseCase
@@ -222,7 +222,7 @@ open class GeoChatViewModel @Inject constructor(
 annotation class GeoChatViewModelFactoryQualifier
 
 class GeoChatViewModelFactory(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mGeoChatUseCase: GeoChatUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

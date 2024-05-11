@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.domain.geo.chat.usecase.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositoryImpl
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -17,12 +17,12 @@ import dagger.hilt.components.SingletonComponent
 object GeoChatUseCaseModule {
     @Provides
     fun provideGeoChatUseCase(
-        localErrorDataSource: LocalErrorDataSource,
+        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
         logoutUseCase: LogoutUseCase,
-        geoMessageDataRepository: GeoMessageDataRepository,
-        userDataRepository: UserDataRepository
+        geoMessageDataRepository: GeoMessageDataRepositoryImpl,
+        userDataRepository: UserDataRepositoryImpl
     ): GeoChatUseCase {
         return GeoChatUseCase(
             localErrorDataSource,

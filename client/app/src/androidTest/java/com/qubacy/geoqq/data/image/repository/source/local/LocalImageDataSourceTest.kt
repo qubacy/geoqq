@@ -9,7 +9,8 @@ import androidx.test.rule.GrantPermissionRule
 import com.qubacy.geoqq.data.image.repository._common.RawImage
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.util.context.extension.checkUriValidity
-import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
+import com.qubacy.geoqq.data.image.repository._common.source.local.content.impl.LocalImageContentStoreDataSourceImpl
+import com.qubacy.geoqq.data.image.repository._common.source.local.content._common.entity.ImageEntity
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -32,7 +33,7 @@ class LocalImageDataSourceTest {
     private lateinit var mContext: Context
     private lateinit var mTestRawImage: RawImage
 
-    private lateinit var mLocalImageDataSource: LocalImageDataSource
+    private lateinit var mLocalImageDataSource: LocalImageContentStoreDataSourceImpl
 
     private val mImageEntitiesToDelete: MutableList<ImageEntity> = mutableListOf()
 
@@ -60,7 +61,7 @@ class LocalImageDataSourceTest {
     }
 
     private fun initLocalImageDataSource(context: Context) {
-        mLocalImageDataSource = LocalImageDataSource(context.contentResolver)
+        mLocalImageDataSource = LocalImageContentStoreDataSourceImpl(context.contentResolver)
     }
 
     @Test

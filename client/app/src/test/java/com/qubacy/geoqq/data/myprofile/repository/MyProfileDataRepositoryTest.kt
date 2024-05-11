@@ -15,12 +15,13 @@ import com.qubacy.geoqq.data.myprofile.model.profile.toMyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.model.update.DataMyProfileUpdateData
 import com.qubacy.geoqq.data.myprofile.model.update.DataSecurity
 import com.qubacy.geoqq.data.myprofile.model.update.toMyProfileDataStoreModel
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api._common.MyProfilePrivacy
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api.response.GetMyProfileResponse
-import com.qubacy.geoqq.data.myprofile.repository.source.local.LocalMyProfileDataSource
-import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api._common.MyProfilePrivacy
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.response.GetMyProfileResponse
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store.impl.LocalMyProfileDataStoreDataSourceImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store._common.model.MyProfileDataStoreModel
 import com.qubacy.geoqq.data.myprofile.model.profile.toDataMyProfile
-import com.qubacy.geoqq.data.myprofile.repository.source.http.HttpMyProfileDataSource
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest.impl.RemoteMyProfileHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -32,7 +33,7 @@ import org.mockito.Mockito
 
 class MyProfileDataRepositoryTest(
 
-) : DataRepositoryTest<MyProfileDataRepository>() {
+) : DataRepositoryTest<MyProfileDataRepositoryImpl>() {
     companion object {
         val DEFAULT_AVATAR = ImageDataRepositoryMockContainer.DEFAULT_DATA_IMAGE
         val DEFAULT_PASSWORD = "test"
@@ -98,7 +99,7 @@ class MyProfileDataRepositoryTest(
         val localMyProfileDataSourceMock = mockLocalMyProfileDataSource()
         val httpMyProfileDataSourceMock = mockHttpMyProfileDataSource()
 
-        mDataRepository = MyProfileDataRepository(
+        mDataRepository = MyProfileDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mImageDataRepository = mImageDataRepositoryMockContainer.imageDataRepositoryMock,
             mLocalMyProfileDataSource = localMyProfileDataSourceMock,
@@ -106,8 +107,8 @@ class MyProfileDataRepositoryTest(
         )
     }
 
-    private fun mockLocalMyProfileDataSource(): LocalMyProfileDataSource {
-        val localMyProfileDataSourceMock = Mockito.mock(LocalMyProfileDataSource::class.java)
+    private fun mockLocalMyProfileDataSource(): LocalMyProfileDataStoreDataSourceImpl {
+        val localMyProfileDataSourceMock = Mockito.mock(LocalMyProfileDataStoreDataSourceImpl::class.java)
 
         runTest {
             Mockito.`when`(localMyProfileDataSourceMock.getMyProfile()).thenAnswer {
@@ -131,8 +132,8 @@ class MyProfileDataRepositoryTest(
         return localMyProfileDataSourceMock
     }
 
-    private fun mockHttpMyProfileDataSource(): HttpMyProfileDataSource {
-        val httpMyProfileDataSourceMock = Mockito.mock(HttpMyProfileDataSource::class.java)
+    private fun mockHttpMyProfileDataSource(): RemoteMyProfileHttpRestDataSourceImpl {
+        val httpMyProfileDataSourceMock = Mockito.mock(RemoteMyProfileHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpMyProfileDataSourceMock.getMyProfile()).thenAnswer {
             mHttpSourceGetMyProfileCallFlag = true

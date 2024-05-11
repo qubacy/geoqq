@@ -3,11 +3,11 @@ package com.qubacy.geoqq.domain.mate.requests.usecase
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.data.mate.request.repository._test.mock.MateRequestDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.request.repository._test.mock.MateRequestDataRepositoryMockContainer.Companion.DEFAULT_DATA_REQUEST
-import com.qubacy.geoqq.data.mate.request.repository.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
@@ -17,7 +17,6 @@ import com.qubacy.geoqq.domain.mate.request.model.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._test.mock.MateRequestUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.requests.usecase.result.get.GetRequestChunkDomainResult
-import com.qubacy.geoqq.domain.mate.requests.usecase.result.update.UpdateRequestChunkDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
@@ -50,11 +49,11 @@ class MateRequestsUseCaseTest : UseCaseTest<MateRequestsUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateRequestsUseCase(
-            dependencies[0] as LocalErrorDataSource,
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             dependencies[1] as MateRequestUseCase,
             dependencies[2] as InterlocutorUseCase,
             dependencies[3] as LogoutUseCase,
-            dependencies[4] as MateRequestDataRepository
+            dependencies[4] as MateRequestDataRepositoryImpl
         )
     }
 

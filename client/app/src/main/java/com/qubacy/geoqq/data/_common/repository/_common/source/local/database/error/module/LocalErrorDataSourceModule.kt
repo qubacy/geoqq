@@ -1,7 +1,8 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.database.error.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.dao.LocalErrorDataSourceDao
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.LocalErrorDataSourceDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +14,7 @@ object LocalErrorDataSourceModule {
     @Provides
     fun provideLocalErrorDataSourceModule(
         localErrorDataSourceDao: LocalErrorDataSourceDao
-    ): LocalErrorDataSource {
-        return LocalErrorDataSource(localErrorDataSourceDao)
+    ): LocalErrorDatabaseDataSource {
+        return LocalErrorDatabaseDataSourceImpl(localErrorDataSourceDao)
     }
 }

@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.myprofile.model._common
 
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api._common.MyProfilePrivacy
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api._common.MyProfilePrivacy
 
 data class DataPrivacy(
     val hitMeUp: HitMeUpType

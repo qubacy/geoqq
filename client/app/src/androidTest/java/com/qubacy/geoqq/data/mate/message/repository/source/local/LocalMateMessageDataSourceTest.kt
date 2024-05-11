@@ -5,8 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq._common._test._common.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
 import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
-import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
-import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.dao.LocalMateMessageDatabaseDataSourceDao
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,7 +23,7 @@ class LocalMateMessageDataSourceTest :
         val DEFAULT_TIME = 1000L
     }
 
-    private lateinit var mLocalMateMessageDataSource: LocalMateMessageDataSource
+    private lateinit var mLocalMateMessageDataSource: LocalMateMessageDatabaseDataSourceDao
 
     override fun setup() {
         super.setup()

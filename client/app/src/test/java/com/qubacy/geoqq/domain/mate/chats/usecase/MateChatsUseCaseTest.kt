@@ -7,10 +7,10 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
-import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository.result.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImpl
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatsDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
@@ -64,8 +64,8 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
             .plus(mateChatDataRepositoryMock)
     }
 
-    private fun mockMateChatDataRepository(): MateChatDataRepository {
-        val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepository::class.java)
+    private fun mockMateChatDataRepository(): MateChatDataRepositoryImpl {
+        val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(mateChatDataRepositoryMock.getChats(
@@ -95,9 +95,9 @@ class MateChatsUseCaseTest : UseCaseTest<MateChatsUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateChatsUseCase(
-            dependencies[0] as LocalErrorDataSource,
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             dependencies[1] as LogoutUseCase,
-            dependencies[2] as MateChatDataRepository
+            dependencies[2] as MateChatDataRepositoryImpl
         )
     }
 

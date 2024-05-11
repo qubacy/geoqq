@@ -1,10 +1,9 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase.result.chunk.GetChatChunkDomainResult
@@ -27,7 +26,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateChatsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDataSource,
+    mErrorSource: LocalErrorDatabaseDataSourceImpl,
     mUseCase: MateChatsUseCase
 ) : BusinessViewModel<MateChatsUiState, MateChatsUseCase>(
     mSavedStateHandle, mErrorSource, mUseCase
@@ -191,7 +190,7 @@ open class MateChatsViewModel @Inject constructor(
 annotation class MateChatsViewModelFactoryQualifier
 
 class MateChatsViewModelFactory(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mMateChatsUseCase: MateChatsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

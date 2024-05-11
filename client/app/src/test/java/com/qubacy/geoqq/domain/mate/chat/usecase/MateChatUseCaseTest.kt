@@ -7,10 +7,10 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.model.message.DataMessage
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImpl
+import com.qubacy.geoqq.data.mate.message.repository.impl.MateMessageDataRepositoryImpl
+import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
@@ -77,8 +77,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         ))
     }
 
-    private fun mockMateMessageDataRepository(): MateMessageDataRepository {
-        val mateMessageDataRepositoryMock = Mockito.mock(MateMessageDataRepository::class.java)
+    private fun mockMateMessageDataRepository(): MateMessageDataRepositoryImpl {
+        val mateMessageDataRepositoryMock = Mockito.mock(MateMessageDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(mateMessageDataRepositoryMock.getMessages(
@@ -114,8 +114,8 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
         return mateMessageDataRepositoryMock
     }
 
-    private fun mockMateChatDataRepository(): MateChatDataRepository {
-        val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepository::class.java)
+    private fun mockMateChatDataRepository(): MateChatDataRepositoryImpl {
+        val mateChatDataRepositoryMock = Mockito.mock(MateChatDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(mateChatDataRepositoryMock.deleteChat(
@@ -133,12 +133,12 @@ class MateChatUseCaseTest : UseCaseTest<MateChatUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = MateChatUseCase(
-            errorSource = dependencies[0] as LocalErrorDataSource,
+            errorSource = dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             mMateRequestUseCase = dependencies[1] as MateRequestUseCase,
             mInterlocutorUseCase = dependencies[2] as InterlocutorUseCase,
             mLogoutUseCase = dependencies[3] as LogoutUseCase,
-            mMateMessageDataRepository = dependencies[4] as MateMessageDataRepository,
-            mMateChatDataRepository = dependencies[5] as MateChatDataRepository
+            mMateMessageDataRepository = dependencies[4] as MateMessageDataRepositoryImpl,
+            mMateChatDataRepository = dependencies[5] as MateChatDataRepositoryImpl
         )
     }
 

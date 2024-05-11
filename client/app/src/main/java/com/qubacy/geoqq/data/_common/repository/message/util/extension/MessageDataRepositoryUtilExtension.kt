@@ -2,13 +2,12 @@ package com.qubacy.geoqq.data._common.repository.message.util.extension
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.message.result.ResolveMessagesDataResult
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext

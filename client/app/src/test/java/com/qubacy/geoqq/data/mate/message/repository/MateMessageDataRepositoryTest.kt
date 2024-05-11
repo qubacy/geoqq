@@ -12,12 +12,13 @@ import com.qubacy.geoqq.data._common.repository.message.source.remote.http.respo
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepositoryTest
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
-import com.qubacy.geoqq.data.mate.message.repository.result.GetMessagesDataResult
-import com.qubacy.geoqq.data.mate.message.repository.source.local.LocalMateMessageDataSource
-import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
-import com.qubacy.geoqq.data.mate.message.repository.source.http.HttpMateMessageDataSource
+import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.dao.LocalMateMessageDatabaseDataSourceDao
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest.impl.RemoteMateMessageHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.mate.message.repository.impl.MateMessageDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.repository.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -27,7 +28,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataRepository>() {
+class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataRepositoryImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryMockContainer.DEFAULT_DATA_USER
         val DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER = mapOf(DEFAULT_DATA_USER.id to DEFAULT_DATA_USER)
@@ -95,16 +96,16 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         val localMateMessageDataSourceMock = mockLocalMateMessageDataSource()
         val httpMateMessageDataSourceMock = mockHttpMateMessageDataSource()
 
-        mDataRepository = MateMessageDataRepository(
+        mDataRepository = MateMessageDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
-            mLocalMateMessageDataSource = localMateMessageDataSourceMock,
-            mHttpMateMessageDataSource = httpMateMessageDataSourceMock
+            mLocalMateMessageDatabaseDataSource = localMateMessageDataSourceMock,
+            mRemoteMateMessageHttpRestDataSource = httpMateMessageDataSourceMock
         )
     }
 
-    private fun mockLocalMateMessageDataSource(): LocalMateMessageDataSource {
-        val localMateMessageDataSourceMock = Mockito.mock(LocalMateMessageDataSource::class.java)
+    private fun mockLocalMateMessageDataSource(): LocalMateMessageDatabaseDataSourceDao {
+        val localMateMessageDataSourceMock = Mockito.mock(LocalMateMessageDatabaseDataSourceDao::class.java)
 
         Mockito.`when`(localMateMessageDataSourceMock.getMessages(
             Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()
@@ -172,8 +173,8 @@ class MateMessageDataRepositoryTest : DataRepositoryTest<MateMessageDataReposito
         return localMateMessageDataSourceMock
     }
 
-    private fun mockHttpMateMessageDataSource(): HttpMateMessageDataSource {
-        val httpMateMessageDataSourceMock = Mockito.mock(HttpMateMessageDataSource::class.java)
+    private fun mockHttpMateMessageDataSource(): RemoteMateMessageHttpRestDataSourceImpl {
+        val httpMateMessageDataSourceMock = Mockito.mock(RemoteMateMessageHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpMateMessageDataSourceMock.getMateMessages(
             Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()

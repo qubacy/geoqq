@@ -2,9 +2,9 @@ package com.qubacy.geoqq.domain.geo.chat.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositoryImpl
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
@@ -22,12 +22,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 open class GeoChatUseCase @Inject constructor(
-    errorSource: LocalErrorDataSource,
+    errorSource: LocalErrorDatabaseDataSourceImpl,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: InterlocutorUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val mGeoMessageDataRepository: GeoMessageDataRepository,
-    private val mUserDataRepository: UserDataRepository
+    private val mGeoMessageDataRepository: GeoMessageDataRepositoryImpl,
+    private val mUserDataRepository: UserDataRepositoryImpl
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,

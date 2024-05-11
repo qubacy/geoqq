@@ -1,10 +1,9 @@
 package com.qubacy.geoqq.domain.mate.chats.usecase
 
-import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.chat.repository.MateChatDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImpl
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
@@ -17,9 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MateChatsUseCase @Inject constructor(
-    errorSource: LocalErrorDataSource,
+    errorSource: LocalErrorDatabaseDataSourceImpl,
     private val mLogoutUseCase: LogoutUseCase,
-    private val mMateChatDataRepository: MateChatDataRepository
+    private val mMateChatDataRepository: MateChatDataRepositoryImpl
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     companion object {
         const val DEFAULT_CHAT_CHUNK_SIZE = 20

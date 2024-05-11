@@ -1,9 +1,6 @@
 package com.qubacy.geoqq.data._common.repository
 
-import com.qubacy.geoqq.data._common.repository._common.DataRepository
-
-abstract class DataRepositoryTest<DataRepositoryType : DataRepository> {
+abstract class DataRepositoryTest<DataRepositoryType : Any> {
     protected lateinit var mDataRepository: DataRepositoryType
-
 
 }

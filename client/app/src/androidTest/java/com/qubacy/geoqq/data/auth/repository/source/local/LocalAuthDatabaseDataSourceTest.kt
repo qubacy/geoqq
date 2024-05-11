@@ -3,17 +3,17 @@ package com.qubacy.geoqq.data.auth.repository.source.local
 import android.content.ContentValues
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
 import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
-import com.qubacy.geoqq.data.auth.repository.source.local.database.LocalAuthDatabaseDataSource
-import com.qubacy.geoqq.data.user.repository.source.local.LocalUserDataSource
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import com.qubacy.geoqq.data.auth.repository._common.source.local.database.impl.LocalAuthDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.dao.LocalUserDatabaseDataSourceDao
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import org.junit.Assert
 import org.junit.Test
 
 class LocalAuthDatabaseDataSourceTest(
 
 ) : LocalDatabaseDataSourceTest(), LocalInsertableDatabaseDataSourceTest<UserEntity> {
-    private lateinit var mLocalAuthDatabaseDataSource: LocalAuthDatabaseDataSource
-    private lateinit var mLocalUserDataSource: LocalUserDataSource
+    private lateinit var mLocalAuthDatabaseDataSource: LocalAuthDatabaseDataSourceImpl
+    private lateinit var mLocalUserDataSource: LocalUserDatabaseDataSourceDao
 
     override fun setup() {
         super.setup()

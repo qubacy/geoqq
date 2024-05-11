@@ -1,15 +1,15 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response._common.json.adapter.StringJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.api.RemoteTokenHttpRestDataSourceApi
-import com.qubacy.geoqq.data.auth.repository.source.http.api.HttpAuthDataSourceApi
-import com.qubacy.geoqq.data.geo.message.repository.source.http.api.HttpGeoMessageDataSourceApi
-import com.qubacy.geoqq.data.image.repository.source.http.api.HttpImageDataSourceApi
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.HttpMateChatDataSourceApi
-import com.qubacy.geoqq.data.mate.message.repository.source.http.api.HttpMateMessageDataSourceApi
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.HttpMateRequestDataSourceApi
-import com.qubacy.geoqq.data.myprofile.repository.source.http.api.HttpMyProfileDataSourceApi
-import com.qubacy.geoqq.data.user.repository.source.http.api.HttpUserDataSourceApi
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.RemoteTokenHttpRestDataSourceApi
+import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.RemoteAuthHttpRestDataSourceApi
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api.RemoteGeoMessageHttpRestDataSourceApi
+import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.RemoteImageHttpRestDataSourceApi
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.RemoteMateChatHttpRestDataSourceApi
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._common.api.RemoteMateMessageHttpRestDataSourceApi
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.RemoteMateRequestHttpRestDataSourceApi
+import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.RemoteMyProfileHttpRestDataSourceApi
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.RemoteUserHttpRestDataSourceApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -36,19 +36,23 @@ class HttpRestApi(httpClient: OkHttpClient) {
         .addConverterFactory(MoshiConverterFactory.create(mMoshi).asLenient())
         .build()
 
-    val tokenApi: RemoteTokenHttpRestDataSourceApi = retrofit.create(RemoteTokenHttpRestDataSourceApi::class.java)
-    val authApi: HttpAuthDataSourceApi = retrofit.create(HttpAuthDataSourceApi::class.java)
+    val tokenApi: RemoteTokenHttpRestDataSourceApi = retrofit.create(
+        RemoteTokenHttpRestDataSourceApi::class.java)
+    val authApi: RemoteAuthHttpRestDataSourceApi = retrofit.create(RemoteAuthHttpRestDataSourceApi::class.java)
 
-    val mateMessageApi: HttpMateMessageDataSourceApi =
-        retrofit.create(HttpMateMessageDataSourceApi::class.java)
-    val mateChatApi: HttpMateChatDataSourceApi =
-        retrofit.create(HttpMateChatDataSourceApi::class.java)
-    val mateRequestApi: HttpMateRequestDataSourceApi =
-        retrofit.create(HttpMateRequestDataSourceApi::class.java)
+    val mateMessageApi: RemoteMateMessageHttpRestDataSourceApi =
+        retrofit.create(RemoteMateMessageHttpRestDataSourceApi::class.java)
+    val mateChatApi: RemoteMateChatHttpRestDataSourceApi =
+        retrofit.create(RemoteMateChatHttpRestDataSourceApi::class.java)
+    val mateRequestApi: RemoteMateRequestHttpRestDataSourceApi =
+        retrofit.create(RemoteMateRequestHttpRestDataSourceApi::class.java)
 
-    val userApi: HttpUserDataSourceApi = retrofit.create(HttpUserDataSourceApi::class.java)
-    val imageApi: HttpImageDataSourceApi = retrofit.create(HttpImageDataSourceApi::class.java)
+    val userApi: RemoteUserHttpRestDataSourceApi = retrofit.create(RemoteUserHttpRestDataSourceApi::class.java)
+    val imageApi: RemoteImageHttpRestDataSourceApi = retrofit.create(
+        RemoteImageHttpRestDataSourceApi::class.java)
 
-    val myProfileApi: HttpMyProfileDataSourceApi = retrofit.create(HttpMyProfileDataSourceApi::class.java)
-    val geoChatApi: HttpGeoMessageDataSourceApi = retrofit.create(HttpGeoMessageDataSourceApi::class.java)
+    val myProfileApi: RemoteMyProfileHttpRestDataSourceApi = retrofit.create(
+        RemoteMyProfileHttpRestDataSourceApi::class.java)
+    val geoChatApi: RemoteGeoMessageHttpRestDataSourceApi = retrofit.create(
+        RemoteGeoMessageHttpRestDataSourceApi::class.java)
 }

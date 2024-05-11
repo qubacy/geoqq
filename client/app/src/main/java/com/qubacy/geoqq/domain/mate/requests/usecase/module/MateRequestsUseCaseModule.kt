@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.mate.requests.usecase.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.mate.request.repository.MateRequestDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.domain.interlocutor.usecase.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase.MateRequestUseCase
@@ -16,11 +16,11 @@ import dagger.hilt.components.SingletonComponent
 object MateRequestsUseCaseModule {
     @Provides
     fun provideMateRequestsUseCase(
-        localErrorDataSource: LocalErrorDataSource,
+        localErrorDataSource: LocalErrorDatabaseDataSourceImpl,
         mateRequestUseCase: MateRequestUseCase,
         interlocutorUseCase: InterlocutorUseCase,
         logoutUseCase: LogoutUseCase,
-        mateRequestDataRepository: MateRequestDataRepository
+        mateRequestDataRepository: MateRequestDataRepositoryImpl
     ): MateRequestsUseCase {
         return MateRequestsUseCase(
             localErrorDataSource, mateRequestUseCase,

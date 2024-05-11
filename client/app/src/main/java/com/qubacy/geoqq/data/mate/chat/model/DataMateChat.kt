@@ -3,10 +3,10 @@ package com.qubacy.geoqq.data.mate.chat.model
 import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
-import com.qubacy.geoqq.data.mate.chat.repository.source.http.api.response.GetChatResponse
-import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatResponse
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
-import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.model.DataUser
 
 data class DataMateChat(

@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.data.user.model
 
 import com.qubacy.geoqq.data.image.model.DataImage
-import com.qubacy.geoqq.data.user.repository.source.http.api.response.GetUserResponse
-import com.qubacy.geoqq.data.user.repository.source.local.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUserResponse
+import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 
 data class DataUser(
     val id: Long,

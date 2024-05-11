@@ -6,10 +6,10 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.model.message.DataMessage
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
-import com.qubacy.geoqq.data.geo.message.repository.result.GetGeoMessagesDataResult
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositoryImpl
+import com.qubacy.geoqq.data.geo.message.repository._common.result.GetGeoMessagesDataResult
+import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
@@ -80,8 +80,8 @@ class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
             .plus(mUserDataRepositoryMockContainer.userDataRepository)
     }
 
-    private fun mockGeoMessageDataRepository(): GeoMessageDataRepository {
-        val geoMessageDataRepository = Mockito.mock(GeoMessageDataRepository::class.java)
+    private fun mockGeoMessageDataRepository(): GeoMessageDataRepositoryImpl {
+        val geoMessageDataRepository = Mockito.mock(GeoMessageDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(geoMessageDataRepository.getMessages(
@@ -117,12 +117,12 @@ class GeoChatUseCaseTest : UseCaseTest<GeoChatUseCase>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = GeoChatUseCase(
-            dependencies[0] as LocalErrorDataSource,
+            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
             dependencies[1] as MateRequestUseCase,
             dependencies[2] as InterlocutorUseCase,
             dependencies[3] as LogoutUseCase,
-            dependencies[4] as GeoMessageDataRepository,
-            dependencies[5] as UserDataRepository
+            dependencies[4] as GeoMessageDataRepositoryImpl,
+            dependencies[5] as UserDataRepositoryImpl
         )
     }
 

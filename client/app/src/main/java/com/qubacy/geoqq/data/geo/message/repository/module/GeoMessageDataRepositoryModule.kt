@@ -1,9 +1,10 @@
 package com.qubacy.geoqq.data.geo.message.repository.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.geo.message.repository.GeoMessageDataRepository
-import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoMessageDataSource
-import com.qubacy.geoqq.data.user.repository.UserDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.RemoteGeoMessageHttpRestDataSource
+import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositoryImpl
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,14 +15,14 @@ import dagger.hilt.components.SingletonComponent
 object GeoMessageDataRepositoryModule {
     @Provides
     fun provideGeoMessageDataRepository(
-        localErrorDataSource: LocalErrorDataSource,
+        localErrorDataSource: LocalErrorDatabaseDataSource,
         userDataRepository: UserDataRepository,
-        httpGeoMessageDataSource: HttpGeoMessageDataSource
+        remoteGeoMessageHttpRestDataSource: RemoteGeoMessageHttpRestDataSource
     ): GeoMessageDataRepository {
-        return GeoMessageDataRepository(
+        return GeoMessageDataRepositoryImpl(
             mErrorSource = localErrorDataSource,
             mUserDataRepository = userDataRepository,
-            mHttpGeoMessageDataSource = httpGeoMessageDataSource,
+            mRemoteGeoMessageHttpRestDataSource = remoteGeoMessageHttpRestDataSource,
         )
     }
 }

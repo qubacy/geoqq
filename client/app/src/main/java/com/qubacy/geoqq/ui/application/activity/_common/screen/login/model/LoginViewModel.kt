@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.login.usecase.LoginUseCase
 import com.qubacy.geoqq.domain.login.usecase.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
@@ -19,7 +19,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class LoginViewModel @Inject constructor(
     mSavedInstanceState: SavedStateHandle,
-    mErrorSource: LocalErrorDataSource,
+    mErrorSource: LocalErrorDatabaseDataSourceImpl,
     mUseCase: LoginUseCase
 ) : BusinessViewModel<LoginUiState, LoginUseCase>(
     mSavedInstanceState, mErrorSource, mUseCase
@@ -88,7 +88,7 @@ open class LoginViewModel @Inject constructor(
 annotation class LoginViewModelFactoryQualifier
 
 class LoginViewModelFactory(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mLoginUseCase: LoginUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

@@ -2,12 +2,12 @@ package com.qubacy.geoqq.data.auth.repository._test.mock
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
 class AuthDataRepositoryMockContainer {
-    val authDataRepositoryMock: AuthDataRepository
+    val authDataRepositoryMock: AuthDataRepositoryImpl
 
     var error: Error? = null
 
@@ -35,8 +35,8 @@ class AuthDataRepositoryMockContainer {
         mSignUpCallFlag = false
     }
 
-    private fun mockTokenDataRepository(): AuthDataRepository {
-        val authDataRepositoryMock = Mockito.mock(AuthDataRepository::class.java)
+    private fun mockTokenDataRepository(): AuthDataRepositoryImpl {
+        val authDataRepositoryMock = Mockito.mock(AuthDataRepositoryImpl::class.java)
 
         runTest {
             Mockito.`when`(authDataRepositoryMock.logout()).thenAnswer {

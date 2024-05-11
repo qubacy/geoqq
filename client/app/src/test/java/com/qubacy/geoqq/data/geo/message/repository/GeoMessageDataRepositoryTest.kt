@@ -9,7 +9,8 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
-import com.qubacy.geoqq.data.geo.message.repository.source.http.HttpGeoMessageDataSource
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest.impl.RemoteGeoMessageHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._test.mock.UserDataRepositoryMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -19,7 +20,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class GeoMessageDataRepositoryTest : DataRepositoryTest<GeoMessageDataRepository>() {
+class GeoMessageDataRepositoryTest : DataRepositoryTest<GeoMessageDataRepositoryImpl>() {
     @get:Rule
     val rule = RuleChain
         .outerRule(MainDispatcherRule())
@@ -38,21 +39,21 @@ class GeoMessageDataRepositoryTest : DataRepositoryTest<GeoMessageDataRepository
         mDataRepository = initGeoMessageDataRepository()
     }
 
-    private fun initGeoMessageDataRepository(): GeoMessageDataRepository {
+    private fun initGeoMessageDataRepository(): GeoMessageDataRepositoryImpl {
         mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
         val httpGeoMessageDataSourceMock = mockHttpGeoMessageDataSource()
 
-        return GeoMessageDataRepository(
+        return GeoMessageDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
             mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
-            mHttpGeoMessageDataSource = httpGeoMessageDataSourceMock
+            mRemoteGeoMessageHttpRestDataSource = httpGeoMessageDataSourceMock
         )
     }
 
-    private fun mockHttpGeoMessageDataSource(): HttpGeoMessageDataSource {
-        val httpGeoMessageDataSourceMock = Mockito.mock(HttpGeoMessageDataSource::class.java)
+    private fun mockHttpGeoMessageDataSource(): RemoteGeoMessageHttpRestDataSourceImpl {
+        val httpGeoMessageDataSourceMock = Mockito.mock(RemoteGeoMessageHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpGeoMessageDataSourceMock.getMessages(
             Mockito.anyInt(), Mockito.anyFloat(), Mockito.anyFloat()

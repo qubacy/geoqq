@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.myprofile.usecase.MyProfileUseCase
 import com.qubacy.geoqq.domain.myprofile.usecase.result.delete.DeleteMyProfileDomainResult
 import com.qubacy.geoqq.domain.myprofile.usecase.result.profile.get.GetMyProfileDomainResult
@@ -34,7 +34,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MyProfileViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDataSource,
+    mErrorSource: LocalErrorDatabaseDataSourceImpl,
     mMyProfileUseCase: MyProfileUseCase
 ) : BusinessViewModel<MyProfileUiState, MyProfileUseCase>(
     mSavedStateHandle, mErrorSource, mMyProfileUseCase
@@ -168,7 +168,7 @@ open class MyProfileViewModel @Inject constructor(
 annotation class MyProfileViewModelFactoryQualifier
 
 class MyProfileViewModelFactory(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mMyProfileUseCase: MyProfileUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

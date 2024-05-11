@@ -6,7 +6,7 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.error.type.TestErrorType
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.StatefulViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.state.BaseUiState
@@ -56,7 +56,7 @@ abstract class StatefulViewModelTest<
 
     protected open fun initViewModel() {
         val savedStateHandleMock = Mockito.mock(SavedStateHandle::class.java)
-        val errorDataSourceMock = Mockito.mock(LocalErrorDataSource::class.java)
+        val errorDataSourceMock = Mockito.mock(LocalErrorDatabaseDataSourceImpl::class.java)
 
         Mockito.`when`(errorDataSourceMock.getError(Mockito.anyLong()))
             .thenAnswer { mGetErrorResult }
@@ -66,7 +66,7 @@ abstract class StatefulViewModelTest<
 
     protected abstract fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): ViewModelType
 
     @Test

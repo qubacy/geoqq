@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.request.model
 
-import com.qubacy.geoqq.data.mate.request.repository.source.http.api.response.GetMateRequestResponse
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestResponse
 import com.qubacy.geoqq.data.user.model.DataUser
 
 data class DataMateRequest(

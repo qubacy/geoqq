@@ -3,7 +3,9 @@ package com.qubacy.geoqq.data.myprofile.repository.source.local
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
-import com.qubacy.geoqq.data.myprofile.repository.source.local.model.MyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store.impl.LocalMyProfileDataStoreDataSourceImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store._common.model.MyProfileDataStoreModel
+import com.qubacy.geoqq.data.myprofile.repository.source.local.store.myProfileDataStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
@@ -12,7 +14,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LocalMyProfileDataSourceTest() {
-    private lateinit var mMyProfileDataSource: LocalMyProfileDataSource
+    private lateinit var mMyProfileDataSource: LocalMyProfileDataStoreDataSourceImpl
 
     @Before
     fun setup() {
@@ -22,7 +24,7 @@ class LocalMyProfileDataSourceTest() {
     private fun initMyProfileDataSource() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-        mMyProfileDataSource = LocalMyProfileDataSource(context.myProfileDataStore)
+        mMyProfileDataSource = LocalMyProfileDataStoreDataSourceImpl(context.myProfileDataStore)
     }
 
     @Test

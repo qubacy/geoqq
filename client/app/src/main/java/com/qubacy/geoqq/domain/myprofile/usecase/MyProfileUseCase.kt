@@ -2,10 +2,10 @@ package com.qubacy.geoqq.domain.myprofile.usecase
 
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
-import com.qubacy.geoqq.data.myprofile.repository.MyProfileDataRepository
-import com.qubacy.geoqq.data.myprofile.repository.result.GetMyProfileDataResult
-import com.qubacy.geoqq.data.auth.repository.AuthDataRepository
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
+import com.qubacy.geoqq.data.myprofile.repository._common.result.GetMyProfileDataResult
+import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
@@ -22,10 +22,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MyProfileUseCase @Inject constructor(
-    errorSource: LocalErrorDataSource,
+    errorSource: LocalErrorDatabaseDataSourceImpl,
     private val mLogoutUseCase: LogoutUseCase,
-    private val mMyProfileDataRepository: MyProfileDataRepository,
-    private val mAuthDataRepository: AuthDataRepository
+    private val mMyProfileDataRepository: MyProfileDataRepositoryImpl,
+    private val mAuthDataRepository: AuthDataRepositoryImpl
 ) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
     fun getMyProfile() {
         executeLogic({

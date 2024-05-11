@@ -4,7 +4,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor._common.InterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase.result.AnswerMateRequestDomainResult
@@ -36,7 +36,7 @@ import javax.inject.Qualifier
 @HiltViewModel
 open class MateRequestsViewModel @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
-    mErrorSource: LocalErrorDataSource,
+    mErrorSource: LocalErrorDatabaseDataSourceImpl,
     mMateRequestsUseCase: MateRequestsUseCase
 ) : BusinessViewModel<MateRequestsUiState, MateRequestsUseCase>(
     mSavedStateHandle, mErrorSource, mMateRequestsUseCase
@@ -207,7 +207,7 @@ open class MateRequestsViewModel @Inject constructor(
 annotation class MateRequestsViewModelFactoryQualifier
 
 class MateRequestsViewModelFactory(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

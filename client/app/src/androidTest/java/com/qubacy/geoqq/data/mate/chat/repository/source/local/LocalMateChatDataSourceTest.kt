@@ -2,8 +2,9 @@ package com.qubacy.geoqq.data.mate.chat.repository.source.local
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
-import com.qubacy.geoqq.data.mate.chat.repository.source.local.entity.MateChatEntity
-import com.qubacy.geoqq.data.mate.message.repository.source.local.entity.MateMessageEntity
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.dao.LocalMateChatDatabaseDataSourceDao
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
+import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,7 +18,7 @@ class LocalMateChatDataSourceTest : LocalDatabaseDataSourceTest() {
         const val DEFAULT_LAST_MESSAGE_TIME = 100L
     }
 
-    private lateinit var mLocalMateChatDataSource: LocalMateChatDataSource
+    private lateinit var mLocalMateChatDataSource: LocalMateChatDatabaseDataSourceDao
 
     override fun setup() {
         super.setup()

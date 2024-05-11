@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.LocationMockUtil
 import com.qubacy.geoqq._common.point._test.util.PointUtils
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.location.model.operation.LocationPointChangedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.StatefulViewModelTest
@@ -20,7 +20,7 @@ class GeoSettingsViewModelTest(
 ) : StatefulViewModelTest<GeoSettingsUiState, GeoSettingsViewModel>() {
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): GeoSettingsViewModel {
         return GeoSettingsViewModel(savedStateHandle, errorDataSource)
     }

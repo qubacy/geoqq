@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http._com
 
 import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
@@ -11,7 +11,7 @@ import retrofit2.Call
 import javax.inject.Inject
 
 open class HttpCallExecutor @Inject constructor(
-    private val mErrorSource: LocalErrorDataSource,
+    private val mErrorSource: LocalErrorDatabaseDataSourceImpl,
     private val mErrorJsonAdapter: ErrorJsonAdapter
 ) {
     companion object {

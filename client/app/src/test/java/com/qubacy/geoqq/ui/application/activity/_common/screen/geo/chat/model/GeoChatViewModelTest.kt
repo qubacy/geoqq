@@ -4,10 +4,9 @@ import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.LocalErrorDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.domain.geo.chat.model.GeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCase
-import com.qubacy.geoqq.domain.geo.chat.usecase.result.message._common.GeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.interlocutor.usecase.result.interlocutor.UpdateInterlocutorDomainResult
@@ -95,7 +94,7 @@ class GeoChatViewModelTest : BusinessViewModelTest<
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDataSource
+        errorDataSource: LocalErrorDatabaseDataSourceImpl
     ): GeoChatViewModel {
         return GeoChatViewModel(savedStateHandle, errorDataSource, mUseCase)
     }

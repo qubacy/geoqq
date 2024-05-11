@@ -11,12 +11,13 @@ import com.qubacy.geoqq.data.image._common.extension.ImageExtension
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.image.model.toDataImage
 import com.qubacy.geoqq.data.image.repository._common.RawImage
-import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImageResponse
-import com.qubacy.geoqq.data.image.repository.source.http.api.response.GetImagesResponse
-import com.qubacy.geoqq.data.image.repository.source.http.api.response.UploadImageResponse
-import com.qubacy.geoqq.data.image.repository.source.local.LocalImageDataSource
-import com.qubacy.geoqq.data.image.repository.source.local.entity.ImageEntity
-import com.qubacy.geoqq.data.image.repository.source.http.HttpImageDataSource
+import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.response.GetImageResponse
+import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.response.GetImagesResponse
+import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.response.UploadImageResponse
+import com.qubacy.geoqq.data.image.repository._common.source.local.content.impl.LocalImageContentStoreDataSourceImpl
+import com.qubacy.geoqq.data.image.repository._common.source.local.content._common.entity.ImageEntity
+import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest.impl.RemoteImageHttpRestDataSourceImpl
+import com.qubacy.geoqq.data.image.repository.impl.ImageDataRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -26,7 +27,7 @@ import org.mockito.Mockito
 
 class ImageDataRepositoryTest(
 
-) : DataRepositoryTest<ImageDataRepository>() {
+) : DataRepositoryTest<ImageDataRepositoryImpl>() {
     companion object {
         init {
             BitmapFactoryMockUtil.mockBitmapFactory()
@@ -89,15 +90,15 @@ class ImageDataRepositoryTest(
         val localImageDataSourceMock = mockLocalImageDataSource()
         val httpImageDataSourceMock = mockHttpImageDataSource()
 
-        mDataRepository = ImageDataRepository(
+        mDataRepository = ImageDataRepositoryImpl(
             mErrorDataRepositoryMockContainer.errorDataSourceMock,
             localImageDataSourceMock,
             httpImageDataSourceMock
         )
     }
 
-    private fun mockLocalImageDataSource(): LocalImageDataSource {
-        val localImageDataSourceMock = Mockito.mock(LocalImageDataSource::class.java)
+    private fun mockLocalImageDataSource(): LocalImageContentStoreDataSourceImpl {
+        val localImageDataSourceMock = Mockito.mock(LocalImageContentStoreDataSourceImpl::class.java)
 
         Mockito.`when`(localImageDataSourceMock.loadImage(Mockito.anyLong())).thenAnswer {
             mLocalSourceLoadImageCallFlag = true
@@ -125,8 +126,8 @@ class ImageDataRepositoryTest(
         return localImageDataSourceMock
     }
 
-    private fun mockHttpImageDataSource(): HttpImageDataSource {
-        val httpImageDataSourceMock = Mockito.mock(HttpImageDataSource::class.java)
+    private fun mockHttpImageDataSource(): RemoteImageHttpRestDataSourceImpl {
+        val httpImageDataSourceMock = Mockito.mock(RemoteImageHttpRestDataSourceImpl::class.java)
 
         Mockito.`when`(httpImageDataSourceMock.getImage(
             Mockito.anyLong()
