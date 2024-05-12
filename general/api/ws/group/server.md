@@ -1,10 +1,10 @@
-# Server Side 🖥
+# Server Side 🗄️
 
 The server sends to the client application.
 
 ## `PublicUser` 
 
-## Updated
+### Updated
 
 ```json
 {
@@ -23,7 +23,7 @@ The server sends to the client application.
 
 ## `MateChat`
 
-### Added
+### Added, Updated
 
 ```json
 {
@@ -37,23 +37,6 @@ The server sends to the client application.
             "text": "<string>",
             "time": "<int>",
             "user-id": "<id>"
-        }
-    }
-}
-```
-
-### Updated (short payload)
-
-```json
-{
-    "event": "updated_mate_chat",
-    "payload": {
-        "id": "<id>",
-        "new-message-count": "<int>",
-        "last-message": {
-            "id": "<id>",
-            "text": "<string>",
-            "time": "<int>"
         }
     }
 }
