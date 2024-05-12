@@ -68,9 +68,14 @@ func (s *GeoChatMessageService) GetGeoChatAllMessages(
 	distance uint64, latitude, longitude float64) (
 	domain.GeoMessageList, error,
 ) {
+	sourceFunc := s.GetGeoChatAllMessages
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetGeoChatAllMessages, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+	err = s.validateDistance(distance)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
 	var offset uint64 = 0
@@ -81,11 +86,15 @@ func (s *GeoChatMessageService) GetGeoChatAllMessages(
 		offset, count,
 	)
 	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetGeoChatAllMessages, err),
+		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
+	// TODO: add limiter requests!
+
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+	s.domainStorage.UpdateBgrLocationForUser(userId, longitude, latitude)
+
 	return geoMessages, nil
 }
 
@@ -95,6 +104,7 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 	offset, count uint64) (
 	domain.GeoMessageList, error,
 ) {
+	sourceFunc := s.GetGeoChatMessages
 	if count > s.generalParams.MaxPageSize {
 		return nil, ec.New(ErrCountMoreThanPermissible,
 			ec.Client, ec.CountMoreThanPermissible)
@@ -102,7 +112,11 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetGeoChatMessages, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+	err = s.validateDistance(distance)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
 	geoMessages, err := s.domainStorage.GetGeoChatMessages(ctx,
@@ -110,11 +124,13 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 		offset, count,
 	)
 	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetGeoChatMessages, err),
+		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+	s.domainStorage.UpdateBgrLocationForUser(userId, longitude, latitude)
+
 	return geoMessages, nil
 }
 
@@ -129,15 +145,21 @@ func validateLatAndLon(longitude, latitude float64) error {
 
 	// Долгота
 	if longitude < -180 || longitude > +180 {
-		return ec.New(ErrWrongLongitude,
-			ec.Client, ec.WrongLongitude)
+		return ec.New(ErrWrongLongitude, ec.Client, ec.WrongLongitude)
 	}
 
 	// Широта
 	if latitude < -90 || latitude > +90 {
-		return ec.New(ErrWrongLatitude,
-			ec.Client, ec.WrongLatitude)
+		return ec.New(ErrWrongLatitude, ec.Client, ec.WrongLatitude)
 	}
 
+	return nil
+}
+
+func (s *GeoChatMessageService) validateDistance(distance uint64) error {
+	if distance > s.chatParams.GeoChatParams.MaxRadius ||
+		s.chatParams.GeoChatParams.MinRadius > distance {
+		return ec.New(ErrWrongRadius, ec.Client, ec.WrongRadius)
+	}
 	return nil
 }

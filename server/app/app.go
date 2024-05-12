@@ -320,6 +320,8 @@ func servicesInstance(
 			GeoChatParams: serviceImpl.GeoChatParams{
 				MaxMessageCountReturned: viper.GetUint64(
 					"service.chat.geo.max_message_count_returned"),
+				MaxRadius: viper.GetUint64("service.chat.geo.max_radius"),
+				MinRadius: viper.GetUint64("service.chat.geo.min_radius"),
 			},
 		},
 	})

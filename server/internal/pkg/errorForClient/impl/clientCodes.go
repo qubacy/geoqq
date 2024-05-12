@@ -199,4 +199,5 @@ const ( // Geo
 	WrongLongitude
 
 	GeoMessageTooLong
+	WrongRadius
 )

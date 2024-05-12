@@ -51,6 +51,8 @@ type ChatParams struct {
 
 type GeoChatParams struct {
 	MaxMessageCountReturned uint64
+	MaxRadius               uint64
+	MinRadius               uint64
 }
 
 type UserParams struct {

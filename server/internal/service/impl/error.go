@@ -53,6 +53,7 @@ var (
 
 	ErrWrongLongitude = errors.New("wrong longitude")
 	ErrWrongLatitude  = errors.New("wrong latitude")
+	ErrWrongRadius    = errors.New("wrong radius")
 )
 
 // with params

@@ -18,7 +18,7 @@ delivery: # or service?
   token:
     access_ttl: 15s
     refresh_ttl: 168h
-    signing_key: "signing_key"
+    signing_key: "signing_key" # 
     refresh_signing_key: ""
 
 service:
@@ -28,7 +28,7 @@ service:
   
   auth:
     login_pattern: ^\w{6,32}$ # ^[A-Za-z0-9_]{5,64}$
-    password_pattern: ^\S{8,}$   # ^[\s\S]+$
+    password_pattern: ^\S{8,}$ # ^[\s\S]+$
 
     sign_in:
       failed_attempt_count: 3
@@ -48,6 +48,8 @@ service:
     max_message_length: 1024
     geo:
       max_message_count_returned: 100 
+      max_radius: 10000 # distance!
+      min_radius: 100
 
   image:
     cache_ttl: 15m
