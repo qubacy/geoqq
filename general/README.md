@@ -3,6 +3,7 @@
 ## API
 Description
   - Http [here](./api/http/desc.md)
+  - Ws [here](./api/ws/desc.md)
 
 ## Diagrams 🎰
 
