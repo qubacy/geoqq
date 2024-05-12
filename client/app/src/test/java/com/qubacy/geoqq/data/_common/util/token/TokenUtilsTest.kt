@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.util.token
 
 import com.auth0.android.jwt.Claim
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
 import org.junit.Assert
 import org.junit.Before

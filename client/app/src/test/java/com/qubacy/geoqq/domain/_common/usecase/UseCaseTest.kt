@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain._common.usecase
 
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import kotlinx.coroutines.Dispatchers
 import org.junit.After

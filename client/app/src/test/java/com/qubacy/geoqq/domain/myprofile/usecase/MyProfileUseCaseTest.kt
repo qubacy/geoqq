@@ -16,10 +16,10 @@ import com.qubacy.geoqq.data.myprofile.model.profile.DataMyProfile
 import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
 import com.qubacy.geoqq.data.myprofile.repository._common.result.GetMyProfileDataResult
 import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
-import com.qubacy.geoqq.data.auth.repository._test.mock.AuthDataRepositoryMockContainer
+import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
-import com.qubacy.geoqq.domain.logout.usecase._test.mock.LogoutUseCaseMockContainer
+import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile
 import com.qubacy.geoqq.domain.myprofile.model.update.MyProfileUpdateData
 import com.qubacy.geoqq.domain.myprofile.usecase._common.result.delete.DeleteMyProfileDomainResult

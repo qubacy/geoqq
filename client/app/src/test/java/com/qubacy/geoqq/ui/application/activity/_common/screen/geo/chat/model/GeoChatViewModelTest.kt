@@ -4,16 +4,17 @@ import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.geo.chat.model.GeoMessage
-import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCaseImpl
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase._test.mock.InterlocutorUseCaseMockContainer
+import com.qubacy.geoqq.domain.interlocutor.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
@@ -26,9 +27,9 @@ import org.junit.Test
 import org.mockito.Mockito
 
 class GeoChatViewModelTest : BusinessViewModelTest<
-        GeoChatUiState, GeoChatUseCaseImpl, GeoChatViewModelImpl
+    GeoChatUiState, GeoChatUseCase, GeoChatViewModel
 >(
-    GeoChatUseCaseImpl::class.java
+    GeoChatUseCase::class.java
 ) {
     companion object {
         val DEFAULT_USER = InterlocutorUseCaseMockContainer.DEFAULT_USER
@@ -58,7 +59,7 @@ class GeoChatViewModelTest : BusinessViewModelTest<
         mUseCaseSendMateRequestToInterlocutorCallFlag = false
     }
 
-    override fun initUseCase(): GeoChatUseCaseImpl {
+    override fun initUseCase(): GeoChatUseCase {
         val useCase = super.initUseCase()
 
         Mockito.`when`(useCase.getMessages(
@@ -95,8 +96,8 @@ class GeoChatViewModelTest : BusinessViewModelTest<
 
     override fun createViewModel(
         savedStateHandle: SavedStateHandle,
-        errorDataSource: LocalErrorDatabaseDataSourceImpl
-    ): GeoChatViewModelImpl {
+        errorDataSource: LocalErrorDatabaseDataSource
+    ): GeoChatViewModel {
         return GeoChatViewModelImpl(savedStateHandle, errorDataSource, mUseCase)
     }
 
