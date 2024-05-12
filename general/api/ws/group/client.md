@@ -6,7 +6,7 @@ The client application sends to the server.
 
 ```json
 {    
-    "route": "/user/location",
+    "route": "update_user_location",
     "access-token": "<jwt-string>",
 
     "payload": {
@@ -21,7 +21,7 @@ The client application sends to the server.
 
 ```json
 {
-    "route": "/geo/chat/message",
+    "route": "add_geo_message",
     "access-token": "<jwt-string>",
 
     "payload": {
@@ -36,11 +36,11 @@ The client application sends to the server.
 
 ```json
 {
-    "route": "/mate/chat/message",
+    "route": "add_mate_message",
     "access-token": "<jwt-string>",
 
     "payload": {
-        "id": "<id>",
+        "chat-id": "<id>",
         "text": "<string>"
     }
 }

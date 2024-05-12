@@ -27,7 +27,7 @@ The server sends to the client application.
 
 ```json
 {
-    "event": "added_mate_chat",
+    "event": "added_mate_chat | update_mate_chat",
     "payload": {
         "id": "<id>",
         "user-id": "<id>",
