@@ -1,6 +1,7 @@
 # API 🛣
 
 ## Group
+
 - Auth [here](./group/auth.md)
 - User [here](./group/user.md)
 - Image [here](./group/image.md)
