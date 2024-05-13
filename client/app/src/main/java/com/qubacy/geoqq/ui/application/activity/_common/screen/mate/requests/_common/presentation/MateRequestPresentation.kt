@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation
 
-import com.qubacy.geoqq.domain.mate.request.model.MateRequest
+import com.qubacy.geoqq.domain.mate._common.model.request.MateRequest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 

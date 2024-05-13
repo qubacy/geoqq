@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update
 
 import com.qubacy.geoqq._common.model.error._common.Error
-import com.qubacy.geoqq.domain.geo.chat.model.GeoMessage
+import com.qubacy.geoqq.domain.geo._common.model.GeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message._common.GeoMessagesDomainResult
 
 class UpdateGeoMessagesDomainResult(

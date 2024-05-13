@@ -162,6 +162,9 @@ class MyProfileDataRepositoryImplTest(
         Assert.assertEquals(expectedDataMyProfile, gottenDataMyProfile)
     }
 
+    /**
+     * Can fail due to weak synchronization;
+     */
     @Test
     fun getMyProfileWithLocalDataTest() = runTest {
         val dataMyProfile = DEFAULT_DATA_MY_PROFILE

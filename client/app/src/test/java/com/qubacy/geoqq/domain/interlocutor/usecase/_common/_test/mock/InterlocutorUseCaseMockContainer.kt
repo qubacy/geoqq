@@ -1,14 +1,14 @@
 package com.qubacy.geoqq.domain.interlocutor.usecase._common._test.mock
 
+import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
-import com.qubacy.geoqq.domain.interlocutor.usecase._common._test.context.InterlocutorUseCaseTestContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.mockito.Mockito
 
 class InterlocutorUseCaseMockContainer {
     companion object {
-        val DEFAULT_USER = InterlocutorUseCaseTestContext.DEFAULT_USER
+        val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
     }
 
     val interlocutorUseCaseMock: InterlocutorUseCase

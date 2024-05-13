@@ -4,8 +4,8 @@ import app.cash.turbine.test
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common._test.mock.MateRequestDataRepositoryMockContainer
+import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.interlocutor.usecase._common._test.context.InterlocutorUseCaseTestContext
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
@@ -16,7 +16,7 @@ import org.junit.Test
 
 class MateRequestUseCaseImplTest : UseCaseTest<MateRequestUseCaseImpl>() {
     companion object {
-        val DEFAULT_USER = InterlocutorUseCaseTestContext.DEFAULT_USER
+        val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
     }
 
     private lateinit var mMateRequestDataRepositoryMockContainer: MateRequestDataRepositoryMockContainer

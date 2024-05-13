@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
 import com.qubacy.geoqq.domain.interlocutor.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
-import com.qubacy.geoqq.domain.mate.request.model.toMateRequest
+import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common._test.mock.MateRequestUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.get.GetRequestChunkDomainResult

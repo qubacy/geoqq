@@ -13,9 +13,10 @@ object MyProfileDataRepositoryTestContext {
     val DEFAULT_AVATAR = ImageDataRepositoryTestContext.DEFAULT_DATA_IMAGE
     val DEFAULT_PASSWORD = "test"
 
+    val DEFAULT_DATA_PRIVACY = DataPrivacy(HitMeUpType.EVERYBODY)
     val DEFAULT_DATA_MY_PROFILE = DataMyProfile(
         "login", "test", "test",
-        DEFAULT_AVATAR, DataPrivacy(HitMeUpType.EVERYBODY)
+        DEFAULT_AVATAR, DEFAULT_DATA_PRIVACY
     )
 
     val DEFAULT_GET_MY_PROFILE_RESPONSE = GetMyProfileResponse(

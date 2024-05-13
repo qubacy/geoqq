@@ -7,7 +7,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
-import com.qubacy.geoqq.domain.mate.request.model.toMateRequest
+import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase

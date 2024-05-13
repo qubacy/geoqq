@@ -3,7 +3,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pre
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.os.ParcelCompat
-import com.qubacy.geoqq.domain.mate.chats.model.MateChat
+import com.qubacy.geoqq.domain.mate._common.model.chat.MateChat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.data.MateChatItemData

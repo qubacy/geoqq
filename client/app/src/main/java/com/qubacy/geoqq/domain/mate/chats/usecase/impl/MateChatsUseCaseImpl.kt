@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
-import com.qubacy.geoqq.domain.mate.chats.model.toMateChat
+import com.qubacy.geoqq.domain.mate._common.model.chat.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult

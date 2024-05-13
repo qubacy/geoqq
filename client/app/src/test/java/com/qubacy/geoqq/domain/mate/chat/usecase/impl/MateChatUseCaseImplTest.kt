@@ -17,7 +17,7 @@ import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
 import com.qubacy.geoqq.domain.interlocutor.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
-import com.qubacy.geoqq.domain.mate.chat.model.toMateMessage
+import com.qubacy.geoqq.domain.mate._common.model.message.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult

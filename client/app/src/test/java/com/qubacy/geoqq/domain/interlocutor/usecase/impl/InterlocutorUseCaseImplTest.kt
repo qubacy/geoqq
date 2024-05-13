@@ -3,15 +3,15 @@ package com.qubacy.geoqq.domain.interlocutor.usecase.impl
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
-import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.logout.usecase.impl.LogoutUseCaseImpl
+import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -45,9 +45,9 @@ class InterlocutorUseCaseImplTest : UseCaseTest<InterlocutorUseCaseImpl>() {
 
     override fun initUseCase(dependencies: List<Any>) {
         mUseCase = InterlocutorUseCaseImpl(
-            dependencies[0] as LocalErrorDatabaseDataSourceImpl,
-            dependencies[1] as LogoutUseCaseImpl,
-            dependencies[2] as UserDataRepositoryImpl
+            dependencies[0] as LocalErrorDatabaseDataSource,
+            dependencies[1] as LogoutUseCase,
+            dependencies[2] as UserDataRepository
         )
     }
 
