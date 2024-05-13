@@ -8,14 +8,17 @@ The server sends to the client application.
 
 ```json
 {
-    "id": "<id>",
-    "username": "<string>",
-    "description": "<string>",
-    "avatar-id": "<id>",
-    "last-action-time": "<int>",
-    "is-mate": "<bool>",
-    "is-deleted": "<bool>",
-    "hit-me-up": "<int>"
+    "event": "updated_public_chat",
+    "payload": {
+        "id": "<id>",
+        "username": "<string>",
+        "description": "<string>",
+        "avatar-id": "<id>",
+        "last-action-time": "<int>",
+        "is-mate": "<bool>",
+        "is-deleted": "<bool>",
+        "hit-me-up": "<int>"
+    }
 }
 ```
 
@@ -27,7 +30,7 @@ The server sends to the client application.
 
 ```json
 {
-    "event": "added_mate_chat | update_mate_chat",
+    "event": "added_mate_chat | updated_mate_chat",
     "payload": {
         "id": "<id>",
         "user-id": "<id>",
@@ -69,6 +72,7 @@ The server sends to the client application.
     "event": "added_mate_message",
     "payload": {
         "id": "<id>",
+        "chat-id": "<id>",
         "text": "<string>",
         "time": "<int>",
         "user-id": "<id>"
