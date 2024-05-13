@@ -112,7 +112,7 @@ The server sends to the client application.
 
 ## MateRequestScreen
 
-- `MateRequests` added (MateRequestsRes)
+- `MateRequests` added
 - `PublicUser` updated
 
 ## MateChatScreen (With Specific User)
