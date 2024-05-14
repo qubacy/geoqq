@@ -16,9 +16,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.choosablelistviewlib.item.ChoosableItemViewProvider
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelImpl
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory._test.mock.MateRequestsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.module.MateRequestsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
@@ -27,12 +26,14 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.Re
 import com.qubacy.geoqq.ui._common._test.view.util.action.swipe.SwipeViewActionUtil
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
+import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.MateRequestsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.module.FakeMateRequestsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.insert.InsertRequestsUiOperation
@@ -52,8 +53,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MateRequestsFragmentTest : BusinessFragmentTest<
     FragmentMateRequestsBinding,
-        MateRequestsUiState,
-        MateRequestsViewModelImpl,
+    MateRequestsUiState,
+    MateRequestsViewModel,
     MateRequestsViewModelMockContext,
     MateRequestsFragment
 >(), InterlocutorFragmentTest<MateRequestsFragment>, AuthorizationFragmentTest {
@@ -84,8 +85,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
             .targetContext.getUriFromResId(DEFAULT_AVATAR_RES_ID)
 
         mImagePresentation = ImagePresentation(0, imageUri)
-        mUserPresentation = UserPresentation(
-            0, "test", "test", mImagePresentation, false, false)
+        mUserPresentation = ScreenTestContext.generateUserPresentation(mImagePresentation)
     }
 
     override fun createDefaultViewModelMockContext(): MateRequestsViewModelMockContext {
@@ -334,9 +334,9 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
     ): MutableList<MateRequestPresentation> {
         return IntRange(offset, count + offset - 1).map { it ->
             val id = it.toLong()
-            val user = UserPresentationGenerator.generateUserPresentation(id, mImagePresentation)
+            val user = ScreenTestContext.generateUserPresentation(mImagePresentation, id)
 
-            MateRequestPresentation(id, user)
+            MateTestContext.generateMateRequestPresentation(user, id)
         }.toMutableList()
     }
 

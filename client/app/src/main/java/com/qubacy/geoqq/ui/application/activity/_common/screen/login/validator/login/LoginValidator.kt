@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login
 
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment._common.validator.Validator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.validator._common.Validator
 
 class LoginValidator : Validator<String> {
     companion object {

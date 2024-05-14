@@ -14,8 +14,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.MyProfileViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
@@ -28,7 +27,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common._test.context.MyProfileTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.MyProfilePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.MyProfileViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.FakeMyProfileViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileUpdatedUiOperation
@@ -48,8 +49,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MyProfileFragmentTest : BusinessFragmentTest<
     FragmentMyProfileBinding,
-        MyProfileUiState,
-        MyProfileViewModelImpl,
+    MyProfileUiState,
+    MyProfileViewModel,
     MyProfileViewModelMockContext,
     MyProfileFragment
 >(), PopupFragmentTest<MyProfileFragment>, AuthorizationFragmentTest {
@@ -67,13 +68,8 @@ class MyProfileFragmentTest : BusinessFragmentTest<
             .targetContext.getUriFromResId(DEFAULT_AVATAR_RES_ID)
 
         mAvatarImagePresentation = ImagePresentation(0, imageUri)
-        mDefaultMyProfilePresentation = MyProfilePresentation(
-            mAvatarImagePresentation.uri,
-            "test",
-            "test",
-            "test about",
-            HitMeUpType.EVERYBODY
-        )
+        mDefaultMyProfilePresentation = MyProfileTestContext
+            .generateMyProfilePresentation(mAvatarImagePresentation)
     }
 
     override fun createDefaultViewModelMockContext(): MyProfileViewModelMockContext {
@@ -164,13 +160,8 @@ class MyProfileFragmentTest : BusinessFragmentTest<
     @Test
     fun recoveringDataFromUiStateOnStartTest() {
         val initMyProfile = mDefaultMyProfilePresentation
-        val initMyProfileInputData = MyProfileInputData(
-            initMyProfile.avatarUri,
-            initMyProfile.username,
-            initMyProfile.aboutMe,
-            String(), String(), String(),
-            initMyProfile.hitMeUp
-        )
+        val initMyProfileInputData = MyProfileTestContext
+            .generateMyProfileInputData(initMyProfile.avatarUri)
         val initUiState = MyProfileUiState(
             myProfilePresentation = initMyProfile,
             myProfileInputData = initMyProfileInputData
@@ -197,13 +188,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
 
     @Test
     fun preservingInputDataTest() = runTest {
-        val expectedMyProfileInputData = MyProfileInputData(
+        val expectedMyProfileInputData = MyProfileTestContext.generateMyProfileInputData(
             username = "test",
             aboutMe = "test",
             password = "testtest",
             newPassword = "testtest2",
             newPasswordAgain = "testtest2",
-            hitMeUp = HitMeUpType.EVERYBODY
+            hitMeUpType = HitMeUpType.EVERYBODY
         )
 
         defaultInit()
@@ -453,13 +444,13 @@ class MyProfileFragmentTest : BusinessFragmentTest<
             myProfilePresentation = initMyProfilePresentation
         )
 
-        val updatedMyProfileInputData = MyProfileInputData(
+        val updatedMyProfileInputData = MyProfileTestContext.generateMyProfileInputData(
             username = "updated username",
             aboutMe = "updated about me",
             password = "testtest",
             newPassword = "testtest2",
             newPasswordAgain = "testtest2",
-            hitMeUp = HitMeUpType.EVERYBODY
+            hitMeUpType = HitMeUpType.EVERYBODY
         )
         val isUpdateDataValid = true
 

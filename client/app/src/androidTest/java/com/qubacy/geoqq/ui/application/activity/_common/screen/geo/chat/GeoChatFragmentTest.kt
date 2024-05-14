@@ -15,8 +15,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.impl.GeoChatViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module.FakeGeoChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module.GeoChatViewModelModule
@@ -26,6 +25,7 @@ import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
+import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
@@ -34,6 +34,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
@@ -52,8 +54,8 @@ class GeoChatFragmentTest(
 
 ) : BusinessFragmentTest<
     FragmentGeoChatBinding,
-        GeoChatUiState,
-        GeoChatViewModelImpl,
+    GeoChatUiState,
+    GeoChatViewModel,
     GeoChatViewModelMockContext,
     GeoChatFragment
 >(),
@@ -87,8 +89,7 @@ class GeoChatFragmentTest(
             .targetContext.getUriFromResId(DEFAULT_AVATAR_RES_ID)
 
         mImagePresentation = ImagePresentation(0, imageUri)
-        mUserPresentation = UserPresentation(
-            0L, "test", "test", mImagePresentation, false, false)
+        mUserPresentation = ScreenTestContext.generateUserPresentation(mImagePresentation)
     }
 
     override fun getPermissionsToGrant(): Array<String> {
@@ -122,6 +123,9 @@ class GeoChatFragmentTest(
         return R.id.geoChatFragment
     }
 
+    /**
+     * Poorly synchronized;
+     */
     @Test
     fun clickingOtherMessageLeadsToRequestingShowingUserProfileTest() = runTest {
         val initMessages = generateGeoMessagePresentations(1)
@@ -135,6 +139,8 @@ class GeoChatFragmentTest(
             GeoChatUiState(), getLocalUserId = localUserId))
 
         mViewModelMockContext.uiOperationFlow.emit(initAddGeoMessagesUiOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
 
         Espresso.onView(withText(message.text)).perform(ViewActions.click())
 
@@ -174,6 +180,9 @@ class GeoChatFragmentTest(
             .check(ViewAssertions.matches(Matchers.not(ViewMatchers.isCompletelyDisplayed())))
     }
 
+    /**
+     * Poorly synchronized;
+     */
     @Test
     fun onGeoChatFragmentAddGeoMessagesTest() = runTest {
         val messages = generateGeoMessagePresentations(1)
@@ -194,6 +203,8 @@ class GeoChatFragmentTest(
             .check(RecyclerViewItemCountViewAssertion(expectedInitItemCount))
 
         mViewModelMockContext.uiOperationFlow.emit(addGeoMessagesUiOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
 
         Espresso.onView(withId(R.id.fragment_geo_chat_list))
             .check(RecyclerViewItemCountViewAssertion(expectedItemCount))
@@ -345,7 +356,7 @@ class GeoChatFragmentTest(
         return IntRange(0, count - 1).reversed().map {
             val id = it.toLong()
 
-            GeoMessagePresentation(id, mUserPresentation, "test message $id", "TIME")
+            GeoTestContext.generateGeoMessagePresentation(mUserPresentation.copy(id = id))
         }
     }
 }

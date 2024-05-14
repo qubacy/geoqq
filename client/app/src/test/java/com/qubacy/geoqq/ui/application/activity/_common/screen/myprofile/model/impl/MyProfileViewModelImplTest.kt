@@ -17,7 +17,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile._common.presentation.toMyProfilePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common._test.context.MyProfileViewModelTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common._test.context.MyProfileTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.profile.get.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.MyProfileUpdatedUiOperation
@@ -36,7 +36,7 @@ class MyProfileViewModelImplTest(
 ) {
     companion object {
         val DEFAULT_MY_PROFILE = MyProfileUseCaseTestContext.DEFAULT_MY_PROFILE
-        val DEFAULT_MY_PROFILE_PRESENTATION = MyProfileViewModelTestContext
+        val DEFAULT_MY_PROFILE_PRESENTATION = MyProfileTestContext
             .DEFAULT_MY_PROFILE_PRESENTATION
     }
 

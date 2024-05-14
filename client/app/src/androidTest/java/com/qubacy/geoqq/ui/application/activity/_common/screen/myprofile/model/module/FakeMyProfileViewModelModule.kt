@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module
 
 import androidx.lifecycle.ViewModelProvider
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.module.FakeViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.module.FakeViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory.FakeMyProfileViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
@@ -18,7 +18,7 @@ import dagger.hilt.testing.TestInstallIn
 )
 object FakeMyProfileViewModelModule : FakeViewModelModule<
         MyProfileUiState, MyProfileViewModelMockContext
->() {
+        >() {
     @Provides
     @MyProfileViewModelFactoryQualifier
     fun provideFakeMyProfileViewModelFactory(): ViewModelProvider.Factory {

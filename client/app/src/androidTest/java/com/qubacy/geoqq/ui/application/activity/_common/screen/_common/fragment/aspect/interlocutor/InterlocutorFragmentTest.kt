@@ -9,7 +9,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq.ui._common._test.view.util.matcher.image.common.CommonImageViewMatcher
 import org.junit.Test
 
 interface InterlocutorFragmentTest<FragmentType : InterlocutorFragment> {

@@ -24,10 +24,10 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator.password.PasswordValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizedFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragment
@@ -115,16 +115,24 @@ class MyProfileFragment(
         mBinding.fragmentMyProfileButtonAvatar.setOnClickListener {
             onUpdateAvatarButtonClicked()
         }
-        mBinding.fragmentMyProfileInputAboutMe.addTextChangedListener(TextInputErrorCleanerWatcher(
-            mBinding.fragmentMyProfileInputAboutMe, mBinding.fragmentMyProfileInputWrapperAboutMe))
-        mBinding.fragmentMyProfileInputPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
-            mBinding.fragmentMyProfileInputPassword, mBinding.fragmentMyProfileInputWrapperPassword))
-        mBinding.fragmentMyProfileInputNewPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
-            mBinding.fragmentMyProfileInputNewPassword, mBinding.fragmentMyProfileInputWrapperNewPassword))
-        mBinding.fragmentMyProfileInputNewPasswordAgain.addTextChangedListener(TextInputErrorCleanerWatcher(
+        mBinding.fragmentMyProfileInputAboutMe.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputAboutMe, mBinding.fragmentMyProfileInputWrapperAboutMe)
+        )
+        mBinding.fragmentMyProfileInputPassword.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputPassword, mBinding.fragmentMyProfileInputWrapperPassword)
+        )
+        mBinding.fragmentMyProfileInputNewPassword.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
+            mBinding.fragmentMyProfileInputNewPassword, mBinding.fragmentMyProfileInputWrapperNewPassword)
+        )
+        mBinding.fragmentMyProfileInputNewPasswordAgain.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
             mBinding.fragmentMyProfileInputNewPasswordAgain,
             mBinding.fragmentMyProfileInputWrapperNewPasswordAgain
-        ))
+        )
+        )
 
         mBinding.fragmentMyProfileButtonUpdate.setOnClickListener {
             onUpdateProfileButtonClicked()

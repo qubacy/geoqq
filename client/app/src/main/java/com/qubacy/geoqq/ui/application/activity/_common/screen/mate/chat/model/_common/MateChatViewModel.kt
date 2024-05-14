@@ -39,7 +39,6 @@ abstract class MateChatViewModel(
     }
     abstract fun getNextMessageChunk()
     abstract fun isInterlocutorChatable(interlocutor: UserPresentation): Boolean
-    abstract fun isInterlocutorMate(interlocutor: UserPresentation): Boolean
     abstract fun isInterlocutorMateable(interlocutor: UserPresentation): Boolean
     abstract fun isInterlocutorMateableOrDeletable(interlocutor: UserPresentation): Boolean
     abstract fun isChatDeletable(interlocutor: UserPresentation): Boolean
@@ -62,7 +61,7 @@ abstract class MateChatViewModel(
         return isInterlocutorChatable(mUiState.chatContext!!.user)
     }
     open fun isInterlocutorMate(): Boolean {
-        return isInterlocutorMate(mUiState.chatContext!!.user)
+        return mUiState.chatContext!!.user.isMate
     }
     open fun isInterlocutorMateable(): Boolean {
         return isInterlocutorMateable(mUiState.chatContext!!.user)

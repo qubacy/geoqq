@@ -17,7 +17,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateViewModelTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.insert.InsertRequestsUiOperation
@@ -39,7 +39,7 @@ class MateRequestsViewModelImplTest(
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_MATE_REQUEST = MateUseCaseTestContext.DEFAULT_MATE_REQUEST
 
-        val DEFAULT_MATE_REQUEST_PRESENTATION = MateViewModelTestContext
+        val DEFAULT_MATE_REQUEST_PRESENTATION = MateTestContext
             .DEFAULT_MATE_REQUEST_PRESENTATION
     }
 

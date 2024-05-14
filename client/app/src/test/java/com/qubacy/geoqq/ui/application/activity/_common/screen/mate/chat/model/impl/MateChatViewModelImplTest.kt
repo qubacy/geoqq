@@ -16,7 +16,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.ScreenTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
@@ -24,7 +24,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateViewModelTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
@@ -47,8 +47,8 @@ class MateChatViewModelImplTest(
         val DEFAULT_MATE_MESSAGE = MateUseCaseTestContext.DEFAULT_MATE_MESSAGE
 
         val DEFAULT_USER_PRESENTATION = ScreenTestContext.DEFAULT_USER_PRESENTATION
-        val DEFAULT_MATE_CHAT_PRESENTATION = MateViewModelTestContext.DEFAULT_MATE_CHAT_PRESENTATION
-        val DEFAULT_MATE_MESSAGE_PRESENTATION = MateViewModelTestContext
+        val DEFAULT_MATE_CHAT_PRESENTATION = MateTestContext.DEFAULT_MATE_CHAT_PRESENTATION
+        val DEFAULT_MATE_MESSAGE_PRESENTATION = MateTestContext
             .DEFAULT_MATE_MESSAGE_PRESENTATION
     }
 

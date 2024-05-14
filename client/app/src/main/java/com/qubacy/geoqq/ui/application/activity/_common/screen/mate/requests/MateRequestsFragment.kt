@@ -22,10 +22,10 @@ import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallba
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.placeholder.SurfacePlaceholderViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizedFragment
@@ -40,7 +40,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.com
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.MateRequestsListAdapterCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.adapter.producer.MateRequestItemViewProviderProducer
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.component.list.item.data.toMateRequestItemData
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.MateRequestsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.impl.MateRequestsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.operation.handler.MateRequestsUiOperationHandler
@@ -51,7 +51,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MateRequestsFragment(
 
-) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModelImpl>(),
+) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModel>(),
     PermissionRunnerCallback,
     ChoosableListItemTouchHelperCallback.Callback,
     BaseRecyclerViewCallback,
@@ -68,7 +68,7 @@ class MateRequestsFragment(
     @MateRequestsViewModelFactoryQualifier
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    override val mModel: MateRequestsViewModelImpl by viewModels(
+    override val mModel: MateRequestsViewModel by viewModels(
         factoryProducer = { viewModelFactory }
     )
 

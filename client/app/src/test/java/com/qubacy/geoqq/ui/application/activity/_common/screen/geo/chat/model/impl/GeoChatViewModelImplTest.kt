@@ -14,7 +14,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoViewModelTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
@@ -34,7 +34,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_GEO_MESSAGE = GeoUseCaseTestContext.DEFAULT_GEO_MESSAGE
 
-        val DEFAULT_GEO_MESSAGE_PRESENTATION = GeoViewModelTestContext
+        val DEFAULT_GEO_MESSAGE_PRESENTATION = GeoTestContext
             .DEFAULT_GEO_MESSAGE_PRESENTATION
     }
 

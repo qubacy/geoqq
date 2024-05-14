@@ -4,6 +4,8 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.interlocutor.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
@@ -23,6 +25,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
@@ -49,23 +52,19 @@ open class MateChatViewModelImpl @Inject constructor(
     }
 
     override fun isInterlocutorChatable(interlocutor: UserPresentation): Boolean {
-        return interlocutor.let { isInterlocutorMate(it) && !it.isDeleted }
-    }
-
-    override fun isInterlocutorMate(interlocutor: UserPresentation): Boolean {
-        return interlocutor.isMate
+        return interlocutor.let { it.isMate && !it.isDeleted }
     }
 
     override fun isInterlocutorMateable(interlocutor: UserPresentation): Boolean {
-        return interlocutor.let { !isInterlocutorMate(it) && mUiState.isMateRequestSendingAllowed }
+        return interlocutor.let { !it.isMate && mUiState.isMateRequestSendingAllowed }
     }
 
     override fun isInterlocutorMateableOrDeletable(interlocutor: UserPresentation): Boolean {
-        return interlocutor.let { isInterlocutorMateable(it) || isInterlocutorMate(it) }
+        return interlocutor.let { isInterlocutorMateable(it) || it.isMate }
     }
 
     override fun isChatDeletable(interlocutor: UserPresentation): Boolean {
-        return interlocutor.let { it.isDeleted || !isInterlocutorMate(it) }
+        return interlocutor.let { it.isDeleted || !it.isMate }
     }
 
     override fun isNextMessageChunkGettingAllowed(): Boolean {
@@ -204,10 +203,39 @@ open class MateChatViewModelImpl @Inject constructor(
         return offset - mUiState.newMessageCount
     }
 
-    override fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation {
+    override fun onInterlocutorGetInterlocutor(
+        domainResult: GetInterlocutorDomainResult
+    ): List<UiOperation> {
+        val prevUserPresentation = mUiState.chatContext!!.user
+        val superOperations = super.onInterlocutorGetInterlocutor(domainResult)
+
+        if (!domainResult.isSuccessful()) return superOperations
+
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
 
-        mUiState.chatContext = mUiState.chatContext?.copy(user = userPresentation)
+        return superOperations.also {
+            if (userPresentation == prevUserPresentation) it
+            else it.plus(ChatContextUpdatedUiOperation(mUiState.chatContext!!))
+        }
+    }
+
+    override fun onInterlocutorUpdateInterlocutor(
+        domainResult: UpdateInterlocutorDomainResult
+    ): List<UiOperation> {
+        val superOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+
+        if (!domainResult.isSuccessful()) return superOperations
+
+        return superOperations
+            .plus(ChatContextUpdatedUiOperation(mUiState.chatContext!!))
+    }
+
+    override fun onInterlocutorInterlocutor(
+        domainResult: InterlocutorDomainResult
+    ): UserPresentation {
+        val userPresentation = domainResult.interlocutor!!.toUserPresentation()
+
+        mUiState.chatContext = mUiState.chatContext!!.copy(user = userPresentation)
 
         return userPresentation
     }

@@ -13,6 +13,13 @@ abstract class GeoSettingsViewModel(
 ) : StatefulViewModel<GeoSettingsUiState>(
     mSavedStateHandle, mErrorSource
 ), LoadingViewModel, LocationViewModel {
+    companion object {
+        const val DEFAULT_RADIUS_METERS = 1000
+
+        const val DEFAULT_MIN_RADIUS = 100
+        const val DEFAULT_MAX_RADIUS = 100000
+    }
+
     abstract fun setMapLoadingStatus(isLoaded: Boolean)
     abstract fun applyScaleForRadius(coefficient: Float)
     abstract fun getScaledRadius(radius: Int, coefficient: Float): Int

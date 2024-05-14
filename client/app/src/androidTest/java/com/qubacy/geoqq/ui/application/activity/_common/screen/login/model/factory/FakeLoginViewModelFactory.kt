@@ -2,8 +2,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login.model.fact
 
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.factory.FakeBusinessViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.LoginViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.factory.FakeBusinessViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import org.mockito.Mockito
@@ -11,17 +11,17 @@ import org.mockito.Mockito
 class FakeLoginViewModelFactory(
     mockContext: LoginViewModelMockContext
 ) : FakeBusinessViewModelFactory<
-        LoginUiState, LoginViewModelImpl, LoginViewModelMockContext
+    LoginUiState, LoginViewModel, LoginViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as LoginViewModelImpl
+        val viewModelMock = super.create(modelClass) as LoginViewModel
 
         Mockito.`when`(viewModelMock.isSignInDataValid(
             Mockito.anyString(), Mockito.anyString()
-        )).thenCallRealMethod()
+        )).thenAnswer { true }
         Mockito.`when`(viewModelMock.isSignUpDataValid(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyString()
-        )).thenCallRealMethod()
+        )).thenAnswer { true }
         Mockito.`when`(viewModelMock.setLoginMode(AnyMockUtil.anyObject())).thenAnswer {
             val loginMode = it.arguments[0] as LoginUiState.LoginMode
 

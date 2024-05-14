@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 import androidx.annotation.CallSuper
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 
 interface InterlocutorFragment {

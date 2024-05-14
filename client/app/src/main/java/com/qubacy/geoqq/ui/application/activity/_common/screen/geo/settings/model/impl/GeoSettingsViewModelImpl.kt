@@ -23,13 +23,6 @@ open class GeoSettingsViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
 ) : GeoSettingsViewModel(mSavedStateHandle, mErrorSource) {
-    companion object {
-        const val DEFAULT_RADIUS_METERS = 1000
-
-        const val DEFAULT_MIN_RADIUS = 100
-        const val DEFAULT_MAX_RADIUS = 100000
-    }
-
     override fun generateDefaultUiState(): GeoSettingsUiState {
         return GeoSettingsUiState(radius = DEFAULT_RADIUS_METERS)
     }

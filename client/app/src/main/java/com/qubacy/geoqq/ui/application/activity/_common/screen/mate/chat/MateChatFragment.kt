@@ -29,8 +29,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.extension.closeSoftKeyboard
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.extension.runPermissionCheck
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
@@ -45,6 +45,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.operation.handler.InterlocutorUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.component.list.adapter.MateMessageListAdapter
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
@@ -173,6 +174,11 @@ class MateChatFragment(
         }
     }
 
+    fun onMateChatFragmentChatContextUpdated(chatContext: MateChatPresentation) {
+        adjustMessageInputWithChatContext(chatContext)
+        adjustTopBarMenuWithChatContext(chatContext)
+    }
+
     override fun onChatFragmentMateRequestSent() {
         super.onChatFragmentMateRequestSent()
 
@@ -225,9 +231,9 @@ class MateChatFragment(
             onMenuItemClicked(it)
         }
 
-        val interlocutor = mModel.uiState.chatContext!!.user
+        val chatContext = mModel.uiState.chatContext!!
 
-        adjustMessageInputWithInterlocutor(interlocutor)
+        adjustMessageInputWithChatContext(chatContext)
 
         mBinding.fragmentMateChatInputMessage.setOnKeyListener { _, keyCode, event ->
             onMessageInputKeyPressed(keyCode, event)
@@ -334,20 +340,17 @@ class MateChatFragment(
         super.adjustInterlocutorFragmentUiWithInterlocutor(interlocutor)
 
         mBinding.fragmentMateChatTopBarContentWrapper.title = interlocutor.username
-
-        adjustMessageInputWithInterlocutor(interlocutor)
-        adjustTopBarMenuWithInterlocutor(interlocutor)
     }
 
-    private fun adjustMessageInputWithInterlocutor(interlocutor: UserPresentation) {
-        setMessageInputEnabledWithInterlocutor(interlocutor)
+    private fun adjustMessageInputWithChatContext(chatContext: MateChatPresentation) {
+        setMessageInputEnabledWithChatContext(chatContext)
 
         mBinding.fragmentMateChatInputMessageWrapper
-            .setHint(getMessageInputHintByInterlocutor(interlocutor))
+            .setHint(getMessageInputHintByChatContext(chatContext))
     }
 
-    private fun setMessageInputEnabledWithInterlocutor(interlocutor: UserPresentation) {
-        val isInterlocutorChatable = mModel.isInterlocutorChatable(interlocutor)
+    private fun setMessageInputEnabledWithChatContext(chatContext: MateChatPresentation) {
+        val isInterlocutorChatable = mModel.isInterlocutorChatable(chatContext.user)
 
         setMessageInputEnabled(isInterlocutorChatable)
     }
@@ -363,8 +366,10 @@ class MateChatFragment(
     }
 
     @StringRes
-    private fun getMessageInputHintByInterlocutor(interlocutor: UserPresentation): Int {
-        return if (interlocutor.isMate && !interlocutor.isDeleted)
+    private fun getMessageInputHintByChatContext(chatContext: MateChatPresentation): Int {
+        val interlocutor = chatContext.user
+
+        return if (mModel.isInterlocutorChatable(interlocutor))
             R.string.fragment_mate_chat_input_message_hint_text_chatable
         else if (interlocutor.isDeleted)
             R.string.fragment_mate_chat_input_message_hint_text_deleted
@@ -372,8 +377,8 @@ class MateChatFragment(
             R.string.fragment_mate_chat_input_message_hint_text_not_mate
     }
 
-    private fun adjustTopBarMenuWithInterlocutor(interlocutor: UserPresentation) {
-        val isChatDeletable = mModel.isChatDeletable()
+    private fun adjustTopBarMenuWithChatContext(chatContext: MateChatPresentation) {
+        val isChatDeletable = mModel.isChatDeletable(chatContext.user)
 
         mBinding.fragmentMateChatTopBar.menu.findItem(
             R.id.mate_chat_top_bar_option_delete_chat).isVisible = isChatDeletable

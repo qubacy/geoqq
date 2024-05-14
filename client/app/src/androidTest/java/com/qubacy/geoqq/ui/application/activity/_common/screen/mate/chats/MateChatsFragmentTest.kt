@@ -15,15 +15,14 @@ import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
+import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.MateChatItemView
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.impl.MateChatsViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.factory._test.mock.MateChatsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.module.FakeMateChatsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.module.MateChatsViewModelModule
@@ -42,8 +41,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MateChatsFragmentTest : BusinessFragmentTest<
     FragmentMateChatsBinding,
-        MateChatsUiState,
-        MateChatsViewModelImpl,
+    MateChatsUiState,
+    MateChatsViewModel,
     MateChatsViewModelMockContext,
     MateChatsFragment
 >(), AuthorizationFragmentTest {
@@ -205,24 +204,11 @@ class MateChatsFragmentTest : BusinessFragmentTest<
     ): MutableList<MateChatPresentation> {
         return IntRange(offset, count + offset - 1).map { it ->
             val id = it.toLong()
-            val user = UserPresentationGenerator.generateUserPresentation(id, mImagePresentation)
+            val user = ScreenTestContext.generateUserPresentation(mImagePresentation, id + 1)
+            val lastMessage = MateTestContext.generateMateMessagePresentation(user, id)
 
-            MateChatPresentation(
-                id,
-                user,
-                it + 1,
-                generateLastMessagePresentation(id, user)
-            )
+            MateTestContext.generateMateChatPresentation(user, id, it + 1, lastMessage)
         }.toMutableList()
-    }
-
-    private fun generateLastMessagePresentation(
-        chatId: Long,
-        user: UserPresentation
-    ): MateMessagePresentation {
-        return MateMessagePresentation(
-            0, user, "test in chat $chatId", "timestamp"
-        )
     }
 
     override fun beforeAdjustUiWithLoadingStateTest() {

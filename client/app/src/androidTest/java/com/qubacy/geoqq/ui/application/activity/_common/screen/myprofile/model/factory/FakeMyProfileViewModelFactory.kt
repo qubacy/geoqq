@@ -2,8 +2,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.
 
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.stateful.model.factory.FakeStatefulViewModelFactory
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.impl.MyProfileViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.factory.FakeStatefulViewModelFactory
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.MyProfileViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
 import org.mockito.Mockito
@@ -11,10 +11,10 @@ import org.mockito.Mockito
 class FakeMyProfileViewModelFactory(
     mockContext: MyProfileViewModelMockContext
 ) : FakeStatefulViewModelFactory<
-        MyProfileUiState, MyProfileViewModelImpl, MyProfileViewModelMockContext
+    MyProfileUiState, MyProfileViewModel, MyProfileViewModelMockContext
 >(mockContext) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModelMock = super.create(modelClass) as MyProfileViewModelImpl
+        val viewModelMock = super.create(modelClass) as MyProfileViewModel
 
         Mockito.`when`(viewModelMock.preserveInputData(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.uiState.isLoading = true

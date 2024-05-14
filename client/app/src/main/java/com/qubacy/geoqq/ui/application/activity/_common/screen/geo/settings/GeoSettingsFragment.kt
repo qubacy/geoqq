@@ -25,7 +25,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.hint.view.HintViewProvider
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.LoadingFragment

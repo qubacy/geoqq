@@ -11,8 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.BusinessFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.impl.MateChatViewModelImpl
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.factory._test.mock.MateChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.module.FakeMateChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.module.MateChatViewModelModule
@@ -23,17 +22,18 @@ import com.qubacy.geoqq.ui._common._test.view.util.action.click.soft.SoftClickVi
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.InterlocutorFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user._test.util.UserPresentationGenerator
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
@@ -50,8 +50,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MateChatFragmentTest : BusinessFragmentTest<
     FragmentMateChatBinding,
-        MateChatUiState,
-        MateChatViewModelImpl,
+    MateChatUiState,
+    MateChatViewModel,
     MateChatViewModelMockContext,
     MateChatFragment
 >(),
@@ -73,10 +73,9 @@ class MateChatFragmentTest : BusinessFragmentTest<
 
         mImagePresentation = ImagePresentation(0, imageUri)
 
-        val userPresentation = UserPresentation(
-            0, "test", "test", mImagePresentation, true, false)
+        val userPresentation = ScreenTestContext.generateUserPresentation(mImagePresentation)
 
-        mChatPresentation = MateChatPresentation(0, userPresentation, 0, null)
+        mChatPresentation = MateTestContext.generateMateChatPresentation(userPresentation)
 
         super.setup()
     }
@@ -188,33 +187,6 @@ class MateChatFragmentTest : BusinessFragmentTest<
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(ViewMatchers.hasDescendant(withText(
                 expectedInterlocutorMateButtonCaption))))
-    }
-
-    @Test
-    fun deleteChatButtonAppearsOnChatIsDeletableTest() = runTest {
-        val initInterlocutor = mChatPresentation.user.copy(isDeleted = false)
-        val chatContext = mChatPresentation.copy(user = initInterlocutor)
-
-        mNavArgs = MateChatFragmentArgs(chatContext).toBundle()
-
-        initWithModelContext(
-            MateChatViewModelMockContext(
-                uiState = MateChatUiState(chatContext = chatContext),
-                isChatDeletable = false))
-
-        val deletedInterlocutor = initInterlocutor.copy(isDeleted = true)
-
-        Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
-            .check(ViewAssertions.doesNotExist())
-
-        mViewModelMockContext.isChatDeletable = true
-
-        mViewModelMockContext.uiOperationFlow.emit(
-            UpdateInterlocutorDetailsUiOperation(deletedInterlocutor)
-        )
-
-        Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
@@ -333,6 +305,29 @@ class MateChatFragmentTest : BusinessFragmentTest<
         Assert.assertEquals(expectedDestinationId, gottenDestinationId)
     }
 
+    @Test
+    fun onMateChatFragmentChatContextUpdatedTest() = runTest {
+        val initInterlocutor = mChatPresentation.user.copy(isDeleted = false, isMate = true)
+        val initChatContext = mChatPresentation.copy(user = initInterlocutor)
+
+        val interlocutor = initInterlocutor.copy(isDeleted = true)
+        val chatContext = initChatContext.copy(user = interlocutor)
+
+        mNavArgs = MateChatFragmentArgs(initChatContext).toBundle()
+
+        initWithModelContext(MateChatViewModelMockContext(MateChatUiState(chatContext = initChatContext)))
+
+        Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
+            .check(ViewAssertions.doesNotExist())
+
+        mViewModelMockContext.isChatDeletable = true
+
+        mViewModelMockContext.uiOperationFlow.emit(ChatContextUpdatedUiOperation(chatContext))
+
+        Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
     // todo: not possible for now:
 //    @Test
 //    fun modelSetChatContextCalledTest() {
@@ -398,7 +393,7 @@ class MateChatFragmentTest : BusinessFragmentTest<
     ): MutableList<MateMessagePresentation> {
         return IntRange(0, count - 1).map {
             val id = it.toLong()
-            val user = UserPresentationGenerator.generateUserPresentation(id, mImagePresentation)
+            val user = ScreenTestContext.generateUserPresentation(mImagePresentation)
 
             MateMessagePresentation(id, user, "test $id", "TEST")
         }.toMutableList()

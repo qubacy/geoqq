@@ -19,8 +19,8 @@ import androidx.navigation.Navigation
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.validator.password.PasswordValidator
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.error.type.UiLoginFragmentErrorType
@@ -82,14 +82,20 @@ class LoginFragment(
     }
 
     private fun initUiControls() {
-        mBinding.fragmentLoginTextInputLogin.addTextChangedListener(TextInputErrorCleanerWatcher(
-            mBinding.fragmentLoginTextInputLogin, mBinding.fragmentLoginTextInputLoginWrapper))
-        mBinding.fragmentLoginTextInputPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
-            mBinding.fragmentLoginTextInputPassword, mBinding.fragmentLoginTextInputPasswordWrapper))
-        mBinding.fragmentLoginTextInputRepeatPassword.addTextChangedListener(TextInputErrorCleanerWatcher(
+        mBinding.fragmentLoginTextInputLogin.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
+            mBinding.fragmentLoginTextInputLogin, mBinding.fragmentLoginTextInputLoginWrapper)
+        )
+        mBinding.fragmentLoginTextInputPassword.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
+            mBinding.fragmentLoginTextInputPassword, mBinding.fragmentLoginTextInputPasswordWrapper)
+        )
+        mBinding.fragmentLoginTextInputRepeatPassword.addTextChangedListener(
+            TextInputErrorCleanerWatcher(
             mBinding.fragmentLoginTextInputRepeatPassword,
             mBinding.fragmentLoginTextInputRepeatPasswordWrapper
-        ))
+        )
+        )
         mBinding.fragmentLoginButtonLogin.apply {
             setOnClickListener { onLoginClicked() }
         }
@@ -174,7 +180,6 @@ class LoginFragment(
         }
 
         mModel.signIn(login, password)
-        //clearLoginInputs()
     }
 
     private fun validateSignInInputs(login: String, password: String): Boolean {
@@ -192,7 +197,6 @@ class LoginFragment(
         }
 
         mModel.signUp(login, password)
-        //clearLoginInputs()
     }
 
     private fun validateSignUpInputs(

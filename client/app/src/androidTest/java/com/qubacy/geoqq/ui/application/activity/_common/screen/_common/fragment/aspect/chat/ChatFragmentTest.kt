@@ -1,6 +1,5 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat
 
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers

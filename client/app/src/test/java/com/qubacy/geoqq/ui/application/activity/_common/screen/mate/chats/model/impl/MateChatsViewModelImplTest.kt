@@ -17,7 +17,7 @@ import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateCha
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateViewModelTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.InsertChatsUiOperation
@@ -35,7 +35,7 @@ class MateChatsViewModelImplTest(
     MateChatsUseCase::class.java
 ) {
     companion object {
-        val DEFAULT_MATE_CHAT_PRESENTATION = MateViewModelTestContext.DEFAULT_MATE_CHAT_PRESENTATION
+        val DEFAULT_MATE_CHAT_PRESENTATION = MateTestContext.DEFAULT_MATE_CHAT_PRESENTATION
     }
 
     private var mUseCaseGetChatChunkCallFlag = false
