@@ -41,6 +41,13 @@ func Initialize() error {
 		viper.Set("server.http.port", port)
 	}
 
+	if postgreHost := os.Getenv("POSTGRE_HOST"); len(postgreHost) != 0 {
+		viper.Set("storage.domain.sql.postgre.host", postgreHost)
+	}
+	if postgrePort := os.Getenv("POSTGRE_PORT"); len(postgrePort) != 0 {
+		viper.Set("storage.domain.sql.postgre.host", postgrePort)
+	}
+
 	return nil
 }
 

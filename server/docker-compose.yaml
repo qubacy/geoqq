@@ -1,0 +1,13 @@
+name: geoqq_server
+
+services:
+  geoqq_http:
+    build: .
+    hostname: geoqq_http
+    container_name: geoqq_http
+    environment:
+      - POSTGRE_HOST=host.docker.internal
+
+networks:
+  host:
+    external: true
