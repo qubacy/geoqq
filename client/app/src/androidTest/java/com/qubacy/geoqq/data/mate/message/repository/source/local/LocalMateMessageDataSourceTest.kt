@@ -3,8 +3,8 @@ package com.qubacy.geoqq.data.mate.message.repository.source.local
 import android.content.ContentValues
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq._common._test._common.util.assertion.AssertUtils
-import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
-import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.LocalDatabaseDataSourceTest
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.dao.LocalMateMessageDatabaseDataSourceDao
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity

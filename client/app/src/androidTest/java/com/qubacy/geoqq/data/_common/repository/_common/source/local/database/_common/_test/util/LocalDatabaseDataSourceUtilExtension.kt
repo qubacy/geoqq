@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.util
+package com.qubacy.geoqq.data._common.repository._common.source.local.database._common._test.util
 
 import android.content.ContentValues
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database

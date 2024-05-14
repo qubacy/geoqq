@@ -1,12 +1,13 @@
-package com.qubacy.geoqq.data._common.repository.source.local.datastore.token
+package com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.tokenDataStore
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.LocalTokenDataStoreDataSourceImpl
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.tokenDataStore
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -15,7 +16,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LocalTokenDataStoreDataSourceTest {
+class LocalTokenDataStoreDataSourceImplTest {
     private lateinit var mTokenDataStore: DataStore<Preferences>
 
     private lateinit var mTokenDataSource: LocalTokenDataStoreDataSourceImpl
@@ -42,7 +43,7 @@ class LocalTokenDataStoreDataSourceTest {
         val expectedRefreshToken = "test"
 
         mTokenDataStore.edit {
-            it[LocalTokenDataStoreDataSourceImpl.REFRESH_TOKEN_KEY] = expectedRefreshToken
+            it[LocalTokenDataStoreDataSource.REFRESH_TOKEN_KEY] = expectedRefreshToken
         }
 
         val gottenRefreshToken = mTokenDataSource.getRefreshToken()
@@ -55,7 +56,7 @@ class LocalTokenDataStoreDataSourceTest {
         val expectedAccessToken = "test"
 
         mTokenDataStore.edit {
-            it[LocalTokenDataStoreDataSourceImpl.ACCESS_TOKEN_KEY] = expectedAccessToken
+            it[LocalTokenDataStoreDataSource.ACCESS_TOKEN_KEY] = expectedAccessToken
         }
 
         val gottenAccessToken = mTokenDataSource.getAccessToken()
@@ -83,8 +84,8 @@ class LocalTokenDataStoreDataSourceTest {
         val refreshToken = "test"
 
         mTokenDataStore.edit {
-            it[LocalTokenDataStoreDataSourceImpl.ACCESS_TOKEN_KEY] = accessToken
-            it[LocalTokenDataStoreDataSourceImpl.REFRESH_TOKEN_KEY] = refreshToken
+            it[LocalTokenDataStoreDataSource.ACCESS_TOKEN_KEY] = accessToken
+            it[LocalTokenDataStoreDataSource.REFRESH_TOKEN_KEY] = refreshToken
         }
 
         mTokenDataSource.clearTokens()

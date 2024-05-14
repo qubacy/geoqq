@@ -1,31 +1,31 @@
-package com.qubacy.geoqq.data.error.repository.source.local
+package com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao
 
 import android.content.ContentValues
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.LocalErrorDataSourceDao
-import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
-import com.qubacy.geoqq.data._common.repository.source_common.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.LocalDatabaseDataSourceTest
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common._test.insertable.LocalInsertableDatabaseDataSourceTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.dao.model.ErrorEntity
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.context.LocalErrorDatabaseDataSourceTestContext
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LocalErrorDataSourceTest(
+class LocalErrorDatabaseDataSourceDaoTest(
 
 ) : LocalDatabaseDataSourceTest(), LocalInsertableDatabaseDataSourceTest<ErrorEntity> {
     companion object {
-        const val DEFAULT_TEST_ERROR_ID = 20000000L
+        val DEFAULT_ERROR_ENTITY = LocalErrorDatabaseDataSourceTestContext.DEFAULT_ERROR_ENTITY
     }
 
-    private lateinit var mLocalErrorDataSource: LocalErrorDataSourceDao
+    private lateinit var mLocalErrorDatabaseDataSourceDao: LocalErrorDataSourceDao
 
     @Before
     override fun setup() {
         super.setup()
 
-        mLocalErrorDataSource = mDatabase.errorDao()
+        mLocalErrorDatabaseDataSourceDao = mDatabase.errorDao()
     }
 
     override fun packEntityContent(itemEntity: ErrorEntity): ContentValues {
@@ -41,12 +41,11 @@ class LocalErrorDataSourceTest(
 
     @Test
     fun getErrorByIdTest() {
-        val expectedErrorEntity = ErrorEntity(
-            DEFAULT_TEST_ERROR_ID, "en", "test error", false)
+        val expectedErrorEntity = DEFAULT_ERROR_ENTITY
 
         insertItems(mDatabase, ErrorEntity.TABLE_NAME, listOf(expectedErrorEntity))
 
-        val gottenError = mLocalErrorDataSource.getErrorById(
+        val gottenError = mLocalErrorDatabaseDataSourceDao.getErrorById(
             expectedErrorEntity.id, expectedErrorEntity.lang)
 
         Assert.assertEquals(expectedErrorEntity, gottenError)

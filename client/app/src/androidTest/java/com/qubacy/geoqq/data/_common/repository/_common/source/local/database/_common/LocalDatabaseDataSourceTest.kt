@@ -1,9 +1,7 @@
-package com.qubacy.geoqq.data._common.repository.source_common.local.database
+package com.qubacy.geoqq.data._common.repository._common.source.local.database._common
 
 import androidx.annotation.CallSuper
 import androidx.test.platform.app.InstrumentationRegistry
-import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
-import com.qubacy.geoqq.data._common.repository.source_common.local.database.storage.TestDatabase
 import org.junit.After
 import org.junit.Before
 

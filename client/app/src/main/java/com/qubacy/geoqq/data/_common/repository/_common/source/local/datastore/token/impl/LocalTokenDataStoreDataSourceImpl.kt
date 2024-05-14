@@ -4,8 +4,9 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource.Companion.ACCESS_TOKEN_KEY
+import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource.Companion.REFRESH_TOKEN_KEY
 import kotlinx.coroutines.flow.first
 
 class LocalTokenDataStoreDataSourceImpl(
@@ -13,9 +14,6 @@ class LocalTokenDataStoreDataSourceImpl(
 ) : LocalTokenDataStoreDataSource {
     companion object {
         const val TAG = "LclTokenDataStoreDtSrc"
-
-        val REFRESH_TOKEN_KEY = stringPreferencesKey("refreshToken")
-        val ACCESS_TOKEN_KEY = stringPreferencesKey("accessToken")
     }
 
     private var mLastAccessToken: String? = null

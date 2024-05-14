@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.image.repository.source.local
+package com.qubacy.geoqq.data.image.repository.source.local.content.impl
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -19,7 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LocalImageDataSourceTest {
+class LocalImageContentStoreDataSourceImplTest {
     companion object {
         const val TEST_ICON_SIZE = 48
     }

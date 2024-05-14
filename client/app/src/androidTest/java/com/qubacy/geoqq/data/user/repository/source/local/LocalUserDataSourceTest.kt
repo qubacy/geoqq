@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.user.repository.source.local
 
-import com.qubacy.geoqq.data._common.repository.source_common.local.database.LocalDatabaseDataSourceTest
+import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.LocalDatabaseDataSourceTest
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.dao.LocalUserDatabaseDataSourceDao
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import org.junit.Assert
