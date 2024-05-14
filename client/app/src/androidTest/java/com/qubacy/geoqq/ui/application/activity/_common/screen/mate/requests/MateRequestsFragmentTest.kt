@@ -350,6 +350,8 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
             MateRequestsUiState(), getUserProfileWithMateRequestId = userPresentation))
 
         mViewModelMockContext.uiOperationFlow.emit(initInsertRequestsUiOperation)
+
+        Espresso.onView(isRoot()).perform(WaitViewAction(500))
     }
 
     override fun assertAdjustUiWithFalseLoadingState() {

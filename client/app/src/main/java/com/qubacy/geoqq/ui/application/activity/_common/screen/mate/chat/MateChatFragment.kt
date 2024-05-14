@@ -175,8 +175,7 @@ class MateChatFragment(
     }
 
     fun onMateChatFragmentChatContextUpdated(chatContext: MateChatPresentation) {
-        adjustMessageInputWithChatContext(chatContext)
-        adjustTopBarMenuWithChatContext(chatContext)
+        adjustUiWithChatContext(chatContext)
     }
 
     override fun onChatFragmentMateRequestSent() {
@@ -201,6 +200,7 @@ class MateChatFragment(
 
     private fun initUiWithUiState(uiState: MateChatUiState) {
         adjustInterlocutorFragmentUiWithInterlocutor(uiState.chatContext!!.user)
+        adjustUiWithChatContext(uiState.chatContext!!)
     }
 
     private fun initMessageListView() {
@@ -230,14 +230,14 @@ class MateChatFragment(
         mBinding.fragmentMateChatTopBar.setOnMenuItemClickListener {
             onMenuItemClicked(it)
         }
-
-        val chatContext = mModel.uiState.chatContext!!
-
-        adjustMessageInputWithChatContext(chatContext)
-
         mBinding.fragmentMateChatInputMessage.setOnKeyListener { _, keyCode, event ->
             onMessageInputKeyPressed(keyCode, event)
         }
+    }
+
+    private fun adjustUiWithChatContext(chatContext: MateChatPresentation) {
+        adjustMessageInputWithChatContext(chatContext)
+        adjustTopBarMenuWithChatContext(chatContext)
     }
 
     private fun onMessageInputKeyPressed(keyCode: Int, keyEvent: KeyEvent): Boolean {

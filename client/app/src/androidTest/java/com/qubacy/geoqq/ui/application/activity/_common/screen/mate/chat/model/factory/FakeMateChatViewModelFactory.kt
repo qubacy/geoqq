@@ -34,14 +34,26 @@ class FakeMateChatViewModelFactory(
         Mockito.`when`(viewModelMock.isInterlocutorMate()).thenAnswer {
             mockContext.isInterlocutorMate
         }
+        Mockito.`when`(viewModelMock.isInterlocutorChatable()).thenAnswer {
+            mockContext.isInterlocutorChatable
+        }
         Mockito.`when`(viewModelMock.isInterlocutorChatable(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.isInterlocutorChatable
+        }
+        Mockito.`when`(viewModelMock.isInterlocutorMateable()).thenAnswer {
+            mockContext.isInterlocutorMateable
         }
         Mockito.`when`(viewModelMock.isInterlocutorMateable(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.isInterlocutorMateable
         }
+        Mockito.`when`(viewModelMock.isInterlocutorMateableOrDeletable()).thenAnswer {
+            mockContext.isInterlocutorMateableOrDeletable
+        }
         Mockito.`when`(viewModelMock.isInterlocutorMateableOrDeletable(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.isInterlocutorMateableOrDeletable
+        }
+        Mockito.`when`(viewModelMock.isChatDeletable()).thenAnswer {
+            mockContext.isChatDeletable
         }
         Mockito.`when`(viewModelMock.isChatDeletable(AnyMockUtil.anyObject())).thenAnswer {
             mockContext.isChatDeletable

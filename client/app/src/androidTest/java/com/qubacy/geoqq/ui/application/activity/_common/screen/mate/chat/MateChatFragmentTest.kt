@@ -6,6 +6,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,6 +21,7 @@ import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.ui._common._test.view.util.action.click.soft.SoftClickViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
+import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
@@ -131,16 +133,15 @@ class MateChatFragmentTest : BusinessFragmentTest<
 
     @Test
     fun userDetailsCardOpensOnClickingInterlocutorProfileMenuItemTest() = runTest {
-        val chatContext = mChatPresentation
+        val chatContext = mChatPresentation.copy(user = mChatPresentation.user.copy(isMate = true))
 
         mNavArgs = MateChatFragmentArgs(chatContext).toBundle()
 
         initWithModelContext(
             MateChatViewModelMockContext(uiState = MateChatUiState(chatContext = chatContext)))
 
-        mViewModelMockContext.uiOperationFlow.emit(
-            ShowInterlocutorDetailsUiOperation(chatContext.user)
-        )
+        mViewModelMockContext.uiOperationFlow
+            .emit(ShowInterlocutorDetailsUiOperation(chatContext.user))
 
         Espresso.onView(withId(R.id.component_bottom_sheet_user_container))
             .check(ViewAssertions.matches(Matchers.allOf(
@@ -315,7 +316,8 @@ class MateChatFragmentTest : BusinessFragmentTest<
 
         mNavArgs = MateChatFragmentArgs(initChatContext).toBundle()
 
-        initWithModelContext(MateChatViewModelMockContext(MateChatUiState(chatContext = initChatContext)))
+        initWithModelContext(MateChatViewModelMockContext(
+            MateChatUiState(chatContext = initChatContext)))
 
         Espresso.onView(withId(R.id.mate_chat_top_bar_option_delete_chat))
             .check(ViewAssertions.doesNotExist())
@@ -412,7 +414,13 @@ class MateChatFragmentTest : BusinessFragmentTest<
     }
 
     override fun beforeAdjustUiWithLoadingStateTest() {
-        initWithDefaultChatContext()
+        val chatContext = mChatPresentation
+            .copy(user = mChatPresentation.user.copy(isMate = true, isDeleted = false))
+
+        mNavArgs = MateChatFragmentArgs(chatContext).toBundle()
+
+        initWithModelContext(MateChatViewModelMockContext(
+            MateChatUiState(chatContext = chatContext), isInterlocutorChatable = true))
     }
 
     override fun assertAdjustUiWithFalseLoadingState() {
