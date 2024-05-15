@@ -12,18 +12,29 @@ import (
 )
 
 const (
+	ConfigEnvPrefix = "GEOQQ_HTTP"
+
 	ConfigFileName = "config"
 	ConfigFileExt  = "yml"
 )
 
+var (
+	configFullFn = strings.Join(
+		[]string{ConfigFileName, ConfigFileExt}, ".")
+
+	configPath = ""
+)
+
 func Initialize() error {
-	configPath, err := currentConfigPathToFile()
+	var err error = nil
+	configPath, err = currentConfigPathToFile() // find default yaml!
+
 	if err != nil {
 		return utl.NewFuncError(Initialize, err)
 	}
 	fmt.Printf("config path: %v\n", configPath)
 
-	// ***
+	// weak priority (yml)
 
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(ConfigFileName)
@@ -32,12 +43,28 @@ func Initialize() error {
 		return utl.NewFuncError(Initialize, err)
 	}
 
-	// ***
+	// medium (config_for_merge.yaml)
 
-	if host := os.Getenv("HTTP_HOST"); len(host) != 0 {
+	if partConfig := os.Getenv(envar("CONFIG_FOR_MERGE")); partConfig != "" {
+		viper.AddConfigPath(configPath + "/for_merge")
+
+		viper.SetConfigName(partConfig)
+		viper.MergeInConfig()
+	}
+
+	// medium (env file)
+
+	// high (environment variables)
+
+	mergeWithEnvironmentVars()
+	return nil
+}
+
+func mergeWithEnvironmentVars() {
+	if host := os.Getenv(envar("HOST")); host != "" {
 		viper.Set("server.http.host", host)
 	}
-	if port := os.Getenv("HTTP_PORT"); len(port) != 0 {
+	if port := os.Getenv("PORT"); port != "" {
 		viper.Set("server.http.port", port)
 	}
 
@@ -47,16 +74,17 @@ func Initialize() error {
 	if postgrePort := os.Getenv("POSTGRE_PORT"); len(postgrePort) != 0 {
 		viper.Set("storage.domain.sql.postgre.host", postgrePort)
 	}
-
-	return nil
 }
 
 // private
 // -----------------------------------------------------------------------
 
+func envar(name string) string {
+	return ConfigEnvPrefix + "_" + name
+}
+
 func wholeConfigFileName(rootCatalog string) string {
-	return rootCatalog + "/" +
-		strings.Join([]string{ConfigFileName, ConfigFileExt}, ".")
+	return rootCatalog + "/" + configFullFn
 }
 
 func existsConfigFile(rootCatalog string) bool {
@@ -68,22 +96,17 @@ func existsConfigFile(rootCatalog string) bool {
 }
 
 func currentConfigPathToFile() (string, error) {
-	rootCatalog := "."
-	if existsConfigFile(".") {
-		return rootCatalog, nil
+	possibleRootCatalogs := []string{
+		".", "./config",
+		"./internal/config",
+		"../internal/config",
 	}
 
-	rootCatalog = "../internal/config"
-	if existsConfigFile(rootCatalog) {
-		return rootCatalog, nil
+	for _, rootCatalog := range possibleRootCatalogs {
+		if existsConfigFile(rootCatalog) {
+			return rootCatalog, nil
+		}
 	}
 
-	rootCatalog = "./internal/config"
-	if existsConfigFile(rootCatalog) {
-		return rootCatalog, nil
-	}
-
-	return "", ErrConfigNotFound
+	return "", ErrConfigFileNotFound
 }
-
-// -----------------------------------------------------------------------

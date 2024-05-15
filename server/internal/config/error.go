@@ -3,5 +3,5 @@ package config
 import "errors"
 
 var (
-	ErrConfigNotFound = errors.New("config not found")
+	ErrConfigFileNotFound = errors.New("config file not found")
 )
