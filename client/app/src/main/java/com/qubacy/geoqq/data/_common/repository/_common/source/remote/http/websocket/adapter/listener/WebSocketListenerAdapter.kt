@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.listener
 
 import android.util.Log
-import com.qubacy.geoqq._common.struct.NonBlockingQueue
+import com.qubacy.geoqq._common.struct.queue.NonBlockingQueue
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.event.model._common.WebSocketEvent

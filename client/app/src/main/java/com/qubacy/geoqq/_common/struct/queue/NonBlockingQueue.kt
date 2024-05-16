@@ -1,4 +1,4 @@
-package com.qubacy.geoqq._common.struct
+package com.qubacy.geoqq._common.struct.queue
 
 import java.util.LinkedList
 

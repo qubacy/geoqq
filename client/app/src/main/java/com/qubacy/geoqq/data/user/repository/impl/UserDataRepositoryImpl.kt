@@ -6,8 +6,10 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result._common.WebSocketResult
 import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
 import com.qubacy.geoqq.data.image.repository._common.ImageDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
@@ -20,9 +22,14 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -35,12 +42,17 @@ open class UserDataRepositoryImpl @Inject constructor(
     private val mImageDataRepository: ImageDataRepository,
     private val mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
     private val mLocalUserDatabaseDataSource: LocalUserDatabaseDataSource,
-    private val mRemoteUserHttpRestDataSource: RemoteUserHttpRestDataSource
-    // todo: add a websocket source..
+    private val mRemoteUserHttpRestDataSource: RemoteUserHttpRestDataSource,
+    private val mRemoteUserHttpWebSocketDataSource: RemoteUserHttpWebSocketDataSource
 ) : UserDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
         const val ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME = "user-id"
     }
+
+    override val resultFlow: Flow<DataResult> = merge(
+        mResultFlow,
+        mRemoteUserHttpWebSocketDataSource.eventFlow.map { mapWebSocketResultToDataResult(it) }
+    )
 
     override suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
         val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
@@ -135,4 +147,14 @@ open class UserDataRepositoryImpl @Inject constructor(
     private suspend fun resolveAvatars(avatarIds: List<Long>): Map<Long, DataImage> {
         return mImageDataRepository.getImagesByIds(avatarIds).associateBy { it.id }
     }
+
+    private fun mapWebSocketResultToDataResult(
+        webSocketResult: WebSocketResult
+    ): DataResult {
+        when (webSocketResult::class) {
+
+        }
+    }
+
+    private fun process
 }

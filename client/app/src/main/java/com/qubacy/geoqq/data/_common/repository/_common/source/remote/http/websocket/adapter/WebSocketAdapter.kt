@@ -15,7 +15,7 @@ class WebSocketAdapter(
 
     private val mEventListeners: MutableList<WebSocketEventListener> = mutableListOf()
 
-    private val mEventList: MutableList<WebSocketEvent> = mutableListOf()
+    private var mEventList: MutableList<WebSocketEvent> = mutableListOf()
 
     fun addEventListener(eventListener: WebSocketEventListener) {
         mEventListeners.add(eventListener)
@@ -38,9 +38,9 @@ class WebSocketAdapter(
 
         if (mEventListeners.isEmpty()) return
 
-        val events = mEventList.toList()
+        val events = mEventList
 
-        mEventList.clear()
+        mEventList = mutableListOf()
 
         for (eventListener in mEventListeners) {
             for (curEvent in events) eventListener.onEventGotten(curEvent)
