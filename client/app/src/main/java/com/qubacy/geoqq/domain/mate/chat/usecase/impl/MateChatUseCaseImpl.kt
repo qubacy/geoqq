@@ -1,17 +1,16 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase.impl
 
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
-import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
-import com.qubacy.geoqq.data.user.repository._common.result.updated.UserUpdatedDataResult
-import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware.authorizedErrorMiddleware
-import com.qubacy.geoqq.domain._common.usecase.chat.result.SendMessageDomainResult
-import com.qubacy.geoqq.domain._common.usecase.user.result.UpdateUsersDomainResult
-import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
+import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.message.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
@@ -22,7 +21,6 @@ import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatD
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MateChatUseCaseImpl @Inject constructor(
@@ -38,6 +36,15 @@ class MateChatUseCaseImpl @Inject constructor(
         mMateRequestUseCase.resultFlow,
         mInterlocutorUseCase.resultFlow
     )
+
+    override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
+        return super.generateDataUpdateHandlers()
+            .plus(UserDataUpdateHandler(this))
+    }
+
+    override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
+        return arrayOf(mMateMessageDataRepository)
+    }
 
     // todo: Optimization?:
     override fun getMessageChunk(chatId: Long, loadedMessageIds: List<Long>, offset: Int) {
@@ -103,29 +110,8 @@ class MateChatUseCaseImpl @Inject constructor(
     override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
 
-        mCoroutineScope.launch {
-            mMateMessageDataRepository.resultFlow.collect {
-                processCollectedDataResult(it)
-            }
-        }
-
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
-    }
-
-    // todo: refactor. should be processed in an aspect-like manner:
-    private suspend fun processCollectedDataResult(dataResult: DataResult) {
-        when (dataResult::class) {
-            UserUpdatedDataResult::class ->
-                processUserUpdatedDataResult(dataResult as UserUpdatedDataResult)
-            else -> throw IllegalArgumentException()
-        }
-    }
-
-    private suspend fun processUserUpdatedDataResult(dataResult: UserUpdatedDataResult) {
-        val user = dataResult.user.toUser()
-
-        mResultFlow.emit(UpdateUsersDomainResult(users = listOf(user)))
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

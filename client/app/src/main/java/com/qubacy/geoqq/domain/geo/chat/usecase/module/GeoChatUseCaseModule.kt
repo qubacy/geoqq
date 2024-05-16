@@ -3,9 +3,9 @@ package com.qubacy.geoqq.domain.geo.chat.usecase.module
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
-import com.qubacy.geoqq.domain.geo.chat.usecase.GeoChatUseCaseImpl
+import com.qubacy.geoqq.domain.geo.chat.usecase.impl.GeoChatUseCaseImpl
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
-import com.qubacy.geoqq.domain.interlocutor.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import dagger.Module

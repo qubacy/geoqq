@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model
 
 import app.cash.turbine.test
-import com.qubacy.geoqq.domain._common.usecase._common.UseCase
+import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel

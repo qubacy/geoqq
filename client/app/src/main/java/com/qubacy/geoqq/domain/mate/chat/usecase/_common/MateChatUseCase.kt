@@ -1,12 +1,13 @@
 package com.qubacy.geoqq.domain.mate.chat.usecase._common
 
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.domain._common.usecase._common.UseCase
-import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase
+import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.AuthorizedUseCase
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.UserUseCase
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.UpdatableUseCase
 
 abstract class MateChatUseCase(
     errorSource: LocalErrorDatabaseDataSource
-) : UseCase(mErrorSource = errorSource), AuthorizedUseCase {
+) : UpdatableUseCase(errorSource = errorSource), AuthorizedUseCase, UserUseCase {
     companion object {
         const val DEFAULT_MESSAGE_CHUNK_SIZE = 20
     }
