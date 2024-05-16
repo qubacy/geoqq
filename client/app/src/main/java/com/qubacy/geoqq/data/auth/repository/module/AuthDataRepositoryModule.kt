@@ -1,8 +1,7 @@
 package com.qubacy.geoqq.data.auth.repository.module
 
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.RemoteTokenHttpRestDataSource
+import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository.impl.AuthDataRepositoryImpl
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._common.LocalAuthDatabaseDataSource
@@ -19,16 +18,14 @@ object AuthDataRepositoryModule {
     fun provideAuthDataRepository(
         localErrorDataSource: LocalErrorDatabaseDataSource,
         localAuthDatabaseDatabaseDataSource: LocalAuthDatabaseDataSource,
-        localTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
         remoteAuthHttpRestDataSource: RemoteAuthHttpRestDataSource,
-        remoteTokenHttpRestDataSource: RemoteTokenHttpRestDataSource
+        tokenDataRepository: TokenDataRepository
     ): AuthDataRepository {
         return AuthDataRepositoryImpl(
             localErrorDataSource,
-            localTokenDataStoreDataSource,
             localAuthDatabaseDatabaseDataSource,
-            remoteTokenHttpRestDataSource,
-            remoteAuthHttpRestDataSource
+            remoteAuthHttpRestDataSource,
+            tokenDataRepository
         )
     }
 }

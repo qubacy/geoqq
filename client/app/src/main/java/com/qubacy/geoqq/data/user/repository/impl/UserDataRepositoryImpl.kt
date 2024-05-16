@@ -5,30 +5,32 @@ import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data.image.model.DataImage
-import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
+import com.qubacy.geoqq.data._common.repository.token.error.type.DataTokenErrorType
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result._common.WebSocketResult
-import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.payload.WebSocketPayloadResult
+import com.qubacy.geoqq.data._common.repository.aspect.websocket.WebSocketEventDataRepository
+import com.qubacy.geoqq.data._common.repository.token.repository._common.util.TokenUtils
 import com.qubacy.geoqq.data.image.repository._common.ImageDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.model.toUserEntity
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
-import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.updated.UserUpdatedDataResult
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.LocalUserDatabaseDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -44,14 +46,15 @@ open class UserDataRepositoryImpl @Inject constructor(
     private val mLocalUserDatabaseDataSource: LocalUserDatabaseDataSource,
     private val mRemoteUserHttpRestDataSource: RemoteUserHttpRestDataSource,
     private val mRemoteUserHttpWebSocketDataSource: RemoteUserHttpWebSocketDataSource
-) : UserDataRepository(coroutineDispatcher, coroutineScope) {
+) : UserDataRepository(coroutineDispatcher, coroutineScope), WebSocketEventDataRepository {
     companion object {
         const val ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME = "user-id"
     }
 
     override val resultFlow: Flow<DataResult> = merge(
         mResultFlow,
-        mRemoteUserHttpWebSocketDataSource.eventFlow.map { mapWebSocketResultToDataResult(it) }
+        mRemoteUserHttpWebSocketDataSource.eventFlow
+            .mapNotNull { mapWebSocketResultToDataResult(it) }
     )
 
     override suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
@@ -148,13 +151,30 @@ open class UserDataRepositoryImpl @Inject constructor(
         return mImageDataRepository.getImagesByIds(avatarIds).associateBy { it.id }
     }
 
-    private fun mapWebSocketResultToDataResult(
-        webSocketResult: WebSocketResult
-    ): DataResult {
-        when (webSocketResult::class) {
-
+    override fun processWebSocketPayloadResult(
+        webSocketPayloadResult: WebSocketPayloadResult
+    ): DataResult? {
+        return when (webSocketPayloadResult.payload::class) {
+            UserUpdatedServerEventPayload::class -> processUserUpdatedServerEventPayload(
+                webSocketPayloadResult.payload as UserUpdatedServerEventPayload)
+            else -> throw IllegalArgumentException()
         }
     }
 
-    private fun process
+    private fun processUserUpdatedServerEventPayload(
+        payload: UserUpdatedServerEventPayload
+    ): DataResult {
+        lateinit var dataUser: DataUser
+
+        // todo: alright?:
+        runBlocking {
+            val avatar = mImageDataRepository.getImageById(payload.avatarId)
+
+            dataUser = payload.toDataUser(avatar)
+        }
+
+        mLocalUserDatabaseDataSource.updateUser(dataUser.toUserEntity())
+
+        return UserUpdatedDataResult(dataUser)
+    }
 }

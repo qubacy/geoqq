@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
-import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

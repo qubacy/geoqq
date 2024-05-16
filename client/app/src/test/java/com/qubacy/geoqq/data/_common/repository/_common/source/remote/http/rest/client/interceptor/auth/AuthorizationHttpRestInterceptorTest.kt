@@ -9,8 +9,8 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.impl.RemoteTokenHttpRestDataSourceImpl
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.response.UpdateTokensResponse
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
 import okhttp3.HttpUrl
 import okhttp3.Interceptor.Chain
 import okhttp3.Protocol

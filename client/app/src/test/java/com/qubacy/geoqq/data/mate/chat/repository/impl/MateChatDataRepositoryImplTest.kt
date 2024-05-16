@@ -19,7 +19,7 @@ import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateM
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert

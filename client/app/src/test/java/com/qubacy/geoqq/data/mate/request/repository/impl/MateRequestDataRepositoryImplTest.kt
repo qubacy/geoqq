@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestsResponse
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert

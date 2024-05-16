@@ -1,12 +1,8 @@
 package com.qubacy.geoqq.data.auth.repository.impl
 
-import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
-import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.RemoteTokenHttpRestDataSource
-import com.qubacy.geoqq.data._common.repository._common.util.token.TokenUtils
+import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._common.LocalAuthDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.RemoteAuthHttpRestDataSource
@@ -14,32 +10,16 @@ import javax.inject.Inject
 
 class AuthDataRepositoryImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
-    private val mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
     private val mLocalAuthDatabaseDataSource: LocalAuthDatabaseDataSource,
-    private val mRemoteTokenHttpRestDataSource: RemoteTokenHttpRestDataSource,
-    private val mRemoteAuthHttpRestDataSource: RemoteAuthHttpRestDataSource
+    private val mRemoteAuthHttpRestDataSource: RemoteAuthHttpRestDataSource,
+    private val mTokenDataRepository: TokenDataRepository
 ) : AuthDataRepository {
     companion object {
         const val TAG = "AuthDataRepository"
     }
 
     override suspend fun signIn() {
-        val localRefreshToken = mLocalTokenDataStoreDataSource.getRefreshToken()
-
-        val isRefreshTokenValid =
-            if (localRefreshToken != null) TokenUtils.checkTokenForValidity(localRefreshToken)
-            else false
-
-        if (!isRefreshTokenValid)
-            throw ErrorAppException(mErrorSource.getError(
-                DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode()))
-
-        val updateTokensResponse = mRemoteTokenHttpRestDataSource.updateTokens(localRefreshToken!!)
-
-        mLocalTokenDataStoreDataSource.saveTokens(
-            updateTokensResponse.accessToken,
-            updateTokensResponse.refreshToken
-        )
+        mTokenDataRepository.getTokens() // todo: is it enough?
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -52,7 +32,7 @@ class AuthDataRepositoryImpl @Inject constructor(
 
         val signInResponse = mRemoteAuthHttpRestDataSource.signIn(login, passwordHash)
 
-        mLocalTokenDataStoreDataSource.saveTokens(
+        mTokenDataRepository.saveTokens(
             signInResponse.accessToken,
             signInResponse.refreshToken
         )
@@ -68,14 +48,14 @@ class AuthDataRepositoryImpl @Inject constructor(
 
         val signUpResponse = mRemoteAuthHttpRestDataSource.signUp(login, passwordHash)
 
-        mLocalTokenDataStoreDataSource.saveTokens(
+        mTokenDataRepository.saveTokens(
             signUpResponse.accessToken,
             signUpResponse.refreshToken
         )
     }
 
     override suspend fun logout() {
-        mLocalTokenDataStoreDataSource.clearTokens()
+        mTokenDataRepository.reset()
         mLocalAuthDatabaseDataSource.dropDataTables()
     }
 }

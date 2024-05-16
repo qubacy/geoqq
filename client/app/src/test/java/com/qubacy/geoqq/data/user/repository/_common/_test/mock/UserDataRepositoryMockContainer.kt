@@ -6,8 +6,8 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
-import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 

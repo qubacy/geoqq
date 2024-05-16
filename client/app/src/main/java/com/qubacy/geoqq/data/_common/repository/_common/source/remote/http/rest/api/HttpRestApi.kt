@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.RemoteTokenHttpRestDataSourceApi
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.RemoteTokenHttpRestDataSourceApi
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.RemoteAuthHttpRestDataSourceApi
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api.RemoteGeoMessageHttpRestDataSourceApi
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.RemoteImageHttpRestDataSourceApi

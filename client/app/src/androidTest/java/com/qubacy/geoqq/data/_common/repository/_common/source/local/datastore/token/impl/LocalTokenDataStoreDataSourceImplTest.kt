@@ -5,9 +5,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.tokenDataStore
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.LocalTokenDataStoreDataSourceImpl
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.tokenDataStore
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore.impl.LocalTokenDataStoreDataSourceImpl
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert

@@ -1,9 +1,8 @@
 package com.qubacy.geoqq.domain._common.usecase.authorized.error.middleware
 
-import android.util.Log
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.model.error.auth.AuthErrorType
-import com.qubacy.geoqq.data._common.repository._common.error.type.token.DataTokenErrorType
+import com.qubacy.geoqq.data._common.repository.token.error.type.DataTokenErrorType
 import com.qubacy.geoqq.domain._common.usecase._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.authorized.AuthorizedUseCase

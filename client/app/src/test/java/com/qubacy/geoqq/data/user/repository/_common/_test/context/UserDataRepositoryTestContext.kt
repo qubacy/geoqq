@@ -2,8 +2,8 @@ package com.qubacy.geoqq.data.user.repository._common._test.context
 
 import com.qubacy.geoqq.data.image.repository._common._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.DataUser
-import com.qubacy.geoqq.data.user.repository._common.result.GetUsersByIdsDataResult
-import com.qubacy.geoqq.data.user.repository._common.result.ResolveUsersDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
+import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUserResponse
 

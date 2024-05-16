@@ -1,10 +1,10 @@
 package com.qubacy.geoqq.data.auth.repository.impl
 
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.response.UpdateTokensResponse
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.RemoteTokenHttpRestDataSource
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.RemoteTokenHttpRestDataSource
 import com.qubacy.geoqq.data.auth.repository._common._test.context.AuthDataRepositoryMockContext
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._common.LocalAuthDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.RemoteAuthHttpRestDataSource

@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock
 
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.LocalTokenDataStoreDataSource
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 

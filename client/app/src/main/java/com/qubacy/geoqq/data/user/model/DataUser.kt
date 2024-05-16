@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.user.model
 import com.qubacy.geoqq.data.image.model.DataImage
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUserResponse
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
 
 data class DataUser(
     val id: Long,
@@ -28,5 +29,9 @@ fun UserEntity.toDataUser(avatar: DataImage): DataUser {
 }
 
 fun GetUserResponse.toDataUser(avatar: DataImage): DataUser {
+    return DataUser(id, username, description, avatar, isMate, isDeleted)
+}
+
+fun UserUpdatedServerEventPayload.toDataUser(avatar: DataImage): DataUser {
     return DataUser(id, username, description, avatar, isMate, isDeleted)
 }

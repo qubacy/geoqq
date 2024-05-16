@@ -4,6 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result._common.WebSocketResult
 
 class WebSocketPayloadResult(
+    val type: String,
     val payload: EventPayload
 ) : WebSocketResult {
 

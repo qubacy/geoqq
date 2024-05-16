@@ -10,17 +10,17 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common.tokenDataStore
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token.impl.LocalTokenDataStoreDataSourceImpl
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.tokenDataStore
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore.impl.LocalTokenDataStoreDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.AuthorizationHttpRestInterceptor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.impl.RemoteTokenHttpRestDataSourceImpl
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.WebSocketAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.listener.WebSocketListenerAdapter
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.listener.WebSocketListenerAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.container.WebSocketInitContainer
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yandex.mapkit.MapKitFactory
@@ -43,10 +43,10 @@ class CustomApplication : Application() {
     private lateinit var mHttpRestApi: HttpRestApi
     val httpRestApi get() = mHttpRestApi
 
-    private val mWebSocketAdapter: WebSocketAdapter by lazy {
-        initWebSocketAdapter(mLocalErrorDataSource)
+    private val mWebSocketInitContainer: WebSocketInitContainer by lazy {
+        initWebSocketContainer(mLocalErrorDataSource)
     }
-    val webSocketAdapter get() = mWebSocketAdapter
+    val webSocketInitContainer get() = mWebSocketInitContainer
 
     private lateinit var mDB: Database
     val db get() = mDB
@@ -138,16 +138,14 @@ class CustomApplication : Application() {
         }
     }
 
-    private fun initWebSocketAdapter(
+    private fun initWebSocketContainer(
         localErrorDatabaseDataSource: LocalErrorDatabaseDataSource
-    ): WebSocketAdapter {
+    ): WebSocketInitContainer {
         val listener = WebSocketListenerAdapter(localErrorDatabaseDataSource)
         val request = Request.Builder().url("ws://${HttpContext.BASE_HOST_PORT}").build() // todo: optimize!
 
         val webSocket = mHttpRestApi.okHttpClient.newWebSocket(request, listener)
 
-        return WebSocketAdapter(webSocket, listener).also {
-            listener.setCallback(it)
-        }
+        return WebSocketInitContainer(webSocket, listener)
     }
 }

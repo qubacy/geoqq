@@ -3,5 +3,5 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 import com.squareup.moshi.JsonAdapter
 
 interface ServerEventJsonAdapterCallback {
-    fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>
+    fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>?
 }

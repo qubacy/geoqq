@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated
 
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event._common.payload.EventPayload
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -13,7 +14,7 @@ class UserUpdatedServerEventPayload(
     @Json(name = IS_MATE_PROP_NAME) val isMate: Boolean,
     @Json(name = IS_DELETED_PROP_NAME) val isDeleted: Boolean,
     @Json(name = HIT_ME_UP_PROP_NAME) val hitMeUp: Int
-) {
+) : EventPayload {
     companion object {
         const val ID_PROP_NAME = "id"
         const val USERNAME_PROP_NAME = "username"

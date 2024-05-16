@@ -33,6 +33,8 @@ class ServerEventJsonAdapter(
                     1 -> {
                         val payloadAdapter = mCallback.getEventPayloadJsonAdapterByType(type!!)
 
+                        if(payloadAdapter == null) return null
+
                         payload = payloadAdapter.fromJson(p0) as EventPayload
                     }
                     else -> {

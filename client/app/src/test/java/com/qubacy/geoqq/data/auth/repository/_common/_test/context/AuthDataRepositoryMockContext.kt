@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.auth.repository._common._test.context
 import com.auth0.android.jwt.Claim
 import com.auth0.android.jwt.JWT
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.response.UpdateTokensResponse
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignInResponse
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignUpResponse
 
