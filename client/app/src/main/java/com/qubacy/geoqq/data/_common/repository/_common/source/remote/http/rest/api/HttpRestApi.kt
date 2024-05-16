@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token._common.api.RemoteTokenHttpRestDataSourceApi
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.RemoteAuthHttpRestDataSourceApi
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api.RemoteGeoMessageHttpRestDataSourceApi
@@ -12,27 +11,21 @@ import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.
 import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.RemoteMyProfileHttpRestDataSourceApi
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.RemoteUserHttpRestDataSourceApi
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class HttpRestApi(httpClient: OkHttpClient) {
+class HttpRestApi(httpClient: OkHttpClient, moshi: Moshi) {
     companion object {
         const val TAG = "HttpApi"
     }
 
     val okHttpClient = httpClient
 
-    private val mMoshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
-        .add(String::class.java, StringJsonAdapter())
-        .build()
-
     val retrofit = Retrofit.Builder()
         .baseUrl(HttpContext.BASE_URL)
         .client(okHttpClient)
-        .addConverterFactory(MoshiConverterFactory.create(mMoshi).asLenient())
+        .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
         .build()
 
     val tokenApi: RemoteTokenHttpRestDataSourceApi = retrofit.create(

@@ -15,11 +15,14 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.t
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.AuthorizationHttpRestInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.token.impl.RemoteTokenHttpRestDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter.listener.WebSocketListenerAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.OkHttpClient
@@ -33,6 +36,9 @@ class CustomApplication : Application() {
 
     private lateinit var mHttpClient: OkHttpClient
     val httpClient get() = mHttpClient
+
+    private lateinit var mMoshi: Moshi
+    val moshi get() = mMoshi
 
     private lateinit var mHttpRestApi: HttpRestApi
     val httpRestApi get() = mHttpRestApi
@@ -89,7 +95,8 @@ class CustomApplication : Application() {
         val errorJsonAdapter = ErrorJsonAdapter()
 
         mHttpClient = buildHttpClient(mLocalErrorDataSource)
-        mHttpRestApi = buildHttpRestApi(mHttpClient, errorJsonAdapter)
+        mMoshi = buildMoshi()
+        mHttpRestApi = buildHttpRestApi(mHttpClient, mMoshi, errorJsonAdapter)
     }
 
     private fun buildHttpClient(
@@ -98,8 +105,16 @@ class CustomApplication : Application() {
         return HttpClientModule.provideHttpClient(localErrorDataSource)
     }
 
+    private fun buildMoshi(): Moshi {
+        return Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .add(String::class.java, StringJsonAdapter())
+            .build()
+    }
+
     private fun buildHttpRestApi(
         okHttpClient: OkHttpClient,
+        moshi: Moshi,
         errorJsonAdapter: ErrorJsonAdapter
     ): HttpRestApi {
         val httpCallExecutor = HttpCallExecutor(mLocalErrorDataSource, errorJsonAdapter)
@@ -118,7 +133,7 @@ class CustomApplication : Application() {
             .addInterceptor(authorizationHttpRestInterceptor)
             .build()
 
-        return HttpRestApi(restHttpClient).apply {
+        return HttpRestApi(restHttpClient, moshi).apply {
             remoteTokenHttpRestDataSource.setHttpTokenDataSourceApi(this.tokenApi)
         }
     }

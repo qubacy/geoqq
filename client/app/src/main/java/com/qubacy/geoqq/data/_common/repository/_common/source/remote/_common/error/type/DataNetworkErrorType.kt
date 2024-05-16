@@ -8,5 +8,6 @@ enum class DataNetworkErrorType(
     override val domain: ErrorDomain = ErrorDomain.DATA_NETWORK
 ) : ErrorType {
     REQUEST_FAILED(0),
-    RESPONSE_ERROR_WITH_SERVER_FAIL(1);
+    RESPONSE_ERROR_WITH_SERVER_FAIL(1),
+    WEB_SOCKET_FAILURE(2); // todo: mb it'd be better to decouple this one?
 }
