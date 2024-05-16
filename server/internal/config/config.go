@@ -8,6 +8,7 @@ import (
 
 	utl "geoqq/pkg/utility"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -18,12 +19,38 @@ const (
 	ConfigFileExt  = "yml"
 )
 
+// -----------------------------------------------------------------------
+
 var (
 	configFullFn = strings.Join(
 		[]string{ConfigFileName, ConfigFileExt}, ".")
 
 	configPath = ""
 )
+
+var envKeyToViperKey = map[string]string{
+	"HOST": "server.http.host",
+	"PORT": "server.http.port",
+
+	"TOKEN_SIGNING_KEY": "delivery.token.signing_key",
+	"ACCESS_TOKEN_TTL":  "delivery.token.access_ttl",
+	"REFRESH_TOKEN_TTL": "delivery.token.refresh_ttl",
+
+	"POSTGRE_HOST": "storage.domain.sql.postgre.host",
+	"POSTGRE_PORT": "storage.domain.sql.postgre.port",
+	"POSTGRE_USER": "storage.domain.sql.postgre.user",
+	"POSTGRE_PASS": "storage.domain.sql.postgre.password",
+	"POSTGRE_DB":   "storage.domain.sql.postgre.database",
+
+	"CACHE_ENABLE": "cache.enable",
+	"REDIS_HOST":   "cache.redis.host",
+	"REDIS_PORT":   "cache.redis.port",
+	"REDIS_USER":   "cache.redis.user",
+	"REDIS_PASS":   "cache.redis.password",
+	"REDIS_DB":     "cache.redis.db_index",
+}
+
+// -----------------------------------------------------------------------
 
 func Initialize() error {
 	var err error = nil
@@ -43,7 +70,7 @@ func Initialize() error {
 		return utl.NewFuncError(Initialize, err)
 	}
 
-	// medium (config_for_merge.yaml)
+	// medium 1 (config_for_merge.yaml)
 
 	if partConfig := os.Getenv(envar("CONFIG_FOR_MERGE")); partConfig != "" {
 		viper.AddConfigPath(configPath + "/for_merge")
@@ -52,27 +79,41 @@ func Initialize() error {
 		viper.MergeInConfig()
 	}
 
-	// medium (env file)
+	// medium 2 (env file)
+
+	if err = mergeWithEnvironmentFile(); err != nil {
+		fmt.Printf(".env not found")
+	}
 
 	// high (environment variables)
 
 	mergeWithEnvironmentVars()
+
+	return nil
+}
+
+func mergeWithEnvironmentFile() error {
+	var envFromFile map[string]string
+	envFromFile, err := godotenv.Read()
+	if err != nil {
+		return utl.NewFuncError(mergeWithEnvironmentFile, err)
+	}
+
+	for envKey, viperKey := range envKeyToViperKey {
+		value, exists := envFromFile[envKey]
+		if exists {
+			viper.Set(viperKey, value)
+		}
+	}
+
 	return nil
 }
 
 func mergeWithEnvironmentVars() {
-	if host := os.Getenv(envar("HOST")); host != "" {
-		viper.Set("server.http.host", host)
-	}
-	if port := os.Getenv("PORT"); port != "" {
-		viper.Set("server.http.port", port)
-	}
-
-	if postgreHost := os.Getenv("POSTGRE_HOST"); len(postgreHost) != 0 {
-		viper.Set("storage.domain.sql.postgre.host", postgreHost)
-	}
-	if postgrePort := os.Getenv("POSTGRE_PORT"); len(postgrePort) != 0 {
-		viper.Set("storage.domain.sql.postgre.host", postgrePort)
+	for envKey, viperKey := range envKeyToViperKey {
+		if value := os.Getenv(envar(envKey)); value != "" {
+			viper.Set(viperKey, value)
+		}
 	}
 }
 

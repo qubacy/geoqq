@@ -28,3 +28,6 @@ local-build-debug:
 local-debug: local-build-debug
 	set GIN_MODE=debug&& "./cmd/main.exe"
 
+migrate:
+	cd .\internal\storage\domain\impl\sql\postgre\migrations && \
+	migrate create -ext sql -dir . -seq init

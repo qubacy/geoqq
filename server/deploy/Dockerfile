@@ -8,10 +8,10 @@ ENV CGO_ENABLED 0
 
 WORKDIR /app
 
-COPY . .
-RUN mv Makefile.target_linux Makefile
+COPY .. .
+RUN mv /deploy/Makefile.target_linux Makefile
 
-RUN go mod download
+WORKDIR /cmd
 RUN make build
 
 FROM alpine:3.19
@@ -19,9 +19,10 @@ FROM alpine:3.19
 RUN apk update --no-cache
 RUN apk add make iputils vim --no-cache
 
-COPY --from=build /app/cmd/main /app/cmd/main
 COPY --from=build /app/internal/config/config.yml /app/cmd/config.yml
 COPY --from=build /app/internal/config/mode/* /app/cmd/mode/*
+
+COPY --from=build /app/cmd/main /app/cmd/main
 COPY --from=build /app/Makefile /app/Makefile
 
 WORKDIR /app/cmd

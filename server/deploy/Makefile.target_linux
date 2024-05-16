@@ -1,0 +1,3 @@
+build:
+	go mod download \
+	go build -ldflags="-s -w" -o ./main ./main.go

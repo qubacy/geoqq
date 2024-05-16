@@ -13,6 +13,7 @@
         "geodist",
         "geodistance",
         "geoqq",
+        "godotenv",
         "gonic",
         "goroutines",
         "govatar",

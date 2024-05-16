@@ -1,0 +1,43 @@
+name: geoqq_server
+
+services:
+  postgre: 
+    image: postgres:16.3-alpine3.19
+
+
+  cache:
+    image: chainguard/dragonfly
+    hostname: ${DRAGONFLY_HOST}
+    container_name: ${DRAGONFLY_HOST}
+    restart: "on-failure"
+    ulimits:
+      memlock: -1
+    ports:
+      - "6379:${DRAGONFLY_PORT}"
+    volumes:
+      - dragonflydata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep PONG > /dev/null"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+
+  geoqq_http:
+    build: .
+    hostname: geoqq_http
+    container_name: geoqq_http
+    restart: "on-failure"
+    environment:
+      - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_HOST}
+      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_PORT}
+
+    depends_on:
+      postgre:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+
+  # geoqq_ws:
+
+volumes:
+  dragonflydata:
