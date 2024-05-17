@@ -5,7 +5,7 @@ import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.UpdateUsersDomainResult
 
-interface UserUseCase {
+interface UserAspectUseCase {
     fun processUserUpdatedDataResult(dataResult: UserUpdatedDataResult): DomainResult? {
         val user = dataResult.user.toUser()
 

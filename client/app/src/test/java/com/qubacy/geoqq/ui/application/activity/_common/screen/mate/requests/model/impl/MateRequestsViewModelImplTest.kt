@@ -5,8 +5,8 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
@@ -346,7 +346,7 @@ class MateRequestsViewModelImplTest(
         )
 
         val user = DEFAULT_USER.copy(username = "result user")
-        val getInterlocutorDomainResult = GetInterlocutorDomainResult(interlocutor = user)
+        val getInterlocutorDomainResult = GetUserDomainResult(interlocutor = user)
 
         val expectedUserPresentation = user.toUserPresentation()
         val expectedRequests = initRequests.map {
@@ -380,7 +380,7 @@ class MateRequestsViewModelImplTest(
         )
 
         val user = DEFAULT_USER.copy(username = "result user")
-        val updateInterlocutorDomainResult = UpdateInterlocutorDomainResult(interlocutor = user)
+        val updateInterlocutorDomainResult = UpdateUserDomainResult(interlocutor = user)
 
         val expectedUserPresentation = user.toUserPresentation()
         val expectedUpdatedRequest = initRequest.copy(user = expectedUserPresentation)

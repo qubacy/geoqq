@@ -13,7 +13,7 @@ import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateM
 import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
@@ -136,7 +136,7 @@ class MateChatUseCaseImplTest : UseCaseTest<MateChatUseCaseImpl>() {
         mUseCase = MateChatUseCaseImpl(
             errorSource = dependencies[0] as LocalErrorDatabaseDataSource,
             mMateRequestUseCase = dependencies[1] as MateRequestUseCase,
-            mInterlocutorUseCase = dependencies[2] as InterlocutorUseCase,
+            mUserUseCase = dependencies[2] as UserUseCase,
             mLogoutUseCase = dependencies[3] as LogoutUseCase,
             mMateMessageDataRepository = dependencies[4] as MateMessageDataRepository,
             mMateChatDataRepository = dependencies[5] as MateChatDataRepository

@@ -1,8 +1,8 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model
 
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
@@ -10,7 +10,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 
 interface InterlocutorViewModel {
-    fun onInterlocutorGetInterlocutor(domainResult: GetInterlocutorDomainResult): List<UiOperation> {
+    fun onInterlocutorGetInterlocutor(domainResult: GetUserDomainResult): List<UiOperation> {
         val businessViewModel = getInterlocutorViewModelBusinessViewModel()
 
         if (!domainResult.isSuccessful()) return businessViewModel.onError(domainResult.error!!)
@@ -21,7 +21,7 @@ interface InterlocutorViewModel {
     }
 
     fun onInterlocutorUpdateInterlocutor(
-        domainResult: UpdateInterlocutorDomainResult
+        domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
         val businessViewModel = getInterlocutorViewModelBusinessViewModel()
 
@@ -32,7 +32,7 @@ interface InterlocutorViewModel {
         return listOf(UpdateInterlocutorDetailsUiOperation(userPresentation))
     }
 
-    fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation
+    fun onInterlocutorInterlocutor(domainResult: UserDomainResult): UserPresentation
 
     fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *>
 }

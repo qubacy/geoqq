@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class MateRequestsUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
-    private val mInterlocutorUseCase: InterlocutorUseCase,
+    private val mInterlocutorUseCase: UserUseCase,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMateRequestDataRepository: MateRequestDataRepository
 ) : MateRequestsUseCase(errorSource) {
@@ -65,7 +65,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
     }
 
     override fun getInterlocutor(interlocutorId: Long) {
-        mInterlocutorUseCase.getInterlocutor(interlocutorId)
+        mInterlocutorUseCase.getUser(interlocutorId)
     }
 
     override fun onCoroutineScopeSet() {

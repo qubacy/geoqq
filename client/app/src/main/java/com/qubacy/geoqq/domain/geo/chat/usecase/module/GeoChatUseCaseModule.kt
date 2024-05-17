@@ -5,7 +5,7 @@ import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataReposi
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain.geo.chat.usecase.impl.GeoChatUseCaseImpl
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import dagger.Module
@@ -20,7 +20,7 @@ object GeoChatUseCaseModule {
     fun provideGeoChatUseCase(
         localErrorDataSource: LocalErrorDatabaseDataSource,
         mateRequestUseCase: MateRequestUseCase,
-        interlocutorUseCase: InterlocutorUseCase,
+        interlocutorUseCase: UserUseCase,
         logoutUseCase: LogoutUseCase,
         geoMessageDataRepository: GeoMessageDataRepository,
         userDataRepository: UserDataRepository

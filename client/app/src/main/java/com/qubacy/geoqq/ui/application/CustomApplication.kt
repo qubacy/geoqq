@@ -21,6 +21,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.container.WebSocketInitContainer
+import com.qubacy.geoqq.data._common.repository.token.repository.impl.TokenDataRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yandex.mapkit.MapKitFactory
@@ -121,11 +122,16 @@ class CustomApplication : Application() {
 
         val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSourceImpl(httpCallExecutor)
 
+        val tokenDataRepository = TokenDataRepositoryImpl(
+            mLocalErrorDataSource,
+            mLocalTokenDataStoreDataSource,
+            remoteTokenHttpRestDataSource
+        )
+
         val authorizationHttpRestInterceptor = AuthorizationHttpRestInterceptor(
             mLocalErrorDataSource,
             ErrorJsonAdapter(),
-            mLocalTokenDataStoreDataSource,
-            remoteTokenHttpRestDataSource
+            tokenDataRepository
         )
 
         val restHttpClient = okHttpClient

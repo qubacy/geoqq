@@ -13,6 +13,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.closed.WebSocketClosedResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.payload.WebSocketPayloadResult
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,19 +24,36 @@ import kotlinx.coroutines.launch
 abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::class) constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     private val mCoroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
-) : WebSocketEventListener, ServerEventJsonAdapterCallback {
+) : ProducingDataSource, WebSocketEventListener, ServerEventJsonAdapterCallback {
     protected abstract val mWebSocketAdapter: WebSocketAdapter
     private val mServerEventJsonAdapter: ServerEventJsonAdapter
 
     protected val mEventFlow: MutableColdFlow<WebSocketResult> = MutableColdFlow()
     val eventFlow: Flow<WebSocketResult> get() = mEventFlow.flow
 
+    @Volatile
+    private var mIsStarted: Boolean = false
+
     init {
         mServerEventJsonAdapter = ServerEventJsonAdapter(this)
     }
 
-    open fun close() {
-        mWebSocketAdapter.close()
+    @Synchronized
+    override fun startProducing() {
+        if (mIsStarted) return
+
+        mIsStarted = true
+
+        mWebSocketAdapter.addEventListener(this)
+    }
+
+    @Synchronized
+    override fun stopProducing() {
+        if (!mIsStarted) return
+
+        mIsStarted = false
+
+        mWebSocketAdapter.removeEventListener(this)
     }
 
     override fun onEventGotten(event: WebSocketEvent) {

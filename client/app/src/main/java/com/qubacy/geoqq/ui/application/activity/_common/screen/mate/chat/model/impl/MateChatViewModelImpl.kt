@@ -4,12 +4,12 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
@@ -204,7 +204,7 @@ open class MateChatViewModelImpl @Inject constructor(
     }
 
     override fun onInterlocutorGetInterlocutor(
-        domainResult: GetInterlocutorDomainResult
+        domainResult: GetUserDomainResult
     ): List<UiOperation> {
         val prevUserPresentation = mUiState.chatContext!!.user
         val superOperations = super.onInterlocutorGetInterlocutor(domainResult)
@@ -220,7 +220,7 @@ open class MateChatViewModelImpl @Inject constructor(
     }
 
     override fun onInterlocutorUpdateInterlocutor(
-        domainResult: UpdateInterlocutorDomainResult
+        domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
         val superOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
 
@@ -231,7 +231,7 @@ open class MateChatViewModelImpl @Inject constructor(
     }
 
     override fun onInterlocutorInterlocutor(
-        domainResult: InterlocutorDomainResult
+        domainResult: UserDomainResult
     ): UserPresentation {
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
 

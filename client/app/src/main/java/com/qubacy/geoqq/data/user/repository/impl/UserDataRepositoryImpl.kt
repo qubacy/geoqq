@@ -11,6 +11,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.aspect.websocket.WebSocketEventDataRepository
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data._common.repository.token.repository._common.util.TokenUtils
 import com.qubacy.geoqq.data.image.repository._common.ImageDataRepository
 import com.qubacy.geoqq.data.user.model.DataUser
@@ -57,6 +58,10 @@ open class UserDataRepositoryImpl @Inject constructor(
             .mapNotNull { mapWebSocketResultToDataResult(it) }
     )
 
+    override fun getProducingDataSources(): Array<ProducingDataSource> {
+        return arrayOf(mRemoteUserHttpWebSocketDataSource)
+    }
+
     override suspend fun getUsersByIds(userIds: List<Long>): LiveData<GetUsersByIdsDataResult> {
         val resultLiveData = MutableLiveData<GetUsersByIdsDataResult>()
 
@@ -78,6 +83,7 @@ open class UserDataRepositoryImpl @Inject constructor(
             val usersToSave = httpDataUsers.map { it.toUserEntity() }
 
             mLocalUserDatabaseDataSource.saveUsers(usersToSave)
+            mRemoteUserHttpWebSocketDataSource.startProducing() // todo: ok?
         }
 
         return resultLiveData
@@ -102,7 +108,8 @@ open class UserDataRepositoryImpl @Inject constructor(
                     getUsersByIdsResult.isNewest, userIdUserMap)
                 )
 
-                if (getUsersByIdsResult.isNewest) return@launch
+                if (getUsersByIdsResult.isNewest)
+                    return@launch mRemoteUserHttpWebSocketDataSource.startProducing() // todo: ok?
             }
         }
 

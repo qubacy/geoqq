@@ -31,6 +31,13 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
         return arrayOf()
     }
 
+    fun stopUpdates() {
+        val updatableRepositories = getUpdatableRepositories()
+
+        for (updatableRepository in updatableRepositories)
+            updatableRepository.
+    }
+
     override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
 

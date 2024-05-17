@@ -10,7 +10,7 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middlewar
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.message.toMateMessage
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class MateChatUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
-    private val mInterlocutorUseCase: InterlocutorUseCase,
+    private val mUserUseCase: UserUseCase,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMateMessageDataRepository: MateMessageDataRepository,
     private val mMateChatDataRepository: MateChatDataRepository
@@ -34,7 +34,7 @@ class MateChatUseCaseImpl @Inject constructor(
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
         mMateRequestUseCase.resultFlow,
-        mInterlocutorUseCase.resultFlow
+        mUserUseCase.resultFlow
     )
 
     override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
@@ -82,7 +82,7 @@ class MateChatUseCaseImpl @Inject constructor(
     }
 
     override fun getInterlocutor(interlocutorId: Long) {
-        mInterlocutorUseCase.getInterlocutor(interlocutorId)
+        mUserUseCase.getUser(interlocutorId)
     }
 
     override fun deleteChat(chatId: Long) {
@@ -111,7 +111,7 @@ class MateChatUseCaseImpl @Inject constructor(
         super.onCoroutineScopeSet()
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
-        mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
+        mUserUseCase.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

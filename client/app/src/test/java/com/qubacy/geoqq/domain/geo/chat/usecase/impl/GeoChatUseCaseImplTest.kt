@@ -17,7 +17,7 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDom
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
@@ -120,7 +120,7 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
         mUseCase = GeoChatUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSource,
             dependencies[1] as MateRequestUseCase,
-            dependencies[2] as InterlocutorUseCase,
+            dependencies[2] as UserUseCase,
             dependencies[3] as LogoutUseCase,
             dependencies[4] as GeoMessageDataRepository,
             dependencies[5] as UserDataRepository

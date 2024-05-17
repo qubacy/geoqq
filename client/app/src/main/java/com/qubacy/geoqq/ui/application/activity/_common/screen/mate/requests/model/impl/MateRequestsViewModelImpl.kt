@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor._common.InterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.get.GetRequestChunkDomainResult
@@ -133,7 +133,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
     }
 
     override fun onInterlocutorUpdateInterlocutor(
-        domainResult: UpdateInterlocutorDomainResult
+        domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
         val superUiOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
 
@@ -153,7 +153,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
         return superUiOperations.plus(UpdateRequestUiOperation(requestPosition, updatedRequest))
     }
 
-    override fun onInterlocutorInterlocutor(domainResult: InterlocutorDomainResult): UserPresentation {
+    override fun onInterlocutorInterlocutor(domainResult: UserDomainResult): UserPresentation {
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
 
         val requestPosition = mUiState.requests.indexOfFirst { it.user.id == userPresentation.id }

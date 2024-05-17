@@ -9,7 +9,7 @@ import com.qubacy.geoqq.data.mate.request.repository._common._test.context.MateR
 import com.qubacy.geoqq.data.mate.request.repository._common._test.mock.MateRequestDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
@@ -55,7 +55,7 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
         mUseCase = MateRequestsUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSource,
             dependencies[1] as MateRequestUseCase,
-            dependencies[2] as InterlocutorUseCase,
+            dependencies[2] as UserUseCase,
             dependencies[3] as LogoutUseCase,
             dependencies[4] as MateRequestDataRepository
         )

@@ -7,6 +7,7 @@ import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.LocalUserDatabaseDataSource
 import com.qubacy.geoqq.data.user.repository.impl.UserDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,14 +22,16 @@ object UserDataRepositoryModule {
         localTokenDataStoreDataSource: LocalTokenDataStoreDataSource,
         imageDataRepository: ImageDataRepository,
         localUserDatabaseDataSource: LocalUserDatabaseDataSource,
-        remoteUserHttpRestDataSource: RemoteUserHttpRestDataSource
+        remoteUserHttpRestDataSource: RemoteUserHttpRestDataSource,
+        remoteUserHttpWebSocketDataSource: RemoteUserHttpWebSocketDataSource
     ): UserDataRepository {
         return UserDataRepositoryImpl(
             mErrorSource = localErrorDataSource,
             mLocalTokenDataStoreDataSource = localTokenDataStoreDataSource,
             mImageDataRepository = imageDataRepository,
             mLocalUserDatabaseDataSource = localUserDatabaseDataSource,
-            mRemoteUserHttpRestDataSource = remoteUserHttpRestDataSource
+            mRemoteUserHttpRestDataSource = remoteUserHttpRestDataSource,
+            mRemoteUserHttpWebSocketDataSource = remoteUserHttpWebSocketDataSource
         )
     }
 }

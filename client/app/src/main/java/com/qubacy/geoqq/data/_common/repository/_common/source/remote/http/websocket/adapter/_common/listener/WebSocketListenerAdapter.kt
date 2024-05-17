@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.listener
 
 import android.util.Log
-import com.qubacy.geoqq._common.struct.queue.NonBlockingQueue
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.event.model._common.WebSocketEvent
@@ -23,18 +22,8 @@ class WebSocketListenerAdapter @Inject constructor(
 
     private var mCallbacks: MutableList<WebSocketListenerAdapterCallback> = mutableListOf()
 
-    private val mEventQueue: NonBlockingQueue<WebSocketEvent> = NonBlockingQueue()
-
     fun addCallback(callback: WebSocketListenerAdapterCallback) {
         mCallbacks.add(callback)
-
-        synchronized(mEventQueue) {
-            while (true) {
-                val event = mEventQueue.dequeue() ?: break
-
-                emitEvent(event)
-            }
-        }
     }
 
     fun removeCallback(callback: WebSocketListenerAdapterCallback) {
@@ -81,11 +70,8 @@ class WebSocketListenerAdapter @Inject constructor(
     }
 
     private fun emitEvent(event: WebSocketEvent) {
-        if (mCallbacks.isNotEmpty())
-            return mCallbacks.forEach { it.onEventGotten(event) }
+        if (mCallbacks.isEmpty()) return
 
-        synchronized(mEventQueue) {
-            mEventQueue.enqueue(event)
-        }
+        mCallbacks.forEach { it.onEventGotten(event) }
     }
 }

@@ -10,8 +10,8 @@ import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.GetInterlocutorDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
@@ -571,7 +571,7 @@ class MateChatViewModelImplTest(
         val expectedError = TestError.normal
         val expectedLoadingState = false
 
-        val getInterlocutorDomainResult = GetInterlocutorDomainResult(error = expectedError)
+        val getInterlocutorDomainResult = GetUserDomainResult(error = expectedError)
 
         setUiState(initUiState)
 
@@ -603,7 +603,7 @@ class MateChatViewModelImplTest(
         val expectedUserPresentation = user.toUserPresentation()
         val expectedLoadingState = false
 
-        val getInterlocutorDomainResult = GetInterlocutorDomainResult(interlocutor = user)
+        val getInterlocutorDomainResult = GetUserDomainResult(interlocutor = user)
 
         setUiState(initUiState)
 
@@ -631,7 +631,7 @@ class MateChatViewModelImplTest(
         val expectedError = TestError.normal
         val expectedLoadingState = false
 
-        val updateInterlocutorDomainResult = UpdateInterlocutorDomainResult(error = expectedError)
+        val updateInterlocutorDomainResult = UpdateUserDomainResult(error = expectedError)
 
         setUiState(initUiState)
 
@@ -663,7 +663,7 @@ class MateChatViewModelImplTest(
         val expectedUserPresentation = user.toUserPresentation()
         val expectedLoadingState = false
 
-        val updateInterlocutorDomainResult = UpdateInterlocutorDomainResult(interlocutor = user)
+        val updateInterlocutorDomainResult = UpdateUserDomainResult(interlocutor = user)
 
         setUiState(initUiState)
 

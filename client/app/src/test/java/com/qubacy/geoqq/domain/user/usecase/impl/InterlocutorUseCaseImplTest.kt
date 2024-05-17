@@ -10,7 +10,7 @@ import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataReposito
 import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.GetInterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import kotlinx.coroutines.test.runTest
@@ -19,7 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 
-class InterlocutorUseCaseImplTest : UseCaseTest<InterlocutorUseCaseImpl>() {
+class InterlocutorUseCaseImplTest : UseCaseTest<UserUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryTestContext.DEFAULT_DATA_USER
     }
@@ -44,7 +44,7 @@ class InterlocutorUseCaseImplTest : UseCaseTest<InterlocutorUseCaseImpl>() {
     }
 
     override fun initUseCase(dependencies: List<Any>) {
-        mUseCase = InterlocutorUseCaseImpl(
+        mUseCase = UserUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSource,
             dependencies[1] as LogoutUseCase,
             dependencies[2] as UserDataRepository
@@ -62,16 +62,16 @@ class InterlocutorUseCaseImplTest : UseCaseTest<InterlocutorUseCaseImpl>() {
         mUserDataRepositoryMockContainer.getUsersByIdsResult = remoteGetUsersByIdsResult
 
         mUseCase.resultFlow.test {
-            mUseCase.getInterlocutor(remoteUser.id)
+            mUseCase.getUser(remoteUser.id)
 
             Assert.assertTrue(mUserDataRepositoryMockContainer.getUsersByIdsCallFlag)
 
             val remoteResult = awaitItem()
 
-            Assert.assertEquals(GetInterlocutorDomainResult::class, remoteResult::class)
+            Assert.assertEquals(GetUserDomainResult::class, remoteResult::class)
             Assert.assertTrue(remoteResult.isSuccessful())
 
-            val gottenRemoteUser = (remoteResult as GetInterlocutorDomainResult).interlocutor
+            val gottenRemoteUser = (remoteResult as GetUserDomainResult).interlocutor
 
             Assert.assertEquals(expectedRemoteUser, gottenRemoteUser)
         }

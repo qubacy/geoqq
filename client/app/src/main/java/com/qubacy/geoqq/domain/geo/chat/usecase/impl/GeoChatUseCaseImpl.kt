@@ -13,7 +13,7 @@ import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +24,7 @@ import javax.inject.Inject
 open class GeoChatUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
-    private val mInterlocutorUseCase: InterlocutorUseCase,
+    private val mInterlocutorUseCase: UserUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val mGeoMessageDataRepository: GeoMessageDataRepository,
     private val mUserDataRepository: UserDataRepository
@@ -94,7 +94,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
     }
 
     override fun getInterlocutor(interlocutorId: Long) {
-        mInterlocutorUseCase.getInterlocutor(interlocutorId)
+        mInterlocutorUseCase.getUser(interlocutorId)
     }
 
     override fun sendMateRequestToInterlocutor(interlocutorId: Long) {

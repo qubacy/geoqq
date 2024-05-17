@@ -9,7 +9,7 @@ import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo._common.test.context.GeoUseCaseTestContext
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.interlocutor.UpdateInterlocutorDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -374,7 +374,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
         )
 
         val interlocutor = DEFAULT_USER.copy(username = "updated test")
-        val updateInterlocutorDomainResult = UpdateInterlocutorDomainResult(
+        val updateInterlocutorDomainResult = UpdateUserDomainResult(
             interlocutor = interlocutor)
 
         val expectedInterlocutorPresentation = interlocutor.toUserPresentation()

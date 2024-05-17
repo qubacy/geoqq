@@ -3,7 +3,7 @@ package com.qubacy.geoqq.domain.mate.chat.usecase.module
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
-import com.qubacy.geoqq.domain.user.usecase._common.InterlocutorUseCase
+import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase.impl.MateChatUseCaseImpl
@@ -20,7 +20,7 @@ object MateChatUseCaseModule {
     fun provideMateChatUseCase(
         localErrorDataSource: LocalErrorDatabaseDataSource,
         mateRequestUseCase: MateRequestUseCase,
-        interlocutorUseCase: InterlocutorUseCase,
+        interlocutorUseCase: UserUseCase,
         mLogoutUseCase: LogoutUseCase,
         mateMessageDataRepository: MateMessageDataRepository,
         mateChatDataRepository: MateChatDataRepository
