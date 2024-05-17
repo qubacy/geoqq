@@ -1,0 +1,95 @@
+name: geoqq_server
+
+services:
+  postgre: 
+    image: postgres:16.3-alpine3.19
+    environment:
+      - POSTGRES_DB=geoqq
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - db_net
+      - all_net    
+
+  migrate:
+    image: migrate/migrate
+    hostname: migrate
+    container_name: migrate
+    restart: "no"
+    command: [
+      "-path=/migrations/",
+      "-database", "postgres://admin:admin@${POSTGRE_HOST}:${POSTGRE_PORT}/geoqq?sslmode=disable",
+      "up"
+    ]
+    volumes:
+      - ./internal/storage/domain/impl/sql/postgre/migrations:/migrations
+    networks:
+      - db_net
+    depends_on:
+      postgre:
+        condition: service_healthy
+
+  cache:
+    image: chainguard/dragonfly
+    hostname: ${DRAGONFLY_HOST}
+    container_name: ${DRAGONFLY_HOST}
+    restart: "on-failure"
+    ulimits:
+      memlock: -1
+    ports:
+      - "16379:${DRAGONFLY_PORT}"
+    volumes:
+      - dragonflydata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep PONG > /dev/null"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    networks:
+      - all_net
+
+  geoqq_http:
+    build: .
+    hostname: geoqq_http
+    container_name: geoqq_http
+    restart: "on-failure"
+    ports:
+      - "57000:57000"
+    environment:
+      - GEOQQ_HTTP_CACHE_ENABLE=true
+      - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_HOST}
+      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_PORT}
+
+      - GEOQQ_HTTP_POSTGRE_DB=geoqq
+      - GEOQQ_HTTP_POSTGRE_USER=admin
+      - GEOQQ_HTTP_POSTGRE_PASS=admin
+      - GEOQQ_HTTP_POSTGRE_HOST=postgre
+      - GEOQQ_HTTP_POSTGRE_PORT=5432
+    depends_on:
+      postgre:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - all_net
+
+  # geoqq_ws:
+
+volumes:
+  dragonflydata:
+
+networks:
+  db_net:
+    driver: bridge
+  all_net:
+    driver: bridge
