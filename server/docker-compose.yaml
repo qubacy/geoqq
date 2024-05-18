@@ -3,21 +3,25 @@ name: geoqq_server
 services:
   postgre: 
     image: postgres:16.3-alpine3.19
+    hostname: ${POSTGRE_NAME}
+    container_name: ${POSTGRE_NAME}
     environment:
-      - POSTGRES_DB=geoqq
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=${POSTGRE_DB}
+      - POSTGRES_USER=${POSTGRE_USER}
+      - POSTGRES_PASSWORD=${POSTGRE_PASS}
       - POSTGRES_HOST_AUTH_METHOD=md5
     ports:
-      - "15432:5432"
+      - "${POSTGRE_PORT}:${INTERNAL_POSTGRE_PORT}"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRE_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - db_net
+      - postgre_net
       - all_net    
+    volumes:
+      - postgredata:/var/lib/postgresql/data
 
   migrate:
     image: migrate/migrate
@@ -26,26 +30,27 @@ services:
     restart: "no"
     command: [
       "-path=/migrations/",
-      "-database", "postgres://admin:admin@${POSTGRE_HOST}:${POSTGRE_PORT}/geoqq?sslmode=disable",
+      "-database", "postgres://${POSTGRE_USER}:${POSTGRE_PASS}@\
+      ${POSTGRE_NAME}:${INTERNAL_POSTGRE_PORT}/${POSTGRE_DB}?sslmode=disable",
       "up"
     ]
     volumes:
       - ./internal/storage/domain/impl/sql/postgre/migrations:/migrations
     networks:
-      - db_net
+      - postgre_net
     depends_on:
       postgre:
         condition: service_healthy
 
   cache:
     image: chainguard/dragonfly
-    hostname: ${DRAGONFLY_HOST}
-    container_name: ${DRAGONFLY_HOST}
+    hostname: ${DRAGONFLY_NAME}
+    container_name: ${DRAGONFLY_NAME}
     restart: "on-failure"
     ulimits:
       memlock: -1
     ports:
-      - "16379:${DRAGONFLY_PORT}"
+      - "${DRAGONFLY_PORT}:${INTERNAL_DRAGONFLY_PORT}"
     volumes:
       - dragonflydata:/data
     healthcheck:
@@ -62,17 +67,27 @@ services:
     container_name: geoqq_http
     restart: "on-failure"
     ports:
-      - "57000:57000"
+      - "${GEOQQ_HTTP_PORT}:${GEOQQ_HTTP_PORT}"
     environment:
-      - GEOQQ_HTTP_CACHE_ENABLE=true
-      - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_HOST}
-      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_PORT}
+      - GIN_MODE=release
+      - GEOQQ_HTTP_PORT=${GEOQQ_HTTP_PORT}
 
-      - GEOQQ_HTTP_POSTGRE_DB=geoqq
-      - GEOQQ_HTTP_POSTGRE_USER=admin
-      - GEOQQ_HTTP_POSTGRE_PASS=admin
-      - GEOQQ_HTTP_POSTGRE_HOST=postgre
-      - GEOQQ_HTTP_POSTGRE_PORT=5432
+      - GEOQQ_HTTP_TOKEN_SIGNING_KEY
+      - GEOQQ_HTTP_ACCESS_TOKEN_TTL
+      - GEOQQ_HTTP_REFRESH_TOKEN_TTL
+
+      - GEOQQ_HTTP_POSTGRE_HOST=${POSTGRE_NAME}
+      - GEOQQ_HTTP_POSTGRE_PORT=${INTERNAL_POSTGRE_PORT}
+      - GEOQQ_HTTP_POSTGRE_USER=${POSTGRE_USER}
+      - GEOQQ_HTTP_POSTGRE_PASS=${POSTGRE_PASS}
+      - GEOQQ_HTTP_POSTGRE_DB=${POSTGRE_DB}
+      
+      - GEOQQ_HTTP_CACHE_ENABLE
+      - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_NAME}
+      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_USER}
+      - GEOQQ_HTTP_REDIS_USER=${DRAGONFLY_PASS}
+      - GEOQQ_HTTP_REDIS_DB=${DRAGONFLY_DB}
+      
     depends_on:
       postgre:
         condition: service_healthy
@@ -82,14 +97,20 @@ services:
         condition: service_completed_successfully
     networks:
       - all_net
+    volumes:
+      - geoqqhttp_rotation:/app/cmd/rotation
+      - geoqqhttp_avatar:/app/cmd/avatar
 
   # geoqq_ws:
 
 volumes:
+  postgredata:
   dragonflydata:
+  geoqqhttp_rotation:
+  geoqqhttp_avatar:
 
 networks:
-  db_net:
+  postgre_net:
     driver: bridge
   all_net:
     driver: bridge

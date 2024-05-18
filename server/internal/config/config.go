@@ -82,12 +82,16 @@ func Initialize() error {
 	// medium 2 (env file)
 
 	if err = mergeWithEnvironmentFile(); err != nil {
-		fmt.Printf(".env not found")
+		fmt.Printf(".env not found\n")
 	}
 
 	// high (environment variables)
 
 	mergeWithEnvironmentVars()
+
+	fmt.Printf("cache enable: %v\n", viper.GetBool("cache.enable"))
+	fmt.Printf("access ttl: %v\n", viper.GetDuration("delivery.token.access_ttl"))
+	fmt.Printf("refresh ttl: %v\n", viper.GetDuration("delivery.token.refresh_ttl"))
 
 	return nil
 }
