@@ -35,7 +35,7 @@ services:
       "up"
     ]
     volumes:
-      - ./internal/storage/domain/impl/sql/postgre/migrations:/migrations
+      - ./geoqq_http/internal/storage/domain/impl/sql/postgre/migrations:/migrations
     networks:
       - postgre_net
     depends_on:
@@ -62,7 +62,8 @@ services:
       - all_net
 
   geoqq_http:
-    build: .
+    build: 
+      context: geoqq_http      
     hostname: geoqq_http
     container_name: geoqq_http
     restart: "on-failure"
@@ -70,11 +71,12 @@ services:
       - "${GEOQQ_HTTP_PORT}:${GEOQQ_HTTP_PORT}"
     environment:
       - GIN_MODE=release
+      - GEOQQ_HTTP_CONFIG_FOR_MERGE=release
       - GEOQQ_HTTP_PORT=${GEOQQ_HTTP_PORT}
 
       - GEOQQ_HTTP_TOKEN_SIGNING_KEY
-      - GEOQQ_HTTP_ACCESS_TOKEN_TTL
-      - GEOQQ_HTTP_REFRESH_TOKEN_TTL
+      # - GEOQQ_HTTP_ACCESS_TOKEN_TTL
+      # - GEOQQ_HTTP_REFRESH_TOKEN_TTL
 
       - GEOQQ_HTTP_POSTGRE_HOST=${POSTGRE_NAME}
       - GEOQQ_HTTP_POSTGRE_PORT=${INTERNAL_POSTGRE_PORT}

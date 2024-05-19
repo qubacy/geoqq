@@ -1,0 +1,4 @@
+delivery: 
+  token:
+    access_ttl: 1m
+    refresh_ttl: 5m

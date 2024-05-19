@@ -1,0 +1,4 @@
+delivery: 
+  token:
+    access_ttl: 30m
+    refresh_ttl: 168h # 7 days...
