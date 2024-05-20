@@ -1,0 +1,125 @@
+first_start:
+  max_init_time: 10s
+
+server:
+  http:
+    host: "0.0.0.0"
+    port: 57000
+
+    max_header_kb: 1000
+    read_timeout: 25s
+    write_timeout: 25s
+    shutdown_timeout: 5s
+
+  # is not http?
+  websocket:
+
+delivery: # or service?
+  token:
+    access_ttl: 15s
+    refresh_ttl: 168h
+    signing_key: "signing_key"
+
+service:
+  general:
+    pagination:
+      max_page_size: 100 # ..]
+  
+  auth:
+    login_pattern: ^\w{6,32}$ # ^[A-Za-z0-9_]{5,64}$
+    password_pattern: ^\S{8,}$ # ^[\s\S]+$
+
+    sign_in:
+      failed_attempt_count: 3
+      failed_attempt_ttl: 150s
+      blocking_time: 5m
+
+    sign_up:
+      blocking_time: 30m # after registration!
+
+  user:
+    name_pattern: ^.{6,50}$ 
+    
+    update_name:
+      blocking_time: 1h
+
+  chat:
+    max_message_length: 1024
+    geo:
+      max_message_count_returned: 100 
+      max_radius: 10000 # distance!
+      min_radius: 100
+
+  image:
+    cache_ttl: 15m
+
+    add:
+      blocking_time: 5m
+
+storage:
+  hash_type: "sha1" # general parameter?
+  max_init_time: 5s
+
+  file: # or resource/blob
+    type: "anytime"
+    memory:
+      anytime:
+          root: "."
+          avatar: "avatar"
+          #...
+          
+      runtime:
+      #...
+
+  domain: # or models/business
+    type: "postgre"
+  
+    memory:
+      #...
+
+    sql:
+      postgre:
+        host: "127.0.0.1"
+        port: 5432
+
+        user: "postgres"
+        password: "admin"
+        database: "domain"
+
+        background:
+          max_worker_count: 2 # goroutines and channels...
+          max_query_count: 2
+          query_timeout: 10s          
+
+      sqlite:
+        #...
+
+cache:
+  enable: false
+
+  type: "redis"
+  max_init_time: 5s
+  
+  redis:
+    host: "127.0.0.1"
+    port: 6379
+    
+    user: ""
+    password: ""
+    db_index: 0
+    
+logging:
+  type: "lumberjack"
+  level: 0
+  use_console: true
+
+  lumberjack:
+    dirname: "./rotation"
+    filename: "server.log"
+
+    max_size_mb: 100
+    max_backups: 5
+    max_age_days: 1
+
+  mlog:
+    #...

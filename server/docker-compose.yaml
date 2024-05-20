@@ -1,7 +1,7 @@
-name: geoqq_server
+name: geoqq_services
 
 services:
-  postgre: 
+  postgre_domain: 
     image: postgres:16.3-alpine3.19
     hostname: ${POSTGRE_NAME}
     container_name: ${POSTGRE_NAME}
@@ -21,12 +21,12 @@ services:
       - postgre_net
       - all_net    
     volumes:
-      - postgredata:/var/lib/postgresql/data
+      - postgre_domain_data:/var/lib/postgresql/data
 
-  migrate:
+  migrate_domain:
     image: migrate/migrate
-    hostname: migrate
-    container_name: migrate
+    hostname: migrate_domain
+    container_name: migrate_domain
     restart: "no"
     command: [
       "-path=/migrations/",
@@ -35,11 +35,11 @@ services:
       "up"
     ]
     volumes:
-      - ./geoqq_http/internal/storage/domain/impl/sql/postgre/migrations:/migrations
+      - ./own_services/common/storage/domain/sql/postgre/migrations:/migrations
     networks:
       - postgre_net
     depends_on:
-      postgre:
+      postgre_domain:
         condition: service_healthy
 
   cache:
@@ -52,7 +52,7 @@ services:
     ports:
       - "${DRAGONFLY_PORT}:${INTERNAL_DRAGONFLY_PORT}"
     volumes:
-      - dragonflydata:/data
+      - dragonfly_data:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep PONG > /dev/null"]
       interval: 5s
@@ -63,7 +63,8 @@ services:
 
   geoqq_http:
     build: 
-      context: geoqq_http      
+      context: ./own_services
+      dockerfile: Dockerfile_geoqq_http
     hostname: geoqq_http
     container_name: geoqq_http
     restart: "on-failure"
@@ -75,8 +76,8 @@ services:
       - GEOQQ_HTTP_PORT=${GEOQQ_HTTP_PORT}
 
       - GEOQQ_HTTP_TOKEN_SIGNING_KEY
-      # - GEOQQ_HTTP_ACCESS_TOKEN_TTL
-      # - GEOQQ_HTTP_REFRESH_TOKEN_TTL
+      - GEOQQ_HTTP_ACCESS_TOKEN_TTL
+      - GEOQQ_HTTP_REFRESH_TOKEN_TTL
 
       - GEOQQ_HTTP_POSTGRE_HOST=${POSTGRE_NAME}
       - GEOQQ_HTTP_POSTGRE_PORT=${INTERNAL_POSTGRE_PORT}
@@ -91,11 +92,11 @@ services:
       - GEOQQ_HTTP_REDIS_DB=${DRAGONFLY_DB}
       
     depends_on:
-      postgre:
+      postgre_domain:
         condition: service_healthy
       cache:
         condition: service_healthy
-      migrate:
+      migrate_domain:
         condition: service_completed_successfully
     networks:
       - all_net
@@ -106,8 +107,8 @@ services:
   # geoqq_ws:
 
 volumes:
-  postgredata:
-  dragonflydata:
+  postgre_domain_data:
+  dragonfly_data:
   geoqqhttp_rotation:
   geoqqhttp_avatar:
 

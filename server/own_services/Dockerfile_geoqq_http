@@ -1,0 +1,26 @@
+FROM golang:1.22.3-alpine3.19 AS build
+
+ENV GOOS linux
+ENV CGO_ENABLED 0
+
+WORKDIR /app
+COPY geoqq_http geoqq_http
+COPY common common
+
+WORKDIR /app/geoqq_http
+RUN go build -ldflags="-s -w" -o ./cmd/main ./cmd/main.go
+
+FROM alpine:3.19
+
+RUN apk update --no-cache
+RUN apk add iputils vim --no-cache
+
+COPY --from=build /app/geoqq_http/assets /app/geoqq_http/assets
+COPY --from=build /app/geoqq_http/internal/config/config.yml /app/geoqq_http/cmd/config.yml
+COPY --from=build /app/geoqq_http/internal/config/for_merge/ /app/geoqq_http/cmd/for_merge/
+
+# Executable File...
+COPY --from=build /app/geoqq_http/cmd/main /app/geoqq_http/cmd/main
+
+WORKDIR /app/geoqq_http/cmd
+CMD ./main
