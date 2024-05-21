@@ -30,6 +30,7 @@
         "psycopg",
         "scottleedavis",
         "smallint",
+        "usecase",
         "Warnf"
     ]
 }
