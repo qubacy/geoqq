@@ -10,7 +10,7 @@ The server sends to the client application.
 
 ```json
 {
-    "event": "updated_public_chat",
+    "event": "updated_public_user",
     "payload": {
         "id": "<id>",
         "username": "<string>",
