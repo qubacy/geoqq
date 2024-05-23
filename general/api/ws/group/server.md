@@ -2,6 +2,8 @@
 
 The server sends to the client application.
 
+## Initiating
+
 ## `PublicUser` 
 
 ### Updated
@@ -95,6 +97,43 @@ The server sends to the client application.
         "text": "<string>",
         "time": "<int>"
     }
+}
+```
+
+## Reactive
+
+Reacting to client packets (errors, etc).
+
+## `UserLocation`
+
+### Failed
+
+```json
+{    
+    "event": "user_location_update_failed",
+    "payload": "<error>"
+}
+```
+
+## `GeoMessage`
+
+### Failed
+
+```json
+{    
+    "event": "geo_message_add_failed",
+    "payload": "<error>"
+}
+```
+
+## `MateMessage`
+
+### Failed
+
+```json
+{    
+    "event": "mate_message_add_failed",
+    "payload": "<error>"
 }
 ```
 
