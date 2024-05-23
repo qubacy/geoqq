@@ -27,6 +27,7 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.type.UserServerEventType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -161,9 +162,10 @@ open class UserDataRepositoryImpl @Inject constructor(
     override fun processWebSocketPayloadResult(
         webSocketPayloadResult: WebSocketPayloadResult
     ): DataResult? {
-        return when (webSocketPayloadResult.payload::class) {
-            UserUpdatedServerEventPayload::class -> processUserUpdatedServerEventPayload(
-                webSocketPayloadResult.payload as UserUpdatedServerEventPayload)
+        return when (webSocketPayloadResult.type) {
+            UserServerEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
+                processUserUpdatedServerEventPayload(
+                    webSocketPayloadResult.payload as UserUpdatedServerEventPayload)
             else -> throw IllegalArgumentException()
         }
     }
