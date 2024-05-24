@@ -5,7 +5,7 @@ import (
 	avatarImpl "common/pkg/avatar/impl"
 	"common/pkg/cache"
 	redisCache "common/pkg/cache/redisCache"
-	geoDistanceImpl "common/pkg/geoDistance/impl/haversine"
+	geoDistanceImpl "common/pkg/geoDistance/haversine"
 	"common/pkg/hash"
 	hashImpl "common/pkg/hash/impl"
 	"common/pkg/logger"

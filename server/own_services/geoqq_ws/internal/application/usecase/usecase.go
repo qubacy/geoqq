@@ -7,7 +7,7 @@ import (
 )
 
 type Dependencies struct {
-	Db        database.Database
+	Database  database.Database
 	Messaging messaging.Messaging
 }
 

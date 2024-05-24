@@ -1,7 +1,9 @@
 package usecase
 
 import (
+	"common/pkg/geoDistance"
 	"common/pkg/utility"
+	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/application/inputPort/dto"
 	"geoqq_ws/internal/application/outputPort/database"
@@ -13,15 +15,20 @@ type UserUsecase struct {
 
 func newUserUsecase(deps Dependencies) *UserUsecase {
 	return &UserUsecase{
-		Db: deps.Db,
+		Db: deps.Database,
 	}
 }
 
 // public
 // -----------------------------------------------------------------------
 
-func (u *UserUsecase) AddUserLocation(ctx context.Context,
-	data dto.AddUserLocation) error {
+func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
+	data dto.UpdateUserLocation) error {
+
+	err := geoDistance.ValidateLatAndLon(data.Longitude, data.Longitude)
+	if err != nil {
+		return utl.NewFuncError(u.UpdateUserLocation, err)
+	}
 
 	// ***
 
@@ -34,4 +41,11 @@ func (u *UserUsecase) AddUserLocation(ctx context.Context,
 	}
 
 	return nil
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func validateLatAndLon(longitude, latitude float64) error {
+
 }

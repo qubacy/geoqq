@@ -1,0 +1,10 @@
+2024/05/22 19:01:51.136107 app/app.go:178 | TRACE | trace
+2024/05/22 19:01:51.156278 app/app.go:179 | DEBUG | debug
+2024/05/22 19:01:51.156278 app/app.go:180 | INFO | info
+2024/05/22 19:01:51.156278 app/app.go:181 | WARNING | warning
+2024/05/22 19:01:51.156278 app/app.go:182 | ERROR | error
+2024/05/22 19:01:51.156800 app/app.go:192 | INFO | storage type: postgre
+2024/05/22 19:01:51.231050 New app failed. Err: app.NewApp
+ with an error/in: app.domainStorageInstance
+ with an error/in: postgre.NewStorage
+ with an error/in: failed to connect to `host=127.0.0.1 user=postgres database=domain`: server error (ВАЖНО: база данных "domain" не существует (SQLSTATE 3D000))

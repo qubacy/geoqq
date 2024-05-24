@@ -1,6 +1,6 @@
 package dto
 
-type AddUserLocation struct {
+type UpdateUserLocation struct {
 	Longitude float64
 	Latitude  float64
 	Radius    uint64

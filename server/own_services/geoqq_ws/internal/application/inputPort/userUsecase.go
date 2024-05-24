@@ -6,5 +6,5 @@ import (
 )
 
 type UserUsecase interface {
-	AddUserLocation(ctx context.Context, data dto.AddUserLocation) error
+	UpdateUserLocation(ctx context.Context, data dto.UpdateUserLocation) error
 }

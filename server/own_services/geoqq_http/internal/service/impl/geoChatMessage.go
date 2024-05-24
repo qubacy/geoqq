@@ -114,6 +114,9 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
+
+	// ***
+
 	err = s.validateDistance(distance)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
@@ -138,18 +141,14 @@ func (s *GeoChatMessageService) GetGeoChatMessages(
 // -----------------------------------------------------------------------
 
 func validateLatAndLon(longitude, latitude float64) error {
-	/*
-		Долгота (longitude) от −180° до +180°
-		Широта (latitude) от −90° до +90°
-	*/
 
 	// Долгота
-	if longitude < -180 || longitude > +180 {
+	if err := geoDistance.ValidateLon(longitude); err != nil {
 		return ec.New(ErrWrongLongitude, ec.Client, ec.WrongLongitude)
 	}
 
 	// Широта
-	if latitude < -90 || latitude > +90 {
+	if err := geoDistance.ValidateLat(latitude); err != nil {
 		return ec.New(ErrWrongLatitude, ec.Client, ec.WrongLatitude)
 	}
 
