@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -22,6 +23,7 @@ import com.qubacy.choosablelistviewlib.helper.ChoosableListItemTouchHelperCallba
 import com.qubacy.choosablelistviewlib.item.animator.ChoosableListItemAnimator
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainer
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.bottomsheet.user.view.UserBottomSheetViewContainerCallback
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
@@ -45,10 +47,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.operation.handler.MateRequestsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MateRequestsFragment(
 
 ) : BusinessFragment<FragmentMateRequestsBinding, MateRequestsUiState, MateRequestsViewModel>(),
@@ -99,6 +99,13 @@ class MateRequestsFragment(
 
         initSurfacePlaceholderViewProvider()
         initHintViewProvider()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     override fun onStart() {

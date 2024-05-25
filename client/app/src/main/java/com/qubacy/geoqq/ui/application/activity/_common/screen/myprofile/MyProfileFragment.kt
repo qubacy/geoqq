@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.myprofile
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.extension.runPermissionCheck
@@ -42,10 +44,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.operation.handler.MyProfileUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.aboutme.AboutMeValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.validator.username.UsernameValidator
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MyProfileFragment(
 
 ) : BusinessFragment<FragmentMyProfileBinding, MyProfileUiState, MyProfileViewModel>(),
@@ -89,6 +89,13 @@ class MyProfileFragment(
         runPermissionCheck<MyProfileFragment>()
 
         initUiControls()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     override fun getPopupAnchorView(): View {

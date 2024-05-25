@@ -22,11 +22,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.MyProfileInputData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.toMyProfileUpdateData
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.toUpdatedMyProfilePresentation
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class MyProfileViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,

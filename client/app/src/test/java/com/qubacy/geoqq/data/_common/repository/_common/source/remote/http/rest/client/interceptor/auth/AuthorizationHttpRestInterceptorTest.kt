@@ -5,10 +5,10 @@ import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.AuthorizationHttpRestInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl.AuthorizationHttpRestInterceptorImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
 import okhttp3.HttpUrl
@@ -32,7 +32,7 @@ class AuthorizationHttpRestInterceptorTest {
     private lateinit var mBufferedSourceMock: BufferedSource
     private lateinit var mChainMock: Chain
 
-    private lateinit var mAuthorizationHttpRestInterceptor: AuthorizationHttpRestInterceptor
+    private lateinit var mAuthorizationHttpRestInterceptor: AuthorizationHttpRestInterceptorImpl
 
     private var mResponseCode: Int? = null
     private var mRequestUrlContainsAuthSegments: Boolean = false
@@ -78,7 +78,7 @@ class AuthorizationHttpRestInterceptorTest {
         val errorJsonAdapterMock = mockErrorJsonAdapter(mBufferedSourceMock)
         val tokenHttpSourceMock = mockHttpTokenDataSource()
 
-        mAuthorizationHttpRestInterceptor = AuthorizationHttpRestInterceptor(
+        mAuthorizationHttpRestInterceptor = AuthorizationHttpRestInterceptorImpl(
             mErrorDataSourceMockContainer.errorDataSourceMock,
             errorJsonAdapterMock,
             mLocalTokenDataStoreDataSourceMockContainer.localTokenDataStoreDataSourceMock,
@@ -118,7 +118,7 @@ class AuthorizationHttpRestInterceptorTest {
                 .host("localhost")
                 .addPathSegment(
                     if (mRequestUrlContainsAuthSegments)
-                        AuthorizationHttpRestInterceptor.AUTH_URL_PATH_SEGMENTS.first()
+                        AuthorizationHttpRestInterceptorImpl.AUTH_URL_PATH_SEGMENTS.first()
                     else String()
                 )
                 .build()

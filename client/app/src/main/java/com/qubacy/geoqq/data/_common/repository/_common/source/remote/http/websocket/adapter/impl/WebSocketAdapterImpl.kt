@@ -7,13 +7,14 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.middleware.client.auth.AuthClientEventJsonMiddleware
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.ClientEventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.impl.ClientEventJsonAdapterImpl
 import okhttp3.WebSocket
+import javax.inject.Inject
 
-class WebSocketAdapterImpl(
+class WebSocketAdapterImpl @Inject constructor(
     webSocket: WebSocket,
     listenerAdapterRef: WebSocketListenerAdapter,
-    private val mClientEventJsonAdapter: ClientEventJsonAdapter,
+    private val mClientEventJsonAdapter: ClientEventJsonAdapterImpl,
     private val mAuthClientEventMiddleware: AuthClientEventJsonMiddleware
 ) : WebSocketAdapter, WebSocketListenerAdapterCallback {
     private val mWebSocket: WebSocket = webSocket

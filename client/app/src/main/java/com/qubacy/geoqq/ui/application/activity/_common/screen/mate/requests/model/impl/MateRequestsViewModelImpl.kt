@@ -22,12 +22,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.update.UpdateRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class MateRequestsViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
@@ -178,7 +176,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
 @Qualifier
 annotation class MateRequestsViewModelFactoryQualifier
 
-class MateRequestsViewModelFactory(
+class MateRequestsViewModelImplFactory(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : AbstractSavedStateViewModelFactory() {

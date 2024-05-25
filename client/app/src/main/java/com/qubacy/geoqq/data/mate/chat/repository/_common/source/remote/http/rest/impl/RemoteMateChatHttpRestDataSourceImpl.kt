@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest.impl
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.RemoteMateChatHttpRestDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.RemoteMateChatHttpRestDataSourceApi
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatResponse
@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class RemoteMateChatHttpRestDataSourceImpl @Inject constructor(
     private val mHttpMateChatDataSourceApi: RemoteMateChatHttpRestDataSourceApi,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpCallExecutor: HttpCallExecutorImpl
 ) : RemoteMateChatHttpRestDataSource {
     override fun getChats(offset: Int, count: Int): GetChatsResponse {
         val getChatsCall = mHttpMateChatDataSourceApi.getChats(offset, count)

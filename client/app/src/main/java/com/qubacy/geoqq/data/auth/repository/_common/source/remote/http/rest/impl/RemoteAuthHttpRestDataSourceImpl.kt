@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest.impl
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.RemoteAuthHttpRestDataSource
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.RemoteAuthHttpRestDataSourceApi
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignInResponse
@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 open class RemoteAuthHttpRestDataSourceImpl @Inject constructor(
     private val mRemoteAuthHttpRestDataSourceApi: RemoteAuthHttpRestDataSourceApi,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpCallExecutor: HttpCallExecutorImpl
 ) : RemoteAuthHttpRestDataSource {
     override fun signIn(
         login: String,

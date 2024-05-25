@@ -7,8 +7,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
+import javax.inject.Inject
 
-class ServerEventJsonAdapter(
+class ServerEventJsonAdapter @Inject constructor(
     private val mCallback: ServerEventJsonAdapterCallback
 ) : JsonAdapter<ServerEvent>() {
     companion object {

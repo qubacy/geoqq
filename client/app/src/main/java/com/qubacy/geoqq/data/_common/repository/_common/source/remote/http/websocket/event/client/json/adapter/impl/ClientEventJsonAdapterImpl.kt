@@ -1,16 +1,12 @@
-package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter
+package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.impl
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter._common.ClientEventJsonAdapter
 import com.squareup.moshi.JsonWriter
 import okio.Buffer
 
-class ClientEventJsonAdapter {
-    companion object {
-        const val TYPE_PROP_NAME = "route"
-        const val PAYLOAD_PROP_NAME = "payload"
-    }
-
-    fun toJson(
+class ClientEventJsonAdapterImpl : ClientEventJsonAdapter {
+    override fun toJson(
         middlewares: List<ClientEventJsonMiddleware>,
         type: String,
         payload: String
@@ -21,12 +17,12 @@ class ClientEventJsonAdapter {
         jsonWriter.use {
             it.beginObject()
 
-            it.name(TYPE_PROP_NAME)
+            it.name(ClientEventJsonAdapter.TYPE_PROP_NAME)
             it.value(type)
 
             applyMiddlewares(it, middlewares)
 
-            it.name(PAYLOAD_PROP_NAME)
+            it.name(ClientEventJsonAdapter.PAYLOAD_PROP_NAME)
             it.jsonValue(payload)
 
             it.endObject()

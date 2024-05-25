@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.login
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import androidx.navigation.Navigation
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.input.text.watcher.error.TextInputErrorCleanerWatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.validator.password.PasswordValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragment
@@ -29,10 +31,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.operation.handler.LoginUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.validator.login.LoginValidator
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class LoginFragment(
 
 ) : BusinessFragment<
@@ -79,6 +79,13 @@ class LoginFragment(
         initUiControls()
 
         setupHeaderAnimation()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     private fun initUiControls() {

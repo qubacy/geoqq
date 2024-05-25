@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest.impl
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.RemoteImageHttpRestDataSource
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.RemoteImageHttpRestDataSourceApi
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api.request.GetImagesRequest
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class RemoteImageHttpRestDataSourceImpl @Inject constructor(
     private val mRemoteImageHttpRestDataSourceApi: RemoteImageHttpRestDataSourceApi,
-    private val mHttpCallExecutor: HttpCallExecutor
+    private val mHttpCallExecutor: HttpCallExecutorImpl
 ) : RemoteImageHttpRestDataSource {
     override fun getImage(id: Long): GetImageResponse {
         val getImageCall = mRemoteImageHttpRestDataSourceApi.getImage(id)

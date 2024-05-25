@@ -9,11 +9,9 @@ import com.qubacy.geoqq.domain.login.usecase._common.result.SignedInDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.operation.SignInUiOperation
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class LoginViewModelImpl @Inject constructor(
     mSavedInstanceState: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
@@ -69,7 +67,7 @@ open class LoginViewModelImpl @Inject constructor(
 @Qualifier
 annotation class LoginViewModelFactoryQualifier
 
-class LoginViewModelFactory(
+class LoginViewModelImplFactory(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mLoginUseCase: LoginUseCase
 ) : AbstractSavedStateViewModelFactory() {

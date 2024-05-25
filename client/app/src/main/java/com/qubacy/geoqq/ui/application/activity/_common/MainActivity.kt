@@ -5,22 +5,17 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.forEach
 import androidx.core.view.updatePadding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.ActivityMainBinding
 import com.qubacy.geoqq.ui._common.util.view.extension.catchViewInsets
 import com.qubacy.geoqq.ui.application.activity._common.component.drawer.MainNavigationDrawer
 import com.yandex.mapkit.MapKitFactory
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 open class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "MainActivity"

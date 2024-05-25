@@ -13,12 +13,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.mode
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.operation.ChangeRadiusUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.state.GeoSettingsUiState
 import com.yandex.mapkit.geometry.Point
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class GeoSettingsViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
@@ -83,7 +81,7 @@ open class GeoSettingsViewModelImpl @Inject constructor(
 @Qualifier
 annotation class GeoSettingsViewModelFactoryQualifier
 
-class GeoSettingsViewModelFactory(
+class GeoSettingsViewModelImplFactory(
     private val mErrorSource: LocalErrorDatabaseDataSource
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

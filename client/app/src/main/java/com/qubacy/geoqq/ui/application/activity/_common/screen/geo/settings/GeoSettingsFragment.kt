@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings
 
 import android.Manifest
+import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentGeoSettingsBinding
 import com.qubacy.geoqq.ui._common.util.theme.extension.resolveColorAttr
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunner
@@ -51,10 +53,8 @@ import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CircleMapObject
 import com.yandex.mapkit.map.MapLoadStatistics
 import com.yandex.mapkit.map.MapLoadedListener
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class GeoSettingsFragment(
 
 ) : StatefulFragment<
@@ -108,6 +108,13 @@ class GeoSettingsFragment(
         initUiControls()
 
         initHintViewProvider()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     override fun getPopupAnchorView(): View {

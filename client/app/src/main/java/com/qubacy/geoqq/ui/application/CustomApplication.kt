@@ -14,14 +14,16 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.source.
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore.impl.LocalTokenDataStoreDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response._common.json.adapter.StringJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.AuthorizationHttpRestInterceptor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl.AuthorizationHttpRestInterceptorImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.container.WebSocketInitContainer
 import com.qubacy.geoqq.data._common.repository.token.repository.impl.TokenDataRepositoryImpl
+import com.qubacy.geoqq.ui.application.dependency.CustomApplicationComponent
+import com.qubacy.geoqq.ui.application.dependency.DaggerCustomApplicationComponent
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yandex.mapkit.MapKitFactory
@@ -34,6 +36,12 @@ class CustomApplication : Application() {
     companion object {
         const val TAG = "CustomApplication"
     }
+
+    val customApplicationComponent: CustomApplicationComponent by lazy {
+        DaggerCustomApplicationComponent.factory().create(applicationContext)
+    }
+
+
 
     private lateinit var mHttpClient: OkHttpClient
     val httpClient get() = mHttpClient
@@ -63,6 +71,7 @@ class CustomApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
 
         initLocals()
         initRemotes()
@@ -118,7 +127,7 @@ class CustomApplication : Application() {
         moshi: Moshi,
         errorJsonAdapter: ErrorJsonAdapter
     ): HttpRestApi {
-        val httpCallExecutor = HttpCallExecutor(mLocalErrorDataSource, errorJsonAdapter)
+        val httpCallExecutor = HttpCallExecutorImpl(mLocalErrorDataSource, errorJsonAdapter)
 
         val remoteTokenHttpRestDataSource = RemoteTokenHttpRestDataSourceImpl(httpCallExecutor)
 
@@ -128,7 +137,7 @@ class CustomApplication : Application() {
             remoteTokenHttpRestDataSource
         )
 
-        val authorizationHttpRestInterceptor = AuthorizationHttpRestInterceptor(
+        val authorizationHttpRestInterceptor = AuthorizationHttpRestInterceptorImpl(
             mLocalErrorDataSource,
             ErrorJsonAdapter(),
             tokenDataRepository

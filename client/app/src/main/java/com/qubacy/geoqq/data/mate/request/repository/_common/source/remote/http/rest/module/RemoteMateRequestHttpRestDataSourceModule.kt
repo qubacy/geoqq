@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.RemoteMateRequestHttpRestDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest.impl.RemoteMateRequestHttpRestDataSourceImpl
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.RemoteMateRequestHttpRestDataSourceApi
@@ -15,7 +15,7 @@ object RemoteMateRequestHttpRestDataSourceModule {
     @Provides
     fun provideRemoteMateRequestHttpRestDataSource(
         remoteMateRequestHttpRestDataSourceApi: RemoteMateRequestHttpRestDataSourceApi,
-        httpCallExecutor: HttpCallExecutor
+        httpCallExecutor: HttpCallExecutorImpl
     ): RemoteMateRequestHttpRestDataSource {
         return RemoteMateRequestHttpRestDataSourceImpl(
             remoteMateRequestHttpRestDataSourceApi, httpCallExecutor)

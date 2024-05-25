@@ -1,6 +1,6 @@
 package com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.HttpCallExecutor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.RemoteGeoMessageHttpRestDataSource
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest.impl.RemoteGeoMessageHttpRestDataSourceImpl
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api.RemoteGeoMessageHttpRestDataSourceApi
@@ -15,7 +15,7 @@ object RemoteGeoChatHttpRestDataSourceModule {
     @Provides
     fun provideRemoteGeoChatHttpRestDataSource(
         httpGeoMessageDataSourceApi: RemoteGeoMessageHttpRestDataSourceApi,
-        httpCallExecutor: HttpCallExecutor
+        httpCallExecutor: HttpCallExecutorImpl
     ): RemoteGeoMessageHttpRestDataSource {
         return RemoteGeoMessageHttpRestDataSourceImpl(httpGeoMessageDataSourceApi, httpCallExecutor)
     }

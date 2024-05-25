@@ -6,15 +6,12 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http._comm
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client.interceptor.logger.LoggerHttpInterceptor
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 @Module
-@InstallIn(SingletonComponent::class)
-object HttpClientModule {
+abstract class HttpClientModule {
     @Provides
     fun provideHttpClient(
         localErrorDataSource: LocalErrorDatabaseDataSource

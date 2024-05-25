@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatsBinding
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.placeholder.SurfacePlaceholderViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunner
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.util.permission.PermissionRunnerCallback
@@ -36,10 +38,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.operation.handler.MateChatsUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MateChatsFragment(
 
 ) : BusinessFragment<
@@ -88,6 +88,13 @@ class MateChatsFragment(
         }
 
         initSurfacePlaceholderViewProvider()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     override fun retrieveToolbar(): MaterialToolbar {

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat
 
+import android.content.Context
 import android.graphics.Shader
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui._common.tile.TileDrawable
+import com.qubacy.geoqq.ui.application.CustomApplication
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizedFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.operation.handler.AuthorizedUiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.ChatFragment
@@ -52,10 +54,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.operation.handler.MateChatUiOperationHandler
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MateChatFragment(
 
 ) : BusinessFragment<FragmentMateChatBinding, MateChatUiState, MateChatViewModel>(),
@@ -113,6 +113,13 @@ class MateChatFragment(
         runPermissionCheck<MateChatFragment>()
 
         initUiControls()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (requireActivity().application as CustomApplication)
+            .customApplicationComponent.inject(this)
     }
 
     override fun onStop() {

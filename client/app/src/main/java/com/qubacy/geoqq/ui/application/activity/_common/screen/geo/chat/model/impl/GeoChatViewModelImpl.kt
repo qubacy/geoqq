@@ -19,11 +19,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._c
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class GeoChatViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
@@ -178,7 +176,7 @@ open class GeoChatViewModelImpl @Inject constructor(
 @Qualifier
 annotation class GeoChatViewModelFactoryQualifier
 
-class GeoChatViewModelFactory(
+class GeoChatViewModelImplFactory(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mGeoChatUseCase: GeoChatUseCase
 ) : AbstractSavedStateViewModelFactory() {

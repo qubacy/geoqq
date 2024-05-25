@@ -26,11 +26,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Qualifier
 
-@HiltViewModel
 open class MateChatViewModelImpl @Inject constructor(
     mSavedStateHandle: SavedStateHandle,
     mErrorSource: LocalErrorDatabaseDataSource,
@@ -252,7 +250,7 @@ open class MateChatViewModelImpl @Inject constructor(
 @Qualifier
 annotation class MateChatViewModelFactoryQualifier
 
-class MateChatViewModelFactory(
+class MateChatViewModelImplFactory(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateChatUseCase: MateChatUseCase
 ) : AbstractSavedStateViewModelFactory() {

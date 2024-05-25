@@ -1,32 +1,26 @@
-package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth
+package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl
 
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_NAME
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_VALUE_FORMAT
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_URL_PATH_SEGMENTS
 import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import okhttp3.Interceptor
 import okhttp3.Interceptor.Chain
 import okhttp3.Request
 import okhttp3.Response
 import javax.inject.Inject
 
-class AuthorizationHttpRestInterceptor @Inject constructor(
+class AuthorizationHttpRestInterceptorImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mErrorJsonAdapter: ErrorJsonAdapter,
     private val mTokenDataRepository: TokenDataRepository
-) : Interceptor {
-    companion object {
-        const val TAG = "AuthHttpIntercptr"
-
-        const val AUTH_TOKEN_HEADER_NAME = "Authorization"
-        const val AUTH_TOKEN_HEADER_VALUE_FORMAT = "Bearer %1\$s"
-
-        val AUTH_URL_PATH_SEGMENTS = arrayOf("sign-in", "sign-up")
-    }
-
+) : AuthorizationHttpRestInterceptor {
     private val mAuthMutex = Mutex()
 
     override fun intercept(chain: Chain): Response {

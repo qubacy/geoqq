@@ -1,16 +1,14 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.ClientEventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter._common.ClientEventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.impl.ClientEventJsonAdapterImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object ClientEventJsonAdapterModule {
-    @Provides
-    fun provideClientEventJsonAdapter(): ClientEventJsonAdapter {
-        return ClientEventJsonAdapter()
-    }
+abstract class ClientEventJsonAdapterModule {
+    @Binds
+    abstract fun bindClientEventJsonAdapter(
+        clientEventJsonAdapter: ClientEventJsonAdapterImpl
+    ): ClientEventJsonAdapter
 }
