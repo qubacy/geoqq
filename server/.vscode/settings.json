@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "amqp",
         "asmarques",
         "bigserial",
         "cristalhq",
@@ -28,9 +29,11 @@
         "pgxpool",
         "postgre",
         "psycopg",
+        "rabbitmq",
         "scottleedavis",
         "smallint",
         "usecase",
+        "wagslane",
         "Warnf"
     ]
 }

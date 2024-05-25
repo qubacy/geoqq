@@ -1,9 +1,9 @@
 package api
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	"geoqq_http/internal/delivery/http/api/dto"
-	se "geoqq_http/internal/pkg/errorForClient/impl"
 	"geoqq_http/internal/service"
 	serviceDto "geoqq_http/internal/service/dto"
 
@@ -54,7 +54,7 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 
 	if err != nil { // error may belong to different sides!
 		logger.Warning("%v", err)
-		side, code := se.UnwrapErrorsToLastSideAndCode(err)
+		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
 	}
@@ -128,7 +128,7 @@ func extractLoginAndPassword(ctx *gin.Context) {
 	)
 	if len(login) == 0 || len(password) == 0 {
 		resWithClientError(ctx,
-			se.ValidateRequestParamsFailed,
+			ec.ValidateRequestParamsFailed,
 			ErrEmptyRequestParameter,
 		)
 		return
@@ -146,7 +146,7 @@ func extractRefreshToken(ctx *gin.Context) {
 	)
 	if len(refreshToken) == 0 {
 		resWithClientError(ctx,
-			se.ValidateRequestParamsFailed, // ?
+			ec.ValidateRequestParamsFailed, // ?
 			ErrEmptyRequestParameterWithName("RefreshToken"),
 		)
 		return

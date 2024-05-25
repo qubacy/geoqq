@@ -72,7 +72,7 @@ type MateMessage struct {
 	Text   string  `json:"text"`
 	Time   float64 `json:"time"`
 	UserId float64 `json:"user-id"`
-	Read   bool    `json:"read"`
+	Read   bool    `json:"read"` // TODO: next version.
 }
 
 func NewMateMessageFromDomain(mateMessage *domain.MateMessage) (

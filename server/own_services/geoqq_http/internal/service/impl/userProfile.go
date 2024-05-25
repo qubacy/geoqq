@@ -1,11 +1,12 @@
 package impl
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
+	"geoqq_http/internal/infra/msgs"
 	"geoqq_http/internal/service/dto"
 	dsDto "geoqq_http/internal/storage/domain/dto"
 	"time"
@@ -16,6 +17,8 @@ type UserProfileService struct {
 	accessTokenTTL time.Duration
 	userParams     UserParams
 	validators     Validators
+
+	msgs msgs.Msgs
 }
 
 func newUserProfileService(deps Dependencies) (*UserProfileService, error) {
@@ -30,6 +33,8 @@ func newUserProfileService(deps Dependencies) (*UserProfileService, error) {
 		},
 		accessTokenTTL: deps.AccessTokenTTL,
 		userParams:     deps.UserParams,
+
+		msgs: deps.Msgs,
 	}
 
 	// ***
@@ -144,14 +149,22 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	// update
 
 	if err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto); err != nil {
-		return ec.New(utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.DomainStorageError)
+		return ec.New(utl.NewFuncError(sourceFunc, err), ec.Server, ec.DomainStorageError)
 	}
 
-	p.executeUpdateChangeUsernameCacheIfNeeded(ctx,
-		userId, storageDto.Username != nil)
+	// additional actions..!
+
+	if p.msgs != nil {
+		if err = p.msgs.SendPublicUser(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
+			err = utl.NewFuncError(sourceFunc, err)
+			logger.Warning("%v", err)
+		}
+	}
+
+	p.executeUpdateChangeUsernameCacheIfNeeded(ctx, userId, storageDto.Username != nil)
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+
 	return nil
 }
 
@@ -245,6 +258,7 @@ func (p *UserProfileService) executeUpdateChangeUsernameCacheIfNeeded(
 	ctx context.Context, userId uint64, usernameWasChanged bool) {
 	if p.enableCache && usernameWasChanged {
 		if err := p.updateChangeUsernameCache(ctx, userId); err != nil {
+			err = utl.NewFuncError(p.executeUpdateChangeUsernameCacheIfNeeded, err)
 			logger.Warning("%v", err)
 		} else {
 			logger.Debug("change username cache updated for user %v", userId)

@@ -1,10 +1,10 @@
 package api
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	"common/pkg/utility"
 	"geoqq_http/internal/delivery/http/api/dto"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	"strings"
 
 	"github.com/gin-gonic/gin"

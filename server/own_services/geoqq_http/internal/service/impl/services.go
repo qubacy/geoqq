@@ -6,6 +6,7 @@ import (
 	"common/pkg/geoDistance"
 	"common/pkg/hash"
 	"common/pkg/token"
+	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
 	fileStorage "geoqq_http/internal/storage/file"
 	"time"
@@ -73,6 +74,9 @@ type Dependencies struct {
 
 	EnableCache bool
 	Cache       cache.Cache
+
+	EnableMsgs bool
+	Msgs       msgs.Msgs
 
 	DomainStorage   domainStorage.Storage
 	FileStorage     fileStorage.Storage

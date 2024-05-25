@@ -1,12 +1,12 @@
 package impl
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	utl "common/pkg/utility"
 	"context"
 	"crypto/md5"
 	"fmt"
 	"geoqq_http/internal/domain"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq_http/internal/storage/domain"
 	fileStorage "geoqq_http/internal/storage/file"
 	"strconv"

@@ -1,13 +1,13 @@
 package impl
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/file"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/base64"
 	"errors"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	"geoqq_http/internal/service/dto"
 	"net/http"
 

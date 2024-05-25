@@ -1,9 +1,9 @@
 package api
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	"errors"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	"strconv"
 	"strings"
 

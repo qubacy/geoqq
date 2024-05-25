@@ -2,7 +2,7 @@ package anytime
 
 import (
 	"common/pkg/file"
-	hashImpl "common/pkg/hash/impl"
+	hashImpl "common/pkg/hash/basic"
 	"context"
 	"flag"
 	"fmt"

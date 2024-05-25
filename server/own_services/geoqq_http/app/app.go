@@ -7,7 +7,7 @@ import (
 	redisCache "common/pkg/cache/redisCache"
 	geoDistanceImpl "common/pkg/geoDistance/haversine"
 	"common/pkg/hash"
-	hashImpl "common/pkg/hash/impl"
+	basicHash "common/pkg/hash/basic"
 	"common/pkg/logger"
 	"common/pkg/logger/impl"
 	"common/pkg/token"
@@ -18,6 +18,8 @@ import (
 	"geoqq_http/app/firstStart"
 	"geoqq_http/internal/config"
 	deliveryHttp "geoqq_http/internal/delivery/http"
+	"geoqq_http/internal/infra/msgs"
+	"geoqq_http/internal/infra/msgs/rabbit"
 	"geoqq_http/internal/server"
 	"geoqq_http/internal/service"
 	serviceImpl "geoqq_http/internal/service/impl"
@@ -69,6 +71,15 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 		}
 	}
 
+	var msgsInst msgs.Msgs = nil
+	enableMsgs := viper.GetBool("msgs.enable")
+	if enableMsgs {
+		msgsInst, err = createMsgsInstance()
+		if err != nil {
+			return nil, utl.NewFuncError(NewApp, err)
+		}
+	}
+
 	// *** storage
 
 	domainStorage, err := domainStorageInstance(ctxWithCancel)
@@ -96,7 +107,8 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 
 	services, err := servicesInstance(
 		tokenManager, hashManager,
-		cacheInst, domainStorage, fileStorage,
+		cacheInst, msgsInst,
+		domainStorage, fileStorage,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(NewApp, err)
@@ -259,6 +271,7 @@ func servicesInstance(
 	tokenManager token.TokenManager,
 	hashManager hash.HashManager,
 	cacheInstance cache.Cache,
+	msgsInstance msgs.Msgs,
 	domainStorage domainStorage.Storage,
 	fileStorage fileStorage.Storage) (
 	service.Services, error,
@@ -280,8 +293,12 @@ func servicesInstance(
 		AccessTokenTTL:  viper.GetDuration("delivery.token.access_ttl"),
 		RefreshTokenTTL: viper.GetDuration("delivery.token.refresh_ttl"),
 
-		EnableCache:     bool(cacheInstance != nil),
-		Cache:           cacheInstance,
+		EnableCache: bool(cacheInstance != nil),
+		Cache:       cacheInstance,
+
+		EnableMsgs: bool(msgsInstance != nil),
+		Msgs:       msgsInstance,
+
 		DomainStorage:   domainStorage,
 		FileStorage:     fileStorage,
 		AvatarGenerator: avatarGenerator,
@@ -371,15 +388,40 @@ func createCacheInstance() (cache.Cache, error) {
 	return cacheInstance, nil
 }
 
+func createMsgsInstance() (msgs.Msgs, error) {
+	msgsType := viper.GetString("msgs.type")
+	logger.Info("msgs type: %v", msgsType)
+
+	var err error
+	var msgsInstance msgs.Msgs
+	if msgsType == "rabbit" {
+		msgsInstance, err = rabbit.New(context.Background(),
+			rabbit.InputParams{
+				Host:         viper.GetString("msgs.rabbit.host"),
+				Port:         viper.GetUint16("msgs.rabbit.port"),
+				Username:     viper.GetString("msgs.rabbit.username"),
+				Password:     viper.GetString("msgs.rabbit.password"),
+				ExchangeName: viper.GetString("msgs.rabbit.exchange_name"),
+			})
+	} else {
+		return nil, ErrMsgsTypeIsNotDefined
+	}
+
+	if err != nil {
+		return nil, utl.NewFuncError(NewApp, err)
+	}
+	return msgsInstance, nil
+}
+
 func hashManagerInstance() (hash.HashManager, error) {
-	hashType, err := hashImpl.StrToHashType(
+	hashType, err := basicHash.StrToHashType(
 		viper.GetString("storage.hash_type"))
 
 	if err != nil {
 		return nil, utl.NewFuncError(hashManagerInstance, err)
 	}
 
-	hashManager, err := hashImpl.NewHashManager(hashType)
+	hashManager, err := basicHash.NewHashManager(hashType)
 	if err != nil {
 		return nil, utl.NewFuncError(hashManagerInstance, err)
 	}

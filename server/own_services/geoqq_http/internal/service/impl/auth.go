@@ -2,13 +2,13 @@ package impl
 
 import (
 	"common/pkg/avatar"
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/file"
 	"common/pkg/logger"
 	"common/pkg/token"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	"geoqq_http/internal/service"
 	"geoqq_http/internal/service/dto"
 	"time"

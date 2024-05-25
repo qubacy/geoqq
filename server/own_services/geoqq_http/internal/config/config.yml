@@ -84,7 +84,7 @@ storage:
 
         user: "postgres"
         password: "admin"
-        database: "domain"
+        database: "geoqq"
 
         background:
           max_worker_count: 2 # goroutines and channels...
@@ -93,6 +93,17 @@ storage:
 
       sqlite:
         #...
+
+msgs:
+  enable: true
+  type: "rabbit"
+
+  rabbit:
+    host: "127.0.0.1"
+    port: 5672
+    username: "guest"
+    password: "guest"
+    exchange_name: "geoqq"
 
 cache:
   enable: false

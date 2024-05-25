@@ -1,11 +1,11 @@
 package impl
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain/table"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	"geoqq_http/internal/service/dto"
 	domainStorage "geoqq_http/internal/storage/domain"
 )

@@ -2,11 +2,11 @@ package impl
 
 import (
 	"common/pkg/cache"
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/hash"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/hex"
-	ec "geoqq_http/internal/pkg/errorForClient/impl"
 	domainStorage "geoqq_http/internal/storage/domain"
 	fileStorage "geoqq_http/internal/storage/file"
 	"regexp"
