@@ -6,6 +6,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.factory.FakeMateChatsViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.factory._test.mock.MateChatsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._di.module.MateChatsViewModelModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ActivityRetainedComponent

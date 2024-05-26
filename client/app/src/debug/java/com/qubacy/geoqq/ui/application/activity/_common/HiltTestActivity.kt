@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.ViewGroup.LayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import com.qubacy.geoqq.ui.application.activity._common.component.drawer.MainNavigationDrawer
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class HiltTestActivity : MainActivity() {
     private lateinit var mRootView: DrawerLayout
 

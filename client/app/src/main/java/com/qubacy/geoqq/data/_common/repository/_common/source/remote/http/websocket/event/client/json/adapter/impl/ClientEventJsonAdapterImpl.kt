@@ -1,11 +1,12 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.impl
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter._common.ClientEventJsonAdapter
 import com.squareup.moshi.JsonWriter
 import okio.Buffer
+import javax.inject.Inject
 
-class ClientEventJsonAdapterImpl : ClientEventJsonAdapter {
+class ClientEventJsonAdapterImpl @Inject constructor() : ClientEventJsonAdapter {
     override fun toJson(
         middlewares: List<ClientEventJsonMiddleware>,
         type: String,

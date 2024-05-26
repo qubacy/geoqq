@@ -14,7 +14,7 @@ import javax.inject.Inject
 open class HttpCallExecutorImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mErrorJsonAdapter: ErrorJsonAdapter
-) {
+) : HttpCallExecutor {
     open fun <ResponseBodyType>executeNetworkRequest(
         call: Call<ResponseBodyType>
     ): ResponseBodyType {

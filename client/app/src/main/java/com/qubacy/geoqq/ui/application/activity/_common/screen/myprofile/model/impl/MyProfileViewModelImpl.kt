@@ -130,7 +130,7 @@ open class MyProfileViewModelImpl @Inject constructor(
 @Qualifier
 annotation class MyProfileViewModelFactoryQualifier
 
-class MyProfileViewModelImplFactory(
+class MyProfileViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMyProfileUseCase: MyProfileUseCase
 ) : AbstractSavedStateViewModelFactory() {

@@ -176,7 +176,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
 @Qualifier
 annotation class MateRequestsViewModelFactoryQualifier
 
-class MateRequestsViewModelImplFactory(
+class MateRequestsViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestsUseCase: MateRequestsUseCase
 ) : AbstractSavedStateViewModelFactory() {

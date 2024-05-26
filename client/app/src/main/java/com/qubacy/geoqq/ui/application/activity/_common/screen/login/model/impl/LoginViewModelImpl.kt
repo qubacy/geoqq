@@ -67,7 +67,7 @@ open class LoginViewModelImpl @Inject constructor(
 @Qualifier
 annotation class LoginViewModelFactoryQualifier
 
-class LoginViewModelImplFactory(
+class LoginViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mLoginUseCase: LoginUseCase
 ) : AbstractSavedStateViewModelFactory() {

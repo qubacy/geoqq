@@ -176,7 +176,7 @@ open class GeoChatViewModelImpl @Inject constructor(
 @Qualifier
 annotation class GeoChatViewModelFactoryQualifier
 
-class GeoChatViewModelImplFactory(
+class GeoChatViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mGeoChatUseCase: GeoChatUseCase
 ) : AbstractSavedStateViewModelFactory() {

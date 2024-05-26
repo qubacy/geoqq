@@ -6,6 +6,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.im
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory.FakeGeoChatViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._di.module.GeoChatViewModelModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ActivityRetainedComponent

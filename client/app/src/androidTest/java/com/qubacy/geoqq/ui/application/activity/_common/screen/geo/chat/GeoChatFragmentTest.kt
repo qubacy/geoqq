@@ -18,7 +18,7 @@ import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module.FakeGeoChatViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module.GeoChatViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._di.module.GeoChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId

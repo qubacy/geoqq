@@ -19,7 +19,7 @@ import com.qubacy.geoqq.databinding.FragmentMateRequestsBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.factory._test.mock.MateRequestsViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model.module.MateRequestsViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._di.module.MateRequestsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction

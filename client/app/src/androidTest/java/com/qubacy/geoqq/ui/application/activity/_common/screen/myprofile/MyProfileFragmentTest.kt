@@ -16,7 +16,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.module.MyProfileViewModelModule
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._di.module.MyProfileViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId

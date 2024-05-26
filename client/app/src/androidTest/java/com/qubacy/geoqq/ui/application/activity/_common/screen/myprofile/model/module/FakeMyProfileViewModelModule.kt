@@ -6,6 +6,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.i
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory.FakeMyProfileViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
+import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._di.module.MyProfileViewModelModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ActivityRetainedComponent

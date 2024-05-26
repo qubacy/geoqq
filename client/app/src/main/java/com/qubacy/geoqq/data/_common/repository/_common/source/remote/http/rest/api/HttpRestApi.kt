@@ -9,21 +9,16 @@ import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.RemoteMateRequestHttpRestDataSourceApi
 import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api.RemoteMyProfileHttpRestDataSourceApi
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.RemoteUserHttpRestDataSourceApi
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class HttpRestApi @Inject constructor(
-    httpClient: OkHttpClient,
+class HttpRestApi(
     retrofit: Retrofit
 ) {
     companion object {
         const val TAG = "HttpApi"
     }
-
-    val okHttpClient = httpClient
 
     val tokenApi: RemoteTokenHttpRestDataSourceApi = retrofit.create(
         RemoteTokenHttpRestDataSourceApi::class.java)

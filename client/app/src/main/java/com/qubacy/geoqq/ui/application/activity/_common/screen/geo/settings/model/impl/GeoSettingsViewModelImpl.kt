@@ -81,7 +81,7 @@ open class GeoSettingsViewModelImpl @Inject constructor(
 @Qualifier
 annotation class GeoSettingsViewModelFactoryQualifier
 
-class GeoSettingsViewModelImplFactory(
+class GeoSettingsViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(

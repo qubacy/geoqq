@@ -153,7 +153,7 @@ open class MateChatsViewModelImpl @Inject constructor(
 @Qualifier
 annotation class MateChatsViewModelFactoryQualifier
 
-class MateChatsViewModelImplFactory(
+class MateChatsViewModelImplFactory @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mMateChatsUseCase: MateChatsUseCase
 ) : AbstractSavedStateViewModelFactory() {

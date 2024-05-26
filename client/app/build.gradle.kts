@@ -6,7 +6,6 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs.kotlin")
     kotlin("kapt")
-    id("com.google.dagger.hilt.android")
 }
 
 val mapKitKey: String = gradleLocalProperties(rootDir).getProperty("MAPKIT_API_KEY")
@@ -69,8 +68,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    implementation("com.google.dagger:dagger:$hiltVersion")
+    kapt("com.google.dagger:dagger-compiler:$hiltVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
