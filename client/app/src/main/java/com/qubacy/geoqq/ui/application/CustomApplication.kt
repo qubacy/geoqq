@@ -3,6 +3,7 @@ package com.qubacy.geoqq.ui.application
 import android.app.Application
 import com.qubacy.geoqq.BuildConfig
 import com.qubacy.geoqq.ui._di.component.CustomApplicationComponent
+import com.qubacy.geoqq.ui._di.component.DaggerCustomApplicationComponent
 import com.yandex.mapkit.MapKitFactory
 
 class CustomApplication : Application() {

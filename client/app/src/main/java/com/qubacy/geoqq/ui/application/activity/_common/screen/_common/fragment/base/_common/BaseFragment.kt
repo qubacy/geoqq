@@ -113,15 +113,18 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
                 ) {
                     if (destination.id == getFragmentDestinationId()) return
 
-                    Log.d(com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment.Companion.TAG, "onDestinationChanged(): destination = $destination;")
+                    Log.d(TAG, "onDestinationChanged(): destination = $destination;")
 
                     afterDestinationChange()
+                    controller.removeOnDestinationChangedListener(this)
                 }
             })
     }
 
     @CallSuper
     protected open fun afterDestinationChange() {
+        Log.d(TAG, "afterDestinationChange(): destinationId = ${getFragmentDestinationId()};")
+
         mAppBar?.apply {
             title = getFragmentTitle()
         }

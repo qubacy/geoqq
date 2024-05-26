@@ -8,10 +8,13 @@ import dagger.Provides
 
 @Module
 abstract class UserUpdatedServerEventPayloadJsonAdapterModule {
-    @Provides
-    fun provideUserUpdatedServerEventPayloadJsonAdapter(
-        moshi: Moshi
-    ): JsonAdapter<UserUpdatedServerEventPayload> {
-        return moshi.adapter(UserUpdatedServerEventPayload::class.java)
+    companion object {
+        @JvmStatic
+        @Provides
+        fun provideUserUpdatedServerEventPayloadJsonAdapter(
+            moshi: Moshi
+        ): JsonAdapter<UserUpdatedServerEventPayload> {
+            return moshi.adapter(UserUpdatedServerEventPayload::class.java)
+        }
     }
 }

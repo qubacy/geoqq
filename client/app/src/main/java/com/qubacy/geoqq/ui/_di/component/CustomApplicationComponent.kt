@@ -13,6 +13,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.retrofit._di.module.RetrofitModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._di.module.AuthorizationHttpRestInterceptorModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.component.WebSocketComponent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._di.module.LocalTokenDataStoreDataSourceModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api._di.module.RemoteTokenHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._di.module.RemoteTokenHttpRestDataSourceModule
@@ -49,6 +50,7 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._di.module.LocalUserDatabaseDataSourceModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api._di.module.RemoteUserHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._di.module.RemoteUserHttpRestDataSourceModule
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.json.adapter.module.UserUpdatedServerEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._di.module.RemoteUserHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.user.repository._di.module.UserDataRepositoryModule
 import com.qubacy.geoqq.domain.geo.chat.usecase._di.module.GeoChatUseCaseModule
@@ -66,6 +68,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._d
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.GeoSettingsFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._di.module.GeoSettingsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.LoginFragment
+import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._di.module.LoginViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.MateChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._di.module.MateChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
@@ -76,9 +79,6 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.MyProfi
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._di.module.MyProfileViewModelModule
 import dagger.BindsInstance
 import dagger.Component
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Singleton
@@ -86,6 +86,9 @@ import javax.inject.Singleton
     modules = [
         CustomApplicationSubcomponentsModule::class,
 
+        WebSocketAdapterModule::class,
+
+        LoginViewModelModule::class,
         GeoSettingsViewModelModule::class,
         GeoChatViewModelModule::class,
         MateChatsViewModelModule::class,
@@ -153,6 +156,7 @@ import javax.inject.Singleton
         AuthorizationHttpRestInterceptorModule::class,
 
         ErrorJsonAdapterModule::class,
+        UserUpdatedServerEventPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,
         RetrofitModule::class
