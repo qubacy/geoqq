@@ -7,7 +7,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-object HttpRestApiModule {
+abstract class HttpRestApiModule {
     @Provides
     fun provideHttpRestApi(
         context: Context

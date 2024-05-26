@@ -10,7 +10,9 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.result.
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.update.UpdateTokensDataResult
 import com.qubacy.geoqq.data._common.repository.token.repository._common.util.TokenUtils
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TokenDataRepositoryImpl @Inject constructor(
     private val mLocalErrorDatabaseDataSource: LocalErrorDatabaseDataSource,
     private val mLocalTokenDataStoreDataSource: LocalTokenDataStoreDataSource,

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.dependency
 
+import android.content.ContentResolver
 import android.content.Context
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.GeoChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.GeoSettingsFragment
@@ -17,7 +18,10 @@ import javax.inject.Singleton
 interface CustomApplicationComponent {
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance context: Context): CustomApplicationComponent
+        fun create(
+            @BindsInstance context: Context,
+            @BindsInstance contentResolver: ContentResolver = context.contentResolver
+        ): CustomApplicationComponent
     }
 
     fun inject(fragment: LoginFragment)

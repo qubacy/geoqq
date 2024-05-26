@@ -1,23 +1,26 @@
 package com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore.module
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource
-import com.qubacy.geoqq.ui.application.CustomApplication
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.tokenDataStore
+import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore.impl.LocalTokenDataStoreDataSourceImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object LocalTokenDataStoreDataSourceModule {
-    @Provides
-    fun provideLocalTokenDataStoreDataSource(
-        @ApplicationContext context: Context
-    ): LocalTokenDataStoreDataSource {
-        val application = (context as CustomApplication)
+abstract class LocalTokenDataStoreDataSourceModule {
+    @Binds
+    abstract fun bindLocalTokenDataStoreDataSource(
+        localTokenDataStoreDataSource: LocalTokenDataStoreDataSourceImpl
+    ): LocalTokenDataStoreDataSource
 
-        return application.localTokenDataStoreDataSource
+    @Provides
+    fun provideLocalTokenDataStore(
+        context: Context
+    ): DataStore<Preferences> {
+        return context.tokenDataStore
     }
 }

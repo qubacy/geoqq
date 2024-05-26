@@ -1,19 +1,23 @@
 package com.qubacy.geoqq.data._common.repository._common.source.local.database._common.module
 
 import android.content.Context
+import androidx.room.Room
 import com.qubacy.geoqq.data._common.repository._common.source.local.database._common.Database
-import com.qubacy.geoqq.ui.application.CustomApplication
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
 abstract class DatabaseModule {
+    @Singleton
     @Provides
     fun provideDatabase(
         context: Context
     ): Database {
-        val application = (context as CustomApplication)
-
-        return application.db
+        return Room.databaseBuilder(
+            context, Database::class.java, Database.DATABASE_NAME)
+            .fallbackToDestructiveMigration()
+            .createFromAsset(Database.DATABASE_NAME)
+            .build()
     }
 }

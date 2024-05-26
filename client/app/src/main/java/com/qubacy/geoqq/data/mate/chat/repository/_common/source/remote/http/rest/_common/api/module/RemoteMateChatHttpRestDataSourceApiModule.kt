@@ -4,14 +4,11 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.RemoteMateChatHttpRestDataSourceApi
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object RemoteMateChatHttpRestDataSourceApiModule {
+abstract class RemoteMateChatHttpRestDataSourceApiModule {
     @Provides
-    fun provideRemoteMateChatHttpRestDataSourceApi(
+    fun bindRemoteMateChatHttpRestDataSourceApi(
         httpRestApi: HttpRestApi
     ): RemoteMateChatHttpRestDataSourceApi {
         return httpRestApi.mateChatApi

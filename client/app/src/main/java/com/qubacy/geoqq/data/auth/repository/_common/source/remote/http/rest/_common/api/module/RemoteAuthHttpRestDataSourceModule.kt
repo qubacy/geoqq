@@ -4,12 +4,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.RemoteAuthHttpRestDataSourceApi
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object RemoteAuthHttpRestDataSourceModule {
+abstract class RemoteAuthHttpRestDataSourceModule {
     @Provides
     fun provideRemoteAuthHttpRestDataSource(
         httpRestApi: HttpRestApi

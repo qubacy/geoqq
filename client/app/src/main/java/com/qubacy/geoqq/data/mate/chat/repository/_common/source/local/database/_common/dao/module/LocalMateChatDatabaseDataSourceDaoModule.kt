@@ -4,12 +4,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database._c
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.dao.LocalMateChatDatabaseDataSourceDao
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object LocalMateChatDatabaseDataSourceDaoModule {
+abstract class LocalMateChatDatabaseDataSourceDaoModule {
     @Provides
     fun provideLocalMateChatDatabaseDataSourceDao(
         database: Database

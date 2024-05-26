@@ -3,8 +3,9 @@ package com.qubacy.geoqq.data.user.repository._common.source.local.database.impl
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.LocalUserDatabaseDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.dao.LocalUserDatabaseDataSourceDao
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
+import javax.inject.Inject
 
-class LocalUserDatabaseDataSourceImpl(
+class LocalUserDatabaseDataSourceImpl @Inject constructor(
     private val mLocalUserDatabaseDataSourceDao: LocalUserDatabaseDataSourceDao
 ) : LocalUserDatabaseDataSource {
     override fun getUserById(userId: Long): UserEntity? {

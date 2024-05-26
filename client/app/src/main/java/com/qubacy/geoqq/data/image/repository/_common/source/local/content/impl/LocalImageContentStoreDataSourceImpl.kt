@@ -12,8 +12,9 @@ import com.qubacy.geoqq.data.image._common.util.resolver.extension.getImageBitma
 import com.qubacy.geoqq.data.image.repository._common.source.local.content._common.entity.ImageEntity
 import com.qubacy.geoqq.data.image.repository._common.RawImage
 import com.qubacy.geoqq.data.image.repository._common.source.local.content._common.LocalImageContentStoreDataSource
+import javax.inject.Inject
 
-class LocalImageContentStoreDataSourceImpl(
+class LocalImageContentStoreDataSourceImpl @Inject constructor(
     private val mContentResolver: ContentResolver
 ) : LocalImageContentStoreDataSource {
     companion object {

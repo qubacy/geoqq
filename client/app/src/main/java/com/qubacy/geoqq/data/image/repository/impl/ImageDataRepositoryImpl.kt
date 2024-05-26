@@ -12,7 +12,9 @@ import com.qubacy.geoqq.data.image.repository._common.toExtensionBase64Content
 import com.qubacy.geoqq.data.image.repository._common.toRawImage
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.RemoteImageHttpRestDataSource
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ImageDataRepositoryImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mLocalImageDataSource: LocalImageContentStoreDataSource,

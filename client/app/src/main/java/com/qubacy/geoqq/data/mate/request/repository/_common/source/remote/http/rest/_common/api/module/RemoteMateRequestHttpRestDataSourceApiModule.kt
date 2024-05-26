@@ -4,12 +4,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.RemoteMateRequestHttpRestDataSourceApi
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
-object RemoteMateRequestHttpRestDataSourceApiModule {
+abstract class RemoteMateRequestHttpRestDataSourceApiModule {
     @Provides
     fun provideRemoteMateRequestHttpRestDataSourceApi(
         httpRestApi: HttpRestApi

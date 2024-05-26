@@ -3,8 +3,9 @@ package com.qubacy.geoqq.data.mate.message.repository._common.source.local.datab
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.LocalMateMessageDatabaseDataSource
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.dao.LocalMateMessageDatabaseDataSourceDao
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
+import javax.inject.Inject
 
-class LocalMateMessageDatabaseDataSourceImpl(
+class LocalMateMessageDatabaseDataSourceImpl @Inject constructor(
     private val mLocalMateMessageDatabaseDataSourceDao: LocalMateMessageDatabaseDataSourceDao
 ) : LocalMateMessageDatabaseDataSource {
     override fun getMessage(chatId: Long, messageId: Long): MateMessageEntity? {

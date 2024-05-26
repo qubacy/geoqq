@@ -8,8 +8,11 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.source.
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource.Companion.ACCESS_TOKEN_KEY
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._common.LocalTokenDataStoreDataSource.Companion.REFRESH_TOKEN_KEY
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class LocalTokenDataStoreDataSourceImpl(
+@Singleton
+class LocalTokenDataStoreDataSourceImpl @Inject constructor(
     private val mTokenDataStore: DataStore<Preferences>
 ) : LocalTokenDataStoreDataSource {
     companion object {
