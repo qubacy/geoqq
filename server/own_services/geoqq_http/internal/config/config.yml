@@ -104,6 +104,7 @@ msgs:
     username: "guest"
     password: "guest"
     exchange_name: "geoqq"
+    message_ttl: 3m
 
 cache:
   enable: false

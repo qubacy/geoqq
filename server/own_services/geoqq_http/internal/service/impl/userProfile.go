@@ -105,6 +105,8 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
+	// additional actions..!
+
 	p.executeUpdateChangeUsernameCacheIfNeeded(ctx,
 		userId, storageDto.Username != nil)
 
@@ -153,12 +155,16 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 	}
 
 	// additional actions..!
+	// TODO: !!! to func!!!
 
 	if p.msgs != nil {
-		if err = p.msgs.SendPublicUser(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
+		// Если измененился пароль соощать об этом не нужно!!
+		if err = p.msgs.SendPublicUserId(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
 			err = utl.NewFuncError(sourceFunc, err)
 			logger.Warning("%v", err)
 		}
+	} else {
+		logger.Warning("msgs disabled")
 	}
 
 	p.executeUpdateChangeUsernameCacheIfNeeded(ctx, userId, storageDto.Username != nil)

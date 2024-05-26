@@ -6,17 +6,20 @@ import (
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain/table"
+	"geoqq_http/internal/infra/msgs"
 	"geoqq_http/internal/service/dto"
 	domainStorage "geoqq_http/internal/storage/domain"
 )
 
 type MateRequestService struct {
 	domainStorage domainStorage.Storage
+	msgs          msgs.Msgs
 }
 
 func newMateRequestService(deps Dependencies) *MateRequestService {
 	instance := &MateRequestService{
 		domainStorage: deps.DomainStorage,
+		msgs:          deps.Msgs,
 	}
 
 	return instance
@@ -103,11 +106,21 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 	// ***
 
-	_, err = mrs.domainStorage.AddMateRequest(ctx,
+	requestId, err := mrs.domainStorage.AddMateRequest(ctx,
 		sourceUserId, targetUserId)
 	if err != nil {
 		return ec.New(utl.NewFuncError(mrs.AddMateRequest, err),
 			ec.Server, ec.DomainStorageError)
+	}
+
+	if mrs.msgs != nil {
+		if err = mrs.msgs.SendMateRequest(ctx, msgs.EventAddedMateRequest,
+			targetUserId, requestId, sourceUserId); err != nil {
+
+			logger.Error("%v", err)
+		}
+	} else {
+		logger.Warning("msgs disabled")
 	}
 
 	mrs.domainStorage.UpdateBgrLastActionTimeForUser(sourceUserId)
@@ -116,6 +129,7 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 
 func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 	userId, mateRequestId uint64, mateRequestResult table.MateRequestResult) error {
+	sourceFunc := mrs.SetResultForMateRequest
 
 	if !mateRequestResult.IsAcceptedOrRejected() {
 		return ec.New(ErrUnknownMateRequestResult,
@@ -130,8 +144,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 			ec.Server, ec.DomainStorageError)
 	}
 	if !exists {
-		return ec.New(ErrMateRequestNotFound,
-			ec.Client, ec.MateRequestNotFound)
+		return ec.New(ErrMateRequestNotFound, ec.Client, ec.MateRequestNotFound)
 	}
 
 	// ***
@@ -149,8 +162,20 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 	// write to database
 
 	if mateRequestResult.IsAccepted() {
-		err = mrs.domainStorage.AcceptMateRequestById(ctx, mateRequestId,
-			mateRequest.FromUserId, mateRequest.ToUserId)
+		var mateChatId uint64
+		mateChatId, err = mrs.domainStorage.AcceptMateRequestByIdWithReturningMateChatId(ctx,
+			mateRequestId, mateRequest.FromUserId, mateRequest.ToUserId)
+
+		if err == nil {
+			if mrs.msgs != nil {
+				if err := mrs.msgs.SendMateChatId(ctx, msgs.EventAddedMateChat,
+					mateRequest.ToUserId, mateChatId); err != nil {
+					logger.Error("%v", utl.NewFuncError(sourceFunc, err))
+				}
+			} else {
+				logger.Warning("msgs disabled")
+			}
+		}
 	} else {
 		err = mrs.domainStorage.RejectMateRequestById(ctx, mateRequestId,
 			mateRequest.FromUserId, mateRequest.ToUserId)

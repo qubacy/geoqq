@@ -113,7 +113,10 @@ type MateRequestStorage interface {
 	UpdateMateRequestResultById(ctx context.Context, id uint64,
 		value table.MateRequestResult) error
 
-	AcceptMateRequestById(ctx context.Context, id, firstUserId, secondUserId uint64) error
+	AcceptMateRequestById(ctx context.Context, id,
+		firstUserId, secondUserId uint64) error
+	AcceptMateRequestByIdWithReturningMateChatId(ctx context.Context, id,
+		firstUserId, secondUserId uint64) (uint64, error)
 	RejectMateRequestById(ctx context.Context, id, firstUserId, secondUserId uint64) error
 
 	GetAllWaitingMateRequestsForUser(ctx context.Context, userId uint64) ([]*table.MateRequest, error)

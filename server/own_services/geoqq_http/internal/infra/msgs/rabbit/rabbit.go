@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"geoqq_http/internal/domain"
 	"geoqq_http/internal/infra/msgs"
-	"geoqq_http/internal/infra/msgs/dto"
+	"geoqq_http/internal/infra/msgs/rabbit/dto"
+	"geoqq_http/internal/infra/msgs/rabbit/dto/payload"
+	"time"
 
 	"github.com/wagslane/go-rabbitmq"
 )
@@ -25,6 +27,7 @@ type InputParams struct {
 	Port     uint16
 
 	ExchangeName string
+	MessageTtl   time.Duration
 }
 
 func createUrl(params InputParams) string {
@@ -37,9 +40,11 @@ func createUrl(params InputParams) string {
 // -----------------------------------------------------------------------
 
 type Rabbit struct {
-	conn         *rabbitmq.Conn
-	publisher    *rabbitmq.Publisher
-	exchangeName string
+	conn             *rabbitmq.Conn
+	publisher        *rabbitmq.Publisher
+	exchangeName     string
+	messageTtl       time.Duration
+	messageTtlOption string
 }
 
 func New(ctxForCancel context.Context, params InputParams) (*Rabbit, error) {
@@ -66,44 +71,59 @@ func New(ctxForCancel context.Context, params InputParams) (*Rabbit, error) {
 	// ***
 
 	return &Rabbit{
-		conn:         conn,
-		publisher:    publisher,
-		exchangeName: params.ExchangeName,
+		conn:             conn,
+		publisher:        publisher,
+		exchangeName:     params.ExchangeName,
+		messageTtl:       params.MessageTtl, // source...
+		messageTtlOption: fmt.Sprintf("%v", params.MessageTtl.Milliseconds()),
 	}, nil
 }
 
 // public
 // -----------------------------------------------------------------------
 
-func (r *Rabbit) SendPublicUser(ctx context.Context, event string, userId uint64) error {
-	pu := dto.PublicUser{Id: float64(userId)}
-	msg := dto.Message{Event: event, Payload: &pu}
+func (r *Rabbit) SendPublicUserId(ctx context.Context, event string, userId uint64) error {
+	sourceFunc := r.SendPublicUserId
 
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		return utl.NewFuncError(r.SendPublicUser, err)
+	oid := payload.OnlyId{Id: float64(userId)}
+	msg := dto.Message{Event: event, Payload: &oid}
+
+	if err := r.publishWithBasicOptions(ctx, &msg, []string{event}); err != nil {
+		return utl.NewFuncError(sourceFunc, err)
 	}
-
-	err = r.publisher.Publish(
-		msgBytes, []string{event},
-		rabbitmq.WithPublishOptionsContentType(contentType),
-		rabbitmq.WithPublishOptionsExchange(r.exchangeName),
-	)
-	if err != nil {
-		return utl.NewFuncError(r.SendPublicUser, err)
-	}
-
 	return nil // ok
 }
 
-func (r *Rabbit) SendMateChat(ctx context.Context, event string,
-	targetUserId uint64, mc *domain.MateChat) error {
-	return msgs.ErrNotImplemented
+func (r *Rabbit) SendMateChatId(ctx context.Context, event string,
+	targetUserId, chatId uint64) error {
+	sourceFunc := r.SendMateChatId
+
+	twid := payload.TargetWithId{
+		TargetUserId: float64(targetUserId),
+		Id:           float64(chatId)}
+	msg := dto.Message{Event: event, Payload: &twid}
+
+	if err := r.publishWithBasicOptions(ctx, &msg, []string{event}); err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	return nil
 }
 
 func (r *Rabbit) SendMateRequest(ctx context.Context, event string,
 	targetUserId, requestId, requesterUserId uint64) error {
-	return msgs.ErrNotImplemented
+	sourceFunc := r.SendMateRequest
+
+	mr := payload.MateRequest{
+		TargetUserId: float64(targetUserId),
+		Id:           float64(requestId),
+		UserId:       float64(requesterUserId), // from!
+	}
+	msg := dto.Message{Event: event, Payload: &mr}
+
+	if err := r.publishWithBasicOptions(ctx, &msg, []string{event}); err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	return nil
 }
 
 func (r *Rabbit) SendMateMessage(ctx context.Context, event string,
@@ -118,3 +138,28 @@ func (r *Rabbit) SendGeoMessage(ctx context.Context, event string,
 
 // private
 // -----------------------------------------------------------------------
+
+func (r *Rabbit) publishWithBasicOptions(ctx context.Context,
+	msg *dto.Message, routingKeys []string) error {
+
+	sourceFunc := r.publishWithBasicOptions
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	err = r.publisher.PublishWithContext(
+		ctx,
+		data, routingKeys,
+
+		rabbitmq.WithPublishOptionsExchange(r.exchangeName),
+		rabbitmq.WithPublishOptionsContentType(contentType),
+		rabbitmq.WithPublishOptionsTimestamp(time.Now().UTC()),
+		rabbitmq.WithPublishOptionsExpiration(r.messageTtlOption),
+	)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	return nil
+}

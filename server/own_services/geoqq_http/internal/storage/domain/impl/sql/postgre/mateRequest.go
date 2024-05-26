@@ -195,6 +195,7 @@ func (s *MateRequestStorage) UpdateMateRequestResultById(ctx context.Context, id
 	return nil
 }
 
+// accept
 // -----------------------------------------------------------------------
 
 func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
@@ -208,33 +209,76 @@ func (s *MateRequestStorage) AcceptMateRequestById(ctx context.Context,
 			4. Update mate request result.
 	*/
 
+	sourceFunc := s.AcceptMateRequestById
 	conn, tx, err := begunTransaction(s.pool, ctx)
 	if err != nil {
-		return utl.NewFuncError(s.AcceptMateRequestById, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 	defer conn.Release()
 
 	// ***
 
 	err = errors.Join(
-		removeDeletedMateChatsForUsersInsideTx(ctx, tx, firstUserId, secondUserId),
-		insertMateWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
-		insertMateChatWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
-		updateMateRequestResultById(ctx, tx, id, table.Accepted),
+		s.stepsForAcceptMateRequest(ctx, tx, id, firstUserId, secondUserId),
+		insertMateChatWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId), // !
 	)
 	if err != nil {
 		err = errors.Join(err, tx.Rollback(ctx)) // <--- ignore error?
-		return utl.NewFuncError(s.AcceptMateRequestById, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	// ***
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return utl.NewFuncError(s.AcceptMateRequestById, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 	return nil
 }
+
+func (s *MateRequestStorage) AcceptMateRequestByIdWithReturningMateChatId(ctx context.Context,
+	id, firstUserId, secondUserId uint64) (uint64, error) {
+	sourceFunc := s.AcceptMateRequestByIdWithReturningMateChatId
+	conn, tx, err := begunTransaction(s.pool, ctx)
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+	defer conn.Release()
+
+	// ***
+
+	var mateChatId uint64
+	stepsErr := s.stepsForAcceptMateRequest(ctx, tx, id, firstUserId, secondUserId)
+	mateChatId, err = insertMateChatInsideTx(ctx, tx, firstUserId, secondUserId)
+	err = errors.Join(stepsErr, err)
+
+	if err != nil {
+		err = errors.Join(err, tx.Rollback(ctx))
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+
+	// ***
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+	return mateChatId, nil
+}
+
+func (s *MateRequestStorage) stepsForAcceptMateRequest(ctx context.Context, tx pgx.Tx,
+	id, firstUserId, secondUserId uint64) error {
+	err := errors.Join(
+		removeDeletedMateChatsForUsersInsideTx(ctx, tx, firstUserId, secondUserId),
+		insertMateWithoutReturningIdInsideTx(ctx, tx, firstUserId, secondUserId),
+
+		updateMateRequestResultById(ctx, tx, id, table.Accepted), // used mate request id!
+	)
+	return err
+}
+
+// reject
+// -----------------------------------------------------------------------
 
 func (s *MateRequestStorage) RejectMateRequestById(ctx context.Context,
 	id, firstUserId, secondUserId uint64) error {

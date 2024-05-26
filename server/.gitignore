@@ -21,5 +21,5 @@
 go.work
 
 # My
-cmd/avatar
-cmd/rotation
+*.cmd/avatar
+*.cmd/rotation

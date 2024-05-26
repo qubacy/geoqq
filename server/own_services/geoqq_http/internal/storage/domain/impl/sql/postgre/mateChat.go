@@ -36,6 +36,13 @@ var (
 		VALUES($1, $2) 
 			ON CONFLICT DO NOTHING`) // see index `unique_mate_chat_ids_comb`
 
+	/*
+		Conflicts will be ignored.
+
+		Order:
+			1. firstUserId
+			2. secondUserId
+	*/
 	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
 		` RETURNING "Id"`
 
@@ -481,6 +488,18 @@ func insertMateChatWithoutReturningIdInsideTx(ctx context.Context, tx pgx.Tx,
 	}
 
 	return nil
+}
+
+func insertMateChatInsideTx(ctx context.Context, tx pgx.Tx,
+	firstUserId uint64, secondUserId uint64) (uint64, error) {
+	sourceFunc := insertMateChatInsideTx
+
+	row := tx.QueryRow(ctx, templateInsertMateChat+`;`, firstUserId, secondUserId)
+	var chatId uint64
+	if err := row.Scan(&chatId); err != nil {
+		return 0, utl.NewFuncError(sourceFunc, err)
+	}
+	return chatId, nil
 }
 
 func insertDeletedMateChatInsideTx(ctx context.Context, tx pgx.Tx,

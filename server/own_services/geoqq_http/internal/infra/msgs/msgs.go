@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	EventUpdatedPublicUser = "updated_public_user"
+	EventUpdatedPublicUser = "updated_public_user" // by id!
 
 	EventAddedMateChat   = "added_mate_chat"
 	EventUpdatedMateChat = "updated_mate_chat"
@@ -18,10 +18,9 @@ const (
 )
 
 type Msgs interface {
-	SendPublicUser(ctx context.Context, event string, userId uint64) error
+	SendPublicUserId(ctx context.Context, event string, userId uint64) error
+	SendMateChatId(ctx context.Context, event string, targetUserId, chatId uint64) error
 
-	SendMateChat(ctx context.Context, event string,
-		targetUserId uint64, mc *domain.MateChat) error
 	SendMateRequest(ctx context.Context, event string,
 		targetUserId, requestId, requesterUserId uint64) error
 
