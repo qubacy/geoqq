@@ -126,13 +126,47 @@ func (r *Rabbit) SendMateRequest(ctx context.Context, event string,
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
 func (r *Rabbit) SendMateMessage(ctx context.Context, event string,
-	targetUserId uint64, chatId uint64, mm *domain.MateMessage) error {
-	return msgs.ErrNotImplemented
+	targetUserId uint64, chatId uint64, domainMm *domain.MateMessage) error {
+	sourceFunc := r.SendMateMessage
+
+	mm := payload.MateMessage{
+		TargetUserId: float64(targetUserId),
+		Id:           float64(domainMm.Id),
+		ChatId:       float64(chatId),
+		Text:         domainMm.Text,
+		Time:         float64(domainMm.Time.Unix()),
+		UserId:       float64(domainMm.UserId),
+		Read:         domainMm.Read,
+	}
+	msg := dto.Message{Event: event, Payload: &mm}
+
+	if err := r.publishWithBasicOptions(ctx, &msg, []string{event}); err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	return nil
 }
 
 func (r *Rabbit) SendGeoMessage(ctx context.Context, event string,
-	lat, lon float64, gm *domain.GeoMessage) error {
+	lat, lon float64, domainGm *domain.GeoMessage) error {
+	sourceFunc := r.SendGeoMessage
+
+	gm := payload.GeoMessage{
+		Id:        float64(domainGm.Id),
+		Text:      domainGm.Text,
+		Time:      float64(domainGm.Time.Unix()),
+		UserId:    float64(domainGm.UserId),
+		Latitude:  lat,
+		Longitude: lon,
+	}
+	msg := dto.Message{Event: event, Payload: &gm}
+
+	if err := r.publishWithBasicOptions(ctx, &msg, []string{event}); err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
 	return msgs.ErrNotImplemented
 }
 

@@ -3,10 +3,13 @@ package impl
 import (
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/geoDistance"
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain"
+	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
+	"time"
 )
 
 type GeoChatMessageService struct {
@@ -15,6 +18,8 @@ type GeoChatMessageService struct {
 
 	generalParams GeneralParams
 	chatParams    ChatParams
+
+	msgs msgs.Msgs
 }
 
 func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
@@ -23,6 +28,7 @@ func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 		geoDistanceCalculator: deps.GeoDistCalculator,
 		generalParams:         deps.GeneralParams,
 		chatParams:            deps.ChatParams,
+		msgs:                  deps.Msgs,
 	}
 
 	return instance
@@ -46,7 +52,7 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 
 	// ***
 
-	_, err = s.domainStorage.InsertGeoChatMessageWithUpdateUserLocation(
+	gmId, err := s.domainStorage.InsertGeoChatMessageWithUpdateUserLocation(
 		ctx, userId, text, latitude, longitude)
 	if err != nil {
 		return utl.NewFuncError(s.AddMessageToGeoChat,
@@ -54,6 +60,21 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 	}
 
 	// TODO: send the push message to users?
+
+	if s.msgs != nil {
+		err = s.msgs.SendGeoMessage(ctx, msgs.EventAddedGeoMessage,
+			latitude, longitude, &domain.GeoMessage{
+				Id:     gmId,
+				UserId: userId,
+				Text:   text,
+				Time:   time.Now().UTC(),
+			})
+		if err != nil {
+			logger.Error("%v", err)
+		}
+	} else {
+		logger.Warning("msgs disabled")
+	}
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	s.domainStorage.UpdateBgrLocationForUser(userId, longitude, latitude)

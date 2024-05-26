@@ -402,6 +402,7 @@ func createMsgsInstance() (msgs.Msgs, error) {
 				Username:     viper.GetString("msgs.rabbit.username"),
 				Password:     viper.GetString("msgs.rabbit.password"),
 				ExchangeName: viper.GetString("msgs.rabbit.exchange_name"),
+				MessageTtl:   viper.GetDuration("msgs.rabbit.message_ttl"),
 			})
 	} else {
 		return nil, ErrMsgsTypeIsNotDefined

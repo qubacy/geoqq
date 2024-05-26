@@ -2,21 +2,26 @@ package impl
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain"
+	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
+	"time"
 )
 
 type MateChatMessageService struct {
 	domainStorage domainStorage.Storage
 	chatParams    ChatParams
+	msgs          msgs.Msgs
 }
 
 func newMateChatMessageService(deps Dependencies) *MateChatMessageService {
 	instance := &MateChatMessageService{
 		domainStorage: deps.DomainStorage,
 		chatParams:    deps.ChatParams,
+		msgs:          deps.Msgs,
 	}
 
 	return instance
@@ -85,10 +90,30 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 
 	// write to database
 
-	_, err = s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
+	mateMsgId, err := s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
 	if err != nil {
 		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
 			ec.Server, ec.DomainStorageError)
+	}
+
+	// ***
+
+	if s.msgs != nil {
+		interlocutorId := mateChat.FirstUserId
+		if userId == interlocutorId {
+			interlocutorId = mateChat.SecondUserId
+		}
+
+		s.msgs.SendMateMessage(ctx, msgs.EventAddedMateMessage,
+			interlocutorId, chatId, &domain.MateMessage{
+				Id:     mateMsgId,
+				Text:   text,
+				Time:   time.Now().UTC(), // small inaccuracy!
+				UserId: userId,
+				Read:   false,
+			})
+	} else {
+		logger.Warning("msgs disabled")
 	}
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)

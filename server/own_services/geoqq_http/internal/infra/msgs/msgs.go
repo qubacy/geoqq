@@ -25,7 +25,7 @@ type Msgs interface {
 		targetUserId, requestId, requesterUserId uint64) error
 
 	SendMateMessage(ctx context.Context, event string,
-		targetUserId uint64, chatId uint64, mm *domain.MateMessage) error
+		targetUserId uint64, chatId uint64, domainMm *domain.MateMessage) error
 	SendGeoMessage(ctx context.Context, event string,
-		lat, lon float64, gm *domain.GeoMessage) error
+		lat, lon float64, domainGm *domain.GeoMessage) error
 }
