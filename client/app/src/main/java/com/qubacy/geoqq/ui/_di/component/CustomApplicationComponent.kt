@@ -83,6 +83,9 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(
+    dependencies = [
+
+    ],
     modules = [
         CustomApplicationSubcomponentsModule::class,
 

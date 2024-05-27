@@ -4,11 +4,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter.impl.WebSocketAdapterImpl
 import dagger.Binds
 import dagger.Module
-import javax.inject.Singleton
 
 @Module
 abstract class WebSocketAdapterModule {
-    @Singleton
     @Binds
     abstract fun bindWebSocketAdapter(webSocketAdapter: WebSocketAdapterImpl): WebSocketAdapter
 }

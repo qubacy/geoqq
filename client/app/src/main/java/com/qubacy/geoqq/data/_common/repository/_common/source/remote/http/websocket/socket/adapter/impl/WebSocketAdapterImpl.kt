@@ -21,6 +21,7 @@ class WebSocketAdapterImpl @Inject constructor(
     private val mWebSocketComponent: WebSocketComponent
 
     private var mWebSocket: WebSocket? = null
+
     private val mListenerAdapterRef: WebSocketListenerAdapter = listenerAdapterRef
 
     private val mEventListeners: MutableList<WebSocketEventListener> = mutableListOf()
@@ -53,17 +54,21 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun open() {
-        if (isOpen()) return
+        synchronized(mWebSocketComponent) {
+            if (isOpen()) return
 
-        mWebSocket = mWebSocketComponent.webSocket()
+            mWebSocket = mWebSocketComponent.webSocket()
+        }
     }
 
     override fun close() {
-        mListenerAdapterRef.removeCallback(this)
+        synchronized(mWebSocketComponent) {
+            mListenerAdapterRef.removeCallback(this)
 
-        // todo: init a graceful disconnection..
+            // todo: init a graceful disconnection..
 
-        mWebSocket = null
+            mWebSocket = null
+        }
     }
 
     override fun getJsonMiddlewaresForClientEvent(type: String): List<ClientEventJsonMiddleware> {
