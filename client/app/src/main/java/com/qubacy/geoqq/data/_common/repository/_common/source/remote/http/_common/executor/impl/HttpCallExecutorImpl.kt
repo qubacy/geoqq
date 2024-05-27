@@ -5,15 +5,15 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor._common.HttpCallExecutor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.ErrorResponseContent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import okhttp3.ResponseBody
 import retrofit2.Call
 import javax.inject.Inject
 
 open class HttpCallExecutorImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
-    private val mErrorJsonAdapter: ErrorJsonAdapter
+    private val mErrorJsonAdapter: ErrorResponseJsonAdapter
 ) : HttpCallExecutor {
     open fun <ResponseBodyType>executeNetworkRequest(
         call: Call<ResponseBodyType>

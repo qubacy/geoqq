@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.auth.repository.impl
 import com.qubacy.geoqq.data._common.util.hasher.HasherUtil
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterCreateQualifier
 import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._common.LocalAuthDatabaseDataSource
@@ -14,11 +15,13 @@ class AuthDataRepositoryImpl @Inject constructor(
     private val mLocalAuthDatabaseDataSource: LocalAuthDatabaseDataSource,
     private val mRemoteAuthHttpRestDataSource: RemoteAuthHttpRestDataSource,
     private val mTokenDataRepository: TokenDataRepository,
-    private val mWebSocketAdapter: WebSocketAdapter
+    @WebSocketAdapterCreateQualifier private val mWebSocketAdapter: WebSocketAdapter
 ) : AuthDataRepository {
     companion object {
         const val TAG = "AuthDataRepository"
     }
+
+    override val webSocketAdapter: WebSocketAdapter get() = mWebSocketAdapter
 
     override suspend fun signIn() {
         mTokenDataRepository.getTokens() // todo: is it enough?

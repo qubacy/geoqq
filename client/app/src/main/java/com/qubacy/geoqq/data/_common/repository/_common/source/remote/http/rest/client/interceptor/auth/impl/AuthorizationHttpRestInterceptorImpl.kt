@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest
 
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_NAME
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_VALUE_FORMAT
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class AuthorizationHttpRestInterceptorImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
-    private val mErrorJsonAdapter: ErrorJsonAdapter,
+    private val mErrorJsonAdapter: ErrorResponseJsonAdapter,
     private val mTokenDataRepository: TokenDataRepository
 ) : AuthorizationHttpRestInterceptor {
     private val mAuthMutex = Mutex()

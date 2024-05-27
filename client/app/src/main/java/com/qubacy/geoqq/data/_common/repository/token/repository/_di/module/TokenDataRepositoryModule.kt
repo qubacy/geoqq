@@ -4,9 +4,11 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDa
 import com.qubacy.geoqq.data._common.repository.token.repository.impl.TokenDataRepositoryImpl
 import dagger.Binds
 import dagger.Module
+import javax.inject.Singleton
 
 @Module
 abstract class TokenDataRepositoryModule {
+    @Singleton
     @Binds
     abstract fun bindTokenDataRepository(
         tokenDataRepository: TokenDataRepositoryImpl

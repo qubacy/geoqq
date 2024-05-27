@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl.AuthorizationHttpRestInterceptorImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest.impl.RemoteTokenHttpRestDataSourceImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
@@ -149,8 +149,8 @@ class AuthorizationHttpRestInterceptorTest {
             .build()
     }
 
-    private fun mockErrorJsonAdapter(errorBodySource: BufferedSource): ErrorJsonAdapter {
-        val errorJsonAdapterMock = Mockito.mock(ErrorJsonAdapter::class.java)
+    private fun mockErrorJsonAdapter(errorBodySource: BufferedSource): ErrorResponseJsonAdapter {
+        val errorJsonAdapterMock = Mockito.mock(ErrorResponseJsonAdapter::class.java)
 
         Mockito.`when`(errorJsonAdapterMock.fromJson(Mockito.eq(errorBodySource))).thenAnswer {
             mErrorJsonAdapterFromJsonCallFlag = true

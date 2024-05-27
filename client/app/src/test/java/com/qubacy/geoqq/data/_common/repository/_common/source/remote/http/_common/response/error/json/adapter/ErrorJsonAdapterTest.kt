@@ -2,17 +2,16 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http._com
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
 class ErrorJsonAdapterTest {
-    private lateinit var mErrorJsonAdapter: ErrorJsonAdapter
+    private lateinit var mErrorJsonAdapter: ErrorResponseJsonAdapter
 
     @Before
     fun setup() {
-        mErrorJsonAdapter = ErrorJsonAdapter()
+        mErrorJsonAdapter = ErrorResponseJsonAdapter()
     }
 
     @Test

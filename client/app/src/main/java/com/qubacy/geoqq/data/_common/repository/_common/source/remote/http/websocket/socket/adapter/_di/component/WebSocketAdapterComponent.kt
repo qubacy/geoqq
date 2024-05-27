@@ -2,11 +2,10 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.module.WebSocketModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterCreateQualifier
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterModule
 import dagger.Subcomponent
-import javax.inject.Singleton
 
-@Singleton
 @Subcomponent(modules = [
     WebSocketAdapterModule::class,
     WebSocketModule::class
@@ -18,4 +17,6 @@ interface WebSocketAdapterComponent {
     }
 
     fun webSocketAdapter(): WebSocketAdapter
+    @WebSocketAdapterCreateQualifier
+    fun createWebSocketAdapter(): WebSocketAdapter
 }

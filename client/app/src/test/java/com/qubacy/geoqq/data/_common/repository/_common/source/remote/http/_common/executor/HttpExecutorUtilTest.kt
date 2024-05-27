@@ -4,7 +4,7 @@ import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
 import okhttp3.MediaType
@@ -39,7 +39,7 @@ class HttpExecutorUtilTest {
     private lateinit var mHttpCallExecutor: HttpCallExecutorImpl
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
-    private lateinit var mErrorJsonAdapter: ErrorJsonAdapter
+    private lateinit var mErrorJsonAdapter: ErrorResponseJsonAdapter
 
     private lateinit var mCallMock: Call<TestResponseBody>
 
@@ -97,7 +97,7 @@ class HttpExecutorUtilTest {
     }
 
     private fun initErrorJsonAdapter() {
-        mErrorJsonAdapter = ErrorJsonAdapter()
+        mErrorJsonAdapter = ErrorResponseJsonAdapter()
     }
 
     private fun initCallMock() {

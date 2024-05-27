@@ -8,10 +8,12 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client._di.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor._di.module.HttpCallExecutorModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.json.factory.moshi._di.module.MoshiModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter._di.module.ErrorJsonAdapterModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.json.adapter._di.module.ErrorResponseContentJsonAdapterModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter._di.module.ErrorResponseJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api._di.module.HttpRestApiModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.retrofit._di.module.RetrofitModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._di.module.AuthorizationHttpRestInterceptorModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.server.payload.error.json.adapter._di.module.ErrorServerEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.component.WebSocketComponent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._di.module.LocalTokenDataStoreDataSourceModule
@@ -158,7 +160,9 @@ import javax.inject.Singleton
         HttpRestApiModule::class,
         AuthorizationHttpRestInterceptorModule::class,
 
-        ErrorJsonAdapterModule::class,
+        ErrorResponseJsonAdapterModule::class,
+        ErrorResponseContentJsonAdapterModule::class,
+        ErrorServerEventPayloadJsonAdapterModule::class,
         UserUpdatedServerEventPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,

@@ -4,9 +4,11 @@ import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepo
 import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import dagger.Binds
 import dagger.Module
+import javax.inject.Singleton
 
 @Module
 abstract class MateRequestDataRepositoryModule {
+    @Singleton
     @Binds
     abstract fun bindMateRequestDataRepository(
         mateRequestDataRepository: MateRequestDataRepositoryImpl

@@ -4,9 +4,11 @@ import com.qubacy.geoqq.data.myprofile.repository._common.MyProfileDataRepositor
 import com.qubacy.geoqq.data.myprofile.repository.impl.MyProfileDataRepositoryImpl
 import dagger.Binds
 import dagger.Module
+import javax.inject.Singleton
 
 @Module
 abstract class MyProfileDataRepositoryModule {
+    @Singleton
     @Binds
     abstract fun bindMyProfileDataRepository(
         myProfileDataRepository: MyProfileDataRepositoryImpl
