@@ -100,39 +100,39 @@ The server sends to the client application.
 }
 ```
 
+<!-- -------------------------------------------- -->
+
 ## Reactive
 
 Reacting to client packets (errors, etc).
 
-## `UserLocation`
+## `UserLocation`, `GeoMessage`, `MateMessage`
+
+### Succeeded
+
+```json
+{
+    "event": "<base event>_succeeded",
+    "payload": null
+}
+```
 
 ### Failed
 
 ```json
 {    
-    "event": "user_location_update_failed",
+    "event": "<base event>_failed",
     "payload": "<error>"
 }
 ```
 
-## `GeoMessage`
+<!-- -------------------------------------------- -->
 
-### Failed
-
-```json
-{    
-    "event": "geo_message_add_failed",
-    "payload": "<error>"
-}
-```
-
-## `MateMessage`
-
-### Failed
+## `General Error`
 
 ```json
 {    
-    "event": "mate_message_add_failed",
+    "event": "general_error",
     "payload": "<error>"
 }
 ```
