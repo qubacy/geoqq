@@ -2,7 +2,6 @@ package api
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
-	"common/pkg/logger"
 	"geoqq_http/internal/delivery/http/api/dto"
 	"geoqq_http/internal/domain/table"
 	"strconv"
@@ -280,9 +279,6 @@ func (h *Handler) getMateRequests(ctx *gin.Context) {
 	count := ctx.GetUint64(contextCount)
 
 	// to-from services
-
-	logger.Debug("count: %v", count)
-	logger.Debug("offset: %v", offset)
 
 	output, err := h.services.GetIncomingMateRequestsForUser(ctx,
 		userId, offset, count)

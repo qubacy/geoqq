@@ -48,6 +48,13 @@ var envKeyToViperKey = map[string]string{
 	"REDIS_USER":   "cache.redis.user",
 	"REDIS_PASS":   "cache.redis.password",
 	"REDIS_DB":     "cache.redis.db_index",
+
+	"MSGS_ENABLE":     "msgs.enable",
+	"RABBIT_HOST":     "msgs.rabbit.host",
+	"RABBIT_PORT":     "msgs.rabbit.port",
+	"RABBIT_USERNAME": "msgs.rabbit.username",
+	"RABBIT_PASSWORD": "msgs.rabbit.password",
+	"RABBIT_EXCHANGE": "msgs.rabbit.exchange_name",
 }
 
 // -----------------------------------------------------------------------

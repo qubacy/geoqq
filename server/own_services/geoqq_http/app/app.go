@@ -9,7 +9,7 @@ import (
 	"common/pkg/hash"
 	basicHash "common/pkg/hash/basic"
 	"common/pkg/logger"
-	"common/pkg/logger/impl"
+	"common/pkg/logger/lumberjack"
 	"common/pkg/token"
 	tokenImpl "common/pkg/token/impl"
 	utl "common/pkg/utility"
@@ -169,7 +169,7 @@ func (a *App) Stop() error {
 func initializeLogging() error {
 	loggingType := viper.GetString("logging.type")
 	if loggingType == "lumberjack" {
-		logger.Initialize(impl.SetLumberjackLoggerForStdOutput(
+		logger.Initialize(lumberjack.SetLumberjackLoggerForStdOutput(
 			logger.Level(viper.GetInt("logging.level")),
 			viper.GetBool("logging.use_console"),
 

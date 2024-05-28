@@ -35,7 +35,7 @@ func New(ctxForInit context.Context, deps Dependencies) (*RedisCache, error) {
 
 	statusCmd := client.Ping(ctxForInit)
 	if err := statusCmd.Err(); err != nil {
-		logger.Debug("%v", statusCmd.String())
+		logger.Debug("response to ping from redis `%v`", statusCmd.String())
 		return nil, utl.NewFuncError(New, err)
 	}
 

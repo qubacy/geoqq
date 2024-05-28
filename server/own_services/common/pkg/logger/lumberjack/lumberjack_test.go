@@ -1,4 +1,4 @@
-package impl
+package lumberjack
 
 import (
 	"common/pkg/logger"
@@ -10,7 +10,7 @@ import (
 func Test_Log(t *testing.T) {
 	lr := SetLumberjackLoggerForStdOutput(
 		logger.LevelDebug, false,
-		"./lumberjack", "test.log",
+		"./logs", "test.log",
 		1, 3, 1,
 	)
 

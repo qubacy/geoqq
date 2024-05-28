@@ -1,4 +1,4 @@
-package impl
+package lumberjack
 
 import (
 	"common/pkg/logger"

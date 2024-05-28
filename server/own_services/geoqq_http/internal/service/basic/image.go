@@ -59,7 +59,7 @@ func (s *ImageService) GetImageById(ctx context.Context, _, imageId uint64) (
 		if err != nil { // not a critical error (cache miss?)
 			logger.Warning("%v", err)
 		} else {
-			logger.Debug("image %v loaded from cache", imageId)
+			logger.Info("image %v loaded from cache", imageId)
 			return image, nil
 		}
 	} else {
@@ -86,7 +86,7 @@ func (s *ImageService) GetImageById(ctx context.Context, _, imageId uint64) (
 		if err = s.saveImageToCache(ctx, image); err != nil {
 			logger.Warning("%v", err)
 		} else {
-			logger.Debug("image %v saved in cache", imageId)
+			logger.Info("image %v saved in cache", imageId)
 		}
 	}
 	return image, nil
@@ -143,7 +143,7 @@ func (s *ImageService) AddImageToUser(ctx context.Context, userId uint64,
 		if err := s.updateAddImageCache(ctx, userId); err != nil {
 			logger.Warning("%v", err)
 		} else {
-			logger.Debug("add image cache updated for user %v", userId)
+			logger.Info("add image cache updated for user %v", userId)
 		}
 	}
 
