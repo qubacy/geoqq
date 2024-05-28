@@ -8,7 +8,6 @@ import (
 	"geoqq_http/internal/domain"
 	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
-	"time"
 )
 
 type MateChatMessageService struct {
@@ -60,6 +59,7 @@ func (s *MateChatMessageService) ReadMateChatMessagesByChatId(ctx context.Contex
 
 func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 	userId, chatId uint64, text string) error {
+	sourceFunc := s.AddMessageToMateChat
 
 	if len(text) > int(s.chatParams.MaxMessageLength) {
 		return ec.New(ErrMessageTooLong(s.chatParams.MaxMessageLength),
@@ -70,29 +70,29 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 
 	err := assertMateChatWithIdExists(ctx, s.domainStorage, chatId)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToMateChat, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 	err = assertMateChatAvailableForUser(ctx, s.domainStorage, userId, chatId)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToMateChat, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	mateChat, err := s.domainStorage.GetTableMateChatWithId(ctx, chatId)
 	if err != nil {
-		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
+		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 	err = assertUsersAreMates(ctx, s.domainStorage,
 		mateChat.FirstUserId, mateChat.SecondUserId) // one of these `userId`
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToMateChat, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	// write to database
 
 	mateMsgId, err := s.domainStorage.InsertMateChatMessage(ctx, chatId, userId, text)
 	if err != nil {
-		return ec.New(utl.NewFuncError(s.AddMessageToMateChat, err),
+		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
@@ -104,16 +104,13 @@ func (s *MateChatMessageService) AddMessageToMateChat(ctx context.Context,
 			interlocutorId = mateChat.SecondUserId
 		}
 
-		s.msgs.SendMateMessage(ctx, msgs.EventAddedMateMessage,
-			interlocutorId, chatId, &domain.MateMessage{
-				Id:     mateMsgId,
-				Text:   text,
-				Time:   time.Now().UTC(), // small inaccuracy!
-				UserId: userId,
-				Read:   false,
-			})
+		err = s.msgs.SendMateMessage(ctx, msgs.EventAddedMateMessage,
+			interlocutorId, chatId, domain.NewMessageWithNowTime(mateMsgId, userId, text))
+		if err != nil {
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
+		}
 	} else {
-		logger.Warning("msgs disabled")
+		logger.Warning(msgs.TextMsgsDisabled)
 	}
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)

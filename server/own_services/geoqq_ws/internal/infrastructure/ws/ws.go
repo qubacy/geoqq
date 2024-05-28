@@ -1,1 +1,4 @@
 package ws
+
+// ValidateAccessTokenFailed
+// UserWasPreviouslyDeleted

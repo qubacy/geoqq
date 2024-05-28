@@ -1,7 +1,6 @@
 package postgre
 
 import (
-	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -142,8 +141,6 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 	)
 	if err != nil {
 		err = errors.Join(err, tx.Rollback(ctx)) // ?
-		logger.Error("%v", err)
-
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
@@ -151,11 +148,9 @@ func (s *UserProfileStorage) DeleteUserProfile(ctx context.Context, userId uint6
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		logger.Error("%v", err)
-
 		return utl.NewFuncError(sourceFunc, err)
 	}
-	return nil
+	return nil // ok
 }
 
 // private

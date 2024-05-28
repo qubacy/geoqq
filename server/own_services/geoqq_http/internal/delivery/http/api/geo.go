@@ -2,7 +2,6 @@ package api
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
-	"common/pkg/logger"
 	"geoqq_http/internal/delivery/http/api/dto"
 
 	"github.com/gin-gonic/gin"
@@ -61,7 +60,6 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatMessages(ctx, userId,
 		radius, lat, lon, offset, count)
 	if err != nil {
-		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
@@ -70,7 +68,6 @@ func (h *Handler) getGeoChatMessages(ctx *gin.Context) {
 
 	responseDto, err := dto.NewGeoChatMessagesResFromDomain(geoMessages)
 	if err != nil {
-		logger.Error("%v", err)
 		resWithServerErr(ctx, ec.ServerError, err) // impossible error!
 		return
 	}
@@ -97,7 +94,6 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 	geoMessages, err := h.services.GetGeoChatAllMessages(ctx, userId,
 		radius, lat, lon)
 	if err != nil {
-		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
@@ -106,7 +102,6 @@ func (h *Handler) getGeoChatAllMessages(ctx *gin.Context) {
 
 	responseDto, err := dto.NewGeoChatMessagesResFromDomain(geoMessages)
 	if err != nil {
-		logger.Error("%v", err)
 		resWithServerErr(ctx, ec.ServerError, err)
 		return
 	}

@@ -2,6 +2,7 @@ package impl
 
 import (
 	"common/pkg/avatar"
+	"common/pkg/cache"
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/file"
 	"common/pkg/logger"
@@ -234,16 +235,18 @@ func (a *AuthService) WasUserWithIdDeleted(ctx context.Context, id uint64) (bool
 	var err error = nil
 	var wasDeleted bool = false
 
-	if a.enableCache {
+	if a.cache != nil {
 		wasDeleted, err = a.cache.Exists(ctx, authCacheKey.DeletedUser(id))
 		if err != nil {
-			logger.Warning("%v", err)
+			logger.Error("%v", utl.NewFuncError(a.WasUserWithIdDeleted, err))
 		} else {
 			return wasDeleted, nil
 		}
+	} else {
+		logger.Warning(cache.TextCacheDisabled)
 	}
 
-	if !a.enableCache || err != nil {
+	if a.cache == nil || err != nil {
 		wasDeleted, err = a.domainStorage.WasUserDeleted(ctx, id)
 		if err != nil {
 			return false, ec.New(utl.NewFuncError(a.WasUserWithIdDeleted, err),

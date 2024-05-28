@@ -53,7 +53,6 @@ func (h *Handler) postSignIn(ctx *gin.Context) {
 		serviceDto.MakeSignInInp(login, passwordHash))
 
 	if err != nil { // error may belong to different sides!
-		logger.Warning("%v", err)
 		side, code := ec.UnwrapErrorsToLastSideAndCode(err)
 		resWithSideErr(ctx, side, code, err)
 		return
@@ -83,7 +82,6 @@ func (h *Handler) postSignUp(ctx *gin.Context) {
 		serviceDto.MakeSignUpInp(login, passwordHash))
 
 	if err != nil {
-		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err)
 		return
 	}
@@ -105,7 +103,6 @@ func (h *Handler) putSignIn(ctx *gin.Context) {
 	ctx.Set(service.AuthServiceContextClientIp, ctx.ClientIP())
 	out, err := h.services.RefreshTokens(ctx, refreshToken)
 	if err != nil {
-		logger.Warning("%v", err)
 		resWithErrorForClient(ctx, err) // new style!
 		return
 	}

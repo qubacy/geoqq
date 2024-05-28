@@ -74,10 +74,9 @@ func (mrs *MateRequestService) GetIncomingMateRequestCountForUser(
 
 func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	sourceUserId, targetUserId uint64) error {
-
+	sourceFunc := mrs.AddMateRequest
 	if sourceUserId == targetUserId {
-		return ec.New(ErrMateRequestToSelf,
-			ec.Client, ec.MateRequestToSelf)
+		return ec.New(ErrMateRequestToSelf, ec.Client, ec.MateRequestToSelf)
 	}
 
 	// asserts
@@ -86,14 +85,14 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 		mrs.domainStorage, targetUserId,
 		ec.TargetUserNotFound)
 	if err != nil {
-		return utl.NewFuncError(mrs.AddMateRequest, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	err = assertUserWithIdNotDeleted(ctx,
 		mrs.domainStorage, targetUserId,
 		ec.TargetUserDeleted) // marked!
 	if err != nil {
-		return utl.NewFuncError(mrs.AddMateRequest, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	// other checks
@@ -101,7 +100,7 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	err = mrs.partialValidateInputBeforeAddMateRequest(ctx,
 		sourceUserId, targetUserId)
 	if err != nil {
-		return utl.NewFuncError(mrs.AddMateRequest, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	// ***
@@ -109,18 +108,17 @@ func (mrs *MateRequestService) AddMateRequest(ctx context.Context,
 	requestId, err := mrs.domainStorage.AddMateRequest(ctx,
 		sourceUserId, targetUserId)
 	if err != nil {
-		return ec.New(utl.NewFuncError(mrs.AddMateRequest, err),
+		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
 	if mrs.msgs != nil {
 		if err = mrs.msgs.SendMateRequest(ctx, msgs.EventAddedMateRequest,
 			targetUserId, requestId, sourceUserId); err != nil {
-
-			logger.Error("%v", err)
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 		}
 	} else {
-		logger.Warning("msgs disabled")
+		logger.Warning(msgs.TextMsgsDisabled)
 	}
 
 	mrs.domainStorage.UpdateBgrLastActionTimeForUser(sourceUserId)
@@ -173,7 +171,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 					logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 				}
 			} else {
-				logger.Warning("msgs disabled")
+				logger.Warning(msgs.TextMsgsDisabled)
 			}
 		}
 	} else {
@@ -182,7 +180,7 @@ func (mrs *MateRequestService) SetResultForMateRequest(ctx context.Context,
 	}
 
 	if err != nil {
-		logger.Error("%v", err) // with source information!
+		logger.Error("%v", utl.NewFuncError(sourceFunc, err)) // with source information!
 
 		return ec.New(utl.NewFuncError(mrs.SetResultForMateRequest, err),
 			ec.Server, ec.DomainStorageError)

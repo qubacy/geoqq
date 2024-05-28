@@ -9,4 +9,13 @@ type GeoMessage struct {
 	Time   time.Time
 }
 
+func NewGeoMessageWithNowTime(id, userId uint64, text string) *GeoMessage {
+	return &GeoMessage{
+		Id:     id,
+		UserId: userId,
+		Text:   text,
+		Time:   time.Now().UTC(),
+	}
+}
+
 type GeoMessageList []*GeoMessage

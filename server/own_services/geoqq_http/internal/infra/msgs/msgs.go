@@ -6,6 +6,10 @@ import (
 )
 
 const (
+	TextMsgsDisabled = "msgs disabled"
+)
+
+const (
 	EventUpdatedPublicUser = "updated_public_user" // by id!
 
 	EventAddedMateChat   = "added_mate_chat"

@@ -12,6 +12,11 @@ type UpdateUserPartsInp struct {
 	AvatarId           *uint64 // content to file storage!
 }
 
+func (u *UpdateUserPartsInp) HasFieldsNotNilIgnorePassword() bool {
+	return u.Username != nil || u.Description != nil ||
+		u.AvatarId != nil || u.Privacy != nil
+}
+
 type Privacy struct {
 	HitMeUp int
 }

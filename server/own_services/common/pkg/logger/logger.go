@@ -105,6 +105,28 @@ func Initialize(lr Logger) error {
 // global funcs available after initialization!
 // -----------------------------------------------------------------------
 
+func To(l Level, format string, a ...interface{}) {
+	switch l {
+	case LevelTrace:
+		Trace(format, a...)
+	case LevelDebug:
+		Debug(format, a...)
+
+	case LevelInfo:
+		Info(format, a...)
+	case LevelWarning:
+		Warning(format, a...)
+
+	case LevelError:
+		Error(format, a...)
+	case LevelFatal:
+		Fatal(format, a...)
+
+	default:
+		Trace(format, a...) // !
+	}
+}
+
 func Trace(format string, a ...interface{}) {
 	instance.Trace(format, a...)
 }

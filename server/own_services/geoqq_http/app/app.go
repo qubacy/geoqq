@@ -22,7 +22,7 @@ import (
 	"geoqq_http/internal/infra/msgs/rabbit"
 	"geoqq_http/internal/server"
 	"geoqq_http/internal/service"
-	serviceImpl "geoqq_http/internal/service/impl"
+	basicService "geoqq_http/internal/service/basic"
 	domainStorage "geoqq_http/internal/storage/domain"
 	domainStorageImpl "geoqq_http/internal/storage/domain/impl/sql/postgre"
 	fileStorage "geoqq_http/internal/storage/file"
@@ -286,7 +286,7 @@ func servicesInstance(
 
 	// ***
 
-	services, err := serviceImpl.NewServices(serviceImpl.Dependencies{
+	services, err := basicService.NewServices(basicService.Dependencies{
 		HashManager:  hashManager,
 		TokenManager: tokenManager,
 
@@ -305,17 +305,17 @@ func servicesInstance(
 
 		GeoDistCalculator: geoDistanceImpl.NewCalculator(),
 
-		GeneralParams: serviceImpl.GeneralParams{
+		GeneralParams: basicService.GeneralParams{
 			MaxPageSize: viper.GetUint64("service.general.pagination.max_page_size"),
 		},
 
-		AuthParams: serviceImpl.AuthParams{
-			SignIn: serviceImpl.SignInParams{
+		AuthParams: basicService.AuthParams{
+			SignIn: basicService.SignInParams{
 				FailedAttemptCount: viper.GetUint64("service.auth.sign_in.failed_attempt_count"),
 				FailedAttemptTtl:   viper.GetDuration("service.auth.sign_in.failed_attempt_ttl"),
 				BlockingTime:       viper.GetDuration("service.auth.sign_in.blocking_time"),
 			},
-			SignUp: serviceImpl.SignUpParams{
+			SignUp: basicService.SignUpParams{
 				BlockingTime: viper.GetDuration("service.auth.sign_up.blocking_time"),
 			},
 
@@ -323,23 +323,23 @@ func servicesInstance(
 			PasswordPattern: viper.GetString("service.auth.password_pattern"),
 		},
 
-		ImageParams: serviceImpl.ImageParams{
+		ImageParams: basicService.ImageParams{
 			CacheTtl: viper.GetDuration("service.image.cache_ttl"),
-			AddImageParams: serviceImpl.AddImageParams{
+			AddImageParams: basicService.AddImageParams{
 				BlockingTime: viper.GetDuration("service.image.add.blocking_time"),
 			},
 		},
 
-		UserParams: serviceImpl.UserParams{
+		UserParams: basicService.UserParams{
 			NamePattern: viper.GetString("service.user.name_pattern"),
-			UpdateUsernameParams: serviceImpl.UpdateUsernameParams{
+			UpdateUsernameParams: basicService.UpdateUsernameParams{
 				BlockingTime: viper.GetDuration("service.user.update_name.blocking_time"),
 			},
 		},
 
-		ChatParams: serviceImpl.ChatParams{
+		ChatParams: basicService.ChatParams{
 			MaxMessageLength: viper.GetUint64("service.chat.max_message_length"),
-			GeoChatParams: serviceImpl.GeoChatParams{
+			GeoChatParams: basicService.GeoChatParams{
 				MaxMessageCountReturned: viper.GetUint64(
 					"service.chat.geo.max_message_count_returned"),
 				MaxRadius: viper.GetUint64("service.chat.geo.max_radius"),

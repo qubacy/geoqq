@@ -17,4 +17,14 @@ func NewEmptyMateMessage() *MateMessage {
 	}
 }
 
+func NewMessageWithNowTime(id, userId uint64, text string) *MateMessage {
+	return &MateMessage{
+		Id:     id,
+		Text:   text,
+		Time:   time.Now().UTC(), // small inaccuracy!
+		UserId: userId,
+		Read:   false,
+	}
+}
+
 type MateMessageList []*MateMessage

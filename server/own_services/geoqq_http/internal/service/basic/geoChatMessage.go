@@ -9,7 +9,6 @@ import (
 	"geoqq_http/internal/domain"
 	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
-	"time"
 )
 
 type GeoChatMessageService struct {
@@ -39,7 +38,7 @@ func newGeoChatMessageService(deps Dependencies) *GeoChatMessageService {
 
 func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 	userId uint64, text string, longitude, latitude float64) error {
-
+	sourceFunc := s.AddMessageToGeoChat
 	if len(text) > int(s.chatParams.MaxMessageLength) {
 		return ec.New(ErrMessageTooLong(s.chatParams.MaxMessageLength),
 			ec.Client, ec.GeoMessageTooLong)
@@ -47,7 +46,7 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 
 	err := validateLatAndLon(longitude, latitude)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToGeoChat, err)
+		return utl.NewFuncError(sourceFunc, err)
 	}
 
 	// ***
@@ -55,7 +54,7 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 	gmId, err := s.domainStorage.InsertGeoChatMessageWithUpdateUserLocation(
 		ctx, userId, text, latitude, longitude)
 	if err != nil {
-		return utl.NewFuncError(s.AddMessageToGeoChat,
+		return utl.NewFuncError(sourceFunc,
 			ec.New(err, ec.Server, ec.DomainStorageError))
 	}
 
@@ -63,17 +62,12 @@ func (s *GeoChatMessageService) AddMessageToGeoChat(ctx context.Context,
 
 	if s.msgs != nil {
 		err = s.msgs.SendGeoMessage(ctx, msgs.EventAddedGeoMessage,
-			latitude, longitude, &domain.GeoMessage{
-				Id:     gmId,
-				UserId: userId,
-				Text:   text,
-				Time:   time.Now().UTC(),
-			})
+			latitude, longitude, domain.NewGeoMessageWithNowTime(gmId, userId, text))
 		if err != nil {
-			logger.Error("%v", err)
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 		}
 	} else {
-		logger.Warning("msgs disabled")
+		logger.Warning(msgs.TextMsgsDisabled)
 	}
 
 	s.domainStorage.UpdateBgrLastActionTimeForUser(userId)

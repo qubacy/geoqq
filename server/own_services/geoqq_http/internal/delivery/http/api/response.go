@@ -47,14 +47,17 @@ func resWithServerErr(ctx *gin.Context, errorId int, err error) {
 
 func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 	httpCode := http.StatusInternalServerError // ?
+	level := logger.LevelWarning
 
 	switch side {
 	case ec.Client:
 		httpCode = http.StatusBadRequest
 	case ec.Server:
 		httpCode = http.StatusInternalServerError
+		level = logger.LevelError
 	}
 
+	logger.To(level, "%v", err)
 	resWithErr(ctx, httpCode, errorId, err)
 }
 

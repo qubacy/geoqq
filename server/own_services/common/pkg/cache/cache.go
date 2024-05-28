@@ -5,7 +5,9 @@ import (
 	"time"
 )
 
-// CacheProvider!
+const (
+	TextCacheDisabled = "cache disabled"
+)
 
 type Cache interface {
 	Set(ctx context.Context, key, value string) error

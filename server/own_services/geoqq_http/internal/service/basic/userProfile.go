@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"common/pkg/cache"
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
@@ -100,17 +101,8 @@ func (p *UserProfileService) UpdateUserProfileWithAvatar(ctx context.Context, us
 
 	// update
 
-	if err = p.domainStorage.UpdateUserParts(ctx, userId, storageDto); err != nil {
-		return utl.NewFuncError(sourceFunc,
-			ec.New(err, ec.Server, ec.DomainStorageError))
-	}
+	p.actionsAfterUpdateUserProfile(ctx, userId, storageDto)
 
-	// additional actions..!
-
-	p.executeUpdateChangeUsernameCacheIfNeeded(ctx,
-		userId, storageDto.Username != nil)
-
-	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 
@@ -154,45 +146,60 @@ func (p *UserProfileService) UpdateUserProfile(ctx context.Context,
 		return ec.New(utl.NewFuncError(sourceFunc, err), ec.Server, ec.DomainStorageError)
 	}
 
-	// additional actions..!
-	// TODO: !!! to func!!!
-
-	if p.msgs != nil {
-		// Если измененился пароль соощать об этом не нужно!!
-		if err = p.msgs.SendPublicUserId(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
-			err = utl.NewFuncError(sourceFunc, err)
-			logger.Warning("%v", err)
-		}
-	} else {
-		logger.Warning("msgs disabled")
-	}
-
-	p.executeUpdateChangeUsernameCacheIfNeeded(ctx, userId, storageDto.Username != nil)
-
-	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+	p.actionsAfterUpdateUserProfile(ctx, userId, storageDto) // quiet!
 
 	return nil
 }
 
+func (p *UserProfileService) actionsAfterUpdateUserProfile(
+	ctx context.Context, userId uint64, storageDto *dsDto.UpdateUserPartsInp) {
+	sourceFunc := p.actionsAfterUpdateUserProfile
+
+	p.executeUpdateChangeUsernameCacheIfNeeded(ctx, userId, storageDto.Username != nil)
+	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
+
+	if p.msgs != nil && storageDto.HasFieldsNotNilIgnorePassword() {
+		if err := p.msgs.SendPublicUserId(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
+			logger.Warning("%v", utl.NewFuncError(sourceFunc, err))
+		}
+	} else {
+		logger.Warning(msgs.TextMsgsDisabled)
+	}
+}
+
+// -----------------------------------------------------------------------
+
 func (p *UserProfileService) DeleteUserProfile(ctx context.Context, userId uint64) error {
+	sourceFunc := p.DeleteUserProfile
 	err := p.domainStorage.DeleteUserProfile(ctx, userId)
 	if err != nil {
-		return ec.New(utl.NewFuncError(p.DeleteUserProfile, err),
+		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
 	if p.enableCache {
 		if err = p.updateDeletedUserCache(ctx, userId); err != nil {
-			logger.Warning("%v", err)
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 		} else {
-			logger.Debug("user %v added to cache as deleted", userId)
+			logger.Info("user %v added to cache as deleted", userId)
 		}
+
 	} else {
-		logger.Warning("cache disabled")
+		logger.Warning(cache.TextCacheDisabled)
 	}
+
+	// update
 
 	p.domainStorage.UpdateBgrLastActionTimeForUser(userId)
 	p.domainStorage.DeleteBgrMateChatsForUser(userId) // !
+
+	if p.msgs != nil {
+		if err := p.msgs.SendPublicUserId(ctx, msgs.EventUpdatedPublicUser, userId); err != nil {
+			logger.Warning("%v", utl.NewFuncError(sourceFunc, err))
+		}
+	} else {
+		logger.Warning(msgs.TextMsgsDisabled)
+	}
 
 	return nil
 }
@@ -262,12 +269,18 @@ func (p *UserProfileService) checkPasswordForUpdate(ctx context.Context,
 
 func (p *UserProfileService) executeUpdateChangeUsernameCacheIfNeeded(
 	ctx context.Context, userId uint64, usernameWasChanged bool) {
-	if p.enableCache && usernameWasChanged {
+	if p.cache == nil {
+		logger.Warning(cache.TextCacheDisabled)
+		return
+	}
+
+	if usernameWasChanged {
 		if err := p.updateChangeUsernameCache(ctx, userId); err != nil {
 			err = utl.NewFuncError(p.executeUpdateChangeUsernameCacheIfNeeded, err)
-			logger.Warning("%v", err)
+			logger.Error("%v", err)
+
 		} else {
-			logger.Debug("change username cache updated for user %v", userId)
+			logger.Info("change username cache updated for user %v", userId)
 		}
 	}
 }
