@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 
 import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.error.type.DataHttpWebSocketErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.closed.WebSocketClosedEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.error.WebSocketErrorEvent
@@ -20,14 +20,10 @@ class WebSocketListenerAdapter @Inject constructor(
         const val TAG = "WebSocketListnrAdptr"
     }
 
-    private var mCallbacks: MutableList<WebSocketListenerAdapterCallback> = mutableListOf()
+    private lateinit var mCallback: WebSocketListenerAdapterCallback
 
-    fun addCallback(callback: WebSocketListenerAdapterCallback) {
-        mCallbacks.add(callback)
-    }
-
-    fun removeCallback(callback: WebSocketListenerAdapterCallback) {
-        mCallbacks.remove(callback)
+    fun setCallback(callback: WebSocketListenerAdapterCallback) {
+        mCallback = callback
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -55,7 +51,7 @@ class WebSocketListenerAdapter @Inject constructor(
 
         Log.d(TAG, "onClosed(): code = $code; reason = $reason;")
 
-        emitEvent(WebSocketClosedEvent())
+        emitEvent(WebSocketClosedEvent(code))
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -64,14 +60,12 @@ class WebSocketListenerAdapter @Inject constructor(
         Log.d(TAG, "onFailure(): reason = ${t.message};")
 
         val error = mLocalErrorDatabaseDataSource
-            .getError(DataNetworkErrorType.WEB_SOCKET_FAILURE.getErrorCode())
+            .getError(DataHttpWebSocketErrorType.WEB_SOCKET_FAILURE.getErrorCode())
 
         emitEvent(WebSocketErrorEvent(error))
     }
 
     private fun emitEvent(event: WebSocketEvent) {
-        if (mCallbacks.isEmpty()) return
-
-        mCallbacks.forEach { it.onEventGotten(event) }
+        mCallback.onEventGotten(event)
     }
 }

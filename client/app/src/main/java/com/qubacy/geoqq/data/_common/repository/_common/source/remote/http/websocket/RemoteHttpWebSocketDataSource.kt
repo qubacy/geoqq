@@ -4,13 +4,11 @@ import com.qubacy.geoqq._common.struct.flow.MutableColdFlow
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.listener.WebSocketEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model._common.WebSocketEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.closed.WebSocketClosedEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.error.WebSocketErrorEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.message.WebSocketMessageEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.server.json.adapter.ServerEventJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.server.json.adapter.callback.ServerEventJsonAdapterCallback
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.json.adapter.EventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.json.adapter.callback.EventJsonAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result._common.WebSocketResult
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.closed.WebSocketClosedResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
@@ -24,19 +22,15 @@ import kotlinx.coroutines.launch
 abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::class) constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     private val mCoroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
-) : ProducingDataSource, WebSocketEventListener, ServerEventJsonAdapterCallback {
+) : ProducingDataSource, WebSocketEventListener, EventJsonAdapterCallback {
     protected abstract val mWebSocketAdapter: WebSocketAdapter
-    private val mServerEventJsonAdapter: ServerEventJsonAdapter
+    protected abstract val mEventJsonAdapter: EventJsonAdapter
 
     protected val mEventFlow: MutableColdFlow<WebSocketResult> = MutableColdFlow()
     val eventFlow: Flow<WebSocketResult> get() = mEventFlow.flow
 
     @Volatile
     private var mIsStarted: Boolean = false
-
-    init {
-        mServerEventJsonAdapter = ServerEventJsonAdapter(this)
-    }
 
     @Synchronized
     override fun startProducing() {
@@ -66,15 +60,10 @@ abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::c
 
     private fun processEvent(event: WebSocketEvent): WebSocketResult? {
         return when (event::class) {
-            WebSocketClosedEvent::class -> onClosedEventGotten(event as WebSocketClosedEvent)
             WebSocketErrorEvent::class -> onErrorEventGotten(event as WebSocketErrorEvent)
             WebSocketMessageEvent::class -> onMessageEventGotten(event as WebSocketMessageEvent)
             else -> throw IllegalArgumentException()
         }
-    }
-
-    private fun onClosedEventGotten(closedEvent: WebSocketClosedEvent): WebSocketClosedResult {
-        return WebSocketClosedResult() // todo: shallow for now;
     }
 
     private fun onErrorEventGotten(errorEvent: WebSocketErrorEvent): WebSocketErrorResult {
@@ -82,7 +71,7 @@ abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::c
     }
 
     private fun onMessageEventGotten(messageEvent: WebSocketMessageEvent): WebSocketPayloadResult? {
-        val serverEvent = mServerEventJsonAdapter.fromJson(messageEvent.message) ?: return null
+        val serverEvent = mEventJsonAdapter.fromJson(messageEvent.message) ?: return null
 
         return WebSocketPayloadResult(serverEvent.header.type, serverEvent.payload)
     }

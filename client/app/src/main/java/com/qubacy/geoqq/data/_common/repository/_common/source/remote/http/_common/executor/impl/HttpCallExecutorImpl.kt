@@ -3,10 +3,10 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http._com
 import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor._common.HttpCallExecutor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.error.type.DataHttpRestErrorType
 import okhttp3.ResponseBody
 import retrofit2.Call
 import javax.inject.Inject
@@ -31,7 +31,7 @@ open class HttpCallExecutorImpl @Inject constructor(
 
             } else
                 throw ErrorAppException(mErrorSource.getError(
-                    DataNetworkErrorType.RESPONSE_ERROR_WITH_SERVER_FAIL.getErrorCode()))
+                    DataHttpRestErrorType.RESPONSE_ERROR_WITH_SERVER_FAIL.getErrorCode()))
         }
 
         val responseBody = response.body()!!

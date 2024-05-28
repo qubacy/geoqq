@@ -12,6 +12,8 @@ enum class ErrorDomain(
     UI_MY_PROFILE(ErrorDomainType.LOCAL),
     UI_CHAT(ErrorDomainType.LOCAL),
     UI_GEO(ErrorDomainType.LOCAL),
+    DATA_NETWORK_WS(ErrorDomainType.LOCAL),
+    DATA_NETWORK_REST(ErrorDomainType.LOCAL),
 
     GENERAL(ErrorDomainType.SHARED), // 1200
     AUTH(ErrorDomainType.SHARED), // 1400

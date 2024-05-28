@@ -1,15 +1,12 @@
 package com.qubacy.geoqq.ui._di.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.component.WebSocketComponent
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-@Module(subcomponents = [
-    WebSocketComponent::class
-])
+@Module(subcomponents = [])
 abstract class CustomApplicationSubcomponentsModule {
     companion object {
         // todo: delete (for experiments only):

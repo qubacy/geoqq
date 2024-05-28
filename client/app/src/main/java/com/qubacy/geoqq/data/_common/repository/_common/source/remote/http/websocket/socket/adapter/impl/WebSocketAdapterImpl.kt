@@ -1,5 +1,8 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter.impl
 
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq._common.model.error._common.Error
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.listener.WebSocketListenerAdapter
@@ -8,43 +11,63 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.middleware.client.auth.AuthClientEventJsonMiddleware
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.client.json.adapter.impl.ClientEventJsonAdapterImpl
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.server.json.adapter.callback.ServerEventJsonAdapterCallback
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.component.WebSocketComponent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.action.json.adapter.impl.ActionJsonAdapterImpl
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.action.PackagedAction
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler._common.WebSocketEventHandler
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.closed.WebSocketClosedEventHandler
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.closed.callback.WebSocketClosedEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.error.WebSocketErrorMessageEventHandler
-import com.squareup.moshi.JsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.error.callback.WebSocketErrorMessageEventHandlerCallback
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.success.WebSocketSuccessMessageEventHandler
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHandlerCallback
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.error.WebSocketErrorEvent
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.WebSocket
 import javax.inject.Inject
 
 class WebSocketAdapterImpl @Inject constructor(
-    listenerAdapterRef: WebSocketListenerAdapter,
-    private val mClientEventJsonAdapter: ClientEventJsonAdapterImpl,
-    private val mErrorJsonAdapter: ErrorResponseJsonAdapter,
+    private val mWebSocketListenerAdapter: WebSocketListenerAdapter,
+    private val mActionJsonAdapter: ActionJsonAdapterImpl,
     private val mAuthClientEventMiddleware: AuthClientEventJsonMiddleware,
     private val mWebSocketErrorMessageEventHandler: WebSocketErrorMessageEventHandler,
-    webSocketComponentFactory: WebSocketComponent.Factory
-) : WebSocketAdapter, WebSocketListenerAdapterCallback, ServerEventJsonAdapterCallback {
+    private val mWebSocketSuccessMessageEventHandler: WebSocketSuccessMessageEventHandler,
+    private val mWebSocketClosedEventHandler: WebSocketClosedEventHandler,
+    private val mOkHttpClient: OkHttpClient,
+) : WebSocketAdapter,
+    WebSocketListenerAdapterCallback,
+    WebSocketSuccessMessageEventHandlerCallback,
+    WebSocketErrorMessageEventHandlerCallback,
+    WebSocketClosedEventHandlerCallback
+{
     companion object {
         const val ERROR_TYPE = "error"
     }
 
-    private val mWebSocketComponent: WebSocketComponent
-
     private var mWebSocket: WebSocket? = null
-
-    private val mListenerAdapterRef: WebSocketListenerAdapter = listenerAdapterRef
 
     private val mEventHandlers: Array<WebSocketEventHandler<WebSocketEvent>>
     private val mEventListeners: MutableList<WebSocketEventListener> = mutableListOf()
 
+    private var mCurrentAction: PackagedAction? = null
+    private val mCurrentActionMutex: Mutex = Mutex()
+
     init {
-        mWebSocketComponent = webSocketComponentFactory.create()
         mEventHandlers = generateBaseEventHandlers()
+
+        mWebSocketSuccessMessageEventHandler.setCallback(this)
+        mWebSocketErrorMessageEventHandler.setCallback(this)
+        mWebSocketClosedEventHandler.setCallback(this)
     }
 
     override fun generateBaseEventHandlers(): Array<WebSocketEventHandler<WebSocketEvent>> {
-        return arrayOf(mWebSocketErrorMessageEventHandler as WebSocketEventHandler<WebSocketEvent>)
+        return arrayOf(
+            mWebSocketErrorMessageEventHandler as WebSocketEventHandler<WebSocketEvent>,
+            mWebSocketSuccessMessageEventHandler as WebSocketEventHandler<WebSocketEvent>,
+            mWebSocketClosedEventHandler as WebSocketEventHandler<WebSocketEvent>
+        )
     }
 
     override fun addEventListener(eventListener: WebSocketEventListener) {
@@ -59,13 +82,39 @@ class WebSocketAdapterImpl @Inject constructor(
         }
     }
 
-    override fun sendEvent(type: String, payloadString: String) {
-        synchronized(mWebSocketComponent) {
-            val middlewares = getJsonMiddlewaresForClientEvent(type)
-            val eventString = mClientEventJsonAdapter.toJson(middlewares, type, payloadString)
+//    override fun pushAction(type: String, payloadString: String) {
+//        val packagedAction = PackagedAction(type, payloadString)
+//
+//        mActionQueue.put(packagedAction)
+//
+//        synchronized(mActionQueue) {
+//            if (mActionQueue.isEmpty()) return sendAction(packagedAction)
+//
+//            mActionQueue.put(packagedAction)
+//        }
+//    }
 
-            mWebSocket!!.send(eventString)
+    override fun sendAction(action: PackagedAction) {
+        synchronized(this) {
+            if (!isOpen()) return
+
+            runBlocking {
+                mCurrentActionMutex.lock() // todo: is it alright?
+
+                mCurrentAction = action
+
+                tryCurrentActionSending()
+            }
         }
+    }
+
+    private fun tryCurrentActionSending() {
+        val action = mCurrentAction!!
+
+        val middlewares = getJsonMiddlewaresForClientEvent(action.type)
+        val eventString = mActionJsonAdapter.toJson(middlewares, action)
+
+        mWebSocket!!.send(eventString)
     }
 
     override fun isOpen(): Boolean {
@@ -73,17 +122,22 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun open() {
-        synchronized(mWebSocketComponent) {
+        synchronized(this) {
             if (isOpen()) return
 
-            mWebSocket = mWebSocketComponent.webSocket()
+            mWebSocket = createWebSocket()
         }
     }
 
-    override fun close() {
-        synchronized(mWebSocketComponent) {
-            mListenerAdapterRef.removeCallback(this)
+    private fun createWebSocket(): WebSocket {
+        val request = Request.Builder().url("ws://${HttpContext.BASE_HOST_PORT}")
+            .build() // todo: optimize!
 
+        return mOkHttpClient.newWebSocket(request, mWebSocketListenerAdapter)
+    }
+
+    override fun close() {
+        synchronized(this) {
             // todo: init a graceful disconnection..
 
             mWebSocket = null
@@ -99,9 +153,16 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun processEvent(event: WebSocketEvent) {
-        if (processBaseEvent(event)) return
+        try {
+            if (processBaseEvent(event)) return
 
-        conveyEvent(event)
+            conveyEvent(event)
+
+        } catch (e: ErrorAppException) {
+            conveyEvent(WebSocketErrorEvent(e.error))
+
+            if (!e.error.isCritical) mCurrentActionMutex.unlock() // todo: ?
+        }
     }
 
     private fun processBaseEvent(event: WebSocketEvent): Boolean {
@@ -119,15 +180,22 @@ class WebSocketAdapterImpl @Inject constructor(
         }
     }
 
-    override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
-        if (type != ERROR_TYPE) return null
-
-        return mErrorJsonAdapter
+    override fun onWebSocketMessageSucceeded() {
+        mCurrentActionMutex.unlock() // todo: ?
     }
 
-    // todo:
-    //  1. add a basic message processing method. it should be capable to work with authorization issues at least;
-    //  2. provide a sending queue and synchronize the sending mechanics in order to control outgoing
-    //     message flow (preventing invalid token packet spamming, etc.);
-    //  3. anything else?..
+    override fun retryActionSending() {
+        tryCurrentActionSending()
+    }
+
+    // todo: alright?:
+    override fun shutdownWebSocketWithError(error: Error) {
+        close()
+        conveyEvent(WebSocketErrorEvent(error))
+    }
+
+    override fun onWebSocketClosedGracefully() {
+        // todo: do something?.. or mb not
+
+    }
 }

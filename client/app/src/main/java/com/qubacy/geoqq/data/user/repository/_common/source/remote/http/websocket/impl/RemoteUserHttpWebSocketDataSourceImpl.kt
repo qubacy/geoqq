@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket.impl
 
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
@@ -15,9 +16,14 @@ class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::cl
 @Inject constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
+    override val mEventJsonAdapter: EventJsonAdapter,
     override val mWebSocketAdapter: WebSocketAdapter,
     private val mUserUpdatedServerEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
 ) : RemoteUserHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
+
+    init {
+        mEventJsonAdapter.setCallback(this)
+    }
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
         return when (type) {

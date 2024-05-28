@@ -13,8 +13,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http._comm
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api._di.module.HttpRestApiModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.retrofit._di.module.RetrofitModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._di.module.AuthorizationHttpRestInterceptorModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.event.server.payload.error.json.adapter._di.module.ErrorServerEventPayloadJsonAdapterModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket._di.component.WebSocketComponent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.payload.error.json.adapter._di.module.ErrorEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._di.module.LocalTokenDataStoreDataSourceModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api._di.module.RemoteTokenHttpRestDataSourceApiModule
@@ -162,7 +161,7 @@ import javax.inject.Singleton
 
         ErrorResponseJsonAdapterModule::class,
         ErrorResponseContentJsonAdapterModule::class,
-        ErrorServerEventPayloadJsonAdapterModule::class,
+        ErrorEventPayloadJsonAdapterModule::class,
         UserUpdatedServerEventPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,
@@ -185,6 +184,4 @@ interface CustomApplicationComponent {
     fun inject(fragment: MateChatFragment)
     fun inject(fragment: MateRequestsFragment)
     fun inject(fragment: MyProfileFragment)
-
-    fun webSocketComponent(): WebSocketComponent.Factory
 }
