@@ -39,8 +39,8 @@ class AuthDataRepositoryImpl @Inject constructor(
         val signInResponse = mRemoteAuthHttpRestDataSource.signIn(login, passwordHash)
 
         mTokenDataRepository.saveTokens(
-            signInResponse.accessToken,
-            signInResponse.refreshToken
+            signInResponse.refreshToken,
+            signInResponse.accessToken
         )
     }
 
@@ -55,8 +55,8 @@ class AuthDataRepositoryImpl @Inject constructor(
         val signUpResponse = mRemoteAuthHttpRestDataSource.signUp(login, passwordHash)
 
         mTokenDataRepository.saveTokens(
-            signUpResponse.accessToken,
-            signUpResponse.refreshToken
+            signUpResponse.refreshToken,
+            signUpResponse.accessToken
         )
     }
 

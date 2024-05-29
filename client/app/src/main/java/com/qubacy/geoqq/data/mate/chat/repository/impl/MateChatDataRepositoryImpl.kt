@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository.impl
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
@@ -99,7 +100,6 @@ class MateChatDataRepositoryImpl(
         val resultLiveData = MutableLiveData<GetChatByIdDataResult?>()
 
         CoroutineScope(coroutineContext).launch {
-
             val localChat = mLocalMateChatDatabaseDataSource.getChatById(chatId)
             val localDataChat = resolveChatWithLastMessageMap(localChat)
                 .let { if (it.isNotEmpty()) it.first() else null }
@@ -152,6 +152,8 @@ class MateChatDataRepositoryImpl(
     private fun deleteOverdueChats(
         loadedChatIds: List<Long>
     ) {
+        Log.d(TAG, "deleteOverdueChats(): loadedChatIds = $loadedChatIds;")
+
         if (loadedChatIds.isEmpty()) mLocalMateChatDatabaseDataSource.deleteAllChats()
         else mLocalMateChatDatabaseDataSource.deleteOtherChatsByIds(loadedChatIds)
     }
