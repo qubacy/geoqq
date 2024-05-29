@@ -95,7 +95,7 @@ storage:
         #...
 
 msgs:
-  enable: true
+  enable: false
   type: "rabbit"
 
   rabbit:

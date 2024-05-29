@@ -55,6 +55,7 @@ var envKeyToViperKey = map[string]string{
 	"RABBIT_USERNAME": "msgs.rabbit.username",
 	"RABBIT_PASSWORD": "msgs.rabbit.password",
 	"RABBIT_EXCHANGE": "msgs.rabbit.exchange_name",
+	"RABBIT_MSG_TTL":  "msgs.rabbit.message_ttl",
 }
 
 // -----------------------------------------------------------------------
@@ -100,7 +101,9 @@ func Initialize() error {
 
 	mergeWithEnvironmentVars()
 
-	fmt.Printf("cache enable: %v\n", viper.GetBool("cache.enable"))
+	fmt.Printf("cache enabled: %v\n", viper.GetBool("cache.enable"))
+	fmt.Printf("msgs enabled: %v\n", viper.GetBool("msgs.enable"))
+
 	fmt.Printf("access ttl: %v\n", viper.GetDuration("delivery.token.access_ttl"))
 	fmt.Printf("refresh ttl: %v\n", viper.GetDuration("delivery.token.refresh_ttl"))
 
