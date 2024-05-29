@@ -11,7 +11,6 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http._comm
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl.AuthorizationHttpRestInterceptorImpl
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.get.GetTokensDataResult
-import com.qubacy.geoqq.data._common.repository.token.repository._common.result.update.UpdateTokensDataResult
 import com.qubacy.geoqq.data._common.repository.token.repository._test.mock.TokenDataRepositoryMockContainer
 import okhttp3.HttpUrl
 import okhttp3.Interceptor.Chain
@@ -35,8 +34,10 @@ class AuthorizationHttpRestInterceptorTest {
 
     private lateinit var mAuthorizationHttpRestInterceptor: AuthorizationHttpRestInterceptorImpl
 
-    private var mResponseCode: Int? = null
+    private var mResponseCodes: Array<Int> = arrayOf()
     private var mRequestUrlContainsAuthSegments: Boolean = false
+
+    private var mCurResponseCodeIndex = 0
 
     private var mErrorJsonAdapterFromJson: ErrorResponse? = null
 
@@ -50,8 +51,10 @@ class AuthorizationHttpRestInterceptorTest {
 
     @After
     fun clear() {
-        mResponseCode = null
+        mResponseCodes = arrayOf()
         mRequestUrlContainsAuthSegments = false
+
+        mCurResponseCodeIndex = 0
 
         mErrorJsonAdapterFromJson = null
 
@@ -120,7 +123,11 @@ class AuthorizationHttpRestInterceptorTest {
             requestMock
         }
         Mockito.`when`(chainMock.proceed(AnyMockUtil.anyObject())).thenAnswer {
-            createResponse(mResponseCode!!, requestMock, responseBodyMock)
+            val responseCode = mResponseCodes[mCurResponseCodeIndex]
+
+            ++mCurResponseCodeIndex
+
+            createResponse(responseCode, requestMock, responseBodyMock)
         }
 
         return chainMock
@@ -149,7 +156,7 @@ class AuthorizationHttpRestInterceptorTest {
 
     @Test
     fun interceptAuthRequestTest() {
-        mResponseCode = 200
+        mResponseCodes = arrayOf(200)
         mRequestUrlContainsAuthSegments = true
 
         mAuthorizationHttpRestInterceptor.intercept(mChainMock)
@@ -159,7 +166,7 @@ class AuthorizationHttpRestInterceptorTest {
 
     @Test
     fun interceptSuccessfulRequestTest() {
-        mResponseCode = 200
+        mResponseCodes = arrayOf(200)
 
         mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
             LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
@@ -173,7 +180,7 @@ class AuthorizationHttpRestInterceptorTest {
 
     @Test
     fun interceptErrorRequestTest() {
-        mResponseCode = 400
+        mResponseCodes = arrayOf(400)
         mErrorJsonAdapterFromJson = ErrorResponse(ErrorResponseContent(1))
 
         mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
@@ -187,25 +194,22 @@ class AuthorizationHttpRestInterceptorTest {
         Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
     }
 
-    // todo: doesn't work for now:
-//    @Test
-//    fun interceptAccessTokenErrorRequestTest() {
-//        mResponseCode = 400
-//        mErrorJsonAdapterFromJson = ErrorResponse(
-//            ErrorResponseContent(
-//            GeneralErrorType.INVALID_ACCESS_TOKEN.getErrorCode())
-//        )
-//
-//        mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
-//            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
-//            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
-//        )
-//
-//        // todo: how to?
-//
-//        mAuthorizationHttpRestInterceptor.intercept(mChainMock)
-//
-//        Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
-//        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
-//    }
+    @Test
+    fun interceptAccessTokenErrorRequestTest() {
+        mResponseCodes = arrayOf(400, 200)
+        mErrorJsonAdapterFromJson = ErrorResponse(
+            ErrorResponseContent(
+            GeneralErrorType.INVALID_ACCESS_TOKEN.getErrorCode())
+        )
+
+        mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
+            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
+        )
+
+        mAuthorizationHttpRestInterceptor.intercept(mChainMock)
+
+        Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+    }
 }
