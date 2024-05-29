@@ -48,7 +48,6 @@ class ErrorEventPayloadJsonAdapter(
     }
 
     override fun toJson(p0: JsonWriter, p1: ErrorEventPayload?) {
-        TODO("Not yet implemented")
-    }
 
+    }
 }

@@ -3,7 +3,6 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.listener.WebSocketEventListener
@@ -21,6 +20,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.success.WebSocketSuccessMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.error.WebSocketErrorEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.context.WebSocketContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import okhttp3.OkHttpClient
@@ -42,10 +42,6 @@ class WebSocketAdapterImpl @Inject constructor(
     WebSocketErrorMessageEventHandlerCallback,
     WebSocketClosedEventHandlerCallback
 {
-    companion object {
-        const val ERROR_TYPE = "error"
-    }
-
     private var mWebSocket: WebSocket? = null
 
     private val mEventHandlers: Array<WebSocketEventHandler<WebSocketEvent>>
@@ -138,7 +134,9 @@ class WebSocketAdapterImpl @Inject constructor(
 
     override fun close() {
         synchronized(this) {
-            // todo: init a graceful disconnection..
+            if (!isOpen()) return
+
+            mWebSocket!!.close(WebSocketContext.GRACEFUL_DISCONNECTION_CODE, null)
 
             mWebSocket = null
         }
@@ -196,6 +194,7 @@ class WebSocketAdapterImpl @Inject constructor(
 
     override fun onWebSocketClosedGracefully() {
         // todo: do something?.. or mb not
+
 
     }
 }

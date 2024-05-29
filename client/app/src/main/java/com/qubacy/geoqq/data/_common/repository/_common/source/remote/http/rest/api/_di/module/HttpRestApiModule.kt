@@ -6,11 +6,13 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.source.
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
+import javax.inject.Singleton
 
 @Module
 abstract class HttpRestApiModule {
     companion object {
         @JvmStatic
+        @Singleton
         @Provides
         fun provideHttpRestApi(
             remoteTokenHttpRestDataSource: RemoteTokenHttpRestDataSource,

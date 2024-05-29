@@ -13,6 +13,6 @@ class SuccessEventPayloadJsonAdapter : JsonAdapter<SuccessEventPayload>() {
     }
 
     override fun toJson(p0: JsonWriter, p1: SuccessEventPayload?) {
-        TODO("Not yet implemented")
+
     }
 }

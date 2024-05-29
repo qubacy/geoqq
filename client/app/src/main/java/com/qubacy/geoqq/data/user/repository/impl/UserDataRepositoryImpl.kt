@@ -36,10 +36,9 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
-open class UserDataRepositoryImpl @Inject constructor(
+open class UserDataRepositoryImpl(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDatabaseDataSource,

@@ -59,6 +59,6 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
     }
 
     override fun toJson(p0: JsonWriter, p1: Event?) {
-        TODO("Not yet implemented")
+
     }
 }

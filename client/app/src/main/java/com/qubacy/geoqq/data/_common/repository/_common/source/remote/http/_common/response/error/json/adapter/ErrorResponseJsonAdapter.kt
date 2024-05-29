@@ -20,6 +20,6 @@ class ErrorResponseJsonAdapter(
     }
 
     override fun toJson(p0: JsonWriter, p1: ErrorResponse?) {
-        TODO("Not yet implemented")
+
     }
 }

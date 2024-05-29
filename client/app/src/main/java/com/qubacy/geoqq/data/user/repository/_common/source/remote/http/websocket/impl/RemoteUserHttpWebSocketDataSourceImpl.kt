@@ -10,15 +10,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import javax.inject.Inject
 
-class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::class)
-@Inject constructor(
+class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::class) constructor(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     override val mEventJsonAdapter: EventJsonAdapter,
     override val mWebSocketAdapter: WebSocketAdapter,
-    private val mUserUpdatedServerEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
+    private val mUserUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
 ) : RemoteUserHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
 
     init {
@@ -28,7 +26,7 @@ class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::cl
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
         return when (type) {
             UserServerEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
-                mUserUpdatedServerEventPayloadJsonAdapter
+                mUserUpdatedEventPayloadJsonAdapter
             else -> null
         }
     }

@@ -9,6 +9,7 @@ import com.qubacy.geoqq.data._common.repository.token.repository._common.source.
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
 abstract class LocalTokenDataStoreDataSourceModule {
@@ -22,9 +23,9 @@ abstract class LocalTokenDataStoreDataSourceModule {
         }
     }
 
+    @Singleton
     @Binds
     abstract fun bindLocalTokenDataStoreDataSource(
         localTokenDataStoreDataSource: LocalTokenDataStoreDataSourceImpl
     ): LocalTokenDataStoreDataSource
-
 }

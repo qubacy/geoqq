@@ -21,10 +21,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
-class MyProfileDataRepositoryImpl @Inject constructor(
+class MyProfileDataRepositoryImpl(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDatabaseDataSource,

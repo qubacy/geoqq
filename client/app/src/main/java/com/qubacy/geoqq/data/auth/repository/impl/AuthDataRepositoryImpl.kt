@@ -25,6 +25,7 @@ class AuthDataRepositoryImpl @Inject constructor(
 
     override suspend fun signIn() {
         mTokenDataRepository.getTokens() // todo: is it enough?
+        mTokenDataRepository.updateTokens()
     }
 
     @OptIn(ExperimentalStdlibApi::class)

@@ -13,10 +13,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
-class GeoMessageDataRepositoryImpl @Inject constructor(
+class GeoMessageDataRepositoryImpl(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDatabaseDataSource,

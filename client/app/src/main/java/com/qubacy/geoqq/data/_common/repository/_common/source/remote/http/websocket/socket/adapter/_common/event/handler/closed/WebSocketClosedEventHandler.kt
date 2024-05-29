@@ -7,13 +7,13 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.handler.closed.callback.WebSocketClosedEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model.closed.WebSocketClosedEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.context.WebSocketContext
 import javax.inject.Inject
 
 class WebSocketClosedEventHandler @Inject constructor(
     private val mErrorDataSource: LocalErrorDatabaseDataSource
 ) : WebSocketEventHandler<WebSocketEvent> {
     companion object {
-        const val GRACEFUL_CLOSE_CODE = 1000
         const val TIMEOUT_CLOSE_CODE = 1001
     }
 
@@ -27,7 +27,7 @@ class WebSocketClosedEventHandler @Inject constructor(
         if (event !is WebSocketClosedEvent) return false
 
         when (event.code) {
-            GRACEFUL_CLOSE_CODE -> mCallback.onWebSocketClosedGracefully()
+            WebSocketContext.GRACEFUL_DISCONNECTION_CODE -> mCallback.onWebSocketClosedGracefully()
             TIMEOUT_CLOSE_CODE -> throw ErrorAppException(mErrorDataSource.getError(
                 DataHttpWebSocketErrorType.ACTION_TIMEOUT.getErrorCode()))
         }
