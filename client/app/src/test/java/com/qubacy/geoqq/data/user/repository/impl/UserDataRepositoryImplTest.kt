@@ -12,6 +12,7 @@ import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data.image.repository._common._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
@@ -19,6 +20,8 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -66,6 +69,11 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
 
     private var mHttpSourceGetUsersCallFlag = false
 
+    private val mHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketEvent> = MutableSharedFlow()
+
+    private var mHttpWebSocketSourceStartProducingCallFlag = false
+    private var mHttpWebSocketSourceStopProducingCallFlag = false
+
     @Before
     fun setup() {
         Base64MockUtil.mockBase64()
@@ -87,6 +95,9 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
         mHttpSourceGetUsersResponse = null
 
         mHttpSourceGetUsersCallFlag = false
+
+        mHttpWebSocketSourceStartProducingCallFlag = false
+        mHttpWebSocketSourceStopProducingCallFlag = false
     }
 
     private fun initUserDataRepository() {
@@ -96,6 +107,7 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
 
         val localUserDataSourceMock = mockLocalUserDataSource()
         val httpUserDataSourceMock = mockHttpUserDataSource()
+        val httpUserWebSocketDataSourceMock = mockHttpUserWebSocketDataSource()
 
         mDataRepository = UserDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
@@ -103,7 +115,8 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
             mLocalUserDatabaseDataSource = localUserDataSourceMock,
             mLocalTokenDataStoreDataSource =
                 mLocalTokenDataStoreDataSourceMockContainer.localTokenDataStoreDataSourceMock,
-            mRemoteUserHttpRestDataSource = httpUserDataSourceMock
+            mRemoteUserHttpRestDataSource = httpUserDataSourceMock,
+            mRemoteUserHttpWebSocketDataSource = httpUserWebSocketDataSourceMock
         )
     }
 
@@ -155,6 +168,27 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
         }
 
         return httpUserDataSource
+    }
+
+    private fun mockHttpUserWebSocketDataSource(): RemoteUserHttpWebSocketDataSource {
+        val remoteUserHttpWebSocketDataSource =
+            Mockito.mock(RemoteUserHttpWebSocketDataSource::class.java)
+
+        Mockito.`when`(remoteUserHttpWebSocketDataSource.startProducing()).thenAnswer {
+            mHttpWebSocketSourceStartProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteUserHttpWebSocketDataSource.stopProducing()).thenAnswer {
+            mHttpWebSocketSourceStopProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteUserHttpWebSocketDataSource.eventFlow).thenAnswer {
+            mHttpWebSocketSourceEventFlow
+        }
+
+        return remoteUserHttpWebSocketDataSource
     }
 
     @Test

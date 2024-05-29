@@ -3,10 +3,11 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http._com
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor.impl.HttpCallExecutorImpl
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.ErrorResponseContent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.json.adapter.ErrorResponseContentJsonAdapter
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.Buffer
@@ -97,7 +98,7 @@ class HttpExecutorUtilTest {
     }
 
     private fun initErrorJsonAdapter() {
-        mErrorJsonAdapter = ErrorResponseJsonAdapter()
+        mErrorJsonAdapter = ErrorResponseJsonAdapter(ErrorResponseContentJsonAdapter())
     }
 
     private fun initCallMock() {

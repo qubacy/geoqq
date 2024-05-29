@@ -1,10 +1,11 @@
 package com.qubacy.geoqq.data.auth.repository.impl
 
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
-import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api.response.UpdateTokensResponse
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.RemoteTokenHttpRestDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._test.mock.WebSocketAdapterMockAdapter
+import com.qubacy.geoqq.data._common.repository.token.repository._common.result.get.GetTokensDataResult
+import com.qubacy.geoqq.data._common.repository.token.repository._common.result.update.UpdateTokensDataResult
+import com.qubacy.geoqq.data._common.repository.token.repository._test.mock.TokenDataRepositoryMockContainer
 import com.qubacy.geoqq.data.auth.repository._common._test.context.AuthDataRepositoryMockContext
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._common.LocalAuthDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.RemoteAuthHttpRestDataSource
@@ -21,21 +22,15 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
     companion object {
         const val DEFAULT_VALID_TOKEN = AuthDataRepositoryMockContext.DEFAULT_VALID_TOKEN
 
-        val DEFAULT_UPDATE_TOKENS_RESPONSE = AuthDataRepositoryMockContext
-            .DEFAULT_UPDATE_TOKENS_RESPONSE
         val DEFAULT_SIGN_IN_RESPONSE = AuthDataRepositoryMockContext.DEFAULT_SIGN_IN_RESPONSE
         val DEFAULT_SIGN_UP_RESPONSE = AuthDataRepositoryMockContext.DEFAULT_SIGN_UP_RESPONSE
     }
 
     private lateinit var mErrorDataRepositoryMockContainer: ErrorDataSourceMockContainer
-    private lateinit var mLocalTokenDataStoreDataSourceMockContainer:
-            LocalTokenDataStoreDataSourceMockContainer
+    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mWebSocketAdapterMockContainer: WebSocketAdapterMockAdapter
 
     private var mLocalDatabaseSourceDropDataTablesCallFlag = false
-
-    private var mHttpSourceUpdateTokensResponse: UpdateTokensResponse? = null
-
-    private var mHttpSourceUpdateTokensCallFlag = false
 
     private var mHttpSourceSignInResponse: SignInResponse? = null
     private var mHttpSourceSignUpResponse: SignUpResponse? = null
@@ -52,10 +47,6 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
     fun clear() {
         mLocalDatabaseSourceDropDataTablesCallFlag = false
 
-        mHttpSourceUpdateTokensResponse = null
-
-        mHttpSourceUpdateTokensCallFlag = false
-
         mHttpSourceSignInResponse = null
         mHttpSourceSignUpResponse = null
 
@@ -65,19 +56,18 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
     private fun initTokenDataRepository() = runTest {
         mErrorDataRepositoryMockContainer = ErrorDataSourceMockContainer()
-        mLocalTokenDataStoreDataSourceMockContainer = LocalTokenDataStoreDataSourceMockContainer()
+        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mWebSocketAdapterMockContainer = WebSocketAdapterMockAdapter()
 
         val localAuthDatabaseDataSourceMock = mockLocalAuthDatabaseDataSource()
-
-        val httpTokenDataSourceMock = mockHttpTokenDataSource()
         val httpAuthDataSourceMock = mockHttpAuthDataSource()
 
         mDataRepository = AuthDataRepositoryImpl(
             mErrorDataRepositoryMockContainer.errorDataSourceMock,
-            mLocalTokenDataStoreDataSourceMockContainer.localTokenDataStoreDataSourceMock,
             localAuthDatabaseDataSourceMock,
-            httpTokenDataSourceMock,
-            httpAuthDataSourceMock
+            httpAuthDataSourceMock,
+            mTokenDataRepositoryMockContainer.tokenDataRepository,
+            mWebSocketAdapterMockContainer.webSocketAdapter
         )
     }
 
@@ -91,19 +81,6 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         }
 
         return localAuthDatabaseDataSourceMock
-    }
-
-    private fun mockHttpTokenDataSource(): RemoteTokenHttpRestDataSource {
-        val remoteTokenHttpRestDataSourceMock = Mockito.mock(RemoteTokenHttpRestDataSource::class.java)
-
-        Mockito.`when`(remoteTokenHttpRestDataSourceMock.updateTokens(
-            Mockito.anyString()
-        )).thenAnswer {
-            mHttpSourceUpdateTokensCallFlag = true
-            mHttpSourceUpdateTokensResponse
-        }
-
-        return remoteTokenHttpRestDataSourceMock
     }
 
     private fun mockHttpAuthDataSource(): RemoteAuthHttpRestDataSource {
@@ -128,16 +105,16 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
     @Test
     fun signInWithTokenTest() = runTest {
-        val refreshToken = DEFAULT_VALID_TOKEN
-        val updateTokensResponse = DEFAULT_UPDATE_TOKENS_RESPONSE
+        val getTokensDataResult = GetTokensDataResult(DEFAULT_VALID_TOKEN, DEFAULT_VALID_TOKEN)
+        val updateTokensDataResult = UpdateTokensDataResult(DEFAULT_VALID_TOKEN, DEFAULT_VALID_TOKEN)
 
-        mLocalTokenDataStoreDataSourceMockContainer.getRefreshToken = refreshToken
-        mHttpSourceUpdateTokensResponse = updateTokensResponse
+        mTokenDataRepositoryMockContainer.getTokensDataResult = getTokensDataResult
+        mTokenDataRepositoryMockContainer.updateTokensDataResult = updateTokensDataResult
 
         mDataRepository.signIn()
 
-        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.getRefreshTokenCallFlag)
-        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.updateTokensCallFlag)
     }
 
     @Test
@@ -152,7 +129,7 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         mDataRepository.signIn(login, password)
 
         Assert.assertTrue(mHttpSourceSignInCallFlag)
-        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.saveTokensCallFlag)
     }
 
     @Test
@@ -167,14 +144,14 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         mDataRepository.signUp(login, password)
 
         Assert.assertTrue(mHttpSourceSignUpCallFlag)
-        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.saveTokensCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.saveTokensCallFlag)
     }
 
     @Test
     fun logoutTest() = runTest {
         mDataRepository.logout()
 
-        Assert.assertTrue(mLocalTokenDataStoreDataSourceMockContainer.clearTokensCallFlag)
+        Assert.assertTrue(mTokenDataRepositoryMockContainer.resetCallFlag)
         Assert.assertTrue(mLocalDatabaseSourceDropDataTablesCallFlag)
     }
 }

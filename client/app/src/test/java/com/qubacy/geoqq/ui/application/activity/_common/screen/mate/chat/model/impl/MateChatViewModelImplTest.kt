@@ -30,6 +30,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -288,8 +289,11 @@ class MateChatViewModelImplTest(
 
         for (testCase in testCases) {
             val userPresentation = DEFAULT_USER_PRESENTATION.copy(isMate = testCase.isUserMate)
+            val chatContext = DEFAULT_MATE_CHAT_PRESENTATION.copy(user = userPresentation)
 
-            val gottenIsUserMate = mModel.isInterlocutorMate(userPresentation)
+            setUiState(MateChatUiState(chatContext = chatContext))
+
+            val gottenIsUserMate = mModel.isInterlocutorMate()
 
             Assert.assertEquals(testCase.expectedIsUserMate, gottenIsUserMate)
         }
@@ -566,7 +570,9 @@ class MateChatViewModelImplTest(
     @Test
     fun processGetInterlocutorDomainResultWithErrorTest() = runTest {
         val initLoadingState = false
-        val initUiState = MateChatUiState(isLoading = initLoadingState)
+        val initChatContext = DEFAULT_MATE_CHAT_PRESENTATION
+        val initUiState = MateChatUiState(
+            isLoading = initLoadingState, chatContext = initChatContext)
 
         val expectedError = TestError.normal
         val expectedLoadingState = false
@@ -661,6 +667,7 @@ class MateChatViewModelImplTest(
         val user = DEFAULT_USER
 
         val expectedUserPresentation = user.toUserPresentation()
+        val expectedChatContext = initChatContext.copy(user = expectedUserPresentation)
         val expectedLoadingState = false
 
         val updateInterlocutorDomainResult = UpdateUserDomainResult(interlocutor = user)
@@ -670,16 +677,24 @@ class MateChatViewModelImplTest(
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateInterlocutorDomainResult)
 
-            val operation = awaitItem()
+            val interlocutorOperation = awaitItem()
+            val chatContextOperation = awaitItem()
 
-            Assert.assertEquals(UpdateInterlocutorDetailsUiOperation::class, operation::class)
+            Assert.assertEquals(UpdateInterlocutorDetailsUiOperation::class,
+                interlocutorOperation::class)
+            Assert.assertEquals(ChatContextUpdatedUiOperation::class, chatContextOperation::class)
 
-            val gottenUserPresentation = (operation as UpdateInterlocutorDetailsUiOperation).interlocutor
+            val gottenUserPresentation = (interlocutorOperation
+                as UpdateInterlocutorDetailsUiOperation).interlocutor
+            val gottenChatContext = (chatContextOperation as ChatContextUpdatedUiOperation)
+                .chatContext
             val finalUiState = mModel.uiState
 
             Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
+            Assert.assertEquals(expectedChatContext, gottenChatContext)
             Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
             Assert.assertEquals(expectedUserPresentation, finalUiState.chatContext!!.user)
+            Assert.assertEquals(expectedChatContext, finalUiState.chatContext)
         }
     }
 
