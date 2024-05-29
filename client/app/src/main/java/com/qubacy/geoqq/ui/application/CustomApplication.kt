@@ -6,18 +6,22 @@ import com.qubacy.geoqq.ui._di.component.CustomApplicationComponent
 import com.qubacy.geoqq.ui._di.component.DaggerCustomApplicationComponent
 import com.yandex.mapkit.MapKitFactory
 
-class CustomApplication : Application() {
+open class CustomApplication : Application() {
     companion object {
         const val TAG = "CustomApplication"
     }
 
     val customApplicationComponent: CustomApplicationComponent by lazy {
-        DaggerCustomApplicationComponent.factory().create(applicationContext)
+        initApplicationComponent()
     }
 
     override fun onCreate() {
         super.onCreate()
 
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
+    }
+
+    open fun initApplicationComponent(): CustomApplicationComponent {
+        return DaggerCustomApplicationComponent.factory().create(applicationContext)
     }
 }

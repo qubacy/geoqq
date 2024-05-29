@@ -7,7 +7,6 @@ import androidx.annotation.LayoutRes
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.qubacy.geoqq.ui.application.activity._common.HiltTestActivity
-import dagger.hilt.android.testing.HiltAndroidRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.RuleChain
@@ -18,8 +17,7 @@ abstract class ViewTest<ViewType : View> {
     @JvmField
     @Rule
     val ruleChain = RuleChain
-        .outerRule(HiltAndroidRule(this))
-        .around(mActivityScenarioRule)
+        .outerRule(mActivityScenarioRule)
 
     protected lateinit var mView: ViewType
 

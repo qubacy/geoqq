@@ -31,21 +31,16 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.component.hint.view.HintViewProvider
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.component.map.view.GeoMapView
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.GeoSettingsViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._di.module.GeoSettingsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.settings.model._common.operation.ChangeRadiusUiOperation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@HiltAndroidTest
-@UninstallModules(GeoSettingsViewModelModule::class)
 @RunWith(AndroidJUnit4::class)
 class GeoSettingsFragmentTest(
 

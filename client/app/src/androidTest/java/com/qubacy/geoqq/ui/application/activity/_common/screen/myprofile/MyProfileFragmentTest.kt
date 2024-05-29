@@ -36,16 +36,12 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.profile.get.GetMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.operation.profile.update.UpdateMyProfileUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.input.MyProfileInputData
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@HiltAndroidTest
-@UninstallModules(MyProfileViewModelModule::class)
 @RunWith(AndroidJUnit4::class)
 class MyProfileFragmentTest : BusinessFragmentTest<
     FragmentMyProfileBinding,

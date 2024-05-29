@@ -6,7 +6,6 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -15,13 +14,11 @@ import com.qubacy.geoqq.databinding.FragmentMateChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.factory._test.mock.MateChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.module.FakeMateChatViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._di.module.MateChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq.ui._common._test.view.util.action.click.soft.SoftClickViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.action.scroll.recyclerview.RecyclerViewScrollToPositionViewAction
-import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui._common._test.view.util.assertion.recyclerview.item.count.RecyclerViewItemCountViewAssertion
 import com.qubacy.geoqq.ui._common._test.view.util.matcher.toolbar.layout.collapsing.CollapsingToolbarLayoutTitleViewMatcher
 import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
@@ -39,16 +36,12 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@HiltAndroidTest
-@UninstallModules(MateChatViewModelModule::class)
 @RunWith(AndroidJUnit4::class)
 class MateChatFragmentTest : BusinessFragmentTest<
     FragmentMateChatBinding,

@@ -9,23 +9,17 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.qubacy.geoqq.databinding.FragmentLoginBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._di.module.LoginViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
 import com.qubacy.geoqq.R
-import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.LoginViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.module.FakeLoginViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.operation.SignInUiOperation
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@HiltAndroidTest
-@UninstallModules(LoginViewModelModule::class)
 @RunWith(AndroidJUnit4::class)
 class LoginFragmentTest : BusinessFragmentTest<
     FragmentLoginBinding, LoginUiState, LoginViewModel, LoginViewModelMockContext, LoginFragment

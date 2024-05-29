@@ -6,20 +6,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.i
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory.FakeMyProfileViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._di.module.MyProfileViewModelModule
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.testing.TestInstallIn
 
 @Module
-@TestInstallIn(
-    components = [ActivityRetainedComponent::class],
-    replaces = [MyProfileViewModelModule::class]
-)
 object FakeMyProfileViewModelModule : FakeViewModelModule<
-        MyProfileUiState, MyProfileViewModelMockContext
-        >() {
+    MyProfileUiState, MyProfileViewModelMockContext
+>() {
     @Provides
     @MyProfileViewModelFactoryQualifier
     fun provideFakeMyProfileViewModelFactory(): ViewModelProvider.Factory {

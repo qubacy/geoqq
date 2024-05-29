@@ -12,8 +12,6 @@ import androidx.viewbinding.ViewBinding
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common._test.util.launcher.launchFragmentInHiltContainer
 import com.qubacy.geoqq.ui.application.activity._common.HiltTestActivity
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base._common.BaseFragment
-import dagger.hilt.android.testing.HiltAndroidRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.RuleChain
@@ -24,8 +22,7 @@ abstract class BaseFragmentTest<
 > {
     @get:Rule
     open val rule = RuleChain
-        .outerRule(HiltAndroidRule(this))
-        .around(GrantPermissionRule.grant(*getPermissionsToGrant()))
+        .outerRule(GrantPermissionRule.grant(*getPermissionsToGrant()))
 
     protected lateinit var mActivityScenario: ActivityScenario<HiltTestActivity>
     protected lateinit var mFragment: FragmentType

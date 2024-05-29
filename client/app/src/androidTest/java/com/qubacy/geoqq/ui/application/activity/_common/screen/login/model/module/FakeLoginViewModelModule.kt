@@ -6,17 +6,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.impl.
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory.FakeLoginViewModelFactory
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model.factory._test.mock.LoginViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._common.state.LoginUiState
-import com.qubacy.geoqq.ui.application.activity._common.screen.login.model._di.module.LoginViewModelModule
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.testing.TestInstallIn
 
 @Module
-@TestInstallIn(
-    components = [ActivityRetainedComponent::class],
-    replaces = [LoginViewModelModule::class]
-)
 object FakeLoginViewModelModule : FakeViewModelModule<LoginUiState, LoginViewModelMockContext>() {
     @Provides
     @LoginViewModelFactoryQualifier

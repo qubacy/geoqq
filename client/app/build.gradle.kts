@@ -53,7 +53,7 @@ android {
 
 dependencies {
     val navVersion = "2.7.7"
-    val hiltVersion = "2.50"
+    val daggerVersion = "2.50"
     val roomVersion = "2.6.1"
     val retrofitVersion = "2.9.0"
     val mockkVersion = "1.13.10"
@@ -68,8 +68,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
-    implementation("com.google.dagger:dagger:$hiltVersion")
-    kapt("com.google.dagger:dagger-compiler:$hiltVersion")
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
@@ -94,6 +94,6 @@ dependencies {
     androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
     androidTestImplementation("org.mockito:mockito-android:5.7.0")
     androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
+    androidTestAnnotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 }
