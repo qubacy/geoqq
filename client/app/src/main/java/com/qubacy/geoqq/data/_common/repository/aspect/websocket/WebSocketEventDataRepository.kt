@@ -2,10 +2,10 @@ package com.qubacy.geoqq.data._common.repository.aspect.websocket
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result._common.WebSocketResult
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.closed.WebSocketClosedResult
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.error.WebSocketErrorResult
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.result.payload.WebSocketPayloadResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.closed.WebSocketClosedResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 
 interface WebSocketEventDataRepository {
     fun mapWebSocketResultToDataResult(
@@ -32,5 +32,5 @@ interface WebSocketEventDataRepository {
 
     fun processWebSocketPayloadResult(
         webSocketPayloadResult: WebSocketPayloadResult
-    ): DataResult?
+    ): DataResult? = null
 }

@@ -4,7 +4,6 @@ import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.model.user.toUser
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
@@ -38,7 +37,7 @@ class UserUseCaseImpl @Inject constructor(
 
         }, {
             GetUserDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

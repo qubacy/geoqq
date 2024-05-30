@@ -51,7 +51,9 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
         val updatableRepositories = getUpdatableRepositories()
         val updateFlow = merge(*updatableRepositories.map { it.resultFlow }.toTypedArray())
 
-        mCoroutineScope.launch {
+        val coroutineExceptionHandler = createCoroutineExceptionHandler(Domain)
+
+        mCoroutineScope.launch() {
             updateFlow.collect {
                 processCollectedDataResult(it)
             }

@@ -3,10 +3,10 @@ package com.qubacy.geoqq.domain.geo.chat.usecase.impl
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 open class GeoChatUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
+    private val mAuthDataRepository: AuthDataRepository,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: UserUseCase,
     private val logoutUseCase: LogoutUseCase,
@@ -40,7 +41,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
     }
 
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
-        return arrayOf(mGeoMessageDataRepository, mUserDataRepository)
+        return arrayOf(mGeoMessageDataRepository, mUserDataRepository, mAuthDataRepository)
     }
 
     // TODO: Optimization?:
@@ -71,7 +72,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
 
         }, {
             GetGeoMessagesDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun sendMessage(
@@ -86,7 +87,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
             mResultFlow.emit(SendMessageDomainResult())
         }, {
             SendMessageDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun getLocalUserId(): Long {

@@ -5,8 +5,9 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
+import com.qubacy.geoqq.domain._common.usecase._common.error.middleware.ErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
+import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.AuthorizedErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
@@ -36,6 +37,10 @@ class MateChatUseCaseImpl @Inject constructor(
         mMateRequestUseCase.resultFlow,
         mUserUseCase.resultFlow
     )
+
+    override fun generateErrorMiddlewares(): Array<ErrorMiddleware> {
+        return arrayOf(AuthorizedErrorMiddleware(this))
+    }
 
     override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
         return super.generateDataUpdateHandlers()
@@ -74,7 +79,7 @@ class MateChatUseCaseImpl @Inject constructor(
 
         }, {
             GetMessageChunkDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun sendMateRequestToInterlocutor(interlocutorId: Long) {
@@ -93,7 +98,7 @@ class MateChatUseCaseImpl @Inject constructor(
 
         }, {
             DeleteChatDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun sendMessage(chatId: Long, text: String) {
@@ -104,7 +109,7 @@ class MateChatUseCaseImpl @Inject constructor(
 
         }, {
             SendMessageDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun onCoroutineScopeSet() {

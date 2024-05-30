@@ -4,6 +4,7 @@ import com.qubacy.geoqq._common.coroutine.CoroutineUser
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain._common.usecase._common.error.middleware.ErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -27,29 +28,45 @@ abstract class UseCase @OptIn(ExperimentalCoroutinesApi::class) constructor(
     protected val mResultFlow: MutableSharedFlow<DomainResult> = MutableSharedFlow()
     open val resultFlow: Flow<DomainResult> get() = mResultFlow
 
+    private val mErrorMiddlewares: Array<ErrorMiddleware>
+
+    init {
+        mErrorMiddlewares = generateErrorMiddlewares()
+    }
+
+    protected open fun generateErrorMiddlewares(): Array<ErrorMiddleware> {
+        return arrayOf(ErrorMiddleware())
+    }
+
     protected fun <ResultType : DomainResult>executeLogic(
         logicAction: suspend () -> Unit,
-        errorResultProducer: (error: Error) -> ResultType,
-        errorMiddleware: (error: Error, errorResultProducer: (error: Error) -> ResultType, useCase: UseCase) -> DomainResult =
-            { error, producer, useCase -> producer(error) }
+        errorResultProducer: (error: Error) -> ResultType
     ) {
-        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+        val exceptionHandler = createCoroutineExceptionHandler(errorResultProducer)
+
+        mCoroutineScope.launch(mCoroutineDispatcher.plus(exceptionHandler)) {
+            logicAction()
+        }
+    }
+
+    protected fun <ResultType : DomainResult>createCoroutineExceptionHandler(
+        errorResultProducer: (error: Error) -> ResultType
+    ): CoroutineExceptionHandler {
+        return CoroutineExceptionHandler { _, exception ->
             runBlocking {
                 if (exception is ErrorAppException) {
-                    val domainResult = errorMiddleware(
-                        exception.error, errorResultProducer, this@UseCase)
+                    for (errorMiddleware in mErrorMiddlewares) {
+                        val domainResult = errorMiddleware
+                            .processError(exception.error, errorResultProducer) ?: continue
 
-                    return@runBlocking mResultFlow.emit(domainResult)
+                        return@runBlocking mResultFlow.emit(domainResult)
+                    }
                 }
 
                 exception.printStackTrace()
 
                 throw exception
             }
-        }
-
-        mCoroutineScope.launch(mCoroutineDispatcher.plus(exceptionHandler)) {
-            logicAction()
         }
     }
 }
