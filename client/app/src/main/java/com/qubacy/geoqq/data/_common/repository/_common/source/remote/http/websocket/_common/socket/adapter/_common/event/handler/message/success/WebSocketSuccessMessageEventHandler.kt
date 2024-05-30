@@ -4,7 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.callback.EventJsonAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter.ErrorEventPayloadJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message._common.WebSocketMessageEventHandler
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHandlerCallback
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHndlrClbck
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
 import com.squareup.moshi.JsonAdapter
@@ -18,13 +18,13 @@ class WebSocketSuccessMessageEventHandler @Inject constructor(
         const val SUCCESS_POSTFIX = "succeeded"
     }
 
-    private lateinit var mCallback: WebSocketSuccessMessageEventHandlerCallback
+    private lateinit var mCallback: WebSocketSuccessMessageEventHndlrClbck
 
     init {
         mEventJsonAdapter.setCallback(this)
     }
 
-    fun setCallback(callback: WebSocketSuccessMessageEventHandlerCallback) {
+    fun setCallback(callback: WebSocketSuccessMessageEventHndlrClbck) {
         mCallback = callback
     }
 
