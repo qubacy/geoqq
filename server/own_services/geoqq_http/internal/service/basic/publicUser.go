@@ -12,13 +12,16 @@ import (
 	"strconv"
 )
 
-type UserService struct {
+type PublicUserService struct {
 	fileStorage   fileStorage.Storage
 	domainStorage domainStorage.Storage
+
+	generalParams GeneralParams
+	userParams    UserParams
 }
 
-func newUserService(deps Dependencies) *UserService {
-	instance := &UserService{
+func newUserService(deps Dependencies) *PublicUserService {
+	instance := &PublicUserService{
 		fileStorage:   deps.FileStorage,
 		domainStorage: deps.DomainStorage,
 	}
@@ -29,7 +32,7 @@ func newUserService(deps Dependencies) *UserService {
 // public
 // -----------------------------------------------------------------------
 
-func (s *UserService) GetPublicUserById(ctx context.Context,
+func (s *PublicUserService) GetPublicUserById(ctx context.Context,
 	userId, targetUserId uint64) (*domain.PublicUser, error) {
 	sourceFunc := s.GetPublicUserById
 
@@ -54,7 +57,7 @@ func (s *UserService) GetPublicUserById(ctx context.Context,
 	return publicUser, nil
 }
 
-func (s *UserService) GetPublicUserByIds(ctx context.Context,
+func (s *PublicUserService) GetPublicUserByIds(ctx context.Context,
 	userId uint64, targetUserIds []uint64) (domain.PublicUserList, error) {
 
 	if len(targetUserIds) == 0 {
@@ -62,16 +65,25 @@ func (s *UserService) GetPublicUserByIds(ctx context.Context,
 	}
 	targetUserIds = utl.RemoveDuplicatesFromSlice(targetUserIds)
 
+	// ***
+
+	if uint64(len(targetUserIds)) > s.generalParams.MaxPageSize {
+		return nil, ec.New(ErrCountMoreThanPermissible,
+			ec.Client, ec.CountMoreThanPermissible)
+	}
+
 	// from handler
 
-	exists, err := s.domainStorage.HasUserWithIds(ctx, targetUserIds)
-	if err != nil {
-		return nil, ec.New(utl.NewFuncError(s.GetPublicUserByIds, err),
-			ec.Server, ec.DomainStorageError)
-	}
-	if !exists {
-		return nil, ec.New(ErrOneOrMoreUsersNotFound,
-			ec.Client, ec.OneOrMoreUsersNotFound)
+	if !s.userParams.IgnoreChecksWhenGetSome {
+		exists, err := s.domainStorage.HasUserWithIds(ctx, targetUserIds)
+		if err != nil {
+			return nil, ec.New(utl.NewFuncError(s.GetPublicUserByIds, err),
+				ec.Server, ec.DomainStorageError)
+		}
+		if !exists {
+			return nil, ec.New(ErrOneOrMoreUsersNotFound,
+				ec.Client, ec.OneOrMoreUsersNotFound)
+		}
 	}
 
 	// <---> storage

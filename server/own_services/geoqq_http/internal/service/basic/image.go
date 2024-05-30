@@ -16,7 +16,7 @@ import (
 
 type ImageService struct {
 	HasherAndStorages
-	ImageParams ImageParams
+	imageParams ImageParams
 }
 
 func newImageService(deps Dependencies) *ImageService {
@@ -29,7 +29,7 @@ func newImageService(deps Dependencies) *ImageService {
 			domainStorage: deps.DomainStorage,
 			hashManager:   deps.HashManager,
 		},
-		ImageParams: deps.ImageParams,
+		imageParams: deps.ImageParams,
 	}
 
 	return instance

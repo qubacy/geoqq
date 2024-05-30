@@ -39,6 +39,7 @@ service:
 
   user:
     name_pattern: ^.{6,50}$ 
+    ignore_checks_when_get_some: true
     
     update_name:
       blocking_time: 1h

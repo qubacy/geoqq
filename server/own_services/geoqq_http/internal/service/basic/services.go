@@ -57,8 +57,9 @@ type GeoChatParams struct {
 }
 
 type UserParams struct {
-	NamePattern          string
-	UpdateUsernameParams UpdateUsernameParams
+	NamePattern             string
+	IgnoreChecksWhenGetSome bool
+	UpdateUsernameParams    UpdateUsernameParams
 }
 
 type UpdateUsernameParams struct {
@@ -97,7 +98,7 @@ type Services struct {
 	*AuthService
 
 	*UserProfileService
-	*UserService
+	*PublicUserService
 
 	*ImageService
 
@@ -125,7 +126,7 @@ func NewServices(deps Dependencies) (*Services, error) {
 		AuthService: authService,
 
 		UserProfileService: userProfileService,
-		UserService:        newUserService(deps),
+		PublicUserService:  newUserService(deps),
 
 		ImageService: newImageService(deps), // or avatar service?
 

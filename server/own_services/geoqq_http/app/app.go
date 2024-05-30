@@ -187,6 +187,8 @@ func initializeLogging() error {
 		return ErrLoggingTypeIsNotDefined
 	}
 
+	// ***
+
 	logger.Trace("trace")
 	logger.Debug("debug")
 	logger.Info("info")
@@ -331,7 +333,8 @@ func servicesInstance(
 		},
 
 		UserParams: basicService.UserParams{
-			NamePattern: viper.GetString("service.user.name_pattern"),
+			NamePattern:             viper.GetString("service.user.name_pattern"),
+			IgnoreChecksWhenGetSome: viper.GetBool("service.user.ignore_checks_when_get_some"),
 			UpdateUsernameParams: basicService.UpdateUsernameParams{
 				BlockingTime: viper.GetDuration("service.user.update_name.blocking_time"),
 			},

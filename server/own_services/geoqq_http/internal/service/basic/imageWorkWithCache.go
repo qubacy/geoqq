@@ -31,7 +31,7 @@ var imageCacheKey = imageCacheKeyFormatter{}
 func (s *ImageService) updateAddImageCache(ctx context.Context, userId uint64) error {
 	err := s.cache.SetWithTTL(ctx,
 		imageCacheKey.AddImageBlockedForUser(userId), "1",
-		s.ImageParams.AddImageParams.BlockingTime,
+		s.imageParams.AddImageParams.BlockingTime,
 	)
 	if err != nil {
 		return utl.NewFuncError(s.updateAddImageCache, err)
@@ -75,7 +75,7 @@ func (s *ImageService) saveImageToCache(ctx context.Context, image *file.Image) 
 
 	err = s.cache.SetWithTTL(ctx,
 		imageCacheKey.SavedImage(image.Id), string(jsonBytes),
-		s.ImageParams.CacheTtl,
+		s.imageParams.CacheTtl,
 	)
 	if err != nil {
 		return utl.NewFuncError(s.saveImageToCache, err)
