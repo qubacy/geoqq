@@ -13,8 +13,8 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http._comm
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api._di.module.HttpRestApiModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.retrofit._di.module.RetrofitModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._di.module.AuthorizationHttpRestInterceptorModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.payload.error.json.adapter._di.module.ErrorEventPayloadJsonAdapterModule
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._di.module.WebSocketAdapterModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter._di.module.ErrorEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._di.module.WebSocketAdapterModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.local.datastore._di.module.LocalTokenDataStoreDataSourceModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._common.api._di.module.RemoteTokenHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data._common.repository.token.repository._common.source.remote.http.rest._di.module.RemoteTokenHttpRestDataSourceModule
@@ -22,6 +22,7 @@ import com.qubacy.geoqq.data._common.repository.token.repository._di.module.Toke
 import com.qubacy.geoqq.data.auth.repository._common.source.local.database._di.module.LocalAuthDatabaseDataSourceModule
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api._di.module.RemoteAuthHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._di.module.RemoteAuthHttpRestDataSourceModule
+import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.websocket._di.module.RemoteAuthHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.auth.repository._di.module.AuthDataRepositoryModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api._di.module.RemoteGeoMessageHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._di.module.RemoteGeoMessageHttpRestDataSourceModule
@@ -139,6 +140,7 @@ import javax.inject.Singleton
         RemoteTokenHttpRestDataSourceModule::class,
         RemoteAuthHttpRestDataSourceApiModule::class,
         RemoteAuthHttpRestDataSourceModule::class,
+        RemoteAuthHttpWebSocketDataSourceModule::class,
         RemoteUserHttpRestDataSourceApiModule::class,
         RemoteUserHttpRestDataSourceModule::class,
         RemoteUserHttpWebSocketDataSourceModule::class,

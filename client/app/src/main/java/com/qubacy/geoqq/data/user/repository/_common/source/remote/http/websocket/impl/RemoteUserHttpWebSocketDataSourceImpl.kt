@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket.impl
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.json.adapter.EventJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.type.UserServerEventType
@@ -15,12 +15,14 @@ class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::cl
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     override val mEventJsonAdapter: EventJsonAdapter,
-    override val mWebSocketAdapter: WebSocketAdapter,
+    webSocketAdapter: WebSocketAdapter,
     private val mUserUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
 ) : RemoteUserHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
 
     init {
         mEventJsonAdapter.setCallback(this)
+
+        mWebSocketAdapter = webSocketAdapter
     }
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {

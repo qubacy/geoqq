@@ -42,14 +42,14 @@ abstract class UseCase @OptIn(ExperimentalCoroutinesApi::class) constructor(
         logicAction: suspend () -> Unit,
         errorResultProducer: (error: Error) -> ResultType
     ) {
-        val exceptionHandler = createCoroutineExceptionHandler(errorResultProducer)
+        val exceptionHandler = createLogicCoroutineExceptionHandler(errorResultProducer)
 
         mCoroutineScope.launch(mCoroutineDispatcher.plus(exceptionHandler)) {
             logicAction()
         }
     }
 
-    protected fun <ResultType : DomainResult>createCoroutineExceptionHandler(
+    protected fun <ResultType : DomainResult>createLogicCoroutineExceptionHandler(
         errorResultProducer: (error: Error) -> ResultType
     ): CoroutineExceptionHandler {
         return CoroutineExceptionHandler { _, exception ->

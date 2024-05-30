@@ -3,11 +3,10 @@ package com.qubacy.geoqq.domain.mate.chat.usecase.impl
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
-import com.qubacy.geoqq.domain._common.usecase._common.error.middleware.ErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.AuthorizedErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
@@ -19,6 +18,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.update.handler.MateChatDataUpdateHandler
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
@@ -29,6 +29,7 @@ class MateChatUseCaseImpl @Inject constructor(
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mUserUseCase: UserUseCase,
     private val mLogoutUseCase: LogoutUseCase,
+    private val mAuthDataRepository: AuthDataRepository,
     private val mMateMessageDataRepository: MateMessageDataRepository,
     private val mMateChatDataRepository: MateChatDataRepository
 ) : MateChatUseCase(errorSource) {
@@ -38,17 +39,14 @@ class MateChatUseCaseImpl @Inject constructor(
         mUserUseCase.resultFlow
     )
 
-    override fun generateErrorMiddlewares(): Array<ErrorMiddleware> {
-        return arrayOf(AuthorizedErrorMiddleware(this))
-    }
-
     override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
         return super.generateDataUpdateHandlers()
             .plus(UserDataUpdateHandler(this))
+            .plus(MateChatDataUpdateHandler(this))
     }
 
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
-        return arrayOf(mMateMessageDataRepository)
+        return arrayOf(mMateMessageDataRepository, mAuthDataRepository)
     }
 
     // todo: Optimization?:
@@ -117,6 +115,7 @@ class MateChatUseCaseImpl @Inject constructor(
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mUserUseCase.setCoroutineScope(mCoroutineScope)
+        mAuthDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

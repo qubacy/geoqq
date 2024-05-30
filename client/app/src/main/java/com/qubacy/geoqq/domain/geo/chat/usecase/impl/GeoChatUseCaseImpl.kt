@@ -8,11 +8,13 @@ import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataReposi
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.update.handler.GeoChatDataUpdateHandler
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
@@ -37,7 +39,10 @@ open class GeoChatUseCaseImpl @Inject constructor(
     )
 
     override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
-        return super.generateDataUpdateHandlers()
+        return arrayOf(
+            GeoChatDataUpdateHandler(this),
+            UserDataUpdateHandler(this)
+        )
     }
 
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
@@ -109,13 +114,8 @@ open class GeoChatUseCaseImpl @Inject constructor(
     override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
 
-        mCoroutineScope.launch {
-            mGeoMessageDataRepository.resultFlow.collect {
-                processCollectedDataResult(it)
-            }
-        }
-
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
+        mAuthDataRepository.setCoroutineScope(mCoroutineScope)
     }
 }

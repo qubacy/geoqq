@@ -2,7 +2,6 @@ package com.qubacy.geoqq.domain.mate.request.usecase.impl
 
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
@@ -22,7 +21,7 @@ class MateRequestUseCaseImpl @Inject constructor(
 
         }, {
             SendMateRequestDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun answerMateRequest(requestId: Long, isAccepted: Boolean) {
@@ -33,7 +32,7 @@ class MateRequestUseCaseImpl @Inject constructor(
 
         }, {
             AnswerMateRequestDomainResult(requestId = requestId, error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

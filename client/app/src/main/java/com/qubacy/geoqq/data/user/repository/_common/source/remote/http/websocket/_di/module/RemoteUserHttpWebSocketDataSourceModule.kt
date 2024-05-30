@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._di.module
 
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.packet.event.json.adapter.EventJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket.impl.RemoteUserHttpWebSocketDataSourceImpl
@@ -21,7 +21,7 @@ abstract class RemoteUserHttpWebSocketDataSourceModule {
         ): RemoteUserHttpWebSocketDataSource {
             return RemoteUserHttpWebSocketDataSourceImpl(
                 mEventJsonAdapter = eventJsonAdapter,
-                mWebSocketAdapter = webSocketAdapter,
+                webSocketAdapter = webSocketAdapter,
                 mUserUpdatedEventPayloadJsonAdapter = userUpdatedEventPayloadJsonAdapter
             )
         }

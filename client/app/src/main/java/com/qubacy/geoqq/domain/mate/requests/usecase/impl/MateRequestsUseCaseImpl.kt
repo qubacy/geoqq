@@ -2,9 +2,10 @@ package com.qubacy.geoqq.domain.mate.requests.usecase.impl
 
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.authorizedErrorMiddleware
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
@@ -22,6 +23,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: UserUseCase,
     private val mLogoutUseCase: LogoutUseCase,
+    private val mAuthDataRepository: AuthDataRepository,
     private val mMateRequestDataRepository: MateRequestDataRepository
 ) : MateRequestsUseCase(errorSource) {
     override val resultFlow: Flow<DomainResult> = merge(
@@ -29,6 +31,10 @@ class MateRequestsUseCaseImpl @Inject constructor(
         mMateRequestUseCase.resultFlow,
         mInterlocutorUseCase.resultFlow
     )
+
+    override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
+        return arrayOf(mMateRequestDataRepository, mAuthDataRepository)
+    }
 
     override fun getRequestChunk(offset: Int) {
         executeLogic({
@@ -57,7 +63,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
 
         }, {
             GetRequestChunkDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun answerRequest(requestId: Long, isAccepted: Boolean) {
@@ -73,6 +79,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
+        mAuthDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

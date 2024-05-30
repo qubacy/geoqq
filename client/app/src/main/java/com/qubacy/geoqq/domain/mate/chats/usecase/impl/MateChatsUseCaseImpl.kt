@@ -1,23 +1,37 @@
 package com.qubacy.geoqq.domain.mate.chats.usecase.impl
 
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
-import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.chat.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
-import kotlinx.coroutines.launch
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.update.handler.MateChatsDataUpdateHandler
 import javax.inject.Inject
 
 class MateChatsUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mLogoutUseCase: LogoutUseCase,
-    private val mMateChatDataRepository: MateChatDataRepository
+    private val mMateChatDataRepository: MateChatDataRepository,
+    private val mAuthDataRepository: AuthDataRepository
 ) : MateChatsUseCase(errorSource) {
+    override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
+        return arrayOf(mAuthDataRepository, mMateChatDataRepository)
+    }
+
+    override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
+        return super.generateDataUpdateHandlers()
+            .plus(UserDataUpdateHandler(this))
+            .plus(MateChatsDataUpdateHandler(this))
+    }
+
     // TODO: Optimization?:
     override fun getChatChunk(loadedChatIds: List<Long>, offset: Int) {
         executeLogic({
@@ -49,23 +63,14 @@ class MateChatsUseCaseImpl @Inject constructor(
 
         }, {
             GetChatChunkDomainResult(error = it)
-        }, ::authorizedErrorMiddleware)
+        })
     }
 
     override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
 
-        mCoroutineScope.launch {
-            mMateChatDataRepository.resultFlow.collect {
-                processCollectedDataResult(it)
-            }
-        }
-    }
-
-    private suspend fun processCollectedDataResult(dataResult: DataResult) {
-        when (dataResult::class) {
-            else -> throw IllegalArgumentException()
-        }
+        mAuthDataRepository.setCoroutineScope(mCoroutineScope)
+        mMateChatDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {
