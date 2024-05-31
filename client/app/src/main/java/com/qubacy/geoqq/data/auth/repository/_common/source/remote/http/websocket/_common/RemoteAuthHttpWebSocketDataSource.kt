@@ -19,6 +19,8 @@ abstract class RemoteAuthHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesAp
      */
     fun setWebSocketAdapter(webSocketAdapter: WebSocketAdapter) {
         mWebSocketAdapter = webSocketAdapter
+
+        mWebSocketAdapter.addEventListener(this)
     }
 
     override fun processEvent(event: WebSocketEvent): WebSocketResult? {

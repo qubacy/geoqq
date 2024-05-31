@@ -6,12 +6,18 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.AuthorizedUseCa
 import com.qubacy.geoqq.domain._common.usecase.aspect.authorized.error.middleware.AuthorizedErrorMiddleware
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.UserAspectUseCase
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.UpdatableUseCase
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler._common.UpdateErrorHandler
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.common.UpdateCommonErrorHandler
 
 abstract class MateChatsUseCase(
     errorSource: LocalErrorDatabaseDataSource
 ) : UpdatableUseCase(errorSource = errorSource), AuthorizedUseCase, UserAspectUseCase {
     companion object {
         const val DEFAULT_CHAT_CHUNK_SIZE = 20
+    }
+
+    override fun generateUpdateErrorHandlers(): Array<UpdateErrorHandler> {
+        return arrayOf(UpdateCommonErrorHandler(this))
     }
 
     override fun generateErrorMiddlewares(): Array<ErrorMiddleware> {

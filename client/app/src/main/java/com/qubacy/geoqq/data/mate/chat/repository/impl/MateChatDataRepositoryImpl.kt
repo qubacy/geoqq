@@ -145,8 +145,8 @@ class MateChatDataRepositoryImpl(
     override suspend fun deleteChat(chatId: Long) {
         val localChat = mLocalMateChatDatabaseDataSource.getChatById(chatId).keys.first()
 
-        mLocalMateChatDatabaseDataSource.deleteChat(localChat)
         mRemoteMateChatHttpRestDataSource.deleteChat(chatId)
+        mLocalMateChatDatabaseDataSource.deleteChat(localChat)
     }
 
     private fun deleteOverdueChats(

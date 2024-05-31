@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model
 
+import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.changeLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.extension.preserveLoadingState
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler.failure.FailureDomainResultHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -50,7 +52,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
 
     @CallSuper
     protected open fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
-        return arrayOf()
+        return arrayOf(FailureDomainResultHandler(this))
     }
 
     init {
@@ -88,6 +90,8 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     }
 
     protected open fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
+        Log.d(TAG, "processDomainResultFlow(): domainResult = $domainResult;")
+
         for (domainResultHandler in mDomainResultHandlers) {
             val uiOperations = domainResultHandler.handleDomainResult(domainResult)
 

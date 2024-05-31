@@ -10,7 +10,7 @@ class AuthorizedDomainResultHandler(
     viewModel: AuthorizedViewModel
 ) : DomainResultHandler<AuthorizedViewModel>(viewModel) {
     override fun handleDomainResult(domainResult: DomainResult): List<UiOperation> {
-        if (domainResult !is ErrorWithLogoutDomainResult) return listOf()
+        if (domainResult !is ErrorWithLogoutDomainResult) return emptyList()
 
         return viewModel.onAuthorizedErrorWithLogout(domainResult)
     }

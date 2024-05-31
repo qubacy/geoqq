@@ -7,6 +7,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.closed.WebSocketClosedEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.error.WebSocketErrorEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.open.WebSocketOpenEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
 import okhttp3.Response
 import okhttp3.WebSocket
@@ -31,7 +32,7 @@ class WebSocketListenerAdapter @Inject constructor(
 
         Log.d(TAG, "onOpen(): entering..")
 
-        // todo: nothing to do?
+        emitEvent(WebSocketOpenEvent())
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -47,7 +48,7 @@ class WebSocketListenerAdapter @Inject constructor(
 
         Log.d(TAG, "onClosing(): reason = $reason;")
 
-        // todo: implement the graceful connection closure..
+        // todo: implement the graceful connection closure.. ?
 
 
     }

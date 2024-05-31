@@ -1,18 +1,25 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter.impl
 
+import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.error.type.DataHttpWebSocketErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter.impl.ActionJsonAdapterImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler._common.WebSocketEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.closed.WebSocketClosedEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.closed.callback.WebSocketClosedEventHandlerCallback
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.error.WebSocketErrorEventHandler
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.error.callback.WebSocketErrorEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error.WebSocketErrorMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error.callback.WebSocketErrorMessageEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.WebSocketSuccessMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHndlrClbck
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.open.WebSocketOpenEventHandler
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.open.callback.WebSocketOpenEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.listener.WebSocketEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.error.WebSocketErrorEvent
@@ -29,19 +36,30 @@ import okhttp3.WebSocket
 import javax.inject.Inject
 
 class WebSocketAdapterImpl @Inject constructor(
+    private val mErrorDataSource: LocalErrorDatabaseDataSource,
     private val mWebSocketListenerAdapter: WebSocketListenerAdapter,
     private val mActionJsonAdapter: ActionJsonAdapterImpl,
     private val mAuthClientEventMiddleware: AuthClientEventJsonMiddleware,
     private val mWebSocketErrorMessageEventHandler: WebSocketErrorMessageEventHandler,
     private val mWebSocketSuccessMessageEventHandler: WebSocketSuccessMessageEventHandler,
     private val mWebSocketClosedEventHandler: WebSocketClosedEventHandler,
+    private val mWebSocketOpenEventHandler: WebSocketOpenEventHandler,
+    private val mWebSocketErrorEventHandler: WebSocketErrorEventHandler,
     private val mOkHttpClient: OkHttpClient,
 ) : WebSocketAdapter,
     WebSocketListenerAdapterCallback,
     WebSocketSuccessMessageEventHndlrClbck,
     WebSocketErrorMessageEventHandlerCallback,
-    WebSocketClosedEventHandlerCallback
+    WebSocketClosedEventHandlerCallback,
+    WebSocketErrorEventHandlerCallback,
+    WebSocketOpenEventHandlerCallback
 {
+    companion object {
+        const val TAG = "WebSocketAdapterImpl"
+
+        const val MAX_RECONNECTION_TRY_COUNT = 3
+    }
+
     private var mWebSocket: WebSocket? = null
 
     private val mEventHandlers: Array<WebSocketEventHandler>
@@ -49,6 +67,8 @@ class WebSocketAdapterImpl @Inject constructor(
 
     private var mCurrentAction: PackagedAction? = null
     private val mCurrentActionMutex: Mutex = Mutex()
+
+    private var mReconnectionCounter: Int = 0
 
     init {
         mEventHandlers = generateBaseEventHandlers()
@@ -58,13 +78,17 @@ class WebSocketAdapterImpl @Inject constructor(
         mWebSocketSuccessMessageEventHandler.setCallback(this)
         mWebSocketErrorMessageEventHandler.setCallback(this)
         mWebSocketClosedEventHandler.setCallback(this)
+        mWebSocketErrorEventHandler.setCallback(this)
+        mWebSocketOpenEventHandler.setCallback(this)
     }
 
     override fun generateBaseEventHandlers(): Array<WebSocketEventHandler> {
         return arrayOf(
-            mWebSocketErrorMessageEventHandler as WebSocketEventHandler,
-            mWebSocketSuccessMessageEventHandler as WebSocketEventHandler,
-            mWebSocketClosedEventHandler as WebSocketEventHandler
+            mWebSocketErrorMessageEventHandler,
+            mWebSocketSuccessMessageEventHandler,
+            mWebSocketClosedEventHandler,
+            mWebSocketErrorEventHandler,
+            mWebSocketOpenEventHandler
         )
     }
 
@@ -149,6 +173,8 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun onEventGotten(event: WebSocketEvent) {
+        Log.d(TAG, "onEventGotten(): event = $event;")
+
         processEvent(event)
     }
 
@@ -159,6 +185,8 @@ class WebSocketAdapterImpl @Inject constructor(
             conveyEvent(event)
 
         } catch (e: ErrorAppException) {
+            Log.d(TAG, "processEvent(): error = ${e.error}")
+
             conveyEvent(WebSocketErrorEvent(e.error))
 
             if (!e.error.isCritical) mCurrentActionMutex.unlock() // todo: ?
@@ -166,8 +194,11 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     private fun processBaseEvent(event: WebSocketEvent): Boolean {
-        for (eventHandler in mEventHandlers)
+        for (eventHandler in mEventHandlers) {
+            Log.d(TAG, "processBaseEvent(): eventHandler = $eventHandler; event = $event;")
+
             if (eventHandler.handle(event)) return true
+        }
 
         return false
     }
@@ -176,7 +207,11 @@ class WebSocketAdapterImpl @Inject constructor(
         synchronized(mEventListeners) {
             if (mEventListeners.isEmpty()) return
 
-            for (eventListener in mEventListeners) eventListener.onEventGotten(event)
+            for (eventListener in mEventListeners) {
+                Log.d(TAG, "conveyEvent(): eventListener = $eventListener;")
+
+                eventListener.onEventGotten(event)
+            }
         }
     }
 
@@ -198,5 +233,23 @@ class WebSocketAdapterImpl @Inject constructor(
         // todo: do something?.. or mb not
 
 
+    }
+
+    override fun reconnectToWebSocket() {
+        ++mReconnectionCounter
+
+        Log.d(TAG, "reconnectToWebSocket(): mReconnectionCounter = $mReconnectionCounter;")
+
+        if (mReconnectionCounter >= MAX_RECONNECTION_TRY_COUNT)
+            return conveyEvent(WebSocketErrorEvent(
+                mErrorDataSource.getError(
+                    DataHttpWebSocketErrorType.WEB_SOCKET_FAILURE.getErrorCode())))
+
+        close()
+        open()
+    }
+
+    override fun onWebSocketOpen() {
+        mReconnectionCounter = 0
     }
 }

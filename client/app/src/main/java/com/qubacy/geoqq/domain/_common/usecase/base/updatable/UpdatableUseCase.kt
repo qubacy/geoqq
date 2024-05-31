@@ -1,12 +1,15 @@
 package com.qubacy.geoqq.domain._common.usecase.base.updatable
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
+import com.qubacy.geoqq.domain._common.usecase._common.result.failure.FailureDomainResult
 import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler._common.UpdateErrorHandler
-import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.failure.UpdateFailureErrorHandler
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.common.UpdateCommonErrorHandler
+import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.common.callback.UpdateCommonErrorHandlerCallback
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -21,7 +24,7 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1), // todo: not good;
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     errorSource: LocalErrorDatabaseDataSource
-) : UseCase(coroutineDispatcher, coroutineScope, errorSource) {
+) : UseCase(coroutineDispatcher, coroutineScope, errorSource), UpdateCommonErrorHandlerCallback {
     protected val mDataUpdateHandlers: Array<DataUpdateHandler<*>>
     protected val mUpdateErrorHandlers: Array<UpdateErrorHandler>
 
@@ -35,7 +38,7 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
     }
 
     protected open fun generateUpdateErrorHandlers(): Array<UpdateErrorHandler> {
-        return arrayOf(UpdateFailureErrorHandler())
+        return arrayOf()
     }
 
     protected open fun getUpdatableRepositories(): Array<ProducingDataRepository> {
@@ -95,6 +98,12 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
             val domainResult = dataUpdateHandler.handle(dataResult)
 
             if (domainResult != null) return mResultFlow.emit(domainResult)
+        }
+    }
+
+    override fun dropCommonUpdateError(error: Error) {
+        mCoroutineScope.launch {
+            mResultFlow.emit(FailureDomainResult(error))
         }
     }
 }

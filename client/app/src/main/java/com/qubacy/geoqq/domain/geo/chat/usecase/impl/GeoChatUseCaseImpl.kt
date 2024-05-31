@@ -20,7 +20,6 @@ import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 open class GeoChatUseCaseImpl @Inject constructor(
