@@ -201,11 +201,11 @@ open class MateChatViewModelImpl @Inject constructor(
         return offset - mUiState.newMessageCount
     }
 
-    override fun onInterlocutorGetInterlocutor(
+    override fun onUserGetUser(
         domainResult: GetUserDomainResult
     ): List<UiOperation> {
         val prevUserPresentation = mUiState.chatContext!!.user
-        val superOperations = super.onInterlocutorGetInterlocutor(domainResult)
+        val superOperations = super.onUserGetUser(domainResult)
 
         if (!domainResult.isSuccessful()) return superOperations
 
@@ -217,10 +217,10 @@ open class MateChatViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onInterlocutorUpdateInterlocutor(
+    override fun onUserUpdateUser(
         domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
-        val superOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+        val superOperations = super.onUserUpdateUser(domainResult)
 
         if (!domainResult.isSuccessful()) return superOperations
 
@@ -228,7 +228,7 @@ open class MateChatViewModelImpl @Inject constructor(
             .plus(ChatContextUpdatedUiOperation(mUiState.chatContext!!))
     }
 
-    override fun onInterlocutorInterlocutor(
+    override fun onUserUser(
         domainResult: UserDomainResult
     ): UserPresentation {
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
@@ -242,7 +242,7 @@ open class MateChatViewModelImpl @Inject constructor(
         return this
     }
 
-    override fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+    override fun getUserViewModelBusinessViewModel(): BusinessViewModel<*, *> {
         return this
     }
 }

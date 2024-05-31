@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter._common
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
 
 interface ActionJsonAdapter {
     companion object {
@@ -10,7 +10,7 @@ interface ActionJsonAdapter {
     }
 
     fun toJson(
-        middlewares: List<ClientEventJsonMiddleware>,
+        middlewares: List<ActionJsonMiddleware>,
         action: PackagedAction
     ): String
 }

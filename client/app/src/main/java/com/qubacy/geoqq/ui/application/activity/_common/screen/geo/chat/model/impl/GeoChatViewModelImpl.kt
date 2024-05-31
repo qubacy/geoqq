@@ -98,10 +98,10 @@ open class GeoChatViewModelImpl @Inject constructor(
         return listOf()
     }
 
-    override fun onInterlocutorUpdateInterlocutor(
+    override fun onUserUpdateUser(
         domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
-        val superUiOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+        val superUiOperations = super.onUserUpdateUser(domainResult)
 
         if (!domainResult.isSuccessful()) return superUiOperations
 
@@ -123,7 +123,7 @@ open class GeoChatViewModelImpl @Inject constructor(
             .plus(UpdateGeoMessagesUiOperation(updatedMessagesPositions, updatedMessages))
     }
 
-    override fun onInterlocutorInterlocutor(
+    override fun onUserUser(
         domainResult: UserDomainResult
     ): UserPresentation {
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
@@ -151,7 +151,7 @@ open class GeoChatViewModelImpl @Inject constructor(
         return this
     }
 
-    override fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+    override fun getUserViewModelBusinessViewModel(): BusinessViewModel<*, *> {
         return this
     }
 

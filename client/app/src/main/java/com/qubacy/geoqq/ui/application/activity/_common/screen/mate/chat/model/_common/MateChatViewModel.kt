@@ -11,7 +11,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.result.handler.ChatDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.result.handler.InterlocutorDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.result.handler.UserDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -30,7 +30,7 @@ abstract class MateChatViewModel(
     override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
         return super.generateDomainResultHandlers()
             .plus(AuthorizedDomainResultHandler(this))
-            .plus(InterlocutorDomainResultHandler(this))
+            .plus(UserDomainResultHandler(this))
             .plus(ChatDomainResultHandler(this))
             .plus(MateChatDomainResultHandler(this))
     }

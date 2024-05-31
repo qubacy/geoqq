@@ -9,7 +9,7 @@ import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.update.Updat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.result.handler.InterlocutorDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.result.handler.UserDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -27,7 +27,7 @@ abstract class MateRequestsViewModel(
     override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
         return super.generateDomainResultHandlers()
             .plus(AuthorizedDomainResultHandler(this))
-            .plus(InterlocutorDomainResultHandler(this))
+            .plus(UserDomainResultHandler(this))
             .plus(MateRequestsDomainResultHandler(this))
     }
     override fun generateDefaultUiState(): MateRequestsUiState {

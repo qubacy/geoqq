@@ -4,7 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler._common.WebSocketEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.listener.WebSocketEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
 
 interface WebSocketAdapter {
     fun generateBaseEventHandlers(): Array<WebSocketEventHandler>
@@ -15,6 +15,6 @@ interface WebSocketAdapter {
     fun isOpen(): Boolean
     fun open()
     fun close()
-    fun getJsonMiddlewaresForClientEvent(type: String): List<ClientEventJsonMiddleware>
+    fun getJsonMiddlewaresForAction(type: String): List<ActionJsonMiddleware>
     fun processEvent(event: WebSocketEvent)
 }

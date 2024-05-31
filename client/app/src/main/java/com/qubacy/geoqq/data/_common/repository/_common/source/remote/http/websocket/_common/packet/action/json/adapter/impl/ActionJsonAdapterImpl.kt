@@ -2,14 +2,14 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter._common.ActionJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
 import com.squareup.moshi.JsonWriter
 import okio.Buffer
 import javax.inject.Inject
 
 class ActionJsonAdapterImpl @Inject constructor() : ActionJsonAdapter {
     override fun toJson(
-        middlewares: List<ClientEventJsonMiddleware>,
+        middlewares: List<ActionJsonMiddleware>,
         action: PackagedAction
     ): String {
         val buffer = Buffer()
@@ -34,7 +34,7 @@ class ActionJsonAdapterImpl @Inject constructor() : ActionJsonAdapter {
 
     private fun applyMiddlewares(
         jsonWriter: JsonWriter,
-        middlewares: List<ClientEventJsonMiddleware>
+        middlewares: List<ActionJsonMiddleware>
     ) {
         for (middleware in middlewares) middleware.process(jsonWriter)
     }

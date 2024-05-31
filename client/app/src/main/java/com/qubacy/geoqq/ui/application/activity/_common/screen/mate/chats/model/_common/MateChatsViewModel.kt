@@ -7,6 +7,8 @@ import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatCh
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.UserViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.result.handler.UserDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -20,10 +22,11 @@ abstract class MateChatsViewModel(
     mUseCase: MateChatsUseCase
 ) : BusinessViewModel<MateChatsUiState, MateChatsUseCase>(
     mSavedStateHandle, mErrorSource, mUseCase
-), AuthorizedViewModel {
+), AuthorizedViewModel, UserViewModel {
     override fun generateDomainResultHandlers(): Array<DomainResultHandler<*>> {
         return super.generateDomainResultHandlers()
             .plus(AuthorizedDomainResultHandler(this))
+            .plus(UserDomainResultHandler(this))
             .plus(MateChatsDomainResultHandler(this))
     }
     override fun generateDefaultUiState(): MateChatsUiState {

@@ -25,8 +25,8 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.error.WebSocketErrorEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ClientEventJsonMiddleware
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client.auth.AuthClientEventJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client.auth.AuthActionJsonMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.context.WebSocketContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -39,7 +39,7 @@ class WebSocketAdapterImpl @Inject constructor(
     private val mErrorDataSource: LocalErrorDatabaseDataSource,
     private val mWebSocketListenerAdapter: WebSocketListenerAdapter,
     private val mActionJsonAdapter: ActionJsonAdapterImpl,
-    private val mAuthClientEventMiddleware: AuthClientEventJsonMiddleware,
+    private val mAuthClientEventMiddleware: AuthActionJsonMiddleware,
     private val mWebSocketErrorMessageEventHandler: WebSocketErrorMessageEventHandler,
     private val mWebSocketSuccessMessageEventHandler: WebSocketSuccessMessageEventHandler,
     private val mWebSocketClosedEventHandler: WebSocketClosedEventHandler,
@@ -133,7 +133,7 @@ class WebSocketAdapterImpl @Inject constructor(
     private fun tryCurrentActionSending() {
         val action = mCurrentAction!!
 
-        val middlewares = getJsonMiddlewaresForClientEvent(action.type)
+        val middlewares = getJsonMiddlewaresForAction(action.type)
         val eventString = mActionJsonAdapter.toJson(middlewares, action)
 
         mWebSocket!!.send(eventString)
@@ -168,7 +168,7 @@ class WebSocketAdapterImpl @Inject constructor(
         }
     }
 
-    override fun getJsonMiddlewaresForClientEvent(type: String): List<ClientEventJsonMiddleware> {
+    override fun getJsonMiddlewaresForAction(type: String): List<ActionJsonMiddleware> {
         return listOf(mAuthClientEventMiddleware)
     }
 

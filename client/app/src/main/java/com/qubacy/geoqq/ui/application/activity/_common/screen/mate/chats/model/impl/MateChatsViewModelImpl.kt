@@ -8,7 +8,11 @@ import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
@@ -106,6 +110,30 @@ open class MateChatsViewModelImpl @Inject constructor(
         }
 
         throw IllegalStateException()
+    }
+
+    override fun generateUserGetUserUiOperations(
+        userPresentation: UserPresentation
+    ): List<UiOperation> {
+        return emptyList()
+    }
+
+    override fun generateUserUpdateUserUiOperations(
+        userPresentation: UserPresentation
+    ): List<UiOperation> {
+        // todo: implement..
+
+        return emptyList()
+    }
+
+    override fun onUserUser(domainResult: UserDomainResult): UserPresentation {
+        // todo: implement..
+
+        return domainResult.interlocutor!!.toUserPresentation()
+    }
+
+    override fun getUserViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+        return this
     }
 
     private fun processDomainChatChunk(chatChunk: MateChatChunk): List<MateChatPresentation> {

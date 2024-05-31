@@ -2,6 +2,6 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 
 import com.squareup.moshi.JsonWriter
 
-interface ClientEventJsonMiddleware {
+interface ActionJsonMiddleware {
     fun process(jsonWriter: JsonWriter)
 }

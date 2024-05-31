@@ -130,10 +130,10 @@ open class MateRequestsViewModelImpl @Inject constructor(
         return listOf(RemoveRequestUiOperation(requestPosition))
     }
 
-    override fun onInterlocutorUpdateInterlocutor(
+    override fun onUserUpdateUser(
         domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
-        val superUiOperations = super.onInterlocutorUpdateInterlocutor(domainResult)
+        val superUiOperations = super.onUserUpdateUser(domainResult)
 
         if (!domainResult.isSuccessful()) return superUiOperations
 
@@ -151,7 +151,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
         return superUiOperations.plus(UpdateRequestUiOperation(requestPosition, updatedRequest))
     }
 
-    override fun onInterlocutorInterlocutor(domainResult: UserDomainResult): UserPresentation {
+    override fun onUserUser(domainResult: UserDomainResult): UserPresentation {
         val userPresentation = domainResult.interlocutor!!.toUserPresentation()
 
         val requestPosition = mUiState.requests.indexOfFirst { it.user.id == userPresentation.id }
@@ -162,7 +162,7 @@ open class MateRequestsViewModelImpl @Inject constructor(
         return userPresentation
     }
 
-    override fun getInterlocutorViewModelBusinessViewModel(): BusinessViewModel<*, *> {
+    override fun getUserViewModelBusinessViewModel(): BusinessViewModel<*, *> {
         return this
     }
 
