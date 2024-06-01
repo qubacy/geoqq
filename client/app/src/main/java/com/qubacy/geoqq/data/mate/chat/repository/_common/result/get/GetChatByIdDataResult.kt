@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.mate.chat.repository._common.result
+package com.qubacy.geoqq.data.mate.chat.repository._common.result.get
 
 import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat

@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.model.message
 
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.message.MessageEventPayload
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.model.DataUser
@@ -20,5 +21,9 @@ fun DataMessage.toMateMessageEntity(chatId: Long): MateMessageEntity {
 }
 
 fun GetMessageResponse.toDataMessage(user: DataUser): DataMessage {
+    return DataMessage(id, user, text, time)
+}
+
+fun MessageEventPayload.toDataMessage(user: DataUser): DataMessage {
     return DataMessage(id, user, text, time)
 }

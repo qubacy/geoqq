@@ -2,17 +2,23 @@ package com.qubacy.geoqq.data.mate.request.repository.impl
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
+import com.qubacy.geoqq.data.mate.request.model.DataMateRequest
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestCountDataResult
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.added.MateRequestAddedDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestCountDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.RemoteMateRequestHttpRestDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestsResponse
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.RemoteMateRequestHttpWebSocketDataSource
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.event.payload.added.MateRequestAddedEventPayload
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.event.type.MateRequestEventType
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +27,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
 class MateRequestDataRepositoryImpl(
@@ -117,5 +124,30 @@ class MateRequestDataRepositoryImpl(
         }
 
         return resultLiveData
+    }
+
+    override fun processWebSocketPayloadResult(
+        webSocketPayloadResult: WebSocketPayloadResult
+    ): DataResult {
+        return when (webSocketPayloadResult.type) {
+            MateRequestEventType.MATE_REQUEST_ADDED_EVENT_TYPE.title ->
+                processMateRequestAddedEventPayload(
+                    webSocketPayloadResult.payload as MateRequestAddedEventPayload)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun processMateRequestAddedEventPayload(
+        payload: MateRequestAddedEventPayload
+    ): DataResult {
+        lateinit var dataMateRequest: DataMateRequest
+
+        runBlocking {
+            val getUserResult = mUserDataRepository.getUsersByIds(listOf(payload.userId)).await() // todo: alright?
+
+            dataMateRequest = payload.toDataMateRequest(getUserResult.users.first())
+        }
+
+        return MateRequestAddedDataResult(dataMateRequest)
     }
 }

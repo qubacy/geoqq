@@ -160,8 +160,7 @@ class MateMessageDataRepositoryImpl(
         return when (webSocketPayloadResult.type) {
             MateMessageEventType.MATE_MESSAGE_ADDED_EVENT_TYPE.title ->
                 processMateMessageAddedEventPayload(
-                    webSocketPayloadResult.payload as MateMessageAddedEventPayload
-                )
+                    webSocketPayloadResult.payload as MateMessageAddedEventPayload)
             else -> throw IllegalArgumentException()
         }
     }

@@ -3,8 +3,8 @@ package com.qubacy.geoqq.data.mate.request.repository._common
 import androidx.lifecycle.LiveData
 import com.qubacy.geoqq.data._common.repository.aspect.websocket.WebSocketEventDataRepository
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestCountDataResult
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestCountDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

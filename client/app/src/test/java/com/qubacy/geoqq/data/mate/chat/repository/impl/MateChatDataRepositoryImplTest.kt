@@ -9,7 +9,7 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository._common._test.context.MateChatDataRepositoryTestContext
-import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.LocalMateChatDatabaseDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatsResponse

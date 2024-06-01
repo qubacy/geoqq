@@ -7,7 +7,7 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
-import com.qubacy.geoqq.data.geo.message.repository._common.result.GetGeoMessagesDataResult
+import com.qubacy.geoqq.data.geo.message.repository._common.result.get.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.geo.message.repository.impl._common._test.context.GeoMessageDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext

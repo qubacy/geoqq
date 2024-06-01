@@ -2,8 +2,8 @@ package com.qubacy.geoqq.data.mate.request.repository._common._test.mock
 
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestCountDataResult
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestCountDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 

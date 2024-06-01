@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common._test.context.MateRequestDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.request.repository._common._test.mock.MateRequestDataRepositoryMockContainer
-import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
 import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer

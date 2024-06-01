@@ -3,8 +3,8 @@ package com.qubacy.geoqq.data.mate.chat.repository._common
 import androidx.lifecycle.LiveData
 import com.qubacy.geoqq.data._common.repository.aspect.websocket.WebSocketEventDataRepository
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatByIdDataResult
-import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatByIdDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

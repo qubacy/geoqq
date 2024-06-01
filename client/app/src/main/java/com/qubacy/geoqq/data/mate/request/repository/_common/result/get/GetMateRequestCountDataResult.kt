@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.data.mate.request.repository._common.result
+package com.qubacy.geoqq.data.mate.request.repository._common.result.get
 
 import com.qubacy.geoqq.data._common.repository.producing.result.ProducingDataResult
 

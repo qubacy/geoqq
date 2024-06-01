@@ -7,19 +7,24 @@ import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toMateChatLastMessageEntityPair
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
-import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatByIdDataResult
-import com.qubacy.geoqq.data.mate.chat.repository._common.result.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.added.MateChatAddedDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatByIdDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.updated.MateChatUpdatedDataResult
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.LocalMateChatDatabaseDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.RemoteMateChatHttpRestDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.RemoteMateChatHttpWebSocketDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.event.payload.updated.MateChatEventPayload
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.event.type.MateChatEventType
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
@@ -30,6 +35,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
 class MateChatDataRepositoryImpl(
@@ -281,5 +287,69 @@ class MateChatDataRepositoryImpl(
 
             it.toDataMateChat(chatUser, lastMessageUser)
         }
+    }
+
+    override fun processWebSocketPayloadResult(
+        webSocketPayloadResult: WebSocketPayloadResult
+    ): DataResult {
+        return when (webSocketPayloadResult.type) {
+            MateChatEventType.MATE_CHAT_ADDED_EVENT_TYPE_NAME.title ->
+                processMateChatAddedEventPayload(
+                    webSocketPayloadResult.payload as MateChatEventPayload)
+            MateChatEventType.MATE_CHAT_UPDATED_EVENT_TYPE_NAME.title ->
+                processMateChatUpdatedEventPayload(
+                    webSocketPayloadResult.payload as MateChatEventPayload)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun processMateChatAddedEventPayload(
+        payload: MateChatEventPayload
+    ): DataResult {
+        val dataMateChat = processMateChatEventPayload(payload)
+
+        return MateChatAddedDataResult(dataMateChat)
+    }
+
+    private fun processMateChatUpdatedEventPayload(
+        payload: MateChatEventPayload
+    ): DataResult {
+        val dataMateChat = processMateChatEventPayload(payload)
+
+        return MateChatUpdatedDataResult(dataMateChat)
+    }
+
+    private fun processMateChatEventPayload(
+        payload: MateChatEventPayload
+    ): DataMateChat {
+        lateinit var dataMateChat: DataMateChat
+
+        runBlocking {
+            dataMateChat = resolveMateChatEventPayload(payload)
+        }
+
+        val chatToSave = dataMateChat.toMateChatLastMessageEntityPair()
+
+        mLocalMateChatDatabaseDataSource.saveChats(listOf(chatToSave))
+
+        return dataMateChat
+    }
+
+    private suspend fun resolveMateChatEventPayload(
+        payload: MateChatEventPayload
+    ): DataMateChat {
+        val userId = payload.userId
+        val lastMessageUserId = payload.lastMessage?.userId
+        val userIds = mutableListOf(userId).apply {
+            if (lastMessageUserId != null) add(lastMessageUserId)
+        }.toSet().toList()
+
+        val resolveUsersResult = mUserDataRepository.resolveUsers(userIds).await() // todo: alright?
+        val userIdUserMap = resolveUsersResult.userIdUserMap
+
+        val user = userIdUserMap[userId]!!
+        val lastMessageUser = lastMessageUserId?.let { userIdUserMap[it]!! }
+
+        return payload.toDataMateChat(user, lastMessageUser)
     }
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.qubacy.geoqq.data._common.repository.aspect.websocket.WebSocketEventDataRepository
 import com.qubacy.geoqq.data._common.repository.message.MessageDataRepository
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
-import com.qubacy.geoqq.data.geo.message.repository._common.result.GetGeoMessagesDataResult
+import com.qubacy.geoqq.data.geo.message.repository._common.result.get.GetGeoMessagesDataResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
