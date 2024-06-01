@@ -4,6 +4,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.LocalMateChatDatabaseDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.RemoteMateChatHttpRestDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.RemoteMateChatHttpWebSocketDataSource
 import com.qubacy.geoqq.data.mate.chat.repository.impl.MateChatDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import dagger.Module
@@ -20,13 +21,15 @@ abstract class MateChatDataRepositoryModule {
             errorDataSource: LocalErrorDatabaseDataSource,
             userDataRepository: UserDataRepository,
             localMateChatDatabaseDataSource: LocalMateChatDatabaseDataSource,
-            remoteMateChatHttpRestDataSource: RemoteMateChatHttpRestDataSource
+            remoteMateChatHttpRestDataSource: RemoteMateChatHttpRestDataSource,
+            remoteMateChatHttpWebSocketDataSource: RemoteMateChatHttpWebSocketDataSource
         ): MateChatDataRepository {
             return MateChatDataRepositoryImpl(
                 mErrorSource = errorDataSource,
                 mUserDataRepository = userDataRepository,
                 mLocalMateChatDatabaseDataSource = localMateChatDatabaseDataSource,
-                mRemoteMateChatHttpRestDataSource = remoteMateChatHttpRestDataSource
+                mRemoteMateChatHttpRestDataSource = remoteMateChatHttpRestDataSource,
+                mRemoteMateChatHttpWebSocketDataSource = remoteMateChatHttpWebSocketDataSource
             )
         }
     }

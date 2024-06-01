@@ -3,15 +3,21 @@ package com.qubacy.geoqq.data.geo.message.repository.impl
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
 import com.qubacy.geoqq.data.geo.message.repository._common.result.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.RemoteGeoMessageHttpRestDataSource
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.RemoteGeoMessageHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext
 
@@ -21,8 +27,18 @@ class GeoMessageDataRepositoryImpl(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mUserDataRepository: UserDataRepository,
     private val mRemoteGeoMessageHttpRestDataSource: RemoteGeoMessageHttpRestDataSource,
-    // todo: add a ws source..
+    private val mRemoteGeoMessageHttpWebSocketDataSource: RemoteGeoMessageHttpWebSocketDataSource
 ) : GeoMessageDataRepository(coroutineDispatcher, coroutineScope) {
+    override val resultFlow: Flow<DataResult> = merge(
+        mResultFlow,
+        mRemoteGeoMessageHttpWebSocketDataSource.eventFlow
+            .mapNotNull { mapWebSocketResultToDataResult(it) }
+    )
+
+    override fun getProducingDataSources(): Array<ProducingDataSource> {
+        return arrayOf(mRemoteGeoMessageHttpWebSocketDataSource)
+    }
+
     override suspend fun getMessages(
         radius: Int,
         longitude: Float,
@@ -49,7 +65,7 @@ class GeoMessageDataRepositoryImpl(
                     resolveGetMessagesResult.isNewest, messages)
                 )
 
-                if (resolveGetMessagesResult.isNewest) return@launch
+                if (resolveGetMessagesResult.isNewest) return@launch startProducingUpdates()
             }
         }
 

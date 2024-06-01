@@ -4,21 +4,33 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
+import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toMateMessageEntity
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.message.result.ResolveMessagesDataResult
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
-import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
+import com.qubacy.geoqq.data.mate.message.repository._common.result.added.MateMessageAddedDataResult
+import com.qubacy.geoqq.data.mate.message.repository._common.result.get.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.LocalMateMessageDatabaseDataSource
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._common.RemoteMateMessageHttpRestDataSource
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.RemoteMateMessageHttpWebSocketDataSource
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.event.payload.added.MateMessageAddedEventPayload
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.event.type.MateMessageEventType
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
 class MateMessageDataRepositoryImpl(
@@ -27,9 +39,19 @@ class MateMessageDataRepositoryImpl(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateMessageDatabaseDataSource: LocalMateMessageDatabaseDataSource,
-    private val mRemoteMateMessageHttpRestDataSource: RemoteMateMessageHttpRestDataSource
-    // todo: provide a websocket data source;
+    private val mRemoteMateMessageHttpRestDataSource: RemoteMateMessageHttpRestDataSource,
+    private val mRemoteMateMessageHttpWebSocketDataSource: RemoteMateMessageHttpWebSocketDataSource
 ) : MateMessageDataRepository(coroutineDispatcher, coroutineScope) {
+    override val resultFlow: Flow<DataResult> = merge(
+        mResultFlow,
+        mRemoteMateMessageHttpWebSocketDataSource.eventFlow
+            .mapNotNull { mapWebSocketResultToDataResult(it) }
+    )
+
+    override fun getProducingDataSources(): Array<ProducingDataSource> {
+        return arrayOf(mRemoteMateMessageHttpWebSocketDataSource)
+    }
+
     override suspend fun getMessages(
         chatId: Long,
         loadedMessageIds: List<Long>,
@@ -70,7 +92,7 @@ class MateMessageDataRepositoryImpl(
                         resolveGetMessagesResponseResult.isNewest)
                     )
 
-                    if (resolveGetMessagesResponseResult.isNewest) return@launch
+                    if (resolveGetMessagesResponseResult.isNewest) return@launch startProducingUpdates()
                     else continue
                 }
 
@@ -89,7 +111,7 @@ class MateMessageDataRepositoryImpl(
 
                 mLocalMateMessageDatabaseDataSource.saveMessages(messagesToSave)
 
-                if (resolveGetMessagesResponseResult.isNewest) return@launch
+                if (resolveGetMessagesResponseResult.isNewest) return@launch startProducingUpdates()
             }
         }
 
@@ -130,5 +152,35 @@ class MateMessageDataRepositoryImpl(
         // todo: there's actually no need to return ResolveMessagesDataResult:
         return ResolveMessagesDataResult(
             resolveUsersResult.isNewest, resolvedMessages)
+    }
+
+    override fun processWebSocketPayloadResult(
+        webSocketPayloadResult: WebSocketPayloadResult
+    ): DataResult {
+        return when (webSocketPayloadResult.type) {
+            MateMessageEventType.MATE_MESSAGE_ADDED_EVENT_TYPE.title ->
+                processMateMessageAddedEventPayload(
+                    webSocketPayloadResult.payload as MateMessageAddedEventPayload
+                )
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun processMateMessageAddedEventPayload(
+        payload: MateMessageAddedEventPayload
+    ): DataResult {
+        lateinit var dataMessage: DataMessage
+
+        runBlocking {
+            val getUserResult = mUserDataRepository.getUsersByIds(listOf(payload.userId)).await() // todo: alright?
+
+            dataMessage = payload.toDataMessage(getUserResult.users.first())
+        }
+
+        val messageToSave = dataMessage.toMateMessageEntity(payload.chatId)
+
+        mLocalMateMessageDatabaseDataSource.saveMessages(listOf(messageToSave))
+
+        return MateMessageAddedDataResult(dataMessage)
     }
 }

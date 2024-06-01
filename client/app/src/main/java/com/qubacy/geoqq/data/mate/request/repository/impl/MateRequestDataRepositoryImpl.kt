@@ -3,31 +3,46 @@ package com.qubacy.geoqq.data.mate.request.repository.impl
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data.mate.request.model.toDataMateRequest
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestCountDataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.result.GetMateRequestsDataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.RemoteMateRequestHttpRestDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api.response.GetMateRequestsResponse
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.RemoteMateRequestHttpWebSocketDataSource
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
-class MateRequestDataRepositoryImpl @Inject constructor(
+class MateRequestDataRepositoryImpl(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mUserDataRepository: UserDataRepository,
-    private val mRemoteMateRequestHttpRestDataSource: RemoteMateRequestHttpRestDataSource
-    // todo: add a websocket source;
+    private val mRemoteMateRequestHttpRestDataSource: RemoteMateRequestHttpRestDataSource,
+    private val mRemoteMateRequestHttpWebSocketDataSource: RemoteMateRequestHttpWebSocketDataSource
 ) : MateRequestDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
         const val TAG = "MateRequestDtRepstry"
+    }
+
+    override val resultFlow: Flow<DataResult> = merge(
+        mResultFlow,
+        mRemoteMateRequestHttpWebSocketDataSource.eventFlow
+            .mapNotNull { mapWebSocketResultToDataResult(it) }
+    )
+
+    override fun getProducingDataSources(): Array<ProducingDataSource> {
+        return arrayOf(mRemoteMateRequestHttpWebSocketDataSource)
     }
 
     override suspend fun getMateRequests(
@@ -50,7 +65,7 @@ class MateRequestDataRepositoryImpl @Inject constructor(
 
                 resultLiveData.postValue(resolveMateRequestsResult)
 
-                if (resolveMateRequestsResult.isNewest) return@launch
+                if (resolveMateRequestsResult.isNewest) return@launch startProducingUpdates()
             }
         }
 

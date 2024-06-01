@@ -3,8 +3,8 @@ package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websock
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.type.UserServerEventType
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.payload.updated.UserUpdatedEventPayload
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.type.UserEventType
 import com.squareup.moshi.JsonAdapter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::cl
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     override val mEventJsonAdapter: EventJsonAdapter,
     webSocketAdapter: WebSocketAdapter,
-    private val mUserUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
+    private val mUserUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedEventPayload>
 ) : RemoteUserHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
 
     init {
@@ -27,7 +27,7 @@ class RemoteUserHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesApi::cl
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
         return when (type) {
-            UserServerEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
+            UserEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
                 mUserUpdatedEventPayloadJsonAdapter
             else -> null
         }

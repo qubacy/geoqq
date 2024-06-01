@@ -52,7 +52,7 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._di.module.LocalUserDatabaseDataSourceModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api._di.module.RemoteUserHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._di.module.RemoteUserHttpRestDataSourceModule
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.json.adapter.module.UserUpdatedServerEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.payload.updated.json.adapter._di.module.UserUpdatedEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._di.module.RemoteUserHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.user.repository._di.module.UserDataRepositoryModule
 import com.qubacy.geoqq.domain.geo.chat.usecase._di.module.GeoChatUseCaseModule
@@ -164,7 +164,7 @@ import javax.inject.Singleton
         ErrorResponseJsonAdapterModule::class,
         ErrorResponseContentJsonAdapterModule::class,
         ErrorEventPayloadJsonAdapterModule::class,
-        UserUpdatedServerEventPayloadJsonAdapterModule::class,
+        UserUpdatedEventPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,
         RetrofitModule::class

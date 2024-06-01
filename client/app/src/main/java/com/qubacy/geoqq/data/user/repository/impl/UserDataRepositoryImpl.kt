@@ -26,8 +26,8 @@ import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._co
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.type.UserServerEventType
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.payload.updated.UserUpdatedEventPayload
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.type.UserEventType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +83,7 @@ open class UserDataRepositoryImpl(
             val usersToSave = httpDataUsers.map { it.toUserEntity() }
 
             mLocalUserDatabaseDataSource.saveUsers(usersToSave)
-            mRemoteUserHttpWebSocketDataSource.startProducing() // todo: ok?
+            startProducingUpdates() // todo: ok?
         }
 
         return resultLiveData
@@ -103,13 +103,11 @@ open class UserDataRepositoryImpl(
 
                 ++version
 
-                resultLiveData.postValue(
-                    ResolveUsersDataResult(
-                    getUsersByIdsResult.isNewest, userIdUserMap)
-                )
+                resultLiveData.postValue(ResolveUsersDataResult(
+                    getUsersByIdsResult.isNewest, userIdUserMap))
 
                 if (getUsersByIdsResult.isNewest)
-                    return@launch mRemoteUserHttpWebSocketDataSource.startProducing() // todo: ok?
+                    return@launch startProducingUpdates() // todo: ok?
             }
         }
 
@@ -162,15 +160,15 @@ open class UserDataRepositoryImpl(
         webSocketPayloadResult: WebSocketPayloadResult
     ): DataResult? {
         return when (webSocketPayloadResult.type) {
-            UserServerEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
-                processUserUpdatedServerEventPayload(
-                    webSocketPayloadResult.payload as UserUpdatedServerEventPayload)
+            UserEventType.USER_UPDATED_EVENT_TYPE_NAME.title ->
+                processUserUpdatedEventPayload(
+                    webSocketPayloadResult.payload as UserUpdatedEventPayload)
             else -> throw IllegalArgumentException()
         }
     }
 
-    private fun processUserUpdatedServerEventPayload(
-        payload: UserUpdatedServerEventPayload
+    private fun processUserUpdatedEventPayload(
+        payload: UserUpdatedEventPayload
     ): DataResult {
         lateinit var dataUser: DataUser
 

@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.mate.request.repository._di.module
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.RemoteMateRequestHttpRestDataSource
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.RemoteMateRequestHttpWebSocketDataSource
 import com.qubacy.geoqq.data.mate.request.repository.impl.MateRequestDataRepositoryImpl
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import dagger.Module
@@ -18,12 +19,14 @@ abstract class MateRequestDataRepositoryModule {
         fun provideMateRequestDataRepository(
             errorDataSource: LocalErrorDatabaseDataSource,
             userDataRepository: UserDataRepository,
-            remoteMateRequestHttpRestDataSource: RemoteMateRequestHttpRestDataSource
+            remoteMateRequestHttpRestDataSource: RemoteMateRequestHttpRestDataSource,
+            remoteMateRequestHttpWebSocketDataSource: RemoteMateRequestHttpWebSocketDataSource
         ): MateRequestDataRepository {
             return MateRequestDataRepositoryImpl(
                 mErrorSource = errorDataSource,
                 mUserDataRepository = userDataRepository,
-                mRemoteMateRequestHttpRestDataSource = remoteMateRequestHttpRestDataSource
+                mRemoteMateRequestHttpRestDataSource = remoteMateRequestHttpRestDataSource,
+                mRemoteMateRequestHttpWebSocketDataSource = remoteMateRequestHttpWebSocketDataSource
             )
         }
     }

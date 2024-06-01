@@ -3,7 +3,7 @@ package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websock
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
-import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.server.payload.updated.UserUpdatedServerEventPayload
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.payload.updated.UserUpdatedEventPayload
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket.impl.RemoteUserHttpWebSocketDataSourceImpl
 import com.squareup.moshi.JsonAdapter
 import dagger.Module
@@ -17,7 +17,7 @@ abstract class RemoteUserHttpWebSocketDataSourceModule {
         fun provideRemoteUserHttpWebSocketDataSource(
             eventJsonAdapter: EventJsonAdapter,
             webSocketAdapter: WebSocketAdapter,
-            userUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedServerEventPayload>
+            userUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedEventPayload>
         ): RemoteUserHttpWebSocketDataSource {
             return RemoteUserHttpWebSocketDataSourceImpl(
                 mEventJsonAdapter = eventJsonAdapter,

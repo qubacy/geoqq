@@ -11,7 +11,7 @@ import com.qubacy.geoqq.data._common.repository.message.source.remote.http.respo
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data.mate.message.model.toDataMessage
 import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateMessageDataRepositoryTestContext
-import com.qubacy.geoqq.data.mate.message.repository._common.result.GetMessagesDataResult
+import com.qubacy.geoqq.data.mate.message.repository._common.result.get.GetMessagesDataResult
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.LocalMateMessageDatabaseDataSource
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._common.RemoteMateMessageHttpRestDataSource

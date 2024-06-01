@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
 import com.qubacy.geoqq.data.mate.chat.model.DataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.model.toMateChatLastMessageEntityPair
@@ -17,12 +19,16 @@ import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.res
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.RemoteMateChatHttpRestDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.RemoteMateChatHttpWebSocketDataSource
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.model.DataUser
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext
 
@@ -32,11 +38,21 @@ class MateChatDataRepositoryImpl(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mUserDataRepository: UserDataRepository,
     private val mLocalMateChatDatabaseDataSource: LocalMateChatDatabaseDataSource,
-    private val mRemoteMateChatHttpRestDataSource: RemoteMateChatHttpRestDataSource
-    // todo: add a websocket source;
+    private val mRemoteMateChatHttpRestDataSource: RemoteMateChatHttpRestDataSource,
+    private val mRemoteMateChatHttpWebSocketDataSource: RemoteMateChatHttpWebSocketDataSource
 ) : MateChatDataRepository(coroutineDispatcher, coroutineScope) {
     companion object {
         const val TAG = "MateChatDataRepository"
+    }
+
+    override val resultFlow: Flow<DataResult> = merge(
+        mResultFlow,
+        mRemoteMateChatHttpWebSocketDataSource.eventFlow
+            .mapNotNull { mapWebSocketResultToDataResult(it) }
+    )
+
+    override fun getProducingDataSources(): Array<ProducingDataSource> {
+        return arrayOf(mRemoteMateChatHttpWebSocketDataSource)
     }
 
     override suspend fun getChats(
@@ -89,7 +105,8 @@ class MateChatDataRepositoryImpl(
 
                 mLocalMateChatDatabaseDataSource.saveChats(chatsToSave)
 
-                if (resolveGetChatsResult.isNewest) return@launch
+                if (resolveGetChatsResult.isNewest)
+                    return@launch startProducingUpdates() // todo: ok?
             }
         }
 
