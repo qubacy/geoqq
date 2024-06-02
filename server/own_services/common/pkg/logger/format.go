@@ -31,7 +31,11 @@ type JsonLogEntry struct {
 
 func (j *JsonLogEntry) ToJsonString() string {
 	jsonBytes, err := json.Marshal(j)
-	if err != nil { // impossible!
+	if err != nil { // ---> impossible!
+
+		// if this is possible,
+		// then you can notice it during local testing...
+
 		return fmt.Sprintf(
 			`{ "entry": "%v", "marshal_error:": "%v" }`, j, err,
 		)

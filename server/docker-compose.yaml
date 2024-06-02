@@ -1,4 +1,4 @@
-name: geoqq_services
+name: geoqq_own_services
 
 services:
   postgre_domain: 
@@ -19,7 +19,7 @@ services:
       retries: 5
     networks:
       - postgre_net
-      - all_net    
+      - own_net    
     volumes:
       - postgre_domain_data:/var/lib/postgresql/data
 
@@ -59,7 +59,26 @@ services:
       timeout: 1s
       retries: 5
     networks:
-      - all_net
+      - own_net
+
+  # almost external and not external service!?
+  promtail:
+    image: grafana/promtail
+    hostname: ${PROMTAIL_NAME}
+    container_name: ${PROMTAIL_NAME}
+    restart: "on-failure"
+    networks:
+      - promtail_net
+      - external_net
+    volumes:
+      - promtail_data:/var/lib/promtail
+      - ./external_services/grafana/promtail/config.yaml:/etc/promtail/config.yaml
+      - geoqqhttp_rotation:/var/log # for read!
+    command:
+      - -config.file=/etc/promtail/config.yaml # not necessary!?
+    depends_on:
+      geoqq_http:
+        condition: service_started
 
   geoqq_http:
     build: 
@@ -99,7 +118,8 @@ services:
       migrate_domain:
         condition: service_completed_successfully
     networks:
-      - all_net
+      - promtail_net
+      - own_net
     volumes:
       - geoqqhttp_rotation:/app/cmd/rotation
       - geoqqhttp_avatar:/app/cmd/avatar
@@ -111,9 +131,15 @@ volumes:
   dragonfly_data:
   geoqqhttp_rotation:
   geoqqhttp_avatar:
+  promtail_data:
 
 networks:
   postgre_net:
     driver: bridge
-  all_net:
+  promtail_net:
     driver: bridge
+  own_net:
+    driver: bridge
+  external_net:
+    external: true
+      

@@ -15,12 +15,12 @@ FROM alpine:3.19
 RUN apk update --no-cache
 RUN apk add iputils vim --no-cache
 
-COPY --from=build /app/geoqq_http/assets /app/geoqq_http/assets
-COPY --from=build /app/geoqq_http/internal/config/config.yml /app/geoqq_http/cmd/config.yml
-COPY --from=build /app/geoqq_http/internal/config/for_merge/ /app/geoqq_http/cmd/for_merge/
+COPY --from=build /app/geoqq_http/assets /app/assets
+COPY --from=build /app/geoqq_http/internal/config/config.yml /app/cmd/config.yml
+COPY --from=build /app/geoqq_http/internal/config/for_merge/ /app/cmd/for_merge/
 
 # Executable File...
-COPY --from=build /app/geoqq_http/cmd/main /app/geoqq_http/cmd/main
+COPY --from=build /app/geoqq_http/cmd/main /app/cmd/main
 
-WORKDIR /app/geoqq_http/cmd
+WORKDIR /app/cmd
 CMD ./main

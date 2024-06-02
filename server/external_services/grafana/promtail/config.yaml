@@ -1,0 +1,42 @@
+global:
+  file_watch_config:
+    min_poll_frequency: 250ms
+    max_poll_frequency: 250ms
+
+server:
+  disable: false
+  http_listen_port: 9080 # ?
+  grpc_listen_port: 0
+
+  # Register instrumentation handlers (/metrics, etc.)
+  register_instrumentation: true
+  log_level: info
+  
+
+# The clients block configures 
+# how Promtail connects to instances of Loki.
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+# The positions block configures 
+# where Promtail will save a file indicating 
+# how far it has read into a file.
+# It is needed for when Promtail is restarted 
+#   to allow it to continue from where it left off.
+positions:
+  filename: /var/lib/promtail/positions.yaml
+  sync_period: 10s
+  
+scrape_configs:
+  - job_name: all_services
+    decompression:
+      enabled: false
+
+    # Describes how to scrape logs
+    # from the journal.
+    journal:
+    static_configs:
+    - targets:
+        - geoqq_http
+      labels:
+        __path__: /var/log/*.log

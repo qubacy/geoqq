@@ -30,6 +30,7 @@
         "pgconn",
         "pgxpool",
         "postgre",
+        "Promtail",
         "psycopg",
         "rabbitmq",
         "scottleedavis",
