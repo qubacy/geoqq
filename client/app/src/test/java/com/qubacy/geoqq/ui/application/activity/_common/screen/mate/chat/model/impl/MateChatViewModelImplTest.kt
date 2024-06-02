@@ -14,7 +14,7 @@ import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResu
 import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
-import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation

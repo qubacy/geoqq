@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -33,7 +33,7 @@ open class MateChatsViewModelImpl @Inject constructor(
     private var mIsGettingNextChatChunk: Boolean = false
 
     override fun onMateChatsGetChatChunk(
-        getChatChunkResult: GetChatChunkDomainResult
+        getChatChunkResult: GetMateChatChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 
@@ -50,7 +50,7 @@ open class MateChatsViewModelImpl @Inject constructor(
     }
 
     override fun onMateChatsUpdateChatChunk(
-        updateChatChunkResult: UpdateChatChunkDomainResult
+        updateChatChunkResult: UpdateMateChatChunkDomainResult
     ): List<UiOperation> {
         if (mUiState.isLoading) changeLoadingState(false)
 

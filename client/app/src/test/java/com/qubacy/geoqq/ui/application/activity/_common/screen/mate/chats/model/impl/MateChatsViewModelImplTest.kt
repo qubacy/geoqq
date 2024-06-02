@@ -12,8 +12,8 @@ import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain.mate._common.model.chat.MateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -157,7 +157,7 @@ class MateChatsViewModelImplTest(
         val expectedChatChunkSizes = initChatChunkSizes
         val expectedIsGettingNextChatChunk = false
 
-        val getChatChunkDomainResult = GetChatChunkDomainResult(error = expectedError)
+        val getChatChunkDomainResult = GetMateChatChunkDomainResult(error = expectedError)
 
         setUiState(
             MateChatsUiState(
@@ -204,7 +204,7 @@ class MateChatsViewModelImplTest(
         val chat = MateChat(0, user, 0, null)
         val chatChunk = MateChatChunk(0, listOf(chat))
 
-        val getChatChunkDomainResult = GetChatChunkDomainResult(chunk = chatChunk)
+        val getChatChunkDomainResult = GetMateChatChunkDomainResult(chunk = chatChunk)
 
         val expectedChatChunkPosition = chatChunk.offset
         val expectedChatPresentationChunk = chatChunk.chats.map { it.toMateChatPresentation() }
@@ -258,7 +258,7 @@ class MateChatsViewModelImplTest(
         val expectedError = TestError.normal
         val expectedLoadingState = false
 
-        val updateChatChunkDomainResult = UpdateChatChunkDomainResult(error = expectedError)
+        val updateChatChunkDomainResult = UpdateMateChatChunkDomainResult(error = expectedError)
 
         setUiState(
             MateChatsUiState(
@@ -300,7 +300,7 @@ class MateChatsViewModelImplTest(
         val chat = MateChat(0, user, 0, null)
         val chatChunk = MateChatChunk(0, listOf(chat))
 
-        val updateChatChunkDomainResult = UpdateChatChunkDomainResult(chunk = chatChunk)
+        val updateChatChunkDomainResult = UpdateMateChatChunkDomainResult(chunk = chatChunk)
 
         val expectedChatCount = chatChunk.chats.size
         val expectedChatChunkSizes = mutableMapOf(

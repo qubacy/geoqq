@@ -16,7 +16,7 @@ import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMo
 import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common._test.mock.MateRequestUseCaseMockContainer
-import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.get.GetRequestChunkDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule

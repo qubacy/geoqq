@@ -18,8 +18,8 @@ import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMo
 import com.qubacy.geoqq.domain.mate._common.model.chat.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -153,17 +153,17 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
 
             val gottenLocalResult = awaitItem()
 
-            Assert.assertEquals(GetChatChunkDomainResult::class, gottenLocalResult::class)
+            Assert.assertEquals(GetMateChatChunkDomainResult::class, gottenLocalResult::class)
 
-            val gottenLocalChatChunk = (gottenLocalResult as GetChatChunkDomainResult).chunk
+            val gottenLocalChatChunk = (gottenLocalResult as GetMateChatChunkDomainResult).chunk
 
             Assert.assertEquals(expectedLocalChatChunk, gottenLocalChatChunk)
 
             val gottenRemoteResult = awaitItem()
 
-            Assert.assertEquals(UpdateChatChunkDomainResult::class, gottenRemoteResult::class)
+            Assert.assertEquals(UpdateMateChatChunkDomainResult::class, gottenRemoteResult::class)
 
-            val gottenRemoteChatChunk = (gottenRemoteResult as UpdateChatChunkDomainResult).chunk
+            val gottenRemoteChatChunk = (gottenRemoteResult as UpdateMateChatChunkDomainResult).chunk
 
             Assert.assertEquals(expectedRemoteChatChunk, gottenRemoteChatChunk)
         }

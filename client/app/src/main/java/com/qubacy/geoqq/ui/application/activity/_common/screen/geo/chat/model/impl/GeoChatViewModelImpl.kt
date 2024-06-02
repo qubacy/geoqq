@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.newer.NewGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
@@ -91,7 +91,7 @@ open class GeoChatViewModelImpl @Inject constructor(
     }
 
     override fun onGeoChatNewGeoMessages(
-        newGeoMessagesDomainResult: NewGeoMessagesDomainResult
+        newGeoMessagesDomainResult: GeoMessageAddedDomainResult
     ): List<UiOperation> {
         // todo: implement..
 

@@ -1,8 +1,8 @@
-package com.qubacy.geoqq.domain.mate.requests.usecase._common.result.update
+package com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.update
 
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
-import com.qubacy.geoqq.domain.mate.requests.usecase._common.result._common.RequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk._common.RequestChunkDomainResult
 
 class UpdateRequestChunkDomainResult(
     error: Error? = null,

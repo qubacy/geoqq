@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
-import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.newer.NewGeoMessagesDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
@@ -49,7 +49,7 @@ abstract class GeoChatViewModel(
         getGeoMessagesDomainResult: GetGeoMessagesDomainResult
     ): List<UiOperation>
     abstract fun onGeoChatNewGeoMessages(
-        newGeoMessagesDomainResult: NewGeoMessagesDomainResult
+        newGeoMessagesDomainResult: GeoMessageAddedDomainResult
     ): List<UiOperation>
     open fun getLocalUserId(): Long {
         return mUseCase.getLocalUserId()

@@ -11,8 +11,8 @@ import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.mate._common.model.chat.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.GetChatChunkDomainResult
-import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.UpdateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.update.handler.MateChatsDataUpdateHandler
 import javax.inject.Inject
 
@@ -46,7 +46,7 @@ class MateChatsUseCaseImpl @Inject constructor(
             val initChats = initGetChatsResult.chats?.map { it.toMateChat() }
             val initChatChunk = initChats?.let { MateChatChunk(offset, it)}
 
-            mResultFlow.emit(GetChatChunkDomainResult(chunk = initChatChunk))
+            mResultFlow.emit(GetMateChatChunkDomainResult(chunk = initChatChunk))
 
             if (initGetChatsResult.isNewest) return@executeLogic
 
@@ -59,10 +59,10 @@ class MateChatsUseCaseImpl @Inject constructor(
             val newestChats = newestGetChatsResult.chats.map { it.toMateChat() }
             val newestChatChunk = MateChatChunk(offset, newestChats)
 
-            mResultFlow.emit(UpdateChatChunkDomainResult(chunk = newestChatChunk))
+            mResultFlow.emit(UpdateMateChatChunkDomainResult(chunk = newestChatChunk))
 
         }, {
-            GetChatChunkDomainResult(error = it)
+            GetMateChatChunkDomainResult(error = it)
         })
     }
 

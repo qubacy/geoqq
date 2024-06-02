@@ -26,6 +26,8 @@ import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.websocke
 import com.qubacy.geoqq.data.auth.repository._di.module.AuthDataRepositoryModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api._di.module.RemoteGeoMessageHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._di.module.RemoteGeoMessageHttpRestDataSourceModule
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.event.payload.added.json.adapter._di.module.GeoMessageAddedEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._di.module.RemoteGeoMessageHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.geo.message.repository._di.module.GeoMessageDataRepositoryModule
 import com.qubacy.geoqq.data.image.repository._common.source.local.content._di.module.LocalImageContentStoreDataSourceModule
 import com.qubacy.geoqq.data.image.repository._common.source.remote.http.rest._common.api._di.module.RemoteImageHttpRestDataSourceApiModule
@@ -35,14 +37,20 @@ import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database.
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._di.module.LocalMateChatDatabaseDataSourceModule
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api._di.module.RemoteMateChatHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._di.module.RemoteMateChatHttpRestDataSourceModule
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.event.payload.updated.json.adapter._di.module.MateChatEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._di.module.RemoteMateChatHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.mate.chat.repository._di.module.MateChatDataRepositoryModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.dao._di.module.LocalMateMessageDatabaseDataSourceDaoModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._di.module.LocalMateMessageDatabaseDataSourceModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._common.api._di.module.RemoteMateMessageHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._di.module.RemoteMateMessageHttpRestDataSourceModule
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.event.payload.added.json.adapter._di.module.MateMessageAddedEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._di.module.RemoteMateMessageHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.mate.message.repository._di.module.MateMessageDataRepositoryModule
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._common.api._di.module.RemoteMateRequestHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.rest._di.module.RemoteMateRequestHttpRestDataSourceModule
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._common.event.payload.added.json.adapter._di.module.MateRequestAddedEventPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.mate.request.repository._common.source.remote.http.websocket._di.module.RemoteMateRequestHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.mate.request.repository._di.module.MateRequestDataRepositoryModule
 import com.qubacy.geoqq.data.myprofile.repository._common.source.local.store._di.module.LocalMyProfileDataStoreDataSourceModule
 import com.qubacy.geoqq.data.myprofile.repository._common.source.remote.http.rest._common.api._di.module.RemoteMyProfileHttpRestDataSourceApiModule
@@ -136,6 +144,7 @@ import javax.inject.Singleton
 
         RemoteGeoMessageHttpRestDataSourceApiModule::class,
         RemoteGeoMessageHttpRestDataSourceModule::class,
+        RemoteGeoMessageHttpWebSocketDataSourceModule::class,
         RemoteTokenHttpRestDataSourceApiModule::class,
         RemoteTokenHttpRestDataSourceModule::class,
         RemoteAuthHttpRestDataSourceApiModule::class,
@@ -148,10 +157,13 @@ import javax.inject.Singleton
         RemoteImageHttpRestDataSourceModule::class,
         RemoteMateChatHttpRestDataSourceApiModule::class,
         RemoteMateChatHttpRestDataSourceModule::class,
+        RemoteMateChatHttpWebSocketDataSourceModule::class,
         RemoteMateMessageHttpRestDataSourceApiModule::class,
         RemoteMateMessageHttpRestDataSourceModule::class,
+        RemoteMateMessageHttpWebSocketDataSourceModule::class,
         RemoteMateRequestHttpRestDataSourceApiModule::class,
         RemoteMateRequestHttpRestDataSourceModule::class,
+        RemoteMateRequestHttpWebSocketDataSourceModule::class,
         RemoteMyProfileHttpRestDataSourceApiModule::class,
         RemoteMyProfileHttpRestDataSourceModule::class,
 
@@ -164,7 +176,12 @@ import javax.inject.Singleton
         ErrorResponseJsonAdapterModule::class,
         ErrorResponseContentJsonAdapterModule::class,
         ErrorEventPayloadJsonAdapterModule::class,
+
         UserUpdatedEventPayloadJsonAdapterModule::class,
+        MateRequestAddedEventPayloadJsonAdapterModule::class,
+        GeoMessageAddedEventPayloadJsonAdapterModule::class,
+        MateChatEventPayloadJsonAdapterModule::class,
+        MateMessageAddedEventPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,
         RetrofitModule::class
