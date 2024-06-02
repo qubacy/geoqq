@@ -33,8 +33,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.insert.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.update.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers

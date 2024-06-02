@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.MateChatAddedDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
@@ -16,8 +18,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.InsertChatsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.UpdateChatChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.add.AddChatUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.insert.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.update.UpdateChatUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chunk.update.UpdateChatChunkUiOperation
 import javax.inject.Inject
 import javax.inject.Qualifier
 
@@ -69,6 +73,52 @@ open class MateChatsViewModelImpl @Inject constructor(
             chatPresentationChunk,
             prevChatChunkSize - curChatChunkSize)
         )
+    }
+
+    override fun onMateChatsMateChatAdded(
+        mateChatAddedDomainResult: MateChatAddedDomainResult
+    ): List<UiOperation> {
+        if (!mateChatAddedDomainResult.isSuccessful())
+            return onError(mateChatAddedDomainResult.error!!)
+
+        val chatPresentation = mateChatAddedDomainResult.chat!!.toMateChatPresentation()
+
+        mUiState.chats.add(0, chatPresentation)
+
+        return listOf(AddChatUiOperation(chatPresentation))
+    }
+
+    override fun onMateChatsMateChatUpdated(
+        mateChatUpdatedDomainResult: MateChatUpdatedDomainResult
+    ): List<UiOperation> {
+        if (!mateChatUpdatedDomainResult.isSuccessful())
+            return onError(mateChatUpdatedDomainResult.error!!)
+
+        val chatPresentation = mateChatUpdatedDomainResult.chat!!.toMateChatPresentation()
+        val prevChatPresentation = mUiState.chats.find { it.id == chatPresentation.id }
+
+        if (prevChatPresentation == null) {
+            if (chatPresentation.lastMessage == null) return emptyList()
+
+            val lastChatPresentation = mUiState.chats.last()
+
+            if (lastChatPresentation.lastMessage != null) {
+                if (chatPresentation.lastMessage.timeInSeconds <
+                    lastChatPresentation.lastMessage.timeInSeconds
+                ) {
+                    return emptyList()
+                }
+            }
+
+            // todo: implement the rest..
+
+
+
+        } else {
+
+        }
+
+        return listOf(UpdateChatUiOperation(, chatPresentation))
     }
 
     // todo: reconsider this (mb there is another optimal way?): DOESNT WORK

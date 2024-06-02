@@ -15,8 +15,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
 import javax.inject.Inject
@@ -93,9 +93,14 @@ open class GeoChatViewModelImpl @Inject constructor(
     override fun onGeoChatNewGeoMessages(
         newGeoMessagesDomainResult: GeoMessageAddedDomainResult
     ): List<UiOperation> {
-        // todo: implement..
+        if (!newGeoMessagesDomainResult.isSuccessful())
+            return onError(newGeoMessagesDomainResult.error!!)
 
-        return listOf()
+        val messagePresentation = newGeoMessagesDomainResult.message!!.toGeoMessagePresentation()
+
+        mUiState.messages.add(messagePresentation)
+
+        return listOf(AddGeoMessagesUiOperation(listOf(messagePresentation)))
     }
 
     override fun onUserUpdateUser(

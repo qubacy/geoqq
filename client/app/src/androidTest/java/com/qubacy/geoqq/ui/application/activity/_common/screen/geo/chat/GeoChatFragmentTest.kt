@@ -18,7 +18,6 @@ import com.qubacy.geoqq.databinding.FragmentGeoChatBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.factory._test.mock.GeoChatViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.module.FakeGeoChatViewModelModule
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._di.module.GeoChatViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
@@ -36,8 +35,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoTestContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers

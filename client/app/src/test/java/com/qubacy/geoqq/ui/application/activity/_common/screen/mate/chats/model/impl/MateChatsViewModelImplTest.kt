@@ -20,8 +20,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.InsertChatsUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.UpdateChatChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.insert.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chunk.update.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert

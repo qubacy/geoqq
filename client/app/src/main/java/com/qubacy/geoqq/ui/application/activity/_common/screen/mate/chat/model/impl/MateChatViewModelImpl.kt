@@ -12,6 +12,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMess
 import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.message.MateMessageAddedDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.validator.message.text.MessageTextValidator
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
@@ -20,12 +21,13 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateMessagePresentation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.InsertMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.UpdateMessageChunkUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.insert.InsertMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.update.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.add.AddMessageUiOperation
 import javax.inject.Inject
 import javax.inject.Qualifier
 
@@ -124,6 +126,19 @@ open class MateChatViewModelImpl @Inject constructor(
             return onError(deleteChatDomainResult.error!!)
 
         return listOf(ChatDeletedUiOperation())
+    }
+
+    override fun onMateChatMessageAdded(
+        mateMessageAddedDomainResult: MateMessageAddedDomainResult
+    ): List<UiOperation> {
+        if (!mateMessageAddedDomainResult.isSuccessful())
+            return onError(mateMessageAddedDomainResult.error!!)
+
+        val messagePresentation = mateMessageAddedDomainResult.message!!.toMateMessagePresentation()
+
+        mUiState.messages.add(messagePresentation)
+
+        return listOf(AddMessageUiOperation(messagePresentation))
     }
 
     override fun onMateChatGetMessageChunk(

@@ -16,7 +16,8 @@ data class MateMessagePresentation(
     val id: Long,
     val user: UserPresentation,
     val text: String,
-    val timestamp: String
+    val timestamp: String,
+    val timeInSeconds: Long
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
@@ -26,7 +27,8 @@ data class MateMessagePresentation(
             UserPresentation::class.java
         )!!,
         parcel.readString()!!,
-        parcel.readString()!!
+        parcel.readString()!!,
+        parcel.readLong()
     ) {
     }
 
@@ -57,7 +59,7 @@ fun MateMessage.toMateMessagePresentation(): MateMessagePresentation {
     val timestamp = TimeUtils.longToHoursMinutesSecondsFormattedString(
         time, Locale.getDefault(), TimeZone.getDefault())
 
-    return MateMessagePresentation(id, user.toUserPresentation(), text, timestamp)
+    return MateMessagePresentation(id, user.toUserPresentation(), text, timestamp, time)
 }
 
 fun MateMessagePresentation.toMateMessageItemData(remoteUserId: Long): MessageItemData {

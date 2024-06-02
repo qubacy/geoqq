@@ -6,6 +6,7 @@ import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.message.MateMessageAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.result.handler.AuthorizedDomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModel
@@ -56,6 +57,9 @@ abstract class MateChatViewModel(
     ): List<UiOperation>
     abstract fun onMateChatUpdateMessageChunk(
         updateMessageChunkResult: UpdateMessageChunkDomainResult
+    ): List<UiOperation>
+    abstract fun onMateChatMessageAdded(
+        mateMessageAddedDomainResult: MateMessageAddedDomainResult
     ): List<UiOperation>
     open fun isInterlocutorChatable(): Boolean {
         return isInterlocutorChatable(mUiState.chatContext!!.user)

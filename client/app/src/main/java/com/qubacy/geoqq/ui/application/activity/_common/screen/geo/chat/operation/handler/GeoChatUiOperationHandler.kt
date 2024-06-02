@@ -3,8 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.operati
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.GeoChatFragment
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.AddGeoMessagesUiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.UpdateGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 
 class GeoChatUiOperationHandler(
     fragment: GeoChatFragment

@@ -16,7 +16,6 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.DefaultItemAnimator
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.qubacy.geoqq.R
@@ -37,6 +36,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.impl.MateChatsViewModelFactoryQualifier
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.operation.handler.MateChatsUiOperationHandler
+import com.qubacy.utility.baserecyclerview.item.animator.BaseRecyclerViewItemAnimator
 import com.qubacy.utility.baserecyclerview.view.BaseRecyclerViewCallback
 import javax.inject.Inject
 
@@ -220,6 +220,12 @@ class MateChatsFragment(
         checkMateChatListEmpty()
     }
 
+    fun onMateChatsFragmentAddChat(chatPresentation: MateChatPresentation) {
+        val itemData = chatPresentation.toMateChatItemData()
+
+        mAdapter.addNewMateChat(itemData)
+    }
+
     override fun createBinding(
         inflater: LayoutInflater,
         container: ViewGroup?
@@ -260,7 +266,7 @@ class MateChatsFragment(
             setCallback(this@MateChatsFragment)
 
             adapter = mAdapter
-            itemAnimator = DefaultItemAnimator()
+            itemAnimator = BaseRecyclerViewItemAnimator()
         }
     }
 

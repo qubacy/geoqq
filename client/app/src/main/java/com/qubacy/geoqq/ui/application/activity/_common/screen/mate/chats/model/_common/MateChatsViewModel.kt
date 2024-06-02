@@ -3,6 +3,8 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model
 import androidx.lifecycle.SavedStateHandle
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.MateChatAddedDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.AuthorizedViewModel
@@ -37,6 +39,12 @@ abstract class MateChatsViewModel(
     ): List<UiOperation>
     abstract fun onMateChatsUpdateChatChunk(
         updateChatChunkResult: UpdateMateChatChunkDomainResult
+    ): List<UiOperation>
+    abstract fun onMateChatsMateChatAdded(
+        mateChatAddedDomainResult: MateChatAddedDomainResult
+    ): List<UiOperation>
+    abstract fun onMateChatsMateChatUpdated(
+        mateChatUpdatedDomainResult: MateChatUpdatedDomainResult
     ): List<UiOperation>
     abstract fun getNextChatChunk()
     abstract fun isNextChatChunkGettingAllowed(): Boolean

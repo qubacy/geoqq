@@ -1,11 +1,12 @@
-package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message
+package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.update
 
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 
-class InsertMessagesUiOperation(
+class UpdateMessageChunkUiOperation(
     val position: Int,
-    val messages: List<MateMessagePresentation>
+    val messages: List<MateMessagePresentation>,
+    val messageChunkSizeDelta: Int = 0
 ) : UiOperation {
 
 }

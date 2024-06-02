@@ -1,6 +1,8 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.result.handler
 
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.MateChatAddedDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
@@ -21,6 +23,16 @@ class MateChatsDomainResultHandler(
                 domainResult as UpdateMateChatChunkDomainResult
 
                 viewModel.onMateChatsUpdateChatChunk(domainResult)
+            }
+            MateChatUpdatedDomainResult::class -> {
+                domainResult as MateChatUpdatedDomainResult
+
+                viewModel.onMateChatsMateChatUpdated(domainResult)
+            }
+            MateChatAddedDomainResult::class -> {
+                domainResult as MateChatAddedDomainResult
+
+                viewModel.onMateChatsMateChatAdded(domainResult)
             }
             else -> listOf()
         }

@@ -4,6 +4,7 @@ import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResu
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.message.MateMessageAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.MateChatViewModel
@@ -27,6 +28,11 @@ class MateChatDomainResultHandler(
                 domainResult as DeleteChatDomainResult
 
                 viewModel.onMateChatDeleteChat(domainResult)
+            }
+            MateMessageAddedDomainResult::class -> {
+                domainResult as MateMessageAddedDomainResult
+
+                viewModel.onMateChatMessageAdded(domainResult)
             }
             else -> listOf()
         }
