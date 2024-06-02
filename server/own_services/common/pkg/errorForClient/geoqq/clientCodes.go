@@ -93,9 +93,9 @@ const ( // general (middleware, ...)
 
 			- when a user is deleted.
 	*/
-	ValidateAccessTokenFailed
+	ValidateAccessTokenFailed // and `geoqq ws`
 
-	UserWasPreviouslyDeleted
+	UserWasPreviouslyDeleted // and `geoqq ws`
 	CountMoreThanPermissible
 	/*
 		Actions:

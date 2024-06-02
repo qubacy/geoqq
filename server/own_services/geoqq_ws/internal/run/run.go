@@ -1,6 +1,8 @@
 package toggle
 
 import (
+	utl "common/pkg/utility"
+	"geoqq_ws/internal/config"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,6 +14,10 @@ func Do() error {
 
 	// config
 
+	if err := config.Init(); err != nil {
+		return utl.NewFuncError(Do, err)
+	}
+
 	// logger
 
 	// ***
@@ -21,8 +27,6 @@ func Do() error {
 	// application core
 
 	// interfaces/input
-
-	// gracefully shutdown
 
 	<-exit
 

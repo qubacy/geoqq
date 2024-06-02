@@ -22,9 +22,11 @@
         "Infof",
         "jackc",
         "ldflags",
+        "lxzan",
         "mlog",
         "mockaroo",
         "natefinch",
+        "Permessage",
         "pgconn",
         "pgxpool",
         "postgre",
@@ -35,6 +37,7 @@
         "twid",
         "usecase",
         "wagslane",
-        "Warnf"
+        "Warnf",
+        "zkits"
     ]
 }

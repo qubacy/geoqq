@@ -122,17 +122,25 @@ cache:
     db_index: 0
     
 logging:
-  type: "lumberjack"
+  type: lumberjack
+
+  name: geoqq_http
   level: 0
+  format: json # text, json
+  
   use_console: true
 
-  lumberjack:
-    dirname: "./rotation"
-    filename: "server.log"
+  dirname: ./rotation
+  filename: server.log
 
-    max_size_mb: 100
-    max_backups: 5
-    max_age_days: 1
+  max_size_mb: 100
+  max_backups: 5
+
+  lumberjack:
+    max_age_days: 1 # to disable use 0!
 
   mlog:
+    #...
+
+  zkits:
     #...

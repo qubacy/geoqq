@@ -8,8 +8,8 @@ import (
 )
 
 func Test_Log(t *testing.T) {
-	lr := SetLumberjackLoggerForStdOutput(
-		logger.LevelDebug, false,
+	lr := SetLumberjackLoggerForStdLog(
+		"test", logger.LevelDebug, logger.FormatJson, false,
 		"./logs", "test.log",
 		1, 3, 1,
 	)

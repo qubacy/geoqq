@@ -2,77 +2,7 @@ package logger
 
 import (
 	"io"
-	"runtime"
-	"strings"
 )
-
-type Level int
-
-const (
-	LevelTrace Level = iota
-	LevelDebug
-
-	LevelInfo
-	LevelWarning
-
-	LevelError
-	LevelFatal
-)
-
-func (l Level) String() string {
-	switch l {
-	case LevelDebug:
-		return "DEBUG"
-
-	case LevelInfo:
-		return "INFO"
-	case LevelWarning:
-		return "WARNING"
-
-	case LevelError:
-		return "ERROR"
-	case LevelFatal:
-		return "FATAL"
-	}
-
-	// LevelTrace or unknown?
-	return "TRACE"
-}
-
-type CallerInfo struct {
-	FullFileName  string
-	ShortFileName string
-	Line          int
-}
-
-func MakeCallerInfo(skip int) CallerInfo {
-	_, file, line, ok := runtime.Caller(skip + 1)
-	if !ok || len(file) == 0 { // ?
-
-		// ok is false if it was not possible
-		// to recover the information.
-
-		return CallerInfo{
-			FullFileName:  "_",
-			ShortFileName: "_",
-			Line:          -1,
-		}
-	}
-
-	// os.PathSeparator not working!
-	sep := "/"
-	parts := strings.Split(file, sep)
-	shortFileName := parts[len(parts)-1]
-	if len(parts) > 1 {
-		shortFileName = strings.Join(parts[len(parts)-2:], sep)
-	}
-
-	return CallerInfo{
-		FullFileName:  file,
-		ShortFileName: shortFileName,
-		Line:          line,
-	}
-}
 
 type Logger interface {
 	Trace(format string, a ...interface{})

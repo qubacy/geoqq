@@ -2,8 +2,8 @@ package usecase
 
 import (
 	// Output Ports
-	"geoqq_ws/internal/application/outputPort/database"
-	"geoqq_ws/internal/application/outputPort/messaging"
+	"geoqq_ws/internal/application/ports/output/database"
+	"geoqq_ws/internal/application/ports/output/messaging"
 )
 
 type Dependencies struct {

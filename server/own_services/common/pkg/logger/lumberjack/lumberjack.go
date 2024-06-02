@@ -7,25 +7,29 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type LumberjackLogger struct {
-	mx     sync.Mutex
+	name   string
 	level  logger.Level
+	format logger.Format
+
+	mx     sync.Mutex
 	logger *lumberjack.Logger
 }
 
 // ctor
 // -----------------------------------------------------------------------
 
-func SetLumberjackLoggerForStdOutput(
-	level logger.Level, useConsole bool, dirname, filename string,
-	maxSizeMB int, maxBackups int, maxAgeDays int,
+func SetLumberjackLoggerForStdLog(
+	name string, level logger.Level, format logger.Format, useConsole bool,
+	dirname, filename string, maxSizeMB int, maxBackups int, maxAgeDays int,
 ) *LumberjackLogger {
 
-	logger := &lumberjack.Logger{
+	ll := &lumberjack.Logger{
 		Filename:   dirname + "/" + filename,
 		MaxSize:    maxSizeMB,
 		MaxBackups: maxBackups,
@@ -35,79 +39,33 @@ func SetLumberjackLoggerForStdOutput(
 		LocalTime: false,
 	}
 
-	multiWriter := io.MultiWriter(logger)
+	// ***
+
+	multiWriter := io.MultiWriter(ll)
 	if useConsole {
 		multiWriter = io.MultiWriter(os.Stdout, multiWriter)
 	}
 	log.SetOutput(multiWriter)
 
-	log.SetFlags(
-		log.Ldate | log.Ltime | log.Lmicroseconds,
-	)
-
-	return &LumberjackLogger{
-		mx:     sync.Mutex{},
-		level:  level, // error and fatal always!
-		logger: logger,
+	log.SetFlags(0)
+	if format != logger.FormatJson {
+		log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 	}
+
+	// ***
+
+	resultLogger := &LumberjackLogger{
+		name:   name,
+		level:  level, // error and fatal always!
+		format: format,
+
+		mx:     sync.Mutex{},
+		logger: ll,
+	}
+	return resultLogger
 }
 
 // public
-// -----------------------------------------------------------------------
-
-var stackFrameCountToSkip int = 2
-
-func (l *LumberjackLogger) Trace(format string, a ...interface{}) {
-	if l.level > logger.LevelTrace {
-		return
-	}
-
-	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
-		logger.LevelTrace, format, a...)
-}
-
-func (l *LumberjackLogger) Debug(format string, a ...interface{}) {
-	if l.level > logger.LevelDebug {
-		return
-	}
-
-	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
-		logger.LevelDebug, format, a...)
-}
-
-func (l *LumberjackLogger) Info(format string, a ...interface{}) {
-	if l.level > logger.LevelInfo {
-		return
-	}
-
-	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
-		logger.LevelInfo, format, a...)
-}
-
-func (l *LumberjackLogger) Warning(format string, a ...interface{}) {
-	if l.level > logger.LevelWarning {
-		return
-	}
-
-	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
-		logger.LevelWarning, format, a...)
-}
-
-// -----------------------------------------------------------------------
-
-func (l *LumberjackLogger) Error(format string, a ...interface{}) {
-	l.printf(logger.MakeCallerInfo(stackFrameCountToSkip),
-		logger.LevelError, format, a...)
-}
-
-func (l *LumberjackLogger) Fatal(format string, a ...interface{}) {
-	l.mx.Lock() // ?
-	defer l.mx.Unlock()
-
-	caller := logger.MakeCallerInfo(stackFrameCountToSkip)
-	log.Fatalf(join(caller, logger.LevelFatal, format), a...)
-}
-
 // -----------------------------------------------------------------------
 
 func (l *LumberjackLogger) Output() io.Writer {
@@ -118,19 +76,87 @@ func (l *LumberjackLogger) Close() error {
 	return l.logger.Close()
 }
 
+// -----------------------------------------------------------------------
+
+func (l *LumberjackLogger) Trace(format string, a ...interface{}) {
+	if l.level > logger.LevelTrace {
+		return
+	}
+	l.printf(logger.LevelTrace, format, a...)
+}
+
+func (l *LumberjackLogger) Debug(format string, a ...interface{}) {
+	if l.level > logger.LevelDebug {
+		return
+	}
+	l.printf(logger.LevelDebug, format, a...)
+}
+
+func (l *LumberjackLogger) Info(format string, a ...interface{}) {
+	if l.level > logger.LevelInfo {
+		return
+	}
+	l.printf(logger.LevelInfo, format, a...)
+}
+
+func (l *LumberjackLogger) Warning(format string, a ...interface{}) {
+	if l.level > logger.LevelWarning {
+		return
+	}
+	l.printf(logger.LevelWarning, format, a...)
+}
+
+// -----------------------------------------------------------------------
+
+func (l *LumberjackLogger) Error(format string, a ...interface{}) {
+	l.printf(logger.LevelError, format, a...)
+}
+
+func (l *LumberjackLogger) Fatal(format string, a ...interface{}) {
+	l.fatalf(logger.LevelFatal, format, a...) // !
+}
+
 // private
 // -----------------------------------------------------------------------
 
-func (l *LumberjackLogger) printf(caller logger.CallerInfo, lvl logger.Level, format string, a ...interface{}) {
+const (
+	stackFrameCountToSkip = 4
+)
+
+func (l *LumberjackLogger) makeLogEntry(
+	level logger.Level, format string, a ...interface{},
+) string {
+
+	caller := logger.MakeCallerInfo(stackFrameCountToSkip)
+	if l.format == logger.FormatJson {
+		le := logger.JsonLogEntry{
+			Name:    l.name,
+			Time:    time.Now().UTC().String(),
+			Level:   level.String(),
+			Caller:  caller.String(),
+			Message: fmt.Sprintf(format, a...),
+		}
+		return le.ToJsonString()
+	}
+
+	return fmt.Sprintf("%v | %v | %v",
+		caller.String(), level.String(),
+		fmt.Sprintf(format, a...),
+	)
+}
+
+// -----------------------------------------------------------------------
+
+func (l *LumberjackLogger) printf(lvl logger.Level, format string, a ...interface{}) {
 	l.mx.Lock()
 	defer l.mx.Unlock()
 
-	log.Printf(join(caller, lvl, format), a...)
+	log.Print(l.makeLogEntry(lvl, format, a...))
 }
 
-func join(caller logger.CallerInfo, level logger.Level, format string) string {
-	return fmt.Sprintf("%v:%v | %v | %v",
-		caller.ShortFileName, caller.Line,
-		level.String(), format,
-	)
+func (l *LumberjackLogger) fatalf(lvl logger.Level, format string, a ...interface{}) {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+
+	log.Fatal(l.makeLogEntry(lvl, format, a...))
 }

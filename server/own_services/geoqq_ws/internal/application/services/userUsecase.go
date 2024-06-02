@@ -5,8 +5,8 @@ import (
 	"common/pkg/geoDistance"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/inputPort/dto"
-	"geoqq_ws/internal/application/outputPort/database"
+	"geoqq_ws/internal/application/ports/input/dto"
+	"geoqq_ws/internal/application/ports/output/database"
 )
 
 type UserUsecase struct {

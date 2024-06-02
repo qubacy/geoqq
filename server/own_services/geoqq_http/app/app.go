@@ -169,15 +169,18 @@ func (a *App) Stop() error {
 func initializeLogging() error {
 	loggingType := viper.GetString("logging.type")
 	if loggingType == "lumberjack" {
-		logger.Initialize(lumberjack.SetLumberjackLoggerForStdOutput(
+		logger.Initialize(lumberjack.SetLumberjackLoggerForStdLog(
+			viper.GetString("logging.name"),
 			logger.Level(viper.GetInt("logging.level")),
+			logger.FormatFromStr(viper.GetString("logging.format")),
+
 			viper.GetBool("logging.use_console"),
 
-			viper.GetString("logging.lumberjack.dirname"),
-			viper.GetString("logging.lumberjack.filename"),
+			viper.GetString("logging.dirname"),
+			viper.GetString("logging.filename"),
 
-			viper.GetInt("logging.lumberjack.max_size_mb"),
-			viper.GetInt("logging.lumberjack.max_backups"),
+			viper.GetInt("logging.max_size_mb"),
+			viper.GetInt("logging.max_backups"),
 			viper.GetInt("logging.lumberjack.max_age_days"),
 		))
 	} else if loggingType == "mlog" {
