@@ -23,8 +23,12 @@ abstract class GeoMessageDataRepository(
     ): LiveData<GetGeoMessagesDataResult>
     abstract suspend fun sendMessage(
         text: String,
-        radius: Int,
         longitude: Float,
         latitude: Float
+    )
+    abstract suspend fun sendLocation(
+        longitude: Float,
+        latitude: Float,
+        radius: Int
     )
 }

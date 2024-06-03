@@ -7,6 +7,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.update.UpdateRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.AddRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
 
 class MateRequestsUiOperationHandler(
@@ -41,6 +42,11 @@ class MateRequestsUiOperationHandler(
                 uiOperation as ReturnAnsweredRequestUiOperation
 
                 fragment.onMateRequestsFragmentReturnAnsweredRequest(uiOperation.position)
+            }
+            AddRequestUiOperation::class -> {
+                uiOperation as AddRequestUiOperation
+
+                fragment.onMateRequestsAddRequest(uiOperation.request)
             }
             else -> return false
         }

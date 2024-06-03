@@ -11,6 +11,7 @@ import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateReq
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.get.GetRequestChunkDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.update.UpdateRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.request.added.MateRequestAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -21,6 +22,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.update.UpdateRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.AddRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -128,6 +130,20 @@ open class MateRequestsViewModelImpl @Inject constructor(
         mUiState.answeredRequestCount++
 
         return listOf(RemoveRequestUiOperation(requestPosition))
+    }
+
+    override fun onMateRequestsMateRequestAdded(
+        mateRequestAddedDomainResult: MateRequestAddedDomainResult
+    ): List<UiOperation> {
+        if (!mateRequestAddedDomainResult.isSuccessful())
+            return onError(mateRequestAddedDomainResult.error!!)
+
+        val mateRequestPresentation = mateRequestAddedDomainResult
+            .request!!.toMateRequestPresentation()
+
+        mUiState.requests.add(mateRequestPresentation)
+
+        return listOf(AddRequestUiOperation(mateRequestPresentation))
     }
 
     override fun onUserUpdateUser(

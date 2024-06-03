@@ -249,6 +249,14 @@ class MateRequestsFragment(
         //checkMateRequestListEmpty()
     }
 
+    fun onMateRequestsAddRequest(
+        request: MateRequestPresentation
+    ) {
+        val request = request.toMateRequestItemData()
+
+        mAdapter.addNewMateRequest(request)
+    }
+
     private fun checkMateRequestListEmpty() {
         val isHintVisible = mAdapter.itemCount <= 0
 

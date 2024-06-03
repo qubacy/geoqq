@@ -82,15 +82,17 @@ class GeoMessageDataRepositoryImpl(
 
     override suspend fun sendMessage(
         text: String,
-        radius: Int,
         longitude: Float,
         latitude: Float
     ) {
-        // todo: implement using the websocket data source;
-
+        mRemoteGeoMessageHttpWebSocketDataSource.sendMessage(text, latitude, longitude)
 
         // todo: delete (for debug only!):
-        mRemoteGeoMessageHttpRestDataSource.sendMessage(text, radius, longitude, latitude)
+        //mRemoteGeoMessageHttpRestDataSource.sendMessage(text, radius, longitude, latitude)
+    }
+
+    override suspend fun sendLocation(longitude: Float, latitude: Float, radius: Int) {
+        mRemoteGeoMessageHttpWebSocketDataSource.sendLocation(latitude, longitude, radius)
     }
 
     override fun processWebSocketPayloadResult(

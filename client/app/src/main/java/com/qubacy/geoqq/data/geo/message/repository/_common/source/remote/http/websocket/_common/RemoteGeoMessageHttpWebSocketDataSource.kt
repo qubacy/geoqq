@@ -10,5 +10,6 @@ abstract class RemoteGeoMessageHttpWebSocketDataSource @OptIn(ExperimentalCorout
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketMessageDataSource(coroutineDispatcher, coroutineScope) {
-
+    abstract fun sendMessage(text: String, latitude: Float, longitude: Float)
+    abstract fun sendLocation(latitude: Float, longitude: Float, radius: Int)
 }

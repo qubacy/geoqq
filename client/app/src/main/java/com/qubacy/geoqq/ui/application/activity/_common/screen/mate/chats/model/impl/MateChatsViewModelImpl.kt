@@ -88,6 +88,7 @@ open class MateChatsViewModelImpl @Inject constructor(
         return listOf(AddChatUiOperation(chatPresentation))
     }
 
+    // todo: optimize:
     override fun onMateChatsMateChatUpdated(
         mateChatUpdatedDomainResult: MateChatUpdatedDomainResult
     ): List<UiOperation> {
@@ -95,29 +96,42 @@ open class MateChatsViewModelImpl @Inject constructor(
             return onError(mateChatUpdatedDomainResult.error!!)
 
         val chatPresentation = mateChatUpdatedDomainResult.chat!!.toMateChatPresentation()
-        val prevChatPresentation = mUiState.chats.find { it.id == chatPresentation.id }
 
-        if (chatPresentation.lastMessage == null) return emptyList()
+        val prevChatPresentationIndex = mUiState.chats.indexOfFirst { it.id == chatPresentation.id }
+        val prevChatPresentation =
+            if (prevChatPresentationIndex < 0) null
+            else mUiState.chats[prevChatPresentationIndex]
 
-        val lastChatPresentation = mUiState.chats.last()
+        if (chatPresentation == prevChatPresentation) return emptyList()
 
-        if (lastChatPresentation.lastMessage != null) {
-            if (chatPresentation.lastMessage.timeInSeconds <
-                lastChatPresentation.lastMessage.timeInSeconds
-            ) {
-                return emptyList()
+        val insertPosition = if (chatPresentation.lastMessage != null) {
+            val lastChatPresentation = mUiState.chats.last()
+
+            if (lastChatPresentation.lastMessage != null) {
+                if (chatPresentation.lastMessage.timeInSeconds <
+                    lastChatPresentation.lastMessage.timeInSeconds
+                ) {
+                    return emptyList()
+                }
             }
-        }
 
-        val insertPosition = mUiState.chats.indexOfFirst {
-            val curTime = it.lastMessage?.timeInSeconds ?: -1
+            mUiState.chats.indexOfFirst {
+                val curTime = it.lastMessage?.timeInSeconds ?: -1
 
-            chatPresentation.lastMessage.timeInSeconds > curTime
+                chatPresentation.lastMessage.timeInSeconds >= curTime
+            }
+        } else {
+            if (prevChatPresentation == null) 0
+            else prevChatPresentationIndex
         }
 
         return if (prevChatPresentation != null) {
-            mUiState.chats.remove(prevChatPresentation)
-            mUiState.chats.add(insertPosition, chatPresentation)
+            if (prevChatPresentationIndex == insertPosition) {
+                mUiState.chats[insertPosition] = chatPresentation
+            } else {
+                mUiState.chats.remove(prevChatPresentation)
+                mUiState.chats.add(insertPosition, chatPresentation)
+            }
 
             listOf(UpdateChatUiOperation(insertPosition, chatPresentation))
 
