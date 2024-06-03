@@ -97,28 +97,35 @@ open class MateChatsViewModelImpl @Inject constructor(
         val chatPresentation = mateChatUpdatedDomainResult.chat!!.toMateChatPresentation()
         val prevChatPresentation = mUiState.chats.find { it.id == chatPresentation.id }
 
-        if (prevChatPresentation == null) {
-            if (chatPresentation.lastMessage == null) return emptyList()
+        if (chatPresentation.lastMessage == null) return emptyList()
 
-            val lastChatPresentation = mUiState.chats.last()
+        val lastChatPresentation = mUiState.chats.last()
 
-            if (lastChatPresentation.lastMessage != null) {
-                if (chatPresentation.lastMessage.timeInSeconds <
-                    lastChatPresentation.lastMessage.timeInSeconds
-                ) {
-                    return emptyList()
-                }
+        if (lastChatPresentation.lastMessage != null) {
+            if (chatPresentation.lastMessage.timeInSeconds <
+                lastChatPresentation.lastMessage.timeInSeconds
+            ) {
+                return emptyList()
             }
-
-            // todo: implement the rest..
-
-
-
-        } else {
-
         }
 
-        return listOf(UpdateChatUiOperation(, chatPresentation))
+        val insertPosition = mUiState.chats.indexOfFirst {
+            val curTime = it.lastMessage?.timeInSeconds ?: -1
+
+            chatPresentation.lastMessage.timeInSeconds > curTime
+        }
+
+        return if (prevChatPresentation != null) {
+            mUiState.chats.remove(prevChatPresentation)
+            mUiState.chats.add(insertPosition, chatPresentation)
+
+            listOf(UpdateChatUiOperation(insertPosition, chatPresentation))
+
+        } else {
+            mUiState.chats.add(insertPosition, chatPresentation)
+
+            listOf(InsertChatsUiOperation(insertPosition, listOf(chatPresentation)))
+        }
     }
 
     // todo: reconsider this (mb there is another optimal way?): DOESNT WORK

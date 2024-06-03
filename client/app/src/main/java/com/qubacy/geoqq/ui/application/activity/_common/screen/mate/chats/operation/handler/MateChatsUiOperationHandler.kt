@@ -5,6 +5,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.MateChatsFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.add.AddChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.insert.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.update.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chunk.update.UpdateChatChunkUiOperation
 
 class MateChatsUiOperationHandler(
@@ -27,6 +28,11 @@ class MateChatsUiOperationHandler(
                 uiOperation as AddChatUiOperation
 
                 fragment.onMateChatsFragmentAddChat(uiOperation.chat)
+            }
+            UpdateChatUiOperation::class -> {
+                uiOperation as UpdateChatUiOperation
+
+                fragment.onMateChatsFragmentUpdateChat(uiOperation.chat, uiOperation.position)
             }
             else -> return false
         }

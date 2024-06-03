@@ -60,12 +60,15 @@ class MateChatsListAdapter(
     }
 
     @UiThread
-    fun updateMateChat(mateChat: MateChatItemData): Int {
+    fun updateAndMoveToPositionMateChat(mateChat: MateChatItemData, position: Int): Int {
         val mateChatPosition = mItems.indexOfFirst { it.id == mateChat.id }
 
-        mItems[mateChatPosition] = mateChat
+        mItems.removeAt(mateChatPosition)
+        mItems.add(position, mateChat)
 
-        wrappedNotifyItemChanged(mateChatPosition)
+        // todo: right?:
+        wrappedNotifyItemMoved(mateChatPosition, position)
+        wrappedNotifyItemChanged(position)
 
         return mateChatPosition
     }
@@ -76,16 +79,6 @@ class MateChatsListAdapter(
             mItems[i] = mateChats[i - position]
 
         wrappedNotifyItemRangeChanged(position, mateChats.size)
-    }
-
-    @UiThread
-    fun updateAndMoveOnTopMateChat(mateChat: MateChatItemData) {
-        val mateChatPosition = updateMateChat(mateChat)
-
-        mItems.removeAt(mateChatPosition)
-        mItems.add(0, mateChat)
-
-        wrappedNotifyItemMoved(mateChatPosition, 0)
     }
 
     @UiThread

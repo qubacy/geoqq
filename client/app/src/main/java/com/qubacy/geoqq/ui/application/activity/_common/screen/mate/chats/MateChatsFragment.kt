@@ -226,6 +226,12 @@ class MateChatsFragment(
         mAdapter.addNewMateChat(itemData)
     }
 
+    fun onMateChatsFragmentUpdateChat(chatPresentation: MateChatPresentation, position: Int) {
+        val itemData = chatPresentation.toMateChatItemData()
+
+        mAdapter.updateAndMoveToPositionMateChat(itemData, position)
+    }
+
     override fun createBinding(
         inflater: LayoutInflater,
         container: ViewGroup?
