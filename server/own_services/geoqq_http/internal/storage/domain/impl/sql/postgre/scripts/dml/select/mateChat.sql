@@ -96,6 +96,7 @@ SELECT "MateChat"."Id" AS "Id",
                 then "SecondUserId"
            else "FirstUserId"
        end as "UserId",
+       "CreationOrReTime",
 
     (SELECT COUNT(*) FROM "MateMessage"
      WHERE "MateChatId" = "MateChat"."Id" 
@@ -140,6 +141,7 @@ SELECT "MateChat"."Id" AS "Id",
                 then "SecondUserId"
            else "FirstUserId"
        end as "UserId",
+       "CreationOrReTime",
 
     (SELECT COUNT(*) FROM "MateMessage"
      WHERE "MateChatId" = "MateChat"."Id" 

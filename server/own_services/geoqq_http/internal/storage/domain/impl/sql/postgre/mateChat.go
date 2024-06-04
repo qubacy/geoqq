@@ -30,11 +30,11 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 var (
 	templateInsertMateChatWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "MateChat" (
-			"FirstUserId", 
-			"SecondUserId"
-		)
-		VALUES($1, $2) 
-			ON CONFLICT DO NOTHING`) // see index `unique_mate_chat_ids_comb`
+			"FirstUserId", "SecondUserId")
+		VALUES($1, $2) ON CONFLICT (
+       		GREATEST("FirstUserId", "SecondUserId"), 
+       		LEAST("FirstUserId", "SecondUserId"))
+		DO UPDATE SET "CreationOrReTime" = NOW()::timestamp`) // see index `unique_mate_chat_ids_comb`
 
 	/*
 		Conflicts will be ignored.
@@ -99,6 +99,7 @@ var (
 				when "FirstUserId" = $1 
 				then "SecondUserId" else "FirstUserId"
 			end as "UserId",
+			"CreationOrReTime",
 
 			(SELECT COUNT(*) FROM "MateMessage"
 			WHERE "MateChatId" = "MateChat"."Id"
@@ -576,6 +577,7 @@ func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, 
 
 	err := queryResult.Scan(
 		&mateChat.Id, &mateChat.UserId,
+		&mateChat.LastActionTime,
 		&mateChat.NewMessageCount,
 		&lastMessageExists,
 		nil, nil, nil, nil, // <--- skip fields!
@@ -592,6 +594,8 @@ func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, 
 		if err != nil {
 			return nil, utl.NewFuncError(mateChatFromQueryResult, err)
 		}
+
+		mateChat.LastActionTime = lastMessage.Time // upd!
 	}
 
 	mateChat.LastMessage = lastMessage

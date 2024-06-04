@@ -3,6 +3,7 @@ CREATE TABLE "MateChat"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
+    "CreationOrReTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()::timestamp,
 
     -- if use an index, then don't need it!
     -- UNIQUE ("FirstUserId", "SecondUserId"),

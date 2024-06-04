@@ -114,6 +114,7 @@ CREATE TABLE "MateChat"
     "Id" BIGSERIAL PRIMARY KEY NOT NULL,
     "FirstUserId" BIGINT NOT NULL,
     "SecondUserId" BIGINT NOT NULL,
+    "CreationOrReTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 
     -- if use an index, then don't need it!
     -- UNIQUE ("FirstUserId", "SecondUserId"),
@@ -187,5 +188,3 @@ SELECT asin(
   )
 ) * 2 * 6371 AS distance;
 $BODY$ LANGUAGE sql IMMUTABLE COST 100;
-
-

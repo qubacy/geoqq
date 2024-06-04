@@ -29,7 +29,7 @@ var (
 )
 
 var envKeyToViperKey = map[string]string{
-	"LOGGING_FORMAT": "logging.format",
+	"LOGGING_FORMAT": "logging.format", // text, json
 
 	"HOST": "server.http.host",
 	"PORT": "server.http.port",

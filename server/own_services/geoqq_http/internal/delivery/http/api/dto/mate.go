@@ -41,7 +41,7 @@ type MateChat struct {
 
 	NewMessageCount float64      `json:"new-message-count"`
 	LastMessage     *MateMessage `json:"last-message"`
-	LastActionTime  float64      `json:"last-action-time"`
+	LastActionTime  float64      `json:"last-action-time"` // !
 }
 
 func NewMateChatFromOutput(outputMateChat *domain.MateChat) (*MateChat, error) {
@@ -53,6 +53,7 @@ func NewMateChatFromOutput(outputMateChat *domain.MateChat) (*MateChat, error) {
 		Id:              float64(outputMateChat.Id),
 		UserId:          float32(outputMateChat.UserId),
 		NewMessageCount: float64(outputMateChat.NewMessageCount),
+		LastActionTime:  float64(outputMateChat.LastActionTime.Unix()),
 		LastMessage:     nil,
 	}
 
