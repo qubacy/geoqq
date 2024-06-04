@@ -8,11 +8,11 @@ init:
 
 up_external: down_external
 	cd external_services && \
-	docker compose up -d
+	docker compose --env-file ./../.env up -d
 
 down_external:
 	cd external_services && \
-	docker compose down
+	docker compose --env-file ./../.env down
 	
 # -----------------------------------------------
 

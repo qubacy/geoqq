@@ -14,9 +14,9 @@ server:
   
 
 # The clients block configures 
-# how Promtail connects to instances of Loki.
+# how Promtail connects to instances of Loki.ss
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+  - url: http://loki:3100/loki/api/v1/push # see .env!
 
 # The positions block configures 
 # where Promtail will save a file indicating 
@@ -32,11 +32,29 @@ scrape_configs:
     decompression:
       enabled: false
 
-    # Describes how to scrape logs
-    # from the journal.
-    journal:
     static_configs:
     - targets:
-        - geoqq_http
+        - localhost
       labels:
-        __path__: /var/log/*.log
+        __path__: /var/log/geoqq/http/*.log
+
+    pipeline_stages:
+      - json:
+          expressions:
+            name: name
+            time: time
+            level: level
+            caller: caller # no need for a separate label!
+            message: message
+      - template:
+          source: full_message
+          template: '{{ .caller }} | {{ .message }}'
+      - output:
+          source: full_message
+      - timestamp:
+          source: time
+          format: RFC3339Nano
+      - labels:
+          name:
+          level:
+        

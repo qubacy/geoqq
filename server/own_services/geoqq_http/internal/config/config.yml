@@ -126,11 +126,11 @@ logging:
 
   name: geoqq_http
   level: 0
-  format: json # text, json
+  format: text # text, json
   
   use_console: true
 
-  dirname: ./rotation
+  dirname: ./rotation/http
   filename: server.log
 
   max_size_mb: 100

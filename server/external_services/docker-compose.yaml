@@ -3,10 +3,10 @@ name: geoqq_external_services
 services:
   loki: 
     image: grafana/loki:latest
-    hostname: loki
-    container_name: loki
+    hostname: ${GRAFANA_LOKI_NAME}
+    container_name: ${GRAFANA_LOKI_NAME}
     ports:
-      - "3100:3100"
+      - "${EXTERNAL_GRAFANA_LOKI_PORT}:${GRAFANA_LOKI_PORT}"
     networks:
       - external_net
 

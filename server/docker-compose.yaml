@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRE_PASS}
       - POSTGRES_HOST_AUTH_METHOD=md5
     ports:
-      - "${POSTGRE_PORT}:${INTERNAL_POSTGRE_PORT}"
+      - "${EXTERNAL_POSTGRE_PORT}:${POSTGRE_PORT}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRE_USER}"]
       interval: 5s
@@ -31,7 +31,7 @@ services:
     command: [
       "-path=/migrations/",
       "-database", "postgres://${POSTGRE_USER}:${POSTGRE_PASS}@\
-      ${POSTGRE_NAME}:${INTERNAL_POSTGRE_PORT}/${POSTGRE_DB}?sslmode=disable",
+      ${POSTGRE_NAME}:${POSTGRE_PORT}/${POSTGRE_DB}?sslmode=disable",
       "up"
     ]
     volumes:
@@ -50,7 +50,7 @@ services:
     ulimits:
       memlock: -1
     ports:
-      - "${DRAGONFLY_PORT}:${INTERNAL_DRAGONFLY_PORT}"
+      - "${EXTERNAL_DRAGONFLY_PORT}:${DRAGONFLY_PORT}"
     volumes:
       - dragonfly_data:/data
     healthcheck:
@@ -73,7 +73,7 @@ services:
     volumes:
       - promtail_data:/var/lib/promtail
       - ./external_services/grafana/promtail/config.yaml:/etc/promtail/config.yaml
-      - geoqqhttp_rotation:/var/log # for read!
+      - geoqq_rotation:/var/log/geoqq # only for read!
     command:
       - -config.file=/etc/promtail/config.yaml # not necessary!?
     depends_on:
@@ -89,9 +89,10 @@ services:
     restart: "on-failure"
     ports:
       - "${GEOQQ_HTTP_PORT}:${GEOQQ_HTTP_PORT}"
-    environment:
+    environment:    
       - GIN_MODE=release
       - GEOQQ_HTTP_CONFIG_FOR_MERGE=release
+      - GEOQQ_HTTP_LOGGING_FORMAT=${LOGGING_FORMAT}
       - GEOQQ_HTTP_PORT=${GEOQQ_HTTP_PORT}
 
       - GEOQQ_HTTP_TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
@@ -99,16 +100,21 @@ services:
       - GEOQQ_HTTP_REFRESH_TOKEN_TTL=${REFRESH_TOKEN_TTL}
 
       - GEOQQ_HTTP_POSTGRE_HOST=${POSTGRE_NAME}
-      - GEOQQ_HTTP_POSTGRE_PORT=${INTERNAL_POSTGRE_PORT}
+      - GEOQQ_HTTP_POSTGRE_PORT=${POSTGRE_PORT}
       - GEOQQ_HTTP_POSTGRE_USER=${POSTGRE_USER}
       - GEOQQ_HTTP_POSTGRE_PASS=${POSTGRE_PASS}
       - GEOQQ_HTTP_POSTGRE_DB=${POSTGRE_DB}
       
       - GEOQQ_HTTP_CACHE_ENABLE
       - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_NAME}
-      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_USER}
-      - GEOQQ_HTTP_REDIS_USER=${DRAGONFLY_PASS}
+      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_PORT}
+      - GEOQQ_HTTP_REDIS_USER=${DRAGONFLY_USER}
+      - GEOQQ_HTTP_REDIS_PASS=${DRAGONFLY_PASS}
       - GEOQQ_HTTP_REDIS_DB
+
+      - GEOQQ_HTTP_MSGS_ENABLE
+      - GEOQQ_HTTP_RABBIT_MSG_TTL
+      - GEOQQ_HTTP_RABBIT_EXCHANGE=${RABBIT_EXCHANGE}
       
     depends_on:
       postgre_domain:
@@ -121,16 +127,16 @@ services:
       - promtail_net
       - own_net
     volumes:
-      - geoqqhttp_rotation:/app/cmd/rotation
-      - geoqqhttp_avatar:/app/cmd/avatar
+      - geoqq_rotation:/app/cmd/rotation # or rename to `geoqq`?
+      - geoqq_http_avatar:/app/cmd/avatar
 
   # geoqq_ws:
 
 volumes:
   postgre_domain_data:
   dragonfly_data:
-  geoqqhttp_rotation:
-  geoqqhttp_avatar:
+  geoqq_rotation:
+  geoqq_http_avatar:
   promtail_data:
 
 networks:
