@@ -4,6 +4,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
@@ -139,6 +140,15 @@ open class MateChatViewModelImpl @Inject constructor(
         mUiState.messages.add(messagePresentation)
 
         return listOf(AddMessageUiOperation(messagePresentation))
+    }
+
+    override fun onMateChatSendMessage(
+        sendMessageDomainResult: SendMessageDomainResult
+    ): List<UiOperation> {
+        if (!sendMessageDomainResult.isSuccessful())
+            return onError(sendMessageDomainResult.error!!)
+
+        return emptyList() // todo: nothing to do?
     }
 
     override fun onMateChatGetMessageChunk(

@@ -34,6 +34,7 @@ abstract class GeoChatUseCase(
         latitude: Float,
         longitude: Float
     )
+    abstract fun sendLocation(longitude: Float, latitude: Float, radius: Int)
     abstract fun getLocalUserId(): Long
     abstract fun getInterlocutor(interlocutorId: Long)
     abstract fun sendMateRequestToInterlocutor(interlocutorId: Long)

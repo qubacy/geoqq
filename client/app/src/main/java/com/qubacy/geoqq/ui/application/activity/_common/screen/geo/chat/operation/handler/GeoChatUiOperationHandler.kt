@@ -4,6 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.GeoChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.sending.ChangeMessageSendingAllowedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 
 class GeoChatUiOperationHandler(
@@ -21,6 +22,11 @@ class GeoChatUiOperationHandler(
 
                 fragment.onGeoChatFragmentUpdateGeoMessages(
                     uiOperation.positions, uiOperation.messages)
+            }
+            ChangeMessageSendingAllowedUiOperation::class -> {
+                uiOperation as ChangeMessageSendingAllowedUiOperation
+
+                fragment.onGeoChatFragmentChangeMessageSending(uiOperation.isAllowed)
             }
             else -> return false
         }

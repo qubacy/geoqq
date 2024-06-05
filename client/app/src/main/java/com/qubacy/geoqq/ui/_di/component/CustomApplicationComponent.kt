@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.client._di.module.HttpClientModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.executor._di.module.HttpCallExecutorModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.json.factory.moshi._di.module.MoshiModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.request.middleware.auth._di.module.AuthorizationRequestMiddlewareModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.json.adapter._di.module.ErrorResponseContentJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter._di.module.ErrorResponseJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api._di.module.HttpRestApiModule
@@ -26,6 +27,8 @@ import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.websocke
 import com.qubacy.geoqq.data.auth.repository._di.module.AuthDataRepositoryModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.api._di.module.RemoteGeoMessageHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._di.module.RemoteGeoMessageHttpRestDataSourceModule
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.action.payload.location.json.adapter._di.module.GeoLocationActionPayloadJsonAdapterModule
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.action.payload.message.json.adapter._di.module.GeoMessageActionPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.event.payload.added.json.adapter._di.module.GeoMessageAddedEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._di.module.RemoteGeoMessageHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.geo.message.repository._di.module.GeoMessageDataRepositoryModule
@@ -44,6 +47,7 @@ import com.qubacy.geoqq.data.mate.message.repository._common.source.local.databa
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._di.module.LocalMateMessageDatabaseDataSourceModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._common.api._di.module.RemoteMateMessageHttpRestDataSourceApiModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.rest._di.module.RemoteMateMessageHttpRestDataSourceModule
+import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.action.payload.add.json.adapter.AddMateMessageActionPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.event.payload.added.json.adapter._di.module.MateMessageAddedEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._di.module.RemoteMateMessageHttpWebSocketDataSourceModule
 import com.qubacy.geoqq.data.mate.message.repository._di.module.MateMessageDataRepositoryModule
@@ -171,6 +175,7 @@ import javax.inject.Singleton
         MoshiModule::class,
         HttpClientModule::class,
         HttpRestApiModule::class,
+        AuthorizationRequestMiddlewareModule::class,
         AuthorizationHttpRestInterceptorModule::class,
 
         ErrorResponseJsonAdapterModule::class,
@@ -182,6 +187,10 @@ import javax.inject.Singleton
         GeoMessageAddedEventPayloadJsonAdapterModule::class,
         MateChatEventPayloadJsonAdapterModule::class,
         MateMessageAddedEventPayloadJsonAdapterModule::class,
+
+        GeoLocationActionPayloadJsonAdapterModule::class,
+        GeoMessageActionPayloadJsonAdapterModule::class,
+        AddMateMessageActionPayloadJsonAdapterModule::class,
 
         DatabaseModule::class,
         RetrofitModule::class

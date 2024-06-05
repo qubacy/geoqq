@@ -12,6 +12,7 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDa
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.update.handler.GeoChatDataUpdateHandler
@@ -86,11 +87,21 @@ open class GeoChatUseCaseImpl @Inject constructor(
         longitude: Float
     ) {
         executeLogic({
-            mGeoMessageDataRepository.sendMessage(text, radius, longitude, latitude)
+            mGeoMessageDataRepository.sendMessage(text, longitude, latitude)
 
             mResultFlow.emit(SendMessageDomainResult())
         }, {
             SendMessageDomainResult(error = it)
+        })
+    }
+
+    override fun sendLocation(longitude: Float, latitude: Float, radius: Int) {
+        executeLogic({
+             mGeoMessageDataRepository.sendLocation(longitude, latitude, radius)
+
+            mResultFlow.emit(SendLocationDomainResult())
+        }, {
+            SendLocationDomainResult(it)
         })
     }
 

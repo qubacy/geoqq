@@ -2,6 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model.
 
 import androidx.lifecycle.SavedStateHandle
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
@@ -60,6 +61,9 @@ abstract class MateChatViewModel(
     ): List<UiOperation>
     abstract fun onMateChatMessageAdded(
         mateMessageAddedDomainResult: MateMessageAddedDomainResult
+    ): List<UiOperation>
+    abstract fun onMateChatSendMessage(
+        sendMessageDomainResult: SendMessageDomainResult
     ): List<UiOperation>
     open fun isInterlocutorChatable(): Boolean {
         return isInterlocutorChatable(mUiState.chatContext!!.user)

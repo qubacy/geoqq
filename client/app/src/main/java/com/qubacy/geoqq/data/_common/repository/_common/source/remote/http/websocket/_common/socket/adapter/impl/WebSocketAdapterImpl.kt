@@ -5,6 +5,7 @@ import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.request.middleware.auth._common.AuthorizationRequestMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.error.type.DataHttpWebSocketErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter.impl.ActionJsonAdapterImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
@@ -38,6 +39,7 @@ import javax.inject.Inject
 class WebSocketAdapterImpl @Inject constructor(
     private val mErrorDataSource: LocalErrorDatabaseDataSource,
     private val mWebSocketListenerAdapter: WebSocketListenerAdapter,
+    private val mAuthorizationRequestMiddleware: AuthorizationRequestMiddleware,
     private val mActionJsonAdapter: ActionJsonAdapterImpl,
     private val mAuthClientEventMiddleware: AuthActionJsonMiddleware,
     private val mWebSocketErrorMessageEventHandler: WebSocketErrorMessageEventHandler,
@@ -152,10 +154,11 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     private fun createWebSocket(): WebSocket {
-        val request = Request.Builder().url("ws://${HttpContext.BASE_HOST_PORT}")
+        val request = Request.Builder().url("ws://${HttpContext.BASE_HOST_PORT}/api/ws")
             .build() // todo: optimize!
+        val preparedRequest = mAuthorizationRequestMiddleware.process(request)
 
-        return mOkHttpClient.newWebSocket(request, mWebSocketListenerAdapter)
+        return mOkHttpClient.newWebSocket(preparedRequest, mWebSocketListenerAdapter)
     }
 
     override fun close() {

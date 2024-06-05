@@ -5,7 +5,9 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
@@ -16,6 +18,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.sending.ChangeMessageSendingAllowedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
@@ -103,6 +106,30 @@ open class GeoChatViewModelImpl @Inject constructor(
         return listOf(AddGeoMessagesUiOperation(listOf(messagePresentation)))
     }
 
+    override fun onGeoChatSendMessage(
+        sendMessageDomainResult: SendMessageDomainResult
+    ): List<UiOperation> {
+        if (!sendMessageDomainResult.isSuccessful())
+            return onError(sendMessageDomainResult.error!!)
+
+        return emptyList() // todo: nothing to return?
+    }
+
+    override fun onGeoChatSendLocation(
+        sendLocationDomainResult: SendLocationDomainResult
+    ): List<UiOperation> {
+        if (!sendLocationDomainResult.isSuccessful())
+            return onError(sendLocationDomainResult.error!!)
+
+        if (mUiState.isMessageSendingAllowed) return emptyList()
+
+        changeMessageSendingAllowed(true)
+
+        return listOf(
+            ChangeMessageSendingAllowedUiOperation(true)
+        )
+    }
+
     override fun onUserUpdateUser(
         domainResult: UpdateUserDomainResult
     ): List<UiOperation> {
@@ -175,6 +202,12 @@ open class GeoChatViewModelImpl @Inject constructor(
 
         mSavedStateHandle[LONGITUDE_KEY] = longitude
         mSavedStateHandle[LATITUDE_KEY] = latitude
+
+        mUseCase.sendLocation(longitude, latitude, mRadius!!)
+    }
+
+    private fun changeMessageSendingAllowed(isAllowed: Boolean) {
+        mUiState.isMessageSendingAllowed = isAllowed
     }
 }
 

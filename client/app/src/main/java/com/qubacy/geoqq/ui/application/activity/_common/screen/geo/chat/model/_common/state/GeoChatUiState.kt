@@ -7,9 +7,10 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presenta
 class GeoChatUiState(
     isLoading: Boolean = false,
     error: Error? = null,
-    val messages: MutableList<GeoMessagePresentation> = mutableListOf()
+    val messages: MutableList<GeoMessagePresentation> = mutableListOf(),
+    var isMessageSendingAllowed: Boolean = false
 ) : BusinessUiState(isLoading, error) {
     override fun copy(): GeoChatUiState {
-        return GeoChatUiState(isLoading, error, messages.toMutableList())
+        return GeoChatUiState(isLoading, error, messages.toMutableList(), isMessageSendingAllowed)
     }
 }

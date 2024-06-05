@@ -191,6 +191,12 @@ class GeoChatFragment(
         mAdapter.updateItems(positions, geoMessageItems)
     }
 
+    fun onGeoChatFragmentChangeMessageSending(
+        isAllowed: Boolean
+    ) {
+        adjustUiWithMessageSendingAllowedFlag(isAllowed)
+    }
+
     override fun runInitWithUiState(uiState: GeoChatUiState) {
         super.runInitWithUiState(uiState)
 
@@ -203,9 +209,7 @@ class GeoChatFragment(
     }
 
     private fun initUiWithUiState(uiState: GeoChatUiState) {
-        // todo: should it stay empty?
-
-
+        adjustUiWithLoadingState(uiState.isMessageSendingAllowed)
     }
 
     private fun initMessageListView() {
@@ -375,6 +379,10 @@ class GeoChatFragment(
     private fun changeLoadingIndicatorState(isVisible: Boolean) {
         mBinding.fragmentGeoChatProgressBar.visibility =
             if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    private fun adjustUiWithMessageSendingAllowedFlag(isAllowed: Boolean) {
+        mBinding.fragmentGeoChatInputMessage.isEnabled = isAllowed
     }
 
     override fun onGeoMessageClicked(position: Int) {

@@ -2,12 +2,10 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest
 
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.request.middleware.auth._common.AuthorizationRequestMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_NAME
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_TOKEN_HEADER_VALUE_FORMAT
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor.Companion.AUTH_URL_PATH_SEGMENTS
-import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,7 +17,7 @@ import javax.inject.Inject
 class AuthorizationHttpRestInterceptorImpl @Inject constructor(
     private val mErrorSource: LocalErrorDatabaseDataSource,
     private val mErrorJsonAdapter: ErrorResponseJsonAdapter,
-    private val mTokenDataRepository: TokenDataRepository
+    private val mAuthorizationRequestMiddleware: AuthorizationRequestMiddleware
 ) : AuthorizationHttpRestInterceptor {
     private val mAuthMutex = Mutex()
 
@@ -53,16 +51,11 @@ class AuthorizationHttpRestInterceptorImpl @Inject constructor(
         return response
     }
 
-    private suspend fun tryRequest(
+    private fun tryRequest(
         originalRequest: Request,
         chain: Chain
     ): Response {
-        val getTokensResult = mTokenDataRepository.getTokens()
-        val tokenHeaderValue = AUTH_TOKEN_HEADER_VALUE_FORMAT.format(getTokensResult.accessToken)
-
-        val request = originalRequest.newBuilder()
-            .addHeader(AUTH_TOKEN_HEADER_NAME, tokenHeaderValue)
-            .build()
+        val request = mAuthorizationRequestMiddleware.process(originalRequest)
 
         return chain.proceed(request)
     }

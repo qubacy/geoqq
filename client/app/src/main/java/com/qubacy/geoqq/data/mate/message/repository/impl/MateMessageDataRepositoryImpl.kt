@@ -119,10 +119,10 @@ class MateMessageDataRepositoryImpl(
     }
 
     override suspend fun sendMessage(chatId: Long, text: String) {
-        // todo: implement using the websocket data source;
+        mRemoteMateMessageHttpWebSocketDataSource.sendMessage(chatId, text)
 
         // todo: delete:
-        mRemoteMateMessageHttpRestDataSource.sendMateMessage(chatId, text)
+        //mRemoteMateMessageHttpRestDataSource.sendMateMessage(chatId, text)
     }
 
     private fun deleteOverdueMessages(

@@ -9,11 +9,13 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import javax.inject.Singleton
 
 @Module
 abstract class HttpClientModule {
     companion object {
         @JvmStatic
+        @Singleton
         @Provides
         fun provideHttpClient(
             localErrorDataSource: LocalErrorDatabaseDataSource

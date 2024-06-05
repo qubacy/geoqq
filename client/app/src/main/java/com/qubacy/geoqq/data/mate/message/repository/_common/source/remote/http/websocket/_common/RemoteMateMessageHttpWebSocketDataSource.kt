@@ -11,5 +11,5 @@ abstract class RemoteMateMessageHttpWebSocketDataSource
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketMessageDataSource(coroutineDispatcher, coroutineScope) {
-
+    abstract fun sendMessage(chatId: Long, text: String)
 }
