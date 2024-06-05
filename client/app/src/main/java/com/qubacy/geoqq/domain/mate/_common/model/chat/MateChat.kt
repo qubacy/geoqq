@@ -10,11 +10,12 @@ data class MateChat(
     val id: Long,
     val user: User,
     val newMessageCount: Int,
-    val lastMessage: MateMessage?
+    val lastMessage: MateMessage?,
+    val lastActionTime: Long
 ) {
 
 }
 
 fun DataMateChat.toMateChat(): MateChat {
-    return MateChat(id, user.toUser(), newMessageCount, lastMessage?.toMateMessage())
+    return MateChat(id, user.toUser(), newMessageCount, lastMessage?.toMateMessage(), lastActionTime)
 }

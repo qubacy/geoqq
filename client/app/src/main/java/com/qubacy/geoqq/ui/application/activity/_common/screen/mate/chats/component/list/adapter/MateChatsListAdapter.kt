@@ -53,10 +53,10 @@ class MateChatsListAdapter(
     }
 
     @UiThread
-    fun addNewMateChat(mateChat: MateChatItemData) {
-        mItems.add(0, mateChat)
+    fun insertMateChat(mateChat: MateChatItemData, position: Int = 0) {
+        mItems.add(position, mateChat)
 
-        wrappedNotifyItemInserted(0)
+        wrappedNotifyItemInserted(position)
     }
 
     @UiThread
@@ -88,5 +88,10 @@ class MateChatsListAdapter(
         mItems.removeAll(itemsToRemove)
 
         wrappedNotifyItemRangeRemoved(position, count)
+    }
+
+    @UiThread
+    fun deleteMateChat(position: Int) {
+        deleteMateChats(position, 1)
     }
 }

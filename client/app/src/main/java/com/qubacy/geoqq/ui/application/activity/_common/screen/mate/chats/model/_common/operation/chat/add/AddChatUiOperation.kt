@@ -4,6 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 
 class AddChatUiOperation(
+    val position: Int,
     val chat: MateChatPresentation
 ) : UiOperation {
 

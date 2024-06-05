@@ -9,12 +9,14 @@ class GetChatResponse(
     @Json(name = ID_PROP_NAME) val id: Long,
     @Json(name = USER_ID_PROP_NAME) val userId: Long,
     @Json(name = NEW_MESSAGE_COUNT_PROP_NAME) val newMessageCount: Int,
-    @Json(name = LAST_MESSAGE_PROP_NAME) val lastMessage: GetMessageResponse?
+    @Json(name = LAST_MESSAGE_PROP_NAME) val lastMessage: GetMessageResponse?,
+    @Json(name = LAST_ACTION_TIME_PROP_NAME) val lastActionTime: Long
 ) {
     companion object {
         const val ID_PROP_NAME = "id"
         const val USER_ID_PROP_NAME = "user-id"
         const val NEW_MESSAGE_COUNT_PROP_NAME = "new-message-count"
         const val LAST_MESSAGE_PROP_NAME = "last-message"
+        const val LAST_ACTION_TIME_PROP_NAME = "last-action-time"
     }
 }

@@ -12,7 +12,8 @@ data class MateChatPresentation(
     val id: Long,
     val user: UserPresentation,
     val newMessageCount: Int,
-    val lastMessage: MateMessagePresentation?
+    val lastMessage: MateMessagePresentation?,
+    val lastActionTime: Long
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
@@ -26,7 +27,8 @@ data class MateChatPresentation(
             parcel,
             MateMessagePresentation::class.java.classLoader,
             MateMessagePresentation::class.java
-        )
+        ),
+        parcel.readLong()
     ) {
 
     }
@@ -57,7 +59,8 @@ fun MateChat.toMateChatPresentation(): MateChatPresentation {
         id,
         user.toUserPresentation(),
         newMessageCount,
-        lastMessage?.toMateMessagePresentation()
+        lastMessage?.toMateMessagePresentation(),
+        lastActionTime
     )
 }
 

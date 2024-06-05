@@ -19,7 +19,7 @@ import com.qubacy.geoqq.data.user.repository._common.source.local.database._comm
         MateChatEntity::class,
         UserEntity::class
    ],
-    version = 1
+    version = 2
 )
 abstract class Database : RoomDatabase() {
     companion object {

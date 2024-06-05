@@ -14,13 +14,14 @@ data class DataMateChat(
     val id: Long,
     val user: DataUser,
     val newMessageCount: Int,
-    val lastMessage: DataMessage?
+    val lastMessage: DataMessage?,
+    val lastActionTime: Long
 ) {
 
 }
 
 fun DataMateChat.toMateChatLastMessageEntityPair(): Pair<MateChatEntity, MateMessageEntity?> {
-    val mateChatEntity = MateChatEntity(id, user.id, newMessageCount, lastMessage?.id)
+    val mateChatEntity = MateChatEntity(id, user.id, newMessageCount, lastMessage?.id, lastActionTime)
 
     return Pair(mateChatEntity, lastMessage?.toMateMessageEntity(id))
 }
@@ -33,18 +34,19 @@ fun Map.Entry<MateChatEntity, MateMessageEntity?>.toDataMateChat(
         key.id,
         user,
         key.newMessageCount,
-        value?.toDataMessage(lastMessageUser!!)
+        value?.toDataMessage(lastMessageUser!!),
+        key.lastActionTime
     )
 }
 
 fun GetChatResponse.toDataMateChat(user: DataUser, lastMessageUser: DataUser?): DataMateChat {
     val lastDataMessage = lastMessage?.toDataMessage(lastMessageUser!!)
 
-    return DataMateChat(id, user, newMessageCount, lastDataMessage)
+    return DataMateChat(id, user, newMessageCount, lastDataMessage, lastActionTime)
 }
 
 fun MateChatEventPayload.toDataMateChat(user: DataUser, lastMessageUser: DataUser?): DataMateChat {
     val lastDataMessage = lastMessage?.toDataMessage(lastMessageUser!!)
 
-    return DataMateChat(id, user, newMessageCount, lastDataMessage)
+    return DataMateChat(id, user, newMessageCount, lastDataMessage, lastActionTime)
 }

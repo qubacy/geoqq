@@ -19,6 +19,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.pres
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.add.AddChatUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.delete.DeleteChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.insert.InsertChatsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.update.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chunk.update.UpdateChatChunkUiOperation
@@ -85,7 +86,7 @@ open class MateChatsViewModelImpl @Inject constructor(
 
         mUiState.chats.add(0, chatPresentation)
 
-        return listOf(AddChatUiOperation(chatPresentation))
+        return listOf(AddChatUiOperation(0, chatPresentation))
     }
 
     // todo: optimize:
@@ -96,50 +97,33 @@ open class MateChatsViewModelImpl @Inject constructor(
             return onError(mateChatUpdatedDomainResult.error!!)
 
         val chatPresentation = mateChatUpdatedDomainResult.chat!!.toMateChatPresentation()
-
         val prevChatPresentationIndex = mUiState.chats.indexOfFirst { it.id == chatPresentation.id }
         val prevChatPresentation =
-            if (prevChatPresentationIndex < 0) null
-            else mUiState.chats[prevChatPresentationIndex]
+            if (prevChatPresentationIndex >= 0) mUiState.chats[prevChatPresentationIndex]
+            else null
 
         if (chatPresentation == prevChatPresentation) return emptyList()
 
-        val insertPosition = if (chatPresentation.lastMessage != null) {
-            val lastChatPresentation = mUiState.chats.last()
+        mUiState.chats.remove(prevChatPresentation)
 
-            if (lastChatPresentation.lastMessage != null) {
-                if (chatPresentation.lastMessage.timeInSeconds <
-                    lastChatPresentation.lastMessage.timeInSeconds
-                ) {
-                    return emptyList()
-                }
-            }
-
-            mUiState.chats.indexOfFirst {
-                val curTime = it.lastMessage?.timeInSeconds ?: -1
-
-                chatPresentation.lastMessage.timeInSeconds >= curTime
-            }
-        } else {
-            if (prevChatPresentation == null) 0
-            else prevChatPresentationIndex
+        val insertIndex = mUiState.chats.indexOfFirst {
+            chatPresentation.lastActionTime >= it.lastActionTime
         }
 
         return if (prevChatPresentation != null) {
-            if (prevChatPresentationIndex == insertPosition) {
-                mUiState.chats[insertPosition] = chatPresentation
+            if (insertIndex < 0) {
+                listOf(DeleteChatUiOperation(prevChatPresentationIndex))
             } else {
-                mUiState.chats.remove(prevChatPresentation)
-                mUiState.chats.add(insertPosition, chatPresentation)
+                mUiState.chats.add(insertIndex, chatPresentation)
+
+                listOf(UpdateChatUiOperation(
+                    prevChatPresentationIndex, insertIndex, chatPresentation))
             }
+        } else if (insertIndex >= 0) {
+            mUiState.chats.add(insertIndex, chatPresentation)
 
-            listOf(UpdateChatUiOperation(insertPosition, chatPresentation))
-
-        } else {
-            mUiState.chats.add(insertPosition, chatPresentation)
-
-            listOf(InsertChatsUiOperation(insertPosition, listOf(chatPresentation)))
-        }
+            listOf(AddChatUiOperation(insertIndex, chatPresentation))
+        } else emptyList()
     }
 
     // todo: reconsider this (mb there is another optimal way?): DOESNT WORK
@@ -157,13 +141,11 @@ open class MateChatsViewModelImpl @Inject constructor(
     }
 
     override fun isNextChatChunkGettingAllowed(): Boolean {
-        val lastChatChunkSize = mUiState.chatChunkSizes.entries.lastOrNull()?.value
+        val lastChatChunkSize = mUiState.chatChunkSizes.entries.lastOrNull()?.value ?: 0
 
         val chunkSizeCheck = (
-            lastChatChunkSize == null ||
-            (lastChatChunkSize != 0 &&
-                lastChatChunkSize % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0
-            )
+            lastChatChunkSize == 0 ||
+            (lastChatChunkSize % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE == 0)
         )
 
         return (!mIsGettingNextChatChunk && chunkSizeCheck)
@@ -234,7 +216,7 @@ open class MateChatsViewModelImpl @Inject constructor(
     }
 
     private fun getPrevChatChunkOffset(offset: Int): Int {
-        return offset - mUiState.newChatCount
+        return offset - mUiState.affectedChatCount
     }
 
 //    /**

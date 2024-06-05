@@ -220,16 +220,25 @@ class MateChatsFragment(
         checkMateChatListEmpty()
     }
 
-    fun onMateChatsFragmentAddChat(chatPresentation: MateChatPresentation) {
+    fun onMateChatsFragmentAddChat(chatPresentation: MateChatPresentation, position: Int) {
         val itemData = chatPresentation.toMateChatItemData()
 
-        mAdapter.addNewMateChat(itemData)
+        mAdapter.insertMateChat(itemData, position)
     }
 
-    fun onMateChatsFragmentUpdateChat(chatPresentation: MateChatPresentation, position: Int) {
+    fun onMateChatsFragmentUpdateChat(
+        chatPresentation: MateChatPresentation,
+        prevPosition: Int,
+        position: Int
+    ) {
         val itemData = chatPresentation.toMateChatItemData()
 
+        // todo: rethink this:
         mAdapter.updateAndMoveToPositionMateChat(itemData, position)
+    }
+
+    fun onMateChatsFragmentDeleteChat(position: Int) {
+        mAdapter.deleteMateChat(position)
     }
 
     override fun createBinding(

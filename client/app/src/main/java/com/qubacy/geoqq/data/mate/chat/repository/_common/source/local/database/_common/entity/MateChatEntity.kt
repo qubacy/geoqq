@@ -15,7 +15,8 @@ data class MateChatEntity(
         name = NEW_MESSAGE_COUNT_PROP_NAME,
         defaultValue = NEW_MESSAGE_COUNT_DEFAULT_VALUE
     ) val newMessageCount: Int,
-    @ColumnInfo(name = LAST_MESSAGE_ID_PROP_NAME) val lastMessageId: Long?
+    @ColumnInfo(name = LAST_MESSAGE_ID_PROP_NAME) val lastMessageId: Long?,
+    @ColumnInfo(name = LAST_ACTION_TIME_PROP_NAME) val lastActionTime: Long
 ) {
     companion object {
         const val TABLE_NAME = "MateChat"
@@ -24,6 +25,7 @@ data class MateChatEntity(
         const val USER_ID_PROP_NAME = "user_id"
         const val NEW_MESSAGE_COUNT_PROP_NAME = "new_message_count"
         const val LAST_MESSAGE_ID_PROP_NAME = "last_message_id"
+        const val LAST_ACTION_TIME_PROP_NAME = "last_action_time"
 
         const val NEW_MESSAGE_COUNT_DEFAULT_VALUE = "0"
     }
