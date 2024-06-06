@@ -1,7 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._test.mock
 
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import org.mockito.Mockito
 
 class WebSocketAdapterMockAdapter {

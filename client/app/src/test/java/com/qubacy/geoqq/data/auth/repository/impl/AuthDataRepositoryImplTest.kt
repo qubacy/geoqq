@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.auth.repository.impl
 
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._test.mock.WebSocketAdapterMockAdapter
@@ -11,6 +12,7 @@ import com.qubacy.geoqq.data.auth.repository._common.source.local.database._comm
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.RemoteAuthHttpRestDataSource
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignInResponse
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignUpResponse
+import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.websocket._common.RemoteAuthHttpWebSocketDataSource
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -32,11 +34,15 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
     private var mLocalDatabaseSourceDropDataTablesCallFlag = false
 
-    private var mHttpSourceSignInResponse: SignInResponse? = null
-    private var mHttpSourceSignUpResponse: SignUpResponse? = null
+    private var mRemoteHttpRestSourceSignInResponse: SignInResponse? = null
+    private var mRemoteHttpRestSourceSignUpResponse: SignUpResponse? = null
 
-    private var mHttpSourceSignInCallFlag = false
-    private var mHttpSourceSignUpCallFlag = false
+    private var mRemoteHttpRestSourceSignInCallFlag = false
+    private var mRemoteHttpRestSourceSignUpCallFlag = false
+
+    private var mRemoteHttpWebSocketSourceStartProducingCallFlag = false
+    private var mRemoteHttpWebSocketSourceStopProducingCallFlag = false
+    private var mRemoteHttpWebSocketSourceSetWebSocketAdapterCallFlag = false
 
     @Before
     fun setup() {
@@ -47,11 +53,15 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
     fun clear() {
         mLocalDatabaseSourceDropDataTablesCallFlag = false
 
-        mHttpSourceSignInResponse = null
-        mHttpSourceSignUpResponse = null
+        mRemoteHttpRestSourceSignInResponse = null
+        mRemoteHttpRestSourceSignUpResponse = null
 
-        mHttpSourceSignInCallFlag = false
-        mHttpSourceSignUpCallFlag = false
+        mRemoteHttpRestSourceSignInCallFlag = false
+        mRemoteHttpRestSourceSignUpCallFlag = false
+
+        mRemoteHttpWebSocketSourceStartProducingCallFlag = false
+        mRemoteHttpWebSocketSourceStopProducingCallFlag = false
+        mRemoteHttpWebSocketSourceSetWebSocketAdapterCallFlag = false
     }
 
     private fun initTokenDataRepository() = runTest {
@@ -60,14 +70,16 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         mWebSocketAdapterMockContainer = WebSocketAdapterMockAdapter()
 
         val localAuthDatabaseDataSourceMock = mockLocalAuthDatabaseDataSource()
-        val httpAuthDataSourceMock = mockHttpAuthDataSource()
+        val remoteAuthHttpRestDataSourceMock = mockRemoteAuthHttpRestDataSource()
+        val remoteAuthHttpWebSocketDataSourceMock = mockRemoteAuthHttpWebSocketDataSource()
 
         mDataRepository = AuthDataRepositoryImpl(
-            mErrorDataRepositoryMockContainer.errorDataSourceMock,
-            localAuthDatabaseDataSourceMock,
-            httpAuthDataSourceMock,
-            mTokenDataRepositoryMockContainer.tokenDataRepository,
-            mWebSocketAdapterMockContainer.webSocketAdapter
+            mErrorSource = mErrorDataRepositoryMockContainer.errorDataSourceMock,
+            mLocalAuthDatabaseDataSource = localAuthDatabaseDataSourceMock,
+            mRemoteAuthHttpRestDataSource = remoteAuthHttpRestDataSourceMock,
+            mRemoteAuthHttpWebSocketDataSource = remoteAuthHttpWebSocketDataSourceMock,
+            mTokenDataRepository = mTokenDataRepositoryMockContainer.tokenDataRepository,
+            mWebSocketAdapter = mWebSocketAdapterMockContainer.webSocketAdapter
         )
     }
 
@@ -83,24 +95,49 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         return localAuthDatabaseDataSourceMock
     }
 
-    private fun mockHttpAuthDataSource(): RemoteAuthHttpRestDataSource {
+    private fun mockRemoteAuthHttpRestDataSource(): RemoteAuthHttpRestDataSource {
         val httpAuthDataSourceMock = Mockito.mock(RemoteAuthHttpRestDataSource::class.java)
 
         Mockito.`when`(httpAuthDataSourceMock.signIn(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
-            mHttpSourceSignInCallFlag = true
-            mHttpSourceSignInResponse
+            mRemoteHttpRestSourceSignInCallFlag = true
+            mRemoteHttpRestSourceSignInResponse
         }
 
         Mockito.`when`(httpAuthDataSourceMock.signUp(
             Mockito.anyString(), Mockito.anyString()
         )).thenAnswer {
-            mHttpSourceSignUpCallFlag = true
-            mHttpSourceSignUpResponse
+            mRemoteHttpRestSourceSignUpCallFlag = true
+            mRemoteHttpRestSourceSignUpResponse
         }
 
         return httpAuthDataSourceMock
+    }
+
+    private fun mockRemoteAuthHttpWebSocketDataSource(): RemoteAuthHttpWebSocketDataSource {
+        val remoteAuthHttpWebSocketDataSource = Mockito
+            .mock(RemoteAuthHttpWebSocketDataSource::class.java)
+
+        Mockito.`when`(remoteAuthHttpWebSocketDataSource.startProducing()).thenAnswer {
+            mRemoteHttpWebSocketSourceStartProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteAuthHttpWebSocketDataSource.stopProducing()).thenAnswer {
+            mRemoteHttpWebSocketSourceStopProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteAuthHttpWebSocketDataSource.setWebSocketAdapter(
+            AnyMockUtil.anyObject()
+        )).thenAnswer {
+            mRemoteHttpWebSocketSourceSetWebSocketAdapterCallFlag = true
+
+            Unit
+        }
+
+        return remoteAuthHttpWebSocketDataSource
     }
 
     @Test
@@ -115,6 +152,7 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
         Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
         Assert.assertTrue(mTokenDataRepositoryMockContainer.updateTokensCallFlag)
+        Assert.assertTrue(mWebSocketAdapterMockContainer.openCallFlag)
     }
 
     @Test
@@ -124,12 +162,13 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
         val signInResponse = DEFAULT_SIGN_IN_RESPONSE
 
-        mHttpSourceSignInResponse = signInResponse
+        mRemoteHttpRestSourceSignInResponse = signInResponse
 
         mDataRepository.signIn(login, password)
 
-        Assert.assertTrue(mHttpSourceSignInCallFlag)
+        Assert.assertTrue(mRemoteHttpRestSourceSignInCallFlag)
         Assert.assertTrue(mTokenDataRepositoryMockContainer.saveTokensCallFlag)
+        Assert.assertTrue(mWebSocketAdapterMockContainer.openCallFlag)
     }
 
     @Test
@@ -139,12 +178,13 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
         val signUpResponse = DEFAULT_SIGN_UP_RESPONSE
 
-        mHttpSourceSignUpResponse = signUpResponse
+        mRemoteHttpRestSourceSignUpResponse = signUpResponse
 
         mDataRepository.signUp(login, password)
 
-        Assert.assertTrue(mHttpSourceSignUpCallFlag)
+        Assert.assertTrue(mRemoteHttpRestSourceSignUpCallFlag)
         Assert.assertTrue(mTokenDataRepositoryMockContainer.saveTokensCallFlag)
+        Assert.assertTrue(mWebSocketAdapterMockContainer.openCallFlag)
     }
 
     @Test
@@ -153,5 +193,6 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
         Assert.assertTrue(mTokenDataRepositoryMockContainer.resetCallFlag)
         Assert.assertTrue(mLocalDatabaseSourceDropDataTablesCallFlag)
+        Assert.assertTrue(mWebSocketAdapterMockContainer.closeCallFlag)
     }
 }

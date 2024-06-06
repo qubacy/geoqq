@@ -4,14 +4,12 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.request.middleware.auth._common._test.mock.AuthorizationRequestMiddlewareMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.ErrorResponse
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.json.adapter.ErrorResponseJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._common.AuthorizationHttpRestInterceptor
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth.impl.AuthorizationHttpRestInterceptorImpl
-import com.qubacy.geoqq.data._common.repository.token.repository._common.result.get.GetTokensDataResult
-import com.qubacy.geoqq.data._common.repository.token.repository._test.mock.TokenDataRepositoryMockContainer
 import okhttp3.HttpUrl
 import okhttp3.Interceptor.Chain
 import okhttp3.Protocol
@@ -27,7 +25,8 @@ import org.mockito.Mockito
 
 class AuthorizationHttpRestInterceptorTest {
     private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
-    private lateinit var mTokenDataRepositoryMockContainer: TokenDataRepositoryMockContainer
+    private lateinit var mAuthorizationRequestMiddlewareMockContainer:
+        AuthorizationRequestMiddlewareMockContainer
 
     private lateinit var mBufferedSourceMock: BufferedSource
     private lateinit var mChainMock: Chain
@@ -63,7 +62,7 @@ class AuthorizationHttpRestInterceptorTest {
 
     private fun initAuthorizationHttpInterceptor() {
         mErrorDataSourceMockContainer = ErrorDataSourceMockContainer()
-        mTokenDataRepositoryMockContainer = TokenDataRepositoryMockContainer()
+        mAuthorizationRequestMiddlewareMockContainer = AuthorizationRequestMiddlewareMockContainer()
 
         mChainMock = mockChain()
 
@@ -72,7 +71,7 @@ class AuthorizationHttpRestInterceptorTest {
         mAuthorizationHttpRestInterceptor = AuthorizationHttpRestInterceptorImpl(
             mErrorDataSourceMockContainer.errorDataSourceMock,
             errorJsonAdapterMock,
-            mTokenDataRepositoryMockContainer.tokenDataRepository
+            mAuthorizationRequestMiddlewareMockContainer.authorizationRequestMiddleware
         )
     }
 
@@ -161,21 +160,7 @@ class AuthorizationHttpRestInterceptorTest {
 
         mAuthorizationHttpRestInterceptor.intercept(mChainMock)
 
-        Assert.assertFalse(mTokenDataRepositoryMockContainer.getTokensCallFlag)
-    }
-
-    @Test
-    fun interceptSuccessfulRequestTest() {
-        mResponseCodes = arrayOf(200)
-
-        mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
-        )
-
-        mAuthorizationHttpRestInterceptor.intercept(mChainMock)
-
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        Assert.assertFalse(mAuthorizationRequestMiddlewareMockContainer.processCallFlag)
     }
 
     @Test
@@ -183,15 +168,10 @@ class AuthorizationHttpRestInterceptorTest {
         mResponseCodes = arrayOf(400)
         mErrorJsonAdapterFromJson = ErrorResponse(ErrorResponseContent(1))
 
-        mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
-        )
-
         mAuthorizationHttpRestInterceptor.intercept(mChainMock)
 
         Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        Assert.assertTrue(mAuthorizationRequestMiddlewareMockContainer.processCallFlag)
     }
 
     @Test
@@ -202,14 +182,9 @@ class AuthorizationHttpRestInterceptorTest {
             GeneralErrorType.INVALID_ACCESS_TOKEN.getErrorCode())
         )
 
-        mTokenDataRepositoryMockContainer.getTokensDataResult = GetTokensDataResult(
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN,
-            LocalTokenDataStoreDataSourceMockContainer.VALID_TOKEN
-        )
-
         mAuthorizationHttpRestInterceptor.intercept(mChainMock)
 
         Assert.assertTrue(mErrorJsonAdapterFromJsonCallFlag)
-        Assert.assertTrue(mTokenDataRepositoryMockContainer.getTokensCallFlag)
+        Assert.assertTrue(mAuthorizationRequestMiddlewareMockContainer.processCallFlag)
     }
 }
