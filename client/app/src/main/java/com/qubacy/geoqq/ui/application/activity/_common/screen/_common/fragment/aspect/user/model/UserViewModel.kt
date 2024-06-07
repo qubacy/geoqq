@@ -29,7 +29,7 @@ interface UserViewModel {
 
         val userPresentation = onUserUser(domainResult)
 
-        return generateUserGetUserUiOperations(userPresentation)
+        return generateUserUpdateUserUiOperations(userPresentation)
     }
 
     fun generateUserUpdateUserUiOperations(userPresentation: UserPresentation): List<UiOperation>

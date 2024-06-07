@@ -374,8 +374,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
         )
 
         val interlocutor = DEFAULT_USER.copy(username = "updated test")
-        val updateInterlocutorDomainResult = UpdateUserDomainResult(
-            interlocutor = interlocutor)
+        val updateInterlocutorDomainResult = UpdateUserDomainResult(interlocutor = interlocutor)
 
         val expectedInterlocutorPresentation = interlocutor.toUserPresentation()
         val expectedMessagePositions = initMessages.indices.toList()

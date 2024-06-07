@@ -90,7 +90,7 @@ abstract class BusinessViewModel<UiStateType : BusinessUiState, UseCaseType : Us
     }
 
     protected open fun processDomainResultFlow(domainResult: DomainResult): List<UiOperation> {
-        Log.d(TAG, "processDomainResultFlow(): domainResult = $domainResult;")
+//        Log.d(TAG, "processDomainResultFlow(): domainResult = $domainResult;")
 
         for (domainResultHandler in mDomainResultHandlers) {
             val uiOperations = domainResultHandler.handleDomainResult(domainResult)

@@ -12,14 +12,14 @@ object MateTestContext {
         newMessageCount: Int = 0,
         lastMessage: MateMessagePresentation? = null
     ): MateChatPresentation {
-        return MateChatPresentation(id, user, newMessageCount, lastMessage)
+        return MateChatPresentation(id, user, newMessageCount, lastMessage, 0L)
     }
 
     fun generateMateMessagePresentation(
         user: UserPresentation,
         id: Long = 0L
     ): MateMessagePresentation {
-        return MateMessagePresentation(id, user, "test message", "TIME")
+        return MateMessagePresentation(id, user, "test message", "TIME", 0L)
     }
 
     fun generateMateRequestPresentation(

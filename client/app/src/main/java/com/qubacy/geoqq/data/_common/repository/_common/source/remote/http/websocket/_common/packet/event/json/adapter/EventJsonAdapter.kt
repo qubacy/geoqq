@@ -38,9 +38,8 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                     1 -> {
                         val payloadAdapter = mCallback.getEventPayloadJsonAdapterByType(type!!)
 
-                        if(payloadAdapter == null) return null
-
-                        payload = payloadAdapter.fromJson(p0) as PacketPayload
+                        if (payloadAdapter == null) { skipObject(p0) }
+                        else { payload = payloadAdapter.fromJson(p0) as PacketPayload }
                     }
                     else -> {
                         skipName()
@@ -52,10 +51,23 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
             endObject()
         }
 
+        if (payload == null) return null
+
         val serverEventHeader = EventHeader(type!!)
         val serverEvent = Event(serverEventHeader, payload!!)
 
         return serverEvent
+    }
+
+    private fun skipObject(reader: JsonReader) {
+        reader.beginObject()
+
+        while (reader.hasNext()) {
+            reader.skipName()
+            reader.skipValue()
+        }
+
+        reader.endObject()
     }
 
     override fun toJson(p0: JsonWriter, p1: Event?) {

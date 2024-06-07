@@ -390,7 +390,7 @@ class MateChatFragmentTest : BusinessFragmentTest<
             val id = it.toLong()
             val user = ScreenTestContext.generateUserPresentation(mImagePresentation)
 
-            MateMessagePresentation(id, user, "test $id", "TEST")
+            MateMessagePresentation(id, user, "test $id", "TEST", 0L)
         }.toMutableList()
     }
 
