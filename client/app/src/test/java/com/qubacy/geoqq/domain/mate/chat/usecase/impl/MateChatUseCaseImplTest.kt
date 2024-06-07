@@ -7,6 +7,8 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateMessageDataRepositoryTestContext
@@ -50,6 +52,8 @@ class MateChatUseCaseImplTest : UseCaseTest<MateChatUseCaseImpl>() {
     private lateinit var mInterlocutorUseCaseMockContainer: InterlocutorUseCaseMockContainer
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
 
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
+
     private var mGetMessagesResults: List<GetMessagesDataResult>? = null
 
     private var mGetMessagesCallFlag = false
@@ -65,6 +69,7 @@ class MateChatUseCaseImplTest : UseCaseTest<MateChatUseCaseImpl>() {
         mMateRequestUseCaseMockContainer = MateRequestUseCaseMockContainer()
         mInterlocutorUseCaseMockContainer = InterlocutorUseCaseMockContainer()
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
 
         val mateMessageDataRepositoryMock = mockMateMessageDataRepository()
         val mateChatDataRepositoryMock = mockMateChatDataRepository()
@@ -73,6 +78,7 @@ class MateChatUseCaseImplTest : UseCaseTest<MateChatUseCaseImpl>() {
             mMateRequestUseCaseMockContainer.mateRequestUseCaseMock,
             mInterlocutorUseCaseMockContainer.interlocutorUseCaseMock,
             mLogoutUseCaseMockContainer.logoutUseCaseMock,
+            mAuthDataRepositoryMockContainer.authDataRepositoryMock,
             mateMessageDataRepositoryMock,
             mateChatDataRepositoryMock
         ))
@@ -138,8 +144,9 @@ class MateChatUseCaseImplTest : UseCaseTest<MateChatUseCaseImpl>() {
             mMateRequestUseCase = dependencies[1] as MateRequestUseCase,
             mUserUseCase = dependencies[2] as UserUseCase,
             mLogoutUseCase = dependencies[3] as LogoutUseCase,
-            mMateMessageDataRepository = dependencies[4] as MateMessageDataRepository,
-            mMateChatDataRepository = dependencies[5] as MateChatDataRepository
+            mAuthDataRepository = dependencies[4] as AuthDataRepository,
+            mMateMessageDataRepository = dependencies[5] as MateMessageDataRepository,
+            mMateChatDataRepository = dependencies[6] as MateChatDataRepository
         )
     }
 

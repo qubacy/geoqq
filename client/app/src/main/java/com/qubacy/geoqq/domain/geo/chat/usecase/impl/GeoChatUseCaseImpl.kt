@@ -25,12 +25,12 @@ import javax.inject.Inject
 
 open class GeoChatUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
-    private val mAuthDataRepository: AuthDataRepository,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: UserUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val mGeoMessageDataRepository: GeoMessageDataRepository,
-    private val mUserDataRepository: UserDataRepository
+    private val mUserDataRepository: UserDataRepository,
+    private val mAuthDataRepository: AuthDataRepository
 ) : GeoChatUseCase(errorSource) {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,

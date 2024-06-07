@@ -8,7 +8,7 @@ import org.mockito.Mockito
 class AuthorizationRequestMiddlewareMockContainer {
     val authorizationRequestMiddleware: AuthorizationRequestMiddleware
 
-    var request: Request? = null
+    var request: Request = Mockito.mock(Request::class.java)
 
     private var mProcessCallFlag = false
     val processCallFlag get() = mProcessCallFlag
@@ -32,6 +32,6 @@ class AuthorizationRequestMiddlewareMockContainer {
             request!!
         }
 
-        return authorizationRequestMiddleware
+        return authorizationRequestMiddlewareMock
     }
 }

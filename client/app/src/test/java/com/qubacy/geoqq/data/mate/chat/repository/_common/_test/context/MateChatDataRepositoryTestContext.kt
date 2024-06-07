@@ -15,13 +15,13 @@ object MateChatDataRepositoryTestContext {
         0, 0, DEFAULT_DATA_USER.id, "local message", 0)
 
     val DEFAULT_MATE_CHAT_ENTITY = MateChatEntity(
-        0, DEFAULT_DATA_USER.id, 0, DEFAULT_LAST_MESSAGE_ENTITY.id)
+        0, DEFAULT_DATA_USER.id, 0, DEFAULT_LAST_MESSAGE_ENTITY.id, 0L)
     val DEFAULT_GET_CHAT_RESPONSE = GetChatResponse(
-        0, DEFAULT_DATA_USER.id, 0, DEFAULT_GET_MESSAGE_RESPONSE
+        0, DEFAULT_DATA_USER.id, 0, DEFAULT_GET_MESSAGE_RESPONSE, 0L
     )
 
     val DEFAULT_DATA_MATE_CHAT = DataMateChat(
         0L, DEFAULT_DATA_USER, 0,
-        MateMessageDataRepositoryTestContext.DEFAULT_DATA_MESSAGE
+        MateMessageDataRepositoryTestContext.DEFAULT_DATA_MESSAGE, 0L
     )
 }

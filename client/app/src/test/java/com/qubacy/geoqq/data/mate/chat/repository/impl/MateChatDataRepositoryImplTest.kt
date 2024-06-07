@@ -1,25 +1,35 @@
 package com.qubacy.geoqq.data.mate.chat.repository.impl
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.message.MessageEventPayload
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository._common._test.context.MateChatDataRepositoryTestContext
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.added.MateChatAddedDataResult
 import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.updated.MateChatUpdatedDataResult
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.LocalMateChatDatabaseDataSource
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.api.response.GetChatsResponse
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.local.database._common.entity.MateChatEntity
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.rest._common.RemoteMateChatHttpRestDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.RemoteMateChatHttpWebSocketDataSource
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.event.payload.updated.MateChatEventPayload
+import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.event.type.MateChatEventType
 import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateMessageDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.message.repository._common.source.local.database._common.entity.MateMessageEntity
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -63,11 +73,16 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
     private var mLocalSourceDeleteAllChatsCallFlag = false
     private var mLocalSourceDeleteOtherChatsByIdsCallFlag = false
 
-    private var mHttpSourceGetChatResponse: GetChatResponse? = null
-    private var mHttpSourceGetChatsResponse: GetChatsResponse? = null
+    private var mRemoteHttpRestSourceGetChatResponse: GetChatResponse? = null
+    private var mRemoteHttpRestSourceGetChatsResponse: GetChatsResponse? = null
 
-    private var mHttpSourceGetChatCallFlag = false
-    private var mHttpSourceGetChatsCallFlag = false
+    private var mRemoteHttpRestSourceGetChatCallFlag = false
+    private var mRemoteHttpRestSourceGetChatsCallFlag = false
+
+    private val mRemoteHttpWebSocketSourceEventFlow = MutableSharedFlow<WebSocketResult>()
+
+    private var mRemoteHttpWebSocketSourceStartProducingCallFlag = false
+    private var mRemoteHttpWebSocketSourceStopProducingCallFlag = false
 
     @Before
     fun setup() {
@@ -91,11 +106,14 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
         mLocalSourceDeleteAllChatsCallFlag = false
         mLocalSourceDeleteOtherChatsByIdsCallFlag = false
 
-        mHttpSourceGetChatResponse = null
-        mHttpSourceGetChatsResponse = null
+        mRemoteHttpRestSourceGetChatResponse = null
+        mRemoteHttpRestSourceGetChatsResponse = null
 
-        mHttpSourceGetChatCallFlag = false
-        mHttpSourceGetChatsCallFlag = false
+        mRemoteHttpRestSourceGetChatCallFlag = false
+        mRemoteHttpRestSourceGetChatsCallFlag = false
+
+        mRemoteHttpWebSocketSourceStartProducingCallFlag = false
+        mRemoteHttpWebSocketSourceStopProducingCallFlag = false
     }
 
     private fun initMateChatDataRepository() {
@@ -103,13 +121,15 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
         mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
         val localMateChatDataSourceMock = mockLocalMateChatDataSource()
-        val httpMateChatDataSourceMock = mockHttpMateChatDataSource()
+        val remoteMateChatHttpRestDataSourceMock = mockRemoteMateChatHttpRestDataSource()
+        val remoteMateChatHttpWebSocketDataSourceMock = mockRemoteMateChatHttpWebSocketDataSource()
 
         mDataRepository = MateChatDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
-            mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
+            mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepositoryMock,
             mLocalMateChatDatabaseDataSource = localMateChatDataSourceMock,
-            mRemoteMateChatHttpRestDataSource = httpMateChatDataSourceMock
+            mRemoteMateChatHttpRestDataSource = remoteMateChatHttpRestDataSourceMock,
+            mRemoteMateChatHttpWebSocketDataSource = remoteMateChatHttpWebSocketDataSourceMock
         )
     }
 
@@ -183,23 +203,44 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
         return localMateChatDataSourceMock
     }
 
-    private fun mockHttpMateChatDataSource(): RemoteMateChatHttpRestDataSource {
+    private fun mockRemoteMateChatHttpRestDataSource(): RemoteMateChatHttpRestDataSource {
         val httpMateChatDataSourceMock = Mockito.mock(RemoteMateChatHttpRestDataSource::class.java)
 
         Mockito.`when`(httpMateChatDataSourceMock.getChat(
             Mockito.anyLong()
         )).thenAnswer {
-            mHttpSourceGetChatCallFlag = true
-            mHttpSourceGetChatResponse
+            mRemoteHttpRestSourceGetChatCallFlag = true
+            mRemoteHttpRestSourceGetChatResponse
         }
         Mockito.`when`(httpMateChatDataSourceMock.getChats(
             Mockito.anyInt(), Mockito.anyInt()
         )).thenAnswer {
-            mHttpSourceGetChatsCallFlag = true
-            mHttpSourceGetChatsResponse
+            mRemoteHttpRestSourceGetChatsCallFlag = true
+            mRemoteHttpRestSourceGetChatsResponse
         }
 
         return httpMateChatDataSourceMock
+    }
+
+    private fun mockRemoteMateChatHttpWebSocketDataSource(): RemoteMateChatHttpWebSocketDataSource {
+        val remoteMateChatHttpWebSocketDataSource =
+            Mockito.mock(RemoteMateChatHttpWebSocketDataSource::class.java)
+
+        Mockito.`when`(remoteMateChatHttpWebSocketDataSource.startProducing()).thenAnswer {
+            mRemoteHttpWebSocketSourceStartProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteMateChatHttpWebSocketDataSource.stopProducing()).thenAnswer {
+            mRemoteHttpWebSocketSourceStopProducingCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(remoteMateChatHttpWebSocketDataSource.eventFlow).thenAnswer {
+            mRemoteHttpWebSocketSourceEventFlow
+        }
+
+        return remoteMateChatHttpWebSocketDataSource
     }
 
     @Test
@@ -218,7 +259,7 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
         val remoteChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
 
         mLocalSourceGetChats = localChats
-        mHttpSourceGetChatsResponse = remoteChats
+        mRemoteHttpRestSourceGetChatsResponse = remoteChats
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
             ResolveUsersDataResult(true, remoteUserIdUserMap)
 
@@ -241,7 +282,8 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
 
         val gottenRemoteResult = getChatsResult.awaitUntilVersion(1)
 
-        Assert.assertTrue(mHttpSourceGetChatsCallFlag)
+        Assert.assertTrue(mRemoteHttpRestSourceGetChatsCallFlag)
+        Assert.assertTrue(mRemoteHttpWebSocketSourceStartProducingCallFlag)
         Assert.assertEquals(GetChatsDataResult::class, gottenRemoteResult::class)
 
         val gottenRemoteDataChats = gottenRemoteResult.chats!!
@@ -268,7 +310,7 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
         val httpChats = GetChatsResponse(listOf(DEFAULT_GET_CHAT_RESPONSE))
 
         mLocalSourceGetChats = localChats
-        mHttpSourceGetChatsResponse = httpChats
+        mRemoteHttpRestSourceGetChatsResponse = httpChats
         mUserDataRepositoryMockContainer.resolveUsersWithLocalUserResult =
             ResolveUsersDataResult(true, remoteUserIdUserMap)
 
@@ -291,11 +333,52 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
 
         val gottenRemoteResult = getChatsResult.awaitUntilVersion(1)
 
-        Assert.assertTrue(mHttpSourceGetChatsCallFlag)
+        Assert.assertTrue(mRemoteHttpRestSourceGetChatsCallFlag)
+        Assert.assertTrue(mRemoteHttpWebSocketSourceStartProducingCallFlag)
         Assert.assertTrue(mLocalSourceDeleteOtherChatsByIdsCallFlag)
 
         val gottenRemoteDataChats = gottenRemoteResult.chats!!
 
         AssertUtils.assertEqualContent(expectedRemoteDataChats, gottenRemoteDataChats)
+    }
+
+    @Test
+    fun processMateChatAddedEventPayloadTest() = runTest {
+        val messagePayload = MessageEventPayload(0L, String(), 0L, 0L)
+        val chatPayload = MateChatEventPayload(
+            0L, 0L, 0, messagePayload, 0L)
+        val webSocketResult = WebSocketPayloadResult(
+            MateChatEventType.MATE_CHAT_ADDED_EVENT_TYPE_NAME.title,
+            chatPayload
+        )
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(MateChatAddedDataResult::class, result::class)
+            Assert.assertTrue(mLocalSourceSaveChatsCallFlag)
+        }
+    }
+
+    @Test
+    fun processMateChatUpdatedEventPayloadTest() = runTest {
+        val messagePayload = MessageEventPayload(0L, String(), 0L, 0L)
+        val chatPayload = MateChatEventPayload(
+            0L, 0L, 0, messagePayload, 0L)
+        val webSocketResult = WebSocketPayloadResult(
+            MateChatEventType.MATE_CHAT_UPDATED_EVENT_TYPE_NAME.title,
+            chatPayload
+        )
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(MateChatUpdatedDataResult::class, result::class)
+            Assert.assertTrue(mLocalSourceSaveChatsCallFlag)
+        }
     }
 }

@@ -6,6 +6,8 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
 import com.qubacy.geoqq.data.geo.message.repository._common.result.get.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.geo.message.repository.impl._common._test.context.GeoMessageDataRepositoryTestContext
@@ -48,6 +50,7 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
     private lateinit var mInterlocutorUseCaseMockContainer: InterlocutorUseCaseMockContainer
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
 
     private var mGeoMessageGetMessagesResults: List<GetGeoMessagesDataResult>? = null
 
@@ -66,6 +69,7 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
 
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
         mMateRequestUseCaseMockContainer = MateRequestUseCaseMockContainer()
         mInterlocutorUseCaseMockContainer = InterlocutorUseCaseMockContainer()
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
@@ -78,7 +82,8 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
             .plus(mInterlocutorUseCaseMockContainer.interlocutorUseCaseMock)
             .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
             .plus(geoMessageDataRepositoryMock)
-            .plus(mUserDataRepositoryMockContainer.userDataRepository)
+            .plus(mUserDataRepositoryMockContainer.userDataRepositoryMock)
+            .plus(mAuthDataRepositoryMockContainer.authDataRepositoryMock)
     }
 
     private fun mockGeoMessageDataRepository(): GeoMessageDataRepository {
@@ -103,7 +108,6 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
             }
             Mockito.`when`(geoMessageDataRepository.sendMessage(
                 Mockito.anyString(),
-                Mockito.anyInt(),
                 Mockito.anyFloat(),
                 Mockito.anyFloat()
             )).thenAnswer {
@@ -123,7 +127,8 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
             dependencies[2] as UserUseCase,
             dependencies[3] as LogoutUseCase,
             dependencies[4] as GeoMessageDataRepository,
-            dependencies[5] as UserDataRepository
+            dependencies[5] as UserDataRepository,
+            dependencies[6] as AuthDataRepository
         )
     }
 

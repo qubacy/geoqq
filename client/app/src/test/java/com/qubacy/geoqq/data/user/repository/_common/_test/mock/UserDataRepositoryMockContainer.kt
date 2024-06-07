@@ -19,7 +19,7 @@ class UserDataRepositoryMockContainer {
             .DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
     }
 
-    val userDataRepository: UserDataRepository
+    val userDataRepositoryMock: UserDataRepository
 
     var error: Error? = null
 
@@ -36,7 +36,7 @@ class UserDataRepositoryMockContainer {
     val resolveUsersWithLocalUserCallFlag get() = mResolveUsersWithLocalUserCallFlag
 
     init {
-        userDataRepository = mockUserDataRepository()
+        userDataRepositoryMock = mockUserDataRepository()
     }
 
     private fun mockUserDataRepository(): UserDataRepository {

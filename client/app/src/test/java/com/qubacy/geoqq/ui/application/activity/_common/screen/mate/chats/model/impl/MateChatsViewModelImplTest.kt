@@ -4,12 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common._test.util.mock.UriMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.domain._common.model.image.Image
-import com.qubacy.geoqq.domain._common.model.user.User
-import com.qubacy.geoqq.domain.mate._common.model.chat.MateChat
+import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
@@ -35,6 +32,7 @@ class MateChatsViewModelImplTest(
     MateChatsUseCase::class.java
 ) {
     companion object {
+        val DEFAULT_MATE_CHAT = MateUseCaseTestContext.DEFAULT_MATE_CHAT
         val DEFAULT_MATE_CHAT_PRESENTATION = MateTestContext.DEFAULT_MATE_CHAT_PRESENTATION
     }
 
@@ -198,10 +196,10 @@ class MateChatsViewModelImplTest(
         val initIsGettingNextChatChunk = true
         val initChatChunkSizes = mutableMapOf<Int, Int>()
 
-        val mockedUri = UriMockUtil.getMockedUri()
-        val avatar = Image(0, mockedUri)
-        val user = User(0, "test", String(), avatar, false, false)
-        val chat = MateChat(0, user, 0, null)
+        //val mockedUri = UriMockUtil.getMockedUri()
+        //val avatar = Image(0, mockedUri)
+        //val user = User(0, "test", String(), avatar, false, false)
+        val chat = DEFAULT_MATE_CHAT//MateChat(0, user, 0, null, 0L)
         val chatChunk = MateChatChunk(0, listOf(chat))
 
         val getChatChunkDomainResult = GetMateChatChunkDomainResult(chunk = chatChunk)
@@ -294,10 +292,10 @@ class MateChatsViewModelImplTest(
         val initChats = mutableListOf(DEFAULT_MATE_CHAT_PRESENTATION)
         val initChatSizes = mutableMapOf(0 to initChats.size)
 
-        val mockedUri = UriMockUtil.getMockedUri()
-        val avatar = Image(0, mockedUri)
-        val user = User(0, "test", String(), avatar, false, false)
-        val chat = MateChat(0, user, 0, null)
+        //val mockedUri = UriMockUtil.getMockedUri()
+        //val avatar = Image(0, mockedUri)
+        //val user = User(0, "test", String(), avatar, false, false)
+        val chat = DEFAULT_MATE_CHAT//MateChat(0, user, 0, null, 0L)
         val chatChunk = MateChatChunk(0, listOf(chat))
 
         val updateChatChunkDomainResult = UpdateMateChatChunkDomainResult(chunk = chatChunk)

@@ -40,7 +40,7 @@ class InterlocutorUseCaseImplTest : UseCaseTest<UserUseCaseImpl>() {
 
         return superDependencies
             .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
-            .plus(mUserDataRepositoryMockContainer.userDataRepository)
+            .plus(mUserDataRepositoryMockContainer.userDataRepositoryMock)
     }
 
     override fun initUseCase(dependencies: List<Any>) {

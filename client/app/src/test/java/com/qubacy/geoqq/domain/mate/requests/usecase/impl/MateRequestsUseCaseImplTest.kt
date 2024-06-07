@@ -4,6 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common._test.context.MateRequestDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.request.repository._common._test.mock.MateRequestDataRepositoryMockContainer
@@ -34,6 +36,7 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
     private lateinit var mInterlocutorUseCaseMockContainer: InterlocutorUseCaseMockContainer
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mMateRequestDataRepositoryMockContainer: MateRequestDataRepositoryMockContainer
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
 
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
@@ -42,11 +45,13 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
         mInterlocutorUseCaseMockContainer = InterlocutorUseCaseMockContainer()
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
         mMateRequestDataRepositoryMockContainer = MateRequestDataRepositoryMockContainer()
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
 
         return superDependencies.plus(listOf(
             mMateRequestUseCaseMockContainer.mateRequestUseCaseMock,
             mInterlocutorUseCaseMockContainer.interlocutorUseCaseMock,
             mLogoutUseCaseMockContainer.logoutUseCaseMock,
+            mAuthDataRepositoryMockContainer.authDataRepositoryMock,
             mMateRequestDataRepositoryMockContainer.mateRequestDataRepositoryMock
         ))
     }
@@ -57,7 +62,8 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
             dependencies[1] as MateRequestUseCase,
             dependencies[2] as UserUseCase,
             dependencies[3] as LogoutUseCase,
-            dependencies[4] as MateRequestDataRepository
+            dependencies[4] as AuthDataRepository,
+            dependencies[5] as MateRequestDataRepository
         )
     }
 

@@ -8,6 +8,8 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common._test.context.MateChatDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
@@ -43,6 +45,8 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
 
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
 
+    private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
+
     private var mGetChatsDataResults: List<GetChatsDataResult>? = null
 
     private var mGetChatsCallFlag = false
@@ -51,12 +55,14 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
         val superDependencies = super.initDependencies()
 
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
+        mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
 
         val mateChatDataRepositoryMock = mockMateChatDataRepository()
 
         return superDependencies
             .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
             .plus(mateChatDataRepositoryMock)
+            .plus(mAuthDataRepositoryMockContainer.authDataRepositoryMock)
     }
 
     private fun mockMateChatDataRepository(): MateChatDataRepository {
@@ -92,7 +98,8 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
         mUseCase = MateChatsUseCaseImpl(
             dependencies[0] as LocalErrorDatabaseDataSource,
             dependencies[1] as LogoutUseCase,
-            dependencies[2] as MateChatDataRepository
+            dependencies[2] as MateChatDataRepository,
+            dependencies[3] as AuthDataRepository
         )
     }
 

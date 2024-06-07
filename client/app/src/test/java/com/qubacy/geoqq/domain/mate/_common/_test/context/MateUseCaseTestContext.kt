@@ -9,6 +9,7 @@ object MateUseCaseTestContext {
     private val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
 
     val DEFAULT_MATE_MESSAGE = MateMessage(0L, DEFAULT_USER, "test", 0L)
-    val DEFAULT_MATE_CHAT = MateChat(0L, DEFAULT_USER, 0, DEFAULT_MATE_MESSAGE)
+    val DEFAULT_MATE_CHAT = MateChat(
+        0L, DEFAULT_USER, 0, DEFAULT_MATE_MESSAGE, 0L)
     val DEFAULT_MATE_REQUEST = MateRequest(0L, DEFAULT_USER)
 }

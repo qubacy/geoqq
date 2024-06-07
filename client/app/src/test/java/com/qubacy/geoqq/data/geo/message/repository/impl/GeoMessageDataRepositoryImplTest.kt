@@ -1,17 +1,25 @@
 package com.qubacy.geoqq.data.geo.message.repository.impl
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
+import com.qubacy.geoqq.data.geo.message.repository._common.result.added.GeoMessageAddedDataResult
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.rest._common.RemoteGeoMessageHttpRestDataSource
 import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.RemoteGeoMessageHttpWebSocketDataSource
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.event.payload.added.GeoMessageAddedEventPayload
+import com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket._common.event.type.GeoMessageEventType
 import com.qubacy.geoqq.data.geo.message.repository.impl._common._test.context.GeoMessageDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -30,7 +38,7 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
     @get:Rule
     val rule = RuleChain
         .outerRule(MainDispatcherRule())
-        //.around(InstantTaskExecutorRule())
+        .around(InstantTaskExecutorRule())
 
     private lateinit var mErrorDataSourceMockContainer: ErrorDataSourceMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
@@ -38,6 +46,8 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
     private var mHttpSourceGetMessagesResponse: GetMessagesResponse? = null
 
     private var mRemoteHttpRestSourceGetMessagesCallFlag = false
+
+    private val mRemoteHttpWebSocketSourceEventFlow = MutableSharedFlow<WebSocketResult>()
 
     private var mRemoteHttpWebSocketSourceStartProducingCallFlag = false
     private var mRemoteHttpWebSocketSourceStopProducingCallFlag = false
@@ -70,7 +80,7 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
 
         return GeoMessageDataRepositoryImpl(
             mErrorSource = mErrorDataSourceMockContainer.errorDataSourceMock,
-            mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepository,
+            mUserDataRepository = mUserDataRepositoryMockContainer.userDataRepositoryMock,
             mRemoteGeoMessageHttpRestDataSource = remoteGeoMessageHttpRestDataSourceMock,
             mRemoteGeoMessageHttpWebSocketDataSource = remoteGeoMessageHttpWebSocketDataSourceMock
         )
@@ -119,6 +129,9 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
 
             Unit
         }
+        Mockito.`when`(remoteGeoMessageHttpRestDataSource.eventFlow).thenAnswer {
+            mRemoteHttpWebSocketSourceEventFlow
+        }
 
         return remoteGeoMessageHttpRestDataSource
     }
@@ -160,6 +173,23 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
         mDataRepository.sendMessage(text, longitude, latitude)
 
         Assert.assertTrue(mRemoteHttpWebSocketSourceSendMessageCallFlag)
+    }
+
+    @Test
+    fun processGeoMessageAddedEventPayloadTest() = runTest {
+        val payload = GeoMessageAddedEventPayload(0L, String(), 0L, 0L)
+        val webSocketEvent = WebSocketPayloadResult(
+            GeoMessageEventType.GEO_MESSAGE_ADDED_EVENT_TYPE.title,
+            payload
+        )
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketEvent)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(GeoMessageAddedDataResult::class, result::class)
+        }
     }
 
     private fun generateGetMessagesResponse(

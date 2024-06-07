@@ -413,6 +413,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     fun changeLastLocationTest() {
         val initLatitude = null
         val initLongitude = null
+        val initRadius = 0
 
         val location = mockLocation(0.0, 0.0)
 
@@ -421,6 +422,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
 
         setLatitude(initLatitude)
         setLongitude(initLongitude)
+        setRadius(initRadius)
 
         mModel.changeLastLocation(location)
 

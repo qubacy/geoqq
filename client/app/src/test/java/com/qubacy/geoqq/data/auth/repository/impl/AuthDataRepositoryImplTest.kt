@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data.auth.repository.impl
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._test.mock.WebSocketAdapterMockAdapter
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.get.GetTokensDataResult
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.update.UpdateTokensDataResult
@@ -13,6 +14,7 @@ import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._co
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignInResponse
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.rest._common.api.response.SignUpResponse
 import com.qubacy.geoqq.data.auth.repository._common.source.remote.http.websocket._common.RemoteAuthHttpWebSocketDataSource
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -39,6 +41,9 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
 
     private var mRemoteHttpRestSourceSignInCallFlag = false
     private var mRemoteHttpRestSourceSignUpCallFlag = false
+
+    private val mRemoteHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketResult> =
+        MutableSharedFlow()
 
     private var mRemoteHttpWebSocketSourceStartProducingCallFlag = false
     private var mRemoteHttpWebSocketSourceStopProducingCallFlag = false
@@ -135,6 +140,9 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
             mRemoteHttpWebSocketSourceSetWebSocketAdapterCallFlag = true
 
             Unit
+        }
+        Mockito.`when`(remoteAuthHttpWebSocketDataSource.eventFlow).thenAnswer {
+            mRemoteHttpWebSocketSourceEventFlow
         }
 
         return remoteAuthHttpWebSocketDataSource

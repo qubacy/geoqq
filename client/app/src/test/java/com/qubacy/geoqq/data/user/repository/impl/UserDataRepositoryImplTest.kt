@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data.user.repository.impl
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
@@ -12,15 +13,19 @@ import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._common.event.model._common.WebSocketEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data.image.repository._common._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.toDataUser
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
+import com.qubacy.geoqq.data.user.repository._common.result.updated.UserUpdatedDataResult
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.LocalUserDatabaseDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.api.response.GetUsersResponse
 import com.qubacy.geoqq.data.user.repository._common.source.local.database._common.entity.UserEntity
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.rest._common.RemoteUserHttpRestDataSource
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.payload.updated.UserUpdatedEventPayload
+import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.event.type.UserEventType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -69,7 +74,7 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
 
     private var mHttpSourceGetUsersCallFlag = false
 
-    private val mHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketEvent> = MutableSharedFlow()
+    private val mHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketResult> = MutableSharedFlow()
 
     private var mHttpWebSocketSourceStartProducingCallFlag = false
     private var mHttpWebSocketSourceStopProducingCallFlag = false
@@ -337,5 +342,31 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
         val gottenLocalUserId = mDataRepository.getLocalUserId()
 
         Assert.assertEquals(expectedLocalUserId, gottenLocalUserId)
+    }
+
+    @Test
+    fun processUserUpdatedEventPayloadTest() = runTest {
+        val payload = UserUpdatedEventPayload(
+            0L,
+            String(),
+            String(),
+            0L,
+            0L,
+            false,
+            false,
+            0
+        )
+        val webSocketResult = WebSocketPayloadResult(
+            UserEventType.USER_UPDATED_EVENT_TYPE_NAME.title, payload)
+
+        mDataRepository.resultFlow.test {
+            mHttpWebSocketSourceEventFlow.emit(webSocketResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(UserUpdatedDataResult::class, result::class)
+            Assert.assertTrue(mImageDataRepositoryMockContainer.getImageByIdCallFlag)
+            Assert.assertTrue(mLocalSourceUpdateUserCallFlag)
+        }
     }
 }
