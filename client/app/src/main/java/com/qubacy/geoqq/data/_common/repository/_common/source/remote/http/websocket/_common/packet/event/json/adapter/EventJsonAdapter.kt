@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter
 
+import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet._common.payload.PacketPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.Event
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.header.EventHeader
@@ -38,9 +39,7 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                     1 -> {
                         val payloadAdapter = mCallback.getEventPayloadJsonAdapterByType(type!!)
 
-                        if (payloadAdapter == null) {
-                            skipObject(p0)
-                        }
+                        if (payloadAdapter == null) { skipObject(p0) }
                         else { payload = payloadAdapter.fromJson(p0) as PacketPayload }
                     }
                     else -> {
@@ -59,17 +58,6 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
         val serverEvent = Event(serverEventHeader, payload!!)
 
         return serverEvent
-    }
-
-    private fun skipObject(reader: JsonReader) {
-        reader.beginObject()
-
-        while (reader.hasNext()) {
-            reader.skipName()
-            reader.skipValue()
-        }
-
-        reader.endObject()
     }
 
     override fun toJson(p0: JsonWriter, p1: Event?) {
