@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq._common.model.error.auth.AuthErrorType
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.error.type.DataHttpWebSocketErrorType
@@ -29,6 +30,11 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
 
         const val CLIENT_SIDE_ERROR_CODE = 400L
         const val SERVER_SIDE_ERROR_CODE = 500L
+
+        val SHUTDOWN_ERRORS = listOf(
+            DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode(),
+            AuthErrorType.INVALID_REFRESH_TOKEN.getErrorCode()
+        )
     }
 
     private lateinit var mCallback: WebSocketErrorMessageEventHandlerCallback
@@ -62,8 +68,7 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
             }
         } catch (e: ErrorAppException) {
             if (e.error.isCritical) throw e
-            if (e.error.id == DataTokenErrorType.LOCAL_REFRESH_TOKEN_INVALID.getErrorCode())
-                return mCallback.shutdownWebSocketWithError(e.error)
+            if (e.error.id in SHUTDOWN_ERRORS) return mCallback.shutdownWebSocketWithError(e.error)
         }
     }
 

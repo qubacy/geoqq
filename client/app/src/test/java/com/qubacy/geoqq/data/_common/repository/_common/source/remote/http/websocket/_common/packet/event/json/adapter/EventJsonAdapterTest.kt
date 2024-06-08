@@ -4,6 +4,7 @@ import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet._common.payload.PacketPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.Event
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.header.EventHeader
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter._test.mock.EventJsonAdapterMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.callback.EventJsonAdapterCallback
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
@@ -57,9 +58,7 @@ class EventJsonAdapterTest {
             val expectedEvent: Event?
         )
 
-        val eventJsonTemplate =
-            "{\"${EventJsonAdapter.TYPE_PROP_NAME}\":\"%s\"," +
-            "\"${EventJsonAdapter.PAYLOAD_PROP_NAME}\":%s}"
+        val eventJsonTemplate = EventJsonAdapterMockContainer.EVENT_JSON_TEMPLATE
 
         val packetPayloadMock = Mockito.mock(PacketPayload::class.java)
 
