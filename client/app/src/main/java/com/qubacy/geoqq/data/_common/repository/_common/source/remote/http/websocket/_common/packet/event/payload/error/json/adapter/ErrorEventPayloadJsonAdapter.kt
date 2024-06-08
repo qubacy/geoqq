@@ -18,7 +18,7 @@ class ErrorEventPayloadJsonAdapter(
 
     override fun fromJson(p0: JsonReader): ErrorEventPayload? {
         var code: Long? = null
-        lateinit var error: ErrorResponseContent
+        var errorContent: ErrorResponseContent? = null
 
         with(p0) {
             isLenient = true
@@ -31,10 +31,10 @@ class ErrorEventPayloadJsonAdapter(
                         code = p0.nextLong()
                     }
                     1 -> {
-                        val errorContent = mErrorResponseContentJsonAdapter.fromJson(p0)
+                        val parsedErrorContent = mErrorResponseContentJsonAdapter.fromJson(p0)
 
-                        if (errorContent == null) skipObject(p0)
-                        else error = errorContent
+                        if (parsedErrorContent == null) skipObject(p0)
+                        else errorContent = parsedErrorContent
                     }
                     else -> {
                         skipName()
@@ -46,9 +46,9 @@ class ErrorEventPayloadJsonAdapter(
             endObject()
         }
 
-        if (code == null) return null
+        if (code == null || errorContent == null) return null
 
-        return ErrorEventPayload(code!!, error)
+        return ErrorEventPayload(code!!, errorContent!!)
     }
 
     override fun toJson(p0: JsonWriter, p1: ErrorEventPayload?) {

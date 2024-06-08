@@ -1,5 +1,7 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter
 
+import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.ErrorResponseContent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.response.error.content.json.adapter.ErrorResponseContentJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.ErrorEventPayload
@@ -30,9 +32,16 @@ class ErrorEventPayloadJsonAdapterTest {
             Mockito.mock(ErrorResponseContentJsonAdapter::class.java)
 
         Mockito.`when`(errorResponseContentJsonAdapterMock.fromJson(
-            Mockito.any(JsonReader::class.java)
+            AnyMockUtil.anyObject<JsonReader>()
         )).thenAnswer {
             mErrorResponseContentJsonAdapterFromJsonCallFlag = true
+
+            if (mErrorResponseContentJsonAdapterFromJson != null) {
+                val reader = it.arguments[0] as JsonReader
+
+                skipObject(reader)
+            }
+
             mErrorResponseContentJsonAdapterFromJson
         }
 
@@ -65,19 +74,21 @@ class ErrorEventPayloadJsonAdapterTest {
 
         val testCases = listOf(
             TestCase(
-                errorEventPayloadJsonTemplate.format(),
+                errorEventPayloadJsonTemplate.format(0, 0),
                 null,
                 null
             ),
             TestCase(
-                errorEventPayloadJsonTemplate.format(),
+                errorEventPayloadJsonTemplate.format(400, errorResponseContent.id),
                 errorResponseContent,
-                ErrorEventPayload(errorResponseContent.id, errorResponseContent)
+                ErrorEventPayload(400, errorResponseContent)
             )
         )
 
         for (testCase in testCases) {
             setup()
+
+            println("testCase json = ${testCase.errorEventPayloadJson}")
 
             mErrorResponseContentJsonAdapterFromJson = testCase.errorEventPayloadContent
 

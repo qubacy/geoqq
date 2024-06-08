@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter
 
+import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet._common.payload.PacketPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.Event
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.header.EventHeader
@@ -104,14 +105,7 @@ class EventJsonAdapterTest {
         )).thenAnswer {
             val reader = it.arguments[0] as JsonReader
 
-            reader.beginObject()
-
-            while (reader.hasNext()) {
-                reader.skipName()
-                reader.skipValue()
-            }
-
-            reader.endObject()
+            skipObject(reader)
 
             packetPayload
         }
