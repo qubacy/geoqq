@@ -1,11 +1,9 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter._test.mock
 
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
-import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet._common.payload.PacketPayload
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.Event
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.callback.EventJsonAdapterCallback
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import org.mockito.Mockito
 
@@ -20,53 +18,39 @@ class EventJsonAdapterMockContainer {
 
     var packetPayload: PacketPayload? = null
 
-    private var mMockEventJsonAdapterCallbackGetEventPayloadJsonAdapterByTypeCallFlag = false
-    val mockEventJsonAdapterCallbackGetEventPayloadJsonAdapterByTypeCallFlag get() =
-        mMockEventJsonAdapterCallbackGetEventPayloadJsonAdapterByTypeCallFlag
+    var eventJsonAdapterFromJson: Event? = null
+
+    private var mEventJsonAdapterFromJsonCallFlag = false
+    val eventJsonAdapterFromJsonCallFlag get() = mEventJsonAdapterFromJsonCallFlag
 
     init {
-        val eventJsonAdapterCallbackMock = mockEventJsonAdapterCallback()
-
-        eventJsonAdapterMock = EventJsonAdapter().apply {
-            setCallback(eventJsonAdapterCallbackMock)
-        }
+        eventJsonAdapterMock = mockEventJsonAdapter()
     }
 
     fun clear() {
-        mMockEventJsonAdapterCallbackGetEventPayloadJsonAdapterByTypeCallFlag = false
+        eventJsonAdapterFromJson = null
+
+        mEventJsonAdapterFromJsonCallFlag = false
 
         packetPayload = null
     }
 
-    private fun mockEventJsonAdapterCallback(): EventJsonAdapterCallback {
-        val eventJsonAdapterCallbackMock = Mockito.mock(EventJsonAdapterCallback::class.java)
+    private fun mockEventJsonAdapter(): EventJsonAdapter {
+        val eventJsonAdapterMock = Mockito.mock(EventJsonAdapter::class.java)
 
-        Mockito.`when`(eventJsonAdapterCallbackMock.getEventPayloadJsonAdapterByType(
-            Mockito.anyString()
-        )).thenAnswer {
-            mMockEventJsonAdapterCallbackGetEventPayloadJsonAdapterByTypeCallFlag = true
-
-            mockPacketPayloadJsonAdapter()
-        }
-
-        return eventJsonAdapterCallbackMock
-    }
-
-    private fun mockPacketPayloadJsonAdapter(): JsonAdapter<*>? {
-        if (packetPayload == null) return null
-
-        val packetPayloadJsonAdapterMock = Mockito.mock(JsonAdapter::class.java)
-
-        Mockito.`when`(packetPayloadJsonAdapterMock.fromJson(
+        Mockito.`when`(eventJsonAdapterMock.fromJson(
             AnyMockUtil.anyObject<JsonReader>()
         )).thenAnswer {
-            val reader = it.arguments[0] as JsonReader
-
-            skipObject(reader)
-
-            packetPayload!!
+            mEventJsonAdapterFromJsonCallFlag = true
+            eventJsonAdapterFromJson
+        }
+        Mockito.`when`(eventJsonAdapterMock.fromJson(
+            Mockito.anyString()
+        )).thenAnswer {
+            mEventJsonAdapterFromJsonCallFlag = true
+            eventJsonAdapterFromJson
         }
 
-        return packetPayloadJsonAdapterMock
+        return eventJsonAdapterMock
     }
 }

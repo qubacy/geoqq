@@ -2,7 +2,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.callback.EventJsonAdapterCallback
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter.ErrorEventPayloadJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.success.json.adapter.SuccessEventPayloadJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message._common.WebSocketMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHndlrClbck
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class WebSocketSuccessMessageEventHandler @Inject constructor(
     private val mEventJsonAdapter: EventJsonAdapter,
-    private val mSuccessEventPayloadJsonAdapter: ErrorEventPayloadJsonAdapter
+    private val mSuccessEventPayloadJsonAdapter: SuccessEventPayloadJsonAdapter
 ) : WebSocketMessageEventHandler, EventJsonAdapterCallback {
     companion object {
         const val SUCCESS_POSTFIX = "succeeded"
