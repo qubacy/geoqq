@@ -57,8 +57,8 @@ class EventJsonAdapterTest {
         )
 
         val eventJsonTemplate =
-            "{\"${EventJsonAdapter.TYPE_PROP_NAME}\":\"%S\"," +
-            "\"${EventJsonAdapter.PAYLOAD_PROP_NAME}\":%S}"
+            "{\"${EventJsonAdapter.TYPE_PROP_NAME}\":\"%s\"," +
+            "\"${EventJsonAdapter.PAYLOAD_PROP_NAME}\":%s}"
 
         val packetPayloadMock = Mockito.mock(PacketPayload::class.java)
 
@@ -102,6 +102,17 @@ class EventJsonAdapterTest {
         Mockito.`when`(packetPayloadJsonAdapterMock.fromJson(
             Mockito.any(JsonReader::class.java)
         )).thenAnswer {
+            val reader = it.arguments[0] as JsonReader
+
+            reader.beginObject()
+
+            while (reader.hasNext()) {
+                reader.skipName()
+                reader.skipValue()
+            }
+
+            reader.endObject()
+
             packetPayload
         }
 

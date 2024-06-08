@@ -8,5 +8,13 @@ class Event(
     header: EventHeader,
     payload: PacketPayload
 ) : Packet(header, payload) {
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is Event) return false
 
+        return (header == other.header && payload == other.payload)
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

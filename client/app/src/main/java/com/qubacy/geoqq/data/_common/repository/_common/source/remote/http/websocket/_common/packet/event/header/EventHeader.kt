@@ -5,4 +5,11 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 class EventHeader(
     type: String
 ) : PacketHeader(type) {
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other) && other is EventHeader
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

@@ -38,7 +38,9 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                     1 -> {
                         val payloadAdapter = mCallback.getEventPayloadJsonAdapterByType(type!!)
 
-                        if (payloadAdapter == null) { skipObject(p0) }
+                        if (payloadAdapter == null) {
+                            skipObject(p0)
+                        }
                         else { payload = payloadAdapter.fromJson(p0) as PacketPayload }
                     }
                     else -> {
