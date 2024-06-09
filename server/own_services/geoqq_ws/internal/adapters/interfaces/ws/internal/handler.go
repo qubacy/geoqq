@@ -1,8 +1,11 @@
 package internal
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
+	"encoding/json"
+	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/clientSide"
 	"time"
 
 	"github.com/lxzan/gws"
@@ -48,6 +51,7 @@ func (c *Handler) OnClose(socket *gws.Conn, err error) {
 }
 
 func (c *Handler) OnPing(socket *gws.Conn, payload []byte) {
+
 	_ = socket.SetDeadline(time.Now().Add(c.pingTimeout))
 	_ = socket.WritePong(nil)
 }
@@ -57,6 +61,17 @@ func (c *Handler) OnPong(socket *gws.Conn, payload []byte) {}
 // -----------------------------------------------------------------------
 
 func (c *Handler) OnMessage(socket *gws.Conn, message *gws.Message) {
-	defer message.Close()
-	socket.WriteMessage(message.Opcode, message.Bytes())
+	clientMessage := clientSide.Message{}
+	if err := json.Unmarshal(message.Bytes(), &clientMessage); err != nil {
+		c.resWithClientError(socket, ec.ParseRequestJsonBodyFailed,
+			utl.NewFuncError(c.OnMessage, err))
+		return
+	}
+
+	// ***
+
+	// use middleware!
+
+	// to next handler!
+
 }

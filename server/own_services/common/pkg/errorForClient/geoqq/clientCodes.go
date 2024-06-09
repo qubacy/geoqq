@@ -47,7 +47,7 @@ const (
 		`Request Body` to structure.
 			Sometimes internal function (ShouldBindJSON)
 	*/
-	ParseRequestJsonBodyFailed // (Request.Body)
+	ParseRequestJsonBodyFailed // (Request.Body) and `geoqq ws`
 
 	ValidateAuthorizationHeaderFailed
 	/*

@@ -24,7 +24,7 @@ func MakeResWithTraceError(id int, shortErr error, wholeErr error) ResWithError 
 }
 
 type Error struct {
-	Id   int    `json:"id"`
+	Id   int    `json:"id"` // TODO: convert to float64
 	Text string `json:"text"`
 
 	Trace string `json:"trace,omitempty"` // <--- for debug!

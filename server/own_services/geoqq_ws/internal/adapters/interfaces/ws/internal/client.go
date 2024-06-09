@@ -8,7 +8,7 @@ type UserLocation struct {
 type Client struct {
 	UserId uint64
 
-	knownLocation bool
+	KnownLocation bool
 	Location      UserLocation
 }
 
