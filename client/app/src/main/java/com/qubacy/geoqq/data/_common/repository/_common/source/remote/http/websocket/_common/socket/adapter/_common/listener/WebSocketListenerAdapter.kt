@@ -30,7 +30,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
 
-        Log.d(TAG, "onOpen(): entering..")
+//        Log.d(TAG, "onOpen(): entering..")
 
         emitEvent(WebSocketOpenEvent())
     }
@@ -38,7 +38,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
 
-        Log.d(TAG, "onMessage(): text = $text;")
+//        Log.d(TAG, "onMessage(): text = $text;")
 
         emitEvent(WebSocketMessageEvent(text))
     }
@@ -46,7 +46,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
 
-        Log.d(TAG, "onClosing(): reason = $reason;")
+//        Log.d(TAG, "onClosing(): reason = $reason;")
 
         // todo: implement the graceful connection closure.. ?
 
@@ -56,7 +56,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
 
-        Log.d(TAG, "onClosed(): code = $code; reason = $reason;")
+//        Log.d(TAG, "onClosed(): code = $code; reason = $reason;")
 
         emitEvent(WebSocketClosedEvent(code))
     }
@@ -64,7 +64,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
 
-        Log.d(TAG, "onFailure(): reason = ${t.message};")
+//        Log.d(TAG, "onFailure(): reason = ${t.message};")
 
         val error = mLocalErrorDatabaseDataSource
             .getError(DataHttpWebSocketErrorType.WEB_SOCKET_FAILURE.getErrorCode())
