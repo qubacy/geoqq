@@ -1,0 +1,16 @@
+logging:
+
+
+
+adapters:
+  infra:
+    ws:
+      host:
+      port: 57002
+      read_timeout: 25s
+      write_timeout: 25s
+      ping:
+        enable: false
+        timeout: 25s
+
+  
