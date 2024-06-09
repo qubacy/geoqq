@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._di.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket._common.RemoteMateMessageHttpWebSocketDataSource
@@ -17,12 +18,14 @@ abstract class RemoteMateMessageHttpWebSocketDataSourceModule {
         @Provides
         fun provideRemoteMateMessageHttpWebSocketDataSource(
             eventJsonAdapter: EventJsonAdapter,
+            localErrorDatabaseDataSource: LocalErrorDatabaseDataSource,
             webSocketAdapter: WebSocketAdapter,
             mateMessageEventPayloadJsonAdapter: JsonAdapter<MateMessageAddedEventPayload>,
             addMateMessageActionPayloadJsonAdapter: JsonAdapter<AddMateMessageActionPayload>
         ): RemoteMateMessageHttpWebSocketDataSource {
             return RemoteMateMessageHttpWebSocketDataSourceImpl(
                 mEventJsonAdapter = eventJsonAdapter,
+                mErrorDataSource = localErrorDatabaseDataSource,
                 webSocketAdapter = webSocketAdapter,
                 mMateMessageEventPayloadJsonAdapter = mateMessageEventPayloadJsonAdapter,
                 mAddMateMessageActionPayloadJsonAdapter = addMateMessageActionPayloadJsonAdapter

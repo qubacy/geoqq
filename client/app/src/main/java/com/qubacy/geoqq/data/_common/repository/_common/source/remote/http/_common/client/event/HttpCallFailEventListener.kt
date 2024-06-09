@@ -2,7 +2,6 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http._com
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.data._common.repository._common.source.local.database.error.impl.LocalErrorDatabaseDataSourceImpl
 import com.qubacy.geoqq.data._common.repository._common.source.remote._common.error.type.DataNetworkErrorType
 import okhttp3.Call
 import okhttp3.EventListener

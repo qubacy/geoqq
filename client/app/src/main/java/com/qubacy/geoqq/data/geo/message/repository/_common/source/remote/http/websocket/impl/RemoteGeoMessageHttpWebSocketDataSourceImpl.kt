@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket.impl
 
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
@@ -19,6 +20,7 @@ class RemoteGeoMessageHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesA
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
     override val mEventJsonAdapter: EventJsonAdapter,
+    override val mErrorDataSource: LocalErrorDatabaseDataSource,
     webSocketAdapter: WebSocketAdapter,
     private val mGeoMessageAddedEventPayloadJsonAdapter: JsonAdapter<GeoMessageAddedEventPayload>,
     private val mGeoLocationActionPayloadJsonAdapter: JsonAdapter<GeoLocationActionPayload>,

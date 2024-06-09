@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message._common.WebSocketMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHndlrClbck
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
 import com.squareup.moshi.JsonAdapter
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class WebSocketSuccessMessageEventHandler @Inject constructor(
     }
 
     override fun handle(event: WebSocketEvent): Boolean {
-        if (event !is WebSocketMessageEvent) return false
+        if (event !is WebSocketDomainMessageEvent) return false
 
         val successPayload = mEventJsonAdapter.fromJson(event.message)?.payload ?: return false
 

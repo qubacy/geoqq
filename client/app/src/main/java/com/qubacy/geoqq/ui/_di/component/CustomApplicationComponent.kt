@@ -14,6 +14,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http._comm
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api._di.module.HttpRestApiModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.api.retrofit._di.module.RetrofitModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.rest.client.interceptor.auth._di.module.AuthorizationHttpRestInterceptorModule
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter._di.module.ActionJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter._di.module.ErrorEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.success.json.adapter._di.module.SuccessEventPayloadJsonAdapterModule
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._di.module.WebSocketAdapterModule
@@ -189,6 +190,7 @@ import javax.inject.Singleton
         GeoMessageAddedEventPayloadJsonAdapterModule::class,
         MateChatEventPayloadJsonAdapterModule::class,
         MateMessageAddedEventPayloadJsonAdapterModule::class,
+        ActionJsonAdapterModule::class,
 
         GeoLocationActionPayloadJsonAdapterModule::class,
         GeoMessageActionPayloadJsonAdapterModule::class,

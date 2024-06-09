@@ -1,13 +1,13 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter.impl
 
-import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.context.HttpContext
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http._common.request.middleware.auth._common.AuthorizationRequestMiddleware
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.error.type.DataHttpWebSocketErrorType
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter.impl.ActionJsonAdapterImpl
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.action.json.adapter._common.ActionJsonAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.ErrorEventPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler._common.WebSocketEventHandler
@@ -24,6 +24,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.listener.WebSocketEventListener
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.error.WebSocketErrorEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.general.error.WebSocketErrorMessageEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
@@ -40,8 +41,8 @@ class WebSocketAdapterImpl @Inject constructor(
     private val mErrorDataSource: LocalErrorDatabaseDataSource,
     private val mWebSocketListenerAdapter: WebSocketListenerAdapter,
     private val mAuthorizationRequestMiddleware: AuthorizationRequestMiddleware,
-    private val mActionJsonAdapter: ActionJsonAdapterImpl,
-    private val mAuthClientEventMiddleware: AuthActionJsonMiddleware,
+    private val mActionJsonAdapter: ActionJsonAdapter,
+    private val mAuthActionJsonMiddleware: AuthActionJsonMiddleware,
     private val mWebSocketErrorMessageEventHandler: WebSocketErrorMessageEventHandler,
     private val mWebSocketSuccessMessageEventHandler: WebSocketSuccessMessageEventHandler,
     private val mWebSocketClosedEventHandler: WebSocketClosedEventHandler,
@@ -172,11 +173,11 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun getJsonMiddlewaresForAction(type: String): List<ActionJsonMiddleware> {
-        return listOf(mAuthClientEventMiddleware)
+        return listOf(mAuthActionJsonMiddleware)
     }
 
     override fun onEventGotten(event: WebSocketEvent) {
-        Log.d(TAG, "onEventGotten(): event = $event;")
+        //Log.d(TAG, "onEventGotten(): event = $event;")
 
         processEvent(event)
     }
@@ -188,17 +189,17 @@ class WebSocketAdapterImpl @Inject constructor(
             conveyEvent(event)
 
         } catch (e: ErrorAppException) {
-            Log.d(TAG, "processEvent(): error = ${e.error}")
+            //Log.d(TAG, "processEvent(): error = ${e.error}")
 
             conveyEvent(WebSocketErrorEvent(e.error))
 
-            if (!e.error.isCritical) mCurrentActionMutex.unlock() // todo: ?
+            //if (!e.error.isCritical) mCurrentActionMutex.unlock() // todo: ?
         }
     }
 
     private fun processBaseEvent(event: WebSocketEvent): Boolean {
         for (eventHandler in mEventHandlers) {
-            Log.d(TAG, "processBaseEvent(): eventHandler = $eventHandler; event = $event;")
+//            Log.d(TAG, "processBaseEvent(): eventHandler = $eventHandler; event = $event;")
 
             if (eventHandler.handle(event)) return true
         }
@@ -211,7 +212,7 @@ class WebSocketAdapterImpl @Inject constructor(
             if (mEventListeners.isEmpty()) return
 
             for (eventListener in mEventListeners) {
-                Log.d(TAG, "conveyEvent(): eventListener = $eventListener;")
+                //Log.d(TAG, "conveyEvent(): eventListener = $eventListener;")
 
                 eventListener.onEventGotten(event)
             }
@@ -220,6 +221,11 @@ class WebSocketAdapterImpl @Inject constructor(
 
     override fun onWebSocketMessageSucceeded() {
         mCurrentActionMutex.unlock() // todo: ?
+    }
+
+    override fun conveyMessageError(type: String, payload: ErrorEventPayload) {
+        conveyEvent(WebSocketErrorMessageEvent(type, payload))
+        mCurrentActionMutex.unlock()
     }
 
     override fun retryActionSending() {
@@ -241,7 +247,7 @@ class WebSocketAdapterImpl @Inject constructor(
     override fun reconnectToWebSocket() {
         ++mReconnectionCounter
 
-        Log.d(TAG, "reconnectToWebSocket(): mReconnectionCounter = $mReconnectionCounter;")
+        //Log.d(TAG, "reconnectToWebSocket(): mReconnectionCounter = $mReconnectionCounter;")
 
         if (mReconnectionCounter >= MAX_RECONNECTION_TRY_COUNT)
             return conveyEvent(WebSocketErrorEvent(

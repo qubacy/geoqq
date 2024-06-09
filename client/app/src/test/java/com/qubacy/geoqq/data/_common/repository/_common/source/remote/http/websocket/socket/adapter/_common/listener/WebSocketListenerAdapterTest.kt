@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.closed.WebSocketClosedEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.error.WebSocketErrorEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.open.WebSocketOpenEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.WebSocketListenerAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener.callback.WebSocketListenerAdapterCallback
@@ -84,9 +84,9 @@ class WebSocketListenerAdapterTest {
         mWebSocketListenerAdapter.onMessage(webSocketMock, expectedText)
 
         Assert.assertTrue(mWebSocketListenerAdapterCallbackOnEventGottenCallFlag)
-        Assert.assertEquals(WebSocketMessageEvent::class, mWebSocketListenerAdapterCallbackOnEventGotten!!::class)
+        Assert.assertEquals(WebSocketDomainMessageEvent::class, mWebSocketListenerAdapterCallbackOnEventGotten!!::class)
 
-        val gottenText = (mWebSocketListenerAdapterCallbackOnEventGotten!! as WebSocketMessageEvent)
+        val gottenText = (mWebSocketListenerAdapterCallbackOnEventGotten!! as WebSocketDomainMessageEvent)
             .message
 
         Assert.assertEquals(expectedText, gottenText)

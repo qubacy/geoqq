@@ -15,7 +15,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.error.json.adapter.ErrorEventPayloadJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error.WebSocketErrorMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error.callback.WebSocketErrorMessageEventHandlerCallback
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
 import com.qubacy.geoqq.data._common.repository.token.repository._test.mock.TokenDataRepositoryMockContainer
 import org.junit.After
 import org.junit.Assert
@@ -99,13 +99,13 @@ class WebSocketErrorMessageEventHandlerTest {
         val errorResponseContent = ErrorResponseContent(error.id)
         val errorEventPayload = ErrorEventPayload(errorHttpCode, errorResponseContent)
 
-        val webSocketEvent = WebSocketMessageEvent(
+        val webSocketEvent = WebSocketDomainMessageEvent(
             EventJsonAdapterMockContainer.EVENT_JSON_TEMPLATE.format(
-                WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME, "{}"
+                WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME, "{}"
             )
         )
         val event = Event(
-            EventHeader(WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME),
+            EventHeader(WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME),
             errorEventPayload
         )
 
@@ -139,13 +139,13 @@ class WebSocketErrorMessageEventHandlerTest {
         val errorResponseContent = ErrorResponseContent(error.id)
         val errorEventPayload = ErrorEventPayload(errorHttpCode, errorResponseContent)
 
-        val webSocketEvent = WebSocketMessageEvent(
+        val webSocketEvent = WebSocketDomainMessageEvent(
             EventJsonAdapterMockContainer.EVENT_JSON_TEMPLATE.format(
-                WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME, "{}"
+                WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME, "{}"
             )
         )
         val event = Event(
-            EventHeader(WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME),
+            EventHeader(WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME),
             errorEventPayload
         )
 
@@ -174,13 +174,13 @@ class WebSocketErrorMessageEventHandlerTest {
         val errorResponseContent = ErrorResponseContent(accessTokenError.id)
         val errorEventPayload = ErrorEventPayload(errorHttpCode, errorResponseContent)
 
-        val webSocketEvent = WebSocketMessageEvent(
+        val webSocketEvent = WebSocketDomainMessageEvent(
             EventJsonAdapterMockContainer.EVENT_JSON_TEMPLATE.format(
-                WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME, "{}"
+                WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME, "{}"
             )
         )
         val event = Event(
-            EventHeader(WebSocketErrorMessageEventHandler.ERROR_EVENT_TYPE_NAME),
+            EventHeader(WebSocketErrorMessageEventHandler.GENERAL_ERROR_EVENT_TYPE_NAME),
             errorEventPayload
         )
 

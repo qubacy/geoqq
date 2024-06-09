@@ -12,7 +12,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message._common.WebSocketMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error.callback.WebSocketErrorMessageEventHandlerCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
 import com.qubacy.geoqq.data._common.repository.token.error.type.DataTokenErrorType
 import com.qubacy.geoqq.data._common.repository.token.repository._common.TokenDataRepository
 import com.squareup.moshi.JsonAdapter
@@ -26,7 +26,8 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
     private val mErrorEventPayloadJsonAdapter: ErrorEventPayloadJsonAdapter
 ) : WebSocketMessageEventHandler, EventJsonAdapterCallback {
     companion object {
-        const val ERROR_EVENT_TYPE_NAME = "general_error"
+        const val ERROR_TYPE_NAME_POSTFIX = "error"
+        const val GENERAL_ERROR_EVENT_TYPE_NAME = "general_error"
 
         const val CLIENT_SIDE_ERROR_CODE = 400L
         const val SERVER_SIDE_ERROR_CODE = 500L
@@ -48,11 +49,20 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
     }
 
     override fun handle(event: WebSocketEvent): Boolean {
-        if (event !is WebSocketMessageEvent) return false
+        if (event !is WebSocketDomainMessageEvent) return false
 
-        val errorPayload = mEventJsonAdapter.fromJson(event.message)?.payload ?: return false
+        val errorMessageEvent = mEventJsonAdapter.fromJson(event.message) ?: return false
 
-        processError(errorPayload as ErrorEventPayload)
+        val type = errorMessageEvent.header.type
+        val payload = errorMessageEvent.payload as ErrorEventPayload
+
+        if (errorMessageEvent.header.type != GENERAL_ERROR_EVENT_TYPE_NAME) {
+            mCallback.conveyMessageError(type, payload)
+
+            return false
+        }
+
+        processError(payload)
 
         return true
     }
@@ -78,7 +88,7 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
     }
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
-        if (type != ERROR_EVENT_TYPE_NAME) return null
+        if (!type.endsWith(ERROR_TYPE_NAME_POSTFIX)) return null
 
         return mErrorEventPayloadJsonAdapter
     }

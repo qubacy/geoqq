@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._di.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.mate.chat.repository._common.source.remote.http.websocket._common.RemoteMateChatHttpWebSocketDataSource
@@ -17,10 +18,12 @@ abstract class RemoteMateChatHttpWebSocketDataSourceModule {
         fun provideRemoteMateChatHttpWebSocketDataSource(
             eventJsonAdapter: EventJsonAdapter,
             webSocketAdapter: WebSocketAdapter,
+            localErrorDatabaseDataSource: LocalErrorDatabaseDataSource,
             mateChatEventPayloadJsonAdapter: JsonAdapter<MateChatEventPayload>
         ): RemoteMateChatHttpWebSocketDataSource {
             return RemoteMateChatHttpWebSocketDataSourceImpl(
                 mEventJsonAdapter = eventJsonAdapter,
+                mErrorDataSource = localErrorDatabaseDataSource,
                 webSocketAdapter = webSocketAdapter,
                 mMateChatEventPayloadJsonAdapter = mateChatEventPayloadJsonAdapter
             )

@@ -7,7 +7,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.success.json.adapter.SuccessEventPayloadJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.WebSocketSuccessMessageEventHandler
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success.callback.WebSocketSuccessMessageEventHndlrClbck
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.WebSocketMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -65,7 +65,7 @@ class WebSocketSuccessMessageEventHandlerTest {
 
     @Test
     fun handleTest() {
-        val webSocketEvent = WebSocketMessageEvent(
+        val webSocketEvent = WebSocketDomainMessageEvent(
             EventJsonAdapterMockContainer.EVENT_JSON_TEMPLATE.format(
                 WebSocketSuccessMessageEventHandler.SUCCESS_POSTFIX, "{}"
             )

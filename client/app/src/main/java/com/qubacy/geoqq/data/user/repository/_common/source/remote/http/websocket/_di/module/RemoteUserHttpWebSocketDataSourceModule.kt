@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._di.module
 
+import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
 import com.qubacy.geoqq.data.user.repository._common.source.remote.http.websocket._common.RemoteUserHttpWebSocketDataSource
@@ -16,11 +17,13 @@ abstract class RemoteUserHttpWebSocketDataSourceModule {
         @Provides
         fun provideRemoteUserHttpWebSocketDataSource(
             eventJsonAdapter: EventJsonAdapter,
+            localErrorDatabaseDataSource: LocalErrorDatabaseDataSource,
             webSocketAdapter: WebSocketAdapter,
             userUpdatedEventPayloadJsonAdapter: JsonAdapter<UserUpdatedEventPayload>
         ): RemoteUserHttpWebSocketDataSource {
             return RemoteUserHttpWebSocketDataSourceImpl(
                 mEventJsonAdapter = eventJsonAdapter,
+                mErrorDataSource = localErrorDatabaseDataSource,
                 webSocketAdapter = webSocketAdapter,
                 mUserUpdatedEventPayloadJsonAdapter = userUpdatedEventPayloadJsonAdapter
             )
