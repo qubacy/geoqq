@@ -1,51 +1,14 @@
 package internal
 
 import (
-	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"encoding/json"
 	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/clientSide"
-	"net/http"
-	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/lxzan/gws"
 )
-
-func getApiWs(ctx *gin.Context) {
-	if request.Method != http.MethodGet {
-		http.NotFound(writer, request)
-		return
-	}
-
-	if err := request.ParseForm(); err != nil {
-		resWithErr(writer)
-		return
-	}
-	authValue := request.Header.Get("Authorization")
-	authParts := strings.Split(authValue, " ")
-
-	tPayload, err := p.TokenExtractor.Parse(authParts[1])
-
-	// ***
-
-	socket, err := upgrader.Upgrade(writer, request)
-	if err != nil {
-		logger.Error("%v", utl.NewFuncError(Listen, err))
-		return
-	}
-
-	session := socket.Session()
-	session.Store("userId", tPayload.UserId)
-
-	go func() {
-		socket.ReadLoop()
-	}()
-}
-
-// -----------------------------------------------------------------------
 
 type WsEventHandler struct {
 	pingTimeout  time.Duration
@@ -99,8 +62,7 @@ func (c *WsEventHandler) OnPong(socket *gws.Conn, payload []byte) {}
 func (c *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	clientMessage := clientSide.Message{}
 	if err := json.Unmarshal(message.Bytes(), &clientMessage); err != nil {
-		c.resWithClientError(socket, ec.ParseRequestJsonBodyFailed,
-			utl.NewFuncError(c.OnMessage, err))
+
 		return
 	}
 

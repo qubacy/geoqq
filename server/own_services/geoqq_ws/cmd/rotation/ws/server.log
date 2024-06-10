@@ -1,0 +1,39 @@
+2024/06/10 23:26:22.688731 toggle/toggle.go:102 | TRACE | trace
+2024/06/10 23:26:22.740558 toggle/toggle.go:103 | DEBUG | debug
+2024/06/10 23:26:22.740558 toggle/toggle.go:104 | INFO | info
+2024/06/10 23:26:22.740558 toggle/toggle.go:105 | WARNING | warning
+2024/06/10 23:26:22.740558 toggle/toggle.go:106 | ERROR | error
+2024/06/10 23:32:54.512866 toggle/toggle.go:102 | TRACE | trace
+2024/06/10 23:32:54.531483 toggle/toggle.go:103 | DEBUG | debug
+2024/06/10 23:32:54.531483 toggle/toggle.go:104 | INFO | info
+2024/06/10 23:32:54.531483 toggle/toggle.go:105 | WARNING | warning
+2024/06/10 23:32:54.531483 toggle/toggle.go:106 | ERROR | error
+2024/06/10 23:42:09.403712 toggle/toggle.go:125 | TRACE | trace
+2024/06/10 23:42:09.424993 toggle/toggle.go:126 | DEBUG | debug
+2024/06/10 23:42:09.424993 toggle/toggle.go:127 | INFO | info
+2024/06/10 23:42:09.424993 toggle/toggle.go:128 | WARNING | warning
+2024/06/10 23:42:09.425994 toggle/toggle.go:129 | ERROR | error
+2024/06/10 23:42:09.427632 toggle/toggle.go:69 | FATAL | toggle.Do
+ with an error/in: ws.(*Server).Listen-fm
+ with an error/in: listen tcp :57002: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/06/10 23:43:01.276769 toggle/toggle.go:125 | TRACE | trace
+2024/06/10 23:43:01.297342 toggle/toggle.go:126 | DEBUG | debug
+2024/06/10 23:43:01.297342 toggle/toggle.go:127 | INFO | info
+2024/06/10 23:43:01.297342 toggle/toggle.go:128 | WARNING | warning
+2024/06/10 23:43:01.297342 toggle/toggle.go:129 | ERROR | error
+2024/06/10 23:43:01.298871 toggle/toggle.go:69 | FATAL | toggle.Do
+ with an error/in: ws.(*Server).Listen-fm
+ with an error/in: listen tcp :57002: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/06/10 23:43:14.373326 toggle/toggle.go:125 | TRACE | trace
+2024/06/10 23:43:14.395803 toggle/toggle.go:126 | DEBUG | debug
+2024/06/10 23:43:14.395803 toggle/toggle.go:127 | INFO | info
+2024/06/10 23:43:14.395803 toggle/toggle.go:128 | WARNING | warning
+2024/06/10 23:43:14.395803 toggle/toggle.go:129 | ERROR | error
+2024/06/10 23:43:58.808005 internal/middleware.go:21 | WARNING | invalid authorization header
+2024/06/10 23:44:01.095403 internal/middleware.go:21 | WARNING | invalid authorization header
+2024/06/10 23:49:16.354360 toggle/toggle.go:125 | TRACE | trace
+2024/06/10 23:49:16.372598 toggle/toggle.go:126 | DEBUG | debug
+2024/06/10 23:49:16.372598 toggle/toggle.go:127 | INFO | info
+2024/06/10 23:49:16.372598 toggle/toggle.go:128 | WARNING | warning
+2024/06/10 23:49:16.372598 toggle/toggle.go:129 | ERROR | error
+2024/06/10 23:49:21.959746 internal/wsEventHandler.go:43 | INFO | connection opened (addr: 127.0.0.1:57002)

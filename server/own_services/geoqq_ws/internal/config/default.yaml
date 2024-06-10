@@ -1,6 +1,26 @@
 logging:
+  type: lumberjack
 
+  name: geoqq_ws
+  level: 0
+  format: text # text, json
+  
+  use_console: true
 
+  dirname: ./rotation/ws
+  filename: server.log
+
+  max_size_mb: 100
+  max_backups: 5
+
+  lumberjack:
+    max_age_days: 1 # to disable use 0!
+
+  mlog:
+    #...
+
+  zkits:
+    #...
 
 adapters:
   interfaces:
@@ -13,5 +33,7 @@ adapters:
       ping:
         enable: false
         timeout: 25s
+      token:
+        signing_key: "signing_key"
 
   

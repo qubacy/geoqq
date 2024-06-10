@@ -3,19 +3,28 @@ package internal
 import (
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/httpErrorResponse"
+	"common/pkg/token"
 	utl "common/pkg/utility"
-	"geoqq_ws/internal/adapters/interfaces/ws"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lxzan/gws"
 )
 
-func NewHttpHandler(p *ws.Params) (http.Handler, error) {
+type Params struct {
+	PingTimeout  time.Duration
+	WriteTimeout time.Duration
+	ReadTimeout  time.Duration
+	TpExtractor  token.TokenPayloadExtractor
+}
+
+func NewHttpHandler(p *Params) (http.Handler, error) {
 	h := NewWsEventHandler(
 		p.PingTimeout,
 		p.WriteTimeout,
-		p.ReadTimeout)
+		p.ReadTimeout,
+	)
 
 	upgrader := gws.NewUpgrader(h, &gws.ServerOption{
 		ParallelEnabled: true,
@@ -23,24 +32,27 @@ func NewHttpHandler(p *ws.Params) (http.Handler, error) {
 	})
 
 	router := gin.Default()
-	router.GET("/api/ws", func(ctx *gin.Context) {
-		socket, err := upgrader.Upgrade(ctx.Writer, ctx.Request)
-		if err != nil {
-			httpErrorResponse.ResWithErr(ctx, http.StatusInternalServerError,
-				ec.ServerError, utl.NewFuncError(NewHttpHandler, err))
-			return
-		}
+	router.GET("/api/ws",
+		func(ctx *gin.Context) {
+			userIdentityByHeader(ctx, p.TpExtractor)
+		},
+		func(ctx *gin.Context) {
+			socket, err := upgrader.Upgrade(ctx.Writer, ctx.Request)
+			if err != nil {
+				httpErrorResponse.ResWithErr(ctx, http.StatusInternalServerError,
+					ec.ServerError, utl.NewFuncError(NewHttpHandler, err))
+				return
+			}
 
-		// ***
+			// ***
 
-		go func() {
-			socket.ReadLoop()
-		}()
-	})
+			ss := socket.Session()
+			ss.Store(contextUserId, ctx.GetString(contextUserId))
+
+			go func() {
+				socket.ReadLoop()
+			}()
+		})
 
 	return router, nil
-}
-
-func userIdentityByHeader(ctx *gin.Context) {
-
 }

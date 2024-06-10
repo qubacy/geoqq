@@ -2,8 +2,12 @@ package main
 
 import (
 	"common/pkg/logger"
+	utl "common/pkg/utility"
+	"geoqq_ws/internal/toggle"
 )
 
 func main() {
-	logger.Info("123")
+	if err := toggle.Do(); err != nil {
+		logger.Fatal("%v", utl.NewFuncError(main, err))
+	}
 }

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"gopkg.in/natefinch/lumberjack.v2"
+	ljack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 type LumberjackLogger struct {
@@ -18,7 +18,7 @@ type LumberjackLogger struct {
 	format logger.Format
 
 	mx     sync.Mutex
-	logger *lumberjack.Logger
+	logger *ljack.Logger
 }
 
 // ctor
@@ -29,7 +29,7 @@ func SetLumberjackLoggerForStdLog(
 	dirname, filename string, maxSizeMB int, maxBackups int, maxAgeDays int,
 ) *LumberjackLogger {
 
-	ll := &lumberjack.Logger{
+	ll := &ljack.Logger{
 		Filename:   dirname + "/" + filename,
 		MaxSize:    maxSizeMB,
 		MaxBackups: maxBackups,
