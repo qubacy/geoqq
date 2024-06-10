@@ -2,10 +2,10 @@ package api
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	httpHeader "common/pkg/httpHeader/geoqq"
 	"common/pkg/logger"
 	"errors"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,13 +33,13 @@ const (
 // -----------------------------------------------------------------------
 
 func (h *Handler) userIdentityByHeader(ctx *gin.Context) {
-	accessToken, clientCode, err := extractAccessTokenAsHeader(ctx)
+	accessToken, clientCode, err := httpHeader.ExtractAccessTokenWithCheck(ctx)
 	if err != nil {
 		resWithAuthError(ctx, clientCode, err)
 		return
 	}
 
-	payload, err := h.tokenExtractor.ParseAccess(accessToken) // and validate!
+	payload, err := h.tpExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
 		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
@@ -79,7 +79,7 @@ func (h *Handler) userNotDeleted(ctx *gin.Context) {
 func (h *Handler) parseAnyForm(ctx *gin.Context) {
 	err := ctx.Request.ParseForm()
 	if err != nil {
-		resWithAuthError(ctx, ec.ParseAnyFormFailed, err)
+		resWithClientError(ctx, ec.ParseAnyFormFailed, err)
 		return
 	}
 }
@@ -192,30 +192,6 @@ func requireRouteItemId(ctx *gin.Context) {
 	}
 
 	ctx.Set(contextRouteItemId, uriParams.Id)
-}
-
-// Help
-// -----------------------------------------------------------------------
-
-func extractAccessTokenAsHeader(ctx *gin.Context) (string, int, error) {
-	authValue := ctx.Request.Header.Get("Authorization")
-	authParts := strings.Split(authValue, " ")
-
-	if len(authParts) != 2 {
-		return "", ec.ValidateAuthorizationHeaderFailed,
-			ErrInvalidAuthorizationHeader
-	}
-	if authParts[0] != "Bearer" {
-		return "", ec.ValidateAuthorizationHeaderFailed,
-			ErrInvalidAuthorizationHeader
-	}
-
-	accessToken := authParts[1]
-	if len(accessToken) == 0 {
-		return "", ec.ValidateRequestAccessTokenFailed,
-			ErrEmptyAccessToken
-	}
-	return accessToken, ec.NoError, nil
 }
 
 // -----------------------------------------------------------------------

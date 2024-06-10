@@ -13,8 +13,8 @@ import (
 )
 
 type Handler struct {
-	tokenExtractor token.TokenExtractor
-	services       service.Services // <--- all services
+	tpExtractor token.TokenPayloadExtractor
+	services    service.Services // <--- all services
 
 	engine     *gin.Engine // <--- all other routes
 	apiHandler *api.Handler
@@ -22,13 +22,13 @@ type Handler struct {
 }
 
 type Dependencies struct {
-	Services       service.Services
-	TokenExtractor token.TokenExtractor
+	Services    service.Services
+	TpExtractor token.TokenPayloadExtractor
 }
 
 func (d *Dependencies) validate() error {
-	if d.TokenExtractor == nil {
-		return errors.New("token extractor is nil")
+	if d.TpExtractor == nil {
+		return errors.New("token payload extractor is nil")
 	}
 	if d.Services == nil {
 		return errors.New("services is nil")
@@ -58,8 +58,8 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 	// ***
 
 	handler := &Handler{
-		services:       deps.Services,
-		tokenExtractor: deps.TokenExtractor,
+		services:    deps.Services,
+		tpExtractor: deps.TpExtractor,
 
 		engine: engine,
 	}
@@ -76,9 +76,9 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 
 func (h *Handler) initApi() error {
 	deps := api.Dependencies{
-		Services:       h.services,
-		Router:         h.engine.Group("/api"),
-		TokenExtractor: h.tokenExtractor,
+		Services:    h.services,
+		Router:      h.engine.Group("/api"),
+		TpExtractor: h.tpExtractor,
 	}
 
 	apiHandler, err := api.NewHandler(deps)

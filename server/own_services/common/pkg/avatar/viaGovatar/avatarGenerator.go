@@ -1,4 +1,4 @@
-package impl
+package viaGovatar
 
 import (
 	"common/pkg/utility"

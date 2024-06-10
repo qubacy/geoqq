@@ -2,9 +2,8 @@ package api
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	httpEr "common/pkg/httpErrorResponse"
 	"common/pkg/logger"
-	"common/pkg/utility"
-	"geoqq_http/internal/delivery/http/api/dto"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,29 +19,22 @@ func resWithOK(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func resWithErr(ctx *gin.Context, httpCode, errorId int, err error) {
-	shortErr := utility.UnwrapErrorsToLast(err) // <--- very first reason!
-	ctx.JSON(httpCode, dto.MakeResWithTraceError(
-		errorId, shortErr, err))
-
-	ctx.Abort() // ?
-}
-
+// wrappers!
 // -----------------------------------------------------------------------
 
 func resWithClientError(ctx *gin.Context, errorId int, err error) {
 	logger.Warning("%v", err)
-	resWithErr(ctx, http.StatusBadRequest, errorId, err)
+	httpEr.ResWithClientError(ctx, errorId, err)
 }
 
 func resWithAuthError(ctx *gin.Context, errorId int, err error) {
 	logger.Warning("%v", err)
-	resWithErr(ctx, http.StatusUnauthorized, errorId, err)
+	httpEr.ResWithAuthError(ctx, errorId, err)
 }
 
 func resWithServerErr(ctx *gin.Context, errorId int, err error) {
 	logger.Error("%v", err)
-	resWithErr(ctx, http.StatusInternalServerError, errorId, err)
+	httpEr.ResWithServerErr(ctx, errorId, err)
 }
 
 func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
@@ -58,7 +50,7 @@ func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 	}
 
 	logger.To(level, "%v", err)
-	resWithErr(ctx, httpCode, errorId, err)
+	httpEr.ResWithErr(ctx, httpCode, errorId, err)
 }
 
 // -----------------------------------------------------------------------

@@ -5,17 +5,20 @@ import (
 	utl "common/pkg/utility"
 	"encoding/json"
 	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/serverSide"
-	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/serverSide/payload"
 	"net/http"
 	"time"
 
 	"github.com/lxzan/gws"
 )
 
-func (c *Handler) resWithClientError(socket *gws.Conn, errorId int, err error) {
+// ws
+// -----------------------------------------------------------------------
+
+func (c *WsEventHandler) resWithClientError(socket *gws.Conn, errorId int, err error) {
 	shortErr := utl.UnwrapErrorsToLast(err)
 	errMessage := serverSide.MakeMessage(serverSide.EventGeneralError,
-		payload.MakeErrorPayloadWithTrace(
+
+		loadWithTrace(
 			http.StatusBadRequest, errorId,
 			shortErr, err))
 

@@ -1,4 +1,4 @@
-package impl
+package cristalJwt
 
 import (
 	"common/pkg/token"

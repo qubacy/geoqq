@@ -1,63 +1,60 @@
 package ws
 
 import (
-	"common/pkg/logger"
+	"common/pkg/token"
 	utl "common/pkg/utility"
 	"fmt"
 	"geoqq_ws/internal/adapters/interfaces/ws/internal"
 	"net/http"
 	"time"
-
-	"github.com/lxzan/gws"
 )
 
 type Params struct {
 	Host string
 	Port uint16
 
+	MaxHeaderKb int
+
 	PingTimeout  time.Duration
 	WriteTimeout time.Duration
 	ReadTimeout  time.Duration
+
+	TokenExtractor token.TokenExtractor
 }
 
 func (p *Params) createAddr() string {
 	return fmt.Sprintf("%v:%v", p.Host, p.Port)
 }
 
+type Server struct {
+	httpServer *http.Server
+}
+
+func New(params *Params) (*Server, error) {
+	handler, err := internal.NewHttpHandler(params)
+	if err != nil {
+		return nil, utl.NewFuncError(New, err)
+	}
+
+	svr := http.Server{
+		Addr:           params.createAddr(),
+		MaxHeaderBytes: params.MaxHeaderKb,
+		WriteTimeout:   params.WriteTimeout,
+		ReadTimeout:    params.ReadTimeout,
+		Handler:        handler,
+	}
+
+	return &Server{
+		httpServer: &svr,
+	}, nil
+}
+
 // public
 // -----------------------------------------------------------------------
 
-func Listen(p *Params) error {
-	h := internal.NewHandler(p.PingTimeout,
-		p.WriteTimeout,
-		p.ReadTimeout)
-
-	upgrader := gws.NewUpgrader(h, &gws.ServerOption{
-		ParallelEnabled: true,
-		Recovery:        gws.Recovery,
-	})
-
-	http.HandleFunc("/api/ws", func(writer http.ResponseWriter, request *http.Request) {
-		if request.Method != http.MethodGet {
-			http.NotFound(writer, request)
-			return
-		}
-
-		request.ParseForm() // TODO: !!!
-
-		socket, err := upgrader.Upgrade(writer, request)
-		if err != nil {
-			logger.Error("%v", utl.NewFuncError(Listen, err))
-			return
-		}
-
-		go func() {
-			socket.ReadLoop()
-		}()
-	})
-
-	if err := http.ListenAndServe(p.createAddr(), nil); err != nil {
-		return utl.NewFuncError(Listen, err)
+func (s *Server) Listen() error {
+	if err := s.httpServer.ListenAndServe(); err != nil {
+		return utl.NewFuncError(s.Listen, err)
 	}
 	return nil
 }

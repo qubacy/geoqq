@@ -3,10 +3,11 @@ logging:
 
 
 adapters:
-  infra:
+  interfaces:
     ws:
       host:
       port: 57002
+      max_header_kb: 1000 # http
       read_timeout: 25s
       write_timeout: 25s
       ping:

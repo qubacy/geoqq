@@ -6,7 +6,7 @@ type TokenCreator interface {
 	New(Payload, time.Duration) (string, error)
 }
 
-type TokenExtractor interface {
+type TokenPayloadExtractor interface {
 	Parse(string) (Payload, error)
 	ParseAccess(string) (Payload, error)
 	ParseRefresh(string) (Payload, error)
@@ -15,6 +15,6 @@ type TokenExtractor interface {
 }
 
 type TokenManager interface {
-	TokenExtractor
+	TokenPayloadExtractor
 	TokenCreator
 }

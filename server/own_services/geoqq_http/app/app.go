@@ -2,7 +2,7 @@ package app
 
 import (
 	"common/pkg/avatar"
-	avatarImpl "common/pkg/avatar/impl"
+	avatarImpl "common/pkg/avatar/viaGovatar"
 	"common/pkg/cache"
 	redisCache "common/pkg/cache/redisCache"
 	geoDistanceImpl "common/pkg/geoDistance/haversine"
@@ -11,7 +11,7 @@ import (
 	"common/pkg/logger"
 	"common/pkg/logger/lumberjack"
 	"common/pkg/token"
-	tokenImpl "common/pkg/token/impl"
+	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -117,8 +117,8 @@ func NewApp(ctxWithCancel context.Context) (*App, error) {
 	// *** delivery with http
 
 	httpHandler, err := deliveryHttp.NewHandler(deliveryHttp.Dependencies{
-		TokenExtractor: tokenManager,
-		Services:       services,
+		TpExtractor: tokenManager,
+		Services:    services,
 	})
 	if err != nil {
 		return nil, utl.NewFuncError(NewApp, err)

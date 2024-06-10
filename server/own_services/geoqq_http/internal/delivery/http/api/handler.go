@@ -11,20 +11,20 @@ import (
 
 // knows nothing about lower levels!?
 type Handler struct {
-	tokenExtractor token.TokenExtractor
-	services       service.Services
-	router         gin.IRouter // <--- maybe *gin.RouterGroup
+	tpExtractor token.TokenPayloadExtractor
+	services    service.Services
+	router      gin.IRouter // <--- maybe *gin.RouterGroup
 }
 
 type Dependencies struct {
-	TokenExtractor token.TokenExtractor
-	Services       service.Services
-	Router         gin.IRouter
+	TpExtractor token.TokenPayloadExtractor
+	Services    service.Services
+	Router      gin.IRouter
 }
 
 func (d *Dependencies) validate() error {
-	if d.TokenExtractor == nil {
-		return errors.New("token extractor is nil")
+	if d.TpExtractor == nil {
+		return errors.New("token payload extractor is nil")
 	}
 	if d.Services == nil {
 		return errors.New("services is nil")
@@ -45,9 +45,9 @@ func NewHandler(deps Dependencies) (*Handler, error) {
 	}
 
 	handler := &Handler{
-		tokenExtractor: deps.TokenExtractor,
-		services:       deps.Services,
-		router:         deps.Router,
+		tpExtractor: deps.TpExtractor,
+		services:    deps.Services,
+		router:      deps.Router,
 	}
 
 	handler.registerAuthRoutes()
