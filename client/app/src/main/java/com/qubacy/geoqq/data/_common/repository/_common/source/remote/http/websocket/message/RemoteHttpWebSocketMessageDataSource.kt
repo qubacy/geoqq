@@ -30,16 +30,26 @@ abstract class RemoteHttpWebSocketMessageDataSource @OptIn(ExperimentalCoroutine
     }
 
     private fun processMessageEvent(event: WebSocketMessageEvent): WebSocketResult? {
-        if (event is WebSocketErrorMessageEvent) {
-            val error = mErrorDataSource.getError(event.payload.error.id)
-
-            return WebSocketErrorResult(error)
-        }
+        if (event is WebSocketErrorMessageEvent) return processErrorMessageEvent(event)
 
         event as WebSocketDomainMessageEvent
 
         val serverEvent = mEventJsonAdapter.fromJson(event.message) ?: return null
 
         return WebSocketPayloadResult(serverEvent.header.type, serverEvent.payload)
+    }
+
+    private fun processErrorMessageEvent(
+        event: WebSocketErrorMessageEvent
+    ): WebSocketErrorResult? {
+        if (!isErrorMessageEventConsumable(event.event)) return null
+
+        val error = mErrorDataSource.getError(event.payload.error.id)
+
+        return WebSocketErrorResult(error)
+    }
+
+    protected open fun isErrorMessageEventConsumable(event: String): Boolean {
+        return false
     }
 }

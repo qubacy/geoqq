@@ -3,6 +3,7 @@ package com.qubacy.geoqq.data._common.repository._common.source.remote.http.webs
 import androidx.annotation.CallSuper
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.action.PackagedAction
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -17,8 +18,11 @@ abstract class RemoteHttpWebSocketDataSourceTest<SourceType : RemoteHttpWebSocke
 
     protected lateinit var mWebSocketDataSource: SourceType
 
+    protected var mWebSocketAdapterSendAction: PackagedAction? = null
+
     protected var mWebSocketAdapterAddEventListenerCallFlag = false
     protected var mWebSocketAdapterRemoveEventListenerCallFlag = false
+    protected var mWebSocketAdapterSendActionCallFlag = false
 
     @Before
     @CallSuper
@@ -32,8 +36,11 @@ abstract class RemoteHttpWebSocketDataSourceTest<SourceType : RemoteHttpWebSocke
     @After
     @CallSuper
     open fun clear() {
+        mWebSocketAdapterSendAction = null
+
         mWebSocketAdapterAddEventListenerCallFlag = false
         mWebSocketAdapterRemoveEventListenerCallFlag = false
+        mWebSocketAdapterSendActionCallFlag = false
     }
 
     protected open fun mockWebSocketAdapter(): WebSocketAdapter {
@@ -46,6 +53,13 @@ abstract class RemoteHttpWebSocketDataSourceTest<SourceType : RemoteHttpWebSocke
         }
         Mockito.`when`(webSocketAdapter.removeEventListener(AnyMockUtil.anyObject())).then {
             mWebSocketAdapterRemoveEventListenerCallFlag = true
+
+            Unit
+        }
+        Mockito.`when`(webSocketAdapter.sendAction(AnyMockUtil.anyObject())).thenAnswer {
+            mWebSocketAdapterSendActionCallFlag = true
+
+            mWebSocketAdapterSendAction = it.arguments[0] as PackagedAction
 
             Unit
         }
