@@ -5,11 +5,14 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.error._test.TestError
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.message.MessageEventPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data.mate.chat.model.toDataMateChat
 import com.qubacy.geoqq.data.mate.chat.repository._common._test.context.MateChatDataRepositoryTestContext
@@ -379,6 +382,22 @@ class MateChatDataRepositoryImplTest : DataRepositoryTest<MateChatDataRepository
 
             Assert.assertEquals(MateChatUpdatedDataResult::class, result::class)
             Assert.assertTrue(mLocalSourceSaveChatsCallFlag)
+        }
+    }
+
+    @Test
+    fun processWebSocketErrorResultTest() = runTest {
+        val error = TestError.normal
+        val webSocketErrorResult = WebSocketErrorResult(error)
+
+        val expectedException = ErrorAppException(error)
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketErrorResult)
+
+            val gottenException = awaitError()
+
+            Assert.assertEquals(expectedException, gottenException)
         }
     }
 }

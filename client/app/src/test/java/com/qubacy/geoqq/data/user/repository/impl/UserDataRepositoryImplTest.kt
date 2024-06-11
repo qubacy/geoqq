@@ -6,6 +6,7 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common._test.util.mock.Base64MockUtil
+import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
@@ -14,6 +15,7 @@ import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.local.datastore.token._common._test.mock.LocalTokenDataStoreDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data.image.repository._common._test.mock.ImageDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.model.toDataUser
@@ -74,7 +76,8 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
 
     private var mHttpSourceGetUsersCallFlag = false
 
-    private val mHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketResult> = MutableSharedFlow()
+    private val mRemoteHttpWebSocketSourceEventFlow: MutableSharedFlow<WebSocketResult> =
+        MutableSharedFlow()
 
     private var mHttpWebSocketSourceStartProducingCallFlag = false
     private var mHttpWebSocketSourceStopProducingCallFlag = false
@@ -190,7 +193,7 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
             Unit
         }
         Mockito.`when`(remoteUserHttpWebSocketDataSource.eventFlow).thenAnswer {
-            mHttpWebSocketSourceEventFlow
+            mRemoteHttpWebSocketSourceEventFlow
         }
 
         return remoteUserHttpWebSocketDataSource
@@ -360,13 +363,29 @@ class UserDataRepositoryImplTest : DataRepositoryTest<UserDataRepositoryImpl>() 
             UserEventType.USER_UPDATED_EVENT_TYPE_NAME.title, payload)
 
         mDataRepository.resultFlow.test {
-            mHttpWebSocketSourceEventFlow.emit(webSocketResult)
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketResult)
 
             val result = awaitItem()
 
             Assert.assertEquals(UserUpdatedDataResult::class, result::class)
             Assert.assertTrue(mImageDataRepositoryMockContainer.getImageByIdCallFlag)
             Assert.assertTrue(mLocalSourceUpdateUserCallFlag)
+        }
+    }
+
+    @Test
+    fun processWebSocketErrorResultTest() = runTest {
+        val error = TestError.normal
+        val webSocketErrorResult = WebSocketErrorResult(error)
+
+        val expectedException = ErrorAppException(error)
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketErrorResult)
+
+            val gottenException = awaitError()
+
+            Assert.assertEquals(expectedException, gottenException)
         }
     }
 }

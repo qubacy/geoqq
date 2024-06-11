@@ -10,6 +10,13 @@ abstract class RemoteGeoMessageHttpWebSocketDataSource @OptIn(ExperimentalCorout
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketMessageDataSource(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val ADD_GEO_MESSAGE_FAILED_EVENT = "add_geo_message_failed"
+    }
+
     abstract fun sendMessage(text: String, latitude: Float, longitude: Float)
     abstract fun sendLocation(latitude: Float, longitude: Float, radius: Int)
+    override fun isErrorMessageEventConsumable(event: String): Boolean {
+        return event in arrayOf(ADD_GEO_MESSAGE_FAILED_EVENT)
+    }
 }

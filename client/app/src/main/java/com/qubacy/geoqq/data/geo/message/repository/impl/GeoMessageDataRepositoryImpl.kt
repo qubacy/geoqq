@@ -8,6 +8,7 @@ import com.qubacy.geoqq.data._common.model.message.DataMessage
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.message.util.extension.resolveGetMessagesResponse
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
@@ -93,6 +94,12 @@ class GeoMessageDataRepositoryImpl(
 
     override suspend fun sendLocation(longitude: Float, latitude: Float, radius: Int) {
         mRemoteGeoMessageHttpWebSocketDataSource.sendLocation(latitude, longitude, radius)
+    }
+
+    override fun processWebSocketErrorResult(webSocketErrorResult: WebSocketErrorResult): DataResult? {
+        // todo: what to do here?
+
+        return super.processWebSocketErrorResult(webSocketErrorResult)
     }
 
     override fun processWebSocketPayloadResult(

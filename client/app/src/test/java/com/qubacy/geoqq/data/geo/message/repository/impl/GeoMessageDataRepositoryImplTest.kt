@@ -4,11 +4,14 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq._common.error._test.TestError
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.util.livedata.extension.await
 import com.qubacy.geoqq.data._common.model.message.toDataMessage
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.payload.WebSocketPayloadResult
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessageResponse
 import com.qubacy.geoqq.data._common.repository.message.source.remote.http.response.GetMessagesResponse
@@ -189,6 +192,22 @@ class GeoMessageDataRepositoryImplTest : DataRepositoryTest<GeoMessageDataReposi
             val result = awaitItem()
 
             Assert.assertEquals(GeoMessageAddedDataResult::class, result::class)
+        }
+    }
+
+    @Test
+    fun processWebSocketErrorResultTest() = runTest {
+        val error = TestError.normal
+        val webSocketErrorResult = WebSocketErrorResult(error)
+
+        val expectedException = ErrorAppException(error)
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketErrorResult)
+
+            val gottenException = awaitError()
+
+            Assert.assertEquals(expectedException, gottenException)
         }
     }
 

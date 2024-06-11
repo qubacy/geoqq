@@ -1,9 +1,13 @@
 package com.qubacy.geoqq.data.auth.repository.impl
 
+import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common.error._test.TestError
+import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq.data._common.repository.DataRepositoryTest
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result._common.WebSocketResult
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.result.error.WebSocketErrorResult
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.socket.adapter._test.mock.WebSocketAdapterMockAdapter
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.get.GetTokensDataResult
 import com.qubacy.geoqq.data._common.repository.token.repository._common.result.update.UpdateTokensDataResult
@@ -202,5 +206,21 @@ class AuthDataRepositoryImplTest : DataRepositoryTest<AuthDataRepositoryImpl>() 
         Assert.assertTrue(mTokenDataRepositoryMockContainer.resetCallFlag)
         Assert.assertTrue(mLocalDatabaseSourceDropDataTablesCallFlag)
         Assert.assertTrue(mWebSocketAdapterMockContainer.closeCallFlag)
+    }
+
+    @Test
+    fun processWebSocketErrorResultTest() = runTest {
+        val error = TestError.normal
+        val webSocketErrorResult = WebSocketErrorResult(error)
+
+        val expectedException = ErrorAppException(error)
+
+        mDataRepository.resultFlow.test {
+            mRemoteHttpWebSocketSourceEventFlow.emit(webSocketErrorResult)
+
+            val gottenException = awaitError()
+
+            Assert.assertEquals(expectedException, gottenException)
+        }
     }
 }
