@@ -56,9 +56,7 @@ func New(params *Params) (*Server, error) {
 		Handler:        handler,
 	}
 
-	return &Server{
-		httpServer: &svr,
-	}, nil
+	return &Server{httpServer: &svr}, nil
 }
 
 // public

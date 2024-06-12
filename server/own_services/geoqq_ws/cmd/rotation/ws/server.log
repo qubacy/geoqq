@@ -37,3 +37,13 @@
 2024/06/10 23:49:16.372598 toggle/toggle.go:128 | WARNING | warning
 2024/06/10 23:49:16.372598 toggle/toggle.go:129 | ERROR | error
 2024/06/10 23:49:21.959746 internal/wsEventHandler.go:43 | INFO | connection opened (addr: 127.0.0.1:57002)
+2024/06/12 01:09:57.755575 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 01:09:57.803444 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 01:09:57.803444 toggle/toggle.go:127 | INFO | info
+2024/06/12 01:09:57.803444 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 01:09:57.803444 toggle/toggle.go:129 | ERROR | error
+2024/06/12 01:10:15.755767 internal/response.go:11 | WARNING | invalid authorization header
+2024/06/12 01:10:17.628879 internal/response.go:11 | WARNING | invalid authorization header
+2024/06/12 01:10:18.180187 internal/response.go:11 | WARNING | invalid authorization header
+2024/06/12 01:10:18.699914 internal/response.go:11 | WARNING | invalid authorization header
+2024/06/12 01:10:19.500610 internal/response.go:11 | WARNING | invalid authorization header

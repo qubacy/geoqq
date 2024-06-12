@@ -24,6 +24,7 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 		p.PingTimeout,
 		p.WriteTimeout,
 		p.ReadTimeout,
+		p.TpExtractor,
 	)
 
 	upgrader := gws.NewUpgrader(h, &gws.ServerOption{
@@ -33,9 +34,7 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 
 	router := gin.Default()
 	router.GET("/api/ws",
-		func(ctx *gin.Context) {
-			userIdentityByHeader(ctx, p.TpExtractor)
-		},
+		func(ctx *gin.Context) { userIdentityByHeader(ctx, p.TpExtractor) },
 		func(ctx *gin.Context) {
 			socket, err := upgrader.Upgrade(ctx.Writer, ctx.Request)
 			if err != nil {
@@ -47,7 +46,7 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 			// ***
 
 			ss := socket.Session()
-			ss.Store(contextUserId, ctx.GetString(contextUserId))
+			ss.Store(contextUserId, ctx.GetString(contextUserId)) // !
 
 			go func() {
 				socket.ReadLoop()
