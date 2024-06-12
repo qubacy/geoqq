@@ -25,7 +25,7 @@ logging:
 adapters:
   interfaces:
     ws:
-      host:
+      host: "0.0.0.0"
       port: 57002
       max_header_kb: 1000 # http
       read_timeout: 25s

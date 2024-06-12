@@ -2,7 +2,8 @@ package internal
 
 import (
 	"common/pkg/token"
-	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/clientSide"
+	"common/pkg/utility"
+	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 
 	"github.com/gin-gonic/gin"
 
@@ -11,19 +12,19 @@ import (
 )
 
 const (
-	contextUserId = "user-id" // and `Ws SessionStorage`
+	contextUserId = "user-id" // ctx and `Ws SessionStorage`
 )
 
 func userIdentityByHeader(ctx *gin.Context, tpExtractor token.TokenPayloadExtractor) {
 	accessToken, clientCode, err := httpHeader.ExtractAccessTokenWithCheck(ctx)
 	if err != nil {
-		resWithAuthError(ctx, clientCode, err)
+		httpResWithAuthError(ctx, clientCode, err)
 		return
 	}
 
 	payload, err := tpExtractor.ParseAccess(accessToken) // and validate!
 	if err != nil {
-		resWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
+		httpResWithAuthError(ctx, ec.ValidateAccessTokenFailed, err)
 		return
 	}
 
@@ -33,15 +34,14 @@ func userIdentityByHeader(ctx *gin.Context, tpExtractor token.TokenPayloadExtrac
 // ws
 // -----------------------------------------------------------------------
 
-func (c *Client) identify(msg clientSide.Message) error {
+func (c *Client) assertUserIdentity(msg clientSide.Message) error {
 	payload, err := c.tpExtractor.ParseAccess(msg.AccessToken)
 	if err != nil {
-		c.socket.WriteClose(1000, nil)
-		return nil
+		return utility.NewFuncError(c.assertUserIdentity, err)
 	}
 
-	if payload.UserId != c.UserId {
-		//...
+	if payload.UserId != c.userId {
+
 	}
 
 	return nil

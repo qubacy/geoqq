@@ -2,7 +2,6 @@ package internal
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
-	"common/pkg/httpErrorResponse"
 	"common/pkg/token"
 	utl "common/pkg/utility"
 	"net/http"
@@ -13,15 +12,23 @@ import (
 )
 
 type Params struct {
+	EnablePing   bool
+	PingInterval time.Duration
 	PingTimeout  time.Duration
+
 	WriteTimeout time.Duration
 	ReadTimeout  time.Duration
-	TpExtractor  token.TokenPayloadExtractor
+
+	TpExtractor token.TokenPayloadExtractor
 }
 
 func NewHttpHandler(p *Params) (http.Handler, error) {
+
 	h := NewWsEventHandler(
+		p.EnablePing,
+		p.PingInterval,
 		p.PingTimeout,
+
 		p.WriteTimeout,
 		p.ReadTimeout,
 		p.TpExtractor,
@@ -32,26 +39,31 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 		Recovery:        gws.Recovery,
 	})
 
-	router := gin.Default()
-	router.GET("/api/ws",
+	engine := gin.Default()
+	engine.GET("/ping", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "pong")
+	})
+	engine.GET("/api/ws",
 		func(ctx *gin.Context) { userIdentityByHeader(ctx, p.TpExtractor) },
 		func(ctx *gin.Context) {
 			socket, err := upgrader.Upgrade(ctx.Writer, ctx.Request)
 			if err != nil {
-				httpErrorResponse.ResWithErr(ctx, http.StatusInternalServerError,
-					ec.ServerError, utl.NewFuncError(NewHttpHandler, err))
+				err = utl.NewFuncError(NewHttpHandler, err)
+				httpResWithServerError(ctx, ec.ServerError, err) // ?
 				return
 			}
 
 			// ***
 
 			ss := socket.Session()
-			ss.Store(contextUserId, ctx.GetString(contextUserId)) // !
+			ss.Store(contextUserId, ctx.GetUint64(contextUserId))
+			ctx.Set(contextUserId, nil) // reset...
 
 			go func() {
-				socket.ReadLoop()
+				socket.ReadLoop() // here websocket!
 			}()
-		})
-
-	return router, nil
+		},
+		//...
+	)
+	return engine, nil
 }

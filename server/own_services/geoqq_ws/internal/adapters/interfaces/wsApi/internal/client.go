@@ -13,15 +13,15 @@ type UserLocation struct {
 }
 
 type Client struct {
-	PingContext context.Context
-	PingCancel  context.CancelFunc
+	pingContext context.Context
+	pingCancel  context.CancelFunc
 
 	socket      *gws.Conn
 	tpExtractor token.TokenPayloadExtractor
-	UserId      uint64
+	userId      uint64
 
-	KnownLocation bool
-	Location      UserLocation
+	knownLocation bool
+	location      UserLocation
 }
 
 func NewEmptyClient() *Client {

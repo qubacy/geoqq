@@ -1,11 +1,11 @@
-package ws
+package wsApi
 
 import (
 	"common/pkg/token"
 	utl "common/pkg/utility"
 	"context"
 	"fmt"
-	"geoqq_ws/internal/adapters/interfaces/ws/internal"
+	"geoqq_ws/internal/adapters/interfaces/wsApi/internal"
 	"net/http"
 	"time"
 )

@@ -6,7 +6,7 @@ import (
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
-	"geoqq_ws/internal/adapters/interfaces/ws/internal/dto/clientSide"
+	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 	"sync"
 	"time"
 
@@ -23,17 +23,38 @@ type WsEventHandler struct {
 
 	tpExtractor token.TokenPayloadExtractor
 	clients     sync.Map
+
+	router map[string]PayloadHandler
 }
 
-func NewWsEventHandler(pingTimeout,
+func NewWsEventHandler(
+	enablePing bool,
+	pingTimeout, pingInterval time.Duration,
 	writeTimeout, readTimeout time.Duration,
 	tpExtractor token.TokenPayloadExtractor) *WsEventHandler {
 
-	return &WsEventHandler{
+	hh := &WsEventHandler{
+		enablePing:   enablePing,
 		pingTimeout:  pingTimeout, // and pong!
+		pingInterval: pingInterval,
+
 		writeTimeout: writeTimeout,
 		readTimeout:  readTimeout,
-		clients:      sync.Map{},
+
+		tpExtractor: tpExtractor,
+		clients:     sync.Map{},
+	}
+
+	hh.initRouter()
+	return hh
+}
+
+func (w *WsEventHandler) initRouter() {
+	w.router = map[string]PayloadHandler{
+		"update_user_location": w.updateUserLocation,
+		"add_geo_message":      w.addGeoMessage,
+		"add_mate_message":     w.addMateMessage,
+		//...
 	}
 }
 
@@ -49,20 +70,29 @@ func NewWsEventHandler(pingTimeout,
 // }
 
 func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
-	logger.Info("connection opened (addr: %v)", socket.RemoteAddr())
+	ss := socket.Session()
+	userId, exist := ss.Load(contextUserId)
+	if !exist {
+		logger.Error("user id not exists")
+	}
+
+	logger.Info("connection opened (addr: %v, userId: %v)",
+		socket.RemoteAddr(), userId)
+
+	// ***
 
 	c := NewEmptyClient()
-	c.Socket = socket
+	c.socket = socket
 	w.clients.Store(socket, c)
 
 	if w.enablePing {
-		c.PingContext, c.PingCancel =
+		c.pingContext, c.pingCancel =
 			context.WithCancel(context.Background())
 
 		go func() {
 			for {
 				select {
-				case <-c.PingContext.Done():
+				case <-c.pingContext.Done():
 					return
 
 				case <-time.After(w.pingInterval):
@@ -89,7 +119,7 @@ func (w *WsEventHandler) OnClose(socket *gws.Conn, err error) {
 		}
 
 		client := rawValue.(*Client)
-		client.PingCancel()
+		client.pingCancel()
 	} else {
 		w.clients.Delete(socket)
 	}
@@ -102,6 +132,7 @@ func (w *WsEventHandler) OnPing(socket *gws.Conn, payload []byte) {
 
 func (c *WsEventHandler) OnPong(socket *gws.Conn, payload []byte) {}
 
+// to message handler!
 // -----------------------------------------------------------------------
 
 func (c *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
@@ -120,12 +151,18 @@ func (c *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	}
 
 	client := rawValue.(*Client)
-	if err := client.identify(clientMessage); err != nil {
+	if err := client.assertUserIdentity(clientMessage); err != nil {
+
 		return
 	}
 
-	// use middleware!
+	// ***
 
-	// to next handler!
+	ph, ok := c.router[clientMessage.Action]
+	if !ok {
 
+		return
+	}
+
+	ph(client, clientMessage.Payload)
 }

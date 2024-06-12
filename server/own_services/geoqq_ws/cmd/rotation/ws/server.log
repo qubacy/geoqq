@@ -47,3 +47,89 @@
 2024/06/12 01:10:18.180187 internal/response.go:11 | WARNING | invalid authorization header
 2024/06/12 01:10:18.699914 internal/response.go:11 | WARNING | invalid authorization header
 2024/06/12 01:10:19.500610 internal/response.go:11 | WARNING | invalid authorization header
+2024/06/12 19:10:33.211034 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:10:33.273575 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:10:33.273575 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:10:33.273575 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:10:33.274083 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:25:24.929897 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:27:52.476362 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:51968)
+2024/06/12 19:28:26.151741 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:51968)
+2024/06/12 19:28:26.151741 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: EOF
+2024/06/12 19:28:26.174108 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:52093)
+2024/06/12 19:28:26.174630 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:52093)
+2024/06/12 19:28:26.174630 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:29:05.852174 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:52251)
+2024/06/12 19:29:05.852693 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:52251)
+2024/06/12 19:29:05.852693 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:29:53.610993 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:52283)
+2024/06/12 19:29:53.610993 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:52283)
+2024/06/12 19:29:53.610993 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:30:23.521218 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:52309)
+2024/06/12 19:30:23.521218 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:52309)
+2024/06/12 19:30:23.521218 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:40:54.781723 internal/wsEventHandler.go:73 | INFO | connection opened (addr: 127.0.0.1:54703)
+2024/06/12 19:40:54.781723 internal/wsEventHandler.go:99 | INFO | connection closed (addr: 127.0.0.1:54703)
+2024/06/12 19:40:54.781723 internal/wsEventHandler.go:101 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:40:54.782723 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:42:13.496208 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:42:34.815901 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:42:55.213338 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:44:26.021659 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:44:26.022299 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:46:45.318030 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:46:45.337810 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:46:45.337810 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:46:45.337810 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:46:45.337810 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:46:51.993666 internal/wsEventHandler.go:75 | INFO | connection opened (addr: 127.0.0.1:57172, userId: )
+2024/06/12 19:46:51.993666 internal/wsEventHandler.go:104 | INFO | connection closed (addr: 127.0.0.1:57172)
+2024/06/12 19:46:51.993666 internal/wsEventHandler.go:106 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:46:51.994738 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:46:51.995270 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:49:04.023754 internal/wsEventHandler.go:75 | INFO | connection opened (addr: 127.0.0.1:57805, userId: )
+2024/06/12 19:49:04.023754 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:49:04.023754 internal/wsEventHandler.go:104 | INFO | connection closed (addr: 127.0.0.1:57805)
+2024/06/12 19:49:04.024287 internal/wsEventHandler.go:106 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:49:04.024822 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:50:14.834455 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:50:14.857857 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:50:14.857857 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:50:14.857857 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:50:14.857857 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:50:19.340623 internal/wsEventHandler.go:79 | INFO | connection opened (addr: 127.0.0.1:58014, userId: )
+2024/06/12 19:50:19.340623 internal/wsEventHandler.go:108 | INFO | connection closed (addr: 127.0.0.1:58014)
+2024/06/12 19:50:19.340623 internal/wsEventHandler.go:110 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:50:19.341671 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:50:19.342735 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:51:16.983624 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:51:17.005661 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:51:17.005661 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:51:17.005661 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:51:17.005661 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:51:20.997103 internal/wsEventHandler.go:79 | INFO | connection opened (addr: 127.0.0.1:58124, userId: )
+2024/06/12 19:51:20.997103 internal/wsEventHandler.go:108 | INFO | connection closed (addr: 127.0.0.1:58124)
+2024/06/12 19:51:20.997103 internal/wsEventHandler.go:110 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:51:20.998163 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:51:20.999226 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:52:50.679121 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:52:50.704122 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:52:50.704122 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:52:50.704122 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:52:50.704122 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:52:57.568086 internal/wsEventHandler.go:79 | INFO | connection opened (addr: 127.0.0.1:58425, userId: 0)
+2024/06/12 19:52:57.568086 internal/wsEventHandler.go:108 | INFO | connection closed (addr: 127.0.0.1:58425)
+2024/06/12 19:52:57.568086 internal/wsEventHandler.go:110 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:52:57.569088 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:52:57.570086 internal/response.go:19 | WARNING | invalid authorization header

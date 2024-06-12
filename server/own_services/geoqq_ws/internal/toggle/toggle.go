@@ -7,7 +7,7 @@ import (
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/adapters/interfaces/ws"
+	"geoqq_ws/internal/adapters/interfaces/wsApi"
 	"geoqq_ws/internal/config"
 	"geoqq_ws/internal/constErrors"
 	"os"
@@ -48,7 +48,7 @@ func Do() error {
 
 	// interfaces/input
 
-	wsServer, err := ws.New(&ws.Params{
+	wsServer, err := wsApi.New(&wsApi.Params{
 		Host:        viper.GetString("adapters.interfaces.ws.host"),
 		Port:        viper.GetUint16("adapters.interfaces.ws.port"),
 		MaxHeaderKb: viper.GetInt("adapters.interfaces.ws.max_header_kb"),

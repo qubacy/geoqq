@@ -1,1 +1,1 @@
-package ws
+package wsApi
