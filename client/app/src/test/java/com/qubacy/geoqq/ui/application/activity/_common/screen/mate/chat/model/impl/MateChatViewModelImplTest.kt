@@ -11,7 +11,7 @@ import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
@@ -637,7 +637,7 @@ class MateChatViewModelImplTest(
         val expectedError = TestError.normal
         val expectedLoadingState = false
 
-        val updateInterlocutorDomainResult = UpdateUserDomainResult(error = expectedError)
+        val updateInterlocutorDomainResult = UserUpdatedDomainResult(error = expectedError)
 
         setUiState(initUiState)
 
@@ -670,7 +670,7 @@ class MateChatViewModelImplTest(
         val expectedChatContext = initChatContext.copy(user = expectedUserPresentation)
         val expectedLoadingState = false
 
-        val updateInterlocutorDomainResult = UpdateUserDomainResult(interlocutor = user)
+        val updateInterlocutorDomainResult = UserUpdatedDomainResult(user = user)
 
         setUiState(initUiState)
 

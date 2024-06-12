@@ -69,6 +69,7 @@ class MateChatsUseCaseImpl @Inject constructor(
     override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
 
+        mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
         mMateChatDataRepository.setCoroutineScope(mCoroutineScope)
     }

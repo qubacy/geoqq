@@ -27,7 +27,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mMateRequestUseCase: MateRequestUseCase,
     private val mInterlocutorUseCase: UserUseCase,
-    private val logoutUseCase: LogoutUseCase,
+    private val mLogoutUseCase: LogoutUseCase,
     private val mGeoMessageDataRepository: GeoMessageDataRepository,
     private val mUserDataRepository: UserDataRepository,
     private val mAuthDataRepository: AuthDataRepository
@@ -118,7 +118,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {
-        return logoutUseCase
+        return mLogoutUseCase
     }
 
     override fun onCoroutineScopeSet() {
@@ -126,6 +126,9 @@ open class GeoChatUseCaseImpl @Inject constructor(
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
+        mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
+        mUserDataRepository.setCoroutineScope(mCoroutineScope)
+        mGeoMessageDataRepository.setCoroutineScope(mCoroutineScope)
     }
 }

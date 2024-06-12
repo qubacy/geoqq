@@ -2,7 +2,7 @@ package com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment
 
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.UserViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.result.handler._common.DomainResultHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
@@ -17,8 +17,8 @@ class UserDomainResultHandler(
 
                 viewModel.onUserGetUser(domainResult)
             }
-            UpdateUserDomainResult::class -> {
-                domainResult as UpdateUserDomainResult
+            UserUpdatedDomainResult::class -> {
+                domainResult as UserUpdatedDomainResult
 
                 viewModel.onUserUpdateUser(domainResult)
             }

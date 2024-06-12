@@ -6,7 +6,7 @@ import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.model.user.toUser
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import javax.inject.Inject
 
@@ -33,7 +33,7 @@ class UserUseCaseImpl @Inject constructor(
             val newestGetUsersResult = getUsersResultLiveData.awaitUntilVersion(version)
             val newestInterlocutor = newestGetUsersResult.users.first().toUser()
 
-            mResultFlow.emit(UpdateUserDomainResult(interlocutor = newestInterlocutor))
+            mResultFlow.emit(UserUpdatedDomainResult(user = newestInterlocutor))
 
         }, {
             GetUserDomainResult(error = it)

@@ -10,7 +10,7 @@ import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.Mate
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result._common.UserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation

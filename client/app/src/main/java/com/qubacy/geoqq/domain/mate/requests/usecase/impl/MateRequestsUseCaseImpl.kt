@@ -89,7 +89,9 @@ class MateRequestsUseCaseImpl @Inject constructor(
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
+        mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
+        mMateRequestDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

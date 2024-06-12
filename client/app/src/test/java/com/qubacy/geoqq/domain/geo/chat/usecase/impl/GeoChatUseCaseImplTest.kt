@@ -17,6 +17,9 @@ import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.UserAspectUseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
+import com.qubacy.geoqq.domain._common.usecase.base._test.util.runCoroutineTestCase
 import com.qubacy.geoqq.domain._common.usecase.updatable.UpdatableUseCaseTest
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
@@ -39,7 +42,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class GeoChatUseCaseImplTest : UpdatableUseCaseTest<GeoChatUseCaseImpl>() {
+class GeoChatUseCaseImplTest : UpdatableUseCaseTest<GeoChatUseCaseImpl>(), UserAspectUseCaseTest {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryTestContext.DEFAULT_DATA_USER
         val DEFAULT_DATA_MESSAGE = GeoMessageDataRepositoryTestContext.DEFAULT_DATA_MESSAGE
@@ -214,7 +217,7 @@ class GeoChatUseCaseImplTest : UpdatableUseCaseTest<GeoChatUseCaseImpl>() {
     }
 
     @Test
-    fun processGeoMessageAddedDataResultTest() = runUpdateTestCase {
+    fun processGeoMessageAddedDataResultTest() = runCoroutineTestCase(mUseCase) {
         val dataMessage = DEFAULT_DATA_MESSAGE
         val geoMessageAddedDataResult = GeoMessageAddedDataResult(dataMessage)
 
@@ -231,5 +234,15 @@ class GeoChatUseCaseImplTest : UpdatableUseCaseTest<GeoChatUseCaseImpl>() {
 
             Assert.assertEquals(expectedMessage, gottenMessage)
         }
+    }
+
+    override fun getUserAspectUseCaseTestUseCase(): UseCase {
+        return mUseCase
+    }
+
+    override fun getUserAspectUseCaseTestUserDataRepositoryMockContainer(
+
+    ): UserDataRepositoryMockContainer {
+        return mUserDataRepositoryMockContainer
     }
 }

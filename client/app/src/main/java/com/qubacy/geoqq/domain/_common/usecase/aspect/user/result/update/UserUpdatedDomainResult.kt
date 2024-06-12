@@ -1,12 +1,12 @@
-package com.qubacy.geoqq.domain.user.usecase._common.result.get
+package com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update
 
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.domain._common.model.user.User
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.result._common.UserDomainResult
 
-class GetUserDomainResult(
+class UserUpdatedDomainResult(
     error: Error? = null,
-    interlocutor: User? = null
-) : UserDomainResult(error, interlocutor) {
+    user: User? = null
+) : UserDomainResult(error, user) {
 
 }

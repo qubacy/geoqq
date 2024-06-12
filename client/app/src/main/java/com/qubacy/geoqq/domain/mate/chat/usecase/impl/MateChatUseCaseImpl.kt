@@ -6,6 +6,7 @@ import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepositor
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepository
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
@@ -31,7 +32,8 @@ class MateChatUseCaseImpl @Inject constructor(
     private val mLogoutUseCase: LogoutUseCase,
     private val mAuthDataRepository: AuthDataRepository,
     private val mMateMessageDataRepository: MateMessageDataRepository,
-    private val mMateChatDataRepository: MateChatDataRepository
+    private val mMateChatDataRepository: MateChatDataRepository,
+    private val mUserDataRepository: UserDataRepository
 ) : MateChatUseCase(errorSource) {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
@@ -46,7 +48,7 @@ class MateChatUseCaseImpl @Inject constructor(
     }
 
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
-        return arrayOf(mMateMessageDataRepository, mAuthDataRepository)
+        return arrayOf(mMateMessageDataRepository, mAuthDataRepository, mUserDataRepository)
     }
 
     // todo: Optimization?:
@@ -115,7 +117,11 @@ class MateChatUseCaseImpl @Inject constructor(
 
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mUserUseCase.setCoroutineScope(mCoroutineScope)
+        mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
+        mMateMessageDataRepository.setCoroutineScope(mCoroutineScope)
+        mMateChatDataRepository.setCoroutineScope(mCoroutineScope)
+        mUserDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

@@ -10,8 +10,8 @@ import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result.update.UpdateUserDomainResult
-import com.qubacy.geoqq.domain.user.usecase._common.result._common.UserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result._common.UserDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
@@ -131,7 +131,7 @@ open class GeoChatViewModelImpl @Inject constructor(
     }
 
     override fun onUserUpdateUser(
-        domainResult: UpdateUserDomainResult
+        domainResult: UserUpdatedDomainResult
     ): List<UiOperation> {
         val superUiOperations = super.onUserUpdateUser(domainResult)
 
