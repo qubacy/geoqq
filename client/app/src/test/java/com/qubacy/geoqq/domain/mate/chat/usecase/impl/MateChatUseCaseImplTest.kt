@@ -14,7 +14,7 @@ import com.qubacy.geoqq.data.mate.message.repository._common.MateMessageDataRepo
 import com.qubacy.geoqq.data.mate.message.repository._common._test.context.MateMessageDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.message.repository._common.result.get.GetMessagesDataResult
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
-import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase

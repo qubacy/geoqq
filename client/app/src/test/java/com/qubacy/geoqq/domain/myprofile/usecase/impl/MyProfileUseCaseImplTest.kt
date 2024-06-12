@@ -14,7 +14,7 @@ import com.qubacy.geoqq.data.myprofile.repository._common.result.GetMyProfileDat
 import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.myprofile.repository._common.MyProfileDataRepository
 import com.qubacy.geoqq.data.myprofile.repository._common._test.context.MyProfileDataRepositoryTestContext
-import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.myprofile.model.profile.toMyProfile

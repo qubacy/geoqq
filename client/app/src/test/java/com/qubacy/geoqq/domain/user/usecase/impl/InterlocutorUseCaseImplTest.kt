@@ -9,7 +9,7 @@ import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepos
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
 import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
 import com.qubacy.geoqq.domain._common.model.user.toUser
-import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
 import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer

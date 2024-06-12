@@ -1,4 +1,4 @@
-package com.qubacy.geoqq.domain._common.usecase
+package com.qubacy.geoqq.domain._common.usecase.base
 
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common._test.mock.ErrorDataSourceMockContainer

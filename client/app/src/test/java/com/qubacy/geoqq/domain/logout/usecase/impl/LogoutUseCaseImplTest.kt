@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
-import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common.result.LogoutDomainResult
 import kotlinx.coroutines.test.runTest

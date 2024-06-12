@@ -4,10 +4,12 @@ import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common.result.get.GetUsersByIdsDataResult
 import com.qubacy.geoqq.data.user.repository._common.result.resolve.ResolveUsersDataResult
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -27,6 +29,7 @@ class UserDataRepositoryMockContainer {
     var resolveUsersResult: ResolveUsersDataResult = DEFAULT_RESOLVE_USERS
     var resolveUsersWithLocalUserResult: ResolveUsersDataResult =
         DEFAULT_RESOLVE_USERS_WITH_LOCAL_USER
+    val resultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
 
     private var mGetUsersByIdsCallFlag = false
     val getUsersByIdsCallFlag get() = mGetUsersByIdsCallFlag
@@ -69,6 +72,9 @@ class UserDataRepositoryMockContainer {
                 if (error != null) throw ErrorAppException(error!!)
 
                 MutableLiveData(resolveUsersWithLocalUserResult)
+            }
+            Mockito.`when`(userDataRepositoryMock.resultFlow).thenAnswer {
+                resultFlow
             }
         }
 

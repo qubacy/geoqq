@@ -5,18 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.geo.message.repository._common.GeoMessageDataRepository
+import com.qubacy.geoqq.data.geo.message.repository._common.result.added.GeoMessageAddedDataResult
 import com.qubacy.geoqq.data.geo.message.repository._common.result.get.GetGeoMessagesDataResult
 import com.qubacy.geoqq.data.geo.message.repository.impl._common._test.context.GeoMessageDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
 import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
-import com.qubacy.geoqq.domain._common.usecase.UseCaseTest
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
+import com.qubacy.geoqq.domain._common.usecase.updatable.UpdatableUseCaseTest
 import com.qubacy.geoqq.domain.geo._common.model.toGeoMessage
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.update.UpdateGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
@@ -27,6 +30,7 @@ import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common._test.mock.MateRequestUseCaseMockContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -35,7 +39,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
+class GeoChatUseCaseImplTest : UpdatableUseCaseTest<GeoChatUseCaseImpl>() {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryTestContext.DEFAULT_DATA_USER
         val DEFAULT_DATA_MESSAGE = GeoMessageDataRepositoryTestContext.DEFAULT_DATA_MESSAGE
@@ -51,6 +55,8 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
     private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
+
+    private val mGeoMessageResultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
 
     private var mGeoMessageGetMessagesResults: List<GetGeoMessagesDataResult>? = null
 
@@ -114,6 +120,9 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
                 mGeoMessageSendMessageCallFlag = true
 
                 Unit
+            }
+            Mockito.`when`(geoMessageDataRepository.resultFlow).thenAnswer {
+                mGeoMessageResultFlow
             }
         }
 
@@ -201,6 +210,26 @@ class GeoChatUseCaseImplTest : UseCaseTest<GeoChatUseCaseImpl>() {
 
             Assert.assertTrue(mGeoMessageSendMessageCallFlag)
             Assert.assertEquals(SendMessageDomainResult::class, result::class)
+        }
+    }
+
+    @Test
+    fun processGeoMessageAddedDataResultTest() = runUpdateTestCase {
+        val dataMessage = DEFAULT_DATA_MESSAGE
+        val geoMessageAddedDataResult = GeoMessageAddedDataResult(dataMessage)
+
+        val expectedMessage = dataMessage.toGeoMessage()
+
+        mUseCase.resultFlow.test {
+            mGeoMessageResultFlow.emit(geoMessageAddedDataResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(GeoMessageAddedDomainResult::class, result::class)
+
+            val gottenMessage = (result as GeoMessageAddedDomainResult).message
+
+            Assert.assertEquals(expectedMessage, gottenMessage)
         }
     }
 }

@@ -11,5 +11,14 @@ abstract class RemoteMateMessageHttpWebSocketDataSource
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketMessageDataSource(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val ADD_MATE_MESSAGE_FAILED_EVENT = "add_mate_message_failed"
+    }
+
     abstract fun sendMessage(chatId: Long, text: String)
+    override fun isErrorMessageEventConsumable(event: String): Boolean {
+        return event in arrayOf(
+            ADD_MATE_MESSAGE_FAILED_EVENT
+        )
+    }
 }

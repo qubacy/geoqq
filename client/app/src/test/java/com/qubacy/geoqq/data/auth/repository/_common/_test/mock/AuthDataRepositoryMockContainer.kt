@@ -2,7 +2,9 @@ package com.qubacy.geoqq.data.auth.repository._common._test.mock
 
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -10,6 +12,7 @@ class AuthDataRepositoryMockContainer {
     val authDataRepositoryMock: AuthDataRepository
 
     var error: Error? = null
+    val resultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
 
     private var mSignInWithTokenCallFlag = false
     val signInWithTokenCallFlag get() = mSignInWithTokenCallFlag
@@ -70,6 +73,9 @@ class AuthDataRepositoryMockContainer {
                 if (error != null) throw ErrorAppException(error!!)
 
                 Unit
+            }
+            Mockito.`when`(authDataRepositoryMock.resultFlow).thenAnswer {
+                resultFlow
             }
         }
 
