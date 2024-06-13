@@ -5,6 +5,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
@@ -27,7 +28,8 @@ class MateRequestsUseCaseImpl @Inject constructor(
     private val mInterlocutorUseCase: UserUseCase,
     private val mLogoutUseCase: LogoutUseCase,
     private val mAuthDataRepository: AuthDataRepository,
-    private val mMateRequestDataRepository: MateRequestDataRepository
+    private val mMateRequestDataRepository: MateRequestDataRepository,
+    private val mUserDataRepository: UserDataRepository
 ) : MateRequestsUseCase(errorSource) {
     override val resultFlow: Flow<DomainResult> = merge(
         mResultFlow,
@@ -43,7 +45,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
     }
 
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
-        return arrayOf(mMateRequestDataRepository, mAuthDataRepository)
+        return arrayOf(mMateRequestDataRepository, mAuthDataRepository, mUserDataRepository)
     }
 
     override fun getRequestChunk(offset: Int) {
@@ -92,6 +94,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
         mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
         mMateRequestDataRepository.setCoroutineScope(mCoroutineScope)
+        mUserDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

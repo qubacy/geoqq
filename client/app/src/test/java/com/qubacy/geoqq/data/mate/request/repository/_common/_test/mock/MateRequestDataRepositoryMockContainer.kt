@@ -1,9 +1,11 @@
 package com.qubacy.geoqq.data.mate.request.repository._common._test.mock
 
 import androidx.lifecycle.MutableLiveData
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestCountDataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.mockito.Mockito
 
@@ -12,6 +14,8 @@ class MateRequestDataRepositoryMockContainer {
 
     var getMateRequestsDataResult: GetMateRequestsDataResult? = null
     var getMateRequestCountDataResult: GetMateRequestCountDataResult? = null
+
+    val resultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
 
     private var mGetMateRequestsCallFlag = false
     val getMateRequestsCallFlag get() =  mGetMateRequestsCallFlag
@@ -63,6 +67,9 @@ class MateRequestDataRepositoryMockContainer {
             Mockito.`when`(mateRequestDataRepositoryMock.getMateRequestCount()).thenAnswer {
                 mGetMateRequestCountCallFlag = true
                 getMateRequestCountDataResult
+            }
+            Mockito.`when`(mateRequestDataRepositoryMock.resultFlow).thenAnswer {
+                resultFlow
             }
         }
 

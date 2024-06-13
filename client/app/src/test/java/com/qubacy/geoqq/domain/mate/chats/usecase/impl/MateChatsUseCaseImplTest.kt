@@ -7,23 +7,34 @@ import com.qubacy.geoqq._common._test.rule.dispatcher.MainDispatcherRule
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
+import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataRepositoryMockContainer
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common._test.context.MateChatDataRepositoryTestContext
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.added.MateChatAddedDataResult
 import com.qubacy.geoqq.data.mate.chat.repository._common.result.get.GetChatsDataResult
+import com.qubacy.geoqq.data.mate.chat.repository._common.result.updated.MateChatUpdatedDataResult
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.data.user.repository._common._test.context.UserDataRepositoryTestContext
-import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
+import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.UserAspectUseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
+import com.qubacy.geoqq.domain._common.usecase.base._test.util.runCoroutineTestCase
+import com.qubacy.geoqq.domain._common.usecase.updatable.UpdatableUseCaseTest
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
 import com.qubacy.geoqq.domain.logout.usecase._common._test.mock.LogoutUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate._common.model.chat.toMateChat
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.MateChatAddedDomainResult
+import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -32,7 +43,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.mockito.Mockito
 
-class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
+class MateChatsUseCaseImplTest : UpdatableUseCaseTest<MateChatsUseCaseImpl>(), UserAspectUseCaseTest {
     companion object {
         val DEFAULT_DATA_USER = UserDataRepositoryTestContext.DEFAULT_DATA_USER
         val DEFAULT_DATA_MATE_CHAT = MateChatDataRepositoryTestContext.DEFAULT_DATA_MATE_CHAT
@@ -46,8 +57,10 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
 
     private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
+    private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
 
     private var mGetChatsDataResults: List<GetChatsDataResult>? = null
+    private val mResultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
 
     private var mGetChatsCallFlag = false
 
@@ -56,6 +69,7 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
 
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
         mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
+        mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
         val mateChatDataRepositoryMock = mockMateChatDataRepository()
 
@@ -63,6 +77,7 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
             .plus(mLogoutUseCaseMockContainer.logoutUseCaseMock)
             .plus(mateChatDataRepositoryMock)
             .plus(mAuthDataRepositoryMockContainer.authDataRepositoryMock)
+            .plus(mUserDataRepositoryMockContainer.userDataRepositoryMock)
     }
 
     private fun mockMateChatDataRepository(): MateChatDataRepository {
@@ -89,6 +104,9 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
 
                 resultLiveData
             }
+            Mockito.`when`(mateChatDataRepositoryMock.resultFlow).thenAnswer {
+                mResultFlow
+            }
         }
 
         return mateChatDataRepositoryMock
@@ -99,7 +117,8 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
             dependencies[0] as LocalErrorDatabaseDataSource,
             dependencies[1] as LogoutUseCase,
             dependencies[2] as MateChatDataRepository,
-            dependencies[3] as AuthDataRepository
+            dependencies[3] as AuthDataRepository,
+            dependencies[4] as UserDataRepository
         )
     }
 
@@ -174,5 +193,55 @@ class MateChatsUseCaseImplTest : UseCaseTest<MateChatsUseCaseImpl>() {
 
             Assert.assertEquals(expectedRemoteChatChunk, gottenRemoteChatChunk)
         }
+    }
+
+    @Test
+    fun processMateChatAddedDataResultTest() = runCoroutineTestCase(mUseCase) {
+        val dataChat = DEFAULT_DATA_MATE_CHAT
+        val dataResult = MateChatAddedDataResult(dataChat)
+
+        val expectedChat = dataChat.toMateChat()
+
+        mUseCase.resultFlow.test {
+            mResultFlow.emit(dataResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(MateChatAddedDomainResult::class, result::class)
+
+            val gottenChat = (result as MateChatAddedDomainResult).chat
+
+            Assert.assertEquals(expectedChat, gottenChat)
+        }
+    }
+
+    @Test
+    fun processMateChatUpdatedDataResultTest() = runCoroutineTestCase(mUseCase) {
+        val dataChat = DEFAULT_DATA_MATE_CHAT
+        val dataResult = MateChatUpdatedDataResult(dataChat)
+
+        val expectedChat = dataChat.toMateChat()
+
+        mUseCase.resultFlow.test {
+            mResultFlow.emit(dataResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(MateChatUpdatedDomainResult::class, result::class)
+
+            val gottenChat = (result as MateChatUpdatedDomainResult).chat
+
+            Assert.assertEquals(expectedChat, gottenChat)
+        }
+    }
+
+    override fun getUserAspectUseCaseTestUseCase(): UseCase {
+        return mUseCase
+    }
+
+    override fun getUserAspectUseCaseTestUserDataRepositoryMockContainer(
+
+    ): UserDataRepositoryMockContainer {
+        return mUserDataRepositoryMockContainer
     }
 }

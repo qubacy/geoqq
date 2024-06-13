@@ -5,6 +5,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.local.database.er
 import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepository
 import com.qubacy.geoqq.data.auth.repository._common.AuthDataRepository
 import com.qubacy.geoqq.data.mate.chat.repository._common.MateChatDataRepository
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.update.handler.UserDataUpdateHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
@@ -20,10 +21,11 @@ class MateChatsUseCaseImpl @Inject constructor(
     errorSource: LocalErrorDatabaseDataSource,
     private val mLogoutUseCase: LogoutUseCase,
     private val mMateChatDataRepository: MateChatDataRepository,
-    private val mAuthDataRepository: AuthDataRepository
+    private val mAuthDataRepository: AuthDataRepository,
+    private val mUserDataRepository: UserDataRepository
 ) : MateChatsUseCase(errorSource) {
     override fun getUpdatableRepositories(): Array<ProducingDataRepository> {
-        return arrayOf(mAuthDataRepository, mMateChatDataRepository)
+        return arrayOf(mAuthDataRepository, mMateChatDataRepository, mUserDataRepository)
     }
 
     override fun generateDataUpdateHandlers(): Array<DataUpdateHandler<*>> {
@@ -72,6 +74,7 @@ class MateChatsUseCaseImpl @Inject constructor(
         mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
         mMateChatDataRepository.setCoroutineScope(mCoroutineScope)
+        mUserDataRepository.setCoroutineScope(mCoroutineScope)
     }
 
     override fun getLogoutUseCase(): LogoutUseCase {

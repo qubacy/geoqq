@@ -9,8 +9,14 @@ import com.qubacy.geoqq.data.auth.repository._common._test.mock.AuthDataReposito
 import com.qubacy.geoqq.data.mate.request.repository._common.MateRequestDataRepository
 import com.qubacy.geoqq.data.mate.request.repository._common._test.context.MateRequestDataRepositoryTestContext
 import com.qubacy.geoqq.data.mate.request.repository._common._test.mock.MateRequestDataRepositoryMockContainer
+import com.qubacy.geoqq.data.mate.request.repository._common.result.added.MateRequestAddedDataResult
 import com.qubacy.geoqq.data.mate.request.repository._common.result.get.GetMateRequestsDataResult
+import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
+import com.qubacy.geoqq.data.user.repository._common._test.mock.UserDataRepositoryMockContainer
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.UserAspectUseCaseTest
 import com.qubacy.geoqq.domain._common.usecase.base.UseCaseTest
+import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
+import com.qubacy.geoqq.domain._common.usecase.base._test.util.runCoroutineTestCase
 import com.qubacy.geoqq.domain.user.usecase._common.UserUseCase
 import com.qubacy.geoqq.domain.user.usecase._common._test.mock.InterlocutorUseCaseMockContainer
 import com.qubacy.geoqq.domain.logout.usecase._common.LogoutUseCase
@@ -19,12 +25,13 @@ import com.qubacy.geoqq.domain.mate._common.model.request.toMateRequest
 import com.qubacy.geoqq.domain.mate.request.usecase._common.MateRequestUseCase
 import com.qubacy.geoqq.domain.mate.request.usecase._common._test.mock.MateRequestUseCaseMockContainer
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.get.GetRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.request.added.MateRequestAddedDomainResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
-class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
+class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>(), UserAspectUseCaseTest {
     companion object {
         val DEFAULT_DATA_MATE_REQUEST = MateRequestDataRepositoryTestContext.DEFAULT_DATA_MATE_REQUEST
     }
@@ -37,6 +44,7 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
     private lateinit var mLogoutUseCaseMockContainer: LogoutUseCaseMockContainer
     private lateinit var mMateRequestDataRepositoryMockContainer: MateRequestDataRepositoryMockContainer
     private lateinit var mAuthDataRepositoryMockContainer: AuthDataRepositoryMockContainer
+    private lateinit var mUserDataRepositoryMockContainer: UserDataRepositoryMockContainer
 
     override fun initDependencies(): List<Any> {
         val superDependencies = super.initDependencies()
@@ -46,13 +54,15 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
         mLogoutUseCaseMockContainer = LogoutUseCaseMockContainer()
         mMateRequestDataRepositoryMockContainer = MateRequestDataRepositoryMockContainer()
         mAuthDataRepositoryMockContainer = AuthDataRepositoryMockContainer()
+        mUserDataRepositoryMockContainer = UserDataRepositoryMockContainer()
 
         return superDependencies.plus(listOf(
             mMateRequestUseCaseMockContainer.mateRequestUseCaseMock,
             mInterlocutorUseCaseMockContainer.interlocutorUseCaseMock,
             mLogoutUseCaseMockContainer.logoutUseCaseMock,
             mAuthDataRepositoryMockContainer.authDataRepositoryMock,
-            mMateRequestDataRepositoryMockContainer.mateRequestDataRepositoryMock
+            mMateRequestDataRepositoryMockContainer.mateRequestDataRepositoryMock,
+            mUserDataRepositoryMockContainer.userDataRepositoryMock
         ))
     }
 
@@ -63,7 +73,8 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
             dependencies[2] as UserUseCase,
             dependencies[3] as LogoutUseCase,
             dependencies[4] as AuthDataRepository,
-            dependencies[5] as MateRequestDataRepository
+            dependencies[5] as MateRequestDataRepository,
+            dependencies[6] as UserDataRepository
         )
     }
 
@@ -116,5 +127,35 @@ class MateRequestsUseCaseImplTest : UseCaseTest<MateRequestsUseCaseImpl>() {
         mUseCase.getInterlocutor(interlocutorId)
 
         Assert.assertTrue(mInterlocutorUseCaseMockContainer.getInterlocutorCallFlag)
+    }
+
+    @Test
+    fun processMateRequestAddedDataResultTest() = runCoroutineTestCase(mUseCase) {
+        val dataRequest = DEFAULT_DATA_MATE_REQUEST
+        val dataResult = MateRequestAddedDataResult(dataRequest)
+
+        val expectedRequest = dataRequest.toMateRequest()
+
+        mUseCase.resultFlow.test {
+            mMateRequestDataRepositoryMockContainer.resultFlow.emit(dataResult)
+
+            val result = awaitItem()
+
+            Assert.assertEquals(MateRequestAddedDomainResult::class, result::class)
+
+            val gottenRequest = (result as MateRequestAddedDomainResult).request
+
+            Assert.assertEquals(expectedRequest, gottenRequest)
+        }
+    }
+
+    override fun getUserAspectUseCaseTestUseCase(): UseCase {
+        return mUseCase
+    }
+
+    override fun getUserAspectUseCaseTestUserDataRepositoryMockContainer(
+
+    ): UserDataRepositoryMockContainer {
+        return mUserDataRepositoryMockContainer
     }
 }
