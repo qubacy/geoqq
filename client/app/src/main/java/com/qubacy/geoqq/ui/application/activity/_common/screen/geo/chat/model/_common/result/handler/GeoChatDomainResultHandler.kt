@@ -1,7 +1,6 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.result.handler
 
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
@@ -23,11 +22,6 @@ class GeoChatDomainResultHandler(
                 domainResult as GeoMessageAddedDomainResult
 
                 viewModel.onGeoChatNewGeoMessage(domainResult)
-            }
-            SendMessageDomainResult::class -> {
-                domainResult as SendMessageDomainResult
-
-                viewModel.onGeoChatSendMessage(domainResult)
             }
             SendLocationDomainResult::class -> {
                 domainResult as SendLocationDomainResult

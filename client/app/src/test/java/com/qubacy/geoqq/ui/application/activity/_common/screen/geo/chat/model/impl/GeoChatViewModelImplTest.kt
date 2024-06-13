@@ -6,22 +6,27 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
+import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo._common.test.context.GeoUseCaseTestContext
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.sending.ChangeMessageSendingAllowedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.state.GeoChatUiState
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.toGeoMessagePresentation
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -31,7 +36,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     GeoChatUiState, GeoChatUseCase, GeoChatViewModelImpl
 >(
     GeoChatUseCase::class.java
-) {
+), ChatViewModelTest<GeoChatViewModelImpl> {
     companion object {
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_GEO_MESSAGE = GeoUseCaseTestContext.DEFAULT_GEO_MESSAGE
@@ -390,7 +395,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     }
 
     @Test
-    fun onGeoChatSendMessageTest() = runTest {
+    override fun onChatSendMessageTest() = runTest {
         val initUiState = GeoChatUiState()
 
         val sendMessageDomainResult = SendMessageDomainResult()
@@ -399,12 +404,36 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(sendMessageDomainResult)
+
+            // nothing to check rn..
         }
     }
 
     @Test
     fun onGeoChatSendLocationTest() = runTest {
+        val initIsMessageSendingAllowed = false
+        val initUiState = GeoChatUiState(isMessageSendingAllowed = initIsMessageSendingAllowed)
 
+        val sendLocationDomainResult = SendLocationDomainResult()
+
+        val expectedIsMessageSendingAllowed = true
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(sendLocationDomainResult)
+
+            val operation = awaitItem()
+
+            Assert.assertEquals(ChangeMessageSendingAllowedUiOperation::class, operation::class)
+
+            val gottenIsMessageSendingAllowed =
+                (operation as ChangeMessageSendingAllowedUiOperation).isAllowed
+            val finalUiState = mModel.uiState
+
+            Assert.assertEquals(expectedIsMessageSendingAllowed, gottenIsMessageSendingAllowed)
+            Assert.assertEquals(expectedIsMessageSendingAllowed, finalUiState.isMessageSendingAllowed)
+        }
     }
 
     @Test
@@ -521,5 +550,13 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
             .getDeclaredField("mLongitude")
             .apply { isAccessible = true }
             .get(mModel) as Float
+    }
+
+    override fun getChatViewModelViewModel(): GeoChatViewModelImpl {
+        return mModel
+    }
+
+    override fun getChatViewModelResultFlow(): MutableSharedFlow<DomainResult> {
+        return mResultFlow
     }
 }

@@ -106,11 +106,11 @@ open class GeoChatViewModelImpl @Inject constructor(
         return listOf(AddGeoMessagesUiOperation(listOf(messagePresentation)))
     }
 
-    override fun onGeoChatSendMessage(
-        sendMessageDomainResult: SendMessageDomainResult
+    override fun onChatSendMessage(
+        domainResult: SendMessageDomainResult
     ): List<UiOperation> {
-        if (!sendMessageDomainResult.isSuccessful())
-            return onError(sendMessageDomainResult.error!!)
+        if (!domainResult.isSuccessful())
+            return onError(domainResult.error!!)
 
         return emptyList() // todo: nothing to return?
     }

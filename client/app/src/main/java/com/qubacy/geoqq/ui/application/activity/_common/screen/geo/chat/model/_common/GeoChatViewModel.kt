@@ -2,7 +2,6 @@ package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._
 
 import androidx.lifecycle.SavedStateHandle
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
-import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
@@ -52,9 +51,6 @@ abstract class GeoChatViewModel(
     ): List<UiOperation>
     abstract fun onGeoChatNewGeoMessage(
         newGeoMessageDomainResult: GeoMessageAddedDomainResult
-    ): List<UiOperation>
-    abstract fun onGeoChatSendMessage(
-        sendMessageDomainResult: SendMessageDomainResult
     ): List<UiOperation>
     abstract fun onGeoChatSendLocation(
         sendLocationDomainResult: SendLocationDomainResult
