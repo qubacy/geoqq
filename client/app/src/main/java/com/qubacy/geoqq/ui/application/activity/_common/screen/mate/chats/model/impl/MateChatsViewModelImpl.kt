@@ -62,6 +62,8 @@ open class MateChatsViewModelImpl @Inject constructor(
         if (!updateChatChunkResult.isSuccessful())
             return onError(updateChatChunkResult.error!!)
 
+        // todo: change mUiState.chatChunkSizes[prevChatChunkOffset] to a new value!:
+
         val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
         val prevChatChunkSize = mUiState.chatChunkSizes[prevChatChunkOffset]!!
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
@@ -83,6 +85,8 @@ open class MateChatsViewModelImpl @Inject constructor(
             return onError(mateChatAddedDomainResult.error!!)
 
         val chatPresentation = mateChatAddedDomainResult.chat!!.toMateChatPresentation()
+
+        // todo: change mUiState.chatChunkSizes.last() to a new value (it should be incremented):
 
         mUiState.chats.add(0, chatPresentation)
 
@@ -106,8 +110,15 @@ open class MateChatsViewModelImpl @Inject constructor(
 
         mUiState.chats.remove(prevChatPresentation)
 
-        val insertIndex = mUiState.chats.indexOfFirst {
+        var insertIndex = mUiState.chats.indexOfFirst {
             chatPresentation.lastActionTime >= it.lastActionTime
+        }
+        val chatCount = mUiState.chats.size
+
+        if (insertIndex < 0 &&
+            (chatCount == 0 || chatCount % MateChatsUseCase.DEFAULT_CHAT_CHUNK_SIZE != 0)
+        ) {
+            insertIndex = mUiState.chats.size
         }
 
         return if (prevChatPresentation != null) {
@@ -215,6 +226,7 @@ open class MateChatsViewModelImpl @Inject constructor(
         return chatPresentationChunk
     }
 
+    // todo: won't work (affectedChatCount should be removed):
     private fun getPrevChatChunkOffset(offset: Int): Int {
         return offset - mUiState.affectedChatCount
     }
