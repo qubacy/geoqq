@@ -93,13 +93,13 @@ open class GeoChatViewModelImpl @Inject constructor(
         return listOf(AddGeoMessagesUiOperation(geoMessages))
     }
 
-    override fun onGeoChatNewGeoMessages(
-        newGeoMessagesDomainResult: GeoMessageAddedDomainResult
+    override fun onGeoChatNewGeoMessage(
+        newGeoMessageDomainResult: GeoMessageAddedDomainResult
     ): List<UiOperation> {
-        if (!newGeoMessagesDomainResult.isSuccessful())
-            return onError(newGeoMessagesDomainResult.error!!)
+        if (!newGeoMessageDomainResult.isSuccessful())
+            return onError(newGeoMessageDomainResult.error!!)
 
-        val messagePresentation = newGeoMessagesDomainResult.message!!.toGeoMessagePresentation()
+        val messagePresentation = newGeoMessageDomainResult.message!!.toGeoMessagePresentation()
 
         mUiState.messages.add(messagePresentation)
 

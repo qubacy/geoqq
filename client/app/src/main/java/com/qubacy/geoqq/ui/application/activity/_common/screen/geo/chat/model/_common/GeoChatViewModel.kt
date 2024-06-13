@@ -50,8 +50,8 @@ abstract class GeoChatViewModel(
     abstract fun onGeoChatGetGeoMessages(
         getGeoMessagesDomainResult: GetGeoMessagesDomainResult
     ): List<UiOperation>
-    abstract fun onGeoChatNewGeoMessages(
-        newGeoMessagesDomainResult: GeoMessageAddedDomainResult
+    abstract fun onGeoChatNewGeoMessage(
+        newGeoMessageDomainResult: GeoMessageAddedDomainResult
     ): List<UiOperation>
     abstract fun onGeoChatSendMessage(
         sendMessageDomainResult: SendMessageDomainResult

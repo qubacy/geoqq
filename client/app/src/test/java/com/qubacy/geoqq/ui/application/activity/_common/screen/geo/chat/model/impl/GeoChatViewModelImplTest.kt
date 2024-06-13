@@ -6,10 +6,12 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.GeoChatUseCase
 import com.qubacy.geoqq.domain.geo._common.test.context.GeoUseCaseTestContext
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.get.GetGeoMessagesDomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
+import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -361,14 +363,52 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     }
 
     @Test
-    fun onGeoChatNewGeoMessagesTest() {
-        // todo: implement later..
+    fun onGeoChatNewGeoMessagesTest() = runTest {
+        val initUiState = GeoChatUiState(messages = mutableListOf())
 
+        val geoMessage = DEFAULT_GEO_MESSAGE
+        val geoMessageAddedDomainResult = GeoMessageAddedDomainResult(message = geoMessage)
+        val geoMessagePresentation = geoMessage.toGeoMessagePresentation()
+
+        val expectedMessages = mutableListOf(geoMessagePresentation)
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(geoMessageAddedDomainResult)
+
+            val operation = awaitItem()
+
+            Assert.assertEquals(AddGeoMessagesUiOperation::class, operation::class)
+
+            val gottenMessages = (operation as AddGeoMessagesUiOperation).messages
+            val finalUiState = mModel.uiState
+
+            AssertUtils.assertEqualContent(expectedMessages, gottenMessages)
+            AssertUtils.assertEqualContent(expectedMessages, finalUiState.messages)
+        }
+    }
+
+    @Test
+    fun onGeoChatSendMessageTest() = runTest {
+        val initUiState = GeoChatUiState()
+
+        val sendMessageDomainResult = SendMessageDomainResult()
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(sendMessageDomainResult)
+        }
+    }
+
+    @Test
+    fun onGeoChatSendLocationTest() = runTest {
 
     }
 
     @Test
-    fun onInterlocutorUpdateInterlocutorTest() = runTest {
+    fun onUserUpdateUserTest() = runTest {
         val initMessages = mutableListOf(
             DEFAULT_GEO_MESSAGE_PRESENTATION
         )

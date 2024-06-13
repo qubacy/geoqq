@@ -22,7 +22,7 @@ class GeoChatDomainResultHandler(
             GeoMessageAddedDomainResult::class -> {
                 domainResult as GeoMessageAddedDomainResult
 
-                viewModel.onGeoChatNewGeoMessages(domainResult)
+                viewModel.onGeoChatNewGeoMessage(domainResult)
             }
             SendMessageDomainResult::class -> {
                 domainResult as SendMessageDomainResult
