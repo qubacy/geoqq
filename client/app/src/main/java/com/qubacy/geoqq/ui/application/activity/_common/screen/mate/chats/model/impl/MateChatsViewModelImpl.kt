@@ -10,10 +10,9 @@ import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.added.Mate
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chat.updated.MateChatUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMateChatChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
-import com.qubacy.geoqq.domain._common.usecase.aspect.user.result._common.UserDomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.model.BusinessViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
@@ -62,13 +61,16 @@ open class MateChatsViewModelImpl @Inject constructor(
         if (!updateChatChunkResult.isSuccessful())
             return onError(updateChatChunkResult.error!!)
 
-        // todo: change mUiState.chatChunkSizes[prevChatChunkOffset] to a new value!:
-
         val prevChatChunkOffset = getPrevChatChunkOffset(updateChatChunkResult.chunk!!.offset)
         val prevChatChunkSize = mUiState.chatChunkSizes[prevChatChunkOffset]!!
         val curChatChunkSize = updateChatChunkResult.chunk.chats.size
 
         val chatPresentationChunk = processDomainChatChunk(updateChatChunkResult.chunk)
+
+        /**
+         * NOTE: it's meant that the updated chunk's size can ONLY be changed if it's the last one;
+         */
+        mUiState.chatChunkSizes[prevChatChunkOffset] = curChatChunkSize
 
         return listOf(
             UpdateChatChunkUiOperation(
@@ -86,9 +88,12 @@ open class MateChatsViewModelImpl @Inject constructor(
 
         val chatPresentation = mateChatAddedDomainResult.chat!!.toMateChatPresentation()
 
-        // todo: change mUiState.chatChunkSizes.last() to a new value (it should be incremented):
-
         mUiState.chats.add(0, chatPresentation)
+
+        val lastChunkOffsetSize = mUiState.chatChunkSizes.entries.lastOrNull()
+
+        if (lastChunkOffsetSize == null) mUiState.chatChunkSizes[0] = 1
+        else lastChunkOffsetSize.setValue(lastChunkOffsetSize.value + 1)
 
         return listOf(AddChatUiOperation(0, chatPresentation))
     }
@@ -176,24 +181,20 @@ open class MateChatsViewModelImpl @Inject constructor(
         throw IllegalStateException()
     }
 
-    override fun generateUserGetUserUiOperations(
-        userPresentation: UserPresentation
-    ): List<UiOperation> {
-        return emptyList()
-    }
+    override fun onUserUpdateUser(domainResult: UserUpdatedDomainResult): List<UiOperation> {
+        if (!domainResult.isSuccessful()) return onError(domainResult.error!!)
 
-    override fun generateUserUpdateUserUiOperations(
-        userPresentation: UserPresentation
-    ): List<UiOperation> {
-        // todo: implement..
+        val userPresentation = domainResult.interlocutor!!.toUserPresentation()
+        val chatPosition = mUiState.chats.indexOfFirst { it.user == userPresentation }
 
-        return emptyList()
-    }
+        if (chatPosition < 0) return emptyList()
 
-    override fun onUserUser(domainResult: UserDomainResult): UserPresentation {
-        // todo: implement..
+        val prevChat = mUiState.chats[chatPosition]
+        val chat = prevChat.copy(user = userPresentation)
 
-        return domainResult.interlocutor!!.toUserPresentation()
+        mUiState.chats[chatPosition] = chat
+
+        return listOf(UpdateChatUiOperation(chatPosition, chatPosition, chat))
     }
 
     override fun getUserViewModelBusinessViewModel(): BusinessViewModel<*, *> {
@@ -226,9 +227,8 @@ open class MateChatsViewModelImpl @Inject constructor(
         return chatPresentationChunk
     }
 
-    // todo: won't work (affectedChatCount should be removed):
     private fun getPrevChatChunkOffset(offset: Int): Int {
-        return offset - mUiState.affectedChatCount
+        return offset
     }
 
 //    /**

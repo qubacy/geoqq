@@ -4,9 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
+import com.qubacy.geoqq._common._test.util.turbine.extension.awaitAllItems
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
+import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
 import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chats.projection.MateChatChunk
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.MateChatsUseCase
@@ -16,8 +19,11 @@ import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.get.GetMa
 import com.qubacy.geoqq.domain.mate.chats.usecase._common.result.chunk.update.UpdateMateChatChunkDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.user.model.UserViewModelTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation._common.UiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.model.operation.error.ErrorUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.UserPresentation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.user.toUserPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._test.context.MateTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.toMateChatPresentation
@@ -41,6 +47,7 @@ class MateChatsViewModelImplTest(
     companion object {
         val DEFAULT_MATE_CHAT = MateUseCaseTestContext.DEFAULT_MATE_CHAT
         val DEFAULT_MATE_CHAT_PRESENTATION = MateTestContext.DEFAULT_MATE_CHAT_PRESENTATION
+        val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
     }
 
     private var mUseCaseGetChatChunkCallFlag = false
@@ -414,6 +421,35 @@ class MateChatsViewModelImplTest(
                 gottenUpdatedMateChatPresentationPrevPosition
             )
             AssertUtils.assertEqualContent(expectedMateChats, finalUiState.chats)
+        }
+    }
+
+    @Test
+    override fun onUserUpdateUserTest() = runTest {
+        val initChat = DEFAULT_MATE_CHAT_PRESENTATION
+        val initChats = mutableListOf(initChat)
+        val initUiState = MateChatsUiState(chats = initChats)
+
+        val user = DEFAULT_USER
+        val updateUserDomainResult = UserUpdatedDomainResult(user = user)
+
+        val expectedUserPresentation = user.toUserPresentation()
+        val expectedChatPresentation = initChat.copy(user = expectedUserPresentation)
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(updateUserDomainResult)
+
+            val operation = awaitItem()
+
+            Assert.assertEquals(UpdateChatUiOperation::class, operation::class)
+
+            val gottenChatPresentation = (operation as UpdateChatUiOperation).chat
+            val gottenUserPresentation = gottenChatPresentation.user
+
+            Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
+            Assert.assertEquals(expectedChatPresentation, gottenChatPresentation)
         }
     }
 

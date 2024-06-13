@@ -51,8 +51,6 @@ abstract class MateChatsViewModel(
     abstract fun prepareChatForEntering(chatId: Long): MateChatPresentation
     open fun resetChatChunks() {
         mUiState.apply {
-            affectedChatCount = 0
-
             chats.clear()
             chatChunkSizes.clear()
         }
