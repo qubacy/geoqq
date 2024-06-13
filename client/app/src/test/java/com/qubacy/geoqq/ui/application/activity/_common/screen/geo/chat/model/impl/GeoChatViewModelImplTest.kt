@@ -15,6 +15,7 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpd
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.location.SendLocationDomainResult
 import com.qubacy.geoqq.domain.geo.chat.usecase._common.result.message.added.GeoMessageAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModelTest
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -36,7 +37,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     GeoChatUiState, GeoChatUseCase, GeoChatViewModelImpl
 >(
     GeoChatUseCase::class.java
-), ChatViewModelTest<GeoChatViewModelImpl> {
+), ChatViewModelTest<GeoChatViewModelImpl>, InterlocutorViewModelTest<GeoChatViewModelImpl> {
     companion object {
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_GEO_MESSAGE = GeoUseCaseTestContext.DEFAULT_GEO_MESSAGE
@@ -437,7 +438,7 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
     }
 
     @Test
-    fun onUserUpdateUserTest() = runTest {
+    override fun onUserUpdateUserTest() = runTest {
         val initMessages = mutableListOf(
             DEFAULT_GEO_MESSAGE_PRESENTATION
         )
@@ -475,6 +476,14 @@ class GeoChatViewModelImplTest : BusinessViewModelTest<
 
             AssertUtils.assertEqualContent(expectedMessages.toMutableList(), finalUiState.messages)
         }
+    }
+
+    override fun getUserResultFlow(): MutableSharedFlow<DomainResult> {
+        return mResultFlow
+    }
+
+    override fun getUserModel(): GeoChatViewModelImpl {
+        return mModel
     }
 
     @Test

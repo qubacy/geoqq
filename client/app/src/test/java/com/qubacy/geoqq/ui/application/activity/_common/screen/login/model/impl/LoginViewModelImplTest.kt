@@ -215,11 +215,13 @@ class LoginViewModelImplTest(
     }
 
     @Test
-    fun processSignedInDomainResultTest() = runTest {
+    fun onLoginSignedInTest() = runTest {
         val initIsLoading = true
-        val expectedIsLoading = false
-        val signedInDomainResult = SignedInDomainResult()
         val initAutoSignInAllowedState = true
+
+        val signedInDomainResult = SignedInDomainResult()
+
+        val expectedLoadingState = false
         val expectedAutoSignInAllowedState = false
 
         setUiState(
@@ -236,12 +238,13 @@ class LoginViewModelImplTest(
 
             Assert.assertEquals(SignInUiOperation::class, signInOperation::class)
             Assert.assertEquals(SetLoadingStateUiOperation::class, setLoadingOperation::class)
-            Assert.assertEquals(expectedAutoSignInAllowedState, mModel.uiState.autoSignInAllowed)
-            Assert.assertEquals(expectedIsLoading, mModel.uiState.isLoading)
 
-            val setLoadingOperationCast = setLoadingOperation as SetLoadingStateUiOperation
+            val gottenLoadingState = (setLoadingOperation as SetLoadingStateUiOperation).isLoading
+            val finalUiState = mModel.uiState
 
-            Assert.assertEquals(expectedIsLoading, setLoadingOperationCast.isLoading)
+            Assert.assertEquals(expectedLoadingState, gottenLoadingState)
+            Assert.assertEquals(expectedLoadingState, finalUiState.isLoading)
+            Assert.assertEquals(expectedAutoSignInAllowedState, finalUiState.autoSignInAllowed)
         }
     }
 }

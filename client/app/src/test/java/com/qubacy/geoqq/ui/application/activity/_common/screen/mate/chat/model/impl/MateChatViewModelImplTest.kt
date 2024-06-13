@@ -7,6 +7,8 @@ import com.qubacy.geoqq._common._test.util.mock.AnyMockUtil
 import com.qubacy.geoqq._common.error._test.TestError
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
+import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
+import com.qubacy.geoqq.domain._common.usecase.aspect.chat.result.SendMessageDomainResult
 import com.qubacy.geoqq.domain.mate.chat.projection.MateMessageChunk
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.GetMessageChunkDomainResult
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chunk.UpdateMessageChunkDomainResult
@@ -15,9 +17,12 @@ import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpd
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.MateChatUseCase
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.chat.delete.DeleteChatDomainResult
+import com.qubacy.geoqq.domain.mate.chat.usecase._common.result.message.MateMessageAddedDomainResult
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.SendMateRequestDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common._test.context.ScreenTestContext
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.ChatViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.chat.model.operation.MateRequestSentToInterlocutorUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
@@ -31,7 +36,9 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateMessagePresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.add.AddMessageUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.state.MateChatUiState
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -42,7 +49,7 @@ class MateChatViewModelImplTest(
 
 ) : BusinessViewModelTest<MateChatUiState, MateChatUseCase, MateChatViewModelImpl>(
     MateChatUseCase::class.java
-) {
+), ChatViewModelTest<MateChatViewModelImpl>, InterlocutorViewModelTest<MateChatViewModelImpl> {
     companion object {
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_MATE_MESSAGE = MateUseCaseTestContext.DEFAULT_MATE_MESSAGE
@@ -438,7 +445,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processSendMateRequestToInterlocutorDomainResultWithErrorTest() = runTest {
+    fun onChatSendMateRequestWithErrorTest() = runTest {
         val initLoadingState = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
 
@@ -471,7 +478,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processSendMateRequestToInterlocutorDomainResultTest() = runTest {
+    override fun onChatSendMateRequestTest() = runTest {
         val initLoadingState = true
         val initIsMateRequestSendingAllowed = true
         val initUiState = MateChatUiState(
@@ -508,7 +515,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processDeleteChatDomainResultWithErrorTest() = runTest {
+    fun onMateChatDeleteChatWithErrorTest() = runTest {
         val initLoadingState = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
 
@@ -540,7 +547,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processDeleteChatDomainResultTest() = runTest {
+    fun onMateChatDeleteChatTest() = runTest {
         val initLoadingState = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
 
@@ -568,7 +575,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processGetInterlocutorDomainResultWithErrorTest() = runTest {
+    fun onUserGetUserWithErrorTest() = runTest {
         val initLoadingState = false
         val initChatContext = DEFAULT_MATE_CHAT_PRESENTATION
         val initUiState = MateChatUiState(
@@ -598,7 +605,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processGetInterlocutorDomainResultTest() = runTest {
+    override fun onUserGetUserTest() = runTest {
         val initLoadingState = false
         val initChatContext = DEFAULT_MATE_CHAT_PRESENTATION
         val initUiState = MateChatUiState(
@@ -630,7 +637,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processUpdateInterlocutorDomainResultWithErrorTest() = runTest {
+    fun onUserUpdateUserWithErrorTest() = runTest {
         val initLoadingState = false
         val initUiState = MateChatUiState(isLoading = initLoadingState)
 
@@ -658,7 +665,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processUpdateInterlocutorDomainResultTest() = runTest {
+    override fun onUserUpdateUserTest() = runTest {
         val initLoadingState = false
         val initChatContext = DEFAULT_MATE_CHAT_PRESENTATION
         val initUiState = MateChatUiState(
@@ -698,8 +705,16 @@ class MateChatViewModelImplTest(
         }
     }
 
+    override fun getUserResultFlow(): MutableSharedFlow<DomainResult> {
+        return mResultFlow
+    }
+
+    override fun getUserModel(): MateChatViewModelImpl {
+        return mModel
+    }
+
     @Test
-    fun processGetMessageChunkDomainResultWithErrorTest() = runTest {
+    fun onMateChatGetMessageChunkWithErrorTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextMessageChunk = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
@@ -736,7 +751,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processGetMessageChunkDomainResultTest() = runTest {
+    fun onMateChatGetMessageChunkTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextMessageChunk = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
@@ -779,7 +794,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processUpdateMessageChunkDomainResultWithErrorTest() = runTest {
+    fun onMateChatUpdateMessageChunkWithErrorTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextMessageChunk = true
         val initUiState = MateChatUiState(isLoading = initLoadingState)
@@ -816,7 +831,7 @@ class MateChatViewModelImplTest(
     }
 
     @Test
-    fun processUpdateMessageChunkDomainResultTest() = runTest {
+    fun onMateChatUpdateMessageChunkTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextMessageChunk = true
         val initMessages = mutableListOf(
@@ -872,5 +887,56 @@ class MateChatViewModelImplTest(
             AssertUtils.assertEqualContent(expectedUpdatedMateMessageChunk, finalUiState.messages)
             AssertUtils.assertEqualMaps(expectedMessageChunkSizes, finalUiState.messageChunkSizes)
         }
+    }
+
+    @Test
+    fun onMateChatMessageAddedTest() = runTest {
+        val initMessages = mutableListOf<MateMessagePresentation>()
+        val initUiState = MateChatUiState(messages = initMessages)
+
+        val mateMessage = DEFAULT_MATE_MESSAGE
+        val mateMessageAddedDomainResult = MateMessageAddedDomainResult(message = mateMessage)
+
+        val expectedMessage = mateMessage.toMateMessagePresentation()
+        val expectedMessages = mutableListOf(expectedMessage)
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(mateMessageAddedDomainResult)
+
+            val operation = awaitItem()
+
+            Assert.assertEquals(AddMessageUiOperation::class, operation::class)
+
+            val gottenMessage = (operation as AddMessageUiOperation).message
+            val finalUiState = mModel.uiState
+
+            Assert.assertEquals(expectedMessage, gottenMessage)
+            AssertUtils.assertEqualContent(expectedMessages, finalUiState.messages)
+        }
+    }
+
+    @Test
+    override fun onChatSendMessageTest() = runTest {
+        val initUiState = MateChatUiState()
+
+        val sendMessageDomainResult = SendMessageDomainResult()
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(sendMessageDomainResult)
+
+            // nothing to check rn..
+        }
+    }
+
+    override fun getChatViewModelViewModel(): MateChatViewModelImpl {
+        return mModel
+    }
+
+    override fun getChatViewModelResultFlow(): MutableSharedFlow<DomainResult> {
+        return mResultFlow
     }
 }

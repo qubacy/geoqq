@@ -142,11 +142,11 @@ open class MateChatViewModelImpl @Inject constructor(
         return listOf(AddMessageUiOperation(messagePresentation))
     }
 
-    override fun onMateChatSendMessage(
-        sendMessageDomainResult: SendMessageDomainResult
+    override fun onChatSendMessage(
+        domainResult: SendMessageDomainResult
     ): List<UiOperation> {
-        if (!sendMessageDomainResult.isSuccessful())
-            return onError(sendMessageDomainResult.error!!)
+        if (!domainResult.isSuccessful())
+            return onError(domainResult.error!!)
 
         return emptyList() // todo: nothing to do?
     }
