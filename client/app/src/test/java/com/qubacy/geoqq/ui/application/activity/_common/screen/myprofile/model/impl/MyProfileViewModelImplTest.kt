@@ -247,7 +247,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processGetMyProfileDomainResultWithErrorTest() = runTest {
+    fun onMyProfileGetMyProfileWithErrorTest() = runTest {
         val initIsLoading = true
 
         val expectedError = TestError.normal
@@ -276,7 +276,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processGetMyProfileDomainResultTest() = runTest {
+    fun onMyProfileGetMyProfileTest() = runTest {
         val initIsLoading = true
         val myProfile = DEFAULT_MY_PROFILE
 
@@ -306,7 +306,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processUpdateMyProfileDomainResultWithErrorTest() = runTest {
+    fun onMyProfileUpdateMyProfileWithErrorTest() = runTest {
         val initIsLoading = true
 
         val expectedError = TestError.normal
@@ -335,7 +335,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processUpdateMyProfileDomainResultTest() = runTest {
+    fun onMyProfileUpdateMyProfileTest() = runTest {
         val initIsLoading = true
         val initMyProfileInputData = MyProfileInputData(aboutMe = "updated test")
         val initMyProfilePresentation = DEFAULT_MY_PROFILE_PRESENTATION
@@ -370,7 +370,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processDeleteMyProfileDomainResultWithErrorTest() = runTest {
+    fun onMyProfileDeleteMyProfileWithErrorTest() = runTest {
         val initIsLoading = true
 
         val expectedError = TestError.normal
@@ -399,7 +399,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processDeleteMyProfileDomainResultTest() = runTest {
+    fun onMyProfileDeleteMyProfileTest() = runTest {
         val initIsLoading = true
 
         val expectedIsLoading = false
@@ -424,7 +424,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processLogoutDomainResultWithErrorTest() = runTest {
+    fun onMyProfileLogoutWithErrorTest() = runTest {
         val initIsLoading = true
 
         val expectedError = TestError.normal
@@ -453,7 +453,7 @@ class MyProfileViewModelImplTest(
     }
 
     @Test
-    fun processLogoutDomainResultTest() = runTest {
+    fun onMyProfileLogoutTest() = runTest {
         val initIsLoading = true
 
         val expectedIsLoading = false
