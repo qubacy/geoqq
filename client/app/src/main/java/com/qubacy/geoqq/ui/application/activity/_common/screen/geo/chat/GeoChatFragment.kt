@@ -209,7 +209,8 @@ class GeoChatFragment(
     }
 
     private fun initUiWithUiState(uiState: GeoChatUiState) {
-        adjustUiWithLoadingState(uiState.isMessageSendingAllowed)
+        adjustUiWithLoadingState(uiState.isLoading)
+        adjustUiWithMessageSendingAllowedFlag(uiState.isMessageSendingAllowed)
     }
 
     private fun initMessageListView() {
