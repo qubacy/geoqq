@@ -5,14 +5,16 @@ import app.cash.turbine.test
 import com.qubacy.geoqq._common._test.util.assertion.AssertUtils
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.domain._common._test.context.UseCaseTestContext
-import com.qubacy.geoqq.domain.user.usecase._common.result.get.GetUserDomainResult
+import com.qubacy.geoqq.domain._common.model.user.User
+import com.qubacy.geoqq.domain._common.usecase._common.result._common.DomainResult
 import com.qubacy.geoqq.domain._common.usecase.aspect.user.result.update.UserUpdatedDomainResult
 import com.qubacy.geoqq.domain.mate._common._test.context.MateUseCaseTestContext
 import com.qubacy.geoqq.domain.mate.request.usecase._common.result.AnswerMateRequestDomainResult
 import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.get.GetRequestChunkDomainResult
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.ShowInterlocutorDetailsUiOperation
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.update.UpdateRequestChunkDomainResult
+import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.business.model.BusinessViewModelTest
@@ -24,6 +26,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -34,7 +37,7 @@ class MateRequestsViewModelImplTest(
 
 ) : BusinessViewModelTest<MateRequestsUiState, MateRequestsUseCase, MateRequestsViewModelImpl>(
     MateRequestsUseCase::class.java
-) {
+), InterlocutorViewModelTest<MateRequestsViewModelImpl> {
     companion object {
         val DEFAULT_USER = UseCaseTestContext.DEFAULT_USER
         val DEFAULT_MATE_REQUEST = MateUseCaseTestContext.DEFAULT_MATE_REQUEST
@@ -338,41 +341,20 @@ class MateRequestsViewModelImplTest(
     }
 
     @Test
-    fun processGetInterlocutorDomainResultTest() = runTest {
-        val initRequest = DEFAULT_MATE_REQUEST_PRESENTATION
-        val initRequests = mutableListOf(initRequest)
-        val initUiState = MateRequestsUiState(
-            requests = initRequests
-        )
-
-        val user = DEFAULT_USER.copy(username = "result user")
-        val getInterlocutorDomainResult = GetUserDomainResult(interlocutor = user)
-
-        val expectedUserPresentation = user.toUserPresentation()
-        val expectedRequests = initRequests.map {
-            if (it.user.id == user.id) it.copy(user = expectedUserPresentation) else it
-        }
+    override fun onUserGetUserTest() {
+        val initUserPresentation = getUserUser().toUserPresentation()
+        val initRequestPresentation = DEFAULT_MATE_REQUEST_PRESENTATION
+            .copy(user = initUserPresentation)
+        val initRequestPresentations = mutableListOf(initRequestPresentation)
+        val initUiState = MateRequestsUiState(requests = initRequestPresentations)
 
         setUiState(initUiState)
 
-        mModel.uiOperationFlow.test {
-            mResultFlow.emit(getInterlocutorDomainResult)
-
-            val operation = awaitItem()
-
-            Assert.assertEquals(ShowInterlocutorDetailsUiOperation::class, operation::class)
-
-            val gottenUserPresentation = (operation as ShowInterlocutorDetailsUiOperation)
-                .interlocutor
-            val gottenRequests = mModel.uiState.requests
-
-            Assert.assertEquals(expectedUserPresentation, gottenUserPresentation)
-            AssertUtils.assertEqualContent(expectedRequests, gottenRequests)
-        }
+        super.onUserGetUserTest()
     }
 
     @Test
-    fun processUpdateInterlocutorDomainResultTest() = runTest {
+    override fun onUserUpdateUserTest() = runTest {
         val initRequest = DEFAULT_MATE_REQUEST_PRESENTATION
         val initRequests = mutableListOf(initRequest)
         val initUiState = MateRequestsUiState(
@@ -416,7 +398,7 @@ class MateRequestsViewModelImplTest(
     }
 
     @Test
-    fun processGetRequestChunkDomainResultTest() = runTest {
+    fun onMateRequestsGetRequestChunkTest() = runTest {
         val initLoadingState = true
         val initIsGettingNextRequestChunk = true
         val initRequests = mutableListOf(DEFAULT_MATE_REQUEST_PRESENTATION)
@@ -464,7 +446,48 @@ class MateRequestsViewModelImplTest(
     }
 
     @Test
-    fun processAnswerMateRequestDomainResultTest() = runTest {
+    fun onMateRequestsUpdateRequestChunkTest() = runTest {
+        val initRequests = mutableListOf(DEFAULT_MATE_REQUEST_PRESENTATION)
+        val initUiState = MateRequestsUiState(requests = initRequests)
+
+        val offset = 0
+        val updatedRequestChunk = MateRequestChunk(offset, mutableListOf(DEFAULT_MATE_REQUEST))
+        val updateRequestChunkDomainResult = UpdateRequestChunkDomainResult(chunk = updatedRequestChunk)
+
+        val expectedChunkPosition = 0
+        val expectedRequestsForInsertion = requestChunk.requests.map { it.toMateRequestPresentation() }
+        val expectedRequests = initRequests.plus(expectedRequestsForInsertion)
+
+        mIsGettingNextChatChunkFieldReflection.set(mModel, initIsGettingNextRequestChunk)
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(updateRequestChunkDomainResult)
+
+            val insertingRequestsOperation = awaitItem()
+            val loadingOperation = awaitItem()
+
+            Assert.assertEquals(InsertRequestsUiOperation::class, insertingRequestsOperation::class)
+            Assert.assertEquals(SetLoadingStateUiOperation::class, loadingOperation::class)
+
+            insertingRequestsOperation as InsertRequestsUiOperation
+
+            val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
+            val gottenInGettingNextRequestChunk = mIsGettingNextChatChunkFieldReflection.get(mModel)
+            val gottenChunkPosition = insertingRequestsOperation.position
+            val gottenRequestsForInsertion = insertingRequestsOperation.requests
+            val gottenRequests = mModel.uiState.requests
+
+            Assert.assertEquals(expectedLoadingState, gottenLoadingState)
+            Assert.assertEquals(expectedIsGettingNextRequestChunk, gottenInGettingNextRequestChunk)
+            Assert.assertEquals(expectedChunkPosition, gottenChunkPosition)
+            AssertUtils.assertEqualContent(expectedRequestsForInsertion, gottenRequestsForInsertion)
+            AssertUtils.assertEqualContent(expectedRequests, gottenRequests)
+        }
+    }
+
+    @Test
+    fun onMateRequestsAnswerMateRequestTest() = runTest {
         val initLoadingState = true
         val initRequest = DEFAULT_MATE_REQUEST_PRESENTATION
         val initRequests = mutableListOf(initRequest)
@@ -501,5 +524,22 @@ class MateRequestsViewModelImplTest(
             Assert.assertEquals(expectedRequestPositionForRemoval, gottenRequestPositionForRemoval)
             AssertUtils.assertEqualContent(expectedRequests, gottenRequests)
         }
+    }
+
+    @Test
+    fun onMateRequestsMateRequestAddedTest() {
+
+    }
+
+    override fun getUserResultFlow(): MutableSharedFlow<DomainResult> {
+        return mResultFlow
+    }
+
+    override fun getUserModel(): MateRequestsViewModelImpl {
+        return mModel
+    }
+
+    override fun getUserUser(): User {
+        return DEFAULT_USER
     }
 }
