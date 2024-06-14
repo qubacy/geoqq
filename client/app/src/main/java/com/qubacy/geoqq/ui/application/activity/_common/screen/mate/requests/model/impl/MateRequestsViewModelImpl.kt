@@ -103,10 +103,12 @@ open class MateRequestsViewModelImpl @Inject constructor(
         val updatedRequests = requestChunk.requests.map { it.toMateRequestPresentation() }
 
         // todo: is it alright?:
-        for (i in requestChunkPosition until requestChunkPosition + requestChunk.requests.size) {
-            val updatedRequest = updatedRequests[i - requestChunkPosition]
+        for (updatedRequest in updatedRequests) {
+            val updatedRequestPosition = mUiState.requests.indexOfFirst { it.id == updatedRequest.id }
 
-            mUiState.requests[i] = updatedRequest
+            if (updatedRequestPosition < 0) continue
+
+            mUiState.requests[updatedRequestPosition] = updatedRequest
         }
 
         return listOf(UpdateRequestsUiOperation(requestChunkPosition, updatedRequests))

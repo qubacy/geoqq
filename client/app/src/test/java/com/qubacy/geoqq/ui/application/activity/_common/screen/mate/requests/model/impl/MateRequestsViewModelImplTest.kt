@@ -14,6 +14,7 @@ import com.qubacy.geoqq.domain.mate.requests.projection.MateRequestChunk
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.MateRequestsUseCase
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.get.GetRequestChunkDomainResult
 import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.chunk.update.UpdateRequestChunkDomainResult
+import com.qubacy.geoqq.domain.mate.requests.usecase._common.result.request.added.MateRequestAddedDomainResult
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.InterlocutorViewModelTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.interlocutor.model.operation.UpdateInterlocutorDetailsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
@@ -23,6 +24,8 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._tes
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.MateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests._common.presentation.toMateRequestPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.insert.InsertRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.update.UpdateRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.AddRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.state.MateRequestsUiState
@@ -447,42 +450,43 @@ class MateRequestsViewModelImplTest(
 
     @Test
     fun onMateRequestsUpdateRequestChunkTest() = runTest {
-        val initRequests = mutableListOf(DEFAULT_MATE_REQUEST_PRESENTATION)
-        val initUiState = MateRequestsUiState(requests = initRequests)
+        val initUser = DEFAULT_USER
+        val initRequest = DEFAULT_MATE_REQUEST.copy(user = initUser)
+
+        val initRequestPresentation = initRequest.toMateRequestPresentation()
+        val initRequestPresentations = mutableListOf(initRequestPresentation)
+        val initUiState = MateRequestsUiState(requests = initRequestPresentations)
 
         val offset = 0
-        val updatedRequestChunk = MateRequestChunk(offset, mutableListOf(DEFAULT_MATE_REQUEST))
+        val updatedUser = initUser.copy(username = "updated user")
+        val updatedRequest = initRequest.copy(user = updatedUser)
+        val updatedRequestChunk = MateRequestChunk(offset, mutableListOf(updatedRequest))
         val updateRequestChunkDomainResult = UpdateRequestChunkDomainResult(chunk = updatedRequestChunk)
 
         val expectedChunkPosition = 0
-        val expectedRequestsForInsertion = requestChunk.requests.map { it.toMateRequestPresentation() }
-        val expectedRequests = initRequests.plus(expectedRequestsForInsertion)
+        val expectedUpdatedRequestPresentations =
+            updatedRequestChunk.requests.map { it.toMateRequestPresentation() }.toMutableList()
+        val expectedRequestPresentations = expectedUpdatedRequestPresentations
 
-        mIsGettingNextChatChunkFieldReflection.set(mModel, initIsGettingNextRequestChunk)
         setUiState(initUiState)
 
         mModel.uiOperationFlow.test {
             mResultFlow.emit(updateRequestChunkDomainResult)
 
-            val insertingRequestsOperation = awaitItem()
-            val loadingOperation = awaitItem()
+            val operation = awaitItem()
 
-            Assert.assertEquals(InsertRequestsUiOperation::class, insertingRequestsOperation::class)
-            Assert.assertEquals(SetLoadingStateUiOperation::class, loadingOperation::class)
+            Assert.assertEquals(UpdateRequestsUiOperation::class, operation::class)
 
-            insertingRequestsOperation as InsertRequestsUiOperation
+            operation as UpdateRequestsUiOperation
 
-            val gottenLoadingState = (loadingOperation as SetLoadingStateUiOperation).isLoading
-            val gottenInGettingNextRequestChunk = mIsGettingNextChatChunkFieldReflection.get(mModel)
-            val gottenChunkPosition = insertingRequestsOperation.position
-            val gottenRequestsForInsertion = insertingRequestsOperation.requests
-            val gottenRequests = mModel.uiState.requests
+            val gottenChunkPosition = operation.position
+            val gottenUpdatedRequestPresentations = operation.requests
+            val gottenRequestPresentations = mModel.uiState.requests
 
-            Assert.assertEquals(expectedLoadingState, gottenLoadingState)
-            Assert.assertEquals(expectedIsGettingNextRequestChunk, gottenInGettingNextRequestChunk)
             Assert.assertEquals(expectedChunkPosition, gottenChunkPosition)
-            AssertUtils.assertEqualContent(expectedRequestsForInsertion, gottenRequestsForInsertion)
-            AssertUtils.assertEqualContent(expectedRequests, gottenRequests)
+            AssertUtils.assertEqualContent(
+                expectedUpdatedRequestPresentations, gottenUpdatedRequestPresentations)
+            AssertUtils.assertEqualContent(expectedRequestPresentations, gottenRequestPresentations)
         }
     }
 
@@ -527,8 +531,33 @@ class MateRequestsViewModelImplTest(
     }
 
     @Test
-    fun onMateRequestsMateRequestAddedTest() {
+    fun onMateRequestsMateRequestAddedTest() = runTest {
+        val initRequestPresentations = mutableListOf<MateRequestPresentation>()
+        val initUiState = MateRequestsUiState(requests = initRequestPresentations)
 
+        val addedRequest = DEFAULT_MATE_REQUEST
+        val addedRequestPresentation = addedRequest.toMateRequestPresentation()
+        val mateRequestAddedDomainResult = MateRequestAddedDomainResult(request = addedRequest)
+
+        val expectedRequestPresentation = addedRequestPresentation
+        val expectedRequestPresentations = initRequestPresentations
+            .plus(expectedRequestPresentation).toMutableList()
+
+        setUiState(initUiState)
+
+        mModel.uiOperationFlow.test {
+            mResultFlow.emit(mateRequestAddedDomainResult)
+
+            val operation = awaitItem()
+
+            Assert.assertEquals(AddRequestUiOperation::class, operation::class)
+
+            val gottenRequestPresentation = (operation as AddRequestUiOperation).request
+            val gottenRequestPresentations = mModel.uiState.requests
+
+            Assert.assertEquals(expectedRequestPresentation, gottenRequestPresentation)
+            AssertUtils.assertEqualContent(expectedRequestPresentations, gottenRequestPresentations)
+        }
     }
 
     override fun getUserResultFlow(): MutableSharedFlow<DomainResult> {
