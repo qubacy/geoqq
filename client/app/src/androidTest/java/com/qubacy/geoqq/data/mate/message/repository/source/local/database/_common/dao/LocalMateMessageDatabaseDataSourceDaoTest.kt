@@ -120,33 +120,13 @@ class LocalMateMessageDatabaseDataSourceDaoTest :
         Assert.assertTrue(gottenDeletedMessageEntities.isEmpty())
     }
 
-//    @Test
-//    fun saveMessagesTest() {
-//        val initMessages = generateMessages(count = 3)
-//        val messagesToSave = generateMessages(offset = 1, count = 3).toMutableList().apply {
-//            this[0] = this[0].copy(text = "updated text")
-//        }
-//        val expectedMessages = messagesToSave.toMutableList().apply {
-//            add(0, initMessages.first())
-//        }
-//
-//        for (message in initMessages)
-//            mLocalMateMessageDataSource.insertMessage(message)
-//
-//        mLocalMateMessageDataSource.saveMessages(messagesToSave)
-//
-//        val gottenMessages = mLocalMateMessageDataSource
-//            .getMessages(DEFAULT_MATE_CHAT_ENTITY.id, 0, expectedMessages.size)
-//
-//        AssertUtils.assertEqualContent(expectedMessages, gottenMessages)
-//    }
-
     override fun packEntityContent(itemEntity: MateChatEntity): ContentValues {
         return ContentValues().apply {
             put(MateChatEntity.ID_PROP_NAME, DEFAULT_MATE_CHAT_ENTITY.id)
             put(MateChatEntity.USER_ID_PROP_NAME, DEFAULT_MATE_CHAT_ENTITY.userId)
             put(MateChatEntity.NEW_MESSAGE_COUNT_PROP_NAME, DEFAULT_MATE_CHAT_ENTITY.newMessageCount)
             put(MateChatEntity.LAST_MESSAGE_ID_PROP_NAME, DEFAULT_MATE_CHAT_ENTITY.lastMessageId)
+            put(MateChatEntity.LAST_ACTION_TIME_PROP_NAME, DEFAULT_MATE_CHAT_ENTITY.lastActionTime)
         }
     }
 
