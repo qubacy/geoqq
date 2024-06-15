@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -24,13 +25,7 @@ func newGeoChatMessageStorage(pool *pgxpool.Pool) *GeoChatMessageStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateInsertGeoChatMessage = utl.RemoveAdjacentWs(`
-		INSERT INTO "GeoMessage" (
-			"FromUserId", "Text", "Time",
-			"Latitude", "Longitude"
-		)
-		VALUES ($1, $2, NOW()::timestamp, $3, $4) 
-			RETURNING "Id"`)
+	templateInsertGeoChatMessage = template.InsertGeoChatMessage
 
 	templateGetGeoChatMessages = utl.RemoveAdjacentWs(`
 		SELECT 

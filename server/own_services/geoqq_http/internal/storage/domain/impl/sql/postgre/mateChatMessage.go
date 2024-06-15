@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_http/internal/domain"
@@ -27,16 +28,8 @@ func newMateChatMessageStorage(pool *pgxpool.Pool) *MateChatMessageStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateInsertMateChatMessageWithoutReturningId = utl.RemoveAdjacentWs(`
-		INSERT INTO "MateMessage" (
-			"MateChatId", "FromUserId",
-			"Text", "Time", "Read"
-		)
-		VALUES ($1, $2, $3, NOW()::timestamp, FALSE)`)
-
 	templateInsertMateChatMessage = `` +
-		templateInsertMateChatMessageWithoutReturningId +
-		` RETURNING "Id"`
+		template.InsertMateChatMessage
 
 	/*
 		Order:

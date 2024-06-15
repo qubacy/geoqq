@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -128,11 +129,7 @@ var (
 			2. lat
 			3. userId
 	*/
-	templateUpdateUserLocation = utl.RemoveAdjacentWs(`
-		UPDATE "UserLocation" 
-			SET "Longitude" = $1, "Latitude" = $2,
-				"Time" = NOW()::timestamp
-		WHERE "UserId" = $3`)
+	templateUpdateUserLocation = template.UpdateUserLocation
 
 	templateUpdateOnlyHashRefreshTokenById = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" SET "HashUpdToken" = $1 WHERE "Id" = $2`)

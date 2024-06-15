@@ -93,6 +93,23 @@ func Test_UnwrapErrorsToLast(t *testing.T) {
 	}
 }
 
+// -----------------------------------------------------------------------
+
+func Test_RunFuncsRetErr(t *testing.T) {
+	err := RunFuncsRetErr(func() error {
+		return nil
+	}, func() error {
+		return fmt.Errorf("unexpected error")
+	}, func() error {
+		t.Errorf("unreachable func")
+		return nil
+	})
+
+	fmt.Println(err)
+}
+
+// -----------------------------------------------------------------------
+
 func Test_RandomString(t *testing.T) {
 	wantLength := 10
 	if gotLength := len(RandomString(wantLength)); gotLength != wantLength {

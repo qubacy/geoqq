@@ -42,7 +42,7 @@ func NewWsEventHandler(
 		readTimeout:  readTimeout,
 
 		tpExtractor: tpExtractor,
-		clients:     sync.Map{},
+		clients:     sync.Map{}, // map[*gws.Conn]Client
 	}
 
 	hh.initRouter()
@@ -62,11 +62,11 @@ func (w *WsEventHandler) initRouter() {
 // -----------------------------------------------------------------------
 
 // type Event interface {
-// 	OnOpen(socket *Conn)
-// 	OnClose(socket *Conn, err error)
-// 	OnPing(socket *Conn, payload []byte)
-// 	OnPong(socket *Conn, payload []byte)
-// 	OnMessage(socket *Conn, message *Message)
+//     OnOpen(socket *Conn)
+//     OnClose(socket *Conn, err error)
+//     OnPing(socket *Conn, payload []byte)
+//     OnPong(socket *Conn, payload []byte)
+//     OnMessage(socket *Conn, message *Message)
 // }
 
 func (w *WsEventHandler) OnOpen(socket *gws.Conn) {

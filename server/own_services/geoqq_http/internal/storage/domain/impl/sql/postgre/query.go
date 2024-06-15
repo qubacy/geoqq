@@ -23,13 +23,12 @@ type bgrQueryWrapper = func(conn *pgxpool.Conn, ctx context.Context) error
 func queryRowWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,
 	f rowQueryWrapper) (pgx.Row, error) {
 
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
+	if conn, err := pool.Acquire(ctx); err != nil {
 		return nil, utl.NewFuncError(queryRowWithConnectionAcquire, err)
+	} else {
+		defer func() { conn.Release() }()
+		return f(conn, ctx), nil
 	}
-	defer conn.Release()
-
-	return f(conn, ctx), nil
 }
 
 func scanUint64(row QueryResultScanner, sourceFunc any) (uint64, error) {

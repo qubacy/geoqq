@@ -3,6 +3,6 @@ package database
 import "context"
 
 type UserDatabase interface {
-	UpdateUserLocation(ctx context.Context,
-		lon, lat float64, radius uint64) error
+	UpdateUserLocation(ctx context.Context, userId uint64,
+		lon, lat float64) error
 }

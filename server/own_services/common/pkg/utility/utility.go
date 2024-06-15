@@ -52,6 +52,20 @@ func UnwrapErrorsToLast(err error) error {
 	return err
 }
 
+// -----------------------------------------------------------------------
+
+type FuncReturningError = func() error
+
+func RunFuncsRetErr(ff ...FuncReturningError) error {
+	for _, f := range ff {
+		if err := f(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // generators
 // -----------------------------------------------------------------------
 

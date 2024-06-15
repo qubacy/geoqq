@@ -133,3 +133,14 @@
  with an error/in: gws: connection closed, code=1000, reason=sampler requested close
 2024/06/12 19:52:57.569088 internal/response.go:19 | WARNING | invalid authorization header
 2024/06/12 19:52:57.570086 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:54:13.724796 toggle/toggle.go:125 | TRACE | trace
+2024/06/12 19:54:13.746325 toggle/toggle.go:126 | DEBUG | debug
+2024/06/12 19:54:13.746325 toggle/toggle.go:127 | INFO | info
+2024/06/12 19:54:13.746325 toggle/toggle.go:128 | WARNING | warning
+2024/06/12 19:54:13.746325 toggle/toggle.go:129 | ERROR | error
+2024/06/12 19:54:13.842076 internal/wsEventHandler.go:79 | INFO | connection opened (addr: 127.0.0.1:58738, userId: 1)
+2024/06/12 19:54:13.842076 internal/wsEventHandler.go:108 | INFO | connection closed (addr: 127.0.0.1:58738)
+2024/06/12 19:54:13.842076 internal/wsEventHandler.go:110 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/12 19:54:13.843076 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/12 19:54:13.845076 internal/response.go:19 | WARNING | invalid authorization header
