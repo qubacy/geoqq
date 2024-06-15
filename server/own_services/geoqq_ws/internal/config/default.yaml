@@ -35,5 +35,18 @@ adapters:
         timeout: 25s
       token:
         signing_key: "signing_key"
+  
+  infra:
+    database:
+      type: postgre
+      sql:
+        postgre:
+          host: "127.0.0.1"
+          port: 5432
+
+          user: "postgres"
+          password: "admin"
+          database: "geoqq"
+
 
   

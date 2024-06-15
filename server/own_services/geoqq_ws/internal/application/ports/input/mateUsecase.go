@@ -1,6 +1,8 @@
-package wsApi
+package input
 
-import "context"
+import (
+	"context"
+)
 
 type MateUsecase interface {
 	AddMateMessage(ctx context.Context,

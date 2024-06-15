@@ -1,0 +1,18 @@
+@startuml update_user_loc
+
+actor "Client App" as ca
+participant "Geoqq Ws" as gw
+participant "Geoqq Http" as gh
+
+entity "Domain Storage" as ds
+entity "Cache" as cache
+
+ca -> gw : open connection
+ca -> gw : SEND:\n''update_user_location''
+
+gw -> ds : update user location
+ds --> gw : positive status
+
+
+
+@enduml

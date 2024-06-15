@@ -9,11 +9,17 @@ import (
 	"geoqq_ws/internal/application/ports/output/database"
 )
 
+type UserUcParams struct {
+	Database database.Database
+}
+
+// -----------------------------------------------------------------------
+
 type UserUsecase struct {
 	Db database.Database
 }
 
-func newUserUsecase(deps Dependencies) *UserUsecase {
+func NewUserUsecase(deps UserUcParams) *UserUsecase {
 	return &UserUsecase{
 		Db: deps.Database,
 	}
@@ -24,6 +30,7 @@ func newUserUsecase(deps Dependencies) *UserUsecase {
 
 func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 	data dto.UpdateUserLocation) error {
+
 	sourceFunc := u.UpdateUserLocation
 	err := validateLatAndLon(data.Longitude, data.Longitude)
 	if err != nil {
@@ -32,8 +39,8 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 
 	// ***
 
-	err = u.Db.UpdateUserLocation(ctx, data.Longitude,
-		data.Latitude, data.Radius)
+	err = u.Db.UpdateUserLocation(ctx,
+		data.UserId, data.Longitude, data.Latitude)
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal"
+	"geoqq_ws/internal/application/ports/input"
 	"net/http"
 	"time"
 )
@@ -23,6 +24,8 @@ type Params struct {
 	ReadTimeout  time.Duration
 
 	TpExtractor token.TokenPayloadExtractor
+
+	UserUc input.UserUsecase
 }
 
 func (p *Params) createAddr() string {
@@ -41,6 +44,7 @@ func New(params *Params) (*Server, error) {
 		WriteTimeout: params.WriteTimeout,
 		ReadTimeout:  params.ReadTimeout,
 		TpExtractor:  params.TpExtractor,
+		UserUc:       params.UserUc,
 	})
 	if err != nil {
 		return nil, utl.NewFuncError(New, err)

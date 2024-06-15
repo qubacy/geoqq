@@ -56,7 +56,7 @@ const (
 
 		Examples of checks:
 			- empty string;
-			-
+			- not two parts.
 	*/
 	ValidateRequestParamsFailed // any request variable (Body, Url...)
 	/*
@@ -66,6 +66,9 @@ const (
 		HTTP 401
 	*/
 	ValidateRequestAccessTokenFailed
+
+	Parse_UnknownAction
+	Parse_JsonPayloadFailed
 )
 
 // By Domains
@@ -75,6 +78,7 @@ const (
 	Client App:
 
 		GENERAL(ErrorDomainType.SHARED), 	// 1200
+
 		AUTH(ErrorDomainType.SHARED), 		// 1400
 		USER(ErrorDomainType.SHARED), 	 	// 1600
 		MY_PROFILE(ErrorDomainType.SHARED),	// 1800

@@ -13,14 +13,19 @@ const (
 )
 
 const (
-	EventGeneralError = "general_error"
+	EventServerError = "server_error"
 
+	EventParseError   = "parse_error"
+	EventGeneralError = "general_error" // by domains...
+)
+
+const (
 	PostfixSucceeded = "succeeded"
 	PostfixFailed    = "failed"
 )
 
-func MakeEventWithPostfix(eventName, postfixName string) string {
-	return eventName + "_" + postfixName
+func MakeEventWithPostfix(name, postfixName string) string {
+	return name + "_" + postfixName
 }
 
 type Message struct {

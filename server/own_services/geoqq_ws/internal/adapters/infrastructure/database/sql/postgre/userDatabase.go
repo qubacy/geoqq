@@ -32,7 +32,7 @@ func (s *UserDatabase) UpdateUserLocation(ctx context.Context,
 	defer c.Release()
 
 	cmdTag, err := c.Exec(ctx,
-		template.UpdateUserLocation+`;`, lon, lat)
+		template.UpdateUserLocation+`;`, lon, lat, userId)
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}

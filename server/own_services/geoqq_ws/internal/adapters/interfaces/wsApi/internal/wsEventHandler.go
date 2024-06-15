@@ -1,12 +1,15 @@
 package internal
 
 import (
+	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	"common/pkg/token"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
+	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
+	"geoqq_ws/internal/application/ports/input"
 	"sync"
 	"time"
 
@@ -25,13 +28,18 @@ type WsEventHandler struct {
 	clients     sync.Map
 
 	router map[string]PayloadHandler
+
+	// services/usecases
+
+	userUc input.UserUsecase
 }
 
 func NewWsEventHandler(
 	enablePing bool,
 	pingTimeout, pingInterval time.Duration,
 	writeTimeout, readTimeout time.Duration,
-	tpExtractor token.TokenPayloadExtractor) *WsEventHandler {
+	tpExtractor token.TokenPayloadExtractor,
+	userUc input.UserUsecase) *WsEventHandler {
 
 	hh := &WsEventHandler{
 		enablePing:   enablePing,
@@ -43,6 +51,8 @@ func NewWsEventHandler(
 
 		tpExtractor: tpExtractor,
 		clients:     sync.Map{}, // map[*gws.Conn]Client
+
+		userUc: userUc,
 	}
 
 	hh.initRouter()
@@ -61,19 +71,40 @@ func (w *WsEventHandler) initRouter() {
 // impl interface for gws.Event!
 // -----------------------------------------------------------------------
 
-// type Event interface {
-//     OnOpen(socket *Conn)
-//     OnClose(socket *Conn, err error)
-//     OnPing(socket *Conn, payload []byte)
-//     OnPong(socket *Conn, payload []byte)
-//     OnMessage(socket *Conn, message *Message)
-// }
+/*
+	type Event interface {
+		OnOpen(socket *Conn)
+		OnClose(socket *Conn, err error)
+		OnPing(socket *Conn, payload []byte)
+		OnPong(socket *Conn, payload []byte)
+		OnMessage(socket *Conn, message *Message)
+	}
+*/
 
 func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 	ss := socket.Session()
-	userId, exist := ss.Load(contextUserId)
-	if !exist {
-		logger.Error("user id not exists")
+	rawUserId, exist := ss.Load(contextUserId)
+
+	var userId uint64
+	err := utl.RunFuncsRetErr(
+		func() error {
+			if !exist {
+				return ErrSessionStorageHasNoUserId
+			}
+			return nil
+		}, func() error {
+			var ok bool
+			userId, ok = rawUserId.(uint64)
+			if !ok {
+				return ErrUserIdNotConvertedToUint64
+			}
+			return nil
+		},
+	)
+	if err != nil {
+		w.resWithServerError(socket, svrSide.EventGeneralError,
+			ec.ServerError, err)
+		return
 	}
 
 	logger.Info("connection opened (addr: %v, userId: %v)",
@@ -81,14 +112,17 @@ func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 
 	// ***
 
-	c := NewEmptyClient()
-	c.socket = socket
+	c := NewClient(socket, w.tpExtractor, userId)
 	w.clients.Store(socket, c)
 
 	if w.enablePing {
 		c.pingContext, c.pingCancel =
 			context.WithCancel(context.Background())
 
+		/*
+			Can be put into a separate function,
+				but the context includes many dependencies.
+		*/
 		go func() {
 			for {
 				select {
@@ -96,8 +130,12 @@ func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 					return
 
 				case <-time.After(w.pingInterval):
-					_ = socket.SetDeadline(time.Now().Add(w.pingTimeout))
-					_ = socket.WritePing(nil)
+					err := utl.RunFuncsRetErr(
+						func() error { return socket.SetDeadline(time.Now().Add(w.pingTimeout)) },
+						func() error { return socket.WritePing(nil) })
+					if err != nil {
+						logger.Warning("%v in ping routine", err) // ?
+					}
 				}
 			}
 		}()
@@ -113,12 +151,12 @@ func (w *WsEventHandler) OnClose(socket *gws.Conn, err error) {
 	// ***
 
 	if w.enablePing {
-		rawValue, loaded := w.clients.LoadAndDelete(socket)
+		value, loaded := w.clients.LoadAndDelete(socket)
 		if !loaded { // impossible!?
 			return
 		}
 
-		client := rawValue.(*Client)
+		client := value.(*Client)
 		client.pingCancel()
 	} else {
 		w.clients.Delete(socket)
@@ -126,8 +164,12 @@ func (w *WsEventHandler) OnClose(socket *gws.Conn, err error) {
 }
 
 func (w *WsEventHandler) OnPing(socket *gws.Conn, payload []byte) {
-	_ = socket.SetDeadline(time.Now().Add(w.pingTimeout))
-	_ = socket.WritePong(nil)
+	err := utl.RunFuncsRetErr(
+		func() error { return socket.SetDeadline(time.Now().Add(w.pingTimeout)) },
+		func() error { return socket.WritePong(nil) })
+	if err != nil {
+		logger.Warning("%v", w.OnPing)
+	}
 }
 
 func (c *WsEventHandler) OnPong(socket *gws.Conn, payload []byte) {}
@@ -135,34 +177,41 @@ func (c *WsEventHandler) OnPong(socket *gws.Conn, payload []byte) {}
 // to message handler!
 // -----------------------------------------------------------------------
 
-func (c *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
+func (w *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	clientMessage := clientSide.Message{}
 	if err := json.Unmarshal(message.Bytes(), &clientMessage); err != nil {
-		// send errorot to client!
+		w.resWithClientError(socket, svrSide.EventParseError,
+			ec.ParseRequestJsonBodyFailed, utl.NewFuncError(w.OnMessage, err))
+		return
+	}
+
+	actionName := clientMessage.Action
+	ph, ok := w.router[actionName]
+	if !ok {
+		w.resWithClientError(socket, svrSide.EventParseError,
+			ec.Parse_UnknownAction, ErrUnknownActionWithName(actionName))
 		return
 	}
 
 	// ***
 
-	rawValue, ok := c.clients.Load(socket)
+	eventFailedName := svrSide.MakeEventWithPostfix(
+		clientMessage.Action, svrSide.PostfixFailed)
+	value, ok := w.clients.Load(socket)
 	if !ok {
-		// disck!!!
+		w.resWithServerError(socket, eventFailedName,
+			ec.ServerError, ErrClientNotFoundBySocketInMap)
 		return
 	}
 
-	client := rawValue.(*Client)
-	if err := client.assertUserIdentity(clientMessage); err != nil {
-
+	client := value.(*Client) // there cannot be other types!
+	if err := client.assertUserIdentity(clientMessage.AccessToken); err != nil {
+		w.resWithAuthError(socket, eventFailedName,
+			ec.ValidateAccessTokenFailed, utl.NewFuncError(w.OnMessage, err)) // ?
 		return
 	}
 
 	// ***
-
-	ph, ok := c.router[clientMessage.Action]
-	if !ok {
-
-		return
-	}
 
 	ph(client, clientMessage.Payload)
 }

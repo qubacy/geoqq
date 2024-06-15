@@ -7,7 +7,10 @@ import (
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre"
 	"geoqq_ws/internal/adapters/interfaces/wsApi"
+	"geoqq_ws/internal/application/ports/input"
+	"geoqq_ws/internal/application/usecase"
 	"geoqq_ws/internal/config"
 	"geoqq_ws/internal/constErrors"
 	"os"
@@ -44,7 +47,22 @@ func Do() error {
 
 	// infrastructure/output
 
+	domainDb, err := postgre.New(context.TODO(), postgre.Dependencies{
+		Host:         viper.GetString("adapters.infra.database.sql.postgre.host"),
+		Port:         viper.GetUint16("adapters.infra.database.sql.postgre.port"),
+		Username:     viper.GetString("adapters.infra.database.sql.postgre.user"),
+		Password:     viper.GetString("adapters.infra.database.sql.postgre.password"),
+		DatabaseName: viper.GetString("adapters.infra.database.sql.postgre.database"),
+	})
+	if err != nil {
+		return utl.NewFuncError(Do, err)
+	}
+
 	// application core
+
+	var userUc input.UserUsecase = usecase.NewUserUsecase(usecase.UserUcParams{
+		Database: domainDb,
+	})
 
 	// interfaces/input
 
@@ -60,6 +78,8 @@ func Do() error {
 		PingTimeout: viper.GetDuration("adapters.interfaces.ws.ping.timeout"),
 
 		TpExtractor: tokenManager,
+
+		UserUc: userUc,
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)

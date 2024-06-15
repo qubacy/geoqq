@@ -21,7 +21,7 @@ func ExtractAccessTokenWithCheck(ctx *gin.Context) (string, int, error) {
 	// ***
 
 	if len(authParts) != 2 {
-		return "", ec.ValidateAuthorizationHeaderFailed,
+		return "", ec.ValidateAuthorizationHeaderFailed, // parse error!
 			ErrInvalidAuthorizationHeader
 	}
 	if authParts[0] != "Bearer" {

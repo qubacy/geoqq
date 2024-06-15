@@ -7,11 +7,6 @@ import (
 	"github.com/lxzan/gws"
 )
 
-type UserLocation struct {
-	Longitude float64
-	Latitude  float64
-}
-
 type Client struct {
 	pingContext context.Context
 	pingCancel  context.CancelFunc
@@ -19,11 +14,15 @@ type Client struct {
 	socket      *gws.Conn
 	tpExtractor token.TokenPayloadExtractor
 	userId      uint64
-
-	knownLocation bool
-	location      UserLocation
 }
 
-func NewEmptyClient() *Client {
-	return &Client{}
+func NewClient(socket *gws.Conn, tpe token.TokenPayloadExtractor, userId uint64) *Client {
+	return &Client{
+		pingContext: nil,
+		pingCancel:  nil,
+
+		socket:      socket,
+		tpExtractor: tpe,
+		userId:      userId,
+	}
 }

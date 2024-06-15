@@ -144,3 +144,164 @@
  with an error/in: gws: connection closed, code=1000, reason=sampler requested close
 2024/06/12 19:54:13.843076 internal/response.go:19 | WARNING | invalid authorization header
 2024/06/12 19:54:13.845076 internal/response.go:19 | WARNING | invalid authorization header
+2024/06/15 19:50:10.717815 toggle/toggle.go:125 | TRACE | trace
+2024/06/15 19:50:10.741089 toggle/toggle.go:126 | DEBUG | debug
+2024/06/15 19:50:10.741089 toggle/toggle.go:127 | INFO | info
+2024/06/15 19:50:10.741089 toggle/toggle.go:128 | WARNING | warning
+2024/06/15 19:50:10.741089 toggle/toggle.go:129 | ERROR | error
+2024/06/15 19:50:10.743092 toggle/toggle.go:69 | FATAL | toggle.Do
+ with an error/in: wsApi.(*Server).Listen-fm
+ with an error/in: listen tcp 0.0.0.0:57002: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+2024/06/15 19:51:04.733792 toggle/toggle.go:125 | TRACE | trace
+2024/06/15 19:51:04.755056 toggle/toggle.go:126 | DEBUG | debug
+2024/06/15 19:51:04.755056 toggle/toggle.go:127 | INFO | info
+2024/06/15 19:51:04.755056 toggle/toggle.go:128 | WARNING | warning
+2024/06/15 19:51:04.755056 toggle/toggle.go:129 | ERROR | error
+2024/06/15 19:51:28.311967 internal/response.go:21 | WARNING | invalid authorization header
+2024/06/15 19:51:28.313016 internal/response.go:21 | WARNING | invalid authorization header
+2024/06/15 19:51:28.314682 internal/response.go:21 | WARNING | invalid authorization header
+2024/06/15 19:53:11.540023 internal/wsEventHandler.go:91 | INFO | connection opened (addr: 127.0.0.1:52570, userId: 1)
+2024/06/15 19:53:11.541619 internal/wsEventHandler.go:127 | INFO | connection closed (addr: 127.0.0.1:52570)
+2024/06/15 19:53:11.542150 internal/wsEventHandler.go:129 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=sampler requested close
+2024/06/15 19:53:11.543209 internal/response.go:21 | WARNING | invalid authorization header
+2024/06/15 19:53:11.544296 internal/response.go:21 | WARNING | invalid authorization header
+2024/06/15 19:53:31.448946 toggle/toggle.go:125 | TRACE | trace
+2024/06/15 19:53:31.473479 toggle/toggle.go:126 | DEBUG | debug
+2024/06/15 19:53:31.473479 toggle/toggle.go:127 | INFO | info
+2024/06/15 19:53:31.473479 toggle/toggle.go:128 | WARNING | warning
+2024/06/15 19:53:31.473479 toggle/toggle.go:129 | ERROR | error
+2024/06/15 19:54:25.404906 internal/response.go:35 | ERROR | session storage has no user id
+2024/06/15 19:54:25.405434 internal/wsEventHandler.go:127 | INFO | connection closed (addr: 127.0.0.1:52713)
+2024/06/15 19:54:25.405434 internal/wsEventHandler.go:129 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/15 20:07:39.895442 internal/response.go:35 | ERROR | session storage has no user id
+2024/06/15 20:07:39.895442 internal/wsEventHandler.go:127 | INFO | connection closed (addr: 127.0.0.1:53168)
+2024/06/15 20:07:39.895442 internal/wsEventHandler.go:129 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/15 20:13:12.931732 internal/response.go:35 | ERROR | session storage has no user id
+2024/06/15 20:13:12.932261 internal/wsEventHandler.go:127 | INFO | connection closed (addr: 127.0.0.1:54069)
+2024/06/15 20:13:12.932261 internal/wsEventHandler.go:129 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/15 20:13:37.473275 internal/response.go:35 | ERROR | session storage has no user id
+2024/06/15 20:13:37.473805 internal/wsEventHandler.go:127 | INFO | connection closed (addr: 127.0.0.1:54133)
+2024/06/15 20:13:37.473805 internal/wsEventHandler.go:129 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/15 20:13:47.731128 toggle/toggle.go:125 | TRACE | trace
+2024/06/15 20:13:47.755558 toggle/toggle.go:126 | DEBUG | debug
+2024/06/15 20:13:47.755558 toggle/toggle.go:127 | INFO | info
+2024/06/15 20:13:47.756099 toggle/toggle.go:128 | WARNING | warning
+2024/06/15 20:13:47.756099 toggle/toggle.go:129 | ERROR | error
+2024/06/15 20:13:53.258388 internal/wsEventHandler.go:91 | INFO | connection opened (addr: 127.0.0.1:54222, userId: 1)
+2024/06/16 00:13:09.347339 toggle/toggle.go:125 | TRACE | trace
+2024/06/16 00:13:09.387245 toggle/toggle.go:126 | DEBUG | debug
+2024/06/16 00:13:09.387245 toggle/toggle.go:127 | INFO | info
+2024/06/16 00:13:09.387245 toggle/toggle.go:128 | WARNING | warning
+2024/06/16 00:13:09.387245 toggle/toggle.go:129 | ERROR | error
+2024/06/16 00:13:14.832222 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:61774, userId: 1)
+2024/06/16 00:14:25.569566 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:61774)
+2024/06/16 00:14:25.569566 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: EOF
+2024/06/16 00:16:43.694720 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62078, userId: 1)
+2024/06/16 00:16:53.750731 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62078)
+2024/06/16 00:16:53.750731 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: EOF
+2024/06/16 00:16:53.770895 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62103, userId: 1)
+2024/06/16 00:16:53.771427 internal/response.go:43 | WARNING | unknown action `update_user_location1`
+2024/06/16 00:16:53.855657 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62103)
+2024/06/16 00:16:53.855657 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 00:17:02.957202 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62112, userId: 1)
+2024/06/16 00:17:02.957728 internal/response.go:43 | WARNING | unknown action `update_user_location1`
+2024/06/16 00:17:02.957728 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62112)
+2024/06/16 00:17:02.957728 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 00:17:10.014518 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62120, userId: 1)
+2024/06/16 00:17:10.015051 internal/response.go:43 | WARNING | unknown action `update_user_location1`
+2024/06/16 00:17:10.015051 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62120)
+2024/06/16 00:17:10.015569 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 00:17:15.930866 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62142, userId: 1)
+2024/06/16 00:17:21.943229 internal/response.go:43 | WARNING | unknown action `update_user_location1`
+2024/06/16 00:17:21.943744 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62142)
+2024/06/16 00:17:22.374829 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 00:17:51.252213 internal/wsEventHandler.go:102 | INFO | connection opened (addr: 127.0.0.1:62160, userId: 1)
+2024/06/16 00:17:51.252213 internal/response.go:43 | WARNING | unknown action `update_user_location1`
+2024/06/16 00:17:51.252741 internal/wsEventHandler.go:138 | INFO | connection closed (addr: 127.0.0.1:62160)
+2024/06/16 00:17:51.252741 internal/wsEventHandler.go:140 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 01:36:05.455382 toggle/toggle.go:125 | TRACE | trace
+2024/06/16 01:36:05.494115 toggle/toggle.go:126 | DEBUG | debug
+2024/06/16 01:36:05.494115 toggle/toggle.go:127 | INFO | info
+2024/06/16 01:36:05.494115 toggle/toggle.go:128 | WARNING | warning
+2024/06/16 01:36:05.494115 toggle/toggle.go:129 | ERROR | error
+2024/06/16 01:36:20.935746 internal/wsEventHandler.go:107 | INFO | connection opened (addr: 127.0.0.1:55371, userId: 1)
+2024/06/16 01:36:20.936292 internal/response.go:67 | WARNING | unknown action `update_user_location1`
+2024/06/16 01:36:20.936825 internal/wsEventHandler.go:143 | INFO | connection closed (addr: 127.0.0.1:55371)
+2024/06/16 01:36:20.936825 internal/wsEventHandler.go:145 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 01:37:06.165833 internal/wsEventHandler.go:107 | INFO | connection opened (addr: 127.0.0.1:55426, userId: 1)
+2024/06/16 01:37:09.760419 internal/response.go:67 | WARNING | internal.(*WsEventHandler).updateUserLocation-fm
+ with an error/in: payload.NewFromAny[...].func2
+ with an error/in: json: cannot unmarshal string into Go struct field UserLocation.latitude of type float64
+2024/06/16 01:37:09.760419 internal/wsEventHandler.go:143 | INFO | connection closed (addr: 127.0.0.1:55426)
+2024/06/16 01:37:09.760419 internal/wsEventHandler.go:145 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 01:37:23.091446 internal/wsEventHandler.go:107 | INFO | connection opened (addr: 127.0.0.1:55428, userId: 1)
+2024/06/16 01:37:24.342766 internal/response.go:67 | WARNING | internal.(*WsEventHandler).updateUserLocation-fm
+ with an error/in: payload.NewFromAny[...].func2
+ with an error/in: json: cannot unmarshal string into Go struct field UserLocation.latitude of type float64
+2024/06/16 01:37:24.343299 internal/wsEventHandler.go:143 | INFO | connection closed (addr: 127.0.0.1:55428)
+2024/06/16 01:37:24.343299 internal/wsEventHandler.go:145 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 01:38:18.627237 internal/wsEventHandler.go:107 | INFO | connection opened (addr: 127.0.0.1:55581, userId: 1)
+2024/06/16 01:38:19.434881 fatal error: runtime error: invalid memory address or nil pointer dereference goroutine 70 [running]:
+github.com/lxzan/gws.Recovery({0x142c220, 0x1724e20})
+	C:/Users/Leonid/go/pkg/mod/github.com/lxzan/gws@v1.8.3/types.go:283 +0x85
+panic({0x133ca20?, 0x16b96a0?})
+	C:/Program Files/Go/src/runtime/panic.go:920 +0x290
+geoqq_ws/internal/adapters/interfaces/wsApi/internal.(*WsEventHandler).updateUserLocation(0xc00044e000, 0xc0002921c0, {0x13382a0, 0xc0000a2a50})
+	d:/education/my/pl_go/geoqq/server/own_services/geoqq_ws/internal/adapters/interfaces/wsApi/internal/payloadHandler.go:32 +0x296
+geoqq_ws/internal/adapters/interfaces/wsApi/internal.(*WsEventHandler).OnMessage(0xc00044e000, 0xc0004929c0, 0xc0004aa100)
+	d:/education/my/pl_go/geoqq/server/own_services/geoqq_ws/internal/adapters/interfaces/wsApi/internal/wsEventHandler.go:213 +0x485
+github.com/lxzan/gws.(*Conn).dispatch(0xc0004929c0, 0xc0004aa100)
+	C:/Users/Leonid/go/pkg/mod/github.com/lxzan/gws@v1.8.3/reader.go:143 +0x149
+github.com/lxzan/gws.channel.Go.func1()
+	C:/Users/Leonid/go/pkg/mod/github.com/lxzan/gws@v1.8.3/task.go:74 +0x38
+created by github.com/lxzan/gws.channel.Go in goroutine 15
+	C:/Users/Leonid/go/pkg/mod/github.com/lxzan/gws@v1.8.3/task.go:73 +0xe6
+
+2024/06/16 01:45:57.305025 toggle/toggle.go:145 | TRACE | trace
+2024/06/16 01:45:57.333411 toggle/toggle.go:146 | DEBUG | debug
+2024/06/16 01:45:57.333411 toggle/toggle.go:147 | INFO | info
+2024/06/16 01:45:57.333411 toggle/toggle.go:148 | WARNING | warning
+2024/06/16 01:45:57.333917 toggle/toggle.go:149 | ERROR | error
+2024/06/16 01:45:57.355886 cmd/main.go:11 | FATAL | main.main
+ with an error/in: toggle.Do
+ with an error/in: postgre.New
+ with an error/in: failed to connect to `host=port=0 user=password= database=`: hostname resolving error (lookup port=0: no such host)
+2024/06/16 01:47:25.196219 toggle/toggle.go:145 | TRACE | trace
+2024/06/16 01:47:25.216748 toggle/toggle.go:146 | DEBUG | debug
+2024/06/16 01:47:25.216748 toggle/toggle.go:147 | INFO | info
+2024/06/16 01:47:25.216748 toggle/toggle.go:148 | WARNING | warning
+2024/06/16 01:47:25.216748 toggle/toggle.go:149 | ERROR | error
+2024/06/16 01:47:35.983314 internal/wsEventHandler.go:110 | INFO | connection opened (addr: 127.0.0.1:56775, userId: 1)
+2024/06/16 01:47:40.797617 logger/logger.go:51 | ERROR | usecase.(*UserUsecase).UpdateUserLocation-fm
+ with an error/in: postgre.(*UserDatabase).UpdateUserLocation-fm
+ with an error/in: expected 3 arguments, got 2
+	guilty side: 1 (server),
+	client code: 204
+2024/06/16 01:47:41.642516 internal/wsEventHandler.go:146 | INFO | connection closed (addr: 127.0.0.1:56775)
+2024/06/16 01:47:41.642516 internal/wsEventHandler.go:148 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/16 01:48:23.162998 toggle/toggle.go:145 | TRACE | trace
+2024/06/16 01:48:23.184308 toggle/toggle.go:146 | DEBUG | debug
+2024/06/16 01:48:23.184308 toggle/toggle.go:147 | INFO | info
+2024/06/16 01:48:23.184308 toggle/toggle.go:148 | WARNING | warning
+2024/06/16 01:48:23.184308 toggle/toggle.go:149 | ERROR | error
+2024/06/16 01:48:36.790586 internal/wsEventHandler.go:110 | INFO | connection opened (addr: 127.0.0.1:56904, userId: 1)
+2024/06/16 01:48:47.836242 internal/wsEventHandler.go:146 | INFO | connection closed (addr: 127.0.0.1:56904)
+2024/06/16 01:48:47.836242 internal/wsEventHandler.go:148 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: EOF
+2024/06/16 01:48:47.853078 internal/wsEventHandler.go:110 | INFO | connection opened (addr: 127.0.0.1:56921, userId: 1)

@@ -1,4 +1,4 @@
-package wsApi
+package input
 
 import (
 	"context"

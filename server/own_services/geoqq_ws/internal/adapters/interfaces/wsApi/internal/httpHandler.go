@@ -4,6 +4,7 @@ import (
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/token"
 	utl "common/pkg/utility"
+	"geoqq_ws/internal/application/ports/input"
 	"net/http"
 	"time"
 
@@ -20,6 +21,8 @@ type Params struct {
 	ReadTimeout  time.Duration
 
 	TpExtractor token.TokenPayloadExtractor
+
+	UserUc input.UserUsecase
 }
 
 func NewHttpHandler(p *Params) (http.Handler, error) {
@@ -32,6 +35,8 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 		p.WriteTimeout,
 		p.ReadTimeout,
 		p.TpExtractor,
+
+		p.UserUc,
 	)
 
 	upgrader := gws.NewUpgrader(h, &gws.ServerOption{
@@ -56,8 +61,8 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 			// ***
 
 			ss := socket.Session()
-			ss.Store(contextUserId, ctx.GetUint64(contextUserId))
-			ctx.Set(contextUserId, nil) // reset...
+			ss.Store(contextUserId, ctx.GetUint64(contextUserId)) // !
+			ctx.Set(contextUserId, nil)                           // reset...
 
 			go func() {
 				socket.ReadLoop() // here websocket!

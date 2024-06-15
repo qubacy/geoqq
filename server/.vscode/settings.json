@@ -5,6 +5,7 @@
         "bigserial",
         "cristal",
         "cristalhq",
+        "cside",
         "datname",
         "datnames",
         "Debugf",
@@ -39,8 +40,10 @@
         "rabbitmq",
         "scottleedavis",
         "smallint",
+        "sside",
         "twid",
         "usecase",
+        "usecases",
         "wagslane",
         "Warnf",
         "zkits"

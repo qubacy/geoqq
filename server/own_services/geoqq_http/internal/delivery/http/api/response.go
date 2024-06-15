@@ -45,7 +45,6 @@ func resWithSideErr(ctx *gin.Context, side int, errorId int, err error) {
 	case ec.Client:
 		httpCode = http.StatusBadRequest
 	case ec.Server:
-		httpCode = http.StatusInternalServerError
 		level = logger.LevelError
 	}
 

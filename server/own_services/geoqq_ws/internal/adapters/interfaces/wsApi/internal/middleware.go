@@ -3,7 +3,6 @@ package internal
 import (
 	"common/pkg/token"
 	"common/pkg/utility"
-	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 
 	"github.com/gin-gonic/gin"
 
@@ -34,14 +33,14 @@ func userIdentityByHeader(ctx *gin.Context, tpExtractor token.TokenPayloadExtrac
 // ws
 // -----------------------------------------------------------------------
 
-func (c *Client) assertUserIdentity(msg clientSide.Message) error {
-	payload, err := c.tpExtractor.ParseAccess(msg.AccessToken)
+func (c *Client) assertUserIdentity(accessToken string) error {
+	payload, err := c.tpExtractor.ParseAccess(accessToken)
 	if err != nil {
 		return utility.NewFuncError(c.assertUserIdentity, err)
 	}
 
 	if payload.UserId != c.userId {
-
+		return ErrUserIdChangedForConn
 	}
 
 	return nil
