@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
+	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide/payload"
 	"geoqq_ws/internal/application/ports/input"
 	"sync"
 	"time"
@@ -25,13 +26,16 @@ type WsEventHandler struct {
 	readTimeout  time.Duration
 
 	tpExtractor token.TokenPayloadExtractor
-	clients     sync.Map
+	clients     sync.Map // map[*gws.Conn]Client
+	userSockets sync.Map // map[uint64]*gws.Conn
 
 	router map[string]PayloadHandler
 
 	// services/usecases
 
-	userUc input.UserUsecase
+	userUc        input.UserUsecase
+	mateUc        input.MateUsecase
+	onlineUsersUc input.OnlineUsersUsecase
 }
 
 func NewWsEventHandler(
@@ -39,7 +43,9 @@ func NewWsEventHandler(
 	pingTimeout, pingInterval time.Duration,
 	writeTimeout, readTimeout time.Duration,
 	tpExtractor token.TokenPayloadExtractor,
-	userUc input.UserUsecase) *WsEventHandler {
+
+	userUc input.UserUsecase, mateUc input.MateUsecase,
+	onlineUsersUc input.OnlineUsersUsecase) *WsEventHandler {
 
 	hh := &WsEventHandler{
 		enablePing:   enablePing,
@@ -50,12 +56,17 @@ func NewWsEventHandler(
 		readTimeout:  readTimeout,
 
 		tpExtractor: tpExtractor,
-		clients:     sync.Map{}, // map[*gws.Conn]Client
+		clients:     sync.Map{},
+		userSockets: sync.Map{},
 
-		userUc: userUc,
+		userUc:        userUc,
+		mateUc:        mateUc,
+		onlineUsersUc: onlineUsersUc,
 	}
 
 	hh.initRouter()
+	hh.initFbChans()
+
 	return hh
 }
 
@@ -68,13 +79,62 @@ func (w *WsEventHandler) initRouter() {
 	}
 }
 
+func (w *WsEventHandler) initFbChans() {
+	{
+		fbChans := w.mateUc.GetFbChansForMateMessages()
+		for i := range fbChans {
+			go func(fbChan <-chan input.UserIdWithMateMsg) {
+				for {
+					select {
+					case domainMm := <-fbChan:
+						value, loaded := w.userSockets.Load(domainMm.UserId)
+						if !loaded {
+							return
+						}
+
+						mm, err := payload.MateMessageFromDomain(&domainMm.MateMsg)
+						if err != nil {
+							return
+						}
+						jsonBytes, err := json.Marshal(mm)
+						if err != nil {
+							return
+						}
+
+						socket := value.(*gws.Conn)
+						err = utl.RunFuncsRetErr(
+							func() error { return socket.SetWriteDeadline(time.Now().Add(w.writeTimeout)) },
+							func() error { return socket.WriteString(string(jsonBytes)) })
+						if err != nil {
+							logger.Warning("%v", err)
+						}
+					}
+				}
+			}(fbChans[i])
+		}
+	}
+}
+
+func (w *WsEventHandler) Stop() {
+
+	// If `f` returns false,
+	// 	range stops the iteration.
+
+	w.clients.Range(func(key, value any) bool {
+		conn := key.(*gws.Conn)
+		conn.WriteClose(CloseCode_ServerStop, nil) // need timeout?
+
+		return true
+	})
+}
+
 // impl interface for gws.Event!
 // -----------------------------------------------------------------------
 
 /*
 	type Event interface {
 		OnOpen(socket *Conn)
-		OnClose(socket *Conn, err error)
+		OnClose(socket *Conn, err error) // received a close frame or input/output error occurs
 		OnPing(socket *Conn, payload []byte)
 		OnPong(socket *Conn, payload []byte)
 		OnMessage(socket *Conn, message *Message)
@@ -109,10 +169,13 @@ func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 
 	logger.Info("connection opened (addr: %v, userId: %v)",
 		socket.RemoteAddr(), userId)
+	w.onlineUsersUc.SetUserToOnline(userId)
 
 	// ***
 
 	c := NewClient(socket, w.tpExtractor, userId)
+
+	w.userSockets.Store(userId, socket)
 	w.clients.Store(socket, c)
 
 	if w.enablePing {
@@ -150,16 +213,17 @@ func (w *WsEventHandler) OnClose(socket *gws.Conn, err error) {
 
 	// ***
 
-	if w.enablePing {
-		value, loaded := w.clients.LoadAndDelete(socket)
-		if !loaded { // impossible!?
-			return
-		}
+	value, loaded := w.clients.LoadAndDelete(socket)
+	if !loaded { // impossible!?
+		return
+	}
 
-		client := value.(*Client)
+	client := value.(*Client)
+	w.userSockets.Delete(client.userId)
+	w.onlineUsersUc.RemoveUserFromOnline(client.userId)
+
+	if w.enablePing {
 		client.pingCancel()
-	} else {
-		w.clients.Delete(socket)
 	}
 }
 
@@ -212,6 +276,7 @@ func (w *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	}
 
 	// ***
+	// TODO:!!!
 
-	ph(client, clientMessage.Payload)
+	ph(context.TODO(), client, clientMessage.Payload)
 }

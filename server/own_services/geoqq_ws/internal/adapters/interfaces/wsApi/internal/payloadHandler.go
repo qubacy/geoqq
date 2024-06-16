@@ -2,52 +2,56 @@ package internal
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
-	"common/pkg/utility"
+	utl "common/pkg/utility"
 	"context"
 	cside "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide/payload"
 	sside "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
-	inputDto "geoqq_ws/internal/application/ports/input/dto"
+	inDto "geoqq_ws/internal/application/ports/input/dto"
 )
 
-type PayloadHandler = func(*Client, any)
+type PayloadHandler = func(context.Context, *Client, any)
 
 // concrete
 // -----------------------------------------------------------------------
 
-func (w *WsEventHandler) updateUserLocation(client *Client, rawPayload any) {
+func (w *WsEventHandler) updateUserLocation(ctx context.Context, client *Client, rawPayload any) {
 	sourceFunc := w.updateUserLocation
-	eventFailedName := sside.MakeEventWithPostfix(
-		cside.ActionUpdateUserLocation, sside.PostfixFailed)
+	actionName := cside.ActionUpdateUserLocation
 
-	// ***
+	eventOk := sside.MakeEventSucceeded(actionName)
+	eventFl := sside.MakeEventFailed(actionName)
 
 	payload, err := payload.NewFromAny[payload.UserLocation](rawPayload)
 	if err != nil {
-		w.resWithClientError(client.socket, eventFailedName,
-			ec.Parse_JsonPayloadFailed, utility.NewFuncError(sourceFunc, err))
+		w.resWithClientError(client.socket, eventFl,
+			ec.Parse_JsonPayloadFailed, utl.NewFuncError(sourceFunc, err))
 		return
 	}
 
-	err = w.userUc.UpdateUserLocation(context.TODO(), inputDto.UpdateUserLocation{
+	// to service/usecase
+
+	err = w.userUc.UpdateUserLocation(ctx, inDto.UpdateUserLocation{
 		UserId:    client.userId,
 		Longitude: payload.Longitude,
 		Latitude:  payload.Latitude,
 		Radius:    uint64(payload.Radius),
 	})
 
-	// ***
+	// response to client
 
 	if err != nil {
-		w.resWithErrorForClient(client.socket, eventFailedName, err)
-	} else {
-		eventSucceededName := sside.MakeEventWithPostfix(
-			cside.ActionUpdateUserLocation, sside.PostfixSucceeded)
-		w.resWithOK(client.socket, eventSucceededName)
+		w.resWithErrorForClient(client.socket, eventFl, err)
+		return
 	}
+
+	w.resWithOK(client.socket, eventOk)
 }
 
-func (c *WsEventHandler) addGeoMessage(client *Client, rawPayload any) {
+func (w *WsEventHandler) addGeoMessage(ctx context.Context, client *Client, rawPayload any) {
+	// sourceFunc := w.addGeoMessage
+	// actionName := cside.ActionAddGeoMessage
+
 	_, err := payload.NewFromAny[payload.GeoMessage](rawPayload)
 	if err != nil {
 		client.socket.WriteString("")
@@ -55,7 +59,7 @@ func (c *WsEventHandler) addGeoMessage(client *Client, rawPayload any) {
 	}
 }
 
-func (c *WsEventHandler) addMateMessage(client *Client, rawPayload any) {
+func (c *WsEventHandler) addMateMessage(ctx context.Context, client *Client, rawPayload any) {
 	_, err := payload.NewFromAny[payload.MateMessage](rawPayload)
 	if err != nil {
 		client.socket.WriteString("")

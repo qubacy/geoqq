@@ -23,6 +23,8 @@ func_and_scripts = {
 
     "delete/":
     [
+        "indexes",
+        "functions",
         "tables"
     ]
 }

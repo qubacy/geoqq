@@ -305,3 +305,14 @@ created by github.com/lxzan/gws.channel.Go in goroutine 15
 2024/06/16 01:48:47.836242 internal/wsEventHandler.go:148 | WARNING | internal.(*WsEventHandler).OnClose-fm
  with an error/in: EOF
 2024/06/16 01:48:47.853078 internal/wsEventHandler.go:110 | INFO | connection opened (addr: 127.0.0.1:56921, userId: 1)
+2024/06/16 11:20:14.770645 toggle/toggle.go:145 | TRACE | trace
+2024/06/16 11:20:14.813535 toggle/toggle.go:146 | DEBUG | debug
+2024/06/16 11:20:14.813535 toggle/toggle.go:147 | INFO | info
+2024/06/16 11:20:14.813535 toggle/toggle.go:148 | WARNING | warning
+2024/06/16 11:20:14.813535 toggle/toggle.go:149 | ERROR | error
+2024/06/16 11:20:29.164954 toggle/toggle.go:145 | TRACE | trace
+2024/06/16 11:20:29.187139 toggle/toggle.go:146 | DEBUG | debug
+2024/06/16 11:20:29.187139 toggle/toggle.go:147 | INFO | info
+2024/06/16 11:20:29.187139 toggle/toggle.go:148 | WARNING | warning
+2024/06/16 11:20:29.187139 toggle/toggle.go:149 | ERROR | error
+2024/06/16 11:20:38.586439 internal/wsEventHandler.go:124 | INFO | connection opened (addr: 127.0.0.1:57913, userId: 1)

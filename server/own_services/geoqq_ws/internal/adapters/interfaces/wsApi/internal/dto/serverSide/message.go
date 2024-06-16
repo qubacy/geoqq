@@ -28,6 +28,16 @@ func MakeEventWithPostfix(name, postfixName string) string {
 	return name + "_" + postfixName
 }
 
+func MakeEventFailed(name string) string {
+	return name + "_" + PostfixFailed
+}
+
+func MakeEventSucceeded(name string) string {
+	return name + "_" + PostfixSucceeded
+}
+
+// -----------------------------------------------------------------------
+
 type Message struct {
 	Event   string `json:"event"`
 	Payload any    `json:"payload"`

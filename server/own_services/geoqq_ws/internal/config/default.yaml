@@ -48,5 +48,16 @@ adapters:
           password: "admin"
           database: "geoqq"
 
+    cache:
+      type: redis
+      redis:
+        host: "127.0.0.1"
+        port: 6379
+        
+        user: ""
+        password: ""
+        db_index: 1
+
+
 
   

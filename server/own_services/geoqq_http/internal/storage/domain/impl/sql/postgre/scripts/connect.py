@@ -5,8 +5,9 @@ def read_postgre_config():
     import yaml
     with open(path_to_config + '\\' + 'config.yml', 'r') as config_file:
         all_config = yaml.load(config_file, Loader=yaml.FullLoader)
+        
         del(all_config["storage"]["domain"]["sql"]["postgre"]["background"])
-        return all_config["storage"]["domain"]["sql"]["postgre"]
+        return all_config["storage"]["domain"]["sql"]["postgre"] # spec for connection string!
     
 connection_params: dict = read_postgre_config() # at what point is it initialized?
 print("connection params:", connection_params)
