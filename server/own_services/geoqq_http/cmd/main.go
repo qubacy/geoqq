@@ -69,8 +69,7 @@ func main() {
 		syscall.SIGINT,
 		syscall.SIGHUP,
 		syscall.SIGTERM,
-		syscall.SIGABRT,
-	)
+		syscall.SIGABRT)
 
 	<-sigCh
 	cancel()

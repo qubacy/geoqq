@@ -42,6 +42,8 @@
         "scottleedavis",
         "smallint",
         "sside",
+        "sslmode",
+        "testcontainers",
         "tmpl",
         "twid",
         "usecase",
