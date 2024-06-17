@@ -1,5 +1,5 @@
 SELECT * FROM "Avatar"
-ORDER BY "Time" DESC;
+ORDER BY "Time" ASC;
 ORDER BY "UserId" NULLS FIRST;
 
 SELECT "HashUpdToken" FROM "UserEntry"
