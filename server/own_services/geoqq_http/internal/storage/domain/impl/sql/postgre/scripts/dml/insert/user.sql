@@ -1,5 +1,9 @@
 SELECT * FROM "UserEntry";
 SELECT * FROM "UserDetails";
+SELECT * FROM "UserLocation";
+
+SELECT * FROM "UserLocation"
+WHERE "UserId" = 1;
 
 -- InsertUser (parts)
 -- -----------------------------------------------------------------------

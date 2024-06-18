@@ -71,6 +71,8 @@ const (
 	userEntryCount = 10
 )
 
+// -----------------------------------------------------------------------
+
 type MateChat struct {
 	id           uint64
 	firstUserId  uint64
@@ -228,6 +230,12 @@ func setup() {
 		log.Fatalf("inflate with err: %v", err)
 	}
 
+	// init db (connection pool)
+
+	if err = initDb(); err != nil {
+		log.Fatalf("init db with err: %v", err)
+	}
+
 	log.Println("setup [OK]")
 }
 
@@ -238,7 +246,7 @@ func inflate() error {
 		return err
 	}
 
-	// add new users (partial)
+	// add user entry
 
 	for i := 0; i < userEntryCount; i++ {
 		randomLogin := uuid.NewString()
@@ -249,8 +257,27 @@ func inflate() error {
 			randomLogin, randomHashPass)
 
 		var userId uint64 = 0
-		row.Scan(&userId)
+		if err := row.Scan(&userId); err != nil {
+			return err
+		}
+
 		userIds = append(userIds, userId)
+	}
+
+	// add user location
+
+	for i := 0; i < len(userIds); i++ {
+		cmdTag, err := pool.Exec(ctx,
+			template.InsertUserLocationNoReturningId,
+			userIds[i], rand.Float64(), // lon
+			rand.Float64()) // lat
+
+		if !cmdTag.Insert() {
+			return ErrInsertFailed
+		}
+		if err != nil {
+			return err
+		}
 	}
 
 	// add mate/mate chats
@@ -261,7 +288,9 @@ func inflate() error {
 			userIds[i], userIds[i+1])
 
 		var id uint64 = 0
-		row.Scan(&id)
+		if err := row.Scan(&id); err != nil {
+			return err
+		}
 		mateIds = append(mateIds, Mate{
 			id:           id,
 			firstUserId:  userIds[i],
@@ -272,7 +301,9 @@ func inflate() error {
 			template.InsertMateChat,
 			userIds[i], userIds[i+1])
 
-		row.Scan(&id)
+		if err := row.Scan(&id); err != nil {
+			return err
+		}
 		mateChats = append(mateChats, MateChat{
 			id:           id,
 			firstUserId:  userIds[i],
@@ -310,28 +341,39 @@ func TestMain(m *testing.M) {
 // public
 // -----------------------------------------------------------------------
 
-func Test_InsertMateMessage(t *testing.T) {
-	ctx := context.Background()
-	db, err := New(context.Background(), Dependencies{
+var (
+	db *Database = nil
+)
+
+func initDb() error {
+	var err error
+	db, err = New(context.Background(), Dependencies{
 		Username:     postgreUsername,
 		Password:     postgrePassword,
 		Host:         postgreExternalHost,
 		Port:         postgreExternalPort,
 		DatabaseName: postgreDbName,
 	})
-
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
+
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func Test_InsertMateMessage(t *testing.T) {
+	ctx := context.Background()
 
 	// ***
 
 	index := rand.Int63n(int64(len(mateChats)))
 	mc := mateChats[int(index)]
 
+	textMessage := "text_text_text"
 	mateMsgId, err := db.InsertMateMessage(ctx, mc.id,
-		mc.firstUserId, "text_text_text")
+		mc.firstUserId, textMessage)
 	if err != nil {
 		t.Error(err)
 		return
@@ -343,8 +385,20 @@ func Test_InsertMateMessage(t *testing.T) {
 		t.Error(err)
 		return
 	}
-
 	log.Printf("mate message: %v\n", mm)
+
+	if mm.ChatId != mc.id { // !
+		t.Errorf("got: %v, want: %v", mm.ChatId, mc.id)
+		return
+	}
+	if mm.Text != textMessage {
+		t.Errorf("got: %v, want: %v", mm.Text, textMessage)
+		return
+	}
+	if mm.UserId != mc.firstUserId {
+		t.Errorf("got: %v, want: %v", mm.UserId, mc.firstUserId)
+		return
+	}
 
 	// ***
 
@@ -356,4 +410,16 @@ func Test_InsertMateMessage(t *testing.T) {
 
 	log.Printf("json mate message: %v",
 		string(jsonBytes))
+}
+
+func Test_GetUserLocation(t *testing.T) {
+	ctx := context.Background()
+	uc, err := db.GetUserLocation(ctx, userIds[0])
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	log.Printf("user %v has loc: %v",
+		userIds[0], uc)
 }

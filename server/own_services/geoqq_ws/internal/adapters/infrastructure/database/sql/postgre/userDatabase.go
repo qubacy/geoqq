@@ -4,6 +4,7 @@ import (
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/application/domain"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -41,4 +42,20 @@ func (s *UserDatabase) UpdateUserLocation(ctx context.Context,
 	}
 
 	return nil
+}
+
+func (s *UserDatabase) GetUserLocation(ctx context.Context, userId uint64) (
+	*domain.UserLocation, error) {
+
+	sourceFunc := s.GetUserLocation
+	row := s.pool.QueryRow(ctx,
+		template.GetUserLocationWithId, userId)
+
+	ul := domain.UserLocation{}
+	err := row.Scan(&ul.UserId, &ul.Lon, &ul.Lat, &ul.Time)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return &ul, nil
 }

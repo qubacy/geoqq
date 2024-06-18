@@ -22,22 +22,16 @@ type Params struct {
 
 	TpExtractor token.TokenPayloadExtractor
 
-	UserUc input.UserUsecase
+	UserUc        input.UserUsecase
+	MateUc        input.MateUsecase
+	OnlineUsersUc input.OnlineUsersUsecase
 }
+
+// -----------------------------------------------------------------------
 
 func NewHttpHandler(p *Params) (http.Handler, error) {
 
-	h := NewWsEventHandler(
-		p.EnablePing,
-		p.PingInterval,
-		p.PingTimeout,
-
-		p.WriteTimeout,
-		p.ReadTimeout,
-		p.TpExtractor,
-
-		p.UserUc,
-	)
+	h := NewWsEventHandler(p)
 
 	upgrader := gws.NewUpgrader(h, &gws.ServerOption{
 		ParallelEnabled: true,

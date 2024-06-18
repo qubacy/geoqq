@@ -44,17 +44,8 @@ var (
 			2. lon
 			3. lat
 	*/
-	templateInsertUserLocation = utl.RemoveAdjacentWs(`
-		INSERT INTO "UserLocation" (
-			"UserId", 
-			"Longitude",
-			"Latitude",
-			"Time"
-		) 
-		VALUES (
-			$1, $2, $3,
-			NOW()::timestamp
-		)`)
+	templateInsertUserLocation = `` +
+		template.InsertUserLocationNoReturningId
 
 	/*
 		Order:

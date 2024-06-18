@@ -38,30 +38,22 @@ type WsEventHandler struct {
 	onlineUsersUc input.OnlineUsersUsecase
 }
 
-func NewWsEventHandler(
-	enablePing bool,
-	pingTimeout, pingInterval time.Duration,
-	writeTimeout, readTimeout time.Duration,
-	tpExtractor token.TokenPayloadExtractor,
-
-	userUc input.UserUsecase, mateUc input.MateUsecase,
-	onlineUsersUc input.OnlineUsersUsecase) *WsEventHandler {
-
+func NewWsEventHandler(p *Params) *WsEventHandler {
 	hh := &WsEventHandler{
-		enablePing:   enablePing,
-		pingTimeout:  pingTimeout, // and pong!
-		pingInterval: pingInterval,
+		enablePing:   p.EnablePing,
+		pingTimeout:  p.PingTimeout, // and pong!
+		pingInterval: p.PingInterval,
 
-		writeTimeout: writeTimeout,
-		readTimeout:  readTimeout,
+		writeTimeout: p.WriteTimeout,
+		readTimeout:  p.ReadTimeout,
 
-		tpExtractor: tpExtractor,
+		tpExtractor: p.TpExtractor,
 		clients:     sync.Map{},
 		userSockets: sync.Map{},
 
-		userUc:        userUc,
-		mateUc:        mateUc,
-		onlineUsersUc: onlineUsersUc,
+		userUc:        p.UserUc,
+		mateUc:        p.MateUc,
+		onlineUsersUc: p.OnlineUsersUc,
 	}
 
 	hh.initRouter()
