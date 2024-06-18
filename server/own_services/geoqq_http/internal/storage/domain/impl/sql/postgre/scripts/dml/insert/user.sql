@@ -21,6 +21,8 @@ VALUES ('Test6',
 -- -----------------------------------------------------------------------
 -- skipped HashUpdToken...
 
+SELECT * FROM "UserEntry";
+
 INSERT INTO "UserEntry" ("Login",
                          "HashPassword",
                          "SignUpTime",

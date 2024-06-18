@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -28,23 +29,10 @@ func newMateChatStorage(pool *pgxpool.Pool) *MateChatStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateInsertMateChatWithoutReturningId = utl.RemoveAdjacentWs(`
-		INSERT INTO "MateChat" (
-			"FirstUserId", "SecondUserId")
-		VALUES($1, $2) ON CONFLICT (
-       		GREATEST("FirstUserId", "SecondUserId"), 
-       		LEAST("FirstUserId", "SecondUserId"))
-		DO UPDATE SET "CreationOrReTime" = NOW()::timestamp`) // see index `unique_mate_chat_ids_comb`
+	templateInsertMateChatWithoutReturningId = `` +
+		template.InsertMateChatWithoutReturningId
 
-	/*
-		Conflicts will be ignored.
-
-		Order:
-			1. firstUserId
-			2. secondUserId
-	*/
-	templateInsertMateChat = templateInsertMateChatWithoutReturningId +
-		` RETURNING "Id"`
+	templateInsertMateChat = template.InsertMateChat
 
 	templateHasMateChatWithId = utl.RemoveAdjacentWs(`
 		SELECT case

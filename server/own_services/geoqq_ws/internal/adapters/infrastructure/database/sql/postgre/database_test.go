@@ -1,16 +1,21 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/network"
@@ -24,25 +29,67 @@ const (
 )
 
 var (
-	postgreHost        = ""
-	postgrePort uint16 = 5432
-
-	postgreExternalHost        = ""
-	postgreExternalPort uint16 = 0
-	pathToMigrations           = "/common/storage/domain/sql/postgre/migrations" // will be changed!
-)
-
-var (
 	startupTimeout  = 15 * time.Second
 	occurrenceCount = 3
 )
 
+// -----------------------------------------------------------------------
+
 var (
-	postgresContainer *postgres.PostgresContainer = nil
-	migrateContainer  testcontainers.Container    = nil
+	postgreHost        = ""
+	postgrePort uint16 = 5432
+
+	// ***
+
+	postgreExternalHost        = ""
+	postgreExternalPort uint16 = 0
+
+	pathToMigrations = "/common/storage/domain/sql/postgre/migrations" // will be changed!
 )
 
-// volume
+var (
+	postgresContainer *postgres.PostgresContainer
+	migrateContainer  testcontainers.Container
+)
+
+func createConnString(fromExternal bool) string {
+	host := postgreHost
+	port := postgrePort
+
+	if fromExternal {
+		host = postgreExternalHost
+		port = postgreExternalPort
+	}
+
+	return fmt.Sprintf("postgres://%v:%v@"+
+		"%v:%v/%v?sslmode=disable",
+		postgreUsername, postgrePassword,
+		host, port, postgreDbName)
+}
+
+const (
+	userEntryCount = 10
+)
+
+type MateChat struct {
+	id           uint64
+	firstUserId  uint64
+	secondUserId uint64
+}
+
+type Mate struct {
+	id           uint64
+	firstUserId  uint64
+	secondUserId uint64
+}
+
+var (
+	userIds   = []uint64{}
+	mateIds   = []Mate{}
+	mateChats = []MateChat{}
+)
+
+// migrations volume
 // -----------------------------------------------------------------------
 
 type ContainerMountSourceMigrations struct{}
@@ -52,13 +99,14 @@ func (c ContainerMountSourceMigrations) Source() string {
 }
 
 func (c ContainerMountSourceMigrations) Type() testcontainers.MountType {
-	return testcontainers.MountTypeBind
+	return testcontainers.MountTypeBind // deprecated!
 }
 
 // -----------------------------------------------------------------------
 
 func setup() {
-	startPrefix := "\t\t\t"
+	startPrefix := "\t\t\t start "
+
 	ctx := context.Background()
 	var err error = nil
 
@@ -68,7 +116,7 @@ func setup() {
 	}
 
 	// postgre
-	log.Println(startPrefix + "start `postgre`")
+	log.Println(startPrefix + "`postgre`")
 
 	{
 		postgresContainer, err = postgres.RunContainer(
@@ -118,7 +166,7 @@ func setup() {
 	}
 
 	// migrate
-	log.Println(startPrefix + "start `migrate`")
+	log.Println(startPrefix + "`migrate`")
 
 	{
 		wd, _ := os.Getwd()
@@ -137,11 +185,7 @@ func setup() {
 			Cmd: []string{
 				fmt.Sprintf("-path=%v", "/migrations/"),
 				"-database",
-				fmt.Sprintf("postgres://%v:%v@"+
-					"%v:%v/%v?sslmode=disable",
-					postgreUsername, postgrePassword,
-					postgreHost, postgrePort,
-					postgreDbName),
+				createConnString(false),
 				"up",
 			},
 			Networks: []string{commonNet.Name}, // ?
@@ -163,12 +207,16 @@ func setup() {
 		for {
 			time.Sleep(250 * time.Millisecond)
 
-			containerJson, err := migrateContainer.Inspect(ctx)
+			containerState, err := migrateContainer.State(ctx)
 			if err != nil {
 				log.Fatalf("migrate container inspect with err: %v", err)
 			}
 
-			if containerJson.State.Status == "exited" {
+			// ***
+
+			log.Printf("current status migrate container: %v\n",
+				containerState.Status)
+			if containerState.Status == "exited" {
 				break
 			}
 		}
@@ -176,7 +224,64 @@ func setup() {
 
 	// inflate
 
+	if err = inflate(); err != nil {
+		log.Fatalf("inflate with err: %v", err)
+	}
+
 	log.Println("setup [OK]")
+}
+
+func inflate() error {
+	ctx := context.Background()
+	pool, err := pgxpool.Connect(ctx, createConnString(true))
+	if err != nil {
+		return err
+	}
+
+	// add new users (partial)
+
+	for i := 0; i < userEntryCount; i++ {
+		randomLogin := uuid.NewString()
+		randomHashPass := uuid.NewString()
+
+		row := pool.QueryRow(ctx,
+			template.InsertUserEntryWithoutHashUpdToken,
+			randomLogin, randomHashPass)
+
+		var userId uint64 = 0
+		row.Scan(&userId)
+		userIds = append(userIds, userId)
+	}
+
+	// add mate/mate chats
+
+	for i := 0; i < userEntryCount/2; i += 2 {
+		row := pool.QueryRow(ctx,
+			template.InsertMate,
+			userIds[i], userIds[i+1])
+
+		var id uint64 = 0
+		row.Scan(&id)
+		mateIds = append(mateIds, Mate{
+			id:           id,
+			firstUserId:  userIds[i],
+			secondUserId: userIds[i+1],
+		})
+
+		row = pool.QueryRow(ctx,
+			template.InsertMateChat,
+			userIds[i], userIds[i+1])
+
+		row.Scan(&id)
+		mateChats = append(mateChats, MateChat{
+			id:           id,
+			firstUserId:  userIds[i],
+			secondUserId: userIds[i+1],
+		})
+	}
+
+	log.Printf("new users: %v", userIds)
+	return nil
 }
 
 func teardown() {
@@ -184,11 +289,11 @@ func teardown() {
 	var err error
 
 	if err = postgresContainer.Terminate(ctx); err != nil {
-		log.Fatalf("failed to terminate container: %s", err)
+		log.Fatalf("failed to terminate postgre container: %s", err)
 	}
 
 	if err = migrateContainer.Terminate(ctx); err != nil {
-		log.Fatalf("failed to terminate container: %s", err)
+		log.Fatalf("failed to terminate migrate container: %s", err)
 	}
 
 	//...
@@ -214,16 +319,41 @@ func Test_InsertMateMessage(t *testing.T) {
 		Port:         postgreExternalPort,
 		DatabaseName: postgreDbName,
 	})
+
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	mateMsgId, err := db.InsertMateMessage(ctx, 1, 1, "text")
+	// ***
+
+	index := rand.Int63n(int64(len(mateChats)))
+	mc := mateChats[int(index)]
+
+	mateMsgId, err := db.InsertMateMessage(ctx, mc.id,
+		mc.firstUserId, "text_text_text")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-
 	log.Printf("mate message id: %v\n", mateMsgId)
+
+	mm, err := db.GetMateMessageById(ctx, mateMsgId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	log.Printf("mate message: %v\n", mm)
+
+	// ***
+
+	jsonBytes, err := json.Marshal(mm)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	log.Printf("json mate message: %v",
+		string(jsonBytes))
 }

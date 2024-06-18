@@ -7,6 +7,24 @@ import (
 var (
 	/*
 		Order:
+			1. login
+			2. passwordDoubleHash
+	*/
+	InsertUserEntryWithoutHashUpdToken = utl.RemoveAdjacentWs(`
+		INSERT INTO "UserEntry" (
+			"Login", "HashPassword",
+			"SignUpTime", "SignInTime",
+			"LastActionTime"
+			)
+		VALUES (
+			$1, $2,
+			NOW()::timestamp, 
+			NOW()::timestamp,
+			NOW()::timestamp
+		) RETURNING "Id"`)
+
+	/*
+		Order:
 			1. lon
 			2. lat
 			3. userId

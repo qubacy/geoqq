@@ -119,7 +119,7 @@ func scanMateMessage(scanner wrappedPgxpool.QueryResultScanner) (
 	err := scanner.Scan(
 		&mm.Id, &mm.ChatId,
 		&mm.UserId, &mm.Text,
-		&mm.Time)
+		&mm.Time, &mm.Read)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}

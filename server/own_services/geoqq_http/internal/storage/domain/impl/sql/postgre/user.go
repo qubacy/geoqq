@@ -35,18 +35,8 @@ var (
 			1. login
 			2. passwordDoubleHash
 	*/
-	templateInsertUserEntryWithoutHashUpdToken = utl.RemoveAdjacentWs(`
-		INSERT INTO "UserEntry" (
-			"Login", "HashPassword",
-			"SignUpTime", "SignInTime",
-			"LastActionTime"
-			)
-		VALUES (
-			$1, $2,
-			NOW()::timestamp, 
-			NOW()::timestamp,
-			NOW()::timestamp
-		) RETURNING "Id"`)
+	templateInsertUserEntryWithoutHashUpdToken = `` +
+		template.InsertUserEntryWithoutHashUpdToken
 
 	/*
 		Order:

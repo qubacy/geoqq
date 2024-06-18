@@ -1,5 +1,5 @@
-SELECT *
-FROM "MateChat";
+SELECT * FROM "MateChat";
+SELECT * FROM "MateMessage";
 
 
 INSERT INTO "MateMessage" ("MateChatId",

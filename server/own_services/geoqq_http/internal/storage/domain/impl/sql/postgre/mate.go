@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 
@@ -25,13 +26,10 @@ func newMateStorage(pool *pgxpool.Pool) *MateStorage {
 // -----------------------------------------------------------------------
 
 var (
-	templateInsertMateWithoutReturningId = utl.RemoveAdjacentWs(`
-		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
-		VALUES ($1, $2) 
-			ON CONFLICT DO NOTHING`)  // see index `index unique_mate_ids_comb`
+	templateInsertMateWithoutReturningId = `` +
+		template.InsertMateWithoutReturningId
 
-	templateInsertMate = templateInsertMateWithoutReturningId +
-		` RETURNING "Id"`
+	templateInsertMate = template.InsertMate
 
 	/*
 		Order:
