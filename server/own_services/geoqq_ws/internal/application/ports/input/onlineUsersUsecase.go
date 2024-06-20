@@ -1,7 +1,9 @@
 package input
 
 type OnlineUsersUsecase interface {
-	SetUserToOnline(userId uint64)
-	RemoveUserFromOnline(userId uint64)
+	SetUsersToOnline(userIds ...uint64)
+	RemoveUsersFromOnline(userIds ...uint64)
+
 	GetOnlineUserIds() []uint64
+	UserIsOnline(userId uint64) bool
 }

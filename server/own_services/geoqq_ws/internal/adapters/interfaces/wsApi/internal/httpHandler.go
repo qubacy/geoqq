@@ -23,7 +23,7 @@ type Params struct {
 	TpExtractor token.TokenPayloadExtractor
 
 	UserUc        input.UserUsecase
-	MateUc        input.MateUsecase
+	MateMessageUc input.MateMessageUsecase
 	OnlineUsersUc input.OnlineUsersUsecase
 }
 

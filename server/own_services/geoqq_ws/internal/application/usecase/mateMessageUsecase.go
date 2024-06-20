@@ -10,35 +10,43 @@ import (
 	"math/rand"
 )
 
-type MateUcParams struct {
-	OnlineUsersUc OnlineUsersUsecase
+type MateMessageUcParams struct {
+	OnlineUsersUc input.OnlineUsersUsecase
 	Database      database.Database
+
+	FbChanCount int
+	FbChanSize  int
 }
 
 // -----------------------------------------------------------------------
 
-type MateUsecase struct {
-	onlineUsersUc    OnlineUsersUsecase
-	db               database.Database
-	fbChsForMateMsgs []chan input.UserIdWithMateMsg
+type MateMessageUsecase struct {
+	onlineUsersUc    input.OnlineUsersUsecase
+	fbChsForMateMsgs []chan input.UserIdWithMateMessage
+
+	db database.Database
 }
 
-func NewMateUsecase(deps MateUcParams) *MateUsecase {
-	fbChsForMateMsgs := []chan input.UserIdWithMateMsg{
-		make(chan input.UserIdWithMateMsg, 10),
+func NewMateMessageUsecase(deps MateMessageUcParams) *MateMessageUsecase {
+	fbChsForMateMsgs := []chan input.UserIdWithMateMessage{}
+	for i := 0; i < deps.FbChanCount; i++ {
+		fbChsForMateMsgs = append(fbChsForMateMsgs,
+			make(chan input.UserIdWithMateMessage, deps.FbChanSize))
 	}
 
-	return &MateUsecase{
+	// ***
+
+	return &MateMessageUsecase{
 		onlineUsersUc:    deps.OnlineUsersUc,
-		db:               deps.Database,
 		fbChsForMateMsgs: fbChsForMateMsgs,
+		db:               deps.Database,
 	}
 }
 
 // public
 // -----------------------------------------------------------------------
 
-func (m *MateUsecase) AddMateMessage(ctx context.Context,
+func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	userId, chatId uint64, text string) error {
 	sourceFunc := m.AddMateMessage
 
@@ -61,7 +69,7 @@ func (m *MateUsecase) AddMateMessage(ctx context.Context,
 
 	// ***
 
-	mateMessage, err := m.db.GetMateMessageById(ctx, mateMessageId)
+	mateMessage, err := m.db.GetMateMessageById(ctx, mateMessageId) // just added!
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
@@ -71,10 +79,10 @@ func (m *MateUsecase) AddMateMessage(ctx context.Context,
 	return nil
 }
 
-func (m *MateUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateMsg {
-	chs := []<-chan input.UserIdWithMateMsg{}
+func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateMessage {
+	chs := []<-chan input.UserIdWithMateMessage{}
 	for i := range m.fbChsForMateMsgs {
-		chs = append(chs, m.fbChsForMateMsgs[i])
+		chs = append(chs, m.fbChsForMateMsgs[i]) // convert chans!
 	}
 
 	return chs
@@ -83,12 +91,13 @@ func (m *MateUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateM
 // private
 // -----------------------------------------------------------------------
 
-func (m *MateUsecase) sendMateMessageToFb(userId uint64, mateMessage *domain.MateMessage) {
+func (m *MateMessageUsecase) sendMateMessageToFb(userId uint64, mateMessage *domain.MateMessage) {
+
 	count := len(m.fbChsForMateMsgs)
 	index := rand.Intn(count)
 
-	m.fbChsForMateMsgs[index] <- input.UserIdWithMateMsg{
-		UserId:  userId,
+	m.fbChsForMateMsgs[index] <- input.UserIdWithMateMessage{
+		UserId:  userId, // forward message to...
 		MateMsg: *mateMessage,
 	}
 }

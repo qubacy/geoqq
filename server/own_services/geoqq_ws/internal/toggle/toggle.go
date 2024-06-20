@@ -38,6 +38,13 @@ func Do() error {
 
 	// ***
 
+	startTimeout := viper.GetDuration("start_timeout")
+	stopTimeout := viper.GetDuration("stop_timeout")
+
+	startCtx, startCancel := context.WithTimeout(
+		context.Background(), startTimeout)
+	defer startCancel()
+
 	// other deps
 
 	tokenManager, err := tokenManagerInstance()
@@ -47,7 +54,7 @@ func Do() error {
 
 	// infrastructure/output
 
-	domainDb, err := postgre.New(context.TODO(), postgre.Dependencies{
+	db, err := postgre.New(startCtx, postgre.Dependencies{
 		Host:         viper.GetString("adapters.infra.database.sql.postgre.host"),
 		Port:         viper.GetUint16("adapters.infra.database.sql.postgre.port"),
 		Username:     viper.GetString("adapters.infra.database.sql.postgre.user"),
@@ -61,7 +68,15 @@ func Do() error {
 	// application core
 
 	var userUc input.UserUsecase = usecase.NewUserUsecase(usecase.UserUcParams{
-		Database: domainDb,
+		Database: db,
+	})
+	var onlineUsersUc = usecase.NewOnlineUsersUsecase()
+	var mateMessageUc = usecase.NewMateMessageUsecase(usecase.MateMessageUcParams{
+		OnlineUsersUc: onlineUsersUc,
+		Database:      db,
+
+		FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
+		FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
 	})
 
 	// interfaces/input
@@ -79,7 +94,9 @@ func Do() error {
 
 		TpExtractor: tokenManager,
 
-		UserUc: userUc,
+		UserUc:        userUc,
+		OnlineUsersUc: onlineUsersUc,
+		MateMessageUc: mateMessageUc,
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)
@@ -92,9 +109,15 @@ func Do() error {
 
 	<-exit
 
-	// stop all!
+	// stop all...
 
-	wsServer.Stop(context.TODO())
+	stopCtx, stopCancel := context.WithTimeout(
+		context.Background(), stopTimeout)
+	defer stopCancel()
+
+	if err = wsServer.Stop(stopCtx); err != nil {
+		logger.Error("%v", utl.NewFuncError(Do, err))
+	}
 
 	return nil
 }
@@ -152,7 +175,7 @@ func initializeLogging() error {
 }
 
 func tokenManagerInstance() (token.TokenManager, error) {
-	signingKey := viper.GetString("adapters.interfaces.ws.token.signing_key")
+	signingKey := viper.GetString("adapters.interfaces.ws.token.signing_key") // ?
 	tokenManager, err := tokenImpl.NewTokenManager(signingKey)
 	if err != nil {
 		return nil, utl.NewFuncError(tokenManagerInstance, err)

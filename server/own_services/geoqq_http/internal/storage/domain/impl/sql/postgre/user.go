@@ -214,10 +214,7 @@ func (us *UserStorage) HasUserWithId(ctx context.Context, id uint64) (
 	}
 	defer conn.Release()
 
-	row := conn.QueryRow(ctx,
-		`SELECT COUNT(*) AS "Count" FROM "UserEntry"
-			WHERE "Id" = $1;`,
-		id)
+	row := conn.QueryRow(ctx, template.HasUserWithId+`;`, id)
 
 	count := 0
 	err = row.Scan(&count)

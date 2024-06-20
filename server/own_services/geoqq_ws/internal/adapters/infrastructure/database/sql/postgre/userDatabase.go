@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/postgreUtils/wrappedPgxpool"
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
@@ -58,4 +59,19 @@ func (s *UserDatabase) GetUserLocation(ctx context.Context, userId uint64) (
 	}
 
 	return &ul, nil
+}
+
+func (s *UserDatabase) HasUserWithId(ctx context.Context,
+	userId uint64) (bool, error) {
+
+	sourceFunc := s.HasUserWithId
+	row := s.pool.QueryRow(ctx, template.HasUserWithId+`;`, userId)
+
+	var has bool
+	has, err := wrappedPgxpool.ScanPrimitive[bool](row, sourceFunc)
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return has, nil
 }

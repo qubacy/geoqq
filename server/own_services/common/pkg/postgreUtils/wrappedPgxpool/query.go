@@ -48,6 +48,15 @@ func ScanBool(row QueryResultScanner, sourceFunc any) (bool, error) {
 	return boolValue, nil
 }
 
+func ScanPrimitive[T any](row QueryResultScanner, sourceFunc any) (T, error) {
+	var value T
+	if err := row.Scan(&value); err != nil {
+		return value, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return value, nil
+}
+
 // -----------------------------------------------------------------------
 
 func QueryWithConnectionAcquire(pool *pgxpool.Pool, ctx context.Context,

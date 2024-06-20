@@ -1,3 +1,6 @@
+start_timeout: 5s
+stop_timeout: 5s
+
 logging:
   type: lumberjack
 
@@ -21,6 +24,11 @@ logging:
 
   zkits:
     #...
+
+usecase:
+  mate_message:
+    fb_chan_count: 4
+    fb_chan_size: 10
 
 adapters:
   interfaces:

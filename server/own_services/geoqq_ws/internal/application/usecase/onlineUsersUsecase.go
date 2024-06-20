@@ -17,13 +17,19 @@ func NewOnlineUsersUsecase() *OnlineUsersUsecase {
 // public
 // -----------------------------------------------------------------------
 
-func (u *OnlineUsersUsecase) SetUserToOnline(userId uint64) {
-	u.onlineUsers.Store(userId, true)
+func (u *OnlineUsersUsecase) SetUsersToOnline(userIds ...uint64) {
+	for _, userId := range userIds {
+		u.onlineUsers.Store(userId, true)
+	}
 }
 
-func (u *OnlineUsersUsecase) RemoveUserFromOnline(userId uint64) {
-	u.onlineUsers.Delete(userId)
+func (u *OnlineUsersUsecase) RemoveUsersFromOnline(userIds ...uint64) {
+	for _, userId := range userIds {
+		u.onlineUsers.Delete(userId)
+	}
 }
+
+// -----------------------------------------------------------------------
 
 func (u *OnlineUsersUsecase) GetOnlineUserIds() []uint64 {
 	userIds := []uint64{}
@@ -33,4 +39,9 @@ func (u *OnlineUsersUsecase) GetOnlineUserIds() []uint64 {
 	})
 
 	return userIds
+}
+
+func (u *OnlineUsersUsecase) UserIsOnline(userId uint64) bool {
+	_, loaded := u.onlineUsers.Load(userId)
+	return loaded
 }

@@ -5,12 +5,12 @@ import (
 	dd "geoqq_ws/internal/application/domain"
 )
 
-type UserIdWithMateMsg struct {
+type UserIdWithMateMessage struct {
 	UserId  uint64
 	MateMsg dd.MateMessage
 }
 
-type MateUsecase interface {
+type MateMessageUsecase interface {
 	AddMateMessage(ctx context.Context, userId, chatId uint64, text string) error
-	GetFbChansForMateMessages() []<-chan UserIdWithMateMsg // feedback!
+	GetFbChansForMateMessages() []<-chan UserIdWithMateMessage // feedback!
 }

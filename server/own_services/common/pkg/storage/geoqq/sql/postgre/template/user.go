@@ -55,4 +55,8 @@ var (
 		VALUES (
 			$1, $2, $3,
 			NOW()::timestamp)`)  // returning id?
+
+	HasUserWithId = utl.RemoveAdjacentWs(`
+		SELECT COUNT(*) AS "Count" FROM "UserEntry"
+			WHERE "Id" = $1`)
 )

@@ -316,3 +316,129 @@ created by github.com/lxzan/gws.channel.Go in goroutine 15
 2024/06/16 11:20:29.187139 toggle/toggle.go:148 | WARNING | warning
 2024/06/16 11:20:29.187139 toggle/toggle.go:149 | ERROR | error
 2024/06/16 11:20:38.586439 internal/wsEventHandler.go:124 | INFO | connection opened (addr: 127.0.0.1:57913, userId: 1)
+2024/06/20 13:06:57.086694 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 13:06:57.135585 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 13:06:57.135585 toggle/toggle.go:170 | INFO | info
+2024/06/20 13:06:57.135585 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 13:06:57.135585 toggle/toggle.go:172 | ERROR | error
+2024/06/20 13:07:20.750431 internal/response.go:23 | WARNING | invalid authorization header
+2024/06/20 13:07:21.597475 internal/response.go:23 | WARNING | invalid authorization header
+2024/06/20 13:07:21.758347 internal/response.go:23 | WARNING | invalid authorization header
+2024/06/20 13:07:37.807880 internal/response.go:23 | WARNING | invalid authorization header
+2024/06/20 13:08:11.231279 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:49715, userId: 1)
+2024/06/20 13:09:22.294768 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:49715)
+2024/06/20 13:09:22.310976 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: EOF
+2024/06/20 13:09:29.261778 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:49495, userId: 1)
+2024/06/20 13:09:37.465897 internal/response.go:67 | WARNING | internal.(*WsEventHandler).OnMessage-fm
+ with an error/in: json: cannot unmarshal number into Go value of type clientSide.Message
+2024/06/20 13:09:37.485631 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:49495)
+2024/06/20 13:09:37.485631 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/20 13:09:40.038111 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:49505, userId: 1)
+2024/06/20 13:10:10.507837 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:49505)
+2024/06/20 13:10:10.507837 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/20 14:27:57.346068 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 14:27:57.393879 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 14:27:57.393879 toggle/toggle.go:170 | INFO | info
+2024/06/20 14:27:57.393879 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 14:27:57.393879 toggle/toggle.go:172 | ERROR | error
+2024/06/20 14:28:13.491670 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:28:38.430622 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: token format is not valid
+2024/06/20 14:28:39.390642 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: token format is not valid
+2024/06/20 14:29:01.726646 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: signature is not valid
+2024/06/20 14:29:02.549423 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: signature is not valid
+2024/06/20 14:29:08.035604 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: signature is not valid
+2024/06/20 14:29:08.509940 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: signature is not valid
+2024/06/20 14:29:22.559137 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 14:29:22.580968 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 14:29:22.580968 toggle/toggle.go:170 | INFO | info
+2024/06/20 14:29:22.580968 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 14:29:22.580968 toggle/toggle.go:172 | ERROR | error
+2024/06/20 14:29:26.519072 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: signature is not valid
+2024/06/20 14:31:04.134215 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:04.711316 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:04.854964 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:05.046352 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:05.230337 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:05.725844 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:06.406280 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:06.807376 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:31:19.663067 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:32:35.992043 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: token format is not valid
+2024/06/20 14:33:23.179769 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.prepareAndCheck
+ with an error/in: token format is not valid
+2024/06/20 14:33:51.773198 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:33:57.884923 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:34:33.848274 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/20 14:35:37.803711 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 14:35:37.823110 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 14:35:37.823110 toggle/toggle.go:170 | INFO | info
+2024/06/20 14:35:37.823110 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 14:35:37.823110 toggle/toggle.go:172 | ERROR | error

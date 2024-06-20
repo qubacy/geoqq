@@ -5,8 +5,10 @@ import (
 	"common/pkg/geoDistance"
 	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input/dto"
 	"geoqq_ws/internal/application/ports/output/database"
+	"geoqq_ws/internal/constErrors"
 )
 
 type UserUcParams struct {
@@ -46,11 +48,15 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 			ec.Server, ec.DomainStorageError)
 	}
 
-	// to WS
-
 	// to redis
 
 	return nil
+}
+
+func (u *UserUsecase) GetUserLocation(ctx context.Context, UserId uint64) (
+	*domain.UserLocation, error) {
+
+	return nil, constErrors.ErrNotImplemented
 }
 
 // private

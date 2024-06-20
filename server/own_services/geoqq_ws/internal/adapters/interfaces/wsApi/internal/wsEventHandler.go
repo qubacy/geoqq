@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/clientSide"
 	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
-	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide/payload"
 	"geoqq_ws/internal/application/ports/input"
 	"sync"
 	"time"
@@ -34,11 +33,17 @@ type WsEventHandler struct {
 	// services/usecases
 
 	userUc        input.UserUsecase
-	mateUc        input.MateUsecase
+	mateUc        input.MateMessageUsecase
 	onlineUsersUc input.OnlineUsersUsecase
+
+	ctxFb    context.Context
+	cancelFb context.CancelFunc
 }
 
 func NewWsEventHandler(p *Params) *WsEventHandler {
+	ctxFb, cancelFb := context.WithCancel(
+		context.Background())
+
 	hh := &WsEventHandler{
 		enablePing:   p.EnablePing,
 		pingTimeout:  p.PingTimeout, // and pong!
@@ -52,12 +57,15 @@ func NewWsEventHandler(p *Params) *WsEventHandler {
 		userSockets: sync.Map{},
 
 		userUc:        p.UserUc,
-		mateUc:        p.MateUc,
+		mateUc:        p.MateMessageUc,
 		onlineUsersUc: p.OnlineUsersUc,
+
+		ctxFb:    ctxFb,
+		cancelFb: cancelFb,
 	}
 
 	hh.initRouter()
-	hh.initFbChans()
+	hh.initFbChans(ctxFb)
 
 	return hh
 }
@@ -68,42 +76,6 @@ func (w *WsEventHandler) initRouter() {
 		"add_geo_message":      w.addGeoMessage,
 		"add_mate_message":     w.addMateMessage,
 		//...
-	}
-}
-
-func (w *WsEventHandler) initFbChans() {
-	{
-		fbChans := w.mateUc.GetFbChansForMateMessages()
-		for i := range fbChans {
-			go func(fbChan <-chan input.UserIdWithMateMsg) {
-				for {
-					select {
-					case domainMm := <-fbChan:
-						value, loaded := w.userSockets.Load(domainMm.UserId)
-						if !loaded {
-							return
-						}
-
-						mm, err := payload.MateMessageFromDomain(&domainMm.MateMsg)
-						if err != nil {
-							return
-						}
-						jsonBytes, err := json.Marshal(mm)
-						if err != nil {
-							return
-						}
-
-						socket := value.(*gws.Conn)
-						err = utl.RunFuncsRetErr(
-							func() error { return socket.SetWriteDeadline(time.Now().Add(w.writeTimeout)) },
-							func() error { return socket.WriteString(string(jsonBytes)) })
-						if err != nil {
-							logger.Warning("%v", err)
-						}
-					}
-				}
-			}(fbChans[i])
-		}
 	}
 }
 
@@ -161,7 +133,7 @@ func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 
 	logger.Info("connection opened (addr: %v, userId: %v)",
 		socket.RemoteAddr(), userId)
-	w.onlineUsersUc.SetUserToOnline(userId)
+	w.onlineUsersUc.SetUsersToOnline(userId)
 
 	// ***
 
@@ -212,7 +184,7 @@ func (w *WsEventHandler) OnClose(socket *gws.Conn, err error) {
 
 	client := value.(*Client)
 	w.userSockets.Delete(client.userId)
-	w.onlineUsersUc.RemoveUserFromOnline(client.userId)
+	w.onlineUsersUc.RemoveUsersFromOnline(client.userId)
 
 	if w.enablePing {
 		client.pingCancel()
