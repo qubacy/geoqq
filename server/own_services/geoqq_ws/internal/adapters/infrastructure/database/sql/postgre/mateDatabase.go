@@ -41,6 +41,19 @@ var (
 	templateSelectMateMessageById = utl.RemoveAdjacentWs(`
 		SELECT * FROM "MateMessage"
 			WHERE "Id" = $1`)
+
+	/*
+		Orders:
+			1. mateChatId
+	*/
+	templateHasMateChatWithId = utl.RemoveAdjacentWs(`
+		SELECT 
+			case 
+				WHEN COUNT(*) >= 1
+					then true
+					else false
+			end as "Has"
+		FROM "MateChat" WHERE "Id" = $1`)
 )
 
 // public
@@ -62,6 +75,22 @@ func (m *MateDatabase) GetMateMessageById(ctx context.Context,
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	return mm, nil
+}
+
+func (m *MateDatabase) HasMateChatWithId(ctx context.Context, chatId uint64) (bool, error) {
+	sourceFunc := m.HasMateChatWithId
+
+	row, err := queryRow(ctx, m.pool,
+		templateHasMateChatWithId, chatId)
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+
+	has, err := wrappedPgxpool.ScanBool(row, sourceFunc)
+	if err != nil {
+		return false, utl.NewFuncError(sourceFunc, err)
+	}
+	return has, nil
 }
 
 func (m *MateDatabase) InsertMateMessage(ctx context.Context, chatId uint64,

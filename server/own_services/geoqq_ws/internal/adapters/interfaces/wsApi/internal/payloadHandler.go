@@ -17,10 +17,7 @@ type PayloadHandler = func(context.Context, *Client, any)
 
 func (w *WsEventHandler) updateUserLocation(ctx context.Context, client *Client, rawPayload any) {
 	sourceFunc := w.updateUserLocation
-	actionName := cside.ActionUpdateUserLocation
-
-	eventOk := sside.MakeEventSucceeded(actionName)
-	eventFl := sside.MakeEventFailed(actionName)
+	eventOk, eventFl := sside.MakeEventsOkAndFl(cside.ActionUpdateUserLocation)
 
 	payload, err := payload.NewFromAny[payload.UserLocation](rawPayload)
 	if err != nil {
@@ -40,29 +37,47 @@ func (w *WsEventHandler) updateUserLocation(ctx context.Context, client *Client,
 
 	// response to client
 
+	w.commonRes(client.socket, eventOk, eventFl, err)
+}
+
+func (w *WsEventHandler) addMateMessage(ctx context.Context, client *Client, rawPayload any) {
+	sourceFunc := w.addMateMessage
+	eventOk, eventFl := sside.MakeEventsOkAndFl(cside.ActionAddMateMessage)
+
+	payload, err := payload.NewFromAny[payload.MateMessage](rawPayload)
 	if err != nil {
-		w.resWithErrorForClient(client.socket, eventFl, err)
+		w.resWithClientError(client.socket, eventFl,
+			ec.Parse_JsonPayloadFailed, utl.NewFuncError(sourceFunc, err))
 		return
 	}
 
-	w.resWithOK(client.socket, eventOk)
+	// to service/usecase
+
+	err = w.mateMessageUc.AddMateMessage(ctx, client.userId,
+		uint64(payload.ChatId), payload.Text)
+
+	// response to client
+
+	w.commonRes(client.socket, eventOk, eventFl, err)
 }
 
 func (w *WsEventHandler) addGeoMessage(ctx context.Context, client *Client, rawPayload any) {
-	// sourceFunc := w.addGeoMessage
-	// actionName := cside.ActionAddGeoMessage
+	sourceFunc := w.addGeoMessage
+	eventOk, eventFl := sside.MakeEventsOkAndFl(cside.ActionAddGeoMessage)
 
-	_, err := payload.NewFromAny[payload.GeoMessage](rawPayload)
+	payload, err := payload.NewFromAny[payload.GeoMessage](rawPayload)
 	if err != nil {
-		client.socket.WriteString("")
+		w.resWithClientError(client.socket, eventFl,
+			ec.Parse_JsonPayloadFailed, utl.NewFuncError(sourceFunc, err))
 		return
 	}
-}
 
-func (c *WsEventHandler) addMateMessage(ctx context.Context, client *Client, rawPayload any) {
-	_, err := payload.NewFromAny[payload.MateMessage](rawPayload)
-	if err != nil {
-		client.socket.WriteString("")
-		return
-	}
+	// to service/usecase
+
+	err = w.geoMessageUc.AddGeoMessage(ctx, client.userId,
+		payload.Text, payload.Longitude, payload.Latitude)
+
+	// response to client
+
+	w.commonRes(client.socket, eventOk, eventFl, err)
 }

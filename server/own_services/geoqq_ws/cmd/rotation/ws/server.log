@@ -442,3 +442,121 @@ created by github.com/lxzan/gws.channel.Go in goroutine 15
 2024/06/20 14:35:37.823110 toggle/toggle.go:170 | INFO | info
 2024/06/20 14:35:37.823110 toggle/toggle.go:171 | WARNING | warning
 2024/06/20 14:35:37.823110 toggle/toggle.go:172 | ERROR | error
+2024/06/20 20:50:00.343292 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 20:50:00.371293 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 20:50:00.371293 toggle/toggle.go:170 | INFO | info
+2024/06/20 20:50:00.371293 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 20:50:00.371293 toggle/toggle.go:172 | ERROR | error
+2024/06/20 20:56:34.403827 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 20:56:34.424998 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 20:56:34.424998 toggle/toggle.go:170 | INFO | info
+2024/06/20 20:56:34.424998 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 20:56:34.424998 toggle/toggle.go:172 | ERROR | error
+2024/06/20 20:57:11.326905 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 20:57:11.348909 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 20:57:11.348909 toggle/toggle.go:170 | INFO | info
+2024/06/20 20:57:11.348909 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 20:57:11.348909 toggle/toggle.go:172 | ERROR | error
+2024/06/20 22:37:33.357601 toggle/toggle.go:168 | TRACE | trace
+2024/06/20 22:37:33.380600 toggle/toggle.go:169 | DEBUG | debug
+2024/06/20 22:37:33.380600 toggle/toggle.go:170 | INFO | info
+2024/06/20 22:37:33.380600 toggle/toggle.go:171 | WARNING | warning
+2024/06/20 22:37:33.380600 toggle/toggle.go:172 | ERROR | error
+2024/06/21 09:58:25.328658 toggle/toggle.go:168 | TRACE | trace
+2024/06/21 09:58:25.371929 toggle/toggle.go:169 | DEBUG | debug
+2024/06/21 09:58:25.371929 toggle/toggle.go:170 | INFO | info
+2024/06/21 09:58:25.371929 toggle/toggle.go:171 | WARNING | warning
+2024/06/21 09:58:25.371929 toggle/toggle.go:172 | ERROR | error
+2024/06/21 09:58:25.371929 toggle/toggle.go:179 | INFO | signing key: signing_key
+2024/06/21 09:59:40.398249 toggle/toggle.go:168 | TRACE | trace
+2024/06/21 09:59:40.419360 toggle/toggle.go:169 | DEBUG | debug
+2024/06/21 09:59:40.419360 toggle/toggle.go:170 | INFO | info
+2024/06/21 09:59:40.419360 toggle/toggle.go:171 | WARNING | warning
+2024/06/21 09:59:40.419360 toggle/toggle.go:172 | ERROR | error
+2024/06/21 09:59:40.419360 toggle/toggle.go:179 | INFO | signing key: signing_key
+2024/06/21 10:00:22.563610 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:00:23.896477 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/21 10:00:32.996172 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:00:32.996172 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/21 10:01:16.996116 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:07:22.332793 internal/response.go:23 | WARNING | cristalJwt.(*TokenManager).ParseAccess-fm
+ with an error/in: cristalJwt.(*TokenManager).Parse-fm
+ with an error/in: cristalJwt.extractAndCheck
+ with an error/in: token expired
+2024/06/21 10:08:30.155669 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:08:31.863274 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:64767, userId: 2)
+2024/06/21 10:09:06.677895 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:64767)
+2024/06/21 10:09:06.677895 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 10:09:09.526789 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:09:09.527326 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:64911, userId: 2)
+2024/06/21 10:09:26.910257 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:09:26.910789 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:65006, userId: 3)
+2024/06/21 10:18:57.077801 toggle/toggle.go:168 | TRACE | trace
+2024/06/21 10:18:57.106893 toggle/toggle.go:169 | DEBUG | debug
+2024/06/21 10:18:57.106893 toggle/toggle.go:170 | INFO | info
+2024/06/21 10:18:57.106893 toggle/toggle.go:171 | WARNING | warning
+2024/06/21 10:18:57.106893 toggle/toggle.go:172 | ERROR | error
+2024/06/21 10:18:57.106893 toggle/toggle.go:179 | INFO | signing key: signing_key
+2024/06/21 10:19:01.057642 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:19:01.058207 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:52876, userId: 2)
+2024/06/21 10:19:04.682116 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 10:19:04.682625 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:52891, userId: 3)
+2024/06/21 17:26:53.306162 toggle/toggle.go:168 | TRACE | trace
+2024/06/21 17:26:53.331122 toggle/toggle.go:169 | DEBUG | debug
+2024/06/21 17:26:53.331122 toggle/toggle.go:170 | INFO | info
+2024/06/21 17:26:53.331122 toggle/toggle.go:171 | WARNING | warning
+2024/06/21 17:26:53.331122 toggle/toggle.go:172 | ERROR | error
+2024/06/21 17:26:53.350786 toggle/toggle.go:179 | INFO | signing key: signing_key
+2024/06/21 17:28:22.065782 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:28:22.066311 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55181, userId: 3)
+2024/06/21 17:28:24.637394 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:28:24.637903 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55183, userId: 2)
+2024/06/21 17:29:57.060726 internal/response.go:67 | WARNING | internal.(*WsEventHandler).addMateMessage-fm
+ with an error/in: payload.NewFromAny[...].func2
+ with an error/in: json: cannot unmarshal string into Go struct field MateMessage.chat-id of type float64
+2024/06/21 17:29:57.061255 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55183)
+2024/06/21 17:29:57.061255 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: 
+2024/06/21 17:30:42.486416 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:30:42.486416 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55253, userId: 2)
+2024/06/21 17:30:45.323405 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55253)
+2024/06/21 17:30:45.323405 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:30:45.686153 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:30:45.686153 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55256, userId: 2)
+2024/06/21 17:30:50.235614 internal/feedback.go:32 | ERROR | socket not found by user id 1 in map
+2024/06/21 17:30:57.507455 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55181)
+2024/06/21 17:30:57.507455 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:30:58.047531 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:30:58.047531 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55262, userId: 3)
+2024/06/21 17:31:01.683378 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55256)
+2024/06/21 17:31:01.683378 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:31:01.910798 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:31:01.910798 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55263, userId: 2)
+2024/06/21 17:31:05.359125 internal/feedback.go:32 | ERROR | socket not found by user id 1 in map
+2024/06/21 17:31:55.330498 internal/feedback.go:32 | ERROR | socket not found by user id 1 in map
+2024/06/21 17:34:20.230539 internal/feedback.go:32 | ERROR | socket not found by user id 1 in map
+2024/06/21 17:34:33.699833 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55262)
+2024/06/21 17:34:33.699833 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:34:34.152178 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:34:34.152178 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55309, userId: 3)
+2024/06/21 17:35:38.787231 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55309)
+2024/06/21 17:35:38.787736 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:35:44.679721 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:35:44.679721 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55327, userId: 1)
+2024/06/21 17:35:50.987375 internal/wsEventHandler.go:173 | INFO | connection closed (addr: 127.0.0.1:55263)
+2024/06/21 17:35:50.987375 internal/wsEventHandler.go:175 | WARNING | internal.(*WsEventHandler).OnClose-fm
+ with an error/in: gws: connection closed, code=1000, reason=
+2024/06/21 17:35:51.503337 internal/httpHandler.go:48 | INFO | new connection with ip 127.0.0.1
+2024/06/21 17:35:51.503337 internal/wsEventHandler.go:134 | INFO | connection opened (addr: 127.0.0.1:55331, userId: 2)

@@ -2,6 +2,7 @@ package internal
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	"common/pkg/logger"
 	"common/pkg/token"
 	utl "common/pkg/utility"
 	"geoqq_ws/internal/application/ports/input"
@@ -23,8 +24,9 @@ type Params struct {
 	TpExtractor token.TokenPayloadExtractor
 
 	UserUc        input.UserUsecase
-	MateMessageUc input.MateMessageUsecase
 	OnlineUsersUc input.OnlineUsersUsecase
+	MateMessageUc input.MateMessageUsecase
+	GeoMessageUc  input.GeoMessageUsecase
 }
 
 // -----------------------------------------------------------------------
@@ -43,7 +45,12 @@ func NewHttpHandler(p *Params) (http.Handler, error) {
 		ctx.String(http.StatusOK, "pong")
 	})
 	engine.GET("/api/ws",
-		func(ctx *gin.Context) { userIdentityByHeader(ctx, p.TpExtractor) },
+		func(ctx *gin.Context) {
+			logger.Info("new connection with ip %v", ctx.ClientIP())
+		},
+		func(ctx *gin.Context) {
+			userIdentityByHeader(ctx, p.TpExtractor)
+		},
 		func(ctx *gin.Context) {
 			socket, err := upgrader.Upgrade(ctx.Writer, ctx.Request)
 			if err != nil {

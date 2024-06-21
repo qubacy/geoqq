@@ -7,6 +7,7 @@ import (
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/adapters/infrastructure/cache/redis"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre"
 	"geoqq_ws/internal/adapters/interfaces/wsApi"
 	"geoqq_ws/internal/application/ports/input"
@@ -64,19 +65,39 @@ func Do() error {
 	if err != nil {
 		return utl.NewFuncError(Do, err)
 	}
+	tempDb, err := redis.New(startCtx, &redis.Params{
+		Host:     viper.GetString("adapters.infra.cache.redis.host"),
+		Port:     viper.GetUint16("adapters.infra.cache.redis.port"),
+		User:     viper.GetString("adapters.infra.cache.redis.user"),
+		Password: viper.GetString("adapters.infra.cache.redis.password"),
+		DbIndex:  viper.GetInt("adapters.infra.cache.redis.db_index"),
+	})
+	if err != nil {
+		return utl.NewFuncError(Do, err)
+	}
 
 	// application core
 
-	var userUc input.UserUsecase = usecase.NewUserUsecase(usecase.UserUcParams{
-		Database: db,
+	var userUc input.UserUsecase = usecase.NewUserUsecase(&usecase.UserUcParams{
+		Database:     db,
+		TempDatabase: tempDb,
 	})
-	var onlineUsersUc = usecase.NewOnlineUsersUsecase()
-	var mateMessageUc = usecase.NewMateMessageUsecase(usecase.MateMessageUcParams{
+	var onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
+		TempDatabase: tempDb,
+	})
+	var mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
 		OnlineUsersUc: onlineUsersUc,
 		Database:      db,
 
 		FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
 		FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
+	})
+	var geoMessageUc = usecase.NewGeoMessageUsecase(&usecase.GeoMessageUcParams{
+		OnlineUsersUc: onlineUsersUc,
+		Database:      db,
+
+		FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
+		FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),
 	})
 
 	// interfaces/input
@@ -97,6 +118,7 @@ func Do() error {
 		UserUc:        userUc,
 		OnlineUsersUc: onlineUsersUc,
 		MateMessageUc: mateMessageUc,
+		GeoMessageUc:  geoMessageUc,
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)
@@ -176,6 +198,8 @@ func initializeLogging() error {
 
 func tokenManagerInstance() (token.TokenManager, error) {
 	signingKey := viper.GetString("adapters.interfaces.ws.token.signing_key") // ?
+	logger.Info("signing key: %v", signingKey)
+
 	tokenManager, err := tokenImpl.NewTokenManager(signingKey)
 	if err != nil {
 		return nil, utl.NewFuncError(tokenManagerInstance, err)

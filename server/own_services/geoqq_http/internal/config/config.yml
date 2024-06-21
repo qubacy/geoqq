@@ -16,7 +16,7 @@ server:
 
 delivery: # or service?
   token:
-    access_ttl: 15s
+    access_ttl: 24h
     refresh_ttl: 168h
     signing_key: "signing_key"
 

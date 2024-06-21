@@ -6,7 +6,9 @@ import (
 )
 
 func Test_OnlineUsersUsecase(t *testing.T) {
-	uc := NewOnlineUsersUsecase()
+	uc := NewOnlineUsersUsecase(&OnlineUsersParams{
+		TempDatabase: nil,
+	})
 
 	uc.SetUsersToOnline(1, 2, 3)
 	uc.RemoveUsersFromOnline(1)

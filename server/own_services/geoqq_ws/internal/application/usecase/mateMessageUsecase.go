@@ -4,7 +4,7 @@ import (
 	ec "common/pkg/errorForClient/geoqq"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/domain"
+	dd "geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/database"
 	"math/rand"
@@ -21,25 +21,25 @@ type MateMessageUcParams struct {
 // -----------------------------------------------------------------------
 
 type MateMessageUsecase struct {
-	onlineUsersUc    input.OnlineUsersUsecase
-	fbChsForMateMsgs []chan input.UserIdWithMateMessage
+	onlineUsersUc          input.OnlineUsersUsecase
+	feedbackChsForMateMsgs []chan input.UserIdWithMateMessage
 
 	db database.Database
 }
 
-func NewMateMessageUsecase(deps MateMessageUcParams) *MateMessageUsecase {
-	fbChsForMateMsgs := []chan input.UserIdWithMateMessage{}
-	for i := 0; i < deps.FbChanCount; i++ {
-		fbChsForMateMsgs = append(fbChsForMateMsgs,
-			make(chan input.UserIdWithMateMessage, deps.FbChanSize))
+func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
+	feedbackChsForMateMsgs := []chan input.UserIdWithMateMessage{}
+	for i := 0; i < params.FbChanCount; i++ {
+		feedbackChsForMateMsgs = append(feedbackChsForMateMsgs,
+			make(chan input.UserIdWithMateMessage, params.FbChanSize))
 	}
 
 	// ***
 
 	return &MateMessageUsecase{
-		onlineUsersUc:    deps.OnlineUsersUc,
-		fbChsForMateMsgs: fbChsForMateMsgs,
-		db:               deps.Database,
+		onlineUsersUc:          params.OnlineUsersUc,
+		feedbackChsForMateMsgs: feedbackChsForMateMsgs,
+		db:                     params.Database, // !
 	}
 }
 
@@ -50,9 +50,14 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	userId, chatId uint64, text string) error {
 	sourceFunc := m.AddMateMessage
 
-	var err error
-	var mateMessageId uint64
-	var interlocutorId uint64
+	var (
+		err            error
+		mateMessageId  uint64
+		interlocutorId uint64
+		mateMessage    *dd.MateMessage
+	)
+
+	// TODO: chat available for userId
 
 	err = utl.RunFuncsRetErr(
 		func() error {
@@ -61,28 +66,23 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 		}, func() error {
 			interlocutorId, err = m.db.GetMateIdByChatId(ctx, userId, chatId)
 			return err
+		}, func() error {
+			mateMessage, err = m.db.GetMateMessageById(ctx, mateMessageId) // just added!
+			return err
 		})
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
-	// ***
-
-	mateMessage, err := m.db.GetMateMessageById(ctx, mateMessageId) // just added!
-	if err != nil {
-		return ec.New(utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.DomainStorageError)
-	}
-
-	m.sendMateMessageToFb(interlocutorId, mateMessage)
+	m.sendMateMessageToFb(interlocutorId, mateMessage) // no error!
 	return nil
 }
 
 func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateMessage {
 	chs := []<-chan input.UserIdWithMateMessage{}
-	for i := range m.fbChsForMateMsgs {
-		chs = append(chs, m.fbChsForMateMsgs[i]) // convert chans!
+	for i := range m.feedbackChsForMateMsgs {
+		chs = append(chs, m.feedbackChsForMateMsgs[i]) // convert chans!
 	}
 
 	return chs
@@ -91,13 +91,16 @@ func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWi
 // private
 // -----------------------------------------------------------------------
 
-func (m *MateMessageUsecase) sendMateMessageToFb(userId uint64, mateMessage *domain.MateMessage) {
+func (m *MateMessageUsecase) sendMateMessageToFb(targetUserId uint64, mateMessage *dd.MateMessage) {
+	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
+		return
+	}
 
-	count := len(m.fbChsForMateMsgs)
+	count := len(m.feedbackChsForMateMsgs)
 	index := rand.Intn(count)
 
-	m.fbChsForMateMsgs[index] <- input.UserIdWithMateMessage{
-		UserId:  userId, // forward message to...
+	m.feedbackChsForMateMsgs[index] <- input.UserIdWithMateMessage{
+		UserId:  targetUserId, // forward message to...
 		MateMsg: *mateMessage,
 	}
 }

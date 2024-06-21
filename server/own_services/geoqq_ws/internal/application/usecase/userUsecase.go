@@ -3,27 +3,32 @@ package usecase
 import (
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/geoDistance"
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input/dto"
+	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
 	"geoqq_ws/internal/constErrors"
 )
 
 type UserUcParams struct {
-	Database database.Database
+	Database     database.Database
+	TempDatabase cache.Cache
 }
 
 // -----------------------------------------------------------------------
 
 type UserUsecase struct {
-	Db database.Database
+	db     database.Database
+	tempDb cache.Cache
 }
 
-func NewUserUsecase(deps UserUcParams) *UserUsecase {
+func NewUserUsecase(params *UserUcParams) *UserUsecase {
 	return &UserUsecase{
-		Db: deps.Database,
+		db:     params.Database,
+		tempDb: params.TempDatabase,
 	}
 }
 
@@ -41,14 +46,20 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 
 	// ***
 
-	err = u.Db.UpdateUserLocation(ctx,
+	err = u.db.UpdateUserLocation(ctx,
 		data.UserId, data.Longitude, data.Latitude)
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
 
-	// to redis
+	// to cache
+
+	if u.tempDb != nil {
+		if err = u.tempDb.RemoveAllForUser(data.UserId); err != nil {
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
+		}
+	}
 
 	return nil
 }

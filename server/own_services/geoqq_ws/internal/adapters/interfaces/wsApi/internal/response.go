@@ -125,3 +125,14 @@ func (w *WsEventHandler) resWithErrorForClient(socket *gws.Conn,
 	w.resWithErr(socket, eventName,
 		httpCode, errorId, err)
 }
+
+func (w *WsEventHandler) commonRes(socket *gws.Conn,
+	eventOk, eventFl string, err error /* error for client */) {
+
+	if err != nil {
+		w.resWithErrorForClient(socket, eventFl, err) // unwrap!
+		return
+	}
+
+	w.resWithOK(socket, eventOk)
+}

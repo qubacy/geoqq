@@ -36,6 +36,11 @@ func MakeEventSucceeded(name string) string {
 	return name + "_" + PostfixSucceeded
 }
 
+func MakeEventsOkAndFl(name string) (string, string) {
+	return MakeEventSucceeded(name),
+		MakeEventFailed(name)
+}
+
 // -----------------------------------------------------------------------
 
 type Message struct {

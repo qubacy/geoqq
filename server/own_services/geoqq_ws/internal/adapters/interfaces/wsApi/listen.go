@@ -26,8 +26,9 @@ type Params struct {
 	TpExtractor token.TokenPayloadExtractor
 
 	UserUc        input.UserUsecase
-	MateMessageUc input.MateMessageUsecase
 	OnlineUsersUc input.OnlineUsersUsecase
+	MateMessageUc input.MateMessageUsecase
+	GeoMessageUc  input.GeoMessageUsecase
 }
 
 func (p *Params) createAddr() string {
@@ -48,8 +49,9 @@ func New(params *Params) (*Server, error) {
 		TpExtractor:  params.TpExtractor,
 
 		UserUc:        params.UserUc,
-		MateMessageUc: params.MateMessageUc,
 		OnlineUsersUc: params.OnlineUsersUc,
+		MateMessageUc: params.MateMessageUc,
+		GeoMessageUc:  params.GeoMessageUc,
 	})
 	if err != nil {
 		return nil, utl.NewFuncError(New, err)

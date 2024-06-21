@@ -215,7 +215,7 @@ INSERT INTO "DeletedMateChat" VALUES (2, 2);
         Return all chats available to the user.
         With information about availability for second.
 */
-WITH "userId" AS (VALUES (14)), /* 1stUser */
+WITH "userId" AS (VALUES (1)), /* 1stUser */
      "MateChatNotDeletedFor1stUser" AS (
     SELECT 
         "Id" AS "MateChatId",
