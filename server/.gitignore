@@ -23,3 +23,4 @@ go.work
 # My
 own_services/geoqq_http/cmd/avatar
 own_services/geoqq_http/cmd/rotation
+own_services/geoqq_ws/cmd/rotation

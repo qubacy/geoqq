@@ -17,6 +17,10 @@ type Params struct {
 	DbIndex  int
 }
 
+const (
+	keyUsers = "users"
+)
+
 // -----------------------------------------------------------------------
 
 type Cache struct {
@@ -44,18 +48,28 @@ func New(startCtx context.Context, params *Params) (*Cache, error) {
 // public
 // -----------------------------------------------------------------------
 
-func (h *Cache) AddUserLocation(userId uint64, loc cache.Location) error {
-	return nil
+func (h *Cache) AddUserLocation(ctx context.Context, userId uint64, loc cache.Location) error {
+	err := h.client.GeoAdd(ctx, keyUsers, &redis.GeoLocation{
+		Name:      fmt.Sprintf("%v", userId),
+		Longitude: loc.Lon,
+		Latitude:  loc.Lat,
+	}).Err()
+
+	if err != nil {
+		return utl.NewFuncError(h.AddUserLocation, err)
+	}
+
+	return nil // ok
 }
 
-func (h *Cache) GetUserLocation(userId uint64) (bool, cache.Location, error) {
+func (h *Cache) GetUserLocation(ctx context.Context, userId uint64) (bool, cache.Location, error) {
 	return false, cache.Location{}, nil
 }
 
-func (h *Cache) SearchUsersNearby(loc cache.Location, radius uint64) ([]uint64, error) {
+func (h *Cache) SearchUsersNearby(ctx context.Context, loc cache.Location, radius uint64) ([]uint64, error) {
 	return nil, nil
 }
 
-func (h *Cache) RemoveAllForUser(userId uint64) error {
+func (h *Cache) RemoveAllForUser(ctx context.Context, userId uint64) error {
 	return nil
 }
