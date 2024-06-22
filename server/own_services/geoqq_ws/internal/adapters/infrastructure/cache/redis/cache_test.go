@@ -231,6 +231,30 @@ func Test_SearchUsersNearby(t *testing.T) {
 	log.Printf("%v", userIds)
 }
 
+func Test_SearchUsersWithLocationsNearby(t *testing.T) {
+	ctx := context.Background()
+	var userId uint64
+
+	for ; userId < userCount; userId++ {
+		loc := genLocation()
+		if err := tempDb.AddUserLocation(ctx, userId, loc); err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
+	// ***
+
+	loc := genLocation()
+	userIdAndLocList, err := tempDb.SearchUsersWithLocationsNearby(ctx, loc, 200_000)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	log.Printf("%v", userIdAndLocList)
+}
+
 // private
 // -----------------------------------------------------------------------
 

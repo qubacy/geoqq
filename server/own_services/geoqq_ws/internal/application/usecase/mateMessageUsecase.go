@@ -101,6 +101,6 @@ func (m *MateMessageUsecase) sendMateMessageToFb(targetUserId uint64, mateMessag
 
 	m.feedbackChsForMateMsgs[index] <- input.UserIdWithMateMessage{
 		UserId:  targetUserId, // forward message to...
-		MateMsg: *mateMessage,
+		MateMsg: mateMessage,
 	}
 }

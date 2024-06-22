@@ -89,7 +89,7 @@ SELECT * FROM "MateMessage";
 
 SELECT * FROM "MateChat";
 
-WITH "srcUserId" AS (VALUES (2))
+WITH "srcUserId" AS (VALUES (1))
 SELECT "MateChat"."Id" AS "Id",
        case
            when "FirstUserId" = (table "srcUserId") 
@@ -111,7 +111,8 @@ SELECT "MateChat"."Id" AS "Id",
        "LastMessage"."Id" AS "LastMessageId",
        "LastMessage"."Text" AS "LastMessageText",
        "LastMessage"."Time" AS "LastMessageTime",
-       "LastMessage"."FromUserId" AS "LastMessageUserId"
+       "LastMessage"."FromUserId" AS "LastMessageUserId",
+       "LastMessage"."Read" AS "Read"
 
 FROM "MateChat"
 LEFT JOIN LATERAL

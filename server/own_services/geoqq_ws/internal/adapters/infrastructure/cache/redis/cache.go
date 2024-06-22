@@ -14,6 +14,10 @@ const (
 	keyUserLocations = "user_locations"
 )
 
+const (
+	radiusUnit = "m"
+)
+
 func makeCacheKeyForUserId(userId uint64) string {
 	return fmt.Sprintf("%d", userId)
 }
@@ -130,11 +134,12 @@ func (h *Cache) GetUserLocation(ctx context.Context, userId uint64) (bool, cache
 
 func (h *Cache) SearchUsersNearby(ctx context.Context, loc cache.Location, radius uint64) ([]uint64, error) {
 	sourceFunc := h.SearchUsersNearby
+
 	members, err := h.rdb.GeoSearch(ctx, keyUserLocations, &redis.GeoSearchQuery{
 		Longitude:  loc.Lon,
 		Latitude:   loc.Lat,
 		Radius:     float64(radius),
-		RadiusUnit: "m",
+		RadiusUnit: radiusUnit,
 	}).Result()
 
 	if err != nil {
@@ -151,6 +156,42 @@ func (h *Cache) SearchUsersNearby(ctx context.Context, loc cache.Location, radiu
 		userIds = append(userIds, userId)
 	}
 	return userIds, nil
+}
+
+func (h *Cache) SearchUsersWithLocationsNearby(ctx context.Context,
+	loc cache.Location, radius uint64) ([]cache.UserIdWithLocation, error) {
+	sourceFunc := h.SearchUsersWithLocationsNearby
+
+	geoLocs, err := h.rdb.GeoSearchLocation(ctx, keyUserLocations, &redis.GeoSearchLocationQuery{
+		GeoSearchQuery: redis.GeoSearchQuery{
+			Longitude:  loc.Lon,
+			Latitude:   loc.Lat,
+			Radius:     float64(radius),
+			RadiusUnit: radiusUnit,
+		},
+		WithCoord: true, // !
+	}).Result()
+
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	userIdAndLocList := []cache.UserIdWithLocation{}
+	for i := range geoLocs {
+		userId, err := cacheKeyToUserId(geoLocs[i].Name)
+		if err != nil {
+			return nil, utl.NewFuncError(sourceFunc, err)
+		}
+
+		userIdAndLocList = append(userIdAndLocList, cache.UserIdWithLocation{
+			UserId: userId,
+			Loc: cache.Location{
+				Lon: geoLocs[i].Longitude,
+				Lat: geoLocs[i].Latitude,
+			},
+		})
+	}
+	return userIdAndLocList, nil
 }
 
 func (h *Cache) RemoveAllForUser(ctx context.Context, userId uint64) error {

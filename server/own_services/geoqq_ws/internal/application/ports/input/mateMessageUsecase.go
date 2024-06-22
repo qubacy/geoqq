@@ -7,7 +7,7 @@ import (
 
 type UserIdWithMateMessage struct {
 	UserId  uint64
-	MateMsg dd.MateMessage
+	MateMsg *dd.MateMessage
 }
 
 type MateMessageUsecase interface {

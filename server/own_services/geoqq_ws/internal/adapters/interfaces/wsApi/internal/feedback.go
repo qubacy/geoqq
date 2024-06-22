@@ -17,6 +17,7 @@ import (
 
 func (w *WsEventHandler) initFbChans(ctxFb context.Context) {
 	w.initMateMessagesFb(ctxFb)
+	w.initGeoMessagesFb(ctxFb)
 }
 
 // specific...
@@ -42,7 +43,7 @@ func (w *WsEventHandler) initMateMessagesFb(ctxFb context.Context) {
 
 					// ***
 
-					mm, err := payload.MateMessageFromDomain(&pair.MateMsg)
+					mm, err := payload.MateMessageFromDomain(pair.MateMsg)
 					if err != nil {
 						w.resWithServerError(socket, svrSide.EventGeneralError,
 							ec.ServerError, err)
@@ -66,4 +67,7 @@ func (w *WsEventHandler) initMateMessagesFb(ctxFb context.Context) {
 			}
 		}(fbChans[i])
 	}
+}
+
+func (w *WsEventHandler) initGeoMessagesFb(ctxFb context.Context) {
 }

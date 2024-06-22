@@ -24,6 +24,8 @@ func newUserService(deps Dependencies) *PublicUserService {
 	instance := &PublicUserService{
 		fileStorage:   deps.FileStorage,
 		domainStorage: deps.DomainStorage,
+		generalParams: deps.GeneralParams,
+		userParams:    deps.UserParams,
 	}
 
 	return instance

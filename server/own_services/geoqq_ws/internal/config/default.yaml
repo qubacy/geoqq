@@ -26,11 +26,16 @@ logging:
     #...
 
 usecase:
+  common:
+    chat_message: 
+      max_length: 1024
+
   mate_message:
     fb_chan_count: 4
     fb_chan_size: 10
 
   geo_message:
+    max_radius: 10000
     fb_chan_count: 4
     fb_chan_size: 10
 
@@ -66,7 +71,7 @@ adapters:
 
       redis:
         host: "127.0.0.1"
-        port: 6379
+        port: 16379
         
         user: ""
         password: ""

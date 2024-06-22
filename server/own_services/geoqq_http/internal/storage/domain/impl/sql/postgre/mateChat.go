@@ -102,7 +102,8 @@ var (
 			"LastMessage"."Id" AS "LastMessageId",
 			"LastMessage"."Text" AS "LastMessageText",
 			"LastMessage"."Time" AS "LastMessageTime",
-			"LastMessage"."FromUserId" AS "LastMessageUserId"
+			"LastMessage"."FromUserId" AS "LastMessageUserId",
+			"LastMessage"."Read" AS "Read"
 
 		FROM "MateChat"
 		LEFT JOIN LATERAL
@@ -274,18 +275,20 @@ func (s *MateChatStorage) HasMateChatWithId(ctx context.Context, id uint64) (boo
 
 func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 	userId, offset, count uint64) ([]*domain.MateChat, error) {
+	sourceFunc := s.GetMateChatsForUser
 	conn, err := s.pool.Acquire(ctx)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	defer conn.Release()
 
 	// ***
 
-	rows, err := conn.Query(ctx, templateGetMateChatsForUser+`;`,
+	rows, err := conn.Query(ctx,
+		templateGetMateChatsForUser+`;`,
 		userId, count, offset)
 	if err != nil {
-		return nil, utl.NewFuncError(s.GetMateChatsForUser, err)
+		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 	defer rows.Close()
 
@@ -293,8 +296,7 @@ func (s *MateChatStorage) GetMateChatsForUser(ctx context.Context,
 	for rows.Next() {
 		mateChat, err := mateChatFromQueryResult(rows)
 		if err != nil {
-			return nil, utl.NewFuncError(
-				s.GetMateChatsForUser, err)
+			return nil, utl.NewFuncError(sourceFunc, err)
 		}
 
 		mateChats = append(mateChats, mateChat)
@@ -564,11 +566,9 @@ func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, 
 	lastMessageExists := false
 
 	err := queryResult.Scan(
-		&mateChat.Id, &mateChat.UserId,
-		&mateChat.LastActionTime,
-		&mateChat.NewMessageCount,
-		&lastMessageExists,
-		nil, nil, nil, nil, // <--- skip fields!
+		&mateChat.Id, &mateChat.UserId, &mateChat.LastActionTime,
+		&mateChat.NewMessageCount, &lastMessageExists,
+		nil, nil, nil, nil, nil, // <--- skip fields!
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(mateChatFromQueryResult, err)
@@ -593,9 +593,10 @@ func mateChatFromQueryResult(queryResult QueryResultScanner) (*domain.MateChat, 
 func lastMateChatMessageFromQueryResult(queryResult QueryResultScanner) (*domain.MateMessage, error) {
 	mateMessage := new(domain.MateMessage)
 	err := queryResult.Scan(
-		nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
 		&mateMessage.Id, &mateMessage.Text,
 		&mateMessage.Time, &mateMessage.UserId,
+		&mateMessage.Read,
 	)
 	if err != nil {
 		return nil, utl.NewFuncError(

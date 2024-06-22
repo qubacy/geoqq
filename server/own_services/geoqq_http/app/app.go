@@ -291,6 +291,10 @@ func servicesInstance(
 
 	// ***
 
+	generalParams := basicService.GeneralParams{
+		MaxPageSize: viper.GetUint64("service.general.pagination.max_page_size"),
+	}
+
 	services, err := basicService.NewServices(basicService.Dependencies{
 		HashManager:  hashManager,
 		TokenManager: tokenManager,
@@ -310,9 +314,7 @@ func servicesInstance(
 
 		GeoDistCalculator: geoDistanceImpl.NewCalculator(),
 
-		GeneralParams: basicService.GeneralParams{
-			MaxPageSize: viper.GetUint64("service.general.pagination.max_page_size"),
-		},
+		GeneralParams: generalParams,
 
 		AuthParams: basicService.AuthParams{
 			SignIn: basicService.SignInParams{

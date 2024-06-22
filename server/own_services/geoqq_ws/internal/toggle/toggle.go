@@ -1,6 +1,7 @@
 package toggle
 
 import (
+	geoCalculatorImpl "common/pkg/geoDistance/haversine"
 	"common/pkg/logger"
 	"common/pkg/logger/lumberjack"
 	"common/pkg/token"
@@ -83,7 +84,8 @@ func Do() error {
 		TempDatabase: tempDb,
 	})
 	var onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
-		TempDatabase: tempDb,
+		TempDatabase:        tempDb,
+		CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
 	})
 	var mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
 		OnlineUsersUc: onlineUsersUc,
@@ -98,6 +100,10 @@ func Do() error {
 
 		FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
 		FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),
+
+		MessageLength: viper.GetUint64("usecase.common.chat_message.max_length"),
+		MaxRadius:     viper.GetUint64("usecase.common.geo_message.max_radius"),
+		GeoCalculator: geoCalculatorImpl.NewCalculator(),
 	})
 
 	// interfaces/input
