@@ -156,8 +156,8 @@ func setup() {
 
 		parts := strings.Split(endpoint, ":")
 		postgreExternalHost = parts[0]
-		postgrePort64, _ := strconv.ParseUint(parts[1], 10, 16)
-		postgreExternalPort = uint16(postgrePort64)
+		postgreExternalPort64, _ := strconv.ParseUint(parts[1], 10, 16)
+		postgreExternalPort = uint16(postgreExternalPort64)
 
 		// ***
 
@@ -317,14 +317,14 @@ func inflate() error {
 
 func teardown() {
 	ctx := context.Background()
-	var err error
+	var err error = nil
 
 	if err = postgresContainer.Terminate(ctx); err != nil {
-		log.Fatalf("failed to terminate postgre container: %s", err)
+		log.Printf("failed to terminate postgre container: %s", err)
 	}
 
 	if err = migrateContainer.Terminate(ctx); err != nil {
-		log.Fatalf("failed to terminate migrate container: %s", err)
+		log.Printf("failed to terminate migrate container: %s", err)
 	}
 
 	//...

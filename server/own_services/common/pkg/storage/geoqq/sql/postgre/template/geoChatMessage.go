@@ -18,4 +18,8 @@ var (
 			"Latitude", "Longitude")
 		VALUES ($1, $2, NOW()::timestamp, $3, $4) 
 			RETURNING "Id"`)
+
+	SelectGeoChatMessage = utl.RemoveAdjacentWs(`
+		SELECT "Id", "FromUserId", "Text", "Time" 
+			FROM "GeoMessage" WHERE "Id" = $1`)
 )

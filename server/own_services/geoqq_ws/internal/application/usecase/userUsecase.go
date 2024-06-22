@@ -56,9 +56,16 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 	// to cache
 
 	if u.tempDb != nil {
-		if err = u.tempDb.RemoveAllForUser(data.UserId); err != nil {
+		loc := cache.Location{Lon: data.Longitude, Lat: data.Latitude}
+		if err = u.tempDb.AddUserLocation(ctx, data.UserId, loc); err != nil {
 			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 		}
+		if err = u.tempDb.AddUserRadius(ctx, data.UserId, data.Radius); err != nil {
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
+		}
+
+	} else {
+		logger.Warning(cache.TextCacheDisabled)
 	}
 
 	return nil
@@ -66,6 +73,8 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 
 func (u *UserUsecase) GetUserLocation(ctx context.Context, UserId uint64) (
 	*domain.UserLocation, error) {
+
+	// TODO: !!
 
 	return nil, constErrors.ErrNotImplemented
 }

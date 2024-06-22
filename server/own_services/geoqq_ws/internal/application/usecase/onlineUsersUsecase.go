@@ -3,17 +3,21 @@ package usecase
 import (
 	"common/pkg/logger"
 	utl "common/pkg/utility"
+	"context"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"sync"
+	"time"
 )
 
 type OnlineUsersParams struct {
-	TempDatabase cache.Cache
+	TempDatabase        cache.Cache
+	CacheRequestTimeout time.Duration
 }
 
 type OnlineUsersUsecase struct {
-	onlineUsers sync.Map
-	tempDb      cache.Cache
+	onlineUsers         sync.Map
+	tempDb              cache.Cache
+	cacheRequestTimeout time.Duration
 }
 
 func NewOnlineUsersUsecase(params *OnlineUsersParams) *OnlineUsersUsecase {
@@ -37,9 +41,15 @@ func (u *OnlineUsersUsecase) RemoveUsersFromOnline(userIds ...uint64) {
 		u.onlineUsers.Delete(userId)
 
 		if u.tempDb != nil {
-			if err := u.tempDb.RemoveAllForUser(userId); err != nil {
+			ctx := context.Background()
+			ctx, cancel := context.WithTimeout(ctx, u.cacheRequestTimeout)
+			defer cancel()
+
+			if err := u.tempDb.RemoveAllForUser(ctx, userId); err != nil {
 				logger.Error("%v", utl.NewFuncError(u.RemoveUsersFromOnline, err))
 			}
+		} else {
+			logger.Warning(cache.TextCacheDisabled)
 		}
 	}
 }

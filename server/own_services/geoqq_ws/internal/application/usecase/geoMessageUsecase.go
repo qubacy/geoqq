@@ -2,15 +2,18 @@ package usecase
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/application/ports/input"
+	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
 )
 
 type GeoMessageUcParams struct {
 	OnlineUsersUc input.OnlineUsersUsecase
 	Database      database.Database
+	TempDb        cache.Cache
 
 	FbChanCount int
 	FbChanSize  int
@@ -22,7 +25,8 @@ type GeoMessageUsecase struct {
 	onlineUsersUc         input.OnlineUsersUsecase
 	feedbackChsForGeoMsgs []chan input.UserIdWithGeoMessage
 
-	db database.Database
+	db     database.Database
+	tempDb cache.Cache
 }
 
 func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
@@ -38,6 +42,7 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 		onlineUsersUc:         params.OnlineUsersUc,
 		feedbackChsForGeoMsgs: feedbackChsForGeoMsgs,
 		db:                    params.Database,
+		tempDb:                params.TempDb,
 	}
 }
 
@@ -56,7 +61,18 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 
 	// ***
 
+	if g.tempDb != nil {
+		g.tempDb.SearchUsersNearby()
+
+	} else {
+		logger.Warning(cache.TextCacheDisabled)
+	}
+
 	_ = geoMessageId
 
 	return nil
+}
+
+func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithGeoMessage {
+
 }

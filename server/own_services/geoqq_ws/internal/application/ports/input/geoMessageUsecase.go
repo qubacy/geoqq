@@ -11,6 +11,6 @@ type UserIdWithGeoMessage struct {
 }
 
 type GeoMessageUsecase interface {
-	AddGeoMessage(ctx context.Context,
-		userId uint64, text string, lon, lat float64) error
+	AddGeoMessage(ctx context.Context, userId uint64, text string, lon, lat float64) error
+	GetFbChansForGeoMessages() []<-chan UserIdWithGeoMessage
 }
