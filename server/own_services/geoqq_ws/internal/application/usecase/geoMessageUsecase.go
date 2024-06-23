@@ -2,7 +2,7 @@ package usecase
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
-	"common/pkg/geoDistance"
+	geo "common/pkg/geoDistance"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
@@ -16,14 +16,14 @@ import (
 type GeoMessageUcParams struct {
 	OnlineUsersUc input.OnlineUsersUsecase
 	Database      database.Database
-	TempDb        cache.Cache
+	TempDatabase  cache.Cache
 
 	FbChanCount int
 	FbChanSize  int
 
 	MessageLength uint64
 	MaxRadius     uint64
-	GeoCalculator geoDistance.Calculator
+	GeoCalculator geo.Calculator
 }
 
 // -----------------------------------------------------------------------
@@ -37,7 +37,7 @@ type GeoMessageUsecase struct {
 
 	messageLength uint64
 	maxRadius     uint64
-	geoCalculator geoDistance.Calculator
+	geoCalculator geo.Calculator
 }
 
 func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
@@ -53,7 +53,7 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 		onlineUsersUc:         params.OnlineUsersUc,
 		feedbackChsForGeoMsgs: feedbackChsForGeoMsgs,
 		db:                    params.Database,
-		tempDb:                params.TempDb,
+		tempDb:                params.TempDatabase,
 		messageLength:         params.MessageLength,
 		maxRadius:             params.MaxRadius,
 	}
@@ -70,7 +70,7 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 		return ec.New(ErrMessageTooLong(g.messageLength),
 			ec.Client, ec.GeoMessageTooLong)
 	}
-	if err := geoDistance.ValidateLatAndLon(lon, lat); err != nil {
+	if err := geo.ValidateLatAndLon(lon, lat); err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Client, ec.WrongLatOrLon)
 	}
@@ -83,47 +83,43 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 		geoMessage   *domain.GeoMessage
 	)
 
-	err = utl.RunFuncsRetErr(
-		func() error {
-			geoMessageId, err = g.db.InsertGeoMessage(ctx, userId, text, lon, lat)
-			return err
-		},
-		func() error {
-			geoMessage, err = g.db.GetGeoMessageWithId(ctx, geoMessageId)
-			return err
-		})
-	if err != nil {
+	if geoMessageId, err = g.db.InsertGeoMessage(ctx, userId, text, lon, lat); err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
+	geoMessage = domain.NewGeoMessage(geoMessageId, userId, text)
 
 	// ***
 
 	if g.tempDb != nil {
-		loc := cache.Location{Lon: lon, Lat: lat}
-		userIdAndLocList, err := g.tempDb.SearchUsersWithLocationsNearby(ctx, loc, g.maxRadius)
+		messageLocation := cache.Location{Lon: lon, Lat: lat}
+		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(ctx, messageLocation, g.maxRadius) // TODO: MAX RADIUS EMPTY!!!
 		if err != nil {
 			logger.Error("%v", utl.NewFuncError(g.AddGeoMessage, err))
+			return nil
 		}
 
-		for _, userIdAndLoc := range userIdAndLocList {
-			messageLoc := geoDistance.Point{Latitude: lat, Longitude: lon}
-			userLoc := geoDistance.Point{
-				Latitude:  userIdAndLoc.Loc.Lat,
-				Longitude: userIdAndLoc.Loc.Lon}
-
-			_ = g.geoCalculator.CalculateDistance(messageLoc, userLoc)
-
-			// TODO: куда-то поместить радиус пользоателя!
+		userIds := cache.ToKeys(userIdWithLocationMap)
+		userIdWithRadiusMap, err := g.tempDb.GetUserRadiuses(ctx, userIds...)
+		if err != nil {
+			logger.Error("%v", utl.NewFuncError(g.AddGeoMessage, err))
+			return nil
 		}
 
-		g.sendGeoMessageToFb(1, geoMessage)
+		for userId, loc := range userIdWithLocationMap {
+			messageLoc := geo.MakePoint(loc.Lat, loc.Lon)
+			userLoc := loc.ToGeoPoint()
 
+			wantRadius := float64(userIdWithRadiusMap[userId])
+			currentRadius := g.geoCalculator.CalculateDistance(messageLoc, userLoc)
+
+			if wantRadius >= currentRadius {
+				g.sendGeoMessageToFb(userId, geoMessage)
+			}
+		}
 	} else {
 		logger.Warning(cache.TextCacheDisabled)
 	}
-
-	_ = geoMessageId
 
 	return nil
 }
@@ -149,5 +145,5 @@ func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *
 	index := rand.Intn(count)
 
 	g.feedbackChsForGeoMsgs[index] <- input.UserIdWithGeoMessage{
-		UserId: targetUserId, MateMsg: geoMessage}
+		UserId: targetUserId, GeoMessage: geoMessage}
 }

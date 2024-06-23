@@ -6,8 +6,8 @@ import (
 )
 
 type UserIdWithGeoMessage struct {
-	UserId  uint64
-	MateMsg *dd.GeoMessage
+	UserId     uint64
+	GeoMessage *dd.GeoMessage
 }
 
 type GeoMessageUsecase interface {

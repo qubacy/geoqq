@@ -97,6 +97,7 @@ func Do() error {
 	var geoMessageUc = usecase.NewGeoMessageUsecase(&usecase.GeoMessageUcParams{
 		OnlineUsersUc: onlineUsersUc,
 		Database:      db,
+		TempDatabase:  tempDb,
 
 		FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
 		FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),

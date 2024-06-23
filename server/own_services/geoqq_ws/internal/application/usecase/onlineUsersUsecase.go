@@ -14,6 +14,8 @@ type OnlineUsersParams struct {
 	CacheRequestTimeout time.Duration
 }
 
+// -----------------------------------------------------------------------
+
 type OnlineUsersUsecase struct {
 	onlineUsers         sync.Map
 	tempDb              cache.Cache

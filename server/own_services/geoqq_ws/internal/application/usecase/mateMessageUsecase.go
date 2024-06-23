@@ -100,7 +100,7 @@ func (m *MateMessageUsecase) sendMateMessageToFb(targetUserId uint64, mateMessag
 	index := rand.Intn(count)
 
 	m.feedbackChsForMateMsgs[index] <- input.UserIdWithMateMessage{
-		UserId:  targetUserId, // forward message to...
-		MateMsg: mateMessage,
+		UserId:      targetUserId, // forward message to...
+		MateMessage: mateMessage,
 	}
 }

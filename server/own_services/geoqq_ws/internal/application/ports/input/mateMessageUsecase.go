@@ -6,8 +6,8 @@ import (
 )
 
 type UserIdWithMateMessage struct {
-	UserId  uint64
-	MateMsg *dd.MateMessage
+	UserId      uint64
+	MateMessage *dd.MateMessage
 }
 
 type MateMessageUsecase interface {
