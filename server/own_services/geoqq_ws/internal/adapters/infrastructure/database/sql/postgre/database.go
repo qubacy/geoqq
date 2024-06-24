@@ -2,32 +2,45 @@ package postgre
 
 import (
 	"common/pkg/postgreUtils"
-	"common/pkg/utility"
+	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type Dependencies postgreUtils.ConnectionParamsWithDb
+type Params postgreUtils.ConnectionParamsWithDb
 
 type Database struct {
 	*UserDatabase
 	*MateDatabase
 	*GeoDatabase
+
+	*background.BgrDatabase
 }
 
-func New(ctxForInit context.Context, deps Dependencies) (*Database, error) {
-	pool, err := pgxpool.Connect(ctxForInit,
+func New(startCtx context.Context, params Params) (*Database, error) {
+	pool, err := pgxpool.Connect(startCtx,
 		postgreUtils.CreateConnectionString(
-			postgreUtils.ConnectionParamsWithDb(deps)))
+			postgreUtils.ConnectionParamsWithDb(params)))
 
+	var bgrDatabase *background.BgrDatabase
+	err = utl.RunFuncsRetErr(
+		func() error { return err },
+		func() error { return pool.Ping(startCtx) },
+		func() error {
+			bgrDatabase, err = background.New(pool)
+			return err
+		})
 	if err != nil {
-		return nil, utility.NewFuncError(New, err)
+		return nil, utl.NewFuncError(New, err)
 	}
 
 	return &Database{
 		UserDatabase: newUserDatabase(pool),
 		MateDatabase: newMateDatabase(pool),
 		GeoDatabase:  newGeoDatabase(pool),
+
+		BgrDatabase: bgrDatabase,
 	}, nil
 }

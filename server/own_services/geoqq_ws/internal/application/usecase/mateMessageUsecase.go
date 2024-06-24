@@ -16,6 +16,8 @@ type MateMessageUcParams struct {
 
 	FbChanCount int
 	FbChanSize  int
+
+	MaxMessageLength uint64
 }
 
 // -----------------------------------------------------------------------
@@ -25,6 +27,8 @@ type MateMessageUsecase struct {
 	feedbackChsForMateMsgs []chan input.UserIdWithMateMessage
 
 	db database.Database
+
+	maxMessageLength uint64
 }
 
 func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
@@ -40,6 +44,7 @@ func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
 		onlineUsersUc:          params.OnlineUsersUc,
 		feedbackChsForMateMsgs: feedbackChsForMateMsgs,
 		db:                     params.Database, // !
+		maxMessageLength:       params.MaxMessageLength,
 	}
 }
 
@@ -49,6 +54,11 @@ func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
 func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	userId, chatId uint64, text string) error {
 	sourceFunc := m.AddMateMessage
+
+	if len(text) > int(m.maxMessageLength) {
+		return ec.New(ErrMessageTooLong(m.maxMessageLength),
+			ec.Client, ec.MateMessageTooLong)
+	}
 
 	var (
 		err            error

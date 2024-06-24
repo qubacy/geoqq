@@ -47,16 +47,9 @@ func Do() error {
 		context.Background(), startTimeout)
 	defer startCancel()
 
-	// other deps
-
-	tokenManager, err := tokenManagerInstance()
-	if err != nil {
-		return utl.NewFuncError(Do, err)
-	}
-
 	// infrastructure/output
 
-	db, err := postgre.New(startCtx, postgre.Dependencies{
+	db, err := postgre.New(startCtx, postgre.Params{
 		Host:         viper.GetString("adapters.infra.database.sql.postgre.host"),
 		Port:         viper.GetUint16("adapters.infra.database.sql.postgre.port"),
 		Username:     viper.GetString("adapters.infra.database.sql.postgre.user"),
@@ -79,35 +72,58 @@ func Do() error {
 
 	// application core
 
-	var userUc input.UserUsecase = usecase.NewUserUsecase(&usecase.UserUcParams{
-		Database:     db,
-		TempDatabase: tempDb,
-	})
-	var onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
-		TempDatabase:        tempDb,
-		CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
-	})
-	var mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
-		OnlineUsersUc: onlineUsersUc,
-		Database:      db,
+	var (
+		userUc        input.UserUsecase = nil
+		onlineUsersUc input.OnlineUsersUsecase
+		mateMessageUc input.MateMessageUsecase
+		geoMessageUc  input.GeoMessageUsecase
+	)
+	{
+		commonParams := struct {
+			MaxLength uint64
+		}{
+			MaxLength: viper.GetUint64("usecase.common.chat_message.max_length"),
+		}
 
-		FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
-		FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
-	})
-	var geoMessageUc = usecase.NewGeoMessageUsecase(&usecase.GeoMessageUcParams{
-		OnlineUsersUc: onlineUsersUc,
-		Database:      db,
-		TempDatabase:  tempDb,
+		// ***
 
-		FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
-		FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),
+		userUc = usecase.NewUserUsecase(&usecase.UserUcParams{
+			Database:     db,
+			TempDatabase: tempDb,
+		})
+		onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
+			TempDatabase:        tempDb,
+			CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
+		})
+		mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
+			OnlineUsersUc: onlineUsersUc,
+			Database:      db,
 
-		MessageLength: viper.GetUint64("usecase.common.chat_message.max_length"),
-		MaxRadius:     viper.GetUint64("usecase.common.geo_message.max_radius"),
-		GeoCalculator: geoCalculatorImpl.NewCalculator(),
-	})
+			FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
+			FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
+
+			MaxMessageLength: commonParams.MaxLength,
+		})
+		geoMessageUc = usecase.NewGeoMessageUsecase(&usecase.GeoMessageUcParams{
+			OnlineUsersUc: onlineUsersUc,
+			Database:      db,
+			TempDatabase:  tempDb,
+
+			FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
+			FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),
+
+			MaxMessageLength: commonParams.MaxLength,
+			MaxRadius:        viper.GetUint64("usecase.geo_message.max_radius"),
+			GeoCalculator:    geoCalculatorImpl.NewCalculator(),
+		})
+	}
 
 	// interfaces/input
+
+	tokenManager, err := tokenManagerForWsInput()
+	if err != nil {
+		return utl.NewFuncError(Do, err)
+	}
 
 	wsServer, err := wsApi.New(&wsApi.Params{
 		Host:        viper.GetString("adapters.interfaces.ws.host"),
@@ -166,15 +182,13 @@ func shutdown() <-chan os.Signal {
 
 // -----------------------------------------------------------------------
 
-//TODO: to common func!!!
-
 func initializeLogging() error {
 	loggingType := viper.GetString("logging.type")
 	if loggingType == "lumberjack" {
 		logger.Initialize(lumberjack.SetLumberjackLoggerForStdLog(
 			viper.GetString("logging.name"),
 			logger.Level(viper.GetInt("logging.level")),
-			logger.FormatFromStr(viper.GetString("logging.format")),
+			logger.FormatFromStr(viper.GetString("logging.format")), // text, json
 
 			viper.GetBool("logging.use_console"),
 
@@ -182,13 +196,16 @@ func initializeLogging() error {
 			viper.GetString("logging.filename"),
 
 			viper.GetInt("logging.max_size_mb"),
-			viper.GetInt("logging.max_backups"),
-			viper.GetInt("logging.lumberjack.max_age_days"),
-		))
+			viper.GetInt("logging.max_backups"), // amount!
+
+			viper.GetInt("logging.lumberjack.max_age_days")))
+
 	} else if loggingType == "mlog" {
-		//...
+		return constErrors.ErrNotImplemented
+	} else if loggingType == "zkits" {
 		return constErrors.ErrNotImplemented
 	} else {
+
 		return ErrLoggingTypeIsNotDefined
 	}
 
@@ -203,13 +220,11 @@ func initializeLogging() error {
 	return nil
 }
 
-func tokenManagerInstance() (token.TokenManager, error) {
+func tokenManagerForWsInput() (token.TokenManager, error) {
 	signingKey := viper.GetString("adapters.interfaces.ws.token.signing_key") // ?
-	logger.Info("signing key: %v", signingKey)
-
 	tokenManager, err := tokenImpl.NewTokenManager(signingKey)
 	if err != nil {
-		return nil, utl.NewFuncError(tokenManagerInstance, err)
+		return nil, utl.NewFuncError(tokenManagerForWsInput, err)
 	}
 
 	return tokenManager, nil

@@ -5,6 +5,7 @@ import (
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/common"
 	"geoqq_ws/internal/application/domain"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -39,7 +40,7 @@ func (s *UserDatabase) UpdateUserLocation(ctx context.Context,
 		return utl.NewFuncError(sourceFunc, err)
 	}
 	if !cmdTag.Update() {
-		return ErrUpdateFailed
+		return common.ErrUpdateFailed
 	}
 
 	return nil

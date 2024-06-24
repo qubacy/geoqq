@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/common"
 	"log"
 	"math/rand"
 	"os"
@@ -273,7 +274,7 @@ func inflate() error {
 			rand.Float64()) // lat
 
 		if !cmdTag.Insert() {
-			return ErrInsertFailed
+			return common.ErrInsertFailed
 		}
 		if err != nil {
 			return err
@@ -347,7 +348,7 @@ var (
 
 func initDb() error {
 	var err error
-	db, err = New(context.Background(), Dependencies{
+	db, err = New(context.Background(), Params{
 		Username:     postgreUsername,
 		Password:     postgrePassword,
 		Host:         postgreExternalHost,

@@ -1,4 +1,4 @@
-package postgre
+package common
 
 import "errors"
 

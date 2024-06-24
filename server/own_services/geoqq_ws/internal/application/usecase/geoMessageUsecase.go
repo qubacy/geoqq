@@ -6,7 +6,7 @@ import (
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/domain"
+	dd "geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
@@ -21,9 +21,9 @@ type GeoMessageUcParams struct {
 	FbChanCount int
 	FbChanSize  int
 
-	MessageLength uint64
-	MaxRadius     uint64
-	GeoCalculator geo.Calculator
+	MaxMessageLength uint64
+	MaxRadius        uint64
+	GeoCalculator    geo.Calculator
 }
 
 // -----------------------------------------------------------------------
@@ -35,9 +35,9 @@ type GeoMessageUsecase struct {
 	db     database.Database
 	tempDb cache.Cache
 
-	messageLength uint64
-	maxRadius     uint64
-	geoCalculator geo.Calculator
+	maxMessageLength uint64
+	maxRadius        uint64
+	geoCalculator    geo.Calculator
 }
 
 func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
@@ -54,8 +54,9 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 		feedbackChsForGeoMsgs: feedbackChsForGeoMsgs,
 		db:                    params.Database,
 		tempDb:                params.TempDatabase,
-		messageLength:         params.MessageLength,
-		maxRadius:             params.MaxRadius,
+		maxMessageLength:      params.MaxMessageLength,
+		maxRadius:             params.MaxRadius, // meters
+		geoCalculator:         params.GeoCalculator,
 	}
 }
 
@@ -66,8 +67,8 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 	userId uint64, text string, lon, lat float64) error {
 	sourceFunc := g.AddGeoMessage
 
-	if len(text) > int(g.messageLength) {
-		return ec.New(ErrMessageTooLong(g.messageLength),
+	if len(text) > int(g.maxMessageLength) {
+		return ec.New(ErrMessageTooLong(g.maxMessageLength),
 			ec.Client, ec.GeoMessageTooLong)
 	}
 	if err := geo.ValidateLatAndLon(lon, lat); err != nil {
@@ -80,20 +81,21 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 	var (
 		err          error
 		geoMessageId uint64
-		geoMessage   *domain.GeoMessage
+		geoMessage   *dd.GeoMessage
 	)
 
 	if geoMessageId, err = g.db.InsertGeoMessage(ctx, userId, text, lon, lat); err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
 	}
-	geoMessage = domain.NewGeoMessage(geoMessageId, userId, text)
+	geoMessage = dd.NewGeoMessage(geoMessageId, userId, text)
 
 	// ***
 
 	if g.tempDb != nil {
 		messageLocation := cache.Location{Lon: lon, Lat: lat}
-		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(ctx, messageLocation, g.maxRadius) // TODO: MAX RADIUS EMPTY!!!
+		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(
+			ctx, messageLocation, g.maxRadius)
 		if err != nil {
 			logger.Error("%v", utl.NewFuncError(g.AddGeoMessage, err))
 			return nil
@@ -136,7 +138,7 @@ func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWith
 // private
 // -----------------------------------------------------------------------
 
-func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *domain.GeoMessage) {
+func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *dd.GeoMessage) {
 	if !g.onlineUsersUc.UserIsOnline(targetUserId) {
 		return
 	}
