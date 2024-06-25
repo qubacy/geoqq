@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/common"
 	"log"
 	"math/rand"
@@ -354,6 +355,10 @@ func initDb() error {
 		Host:         postgreExternalHost,
 		Port:         postgreExternalPort,
 		DatabaseName: postgreDbName,
+	}, background.Params{
+		MaxWorkerCount: 1,
+		MaxQueryCount:  1,
+		QueryTimeout:   1,
 	})
 	if err != nil {
 		log.Fatal(err)

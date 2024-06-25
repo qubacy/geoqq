@@ -65,6 +65,11 @@ adapters:
           password: "admin"
           database: "geoqq"
 
+          background:
+            max_worker_count: 2 
+            max_query_count: 2
+            query_timeout: 10s    
+            
     cache:
       type: redis
       req_timeout: 5s # if there is no context!

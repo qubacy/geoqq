@@ -82,6 +82,8 @@ func (s *Server) Listen() error { // to goroutine!
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	return utl.NewFuncError(
-		s.Stop, s.httpServer.Shutdown(ctx))
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		return utl.NewFuncError(s.Stop, err)
+	}
+	return nil
 }
