@@ -10,6 +10,7 @@ import (
 	"context"
 	"geoqq_ws/internal/adapters/infrastructure/cache/redis"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre"
+	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
 	"geoqq_ws/internal/adapters/interfaces/wsApi"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/usecase"
@@ -55,6 +56,10 @@ func Do() error {
 		Username:     viper.GetString("adapters.infra.database.sql.postgre.user"),
 		Password:     viper.GetString("adapters.infra.database.sql.postgre.password"),
 		DatabaseName: viper.GetString("adapters.infra.database.sql.postgre.database"),
+	}, background.Params{
+		MaxWorkerCount: viper.GetInt("adapters.infra.database.sql.postgre.background.max_worker_count"),
+		MaxQueryCount:  viper.GetInt("adapters.infra.database.sql.postgre.background.max_query_count"),
+		QueryTimeout:   viper.GetDuration("adapters.infra.database.sql.postgre.background.query_timeout"),
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)

@@ -5,6 +5,7 @@ services:
     image: postgres:16.3-alpine3.19
     hostname: ${POSTGRE_NAME}
     container_name: ${POSTGRE_NAME}
+    restart: "always"
     environment:
       - POSTGRES_DB=${POSTGRE_DB}
       - POSTGRES_USER=${POSTGRE_USER}
@@ -43,16 +44,16 @@ services:
         condition: service_healthy
 
   cache:
-    image: chainguard/dragonfly
-    hostname: ${DRAGONFLY_NAME}
-    container_name: ${DRAGONFLY_NAME}
-    restart: "on-failure"
+    image: redis:alpine3.20
+    hostname: ${REDIS_NAME}
+    container_name: ${REDIS_NAME}
+    restart: "always"
     ulimits:
       memlock: -1
     ports:
-      - "${EXTERNAL_DRAGONFLY_PORT}:${DRAGONFLY_PORT}"
+      - "${EXTERNAL_REDIS_PORT}:${REDIS_PORT}"
     volumes:
-      - dragonfly_data:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep PONG > /dev/null"]
       interval: 5s
@@ -66,7 +67,7 @@ services:
     image: grafana/promtail
     hostname: ${PROMTAIL_NAME}
     container_name: ${PROMTAIL_NAME}
-    restart: "on-failure"
+    restart: "always"
     networks:
       - promtail_net
       - external_net
@@ -80,13 +81,17 @@ services:
       geoqq_http:
         condition: service_started
 
+  reverse_proxy:
+    image: bitnami/envoy:1.30.2
+    restart: "always"
+
   geoqq_http:
     build: 
       context: ./own_services
       dockerfile: Dockerfile_geoqq_http
     hostname: geoqq_http
     container_name: geoqq_http
-    restart: "on-failure"
+    restart: "always"
     ports:
       - "${GEOQQ_HTTP_PORT}:${GEOQQ_HTTP_PORT}"
     environment:    
@@ -106,10 +111,10 @@ services:
       - GEOQQ_HTTP_POSTGRE_DB=${POSTGRE_DB}
       
       - GEOQQ_HTTP_CACHE_ENABLE
-      - GEOQQ_HTTP_REDIS_HOST=${DRAGONFLY_NAME}
-      - GEOQQ_HTTP_REDIS_PORT=${DRAGONFLY_PORT}
-      - GEOQQ_HTTP_REDIS_USER=${DRAGONFLY_USER}
-      - GEOQQ_HTTP_REDIS_PASS=${DRAGONFLY_PASS}
+      - GEOQQ_HTTP_REDIS_HOST=${REDIS_NAME}
+      - GEOQQ_HTTP_REDIS_PORT=${REDIS_PORT}
+      - GEOQQ_HTTP_REDIS_USER=${REDIS_USER}
+      - GEOQQ_HTTP_REDIS_PASS=${REDIS_PASS}
       - GEOQQ_HTTP_REDIS_DB
 
       - GEOQQ_HTTP_MSGS_ENABLE
@@ -130,11 +135,17 @@ services:
       - geoqq_rotation:/app/cmd/rotation # or rename to `geoqq`?
       - geoqq_http_avatar:/app/cmd/avatar
 
-  # geoqq_ws:
+  geoqq_ws:
+    build: 
+      context: ./own_services
+      dockerfile: Dockerfile_geoqq_ws
+    hostname: geoqq_ws
+    container_name: geoqq_ws
+    restart: "always"
 
 volumes:
   postgre_domain_data:
-  dragonfly_data:
+  redis_data:
   geoqq_rotation:
   geoqq_http_avatar:
   promtail_data:

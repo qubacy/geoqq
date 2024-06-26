@@ -14,6 +14,12 @@ type Location struct {
 	Lon float64
 }
 
+func MakeLocation(lat, lon float64) Location {
+	return Location{
+		Lat: lat, Lon: lon,
+	}
+}
+
 func (l Location) ToGeoPoint() geo.Point {
 	return geo.Point{
 		Longitude: l.Lon,

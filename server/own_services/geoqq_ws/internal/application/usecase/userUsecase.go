@@ -47,7 +47,7 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 	// ***
 
 	err = u.db.UpdateUserLocation(ctx,
-		data.UserId, data.Longitude, data.Latitude)
+		data.UserId, data.Longitude, data.Latitude) // sync
 	if err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err),
 			ec.Server, ec.DomainStorageError)
@@ -56,9 +56,9 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 	// to cache
 
 	if u.tempDb != nil {
-		loc := cache.Location{Lon: data.Longitude, Lat: data.Latitude}
+		loc := cache.MakeLocation(data.Latitude, data.Longitude)
 		if err = u.tempDb.AddUserLocation(ctx, data.UserId, loc); err != nil {
-			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
+			logger.Error("%v", utl.NewFuncError(sourceFunc, err)) // no critical!
 		}
 		if err = u.tempDb.AddUserRadius(ctx, data.UserId, data.Radius); err != nil {
 			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
@@ -68,6 +68,7 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 		logger.Warning(cache.TextCacheDisabled)
 	}
 
+	u.db.UpdateBgrLastActionTimeForUser(data.UserId)
 	return nil
 }
 

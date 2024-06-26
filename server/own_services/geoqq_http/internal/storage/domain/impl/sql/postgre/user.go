@@ -76,10 +76,8 @@ var (
 		Order:
 			1. userId
 	*/
-	templateUpdateLastActionTimeForUser = utl.RemoveAdjacentWs(`
-		UPDATE "UserEntry" 
-			SET "LastActionTime" = NOW()::timestamp
-		WHERE "Id" = $1`)
+	templateUpdateLastActionTimeForUser = `` +
+		template.UpdateLastActionTimeForUser
 
 	/*
 		Order:

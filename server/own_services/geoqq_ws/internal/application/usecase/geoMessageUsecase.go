@@ -93,7 +93,7 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 	// ***
 
 	if g.tempDb != nil {
-		messageLocation := cache.Location{Lon: lon, Lat: lat}
+		messageLocation := cache.MakeLocation(lat, lon)
 		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(
 			ctx, messageLocation, g.maxRadius)
 		if err != nil {
@@ -123,6 +123,10 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 		logger.Warning(cache.TextCacheDisabled)
 	}
 
+	// ***
+
+	g.db.UpdateBgrLocationForUser(userId, lon, lat)
+	g.db.UpdateBgrLastActionTimeForUser(userId)
 	return nil
 }
 

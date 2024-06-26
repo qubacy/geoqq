@@ -4,6 +4,7 @@ import (
 	"common/pkg/postgreUtils"
 	utl "common/pkg/utility"
 	"context"
+	"errors"
 	bgr "geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -34,7 +35,7 @@ func New(startCtx context.Context,
 		func() error { return err },
 		func() error { return pool.Ping(startCtx) },
 		func() error {
-			bgrDatabase, err = bgr.New(pool, bgrParams)
+			bgrDatabase, err = bgr.New(startCtx, pool, bgrParams)
 			return err
 		})
 	if err != nil {
@@ -53,9 +54,11 @@ func New(startCtx context.Context,
 // public
 // -----------------------------------------------------------------------
 
-// ???
+func (d *Database) Stop(stopCtx context.Context) error {
+	err := errors.Join(
+		d.BgrDatabase.Stop(stopCtx),
+	)
 
-func (d *Database) Stop(ctx context.Context) error {
-	d.pool.Close()
-	return nil
+	d.pool.Close() // only used here...
+	return err
 }
