@@ -8,6 +8,7 @@ import (
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
 	"context"
+	"fmt"
 	"geoqq_ws/internal/adapters/infrastructure/cache/redis"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
@@ -32,6 +33,7 @@ func Do() error {
 	if err := config.Init(); err != nil {
 		return utl.NewFuncError(Do, err)
 	}
+	fmt.Printf("config initialized\n")
 
 	// logger
 

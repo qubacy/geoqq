@@ -52,6 +52,11 @@ adapters:
         timeout: 25s
       token:
         signing_key: "signing_key"
+    
+    msgg:
+      rabbit:
+          host: "127.0.0.1"
+          port: 5432
   
   infra:
     database:
@@ -71,6 +76,8 @@ adapters:
             query_timeout: 10s    
             
     cache:
+      enable: true
+
       type: redis
       req_timeout: 5s # if there is no context!
 

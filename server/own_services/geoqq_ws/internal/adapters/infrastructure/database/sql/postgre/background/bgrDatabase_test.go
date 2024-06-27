@@ -13,4 +13,11 @@ func Test_rangeLoop(t *testing.T) {
 	for _, one := range ii { // warn!
 		log.Println(one)
 	}
+
+	// ***
+
+	ii = make([]int, 0, 10)
+	for _, one := range ii { // warn!
+		log.Println(one)
+	}
 }

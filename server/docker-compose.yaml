@@ -81,16 +81,12 @@ services:
       geoqq_http:
         condition: service_started
 
-  reverse_proxy:
-    image: bitnami/envoy:1.30.2
-    restart: "always"
-
   geoqq_http:
     build: 
       context: ./own_services
       dockerfile: Dockerfile_geoqq_http
-    hostname: geoqq_http
-    container_name: geoqq_http
+    hostname: ${GEOQQ_HTTP_NAME}
+    container_name: ${GEOQQ_HTTP_NAME}
     restart: "always"
     ports:
       - "${GEOQQ_HTTP_PORT}:${GEOQQ_HTTP_PORT}"
@@ -139,9 +135,36 @@ services:
     build: 
       context: ./own_services
       dockerfile: Dockerfile_geoqq_ws
-    hostname: geoqq_ws
-    container_name: geoqq_ws
+    hostname: ${GEOQQ_WS_NAME}
+    container_name: ${GEOQQ_WS_NAME}
     restart: "always"
+    ports:
+      - "${GEOQQ_WS_PORT}:${GEOQQ_WS_PORT}"
+    environment:  
+      - GIN_MODE=release
+      - GEOQQ_WS_LOGGING_FORMAT=${LOGGING_FORMAT}
+      - GEOQQ_WS_PORT=${GEOQQ_WS_PORT}
+      - GEOQQ_WS_TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
+
+      - GEOQQ_WS_POSTGRE_HOST=${POSTGRE_NAME}
+      - GEOQQ_WS_POSTGRE_PORT=${POSTGRE_PORT}
+      - GEOQQ_WS_POSTGRE_USER=${POSTGRE_USER}
+      - GEOQQ_WS_POSTGRE_PASS=${POSTGRE_PASS}
+      - GEOQQ_WS_POSTGRE_DB=${POSTGRE_DB}
+
+      - GEOQQ_WS_CACHE_ENABLE
+      - GEOQQ_WS_REDIS_HOST=${REDIS_NAME}
+      - GEOQQ_WS_REDIS_PORT=${REDIS_PORT}
+      - GEOQQ_WS_REDIS_USER=${REDIS_USER}
+      - GEOQQ_WS_REDIS_PASS=${REDIS_PASS}
+      - GEOQQ_WS_REDIS_DB
+
+    depends_on:
+      geoqq_http:
+        condition: service_started
+    networks:
+      - promtail_net
+      - own_net
 
 volumes:
   postgre_domain_data:

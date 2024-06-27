@@ -12,10 +12,7 @@ RUN go build -ldflags="-s -w" -o ./cmd/main ./cmd/main.go
 
 FROM alpine:3.19
 
-RUN apk update --no-cache
-RUN apk add nano --no-cache
-
-COPY --from=build /app/geoqq_ws/internal/config/default.yml /app/cmd/default.yml
+COPY --from=build /app/geoqq_ws/internal/config/default.yaml /app/cmd/default.yaml
 
 # Executable File...
 COPY --from=build /app/geoqq_ws/cmd/main /app/cmd/main

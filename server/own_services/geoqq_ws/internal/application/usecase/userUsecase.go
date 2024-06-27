@@ -10,7 +10,6 @@ import (
 	"geoqq_ws/internal/application/ports/input/dto"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
-	"geoqq_ws/internal/constErrors"
 )
 
 type UserUcParams struct {
@@ -75,9 +74,14 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 func (u *UserUsecase) GetUserLocation(ctx context.Context, UserId uint64) (
 	*domain.UserLocation, error) {
 
-	// TODO: !!
+	sourceFunc := u.GetUserLocation
+	ul, err := u.db.GetUserLocation(ctx, UserId)
+	if err != nil {
+		return nil, ec.New(utl.NewFuncError(sourceFunc, err),
+			ec.Server, ec.DomainStorageError)
+	}
 
-	return nil, constErrors.ErrNotImplemented
+	return ul, nil
 }
 
 // private

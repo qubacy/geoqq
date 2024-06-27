@@ -426,15 +426,14 @@ func Test_InsertMateMessage(t *testing.T) {
 }
 
 func Test_GetUserLocation(t *testing.T) {
-	ctx := context.Background()
-	uc, err := db.GetUserLocation(ctx, userIds[0])
+	userId := userIds[rand.Intn(len(userIds))]
+	uc, err := db.GetUserLocation(queryCtx, userId)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	log.Printf("user %v has loc: %v",
-		userIds[0], uc)
+	log.Printf("user %v has loc: %v", userId, uc)
 }
 
 func Test_GetUserEntryById(t *testing.T) {
@@ -448,7 +447,9 @@ func Test_GetUserEntryById(t *testing.T) {
 		userIds[0], ue)
 }
 
-func Test_UpdateBgrLocationForUser(t *testing.T) {
+// -----------------------------------------------------------------------
+
+func Test_UpdateBgrLastActionTimeForUser(t *testing.T) {
 	userId := userIds[rand.Intn(len(userIds))]
 	ue, err := db.GetUserEntryById(queryCtx, userId)
 	if err != nil {
@@ -466,8 +467,34 @@ func Test_UpdateBgrLocationForUser(t *testing.T) {
 		return
 	}
 
+	// ***
+
 	newLastActionTime := ue.LastActionTime
 	if oldLastActionTime == newLastActionTime {
 		t.Errorf("last action time not updated")
+	}
+}
+
+func Test_UpdateBgrLocationForUser(t *testing.T) {
+	userId := userIds[rand.Intn(len(userIds))]
+	oldUl, err := db.GetUserLocation(queryCtx, userId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	db.UpdateBgrLocationForUser(userId, oldUl.Lon+1, oldUl.Lat+1)
+	time.Sleep(1 * time.Second)
+
+	newUl, err := db.GetUserLocation(queryCtx, userId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	// ***
+
+	if newUl.Lat != oldUl.Lat+1 && newUl.Lon != oldUl.Lon+1 {
+		t.Errorf("user location not updated")
 	}
 }

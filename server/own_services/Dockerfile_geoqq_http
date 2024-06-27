@@ -12,9 +12,6 @@ RUN go build -ldflags="-s -w" -o ./cmd/main ./cmd/main.go
 
 FROM alpine:3.19
 
-RUN apk update --no-cache
-RUN apk add nano --no-cache
-
 COPY --from=build /app/geoqq_http/assets /app/assets
 COPY --from=build /app/geoqq_http/internal/config/config.yml /app/cmd/config.yml
 COPY --from=build /app/geoqq_http/internal/config/for_merge/ /app/cmd/for_merge/
