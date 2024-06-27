@@ -20,8 +20,9 @@ type Params struct {
 	EnablePing  bool
 	PingTimeout time.Duration
 
-	WriteTimeout time.Duration
-	ReadTimeout  time.Duration
+	WriteTimeout  time.Duration
+	ReadTimeout   time.Duration
+	HandleTimeout time.Duration
 
 	TpExtractor token.TokenPayloadExtractor
 
@@ -43,10 +44,14 @@ type Server struct {
 
 func New(params *Params) (*Server, error) {
 	handler, err := internal.NewHttpHandler(&internal.Params{
-		PingTimeout:  params.PingTimeout,
-		WriteTimeout: params.WriteTimeout,
-		ReadTimeout:  params.ReadTimeout,
-		TpExtractor:  params.TpExtractor,
+		EnablePing:  params.EnablePing,
+		PingTimeout: params.PingTimeout,
+
+		ReadTimeout:   params.ReadTimeout,
+		WriteTimeout:  params.WriteTimeout,
+		HandleTimeout: params.HandleTimeout,
+
+		TpExtractor: params.TpExtractor,
 
 		UserUc:        params.UserUc,
 		OnlineUsersUc: params.OnlineUsersUc,

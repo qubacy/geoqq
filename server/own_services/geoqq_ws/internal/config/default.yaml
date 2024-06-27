@@ -47,6 +47,7 @@ adapters:
       max_header_kb: 1000 # http
       read_timeout: 25s
       write_timeout: 25s
+      handle_timeout: 5s
       ping:
         enable: false
         timeout: 25s

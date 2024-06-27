@@ -24,8 +24,9 @@ type OnlineUsersUsecase struct {
 
 func NewOnlineUsersUsecase(params *OnlineUsersParams) *OnlineUsersUsecase {
 	return &OnlineUsersUsecase{
-		onlineUsers: sync.Map{},
-		tempDb:      params.TempDatabase,
+		onlineUsers:         sync.Map{},
+		tempDb:              params.TempDatabase,
+		cacheRequestTimeout: params.CacheRequestTimeout,
 	}
 }
 
@@ -50,6 +51,7 @@ func (u *OnlineUsersUsecase) RemoveUsersFromOnline(userIds ...uint64) {
 			if err := u.tempDb.RemoveAllForUser(ctx, userId); err != nil {
 				logger.Error("%v", utl.NewFuncError(u.RemoveUsersFromOnline, err))
 			}
+
 		} else {
 			logger.Warning(cache.TextCacheDisabled)
 		}

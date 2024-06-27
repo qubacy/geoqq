@@ -18,8 +18,9 @@ type Params struct {
 	PingInterval time.Duration
 	PingTimeout  time.Duration
 
-	WriteTimeout time.Duration
-	ReadTimeout  time.Duration
+	ReadTimeout   time.Duration
+	WriteTimeout  time.Duration
+	HandleTimeout time.Duration
 
 	TpExtractor token.TokenPayloadExtractor
 

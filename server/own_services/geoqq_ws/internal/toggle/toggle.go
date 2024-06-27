@@ -137,8 +137,9 @@ func Do() error {
 		Port:        viper.GetUint16("adapters.interfaces.ws.port"),
 		MaxHeaderKb: viper.GetInt("adapters.interfaces.ws.max_header_kb"),
 
-		ReadTimeout:  viper.GetDuration("adapters.interfaces.ws.read_timeout"),
-		WriteTimeout: viper.GetDuration("adapters.interfaces.ws.write_timeout"),
+		ReadTimeout:   viper.GetDuration("adapters.interfaces.ws.read_timeout"),
+		WriteTimeout:  viper.GetDuration("adapters.interfaces.ws.write_timeout"),
+		HandleTimeout: viper.GetDuration("adapters.interfaces.ws.handle_timeout"),
 
 		EnablePing:  viper.GetBool("adapters.interfaces.ws.ping.enable"),
 		PingTimeout: viper.GetDuration("adapters.interfaces.ws.ping.timeout"),

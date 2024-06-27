@@ -21,8 +21,9 @@ type WsEventHandler struct {
 	pingTimeout  time.Duration
 	pingInterval time.Duration
 
-	writeTimeout time.Duration
-	readTimeout  time.Duration
+	readTimeout   time.Duration
+	writeTimeout  time.Duration
+	handleTimeout time.Duration
 
 	tpExtractor token.TokenPayloadExtractor
 	clients     sync.Map // map[*gws.Conn]Client
@@ -50,8 +51,9 @@ func NewWsEventHandler(p *Params) *WsEventHandler {
 		pingTimeout:  p.PingTimeout, // and pong!
 		pingInterval: p.PingInterval,
 
-		writeTimeout: p.WriteTimeout,
-		readTimeout:  p.ReadTimeout,
+		readTimeout:   p.ReadTimeout,
+		writeTimeout:  p.WriteTimeout,
+		handleTimeout: p.HandleTimeout,
 
 		tpExtractor: p.TpExtractor,
 		clients:     sync.Map{},
@@ -209,6 +211,9 @@ func (c *WsEventHandler) OnPong(socket *gws.Conn, payload []byte) {}
 
 func (w *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	clientMessage := clientSide.Message{}
+	rawMessage := string(message.Bytes())
+	logger.Trace("%v", rawMessage)
+
 	if err := json.Unmarshal(message.Bytes(), &clientMessage); err != nil {
 		w.resWithClientError(socket, svrSide.EventParseError,
 			ec.ParseRequestJsonBodyFailed, utl.NewFuncError(w.OnMessage, err))
@@ -242,7 +247,9 @@ func (w *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 	}
 
 	// ***
-	// TODO:!!!
 
-	ph(context.TODO(), client, clientMessage.Payload)
+	ctx, cancel := context.WithTimeout(
+		context.Background(), w.handleTimeout)
+	ph(ctx, client, clientMessage.Payload)
+	cancel()
 }
