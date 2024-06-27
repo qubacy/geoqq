@@ -50,7 +50,9 @@ func (u *UserDatabase) UpdateBgrLastActionTimeForUser(id uint64) {
 			return utl.NewFuncError(sourceFunc, err)
 		}
 
-		logger.Trace("update last action time for user %v", id)
+		if logger.Initialized() {
+			logger.Trace("update last action time for user %v", id)
+		}
 		return nil
 	}
 }
@@ -79,7 +81,9 @@ func (u *UserDatabase) UpdateBgrLocationForUser(id uint64, lon, lat float64) {
 			return utl.NewFuncError(sourceFunc, err)
 		}
 
-		logger.Trace("update location for user %v", id)
+		if logger.Initialized() {
+			logger.Trace("update location for user %v", id)
+		}
 		return nil
 	}
 }

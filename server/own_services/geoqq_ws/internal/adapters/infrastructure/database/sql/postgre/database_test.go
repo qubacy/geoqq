@@ -73,6 +73,10 @@ const (
 	userEntryCount = 10
 )
 
+var (
+	queryCtx = context.Background()
+)
+
 // -----------------------------------------------------------------------
 
 type MateChat struct {
@@ -109,6 +113,9 @@ func (c ContainerMountSourceMigrations) Type() testcontainers.MountType {
 // -----------------------------------------------------------------------
 
 func setup() {
+
+	// logger
+
 	startPrefix := "\t\t\t start "
 
 	ctx := context.Background()
@@ -255,7 +262,7 @@ func inflate() error {
 		randomHashPass := uuid.NewString()
 
 		row := pool.QueryRow(ctx,
-			template.InsertUserEntryWithoutHashUpdToken,
+			template.InsertUserEntryWithoutHashUpdToken+`;`,
 			randomLogin, randomHashPass)
 
 		var userId uint64 = 0
@@ -358,7 +365,7 @@ func initDb() error {
 	}, background.Params{
 		MaxWorkerCount: 1,
 		MaxQueryCount:  1,
-		QueryTimeout:   1,
+		QueryTimeout:   5 * time.Second,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -428,4 +435,39 @@ func Test_GetUserLocation(t *testing.T) {
 
 	log.Printf("user %v has loc: %v",
 		userIds[0], uc)
+}
+
+func Test_GetUserEntryById(t *testing.T) {
+	ue, err := db.GetUserEntryById(queryCtx, userIds[0])
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	log.Printf("user entry for user id %v: %v",
+		userIds[0], ue)
+}
+
+func Test_UpdateBgrLocationForUser(t *testing.T) {
+	userId := userIds[rand.Intn(len(userIds))]
+	ue, err := db.GetUserEntryById(queryCtx, userId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	oldLastActionTime := ue.LastActionTime
+	db.UpdateBgrLastActionTimeForUser(userId)
+	time.Sleep(1 * time.Second)
+
+	ue, err = db.GetUserEntryById(queryCtx, userId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	newLastActionTime := ue.LastActionTime
+	if oldLastActionTime == newLastActionTime {
+		t.Errorf("last action time not updated")
+	}
 }

@@ -1,14 +1,14 @@
 package rabbit
 
 import (
+	"common/pkg/messaging/geoqq/dto"
+	"common/pkg/messaging/geoqq/dto/payload"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
 	"fmt"
 	"geoqq_http/internal/domain"
 	"geoqq_http/internal/infra/msgs"
-	"geoqq_http/internal/infra/msgs/rabbit/dto"
-	"geoqq_http/internal/infra/msgs/rabbit/dto/payload"
 	"time"
 
 	"github.com/wagslane/go-rabbitmq"

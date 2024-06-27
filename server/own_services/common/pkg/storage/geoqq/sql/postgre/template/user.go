@@ -34,4 +34,11 @@ var (
 	UpdateLastActionTimeForUser = utl.RemoveAdjacentWs(`
 		UPDATE "UserEntry" SET "LastActionTime" = NOW()::timestamp
 			WHERE "Id" = $1`)
+
+	/*
+		Order:
+			1. userId
+	*/
+	SelectUserEntryById = utl.RemoveAdjacentWs(
+		`SELECT * FROM "UserEntry" WHERE "Id" = $1`)
 )

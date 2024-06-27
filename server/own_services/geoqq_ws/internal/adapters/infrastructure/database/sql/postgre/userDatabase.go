@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"common/pkg/postgreUtils/wrappedPgxpool"
+	"common/pkg/storage/geoqq/sql/postgre/table"
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
@@ -46,22 +47,6 @@ func (s *UserDatabase) UpdateUserLocation(ctx context.Context,
 	return nil
 }
 
-func (s *UserDatabase) GetUserLocation(ctx context.Context, userId uint64) (
-	*domain.UserLocation, error) {
-
-	sourceFunc := s.GetUserLocation
-	row := s.pool.QueryRow(ctx,
-		template.GetUserLocationWithId, userId)
-
-	ul := domain.UserLocation{}
-	err := row.Scan(&ul.UserId, &ul.Lon, &ul.Lat, &ul.Time)
-	if err != nil {
-		return nil, utl.NewFuncError(sourceFunc, err)
-	}
-
-	return &ul, nil
-}
-
 func (s *UserDatabase) HasUserWithId(ctx context.Context,
 	userId uint64) (bool, error) {
 
@@ -75,4 +60,38 @@ func (s *UserDatabase) HasUserWithId(ctx context.Context,
 	}
 
 	return has, nil
+}
+
+func (s *UserDatabase) GetUserLocation(ctx context.Context, userId uint64) (
+	*domain.UserLocation, error) {
+
+	sourceFunc := s.GetUserLocation
+	row := s.pool.QueryRow(ctx,
+		template.GetUserLocationWithId+`;`, userId)
+
+	ul := domain.UserLocation{}
+	err := row.Scan(&ul.UserId, &ul.Lon, &ul.Lat, &ul.Time)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return &ul, nil
+}
+
+func (s *UserDatabase) GetUserEntryById(ctx context.Context, userId uint64) (
+	*table.UserEntry, error) {
+
+	sourceFunc := s.GetUserEntryById
+	row := s.pool.QueryRow(ctx, template.SelectUserEntryById+`;`, userId)
+
+	ue := table.UserEntry{}
+	err := row.Scan(&ue.Id, &ue.Login,
+		&ue.HashPassword, &ue.HashUpdToken,
+		&ue.SignUpTime, &ue.SignInTime,
+		&ue.LastActionTime)
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return &ue, nil
 }

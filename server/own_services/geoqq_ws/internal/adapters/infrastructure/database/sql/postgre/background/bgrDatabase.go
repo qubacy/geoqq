@@ -67,17 +67,21 @@ func (b *BgrDatabase) runWorker(idx int, ch QueriesChan, conn *pgxpool.Conn) {
 	for {
 		select {
 		case <-b.workerCtx.Done():
-			logger.Info("background database worker #%v stopped", idx)
+			if logger.Initialized() {
+				logger.Info("background database worker #%v stopped", idx)
+			}
 			return
 
 		case executeQuery := <-ch:
 			ctx := context.Background()
 			ctx, cancel := context.WithTimeout(ctx, b.queryTimeout)
-			defer cancel()
 
 			if err := executeQuery(conn, ctx); err != nil {
-				logger.Error("%v", utl.NewFuncError(b.runWorker, err))
+				if logger.Initialized() {
+					logger.Error("%v", utl.NewFuncError(b.runWorker, err))
+				}
 			}
+			cancel()
 		}
 	}
 }

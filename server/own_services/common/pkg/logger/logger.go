@@ -32,6 +32,10 @@ func Initialize(lr Logger) error {
 	return nil
 }
 
+func Initialized() bool {
+	return instance != nil
+}
+
 // global funcs available after initialization!
 // -----------------------------------------------------------------------
 
