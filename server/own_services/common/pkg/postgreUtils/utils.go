@@ -1,6 +1,8 @@
 package postgreUtils
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ConnectionParamsWithDb struct {
 	Username     string

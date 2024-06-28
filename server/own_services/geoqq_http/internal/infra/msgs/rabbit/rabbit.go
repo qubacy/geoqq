@@ -3,6 +3,7 @@ package rabbit
 import (
 	"common/pkg/messaging/geoqq/dto"
 	"common/pkg/messaging/geoqq/dto/payload"
+	"common/pkg/rabbitUtils"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
@@ -21,20 +22,10 @@ const (
 // -----------------------------------------------------------------------
 
 type InputParams struct {
-	Username string
-	Password string
-	Host     string
-	Port     uint16
+	rabbitUtils.ConnectionParams
 
 	ExchangeName string
 	MessageTtl   time.Duration
-}
-
-func createUrl(params InputParams) string {
-	return fmt.Sprintf("amqp://%v:%v@%v:%v",
-		params.Username, params.Password,
-		params.Host, params.Port,
-	)
 }
 
 // -----------------------------------------------------------------------
@@ -49,7 +40,7 @@ type Rabbit struct {
 
 func New(ctxForCancel context.Context, params InputParams) (*Rabbit, error) {
 	conn, err := rabbitmq.NewConn(
-		createUrl(params),
+		params.CreateConnectionString(),
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 	basicHash "common/pkg/hash/basic"
 	"common/pkg/logger"
 	"common/pkg/logger/lumberjack"
+	"common/pkg/rabbitUtils"
 	"common/pkg/token"
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
@@ -405,10 +406,12 @@ func createMsgsInstance() (msgs.Msgs, error) {
 	if msgsType == "rabbit" {
 		msgsInstance, err = rabbit.New(context.Background(),
 			rabbit.InputParams{
-				Host:         viper.GetString("msgs.rabbit.host"),
-				Port:         viper.GetUint16("msgs.rabbit.port"),
-				Username:     viper.GetString("msgs.rabbit.username"),
-				Password:     viper.GetString("msgs.rabbit.password"),
+				ConnectionParams: rabbitUtils.ConnectionParams{
+					Host:     viper.GetString("msgs.rabbit.host"),
+					Port:     viper.GetUint16("msgs.rabbit.port"),
+					Username: viper.GetString("msgs.rabbit.username"),
+					Password: viper.GetString("msgs.rabbit.password"),
+				},
 				ExchangeName: viper.GetString("msgs.rabbit.exchange_name"),
 				MessageTtl:   viper.GetDuration("msgs.rabbit.message_ttl"),
 			})
