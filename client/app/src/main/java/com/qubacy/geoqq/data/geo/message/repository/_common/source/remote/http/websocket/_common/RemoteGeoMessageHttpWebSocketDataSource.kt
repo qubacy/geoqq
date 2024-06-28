@@ -11,6 +11,8 @@ abstract class RemoteGeoMessageHttpWebSocketDataSource @OptIn(ExperimentalCorout
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketMessageDataSource(coroutineDispatcher, coroutineScope) {
     companion object {
+        const val TAG = "RemoteGeoMsgHttpWSDataSrc"
+
         const val ADD_GEO_MESSAGE_FAILED_EVENT = "add_geo_message_failed"
         const val UPDATE_USER_LOCATION_FAILED_EVENT = "update_user_location_failed"
     }

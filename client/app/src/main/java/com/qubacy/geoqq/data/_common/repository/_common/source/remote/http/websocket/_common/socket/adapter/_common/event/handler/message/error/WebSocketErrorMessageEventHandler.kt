@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.error
 
+import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error.auth.AuthErrorType
 import com.qubacy.geoqq._common.model.error.general.GeneralErrorType
@@ -26,7 +27,9 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
     private val mErrorEventPayloadJsonAdapter: ErrorEventPayloadJsonAdapter
 ) : WebSocketMessageEventHandler, EventJsonAdapterCallback {
     companion object {
-        const val ERROR_TYPE_NAME_POSTFIX = "error"
+        const val TAG = "WebSocketErrorMsgEvntHndlr"
+
+        const val ERROR_TYPE_NAME_POSTFIX = "failed"
         const val GENERAL_ERROR_EVENT_TYPE_NAME = "general_error"
 
         const val CLIENT_SIDE_ERROR_CODE = 400L
@@ -50,6 +53,8 @@ class WebSocketErrorMessageEventHandler @Inject constructor(
 
     override fun handle(event: WebSocketEvent): Boolean {
         if (event !is WebSocketDomainMessageEvent) return false
+
+        Log.d(TAG, "handle(): event.message = ${event.message};")
 
         val errorMessageEvent = mEventJsonAdapter.fromJson(event.message) ?: return false
 

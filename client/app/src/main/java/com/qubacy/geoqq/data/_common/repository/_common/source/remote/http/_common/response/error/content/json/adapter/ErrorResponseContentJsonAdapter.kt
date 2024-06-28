@@ -19,8 +19,6 @@ class ErrorResponseContentJsonAdapter : JsonAdapter<ErrorResponseContent>() {
             isLenient = true
 
             beginObject()
-            skipName()
-            beginObject()
 
             while (hasNext()) {
                 when (selectName(JsonReader.Options.of(ID_PROP_NAME))) {
@@ -34,7 +32,6 @@ class ErrorResponseContentJsonAdapter : JsonAdapter<ErrorResponseContent>() {
                 }
             }
 
-            endObject()
             endObject()
         }
 

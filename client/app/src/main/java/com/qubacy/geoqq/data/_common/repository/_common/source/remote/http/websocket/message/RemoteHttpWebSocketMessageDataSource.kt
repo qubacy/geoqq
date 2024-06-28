@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket.message
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.RemoteHttpWebSocketDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
@@ -10,7 +11,7 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message._common.WebSocketMessageEvent
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.domain.WebSocketDomainMessageEvent
-import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.general.error.WebSocketErrorMessageEvent
+import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model.message.error.general.WebSocketErrorMessageEvent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,10 @@ abstract class RemoteHttpWebSocketMessageDataSource @OptIn(ExperimentalCoroutine
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1),
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 ) : RemoteHttpWebSocketDataSource(coroutineDispatcher, coroutineScope), EventJsonAdapterCallback {
+    companion object {
+        const val TAG = "RemoteHttpWSMsgDataSrc"
+    }
+
     protected abstract val mEventJsonAdapter: EventJsonAdapter
     protected abstract val mErrorDataSource: LocalErrorDatabaseDataSource
 
@@ -30,6 +35,8 @@ abstract class RemoteHttpWebSocketMessageDataSource @OptIn(ExperimentalCoroutine
     }
 
     private fun processMessageEvent(event: WebSocketMessageEvent): WebSocketResult? {
+        Log.d(TAG, "processMessageEvent(): event = $event;")
+
         if (event is WebSocketErrorMessageEvent) return processErrorMessageEvent(event)
 
         event as WebSocketDomainMessageEvent
@@ -42,6 +49,8 @@ abstract class RemoteHttpWebSocketMessageDataSource @OptIn(ExperimentalCoroutine
     private fun processErrorMessageEvent(
         event: WebSocketErrorMessageEvent
     ): WebSocketErrorResult? {
+        Log.d(TAG, "processErrorMessageEvent(): event.event = ${event.event};")
+
         if (!isErrorMessageEventConsumable(event.event)) return null
 
         val error = mErrorDataSource.getError(event.payload.error.id)
