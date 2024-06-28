@@ -16,14 +16,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qubacy.geoqq.databinding.FragmentMyProfileBinding
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.business.BusinessFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model.factory._test.mock.MyProfileViewModelMockContext
-import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._di.module.MyProfileViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.myprofile.model._common.state.MyProfileUiState
 import com.qubacy.geoqq.R
 import com.qubacy.geoqq._common.context.util.getUriFromResId
 import com.qubacy.geoqq._common.model.hitmeup.HitMeUpType
 import com.qubacy.geoqq.ui._common._test.view.util.action.wait.WaitViewAction
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.AuthorizationFragmentTest
-import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.authorized.model.operation.LogoutUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.loading.model.operation.SetLoadingStateUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.aspect.popup.PopupFragmentTest
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentation.image.ImagePresentation
@@ -584,7 +582,7 @@ class MyProfileFragmentTest : BusinessFragmentTest<
 
     @Deprecated("Poorly synchronized so can fail.")
     @Test
-    fun processDeleteMyProfileOperationTest() = runTest {
+    fun onMyProfileFragmentDeleteMyProfileTest() = runTest {
         val deleteOperation = MyProfileDeletedUiOperation()
 
         val expectedDestination = R.id.loginFragment
@@ -592,22 +590,6 @@ class MyProfileFragmentTest : BusinessFragmentTest<
         defaultInit()
 
         mViewModelMockContext.uiOperationFlow.emit(deleteOperation)
-
-        val gottenDestination = mNavController.currentDestination!!.id
-
-        Assert.assertEquals(expectedDestination, gottenDestination)
-    }
-
-    @Deprecated("Poorly synchronized so can fail.")
-    @Test
-    fun processLogoutOperationTest() = runTest {
-        val logoutOperation = LogoutUiOperation()
-
-        val expectedDestination = R.id.loginFragment
-
-        defaultInit()
-
-        mViewModelMockContext.uiOperationFlow.emit(logoutOperation)
 
         val gottenDestination = mNavController.currentDestination!!.id
 

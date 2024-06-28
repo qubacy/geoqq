@@ -36,6 +36,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.presentat
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.GeoChatViewModel
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo._common._test.context.GeoTestContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.add.AddGeoMessagesUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.sending.ChangeMessageSendingAllowedUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model._common.operation.update.UpdateGeoMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.presentation.GeoMessagePresentation
 import kotlinx.coroutines.test.runTest
@@ -149,7 +150,7 @@ class GeoChatFragmentTest(
         val invalidText = "  "
 
         initWithModelContext(GeoChatViewModelMockContext(
-            GeoChatUiState(), retrieveErrorResult = error))
+            GeoChatUiState(isMessageSendingAllowed = true), retrieveErrorResult = error))
 
         Espresso.onView(withId(R.id.fragment_geo_chat_input_message))
             .perform(
@@ -253,6 +254,27 @@ class GeoChatFragmentTest(
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(withText(expectedMessageTimestamp))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun onGeoChatFragmentChangeMessageSendingTest() = runTest {
+        val initIsMessageSendingAllowed = false
+        val initUiState = GeoChatUiState(isMessageSendingAllowed = initIsMessageSendingAllowed)
+
+        val expectedIsMessageSendingAllowed = true
+
+        val changeMessageSendingAllowedUiOperation =
+            ChangeMessageSendingAllowedUiOperation(expectedIsMessageSendingAllowed)
+
+        initWithModelContext(GeoChatViewModelMockContext(uiState = initUiState))
+
+        Espresso.onView(withId(R.id.fragment_geo_chat_input_message))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+
+        mViewModelMockContext.uiOperationFlow.emit(changeMessageSendingAllowedUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_geo_chat_input_message))
+            .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
 
     override fun assertAdjustUiWithFalseLoadingState() {

@@ -37,6 +37,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.mod
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.answer.ReturnAnsweredRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.insert.InsertRequestsUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.chunk.update.UpdateRequestsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.AddRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.RemoveRequestUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.requests.model._common.operation.request.UpdateRequestUiOperation
 import kotlinx.coroutines.test.runTest
@@ -231,7 +232,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun onMateRequestsFragmentUpdateRequest() = runTest {
+    fun onMateRequestsFragmentUpdateRequestTest() = runTest {
         val initRequests = generateMateRequests(1)
         val initRequest = initRequests.first()
         val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
@@ -258,7 +259,7 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
     }
 
     @Test
-    fun onMateRequestsFragmentUpdateRequestTest() = runTest {
+    fun onMateRequestsFragmentUpdateRequestsTest() = runTest {
         val initRequests = generateMateRequests(1)
         val initInsertRequestsOperation = InsertRequestsUiOperation(0, initRequests)
 
@@ -321,6 +322,28 @@ class MateRequestsFragmentTest : BusinessFragmentTest<
 //            .check(ViewAssertions.matches(ViewMatchers.isCompletelyDisplayed()))
         Espresso.onView(withText(expectedUsername))
             .check(ViewAssertions.matches(ViewMatchers.isCompletelyDisplayed()))
+    }
+
+    @Test
+    fun onMateRequestsAddRequestTest() = runTest {
+        val initRequestPresentations = mutableListOf<MateRequestPresentation>()
+        val initUiState = MateRequestsUiState(requests = initRequestPresentations)
+
+        val requestPresentationToAdd = generateMateRequests(1).first()
+        val addRequestUiOperation = AddRequestUiOperation(requestPresentationToAdd)
+
+        val expectedInitItemCount = initRequestPresentations.size
+        val expectedFinalItemCount = expectedInitItemCount + 1
+
+        initWithModelContext(MateRequestsViewModelMockContext(uiState = initUiState))
+
+        Espresso.onView(withId(R.id.fragment_mate_requests_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedInitItemCount))
+
+        mViewModelMockContext.uiOperationFlow.emit(addRequestUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_mate_requests_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedFinalItemCount))
     }
 
     private fun generateMateRequests(

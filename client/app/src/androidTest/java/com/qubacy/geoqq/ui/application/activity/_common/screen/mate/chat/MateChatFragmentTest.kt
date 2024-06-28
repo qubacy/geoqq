@@ -323,6 +323,14 @@ class MateChatFragmentTest : BusinessFragmentTest<
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
+    @Test
+    override fun onChatFragmentMateRequestSentTest() {
+        super.onChatFragmentMateRequestSentTest()
+
+        Espresso.onView(withId(R.id.component_bottom_sheet_user_button_mate))
+            .check(ViewAssertions.matches(ViewMatchers.isNotEnabled()))
+    }
+
     // todo: not possible for now:
 //    @Test
 //    fun modelSetChatContextCalledTest() {

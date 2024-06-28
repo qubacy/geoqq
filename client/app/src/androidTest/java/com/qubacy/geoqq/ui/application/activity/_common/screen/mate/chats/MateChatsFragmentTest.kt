@@ -23,12 +23,16 @@ import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common._tes
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate._common.presentation.MateChatPresentation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.component.list.item.MateChatItemView
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.MateChatsViewModel
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.add.AddChatUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.delete.DeleteChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.factory._test.mock.MateChatsViewModelMockContext
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model.module.FakeMateChatsViewModelModule
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.insert.InsertChatsUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chat.update.UpdateChatUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.operation.chunk.update.UpdateChatChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chats.model._common.state.MateChatsUiState
 import kotlinx.coroutines.test.runTest
+import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -191,6 +195,99 @@ class MateChatsFragmentTest : BusinessFragmentTest<
 
         Espresso.onView(withText(expectedChatPreviewTitle))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun onMateChatsFragmentAddChatTest() = runTest {
+        val initChatPresentations = generateMateChatPresentations(1)
+        val initUiState = MateChatsUiState(chats = initChatPresentations)
+
+        val chatPresentationToAdd = generateMateChatPresentations(1).first()
+        val addChatUiOperation = AddChatUiOperation(0, chatPresentationToAdd)
+
+        val expectedInitItemCount = initChatPresentations.size
+        val expectedFinalItemCount = expectedInitItemCount + 1
+
+        initWithModelContext(MateChatsViewModelMockContext(uiState = initUiState))
+
+        Espresso.onView(withId(R.id.fragment_mate_chats_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedInitItemCount))
+
+        mViewModelMockContext.uiOperationFlow.emit(addChatUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_mate_chats_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedFinalItemCount))
+    }
+
+    @Test
+    fun onMateChatsFragmentUpdateChatTest() = runTest {
+        val initChatPresentations = generateMateChatPresentations(2)
+        val initChatPresentationPosition = initChatPresentations.size - 1
+        val initChatPresentationTitle = initChatPresentations[initChatPresentationPosition]
+            .user.username
+        val initUiState = MateChatsUiState(chats = initChatPresentations)
+
+        val updatedUserPresentation = initChatPresentations[initChatPresentationPosition]
+            .user.copy(username = "updated user")
+        val updatedChatPresentation = initChatPresentations[initChatPresentationPosition]
+            .copy(user = updatedUserPresentation)
+        val updateChatUiOperation = UpdateChatUiOperation(
+            initChatPresentationPosition, 0, updatedChatPresentation)
+
+        val expectedChatPresentationPosition = updateChatUiOperation.position
+        val expectedChatPresentationTitle = updatedUserPresentation.username
+
+        initWithModelContext(MateChatsViewModelMockContext(uiState = initUiState))
+
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isAssignableFrom(MateChatItemView::class.java),
+                ViewMatchers.withParentIndex(initChatPresentationPosition),
+                ViewMatchers.hasDescendant(
+                    Matchers.allOf(
+                        withId(R.id.component_mate_chat_preview_title),
+                        withText(initChatPresentationTitle)
+                    )
+                )
+            )
+        )
+
+        mViewModelMockContext.uiOperationFlow.emit(updateChatUiOperation)
+
+        Espresso.onView(
+            Matchers.allOf(
+                ViewMatchers.isAssignableFrom(MateChatItemView::class.java),
+                ViewMatchers.withParentIndex(expectedChatPresentationPosition),
+                ViewMatchers.hasDescendant(
+                    Matchers.allOf(
+                        withId(R.id.component_mate_chat_preview_title),
+                        withText(expectedChatPresentationTitle)
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun onMateChatsFragmentDeleteChatTest() = runTest {
+        val initChatPresentations = generateMateChatPresentations(1)
+        val initUiState = MateChatsUiState(chats = initChatPresentations)
+
+        val chatPresentationToDeletePosition = 0
+        val deleteChatUiOperation = DeleteChatUiOperation(chatPresentationToDeletePosition)
+
+        val expectedInitItemCount = initChatPresentations.size
+        val expectedFinalItemCount = expectedInitItemCount - 1
+
+        initWithModelContext(MateChatsViewModelMockContext(uiState = initUiState))
+
+        Espresso.onView(withId(R.id.fragment_mate_chats_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedInitItemCount))
+
+        mViewModelMockContext.uiOperationFlow.emit(deleteChatUiOperation)
+
+        Espresso.onView(withId(R.id.fragment_mate_chats_list))
+            .check(RecyclerViewItemCountViewAssertion(expectedFinalItemCount))
     }
 
     private fun generateMateChatPresentations(

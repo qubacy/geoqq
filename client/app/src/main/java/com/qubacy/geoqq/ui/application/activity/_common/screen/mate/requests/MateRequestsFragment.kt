@@ -267,14 +267,6 @@ class MateRequestsFragment(
         mSurfacePlaceholderViewProvider.setIsVisible(isHintVisible) // todo: mb it'd be better to optimize this;
     }
 
-    override fun adjustInterlocutorFragmentUiWithInterlocutor(interlocutor: UserPresentation) {
-        super.adjustInterlocutorFragmentUiWithInterlocutor(interlocutor)
-
-        // todo: changing Mate Request preview..
-
-
-    }
-
     private fun initMateRequestList() {
         mAdapter = MateRequestsListAdapter(
             MateRequestItemViewProviderProducer(requireContext()), this)
