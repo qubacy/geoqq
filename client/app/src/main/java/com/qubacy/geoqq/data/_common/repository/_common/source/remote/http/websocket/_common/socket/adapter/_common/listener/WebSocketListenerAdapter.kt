@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.listener
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.error.type.DataHttpWebSocketErrorType
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.model._common.WebSocketEvent
@@ -64,6 +65,8 @@ class WebSocketListenerAdapter @Inject constructor(
         super.onFailure(webSocket, t, response)
 
 //        Log.d(TAG, "onFailure(): reason = ${t.message};")
+
+        t.printStackTrace()
 
         val error = mLocalErrorDatabaseDataSource
             .getError(DataHttpWebSocketErrorType.WEB_SOCKET_FAILURE.getErrorCode())

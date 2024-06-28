@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter.impl
 
+import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
@@ -139,6 +140,8 @@ class WebSocketAdapterImpl @Inject constructor(
         val middlewares = getJsonMiddlewaresForAction(action.type)
         val eventString = mActionJsonAdapter.toJson(middlewares, action)
 
+        Log.d(TAG, "tryCurrentActionSending(): action = $eventString");
+
         mWebSocket!!.send(eventString)
     }
 
@@ -155,7 +158,7 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     private fun createWebSocket(): WebSocket {
-        val request = Request.Builder().url("ws://${HttpContext.BASE_HOST_PORT}/api/ws")
+        val request = Request.Builder().url("ws://${HttpContext.BASE_HOST}:${HttpContext.WS_PORT}/api/ws")
             .build() // todo: optimize!
         val preparedRequest = mAuthorizationRequestMiddleware.process(request)
 

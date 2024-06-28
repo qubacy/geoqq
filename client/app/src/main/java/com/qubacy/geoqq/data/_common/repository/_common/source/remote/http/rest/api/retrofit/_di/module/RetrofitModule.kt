@@ -25,7 +25,7 @@ abstract class RetrofitModule {
                 .build()
 
             return Retrofit.Builder()
-                .baseUrl(HttpContext.BASE_URL)
+                .baseUrl("${HttpContext.BASE_URL}:${HttpContext.HTTP_PORT}")
                 .client(restHttpClient)
                 .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
                 .build()

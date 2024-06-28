@@ -5,10 +5,16 @@ import com.qubacy.geoqq.data._common.repository._common.source.remote.http.webso
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.middleware.client._common.ActionJsonMiddleware
 import com.squareup.moshi.JsonWriter
 import okio.Buffer
-import java.lang.StringBuilder
 import javax.inject.Inject
+import kotlin.text.StringBuilder
 
 class ActionJsonAdapterImpl @Inject constructor() : ActionJsonAdapter {
+    companion object {
+        const val TAG = "ActionJsonAdapterImpl";
+
+        val REMOVABLE_CHARS = arrayOf('\\')
+    }
+
     override fun toJson(
         middlewares: List<ActionJsonMiddleware>,
         action: PackagedAction
@@ -47,12 +53,32 @@ class ActionJsonAdapterImpl @Inject constructor() : ActionJsonAdapter {
 
         val payloadStartIndex = json.indexOf(ActionJsonAdapter.PAYLOAD_PROP_NAME) +
             ActionJsonAdapter.PAYLOAD_PROP_NAME.length + 1
-        val firstPayloadMark = json.indexOf('\"', payloadStartIndex)
-        val secondPayloadMark = json.lastIndexOf('\"') - 1
+        val firstPayloadMarkIndex = json.indexOf('\"', payloadStartIndex)
+        val secondPayloadMarkIndex = json.lastIndexOf('\"') - 1
 
-        rawJson.deleteCharAt(firstPayloadMark)
-        rawJson.deleteCharAt(secondPayloadMark)
+        rawJson.deleteCharAt(firstPayloadMarkIndex)
+        rawJson.deleteCharAt(secondPayloadMarkIndex)
+
+        preparePayloadJson(rawJson, firstPayloadMarkIndex, secondPayloadMarkIndex - 1);
 
         return rawJson.toString()
+    }
+
+    private fun preparePayloadJson(
+        rawJson: StringBuilder,
+        payloadStartIndex: Int,
+        payloadEndIndex: Int
+    ) {
+        val removableCharIndexList = mutableListOf<Int>();
+
+        for (index in payloadStartIndex..payloadEndIndex) {
+            val char = rawJson[index]
+
+            if (char in REMOVABLE_CHARS) removableCharIndexList.add(index)
+        }
+
+        for (removableCharIndex in removableCharIndexList.reversed()) {
+            rawJson.deleteCharAt(removableCharIndex)
+        }
     }
 }
