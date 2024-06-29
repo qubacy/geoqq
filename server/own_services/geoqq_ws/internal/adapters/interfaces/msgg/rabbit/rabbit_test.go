@@ -5,15 +5,17 @@ import (
 	"common/pkg/messaging/geoqq/dto"
 	"common/pkg/messaging/geoqq/dto/payload"
 	"common/pkg/rabbitUtils"
-	"common/pkg/utility"
 	utl "common/pkg/utility"
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/rabbitmq"
 
@@ -22,14 +24,17 @@ import (
 
 var (
 	rabbitmqContainer *rabbitmq.RabbitMQContainer
-	rabbitmqUsername  = "rabbit"
-	rabbitmqPassword  = "rabbit"
+	rabbitmqUsername  = "guest"
+	rabbitmqPassword  = "guest"
 
 	rabbitmqHost string
 	rabbitmqPort uint16
 
 	publisher *rmq.Publisher
 	rabbit    *Rabbit
+
+	exchangeName = "geoqq"
+	queueName    = "events"
 )
 
 // -----------------------------------------------------------------------
@@ -46,23 +51,29 @@ func setup() {
 	var err error
 	startCtx := context.Background()
 
-	err = utility.RunFuncsRetErr(
+	err = utl.RunFuncsRetErr(
 		func() error {
 			rabbitmqContainer, err = rabbitmq.RunContainer(
 				startCtx,
 				testcontainers.WithImage("rabbitmq:3.13.3-management-alpine"),
 				rabbitmq.WithAdminUsername(rabbitmqUsername),
-				rabbitmq.WithAdminPassword(rabbitmqPassword))
-			return err
-		},
-		func() error {
-			var endpoint string
-			endpoint, err = rabbitmqContainer.Endpoint(startCtx, "")
+				rabbitmq.WithAdminPassword(rabbitmqPassword),
+			)
 			if err != nil {
 				return err
 			}
 
-			parts := strings.Split(endpoint, ":")
+			time.Sleep(1 * time.Second)
+			return nil
+		},
+		func() error {
+			portEndpoint, err := rabbitmqContainer.PortEndpoint(
+				startCtx, nat.Port(rabbitmq.DefaultAMQPPort), "")
+			if err != nil {
+				return err
+			}
+
+			parts := strings.Split(portEndpoint, ":")
 			rabbitmqHost = parts[0]
 			portAsU64, _ := strconv.ParseUint(parts[1], 10, 64)
 			rabbitmqPort = uint16(portAsU64)
@@ -95,8 +106,8 @@ func setup() {
 			Username: rabbitmqUsername,
 			Password: rabbitmqPassword,
 		},
-		ExchangeName: "geoqq",
-		QueueName:    "events",
+		ExchangeName: exchangeName,
+		QueueName:    queueName,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -111,7 +122,8 @@ func teardown() {
 }
 
 func initPublisher(params rabbitUtils.ConnectionParams) error {
-	var err error
+	var err error = nil
+
 	conn, err := rmq.NewConn(
 		params.CreateConnectionString(),
 		rmq.WithConnectionOptionsLogging)
@@ -120,7 +132,10 @@ func initPublisher(params rabbitUtils.ConnectionParams) error {
 	}
 
 	publisher, err = rmq.NewPublisher(
-		conn)
+		conn,
+		rmq.WithPublisherOptionsLogging,
+		rmq.WithPublisherOptionsExchangeName(exchangeName),
+		rmq.WithPublisherOptionsExchangeDeclare)
 	if err != nil {
 		return utl.NewFuncError(initPublisher, err)
 	}
@@ -136,7 +151,15 @@ func Test_SendPublicUser(t *testing.T) {
 			Id: 1001,
 		},
 	}
+	jsonBytes, err := json.Marshal(msg)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
+	if err = publisher.Publish(jsonBytes, []string{}); err != nil {
+		t.Error(err)
+		return
+	}
+	time.Sleep(1 * time.Second)
 }
-
-// -----------------------------------------------------------------------

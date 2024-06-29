@@ -1,6 +1,7 @@
 package rabbit
 
 import (
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	"errors"
@@ -44,7 +45,12 @@ func New(startCtx context.Context, params InputParams) (*Rabbit, error) {
 	if err != nil {
 		return nil, utl.NewFuncError(New, err)
 	}
-	consumer.Run(messageHandler)
+
+	go func() {
+		if err := consumer.Run(messageHandler); err != nil {
+			logger.Warning("%v", utl.NewFuncError(New, err)) //
+		}
+	}()
 
 	// ***
 
