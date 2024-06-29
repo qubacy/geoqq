@@ -3,6 +3,8 @@ package rabbit
 import (
 	utl "common/pkg/utility"
 	"context"
+	"errors"
+	"log"
 
 	"common/pkg/rabbitUtils"
 
@@ -12,12 +14,16 @@ import (
 type InputParams struct {
 	rabbitUtils.ConnectionParams
 	ExchangeName string
+	QueueName    string
 }
 
 // -----------------------------------------------------------------------
 
 type Rabbit struct {
-	conn *rabbitmq.Conn
+	conn     *rabbitmq.Conn
+	consumer *rabbitmq.Consumer
+
+	// services
 }
 
 func New(startCtx context.Context, params InputParams) (*Rabbit, error) {
@@ -30,15 +36,39 @@ func New(startCtx context.Context, params InputParams) (*Rabbit, error) {
 
 	// ***
 
+	consumer, err := rabbitmq.NewConsumer(conn,
+		params.QueueName,
+		rabbitmq.WithConsumerOptionsRoutingKey(""),
+		rabbitmq.WithConsumerOptionsExchangeName(params.ExchangeName),
+		rabbitmq.WithConsumerOptionsExchangeDeclare)
+	if err != nil {
+		return nil, utl.NewFuncError(New, err)
+	}
+	consumer.Run(messageHandler)
+
+	// ***
+
 	return &Rabbit{
-		conn: conn,
+		conn:     conn,
+		consumer: consumer,
 	}, nil
 }
 
 func (r *Rabbit) Stop(ctx context.Context) error {
+	r.consumer.Close() // no error!
+
+	var errs = []error{}
 	if err := r.conn.Close(); err != nil {
-		return utl.NewFuncError(r.Stop, err)
+		errs = append(errs, utl.NewFuncError(r.Stop, err))
 	}
 
-	return nil
+	return errors.Join(errs...)
+}
+
+// -----------------------------------------------------------------------
+
+func messageHandler(d rabbitmq.Delivery) (action rabbitmq.Action) {
+	log.Printf("consumed: %v", string(d.Body))
+
+	return rabbitmq.Ack
 }

@@ -81,6 +81,21 @@ services:
       geoqq_http:
         condition: service_started
 
+  rabbit:
+    image: rabbitmq:management
+    hostname: ${RABBIT_NAME}
+    container_name: ${RABBIT_NAME}
+    restart: "always"
+    ports:
+      - "${EXTERNAL_RABBIT_MANAGMENT_PORT}:${RABBIT_MANAGMENT_PORT}"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    networks:
+      - own_net
+
   geoqq_http:
     build: 
       context: ./own_services
@@ -172,6 +187,7 @@ volumes:
   geoqq_rotation:
   geoqq_http_avatar:
   promtail_data:
+  rabbit_data:
 
 networks:
   postgre_net:

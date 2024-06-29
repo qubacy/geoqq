@@ -57,8 +57,12 @@ adapters:
     msgg:
       rabbit:
           host: "127.0.0.1"
-          port: 5432
-  
+          port: 5672
+          username: "guest"
+          password: "guest"
+          exchange_name: "geoqq"
+          queue_name: "events"
+
   infra:
     database:
       type: postgre

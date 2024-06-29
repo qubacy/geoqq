@@ -116,6 +116,7 @@ require (
 	github.com/redis/go-redis/v9 v9.5.3
 	github.com/spf13/viper v1.18.2
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.31.0
 	github.com/testcontainers/testcontainers-go/modules/redis v0.31.0
 	github.com/wagslane/go-rabbitmq v0.14.1
 	golang.org/x/crypto v0.23.0 // indirect
