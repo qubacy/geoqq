@@ -1,8 +1,12 @@
 package rabbit
 
 import (
+	"common/pkg/messaging/geoqq"
+	"common/pkg/messaging/geoqq/dto"
+	"common/pkg/messaging/geoqq/dto/payload"
 	"common/pkg/rabbitUtils"
 	"common/pkg/utility"
+	utl "common/pkg/utility"
 	"context"
 	"log"
 	"os"
@@ -12,6 +16,8 @@ import (
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/rabbitmq"
+
+	rmq "github.com/wagslane/go-rabbitmq"
 )
 
 var (
@@ -22,7 +28,8 @@ var (
 	rabbitmqHost string
 	rabbitmqPort uint16
 
-	rabbit *Rabbit
+	publisher *rmq.Publisher
+	rabbit    *Rabbit
 )
 
 // -----------------------------------------------------------------------
@@ -66,7 +73,20 @@ func setup() {
 		log.Fatalf("rabbitmq container err: %s", err)
 	}
 
-	// ***
+	connParams := rabbitUtils.ConnectionParams{
+		Host:     rabbitmqHost,
+		Port:     rabbitmqPort,
+		Username: rabbitmqUsername,
+		Password: rabbitmqPassword,
+	}
+
+	// lib
+
+	if err = initPublisher(connParams); err != nil {
+		log.Fatal(err)
+	}
+
+	// with consumer
 
 	rabbit, err = New(startCtx, InputParams{
 		ConnectionParams: rabbitUtils.ConnectionParams{
@@ -85,9 +105,38 @@ func setup() {
 
 func teardown() {
 	stopCtx := context.Background()
-	rabbit.Stop(stopCtx)
+	if err := rabbit.Stop(stopCtx); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func initPublisher(params rabbitUtils.ConnectionParams) error {
+	var err error
+	conn, err := rmq.NewConn(
+		params.CreateConnectionString(),
+		rmq.WithConnectionOptionsLogging)
+	if err != nil {
+		return utl.NewFuncError(initPublisher, err)
+	}
+
+	publisher, err = rmq.NewPublisher(
+		conn)
+	if err != nil {
+		return utl.NewFuncError(initPublisher, err)
+	}
+	return nil
 }
 
 // -----------------------------------------------------------------------
+
+func Test_SendPublicUser(t *testing.T) {
+	msg := dto.Message{
+		Event: geoqq.EventUpdatedPublicUser,
+		Payload: payload.OnlyId{
+			Id: 1001,
+		},
+	}
+
+}
 
 // -----------------------------------------------------------------------

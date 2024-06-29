@@ -1,25 +1,28 @@
 package msgs
 
 import (
+	"common/pkg/messaging/geoqq"
 	"context"
 	"geoqq_http/internal/domain"
 )
 
 const (
-	TextMsgsDisabled = "msgs disabled"
+	TextMsgsDisabled = geoqq.TextMessagingDisabled
 )
 
 const (
-	EventUpdatedPublicUser = "updated_public_user" // by id!
+	EventUpdatedPublicUser = geoqq.EventUpdatedPublicUser
 
-	EventAddedMateChat   = "added_mate_chat"
-	EventUpdatedMateChat = "updated_mate_chat"
+	EventAddedMateChat   = geoqq.EventAddedMateChat
+	EventUpdatedMateChat = geoqq.EventUpdatedMateChat
 
-	EventAddedMateRequest = "added_mate_request"
-	EventAddedMateMessage = "added_mate_message"
+	EventAddedMateRequest = geoqq.EventAddedMateRequest
+	EventAddedMateMessage = geoqq.EventAddedMateMessage
 
-	EventAddedGeoMessage = "added_geo_message"
+	EventAddedGeoMessage = geoqq.EventAddedGeoMessage
 )
+
+// -----------------------------------------------------------------------
 
 type Msgs interface {
 	SendPublicUserId(ctx context.Context, event string, userId uint64) error
