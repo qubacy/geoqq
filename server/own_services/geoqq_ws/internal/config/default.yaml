@@ -34,6 +34,10 @@ usecase:
     fb_chan_count: 4
     fb_chan_size: 10
 
+  mate_request:
+    fb_chan_count: 4
+    fb_chan_size: 10
+
   geo_message:
     max_radius: 10000
     fb_chan_count: 4
@@ -62,6 +66,7 @@ adapters:
           password: "guest"
           exchange_name: "geoqq"
           queue_name: "events"
+          handle_timeout: 5s
 
   infra:
     database:

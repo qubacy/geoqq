@@ -7,6 +7,7 @@ import (
 	dd "geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/database"
+	"geoqq_ws/internal/constErrors"
 	"math/rand"
 )
 
@@ -50,6 +51,21 @@ func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
 
 // public
 // -----------------------------------------------------------------------
+
+func (m *MateMessageUsecase) ForwardMateMessage(ctx context.Context,
+	targetUserId uint64, mm *dd.MateMessage) error {
+	/*
+		Mate message has already
+			been added to the database.
+	*/
+
+	if mm == nil {
+		return constErrors.ErrInputParamWithTypeNotSpecified(`*dd.MateMessage`)
+	}
+
+	m.sendMateMessageToFb(targetUserId, mm)
+	return nil
+}
 
 func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	userId, chatId uint64, text string) error {

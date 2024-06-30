@@ -19,7 +19,7 @@ type MateRequestUsecase struct {
 	feedbackChsForMateReqs []chan input.UserIdWithMateRequest
 }
 
-func New(params *MateRequestUcParams) (*MateRequestUsecase, error) {
+func NewMateRequestUsecase(params *MateRequestUcParams) *MateRequestUsecase {
 	chans := []chan input.UserIdWithMateRequest{}
 	for i := 0; i < params.FbChanCount; i++ {
 		ch := make(chan input.UserIdWithMateRequest, params.FbChanSize)
@@ -31,7 +31,7 @@ func New(params *MateRequestUcParams) (*MateRequestUsecase, error) {
 	return &MateRequestUsecase{
 		onlineUsersUc:          params.OnlineUsersUc,
 		feedbackChsForMateReqs: chans,
-	}, nil
+	}
 }
 
 // public

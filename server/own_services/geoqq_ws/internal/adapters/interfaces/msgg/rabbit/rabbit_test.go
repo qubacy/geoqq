@@ -99,7 +99,7 @@ func setup() {
 
 	// with consumer
 
-	rabbit, err = New(startCtx, InputParams{
+	rabbit, err = New(startCtx, &InputParams{
 		ConnectionParams: rabbitUtils.ConnectionParams{
 			Host:     rabbitmqHost,
 			Port:     rabbitmqPort,

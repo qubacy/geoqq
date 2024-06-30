@@ -4,6 +4,7 @@ import (
 	geoCalculatorImpl "common/pkg/geoDistance/haversine"
 	"common/pkg/logger"
 	"common/pkg/logger/lumberjack"
+	"common/pkg/rabbitUtils"
 	"common/pkg/token"
 	tokenImpl "common/pkg/token/cristalJwt"
 	utl "common/pkg/utility"
@@ -12,6 +13,7 @@ import (
 	"geoqq_ws/internal/adapters/infrastructure/cache/redis"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/background"
+	"geoqq_ws/internal/adapters/interfaces/msgg/rabbit"
 	"geoqq_ws/internal/adapters/interfaces/wsApi"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/usecase"
@@ -83,6 +85,7 @@ func Do() error {
 		userUc        input.UserUsecase = nil
 		onlineUsersUc input.OnlineUsersUsecase
 		mateMessageUc input.MateMessageUsecase
+		mateRequestUc input.MateRequestUsecase
 		geoMessageUc  input.GeoMessageUsecase
 	)
 	{
@@ -101,6 +104,11 @@ func Do() error {
 		onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
 			TempDatabase:        tempDb,
 			CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
+		})
+		mateRequestUc = usecase.NewMateRequestUsecase(&usecase.MateRequestUcParams{
+			OnlineUsersUc: onlineUsersUc,
+			FbChanSize:    viper.GetInt("usecase.mate_request.fb_chan_size"),
+			FbChanCount:   viper.GetInt("usecase.mate_request.fb_chan_count"),
 		})
 		mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
 			OnlineUsersUc: onlineUsersUc,
@@ -160,6 +168,24 @@ func Do() error {
 		}
 	}()
 
+	rbb, err := rabbit.New(startCtx, &rabbit.InputParams{
+		ConnectionParams: rabbitUtils.ConnectionParams{
+			Host:     viper.GetString("adapters.interfaces.msgg.rabbit.host"),
+			Port:     viper.GetUint16("adapters.interfaces.msgg.rabbit.port"),
+			Username: viper.GetString("adapters.interfaces.msgg.rabbit.username"),
+			Password: viper.GetString("adapters.interfaces.msgg.rabbit.password"),
+		},
+		HandleTimeout: viper.GetDuration("adapters.interfaces.msgg.rabbit.handle_timeout"),
+		ExchangeName:  viper.GetString("adapters.interfaces.msgg.rabbit.exchange_name"),
+		QueueName:     viper.GetString("adapters.interfaces.msgg.rabbit.queue_name"),
+
+		MateMessageUc: mateMessageUc,
+		MateRequestUc: mateRequestUc,
+	})
+	if err != nil {
+		return utl.NewFuncError(Do, err)
+	}
+
 	<-exit
 
 	// stop all...
@@ -169,6 +195,9 @@ func Do() error {
 	defer stopCancel()
 
 	if err = wsServer.Stop(stopCtx); err != nil {
+		logger.Error("%v", utl.NewFuncError(Do, err))
+	}
+	if err = rbb.Stop(stopCtx); err != nil {
 		logger.Error("%v", utl.NewFuncError(Do, err))
 	}
 
