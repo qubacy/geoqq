@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.event.handler.message.success
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.callback.EventJsonAdapterCallback
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.payload.success.json.adapter.SuccessEventPayloadJsonAdapter
@@ -15,6 +16,8 @@ class WebSocketSuccessMessageEventHandler @Inject constructor(
     private val mSuccessEventPayloadJsonAdapter: SuccessEventPayloadJsonAdapter
 ) : WebSocketMessageEventHandler, EventJsonAdapterCallback {
     companion object {
+        const val TAG = "WebSocketSccssMssgEvntHndlr";
+
         const val SUCCESS_POSTFIX = "succeeded"
     }
 

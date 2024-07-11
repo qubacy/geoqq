@@ -180,7 +180,7 @@ class WebSocketAdapterImpl @Inject constructor(
     }
 
     override fun onEventGotten(event: WebSocketEvent) {
-        //Log.d(TAG, "onEventGotten(): event = $event;")
+        Log.d(TAG, "onEventGotten(): event = $event;")
 
         processEvent(event)
     }
@@ -192,7 +192,7 @@ class WebSocketAdapterImpl @Inject constructor(
             conveyEvent(event)
 
         } catch (e: ErrorAppException) {
-            //Log.d(TAG, "processEvent(): error = ${e.error}")
+            Log.d(TAG, "processEvent(): error = ${e.error}")
 
             conveyEvent(WebSocketErrorEvent(e.error))
 
@@ -202,7 +202,7 @@ class WebSocketAdapterImpl @Inject constructor(
 
     private fun processBaseEvent(event: WebSocketEvent): Boolean {
         for (eventHandler in mEventHandlers) {
-//            Log.d(TAG, "processBaseEvent(): eventHandler = $eventHandler; event = $event;")
+            Log.d(TAG, "processBaseEvent(): eventHandler = $eventHandler; event = $event;")
 
             if (eventHandler.handle(event)) return true
         }

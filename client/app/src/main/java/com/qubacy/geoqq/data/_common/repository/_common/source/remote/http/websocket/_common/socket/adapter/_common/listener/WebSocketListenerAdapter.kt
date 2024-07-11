@@ -38,7 +38,7 @@ class WebSocketListenerAdapter @Inject constructor(
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
 
-//        Log.d(TAG, "onMessage(): text = $text;")
+        Log.d(TAG, "onMessage(): text = $text;")
 
         emitEvent(WebSocketDomainMessageEvent(text))
     }
