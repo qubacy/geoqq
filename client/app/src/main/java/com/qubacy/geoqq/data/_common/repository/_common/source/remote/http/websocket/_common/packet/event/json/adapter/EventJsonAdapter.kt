@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter
 
+import android.util.Log
 import com.qubacy.geoqq._common.util.json.adapter.extension.skipObject
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet._common.payload.PacketPayload
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.Event
@@ -12,6 +13,8 @@ import javax.inject.Inject
 
 class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
     companion object {
+        const val TAG = "EventJsonAdapter"
+
         const val TYPE_PROP_NAME = "event"
         const val PAYLOAD_PROP_NAME = "payload"
     }
@@ -48,6 +51,10 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                         else { payload = payloadAdapter.fromJson(p0) as PacketPayload }
                     }
                     else -> {
+                        // todo: comes here from WebSocketSuccessMessageEventHandler and crashes:
+
+                        Log.d(TAG, "fromJson(): path = ${p0.path}; json = ${p0.nextSource()};")
+
                         skipName()
                         skipValue()
                     }
