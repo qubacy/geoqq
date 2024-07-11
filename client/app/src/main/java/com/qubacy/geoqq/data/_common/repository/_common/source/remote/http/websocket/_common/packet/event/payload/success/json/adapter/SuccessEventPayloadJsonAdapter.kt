@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonWriter
 
 class SuccessEventPayloadJsonAdapter : JsonAdapter<SuccessEventPayload>() {
     override fun fromJson(p0: JsonReader): SuccessEventPayload {
-        // todo: nothing to do?
+        p0.nextNull<Void>();
 
         return SuccessEventPayload()
     }

@@ -51,10 +51,6 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                         else { payload = payloadAdapter.fromJson(p0) as PacketPayload }
                     }
                     else -> {
-                        // todo: comes here from WebSocketSuccessMessageEventHandler and crashes:
-
-                        Log.d(TAG, "fromJson(): path = ${p0.path}; json = ${p0.nextSource()};")
-
                         skipName()
                         skipValue()
                     }
