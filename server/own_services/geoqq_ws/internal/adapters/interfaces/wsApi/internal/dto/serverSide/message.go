@@ -54,3 +54,7 @@ func MakeMessage(eventName string, payload any) Message {
 		Payload: payload,
 	}
 }
+
+func MakeEmptyPayload() any {
+	return struct{}{}
+}

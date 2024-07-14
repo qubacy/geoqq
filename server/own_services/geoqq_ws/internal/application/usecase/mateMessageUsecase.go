@@ -2,6 +2,7 @@ package usecase
 
 import (
 	ec "common/pkg/errorForClient/geoqq"
+	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
 	dd "geoqq_ws/internal/application/domain"
@@ -97,11 +98,17 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 			return err
 		})
 	if err != nil {
-		return ec.New(utl.NewFuncError(sourceFunc, err),
-			ec.Server, ec.DomainStorageError)
+		err = utl.NewFuncError(sourceFunc, err)
+		logger.Error("%v")
+
+		return ec.New(err, ec.Server, ec.DomainStorageError)
 	}
 
+	m.sendMateMessageToFb(userId, mateMessage)
 	m.sendMateMessageToFb(interlocutorId, mateMessage) // no error!
+
+	// TODO: обернуть в нормальное сообщение, сейчас отправлется только пайлоад!
+
 	return nil
 }
 

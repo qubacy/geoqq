@@ -8,6 +8,7 @@ import (
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
+	"geoqq_ws/internal/application/ports/input"
 	"log"
 	"os"
 	"strconv"
@@ -84,30 +85,27 @@ func setup() {
 		log.Fatalf("rabbitmq container err: %s", err)
 	}
 
+	// like `geoqq http`
+
 	connParams := rabbitUtils.ConnectionParams{
 		Host:     rabbitmqHost,
 		Port:     rabbitmqPort,
 		Username: rabbitmqUsername,
 		Password: rabbitmqPassword,
 	}
-
-	// lib
-
 	if err = initPublisher(connParams); err != nil {
 		log.Fatal(err)
 	}
 
-	// with consumer
+	// interface to be tested!
 
 	rabbit, err = New(startCtx, &InputParams{
-		ConnectionParams: rabbitUtils.ConnectionParams{
-			Host:     rabbitmqHost,
-			Port:     rabbitmqPort,
-			Username: rabbitmqUsername,
-			Password: rabbitmqPassword,
-		},
-		ExchangeName: exchangeName,
-		QueueName:    queueName,
+		ConnectionParams: connParams,
+		ExchangeName:     exchangeName,
+		QueueName:        queueName,
+
+		HandleTimeout: 5 * time.Second,
+		MateRequestUc: &MockMateRequestUsecase{},
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -162,4 +160,18 @@ func Test_SendPublicUser(t *testing.T) {
 		return
 	}
 	time.Sleep(1 * time.Second)
+}
+
+// services
+// -----------------------------------------------------------------------
+
+type MockMateRequestUsecase struct {
+}
+
+func (m *MockMateRequestUsecase) ForwardMateRequest(ctx context.Context, sourceUserId, targetUserId, requestId uint64) error {
+	return nil
+}
+
+func (m *MockMateRequestUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithMateRequest {
+	return nil
 }

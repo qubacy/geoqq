@@ -5,6 +5,7 @@ import (
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
+	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
 	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide/payload"
 	"geoqq_ws/internal/application/ports/input"
@@ -53,7 +54,8 @@ func (w *WsEventHandler) initMateMessagesFb(ctxFb context.Context) {
 						return
 					}
 
-					w.sendAnyToSocket(socket, mm)
+					w.sendAnyToSocket(socket,
+						serverSide.EventAddedMateMessage, mm)
 				}
 			}
 		}(fbChans[i])
@@ -90,7 +92,8 @@ func (w *WsEventHandler) initGeoMessagesFb(ctxFb context.Context) {
 						return
 					}
 
-					w.sendAnyToSocket(socket, gm)
+					w.sendAnyToSocket(socket,
+						serverSide.EventAddedGeoMessage, gm)
 				}
 			}
 		}(fbChans[i])
@@ -100,8 +103,12 @@ func (w *WsEventHandler) initGeoMessagesFb(ctxFb context.Context) {
 // wrapper
 // -----------------------------------------------------------------------
 
-func (w *WsEventHandler) sendAnyToSocket(socket *gws.Conn, a any) {
-	jsonBytes, err := json.Marshal(a)
+func (w *WsEventHandler) sendAnyToSocket(socket *gws.Conn, eventName string, a any) {
+	msg := serverSide.Message{
+		Event:   eventName,
+		Payload: a,
+	}
+	jsonBytes, err := json.Marshal(msg)
 	if err != nil {
 		w.resWithServerError(socket, svrSide.EventGeneralError,
 			ec.ServerError, utl.NewFuncError(w.sendAnyToSocket, err))

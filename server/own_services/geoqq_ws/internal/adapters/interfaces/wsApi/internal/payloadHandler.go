@@ -28,7 +28,7 @@ func (w *WsEventHandler) updateUserLocation(ctx context.Context, client *Client,
 
 	// to service/usecase
 
-	err = w.userUc.UpdateUserLocation(ctx, inDto.UpdateUserLocation{
+	err = w.userUc.UpdateUserLocation(context.Background(), inDto.UpdateUserLocation{
 		UserId:    client.userId,
 		Longitude: payload.Longitude,
 		Latitude:  payload.Latitude,

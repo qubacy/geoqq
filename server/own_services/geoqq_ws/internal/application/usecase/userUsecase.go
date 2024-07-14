@@ -38,7 +38,7 @@ func (u *UserUsecase) UpdateUserLocation(ctx context.Context,
 	data dto.UpdateUserLocation) error {
 
 	sourceFunc := u.UpdateUserLocation
-	err := validateLatAndLon(data.Longitude, data.Longitude)
+	err := validateLatAndLon(data.Longitude, data.Latitude)
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
