@@ -103,6 +103,9 @@ func Initialize() error {
 
 	mergeWithEnvironmentVars()
 
+	fmt.Printf("rabbit username: %v\n", viper.GetString("msgs.rabbit.username"))
+	fmt.Printf("rabbit password: %v\n", viper.GetString("msgs.rabbit.password"))
+
 	fmt.Printf("cache enabled: %v\n", viper.GetBool("cache.enable"))
 	fmt.Printf("msgs enabled: %v\n", viper.GetBool("msgs.enable"))
 

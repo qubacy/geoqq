@@ -37,6 +37,12 @@ var envKeyToViperKey = map[string]string{
 	"REDIS_USER":   "adapters.infra.cache.redis.user",
 	"REDIS_PASS":   "adapters.infra.cache.redis.password",
 	"REDIS_DB":     "adapters.infra.cache.redis.db_index",
+
+	"RABBIT_HOST":     "adapters.interfaces.msgg.rabbit.host",
+	"RABBIT_PORT":     "adapters.interfaces.msgg.rabbit.port",
+	"RABBIT_USERNAME": "adapters.interfaces.msgg.rabbit.username",
+	"RABBIT_PASSWORD": "adapters.interfaces.msgg.rabbit.password",
+	"RABBIT_EXCHANGE": "adapters.interfaces.msgg.rabbit.exchange_name",
 }
 
 // -----------------------------------------------------------------------
@@ -57,6 +63,9 @@ func Init() error {
 	}
 
 	mergeWithEnvironmentVars()
+
+	fmt.Printf("rabbit username: %v\n", viper.GetString("adapters.interfaces.msgg.rabbit.username"))
+	fmt.Printf("rabbit password: %v\n", viper.GetString("adapters.interfaces.msgg.rabbit.password"))
 
 	fmt.Printf("postgre.host: %v\n", viper.GetString("adapters.infra.database.sql.postgre.host"))
 	fmt.Printf("postgre.port: %v\n", viper.GetUint16("adapters.infra.database.sql.postgre.port"))
