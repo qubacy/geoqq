@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository.impl
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
@@ -157,6 +158,8 @@ class MateMessageDataRepositoryImpl(
     override fun processWebSocketPayloadResult(
         webSocketPayloadResult: WebSocketPayloadResult
     ): DataResult {
+        Log.d(TAG, "processWebSocketPayloadResult(): webSocketPayloadResult = ${webSocketPayloadResult.javaClass.simpleName}");
+
         return when (webSocketPayloadResult.type) {
             MateMessageEventType.MATE_MESSAGE_ADDED_EVENT_TYPE.title ->
                 processMateMessageAddedEventPayload(
@@ -175,6 +178,8 @@ class MateMessageDataRepositoryImpl(
 
             dataMessage = payload.toDataMessage(getUserResult.users.first())
         }
+
+        Log.d(TAG, "processMateMessageAddedEventPayload(): dataMessage = $dataMessage;")
 
         val messageToSave = dataMessage.toMateMessageEntity(payload.chatId)
 

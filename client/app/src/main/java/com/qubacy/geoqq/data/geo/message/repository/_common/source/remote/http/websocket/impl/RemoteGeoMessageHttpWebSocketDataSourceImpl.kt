@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.geo.message.repository._common.source.remote.http.websocket.impl
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
@@ -26,7 +27,13 @@ class RemoteGeoMessageHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutinesA
     private val mGeoLocationActionPayloadJsonAdapter: JsonAdapter<GeoLocationActionPayload>,
     private val mGeoMessageActionPayloadJsonAdapter: JsonAdapter<GeoMessageActionPayload>
 ) : RemoteGeoMessageHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val TAG = "RemoteGeoMsgHttpWebSctDataSrcImpl"
+    }
+
     init {
+        Log.d(TAG, "init(): webSocketAdapter = $webSocketAdapter;")
+
         mWebSocketAdapter = webSocketAdapter
 
         mEventJsonAdapter.setCallback(this)

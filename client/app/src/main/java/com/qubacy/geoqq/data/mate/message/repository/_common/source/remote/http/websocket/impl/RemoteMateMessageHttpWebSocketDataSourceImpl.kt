@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.mate.message.repository._common.source.remote.http.websocket.impl
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository._common.source.local.database.error._common.LocalErrorDatabaseDataSource
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.packet.event.json.adapter.EventJsonAdapter
 import com.qubacy.geoqq.data._common.repository._common.source.remote.http.websocket._common.socket.adapter._common.WebSocketAdapter
@@ -24,13 +25,21 @@ class RemoteMateMessageHttpWebSocketDataSourceImpl @OptIn(ExperimentalCoroutines
     private val mMateMessageEventPayloadJsonAdapter: JsonAdapter<MateMessageAddedEventPayload>,
     private val mAddMateMessageActionPayloadJsonAdapter: JsonAdapter<AddMateMessageActionPayload>
 ) : RemoteMateMessageHttpWebSocketDataSource(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val TAG = "RemoteMateMsgHttpWebSctDataSrcImpl"
+    }
+
     init {
+        Log.d(TAG, "init(): webSocketAdapter = $webSocketAdapter;")
+
         mEventJsonAdapter.setCallback(this)
 
         mWebSocketAdapter = webSocketAdapter
     }
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
+        Log.d(TAG, "getEventPayloadJsonAdapterByType(): type = $type;")
+
         return when (type) {
             MateMessageEventType.MATE_MESSAGE_ADDED_EVENT_TYPE.title ->
                 mMateMessageEventPayloadJsonAdapter

@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.ui.application.activity._common.screen.geo.chat.model.impl
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -68,13 +69,10 @@ open class GeoChatViewModelImpl @Inject constructor(
     }
 
     override fun addInterlocutorAsMate(userId: Long) {
-        changeLoadingState(true)
         mUseCase.sendMateRequestToInterlocutor(userId)
     }
 
     override fun sendMessage(text: String) {
-        changeLoadingState(true)
-
         mUseCase.sendMessage(text, mRadius!!, mLatitude!!, mLongitude!!)
     }
 
@@ -98,6 +96,8 @@ open class GeoChatViewModelImpl @Inject constructor(
     ): List<UiOperation> {
         if (!newGeoMessageDomainResult.isSuccessful())
             return onError(newGeoMessageDomainResult.error!!)
+
+        Log.d(TAG, "onGeoChatNewGeoMessage(): entering..")
 
         val messagePresentation = newGeoMessageDomainResult.message!!.toGeoMessagePresentation()
 
@@ -124,7 +124,7 @@ open class GeoChatViewModelImpl @Inject constructor(
         if (mUiState.isMessageSendingAllowed) return emptyList()
 
         changeMessageSendingAllowed(true)
-
+0
         return listOf(
             ChangeMessageSendingAllowedUiOperation(true)
         )

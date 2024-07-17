@@ -4,6 +4,7 @@ import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.
 import com.qubacy.geoqq.ui.application.activity._common.screen._common.fragment.base.stateful.operation.handler._common.UiOperationHandler
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.MateChatFragment
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.context.ChatContextUpdatedUiOperation
+import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.add.AddMessageUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.insert.InsertMessagesUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.message.update.UpdateMessageChunkUiOperation
 import com.qubacy.geoqq.ui.application.activity._common.screen.mate.chat.model._common.operation.request.ChatDeletedUiOperation
@@ -13,6 +14,11 @@ class MateChatUiOperationHandler(
 ) : UiOperationHandler<MateChatFragment>(fragment) {
     override fun handleUiOperation(uiOperation: UiOperation): Boolean {
         when (uiOperation::class) {
+            AddMessageUiOperation::class -> {
+                uiOperation as AddMessageUiOperation
+
+                fragment.onMateChatFragmentAddMessage(uiOperation.message)
+            }
             InsertMessagesUiOperation::class -> {
                 uiOperation as InsertMessagesUiOperation
 

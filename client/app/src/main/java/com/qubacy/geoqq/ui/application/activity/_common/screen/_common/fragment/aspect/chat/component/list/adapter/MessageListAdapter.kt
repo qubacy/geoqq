@@ -57,7 +57,7 @@ open class MessageListAdapter<
 
     @UiThread
     open fun addMessages(messages: List<MessageItemDataType>) {
-        mItems.addAll(messages)
+        mItems.addAll(0, messages)
 
         wrappedNotifyItemRangeInserted(0, messages.size)
     }

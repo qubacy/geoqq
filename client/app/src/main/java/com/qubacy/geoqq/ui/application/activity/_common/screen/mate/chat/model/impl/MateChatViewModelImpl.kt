@@ -104,7 +104,6 @@ open class MateChatViewModelImpl @Inject constructor(
     }
 
     override fun sendMessage(text: String) {
-        changeLoadingState(true)
         mUseCase.sendMessage(mUiState.chatContext!!.id, text)
     }
 
@@ -137,7 +136,7 @@ open class MateChatViewModelImpl @Inject constructor(
 
         val messagePresentation = mateMessageAddedDomainResult.message!!.toMateMessagePresentation()
 
-        mUiState.messages.add(messagePresentation)
+        mUiState.messages.add(0, messagePresentation)
 
         return listOf(AddMessageUiOperation(messagePresentation))
     }

@@ -42,6 +42,8 @@ class EventJsonAdapter @Inject constructor() : JsonAdapter<Event>() {
                     1 -> {
                         val payloadAdapter = mCallback.getEventPayloadJsonAdapterByType(type!!)
 
+                        Log.d(TAG, "fromJson(): payloadAdapter = $payloadAdapter;")
+
                         if (payloadAdapter == null) {
                             val nextToken = p0.peek()
 

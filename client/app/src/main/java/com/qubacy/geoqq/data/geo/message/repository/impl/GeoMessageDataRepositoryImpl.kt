@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.geo.message.repository.impl
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.await
@@ -38,6 +39,10 @@ class GeoMessageDataRepositoryImpl(
     private val mRemoteGeoMessageHttpRestDataSource: RemoteGeoMessageHttpRestDataSource,
     private val mRemoteGeoMessageHttpWebSocketDataSource: RemoteGeoMessageHttpWebSocketDataSource
 ) : GeoMessageDataRepository(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val TAG = "GeoMsgDataRepositoryImpl"
+    }
+
     override val resultFlow: Flow<DataResult> = merge(
         mResultFlow,
         mRemoteGeoMessageHttpWebSocketDataSource.eventFlow
@@ -118,10 +123,14 @@ class GeoMessageDataRepositoryImpl(
     ): DataResult {
         lateinit var dataMessage: DataMessage
 
+        Log.d(TAG, "processGeoMessageAddedEventPayload(): entering;")
+
         runBlocking {
             val getUserResult = mUserDataRepository.getUsersByIds(listOf(payload.userId)).await() // todo: alright?
 
             dataMessage = payload.toDataMessage(getUserResult.users.first())
+
+            Log.d(TAG, "processGeoMessageAddedEventPayload(): dataMessage = $dataMessage;")
         }
 
         return GeoMessageAddedDataResult(dataMessage)

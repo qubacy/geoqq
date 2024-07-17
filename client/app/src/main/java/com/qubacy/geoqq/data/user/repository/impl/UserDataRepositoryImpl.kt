@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data.user.repository.impl
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
@@ -76,7 +77,8 @@ open class UserDataRepositoryImpl(
 
             val httpDataUsers = resolveGetUserResponses(getUsersResponse)
 
-            if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch
+            // todo: it should ALWAYS return the NEWEST DATA but this prevents it:
+            //if (localDataUsers?.containsAll(httpDataUsers) == true) return@launch
 
             resultLiveData.postValue(GetUsersByIdsDataResult(true, httpDataUsers))
 
@@ -98,16 +100,21 @@ open class UserDataRepositoryImpl(
             var version = 0
 
             while (true) {
+                Log.d(TAG, "resolveUsers(): start of while;")
+
                 val getUsersByIdsResult = getUsersByIdsLiveData.awaitUntilVersion(version)
                 val userIdUserMap = getUsersByIdsResult.users.associateBy { it.id }
+
+                Log.d(TAG, "resolveUsers(): after await;")
 
                 ++version
 
                 resultLiveData.postValue(ResolveUsersDataResult(
                     getUsersByIdsResult.isNewest, userIdUserMap))
 
-                if (getUsersByIdsResult.isNewest)
-                    return@launch startProducingUpdates() // todo: ok?
+                if (getUsersByIdsResult.isNewest) return@launch startProducingUpdates() // todo: ok?
+
+                Log.d(TAG, "resolveUsers(): end of while;")
             }
         }
 

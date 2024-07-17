@@ -99,6 +99,8 @@ class WebSocketAdapterImpl @Inject constructor(
     override fun addEventListener(eventListener: WebSocketEventListener) {
         synchronized(mEventListeners) {
             mEventListeners.add(eventListener)
+
+            Log.d(TAG, "mEventListeners = ${mEventListeners.map { it.javaClass.simpleName + ' ' }}")
         }
     }
 
@@ -215,7 +217,7 @@ class WebSocketAdapterImpl @Inject constructor(
             if (mEventListeners.isEmpty()) return
 
             for (eventListener in mEventListeners) {
-                //Log.d(TAG, "conveyEvent(): eventListener = $eventListener;")
+                Log.d(TAG, "conveyEvent(): eventListener = $eventListener;")
 
                 eventListener.onEventGotten(event)
             }

@@ -9,7 +9,7 @@ class MateMessageAddedEventPayload(
     id: Long,
     text: String,
     time: Long,
-    userId: Long,
+    @Json(name = USER_ID_PROP_NAME) userId: Long,
     @Json(name = CHAT_ID_PROP_NAME) val chatId: Long
 ) : MessageEventPayload(id, text, time, userId) {
     companion object {

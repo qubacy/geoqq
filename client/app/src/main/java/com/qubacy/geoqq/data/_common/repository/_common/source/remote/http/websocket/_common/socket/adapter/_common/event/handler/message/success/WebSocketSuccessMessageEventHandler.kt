@@ -16,7 +16,7 @@ class WebSocketSuccessMessageEventHandler @Inject constructor(
     private val mSuccessEventPayloadJsonAdapter: SuccessEventPayloadJsonAdapter
 ) : WebSocketMessageEventHandler, EventJsonAdapterCallback {
     companion object {
-        const val TAG = "WebSocketSccssMssgEvntHndlr";
+        const val TAG = "WebScktSccssMssgEvntHndlr";
 
         const val SUCCESS_POSTFIX = "succeeded"
     }
@@ -43,6 +43,8 @@ class WebSocketSuccessMessageEventHandler @Inject constructor(
 
     override fun getEventPayloadJsonAdapterByType(type: String): JsonAdapter<*>? {
         if (!type.endsWith(SUCCESS_POSTFIX)) return null
+
+        Log.d(TAG, "getEventPayloadJsonAdapterByType(): entering..")
 
         return mSuccessEventPayloadJsonAdapter
     }

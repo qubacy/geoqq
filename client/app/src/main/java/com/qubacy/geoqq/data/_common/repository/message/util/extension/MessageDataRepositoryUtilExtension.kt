@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository.message.util.extension
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.qubacy.geoqq._common.util.livedata.extension.awaitUntilVersion
@@ -25,8 +26,12 @@ suspend fun MessageDataRepository.resolveGetMessagesResponse(
         var version = 0
 
         while (true) {
+            Log.d("MessageDataRepository", "resolveGetMessagesResponse(): start of while;")
+
             val resolveUsersResult = resolveUsersResultLiveData.awaitUntilVersion(version)
             val userIdUserMap = resolveUsersResult.userIdUserMap
+
+            Log.d("MessageDataRepository", "resolveGetMessagesResponse(): after user await;")
 
             ++version
 

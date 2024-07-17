@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.data._common.repository.producing
 
+import android.util.Log
 import com.qubacy.geoqq.data._common.repository.adjustable.AdjustableDataRepository
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
@@ -13,6 +14,10 @@ abstract class ProducingDataRepository(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineDispatcher),
 ) : AdjustableDataRepository(coroutineDispatcher, coroutineScope) {
+    companion object {
+        const val TAG = "ProducingDataRepository"
+    }
+
     protected val mResultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
     open val resultFlow: Flow<DataResult> get() = mResultFlow
 
@@ -21,6 +26,8 @@ abstract class ProducingDataRepository(
     }
 
     open fun startProducingUpdates() {
+        Log.d(TAG, "startProducingUpdates(): class = ${this.javaClass.simpleName};")
+
         val producingDataSources = getProducingDataSources()
 
         for (producingDataSource in producingDataSources)
