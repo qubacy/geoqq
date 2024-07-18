@@ -30,6 +30,8 @@ abstract class ProducingDataRepository(
 
         val producingDataSources = getProducingDataSources()
 
+        Log.d(TAG, "startProducingUpdates(): sources = ${producingDataSources.map { it.javaClass.simpleName + ' '}}")
+
         for (producingDataSource in producingDataSources)
             producingDataSource.startProducing()
     }

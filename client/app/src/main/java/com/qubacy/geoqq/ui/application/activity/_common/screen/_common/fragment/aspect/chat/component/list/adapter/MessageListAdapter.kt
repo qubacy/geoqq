@@ -60,6 +60,7 @@ open class MessageListAdapter<
         mItems.addAll(0, messages)
 
         wrappedNotifyItemRangeInserted(0, messages.size)
+        runScrollToPosition(0)
     }
 
     protected open fun runScrollToPosition(position: Int) {

@@ -9,13 +9,11 @@ import com.qubacy.geoqq.data.mate.message.repository.impl.MateMessageDataReposit
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module
 abstract class MateMessageDataRepositoryModule {
     companion object {
         @JvmStatic
-        @Singleton
         @Provides
         fun provideMateMessageDataRepository(
             errorDataSource: LocalErrorDatabaseDataSource,

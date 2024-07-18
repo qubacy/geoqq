@@ -1,5 +1,6 @@
 package com.qubacy.geoqq.domain._common.usecase.base.updatable
 
+import android.util.Log
 import com.qubacy.geoqq._common.exception.error.ErrorAppException
 import com.qubacy.geoqq._common.model.error._common.Error
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
@@ -64,6 +65,8 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
 
         val updatableRepositories = getUpdatableRepositories()
         val updateFlow = merge(*updatableRepositories.map { it.resultFlow }.toTypedArray())
+
+        Log.d(TAG, "onCoroutineScopeSet(): updatableRepositories = ${updatableRepositories.map { it.javaClass.simpleName }}")
 
         val coroutineExceptionHandler = createUpdateCoroutineExceptionHandler()
 

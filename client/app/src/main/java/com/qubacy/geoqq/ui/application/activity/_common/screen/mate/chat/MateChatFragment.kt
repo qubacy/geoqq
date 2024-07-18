@@ -144,7 +144,8 @@ class MateChatFragment(
     fun onMateChatFragmentAddMessage(
         message: MateMessagePresentation
     ) {
-        val messageItem = message.toMateMessageItemData(message.user.id)
+        val remoteUserId = mModel.uiState.chatContext!!.user.id
+        val messageItem = message.toMateMessageItemData(remoteUserId)
 
         mAdapter.addNewMateMessage(messageItem);
     }
@@ -153,7 +154,8 @@ class MateChatFragment(
         messages: List<MateMessagePresentation>,
         position: Int
     ) {
-        val messageItems = messages.map { it.toMateMessageItemData(it.user.id) }
+        val remoteUserId = mModel.uiState.chatContext!!.user.id
+        val messageItems = messages.map { it.toMateMessageItemData(remoteUserId) }
 
         mAdapter.insertMateMessages(messageItems, position)
     }
