@@ -43,7 +43,8 @@ class MateMessageDataRepositoryImpl(
     private val mRemoteMateMessageHttpRestDataSource: RemoteMateMessageHttpRestDataSource,
     private val mRemoteMateMessageHttpWebSocketDataSource: RemoteMateMessageHttpWebSocketDataSource
 ) : MateMessageDataRepository(coroutineDispatcher, coroutineScope) {
-    override val resultFlow: Flow<DataResult> = merge(
+
+    override fun generateGeneralResultFlow(): Flow<DataResult>  = merge(
         mResultFlow,
         mRemoteMateMessageHttpWebSocketDataSource.eventFlow
             .mapNotNull { mapWebSocketResultToDataResult(it) }

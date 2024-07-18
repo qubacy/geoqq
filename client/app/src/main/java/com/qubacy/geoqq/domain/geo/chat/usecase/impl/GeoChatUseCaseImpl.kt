@@ -121,9 +121,7 @@ open class GeoChatUseCaseImpl @Inject constructor(
         return mLogoutUseCase
     }
 
-    override fun onCoroutineScopeSet() {
-        super.onCoroutineScopeSet()
-
+    override fun passCoroutineScopeToDependencies() {
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
         mLogoutUseCase.setCoroutineScope(mCoroutineScope)

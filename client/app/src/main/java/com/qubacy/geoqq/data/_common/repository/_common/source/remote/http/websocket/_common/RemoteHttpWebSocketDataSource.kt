@@ -24,7 +24,7 @@ abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::c
 
     protected lateinit var mWebSocketAdapter: WebSocketAdapter
 
-    protected val mEventFlow: MutableColdFlow<WebSocketResult> = MutableColdFlow()
+    protected var mEventFlow: MutableColdFlow<WebSocketResult> = MutableColdFlow()
     val eventFlow: Flow<WebSocketResult> get() = mEventFlow.flow
 
     @Volatile
@@ -65,4 +65,10 @@ abstract class RemoteHttpWebSocketDataSource @OptIn(ExperimentalCoroutinesApi::c
     }
 
     protected abstract fun processEvent(event: WebSocketEvent): WebSocketResult?
+
+    override fun reset() {
+        Log.d(TAG, "reset(): class = ${javaClass.simpleName};")
+
+        mEventFlow = MutableColdFlow()
+    }
 }

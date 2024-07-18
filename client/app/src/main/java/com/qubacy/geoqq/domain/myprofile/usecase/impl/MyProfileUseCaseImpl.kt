@@ -84,9 +84,7 @@ class MyProfileUseCaseImpl @Inject constructor(
         }, { LogoutDomainResult(error = it) })
     }
 
-    override fun onCoroutineScopeSet() {
-        super.onCoroutineScopeSet()
-
+    override fun passCoroutineScopeToDependencies() {
         mLogoutUseCase.setCoroutineScope(mCoroutineScope)
         mAuthDataRepository.setCoroutineScope(mCoroutineScope)
         mMyProfileDataRepository.setCoroutineScope(mCoroutineScope)

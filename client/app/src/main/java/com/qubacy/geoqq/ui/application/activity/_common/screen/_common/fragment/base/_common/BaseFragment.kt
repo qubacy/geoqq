@@ -126,7 +126,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding>(
         Log.d(TAG, "afterDestinationChange(): destinationId = ${getFragmentDestinationId()};")
 
         mAppBar?.apply {
-            title = getFragmentTitle()
+            title = getFragmentTitle() // todo: error-prone;
         }
     }
 

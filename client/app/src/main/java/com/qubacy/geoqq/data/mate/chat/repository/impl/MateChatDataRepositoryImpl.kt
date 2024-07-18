@@ -51,7 +51,7 @@ class MateChatDataRepositoryImpl(
         const val TAG = "MateChatDataRepository"
     }
 
-    override val resultFlow: Flow<DataResult> = merge(
+    override fun generateGeneralResultFlow(): Flow<DataResult> = merge(
         mResultFlow,
         mRemoteMateChatHttpWebSocketDataSource.eventFlow
             .mapNotNull { mapWebSocketResultToDataResult(it) }

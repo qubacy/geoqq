@@ -53,7 +53,7 @@ open class UserDataRepositoryImpl(
         const val ACCESS_TOKEN_USER_ID_PAYLOAD_PROP_NAME = "user-id"
     }
 
-    override val resultFlow: Flow<DataResult> = merge(
+    override fun generateGeneralResultFlow(): Flow<DataResult> = merge(
         mResultFlow,
         mRemoteUserHttpWebSocketDataSource.eventFlow
             .mapNotNull { mapWebSocketResultToDataResult(it) }

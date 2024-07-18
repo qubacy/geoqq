@@ -86,9 +86,7 @@ class MateRequestsUseCaseImpl @Inject constructor(
         mInterlocutorUseCase.getUser(interlocutorId)
     }
 
-    override fun onCoroutineScopeSet() {
-        super.onCoroutineScopeSet()
-
+    override fun passCoroutineScopeToDependencies() {
         mMateRequestUseCase.setCoroutineScope(mCoroutineScope)
         mInterlocutorUseCase.setCoroutineScope(mCoroutineScope)
         mLogoutUseCase.setCoroutineScope(mCoroutineScope)

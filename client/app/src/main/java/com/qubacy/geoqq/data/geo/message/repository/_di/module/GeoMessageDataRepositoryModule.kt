@@ -8,11 +8,13 @@ import com.qubacy.geoqq.data.geo.message.repository.impl.GeoMessageDataRepositor
 import com.qubacy.geoqq.data.user.repository._common.UserDataRepository
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
 abstract class GeoMessageDataRepositoryModule {
     companion object {
         @JvmStatic
+        @Singleton
         @Provides
         fun provideGeoMessageDataRepository(
             errorDataSource: LocalErrorDatabaseDataSource,

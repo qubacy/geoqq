@@ -43,14 +43,16 @@ class GeoMessageDataRepositoryImpl(
         const val TAG = "GeoMsgDataRepositoryImpl"
     }
 
-    override val resultFlow: Flow<DataResult> = merge(
-        mResultFlow,
-        mRemoteGeoMessageHttpWebSocketDataSource.eventFlow
-            .mapNotNull { mapWebSocketResultToDataResult(it) }
-    )
-
     override fun getProducingDataSources(): Array<ProducingDataSource> {
         return arrayOf(mRemoteGeoMessageHttpWebSocketDataSource)
+    }
+
+    override fun generateGeneralResultFlow(): Flow<DataResult> {
+        return merge(
+            mResultFlow,
+            mRemoteGeoMessageHttpWebSocketDataSource.eventFlow
+                .mapNotNull { mapWebSocketResultToDataResult(it) }
+        )
     }
 
     override suspend fun getMessages(

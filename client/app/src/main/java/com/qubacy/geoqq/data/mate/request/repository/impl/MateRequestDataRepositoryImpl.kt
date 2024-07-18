@@ -42,7 +42,7 @@ class MateRequestDataRepositoryImpl(
         const val TAG = "MateRequestDtRepstry"
     }
 
-    override val resultFlow: Flow<DataResult> = merge(
+    override fun generateGeneralResultFlow(): Flow<DataResult> = merge(
         mResultFlow,
         mRemoteMateRequestHttpWebSocketDataSource.eventFlow
             .mapNotNull { mapWebSocketResultToDataResult(it) }

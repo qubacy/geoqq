@@ -9,7 +9,6 @@ import com.qubacy.geoqq.data._common.repository.producing.ProducingDataRepositor
 import com.qubacy.geoqq.domain._common.usecase._common.result.failure.FailureDomainResult
 import com.qubacy.geoqq.domain._common.usecase.base._common.UseCase
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler._common.UpdateErrorHandler
-import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.common.UpdateCommonErrorHandler
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.error.handler.common.callback.UpdateCommonErrorHandlerCallback
 import com.qubacy.geoqq.domain._common.usecase.base.updatable.update.handler.DataUpdateHandler
 import kotlinx.coroutines.CoroutineDispatcher
@@ -60,8 +59,10 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
             updatableRepository.stopProducingUpdates()
     }
 
-    override fun onCoroutineScopeSet() {
+    final override fun onCoroutineScopeSet() {
         super.onCoroutineScopeSet()
+
+        passCoroutineScopeToDependencies()
 
         val updatableRepositories = getUpdatableRepositories()
         val updateFlow = merge(*updatableRepositories.map { it.resultFlow }.toTypedArray())
@@ -76,6 +77,8 @@ abstract class UpdatableUseCase @OptIn(ExperimentalCoroutinesApi::class) constru
             }
         }
     }
+
+    protected open fun passCoroutineScopeToDependencies() {}
 
     private fun createUpdateCoroutineExceptionHandler(): CoroutineExceptionHandler {
         return CoroutineExceptionHandler { _, exception ->

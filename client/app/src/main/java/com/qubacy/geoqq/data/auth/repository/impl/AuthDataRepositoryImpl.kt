@@ -33,15 +33,15 @@ class AuthDataRepositoryImpl(
 
     override val webSocketAdapter: WebSocketAdapter get() = mWebSocketAdapter
 
-    override val resultFlow: Flow<DataResult> = merge(
+    init {
+        mRemoteAuthHttpWebSocketDataSource.setWebSocketAdapter(mWebSocketAdapter)
+    }
+
+    override fun generateGeneralResultFlow(): Flow<DataResult> = merge(
         mResultFlow,
         mRemoteAuthHttpWebSocketDataSource.eventFlow
             .mapNotNull { mapWebSocketResultToDataResult(it) }
     )
-
-    init {
-        mRemoteAuthHttpWebSocketDataSource.setWebSocketAdapter(mWebSocketAdapter)
-    }
 
     override suspend fun signIn() {
         mTokenDataRepository.getTokens() // todo: is it enough?

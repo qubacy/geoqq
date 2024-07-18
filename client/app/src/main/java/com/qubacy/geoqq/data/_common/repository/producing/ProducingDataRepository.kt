@@ -1,6 +1,7 @@
 package com.qubacy.geoqq.data._common.repository.producing
 
 import android.util.Log
+import com.qubacy.geoqq._common.struct.delegate.lazy.MutableLazy
 import com.qubacy.geoqq.data._common.repository.adjustable.AdjustableDataRepository
 import com.qubacy.geoqq.data._common.repository._common.result.DataResult
 import com.qubacy.geoqq.data._common.repository.producing.source.ProducingDataSource
@@ -19,11 +20,14 @@ abstract class ProducingDataRepository(
     }
 
     protected val mResultFlow: MutableSharedFlow<DataResult> = MutableSharedFlow()
-    open val resultFlow: Flow<DataResult> get() = mResultFlow
+    protected open var mGeneralResultFlow: Flow<DataResult> by MutableLazy { generateGeneralResultFlow() }
+    val resultFlow: Flow<DataResult> get() = mGeneralResultFlow
 
     open fun getProducingDataSources(): Array<ProducingDataSource> {
         return arrayOf()
     }
+
+    protected open fun generateGeneralResultFlow(): Flow<DataResult> = mResultFlow
 
     open fun startProducingUpdates() {
         Log.d(TAG, "startProducingUpdates(): class = ${this.javaClass.simpleName};")
@@ -41,5 +45,18 @@ abstract class ProducingDataRepository(
 
         for (producingDataSource in producingDataSources)
             producingDataSource.stopProducing()
+    }
+
+    override fun onCoroutineScopeSet() {
+        super.onCoroutineScopeSet()
+
+        Log.d(TAG, "onCoroutineScopeSet(): class = ${javaClass.simpleName};")
+
+        val producingDataSources = getProducingDataSources()
+
+        for (producingDataSource in producingDataSources)
+            producingDataSource.reset()
+
+        mGeneralResultFlow = generateGeneralResultFlow()
     }
 }
