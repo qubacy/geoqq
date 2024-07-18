@@ -41,6 +41,7 @@ type Rabbit struct {
 
 	mateRequestUc input.MateRequestUsecase
 	mateMessageUc input.MateMessageUsecase
+	publicUserUc  input.PublicUserUsecase
 }
 
 func New(startCtx context.Context, params *InputParams) (*Rabbit, error) {
@@ -106,10 +107,22 @@ func (r *Rabbit) messageHandler(d rabbitmq.Delivery) (action rabbitmq.Action) {
 	// ***
 
 	switch msg.Event {
+
+	case geoqq.EventUpdatedPublicUser:
+		err = r.handleUpdatedPublicUser(msg.Payload)
+
+	case geoqq.EventAddedMateChat:
+		err = r.handleAddedMateChat(msg.Payload)
+	case geoqq.EventUpdatedMateChat:
+		err = r.handleUpdatedMateChat(msg.Payload)
+
 	case geoqq.EventAddedMateRequest:
 		err = r.handleAddedMateRequest(msg.Payload)
 	case geoqq.EventAddedMateMessage:
 		err = r.handleAddedMateMessage(msg.Payload)
+
+	case geoqq.EventAddedGeoMessage:
+		err = r.handleAddedGeoMessage(msg.Payload)
 	}
 
 	if err != nil {
@@ -123,6 +136,38 @@ func (r *Rabbit) messageHandler(d rabbitmq.Delivery) (action rabbitmq.Action) {
 // specific
 // -----------------------------------------------------------------------
 
+func (r *Rabbit) handleUpdatedPublicUser(pd any) error {
+	sourceFunc := r.handleUpdatedPublicUser
+	onlyId, err := dto.PayloadFromAny[payload.OnlyId](pd)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
+	defer cancel()
+
+	err = r.publicUserUc.InformAboutPublicUserUpdate(ctx, uint64(onlyId.Id))
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	return nil // ok
+}
+
+// -----------------------------------------------------------------------
+
+func (r *Rabbit) handleAddedMateChat(pd any) error {
+
+	return nil
+}
+
+func (r *Rabbit) handleUpdatedMateChat(pd any) error {
+
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
 func (r *Rabbit) handleAddedMateRequest(pd any) error {
 	sourceFunc := r.handleAddedMateRequest
 	mr, err := dto.PayloadFromAny[payload.MateRequest](pd)
@@ -132,8 +177,7 @@ func (r *Rabbit) handleAddedMateRequest(pd any) error {
 
 	// ***
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(), r.handleTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
 	defer cancel()
 
 	err = r.mateRequestUc.ForwardMateRequest(ctx,
@@ -154,9 +198,10 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 
 	// ***
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(), r.handleTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
 	defer cancel()
+
+	// payload object to domain?
 
 	err = r.mateMessageUc.ForwardMateMessage(ctx,
 		uint64(mm.TargetUserId), &domain.MateMessage{
@@ -171,5 +216,11 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
+	return nil
+}
+
+// -----------------------------------------------------------------------
+
+func (r *Rabbit) handleAddedGeoMessage(pd any) error {
 	return nil
 }
