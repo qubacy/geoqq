@@ -157,6 +157,8 @@ func (r *Rabbit) handleUpdatedPublicUser(pd any) error {
 // -----------------------------------------------------------------------
 
 func (r *Rabbit) handleAddedMateChat(pd any) error {
+	// sourceFunc := r.handleAddedMateChat
+	// onlyId, err := dto.PayloadFromAny[payload.OnlyId](pd)
 
 	return nil
 }

@@ -1,4 +1,8 @@
 SELECT * FROM "Mate";
+SELECT COUNT(*) FROM "Mate";
+SELECT COUNT("Id") FROM "Mate";
+
+-- -----------------------------------------------------------------------
 
 UPDATE "Mate" SET "FirstUserId" = 13
 WHERE "Id" = 1;
@@ -15,3 +19,5 @@ select
     then 'true'
     else 'false'
 end;
+
+-- -----------------------------------------------------------------------

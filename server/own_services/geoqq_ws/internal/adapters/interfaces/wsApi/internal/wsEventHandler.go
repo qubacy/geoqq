@@ -34,9 +34,10 @@ type WsEventHandler struct {
 	// services/usecases
 
 	userUc        input.UserUsecase
-	mateMessageUc input.MateMessageUsecase
 	onlineUsersUc input.OnlineUsersUsecase
+	mateMessageUc input.MateMessageUsecase
 	geoMessageUc  input.GeoMessageUsecase
+	mateRequestUc input.MateRequestUsecase
 
 	ctxFb    context.Context
 	cancelFb context.CancelFunc
@@ -63,6 +64,7 @@ func NewWsEventHandler(p *Params) *WsEventHandler {
 		onlineUsersUc: p.OnlineUsersUc,
 		mateMessageUc: p.MateMessageUc,
 		geoMessageUc:  p.GeoMessageUc,
+		mateRequestUc: p.MateRequestUc,
 
 		ctxFb:    ctxFb,
 		cancelFb: cancelFb,

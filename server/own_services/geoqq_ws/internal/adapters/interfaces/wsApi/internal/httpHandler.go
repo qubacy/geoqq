@@ -28,6 +28,7 @@ type Params struct {
 	OnlineUsersUc input.OnlineUsersUsecase
 	MateMessageUc input.MateMessageUsecase
 	GeoMessageUc  input.GeoMessageUsecase
+	MateRequestUc input.MateRequestUsecase
 }
 
 // -----------------------------------------------------------------------

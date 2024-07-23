@@ -19,6 +19,7 @@ import (
 func (w *WsEventHandler) initFbChans(ctxFb context.Context) {
 	w.initMateMessagesFb(ctxFb)
 	w.initGeoMessagesFb(ctxFb)
+	w.initMateRequestsFb(ctxFb)
 }
 
 // specific...
@@ -94,6 +95,40 @@ func (w *WsEventHandler) initGeoMessagesFb(ctxFb context.Context) {
 
 					w.sendAnyToSocket(socket,
 						serverSide.EventAddedGeoMessage, gm)
+				}
+			}
+		}(fbChans[i])
+	}
+}
+
+func (w *WsEventHandler) initMateRequestsFb(ctxFb context.Context) {
+	const fbName = "mate requests feedback"
+
+	fbChans := w.mateRequestUc.GetFbChansForGeoMessages()
+	for i := range fbChans {
+		go func(ch <-chan input.UserIdWithMateRequest) {
+			for {
+				select {
+				case <-ctxFb.Done():
+					logger.Info("%v stopped", fbName)
+					return
+
+				case pair := <-ch:
+					value, loaded := w.userSockets.Load(pair.TargetUserId)
+					if !loaded {
+						logger.Error("%v", ErrSocketNotFoundByUserIdInMapWith(pair.TargetUserId))
+						break
+					}
+					socket := value.(*gws.Conn)
+
+					// ***
+
+					mateRequest := payload.MakeMateRequest(
+						float64(pair.MateRequestId),
+						float64(pair.SourceUserId)) // from!
+
+					w.sendAnyToSocket(socket,
+						serverSide.EventAddedMateRequest, mateRequest)
 				}
 			}
 		}(fbChans[i])

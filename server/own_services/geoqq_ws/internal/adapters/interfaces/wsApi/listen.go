@@ -30,6 +30,7 @@ type Params struct {
 	OnlineUsersUc input.OnlineUsersUsecase
 	MateMessageUc input.MateMessageUsecase
 	GeoMessageUc  input.GeoMessageUsecase
+	MateRequestUc input.MateRequestUsecase
 }
 
 func (p *Params) createAddr() string {
@@ -57,6 +58,7 @@ func New(params *Params) (*Server, error) {
 		OnlineUsersUc: params.OnlineUsersUc,
 		MateMessageUc: params.MateMessageUc,
 		GeoMessageUc:  params.GeoMessageUc,
+		MateRequestUc: params.MateRequestUc,
 	})
 	if err != nil {
 		return nil, utl.NewFuncError(New, err)

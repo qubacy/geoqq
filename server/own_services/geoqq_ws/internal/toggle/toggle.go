@@ -158,6 +158,7 @@ func Do() error {
 		OnlineUsersUc: onlineUsersUc,
 		MateMessageUc: mateMessageUc,
 		GeoMessageUc:  geoMessageUc,
+		MateRequestUc: mateRequestUc,
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)
