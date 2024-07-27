@@ -6,6 +6,7 @@ import (
 	"common/pkg/geoDistance"
 	"common/pkg/hash"
 	"common/pkg/token"
+	"errors"
 	"geoqq_http/internal/infra/msgs"
 	domainStorage "geoqq_http/internal/storage/domain"
 	fileStorage "geoqq_http/internal/storage/file"
@@ -92,6 +93,24 @@ type Dependencies struct {
 	ChatParams    ChatParams
 }
 
+func (d *Dependencies) validate() error {
+	if d.HashManager == nil {
+		return errors.New("hash manager is nil")
+	}
+	if d.TokenManager == nil {
+		return errors.New("token manager is nil")
+	}
+
+	if d.EnableCache && d.Cache == nil {
+		return errors.New("cache is nil")
+	}
+	if d.EnableMsgs && d.Msgs == nil {
+		return errors.New("msgs is nil")
+	}
+
+	return nil
+}
+
 // -----------------------------------------------------------------------
 
 type Services struct {
@@ -110,6 +129,10 @@ type Services struct {
 }
 
 func NewServices(deps Dependencies) (*Services, error) {
+	if err := deps.validate(); err != nil {
+		return nil, utl.NewFuncError(NewServices, err)
+	}
+
 	authService, err := newAuthService(deps)
 	if err != nil {
 		return nil, utl.NewFuncError(NewServices, err)

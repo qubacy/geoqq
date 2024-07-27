@@ -41,7 +41,7 @@ func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 	sourceUserId, targetUserId, requestId uint64) error {
 
 	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
-		return nil
+		return nil // user is not in app!
 	}
 
 	index := rand.Intn(len(m.feedbackChsForMateReqs))

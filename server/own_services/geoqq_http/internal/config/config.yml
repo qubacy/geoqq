@@ -96,7 +96,7 @@ storage:
         #...
 
 msgs:
-  enable: false
+  enable: true
   type: "rabbit"
 
   rabbit:
@@ -108,14 +108,14 @@ msgs:
     message_ttl: 3m
 
 cache:
-  enable: false
+  enable: true
 
   type: "redis"
   max_init_time: 5s
   
   redis:
     host: "127.0.0.1"
-    port: 6379
+    port: 16380
     
     user: ""
     password: ""
