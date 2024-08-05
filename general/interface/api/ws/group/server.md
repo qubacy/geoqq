@@ -42,7 +42,8 @@ The server sends to the client application.
             "text": "<string>",
             "time": "<int>",
             "user-id": "<id>"
-        }
+        },
+        "last-action-time": "<int>"
     }
 }
 ```

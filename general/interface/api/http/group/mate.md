@@ -27,7 +27,8 @@
                 "text": "<string>",
                 "time": "<int>",
                 "user-id": "<id>"
-            }
+            },
+            "last-action-time": "<int>"
         },
         ...
     ]
@@ -48,7 +49,8 @@
         "text": "<string>",
         "time": "<int>",
         "user-id": "<id>"
-    }
+    },
+    "last-action-time": "<int>"
 }
 ```
 
