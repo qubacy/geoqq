@@ -1,9 +1,17 @@
 # General 📃
 
-## API
+## Interface
+
+### API
+
 Description
-  - Http [here](./api/http/desc.md)
-  - Ws [here](./api/ws/desc.md)
+  - Http [here](./interface/api/http/desc.md)
+  - Ws [here](./interface/api/ws/desc.md)
+
+## Infrastructure
+
+Description
+  - Messaging [here](./infrastructure/messaging/desc.md)
 
 ## Diagrams 🎰
 
