@@ -1,6 +1,7 @@
 package rabbit
 
 import (
+	"common/pkg/logger"
 	"common/pkg/messaging/geoqq/dto"
 	"common/pkg/messaging/geoqq/dto/payload"
 	"common/pkg/rabbitUtils"
@@ -170,7 +171,10 @@ func (r *Rabbit) publishWithBasicOptions(ctx context.Context,
 	sourceFunc := r.publishWithBasicOptions
 	data, err := json.Marshal(msg)
 	if err != nil {
-		return utl.NewFuncError(sourceFunc, err)
+		err = utl.NewFuncError(sourceFunc, err)
+
+		logger.Error("%v", err)
+		return err
 	}
 
 	err = r.publisher.PublishWithContext(
@@ -180,10 +184,13 @@ func (r *Rabbit) publishWithBasicOptions(ctx context.Context,
 		rabbitmq.WithPublishOptionsExchange(r.exchangeName),
 		rabbitmq.WithPublishOptionsContentType(contentType),
 		rabbitmq.WithPublishOptionsTimestamp(time.Now().UTC()),
-		rabbitmq.WithPublishOptionsExpiration(r.messageTtlOption),
+		rabbitmq.WithPublishOptionsExpiration(r.messageTtlOption), // !
 	)
 	if err != nil {
-		return utl.NewFuncError(sourceFunc, err)
+		err = utl.NewFuncError(sourceFunc, err)
+
+		logger.Error("%v", err)
+		return err
 	}
 
 	return nil

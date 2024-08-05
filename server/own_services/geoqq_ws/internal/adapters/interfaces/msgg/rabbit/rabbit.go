@@ -224,5 +224,8 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 // -----------------------------------------------------------------------
 
 func (r *Rabbit) handleAddedGeoMessage(pd any) error {
+	sourceFunc := r.handleAddedGeoMessage
+	gm, err := dto.PayloadFromAny[payload.GeoMessage](pd)
+
 	return nil
 }

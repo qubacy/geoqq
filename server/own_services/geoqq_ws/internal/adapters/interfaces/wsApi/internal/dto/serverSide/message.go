@@ -1,5 +1,8 @@
 package serverSide
 
+// repeat with those in rabbit mq
+//    but it doesn't matter!
+
 const (
 	EventUpdatedPublicUser = "updated_public_user"
 
