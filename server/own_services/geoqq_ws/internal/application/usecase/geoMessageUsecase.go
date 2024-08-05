@@ -10,6 +10,7 @@ import (
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
+	"geoqq_ws/internal/constErrors"
 	"math/rand"
 )
 
@@ -63,6 +64,26 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 // public
 // -----------------------------------------------------------------------
 
+func (g *GeoMessageUsecase) ForwardGeoMessage(ctx context.Context,
+	gm *dd.GeoMessage, lon, lat float64) error {
+	/*
+		Geo message has already
+			been added to the database!
+	*/
+
+	if gm == nil {
+		return constErrors.ErrInputParamWithTypeNotSpecified(`*dd.GeoMessage`)
+	}
+
+	if err := g.sendGeoMessageToWhoeverNeeds(ctx, gm, lon, lat); err != nil {
+		logger.Error("%v", utl.NewFuncError(g.ForwardGeoMessage, err))
+
+		return nil // ?
+	}
+
+	return nil
+}
+
 func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 	userId uint64, text string, lon, lat float64) error {
 	sourceFunc := g.AddGeoMessage
@@ -91,35 +112,10 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 
 	// ***
 
-	if g.tempDb != nil { // like it's not a necessary part?
-		messageLocation := cache.MakeLocation(lat, lon)
-		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(
-			ctx, messageLocation, g.maxRadius)
-		if err != nil {
-			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
-			return nil
-		}
+	if err = g.sendGeoMessageToWhoeverNeeds(ctx, geoMessage, lon, lat); err != nil {
+		logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 
-		userIds := cache.ToKeys(userIdWithLocationMap)
-		userIdWithRadiusMap, err := g.tempDb.GetUserRadiuses(ctx, userIds...) // if exists!
-		if err != nil {
-			logger.Error("%v", utl.NewFuncError(sourceFunc, err))
-			return nil
-		}
-
-		for userId, loc := range userIdWithLocationMap {
-			messageLoc := geo.MakePoint(loc.Lat, loc.Lon)
-			userLoc := loc.ToGeoPoint()
-
-			userDesiredRadius := float64(userIdWithRadiusMap[userId])
-			currentRadius := g.geoCalculator.CalculateDistance(messageLoc, userLoc)
-
-			if userDesiredRadius >= currentRadius {
-				g.sendGeoMessageToFb(userId, geoMessage)
-			}
-		}
-	} else {
-		logger.Warning(cache.TextCacheDisabled)
+		return nil // ?
 	}
 
 	// ***
@@ -141,6 +137,42 @@ func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWith
 
 // private
 // -----------------------------------------------------------------------
+
+func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context,
+	geoMessage *dd.GeoMessage, lon, lat float64) error {
+	sourceFunc := g.sendGeoMessageToWhoeverNeeds
+
+	if g.tempDb != nil { // like it's not a necessary part?
+		messageLocation := cache.MakeLocation(lat, lon)
+		userIdWithLocationMap, err := g.tempDb.SearchUsersWithLocationsNearby(
+			ctx, messageLocation, g.maxRadius)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+
+		userIds := cache.ToKeys(userIdWithLocationMap)
+		userIdWithRadiusMap, err := g.tempDb.GetUserRadiuses(ctx, userIds...) // if exists!
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+
+		for userId, loc := range userIdWithLocationMap {
+			messageLoc := geo.MakePoint(loc.Lat, loc.Lon)
+			userLoc := loc.ToGeoPoint()
+
+			userDesiredRadius := float64(userIdWithRadiusMap[userId])
+			currentRadius := g.geoCalculator.CalculateDistance(messageLoc, userLoc)
+
+			if userDesiredRadius >= currentRadius {
+				g.sendGeoMessageToFb(userId, geoMessage) // !
+			}
+		}
+	} else {
+		logger.Warning(cache.TextCacheDisabled)
+	}
+
+	return nil // ok?
+}
 
 func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *dd.GeoMessage) {
 	if !g.onlineUsersUc.UserIsOnline(targetUserId) {

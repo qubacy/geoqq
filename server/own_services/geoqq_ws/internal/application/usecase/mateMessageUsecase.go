@@ -68,6 +68,8 @@ func (m *MateMessageUsecase) ForwardMateMessage(ctx context.Context,
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
 func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	userId, chatId uint64, text string) error {
 	sourceFunc := m.AddMateMessage
