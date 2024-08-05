@@ -11,4 +11,6 @@ type MateDatabase interface {
 
 	GetMateMessageById(ctx context.Context, mateMessageId uint64) (*dd.MateMessage, error)
 	InsertMateMessage(ctx context.Context, chatId, fromUserId uint64, text string) (uint64, error)
+
+	GetMateChatWithIdForUser(ctx context.Context, userId, chatId uint64) (*dd.MateChat, error)
 }

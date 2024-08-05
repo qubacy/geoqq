@@ -12,7 +12,6 @@ type UserIdWithMateMessage struct {
 
 type MateMessageUsecase interface {
 	ForwardMateMessage(ctx context.Context, targetUserId uint64, mm *dd.MateMessage) error
-
 	AddMateMessage(ctx context.Context, userId, chatId uint64, text string) error
 	GetFbChansForMateMessages() []<-chan UserIdWithMateMessage // feedback!
 }

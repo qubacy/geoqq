@@ -137,6 +137,28 @@ func (m *MateDatabase) GetMateIdByChatId(ctx context.Context,
 	return interlocutorId, nil
 }
 
+func (m *MateDatabase) GetMateChatWithIdForUser(ctx context.Context,
+	userId, chatId uint64) (*domain.MateChat, error) {
+	sourceFunc := m.GetMateChatWithIdForUser
+
+	row, err := queryRow(ctx, m.pool,
+		template.GetMateChatWithIdForUser,
+		userId, chatId)
+
+	var mateChat domain.MateChat
+	err = utl.RunFuncsRetErr(
+		func() error { return err },
+		func() error {
+			interlocutorId, err = wrappedPgxpool.ScanUint64(row, sourceFunc)
+			return err
+		})
+	if err != nil {
+		return nil, utl.NewFuncError(sourceFunc, err)
+	}
+
+	return &mateChat, nil
+}
+
 // scan
 // -----------------------------------------------------------------------
 

@@ -5,5 +5,5 @@ import (
 )
 
 type PublicUserUsecase interface {
-	InformAboutPublicUserUpdate(ctx context.Context, userId uint64) error
+	InformAboutPublicUserUpdated(ctx context.Context, userId uint64) error
 }

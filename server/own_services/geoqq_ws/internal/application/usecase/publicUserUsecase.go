@@ -24,7 +24,7 @@ func NewPublicUserUsecase(
 
 // -----------------------------------------------------------------------
 
-func (p *PublicUserUsecase) InformAboutPublicUserUpdate(ctx context.Context, userId uint64) error {
+func (p *PublicUserUsecase) InformAboutPublicUserUpdated(ctx context.Context, userId uint64) error {
 
 	return constErrors.ErrNotImplemented
 }
