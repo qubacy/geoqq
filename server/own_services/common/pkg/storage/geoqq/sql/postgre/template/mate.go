@@ -12,4 +12,16 @@ var (
 
 	InsertMate = `` +
 		InsertMateWithoutReturningId + ` RETURNING "Id"`
+
+	/*
+		Order:
+			1. userId
+	*/
+	GetMateIdsForUser = utl.RemoveAdjacentWs(`
+		SELECT
+			case when "FirstUserId" = $1
+				then "SecondUserId" else "FirstUserId"
+				END as "UserId"
+		FROM "Mate"
+		WHERE ("FirstUserId" = $1 OR "SecondUserId" = $1)`)
 )

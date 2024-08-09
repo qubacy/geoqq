@@ -1,12 +1,12 @@
 package usecase
 
 import (
+	domain "common/pkg/domain/geoqq"
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/geoDistance"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input/dto"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"

@@ -1,8 +1,9 @@
 package payload
 
 import (
-	"geoqq_ws/internal/application/domain"
+	domain "common/pkg/domain/geoqq"
 	"geoqq_ws/internal/constErrors"
+	"reflect"
 )
 
 type MateMessage struct {
@@ -13,9 +14,11 @@ type MateMessage struct {
 	UserId float64 `json:"user-id"`
 }
 
-func MateMessageFromDomain(dm *domain.MateMessage) (*MateMessage, error) {
+func MateMessageFromDomain(dm *domain.MateMessageWithChat) (*MateMessage, error) {
 	if dm == nil {
-		return nil, constErrors.ErrInputParamWithTypeNotSpecified("*domain.MateMessage")
+		typeName := reflect.TypeOf(dm)
+		return nil, constErrors.ErrInputParamWithTypeNotSpecified(
+			typeName.Name())
 	}
 
 	return &MateMessage{

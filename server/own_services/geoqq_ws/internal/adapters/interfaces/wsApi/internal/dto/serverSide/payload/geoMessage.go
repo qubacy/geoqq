@@ -1,7 +1,7 @@
 package payload
 
 import (
-	"geoqq_ws/internal/application/domain"
+	domain "common/pkg/domain/geoqq"
 	"geoqq_ws/internal/constErrors"
 )
 

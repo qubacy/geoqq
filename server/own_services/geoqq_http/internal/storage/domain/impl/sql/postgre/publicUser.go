@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"fmt"
@@ -27,39 +28,7 @@ func newPublicUserStorage(pool *pgxpool.Pool) *PublicUserStorage {
 // -----------------------------------------------------------------------
 
 var (
-	/*
-		Order:
-			1. source userId
-			2. target userId (or some ids)
-	*/
-	templateSelectPublicUsers = utl.RemoveAdjacentWs(`
-		SELECT 
-			"UserEntry"."Id" AS "Id",
-			"UserDetails"."Username" AS "Username", /* public */
-			"Description",
-			"AvatarId",
-			"LastActionTime",
-			case
-				when "Mate"."Id" is null then false
-				else true
-			end as "IsMate",
-			case 
-				when "DeletedUser"."UserId" is null then false
-				else true
-			end as "IsDeleted",
-			"UserOptions"."HitMeUp" AS "HitMeUp"
-		FROM "UserEntry"
-		INNER JOIN "UserDetails" ON "UserDetails"."UserId" = "UserEntry"."Id"
-		INNER JOIN "UserOptions" ON "UserOptions"."UserId" = "UserEntry"."Id"
-		LEFT JOIN "Mate" ON (
-			("Mate"."FirstUserId" = $1 AND
-				"Mate"."SecondUserId" = "UserEntry"."Id") OR
-        	("Mate"."FirstUserId" = "UserEntry"."Id" AND
-				"Mate"."SecondUserId" = $1)
-		)
-		LEFT JOIN "DeletedUser" ON "DeletedUser"."UserId" = "UserEntry"."Id"
-			WHERE "UserEntry"."Id"`) // next placeholders start with 2.
-
+	templateSelectPublicUsers = template.SelectPublicUsers
 )
 
 // public

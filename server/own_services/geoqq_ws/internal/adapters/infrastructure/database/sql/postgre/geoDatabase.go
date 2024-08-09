@@ -1,11 +1,12 @@
 package postgre
 
 import (
+	domain "common/pkg/domain/geoqq"
 	"common/pkg/postgreUtils/wrappedPgxpool"
+	"common/pkg/storage/geoqq/sql/postgre"
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/domain"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -55,7 +56,7 @@ func (g *GeoDatabase) GetGeoMessageWithId(ctx context.Context, id uint64) (
 	utl.RunFuncsRetErr(
 		func() error { return err },
 		func() error {
-			gm, err = scanGeoMessage(row)
+			gm, err = postgre.ScanGeoMessage(row)
 			return err
 		})
 	if err != nil {
@@ -63,17 +64,4 @@ func (g *GeoDatabase) GetGeoMessageWithId(ctx context.Context, id uint64) (
 	}
 
 	return gm, nil
-}
-
-// scan
-// -----------------------------------------------------------------------
-
-func scanGeoMessage(scanner wrappedPgxpool.QueryResultScanner) (
-	*domain.GeoMessage, error) {
-	gm := domain.GeoMessage{}
-	if err := scanner.Scan(&gm.Id, &gm.UserId, &gm.Text, &gm.Time); err != nil {
-		return nil, utl.NewFuncError(scanGeoMessage, err)
-	}
-
-	return &gm, nil
 }

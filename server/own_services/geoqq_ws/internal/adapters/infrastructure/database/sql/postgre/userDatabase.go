@@ -1,13 +1,15 @@
 package postgre
 
 import (
+	domain "common/pkg/domain/geoqq"
 	"common/pkg/postgreUtils/wrappedPgxpool"
 	"common/pkg/storage/geoqq/sql/postgre/table"
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/adapters/infrastructure/database/sql/postgre/common"
-	"geoqq_ws/internal/application/domain"
+	"geoqq_ws/internal/application/ports/output/database"
+	"geoqq_ws/internal/constErrors"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -94,4 +96,18 @@ func (s *UserDatabase) GetUserEntryById(ctx context.Context, userId uint64) (
 	}
 
 	return &ue, nil
+}
+
+func (s *UserDatabase) GetPublicUserById(ctx context.Context,
+	userId, targetUserId uint64) (*domain.PublicUser, error) {
+
+	return nil, constErrors.ErrNotImplemented
+}
+
+func (s *UserDatabase) GetTransformedPublicUserById(ctx context.Context,
+	userId uint64, targetUserId uint64,
+	transform database.PublicUserTransform,
+) (*domain.PublicUser, error) {
+
+	return nil, constErrors.ErrNotImplemented
 }

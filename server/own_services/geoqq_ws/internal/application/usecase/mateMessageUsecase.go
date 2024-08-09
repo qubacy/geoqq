@@ -1,15 +1,16 @@
 package usecase
 
 import (
+	domain "common/pkg/domain/geoqq"
 	ec "common/pkg/errorForClient/geoqq"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
-	dd "geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/database"
 	"geoqq_ws/internal/constErrors"
 	"math/rand"
+	"reflect"
 )
 
 type MateMessageUcParams struct {
@@ -54,14 +55,16 @@ func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
 // -----------------------------------------------------------------------
 
 func (m *MateMessageUsecase) ForwardMateMessage(ctx context.Context,
-	targetUserId uint64, mm *dd.MateMessage) error {
+	targetUserId uint64, mm *domain.MateMessageWithChat) error {
 	/*
 		Mate message has already
 			been added to the database.
 	*/
 
 	if mm == nil {
-		return constErrors.ErrInputParamWithTypeNotSpecified(`*dd.MateMessage`)
+		typeName := reflect.TypeOf(mm)
+		return constErrors.ErrInputParamWithTypeNotSpecified(
+			typeName.Name())
 	}
 
 	m.sendMateMessageToFb(targetUserId, mm)
@@ -83,7 +86,7 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 		err            error
 		mateMessageId  uint64
 		interlocutorId uint64
-		mateMessage    *dd.MateMessage
+		mateMessage    *domain.MateMessageWithChat
 	)
 
 	// TODO: chat available for userId
@@ -114,6 +117,8 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
 func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateMessage {
 	chs := []<-chan input.UserIdWithMateMessage{}
 	for i := range m.feedbackChsForMateMsgs {
@@ -126,7 +131,9 @@ func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWi
 // private
 // -----------------------------------------------------------------------
 
-func (m *MateMessageUsecase) sendMateMessageToFb(targetUserId uint64, mateMessage *dd.MateMessage) {
+func (m *MateMessageUsecase) sendMateMessageToFb(
+	targetUserId uint64, mateMessage *domain.MateMessageWithChat) {
+
 	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
 		return
 	}

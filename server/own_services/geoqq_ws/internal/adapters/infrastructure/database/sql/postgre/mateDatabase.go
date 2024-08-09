@@ -2,10 +2,12 @@ package postgre
 
 import (
 	"common/pkg/postgreUtils/wrappedPgxpool"
+	"common/pkg/storage/geoqq/sql/postgre"
 	"common/pkg/storage/geoqq/sql/postgre/template"
 	utl "common/pkg/utility"
 	"context"
-	"geoqq_ws/internal/application/domain"
+
+	domain "common/pkg/domain/geoqq"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -60,7 +62,7 @@ var (
 // -----------------------------------------------------------------------
 
 func (m *MateDatabase) GetMateMessageById(ctx context.Context,
-	mateMessageId uint64) (*domain.MateMessage, error) {
+	mateMessageId uint64) (*domain.MateMessageWithChat, error) {
 	sourceFunc := m.GetMateMessageById
 
 	row, err := queryRow(ctx, m.pool,
@@ -70,7 +72,7 @@ func (m *MateDatabase) GetMateMessageById(ctx context.Context,
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
-	mm, err := scanMateMessage(row)
+	mm, err := postgre.MateMessageWithChatIdFromQueryResult(row)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
@@ -127,7 +129,8 @@ func (m *MateDatabase) GetMateIdByChatId(ctx context.Context,
 	err = utl.RunFuncsRetErr(
 		func() error { return err },
 		func() error {
-			interlocutorId, err = wrappedPgxpool.ScanUint64(row, sourceFunc)
+			interlocutorId, err =
+				wrappedPgxpool.ScanUint64(row, sourceFunc) // !
 			return err
 		})
 	if err != nil {
@@ -142,37 +145,43 @@ func (m *MateDatabase) GetMateChatWithIdForUser(ctx context.Context,
 	sourceFunc := m.GetMateChatWithIdForUser
 
 	row, err := queryRow(ctx, m.pool,
-		template.GetMateChatWithIdForUser,
+		template.GetMateChatWithIdForUser, // !
 		userId, chatId)
 
-	var mateChat domain.MateChat
+	var mateChat *domain.MateChat = nil
 	err = utl.RunFuncsRetErr(
 		func() error { return err },
 		func() error {
-			interlocutorId, err = wrappedPgxpool.ScanUint64(row, sourceFunc)
+			mateChat, err = postgre.MateChatFromQueryResult(row)
 			return err
 		})
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
 
-	return &mateChat, nil
+	return mateChat, nil
 }
 
-// scan
-// -----------------------------------------------------------------------
+func (m *MateDatabase) GetMateIdsForUser(ctx context.Context, userId uint64) ([]uint64, error) {
+	sourceFunc := m.GetMateIdsForUser
 
-func scanMateMessage(scanner wrappedPgxpool.QueryResultScanner) (
-	*domain.MateMessage, error) {
-	sourceFunc := scanMateMessage
+	var (
+		err     error
+		mateIds []uint64
+	)
 
-	mm := domain.MateMessage{}
-	err := scanner.Scan(
-		&mm.Id, &mm.ChatId,
-		&mm.UserId, &mm.Text,
-		&mm.Time, &mm.Read)
+	rows, err := m.pool.Query(ctx,
+		template.GetMateIdsForUser+`;`, userId)
+	err = utl.RunFuncsRetErr(
+		func() error { return err },
+		func() error {
+			mateIds, err = wrappedPgxpool.ScanListOfUint64(rows, sourceFunc)
+			return err
+		},
+	)
 	if err != nil {
 		return nil, utl.NewFuncError(sourceFunc, err)
 	}
-	return &mm, nil
+
+	return mateIds, nil
 }

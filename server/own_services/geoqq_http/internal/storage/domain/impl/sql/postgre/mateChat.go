@@ -336,7 +336,7 @@ func (s *MateChatStorage) DeleteMateChatForUser(ctx context.Context,
 				2. Remove mate chat.
 			Else:
 				1. Add record to `DeletedMateChat`.
-				2. Remove entry from `Mate`.
+				2. Remove entry from `Mate`!
 	*/
 	sourceFunc := s.DeleteMateChatForUser
 

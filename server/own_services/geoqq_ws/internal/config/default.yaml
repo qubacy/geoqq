@@ -76,9 +76,9 @@ adapters:
           host: "127.0.0.1"
           port: 5432
 
-          user: "postgres"
-          password: "admin"
-          database: "geoqq"
+          user: postgres
+          password: postgres
+          database: domain
 
           background:
             max_worker_count: 2 
@@ -86,14 +86,14 @@ adapters:
             query_timeout: 10s    
             
     cache:
-      enable: true
+      enable: false
 
       type: redis
       req_timeout: 5s # if there is no context!
 
       redis:
         host: "127.0.0.1"
-        port: 16380
+        port: 6379
         
         user: ""
         password: ""

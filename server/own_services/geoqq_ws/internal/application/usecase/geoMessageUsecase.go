@@ -1,17 +1,18 @@
 package usecase
 
 import (
+	domain "common/pkg/domain/geoqq"
 	ec "common/pkg/errorForClient/geoqq"
 	geo "common/pkg/geoDistance"
 	"common/pkg/logger"
 	utl "common/pkg/utility"
 	"context"
-	dd "geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/cache"
 	"geoqq_ws/internal/application/ports/output/database"
 	"geoqq_ws/internal/constErrors"
 	"math/rand"
+	"reflect"
 )
 
 type GeoMessageUcParams struct {
@@ -65,14 +66,16 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 // -----------------------------------------------------------------------
 
 func (g *GeoMessageUsecase) ForwardGeoMessage(ctx context.Context,
-	gm *dd.GeoMessage, lon, lat float64) error {
+	gm *domain.GeoMessage, lon, lat float64) error {
 	/*
 		Geo message has already
 			been added to the database!
 	*/
 
 	if gm == nil {
-		return constErrors.ErrInputParamWithTypeNotSpecified(`*dd.GeoMessage`)
+		typeName := reflect.TypeOf(gm)
+		return constErrors.ErrInputParamWithTypeNotSpecified(
+			typeName.Name())
 	}
 
 	if err := g.sendGeoMessageToWhoeverNeeds(ctx, gm, lon, lat); err != nil {
@@ -102,13 +105,13 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 	var (
 		err          error
 		geoMessageId uint64
-		geoMessage   *dd.GeoMessage
+		geoMessage   *domain.GeoMessage
 	)
 
 	if geoMessageId, err = g.db.InsertGeoMessage(ctx, userId, text, lon, lat); err != nil {
 		return ec.New(utl.NewFuncError(sourceFunc, err), ec.Server, ec.DomainStorageError)
 	}
-	geoMessage = dd.NewGeoMessage(geoMessageId, userId, text)
+	geoMessage = domain.NewGeoMessage(geoMessageId, userId, text)
 
 	// ***
 
@@ -139,7 +142,7 @@ func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWith
 // -----------------------------------------------------------------------
 
 func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context,
-	geoMessage *dd.GeoMessage, lon, lat float64) error {
+	geoMessage *domain.GeoMessage, lon, lat float64) error {
 	sourceFunc := g.sendGeoMessageToWhoeverNeeds
 
 	if g.tempDb != nil { // like it's not a necessary part?
@@ -174,7 +177,7 @@ func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context,
 	return nil // ok?
 }
 
-func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *dd.GeoMessage) {
+func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *domain.GeoMessage) {
 	if !g.onlineUsersUc.UserIsOnline(targetUserId) {
 		return
 	}

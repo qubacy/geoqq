@@ -54,6 +54,8 @@ func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 	return nil
 }
 
+// -----------------------------------------------------------------------
+
 func (m *MateRequestUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithMateRequest {
 	chans := []<-chan input.UserIdWithMateRequest{}
 	for i := range m.feedbackChsForMateReqs {

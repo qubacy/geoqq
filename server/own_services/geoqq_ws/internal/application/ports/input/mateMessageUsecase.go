@@ -1,17 +1,19 @@
 package input
 
 import (
+	domain "common/pkg/domain/geoqq"
 	"context"
-	dd "geoqq_ws/internal/application/domain"
 )
 
 type UserIdWithMateMessage struct {
 	UserId      uint64
-	MateMessage *dd.MateMessage
+	MateMessage *domain.MateMessageWithChat
 }
 
 type MateMessageUsecase interface {
-	ForwardMateMessage(ctx context.Context, targetUserId uint64, mm *dd.MateMessage) error
+	ForwardMateMessage(ctx context.Context,
+		targetUserId uint64, mm *domain.MateMessageWithChat) error
+
 	AddMateMessage(ctx context.Context, userId, chatId uint64, text string) error
 	GetFbChansForMateMessages() []<-chan UserIdWithMateMessage // feedback!
 }

@@ -83,9 +83,9 @@ storage:
         host: "127.0.0.1"
         port: 5432
 
-        user: "postgres"
-        password: "admin"
-        database: "geoqq"
+        user: postgres
+        password: postgres
+        database: domain
 
         background:
           max_worker_count: 2 # goroutines and channels...
@@ -108,7 +108,7 @@ msgs:
     message_ttl: 3m
 
 cache:
-  enable: true
+  enable: false
 
   type: "redis"
   max_init_time: 5s

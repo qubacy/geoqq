@@ -1,13 +1,13 @@
 package input
 
 import (
+	domain "common/pkg/domain/geoqq"
 	"context"
-	dd "geoqq_ws/internal/application/domain"
 )
 
 type UserIdWithMateChat struct {
 	UserId   uint64
-	MateChat *dd.MateChat
+	MateChat *domain.MateChat
 }
 
 type MateChatUsecase interface {

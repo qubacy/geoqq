@@ -1,19 +1,18 @@
 package rabbit
 
 import (
+	domain "common/pkg/domain/geoqq"
 	"common/pkg/logger"
 	"common/pkg/messaging/geoqq"
 	"common/pkg/messaging/geoqq/dto"
 	"common/pkg/messaging/geoqq/dto/payload"
+	"common/pkg/rabbitUtils"
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
 	"errors"
-	"geoqq_ws/internal/application/domain"
 	"geoqq_ws/internal/application/ports/input"
 	"time"
-
-	"common/pkg/rabbitUtils"
 
 	"github.com/wagslane/go-rabbitmq"
 )
@@ -143,10 +142,11 @@ func (r *Rabbit) handleUpdatedPublicUser(pd any) error {
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, r.handleTimeout)
 	defer cancel()
 
-	err = r.publicUserUc.InformAboutPublicUserUpdate(ctx, uint64(onlyId.Id))
+	err = r.publicUserUc.InformAboutPublicUserUpdated(ctx, uint64(onlyId.Id))
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
@@ -206,7 +206,7 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 	// payload object to domain?
 
 	err = r.mateMessageUc.ForwardMateMessage(ctx,
-		uint64(mm.TargetUserId), &domain.MateMessage{
+		uint64(mm.TargetUserId), &domain.MateMessageWithChat{
 			Id:     uint64(mm.Id),
 			ChatId: uint64(mm.ChatId),
 			Text:   mm.Text,
@@ -224,8 +224,8 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 // -----------------------------------------------------------------------
 
 func (r *Rabbit) handleAddedGeoMessage(pd any) error {
-	sourceFunc := r.handleAddedGeoMessage
-	gm, err := dto.PayloadFromAny[payload.GeoMessage](pd)
+	// sourceFunc := r.handleAddedGeoMessage
+	// gm, err := dto.PayloadFromAny[payload.GeoMessage](pd)
 
 	return nil
 }

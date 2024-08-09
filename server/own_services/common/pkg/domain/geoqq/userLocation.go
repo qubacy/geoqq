@@ -1,6 +1,8 @@
-package domain
+package geoqq
 
-import "time"
+import (
+	"time"
+)
 
 type UserLocation struct {
 	UserId uint64
