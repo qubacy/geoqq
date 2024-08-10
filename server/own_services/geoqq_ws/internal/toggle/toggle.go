@@ -82,17 +82,22 @@ func Do() error {
 	// application core
 
 	var (
-		userUc        input.UserUsecase = nil
-		onlineUsersUc input.OnlineUsersUsecase
-		mateMessageUc input.MateMessageUsecase
-		mateRequestUc input.MateRequestUsecase
-		geoMessageUc  input.GeoMessageUsecase
+		userUc         input.UserUsecase = nil
+		pubUserUsecase input.PublicUserUsecase
+		onlineUsersUc  input.OnlineUsersUsecase
+		mateMessageUc  input.MateMessageUsecase
+		mateRequestUc  input.MateRequestUsecase
+		geoMessageUc   input.GeoMessageUsecase
 	)
 	{
 		commonParams := struct {
-			MaxLength uint64
+			MaxLength   uint64
+			FbChanSize  int
+			FbChanCount int
 		}{
-			MaxLength: viper.GetUint64("usecase.common.chat_message.max_length"),
+			MaxLength:   viper.GetUint64("usecase.common.chat_message.max_length"),
+			FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
+			FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
 		}
 
 		// ***
@@ -101,21 +106,25 @@ func Do() error {
 			Database:     db,
 			TempDatabase: tempDb,
 		})
+		pubUserUsecase = usecase.NewPublicUserUsecase(onlineUsersUc, db,
+			commonParams.FbChanCount, commonParams.FbChanSize,
+		)
 		onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
 			TempDatabase:        tempDb,
 			CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
 		})
 		mateRequestUc = usecase.NewMateRequestUsecase(&usecase.MateRequestUcParams{
 			OnlineUsersUc: onlineUsersUc,
-			FbChanSize:    viper.GetInt("usecase.mate_request.fb_chan_size"),
-			FbChanCount:   viper.GetInt("usecase.mate_request.fb_chan_count"),
+
+			FbChanSize:  commonParams.FbChanSize,
+			FbChanCount: commonParams.FbChanCount,
 		})
 		mateMessageUc = usecase.NewMateMessageUsecase(&usecase.MateMessageUcParams{
 			OnlineUsersUc: onlineUsersUc,
 			Database:      db,
 
-			FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
-			FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
+			FbChanSize:  commonParams.FbChanSize,
+			FbChanCount: commonParams.FbChanCount,
 
 			MaxMessageLength: commonParams.MaxLength,
 		})
@@ -124,8 +133,8 @@ func Do() error {
 			Database:      db,
 			TempDatabase:  tempDb,
 
-			FbChanSize:  viper.GetInt("usecase.geo_message.fb_chan_size"),
-			FbChanCount: viper.GetInt("usecase.geo_message.fb_chan_count"),
+			FbChanSize:  commonParams.FbChanSize,
+			FbChanCount: commonParams.FbChanCount,
 
 			MaxMessageLength: commonParams.MaxLength,
 			MaxRadius:        viper.GetUint64("usecase.geo_message.max_radius"),
@@ -154,11 +163,12 @@ func Do() error {
 
 		TpExtractor: tokenManager,
 
-		UserUc:        userUc,
-		OnlineUsersUc: onlineUsersUc,
-		MateMessageUc: mateMessageUc,
-		GeoMessageUc:  geoMessageUc,
-		MateRequestUc: mateRequestUc,
+		UserUc:         userUc,
+		OnlineUsersUc:  onlineUsersUc,
+		MateMessageUc:  mateMessageUc,
+		GeoMessageUc:   geoMessageUc,
+		MateRequestUc:  mateRequestUc,
+		PubUserUsecase: pubUserUsecase,
 	})
 	if err != nil {
 		return utl.NewFuncError(Do, err)

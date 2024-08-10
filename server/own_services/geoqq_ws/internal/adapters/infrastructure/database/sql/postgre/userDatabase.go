@@ -98,6 +98,8 @@ func (s *UserDatabase) GetUserEntryById(ctx context.Context, userId uint64) (
 	return &ue, nil
 }
 
+// -----------------------------------------------------------------------
+
 func (s *UserDatabase) GetPublicUserById(ctx context.Context,
 	userId, targetUserId uint64) (*domain.PublicUser, error) {
 

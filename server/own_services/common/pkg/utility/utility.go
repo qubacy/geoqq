@@ -137,3 +137,41 @@ func ConvertSliceFloat64ToUint64(values []float64) []uint64 {
 	}
 	return result
 }
+
+// -----------------------------------------------------------------------
+
+func IntersectSlices[T comparable](s1 []T, s2 []T) []T {
+	set := make(map[T]bool)
+	for _, v := range s1 {
+		set[v] = true
+	}
+	for _, v := range s2 {
+		set[v] = true
+	}
+
+	result := []T{}
+	for k := range set {
+		result = append(result, k)
+	}
+
+	return result
+}
+
+func EqualUnsortedSlices[T comparable](s1 []T, s2 []T) bool {
+	m := make(map[T]int)
+	for _, v := range s1 {
+		m[v]++
+	}
+	for _, v := range s2 {
+		m[v]++
+	}
+
+	for _, v := range m {
+		if v >= 2 {
+			continue
+		}
+
+		return false
+	}
+	return true
+}

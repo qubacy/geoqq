@@ -5,6 +5,11 @@ import (
 )
 
 var (
+	/*
+		Order:
+			1. firstUserId
+			2. secondUserId
+	*/
 	InsertMateWithoutReturningId = utl.RemoveAdjacentWs(`
 		INSERT INTO "Mate" ("FirstUserId", "SecondUserId")
 		VALUES ($1, $2) 

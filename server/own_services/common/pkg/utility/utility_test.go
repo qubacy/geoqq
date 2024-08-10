@@ -162,6 +162,73 @@ func Test_RemoveAdjacentSpacesFromString(t *testing.T) {
 	}
 }
 
+// -----------------------------------------------------------------------
+
+func Test_IntersectSlices(t *testing.T) {
+	type TestCase[T any] struct {
+		s1   []T
+		s2   []T
+		want []T
+	}
+	testCases := []TestCase[uint64]{
+		{
+			s1:   []uint64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+			s2:   []uint64{1, 2, 3, 4, 5, 11, 12, 13, 14, 15},
+			want: []uint64{1, 2, 3, 4, 5},
+		},
+		//...
+	}
+
+	// ***
+
+	for i := range testCases {
+		got := IntersectSlices(testCases[i].s1, testCases[i].s2)
+
+		if !EqualUnsortedSlices(got, testCases[i].want) {
+			t.Errorf("got: %v, want: %v",
+				got, testCases[i].want)
+		}
+	}
+}
+
+func Test_EqualSlices(t *testing.T) {
+	type TestCase[T any] struct {
+		s1   []T
+		s2   []T
+		want bool
+	}
+	testCases := []TestCase[uint64]{
+		{
+			s1:   []uint64{1, 2, 3, 4, 5},
+			s2:   []uint64{1, 2, 3, 4, 5},
+			want: true,
+		},
+		{
+			s1:   []uint64{1, 2, 3, 4, 5, 6},
+			s2:   []uint64{1, 2, 3, 4, 5},
+			want: false,
+		},
+		{
+			s1:   []uint64{5, 1, 2, 4, 1},
+			s2:   []uint64{1, 2, 3, 4, 5},
+			want: false,
+		},
+		//...
+	}
+
+	// ***
+
+	for i := range testCases {
+		got := EqualUnsortedSlices(
+			testCases[i].s1, testCases[i].s2)
+
+		if got != testCases[i].want {
+			t.Errorf("got: %v, want: %v, test case #%v",
+				got, testCases[i].want, i)
+		}
+	}
+}
+
 // benchmarks
 // -----------------------------------------------------------------------
 

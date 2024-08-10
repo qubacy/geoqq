@@ -31,6 +31,11 @@ const (
 )
 
 var (
+	pool         *pgxpool.Pool
+	mateDatabase *MateDatabase
+)
+
+var (
 	startupTimeout  = 15 * time.Second
 	occurrenceCount = 3
 )
@@ -92,7 +97,10 @@ type Mate struct {
 }
 
 var (
-	userIds   = []uint64{}
+	userIds            = []uint64{}
+	mateIdsForBaseUser = []uint64{}
+	baseUserId         = uint64(0)
+
 	mateIds   = []Mate{}
 	mateChats = []MateChat{}
 )
@@ -233,6 +241,17 @@ func setup() {
 		}
 	}
 
+	// concrete databases
+
+	{
+		pool, err = pgxpool.Connect(ctx, createConnString(true))
+		if err != nil {
+			log.Fatalf("connect to db failed. Err: %v", err)
+		}
+
+		mateDatabase = newMateDatabase(pool)
+	}
+
 	// inflate
 
 	if err = inflate(); err != nil {
@@ -250,77 +269,108 @@ func setup() {
 
 func inflate() error {
 	ctx := context.Background()
-	pool, err := pgxpool.Connect(ctx, createConnString(true))
-	if err != nil {
-		return err
-	}
 
 	// add user entry
 
-	for i := 0; i < userEntryCount; i++ {
-		randomLogin := uuid.NewString()
-		randomHashPass := uuid.NewString()
+	{
+		for i := 0; i < userEntryCount; i++ {
+			randomLogin := uuid.NewString()
+			randomHashPass := uuid.NewString()
 
-		row := pool.QueryRow(ctx,
-			template.InsertUserEntryWithoutHashUpdToken+`;`,
-			randomLogin, randomHashPass)
+			row := pool.QueryRow(ctx,
+				template.InsertUserEntryWithoutHashUpdToken+`;`,
+				randomLogin, randomHashPass)
 
-		var userId uint64 = 0
-		if err := row.Scan(&userId); err != nil {
-			return err
+			var userId uint64 = 0
+			if err := row.Scan(&userId); err != nil {
+				return err
+			}
+
+			userIds = append(userIds, userId)
 		}
-
-		userIds = append(userIds, userId)
+		baseUserId = userIds[0]
 	}
 
 	// add user location
 
-	for i := 0; i < len(userIds); i++ {
-		cmdTag, err := pool.Exec(ctx,
-			template.InsertUserLocationNoReturningId,
-			userIds[i], rand.Float64(), // lon
-			rand.Float64()) // lat
+	{
+		for i := 0; i < len(userIds); i++ {
+			cmdTag, err := pool.Exec(ctx,
+				template.InsertUserLocationNoReturningId,
+				userIds[i], rand.Float64(), // lon
+				rand.Float64()) // lat
 
-		if !cmdTag.Insert() {
-			return common.ErrInsertFailed
-		}
-		if err != nil {
-			return err
+			if !cmdTag.Insert() {
+				return common.ErrInsertFailed
+			}
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	// add mate/mate chats
 
-	for i := 0; i < userEntryCount/2; i += 2 {
-		row := pool.QueryRow(ctx,
-			template.InsertMate,
-			userIds[i], userIds[i+1])
+	{
+		for i := 0; i < userEntryCount/2; i += 2 {
+			row := pool.QueryRow(ctx,
+				template.InsertMate,
+				userIds[i], userIds[i+1])
 
-		var id uint64 = 0
-		if err := row.Scan(&id); err != nil {
-			return err
+			var id uint64 = 0
+			if err := row.Scan(&id); err != nil {
+				return err
+			}
+			mateIds = append(mateIds, Mate{
+				id:           id,
+				firstUserId:  userIds[i],
+				secondUserId: userIds[i+1],
+			})
+
+			row = pool.QueryRow(ctx,
+				template.InsertMateChat,
+				userIds[i], userIds[i+1])
+
+			if err := row.Scan(&id); err != nil {
+				return err
+			}
+			mateChats = append(mateChats, MateChat{
+				id:           id,
+				firstUserId:  userIds[i],
+				secondUserId: userIds[i+1],
+			})
 		}
-		mateIds = append(mateIds, Mate{
-			id:           id,
-			firstUserId:  userIds[i],
-			secondUserId: userIds[i+1],
-		})
+	}
 
-		row = pool.QueryRow(ctx,
-			template.InsertMateChat,
-			userIds[i], userIds[i+1])
+	// add mates, with ignore conflicts
 
-		if err := row.Scan(&id); err != nil {
-			return err
+	{
+		for i := 0; i < userEntryCount/2; i++ {
+			if userIds[i] == baseUserId {
+				continue
+			}
+
+			futureMateIds := []uint64{}
+			if rand.Int31()%2 == 0 {
+				futureMateIds = append(futureMateIds, baseUserId, userIds[i])
+			} else {
+				futureMateIds = append(futureMateIds, userIds[i], baseUserId)
+			}
+
+			// ***
+
+			mateIdsForBaseUser = append(mateIdsForBaseUser, userIds[i]) // !
+			if err := mateDatabase.InsertMateWithoutReturningId(
+				ctx, futureMateIds[0], futureMateIds[1]); err != nil {
+
+				return err
+			}
 		}
-		mateChats = append(mateChats, MateChat{
-			id:           id,
-			firstUserId:  userIds[i],
-			secondUserId: userIds[i+1],
-		})
 	}
 
 	log.Printf("new users: %v", userIds)
+	log.Printf("base user id: %v", baseUserId)
+
 	return nil
 }
 
@@ -496,4 +546,18 @@ func Test_UpdateBgrLocationForUser(t *testing.T) {
 	if newUl.Lat != oldUl.Lat+1 && newUl.Lon != oldUl.Lon+1 {
 		t.Errorf("user location not updated")
 	}
+}
+
+func Test_GetMateIdsForUser(t *testing.T) {
+	ctx := context.Background()
+	mateIds, err := mateDatabase.GetMateIdsForUser(ctx, baseUserId)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	log.Printf("mate ids: %v", mateIds)
+	log.Printf("mate ids for base user: %v", mateIdsForBaseUser)
+
+	// ***
+
 }

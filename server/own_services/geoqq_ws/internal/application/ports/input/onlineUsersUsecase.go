@@ -6,4 +6,6 @@ type OnlineUsersUsecase interface {
 
 	GetOnlineUserIds() []uint64
 	UserIsOnline(userId uint64) bool
+
+	ExcludeOfflineUsersFromList(userIds ...uint64) []uint64
 }

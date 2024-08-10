@@ -33,11 +33,12 @@ type WsEventHandler struct {
 
 	// services/usecases
 
-	userUc        input.UserUsecase
-	onlineUsersUc input.OnlineUsersUsecase
-	mateMessageUc input.MateMessageUsecase
-	geoMessageUc  input.GeoMessageUsecase
-	mateRequestUc input.MateRequestUsecase
+	userUc            input.UserUsecase
+	onlineUsersUc     input.OnlineUsersUsecase
+	mateMessageUc     input.MateMessageUsecase
+	geoMessageUc      input.GeoMessageUsecase
+	mateRequestUc     input.MateRequestUsecase
+	publicUserUsecase input.PublicUserUsecase
 
 	ctxFb    context.Context
 	cancelFb context.CancelFunc

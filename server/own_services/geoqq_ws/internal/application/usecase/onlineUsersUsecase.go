@@ -74,3 +74,10 @@ func (u *OnlineUsersUsecase) UserIsOnline(userId uint64) bool {
 	_, loaded := u.onlineUsers.Load(userId)
 	return loaded
 }
+
+func (u *OnlineUsersUsecase) ExcludeOfflineUsersFromList(
+	userIds ...uint64) []uint64 {
+	onlineUserIds := u.GetOnlineUserIds()
+	onlyOnlineUserIds := utl.IntersectSlices(userIds, onlineUserIds)
+	return onlyOnlineUserIds
+}

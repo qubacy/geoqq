@@ -140,6 +140,30 @@ func (m *MateDatabase) GetMateIdByChatId(ctx context.Context,
 	return interlocutorId, nil
 }
 
+// -----------------------------------------------------------------------
+
+func (m *MateDatabase) InsertMateWithoutReturningId(ctx context.Context,
+	firstUserId, secondUserId uint64) error {
+	if firstUserId == secondUserId {
+		return nil
+	}
+	sourceFunc := m.InsertMateWithoutReturningId
+
+	// ***
+
+	cmdTag, err := m.pool.Exec(ctx,
+		template.InsertMateWithoutReturningId+`;`,
+		firstUserId, secondUserId)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+	if !cmdTag.Insert() {
+		return wrappedPgxpool.ErrInsertFailed
+	}
+
+	return nil // ok
+}
+
 func (m *MateDatabase) GetMateChatWithIdForUser(ctx context.Context,
 	userId, chatId uint64) (*domain.MateChat, error) {
 	sourceFunc := m.GetMateChatWithIdForUser
@@ -175,7 +199,8 @@ func (m *MateDatabase) GetMateIdsForUser(ctx context.Context, userId uint64) ([]
 	err = utl.RunFuncsRetErr(
 		func() error { return err },
 		func() error {
-			mateIds, err = wrappedPgxpool.ScanListOfUint64(rows, sourceFunc)
+			mateIds, err =
+				wrappedPgxpool.ScanListOfUint64(rows, sourceFunc)
 			return err
 		},
 	)
