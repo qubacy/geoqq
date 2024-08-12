@@ -97,9 +97,14 @@ func (w *WsEventHandler) initMateRequestsFb(ctx context.Context) {
 }
 
 func (w *WsEventHandler) initMateChatFb(ctx context.Context) {
-	// //sourceFunc := w.initMateChatFb
-	// initFeedbackHandler(w, ctx, )
+	sourceFunc := w.initMateChatFb
+	initFeedbackHandler(w, ctx,
+		w.mateChatUc.GetFbChansForMateChat(),
+		mateChatFbName, serverSide.EventAddedMateChat,
 
+		func(userIdWith input.UserIdWithMateChat) (any, error) {
+
+		})
 }
 
 func (w *WsEventHandler) initMateMessagesFb(ctx context.Context) {
@@ -114,7 +119,7 @@ func (w *WsEventHandler) initMateMessagesFb(ctx context.Context) {
 
 			mm, err := payload.MateMessageFromDomain(userIdWith.MateMessage)
 			return mm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+				sourceFunc, err, logger.AboutError)
 		})
 }
 
@@ -129,7 +134,7 @@ func (w *WsEventHandler) initGeoMessagesFb(ctx context.Context) {
 		func(userIdWith input.UserIdWithGeoMessage) (any, error) {
 			gm, err := payload.GeoMessageFromDomain(userIdWith.GeoMessage)
 			return gm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+				sourceFunc, err, logger.AboutError)
 		})
 }
 
@@ -144,7 +149,7 @@ func (w *WsEventHandler) initPublicUserFb(ctx context.Context) {
 		func(userIdWith input.UserIdWithPublicUser) (any, error) {
 			pu, err := payload.PublicUserFromDomain(userIdWith.PublicUser)
 			return pu, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+				sourceFunc, err, logger.AboutError)
 		})
 }
 

@@ -96,3 +96,9 @@ func Output() io.Writer {
 func Close() error {
 	return instance.Close()
 }
+
+// -----------------------------------------------------------------------
+
+func AboutError(err error) {
+	Error("%v", err)
+}
