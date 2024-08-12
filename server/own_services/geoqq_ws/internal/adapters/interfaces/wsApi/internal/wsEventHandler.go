@@ -127,7 +127,7 @@ func (w *WsEventHandler) OnOpen(socket *gws.Conn) {
 			var ok bool
 			userId, ok = rawUserId.(uint64)
 			if !ok {
-				return ErrUserIdNotConvertedToUint64
+				return ErrAnyNotConvertedToUserId
 			}
 			return nil
 		},

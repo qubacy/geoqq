@@ -16,9 +16,10 @@ const (
 )
 
 const (
-	EventServerError = "server_error"
+	EventServerError = "server_error" // critical!?
 
-	EventParseError   = "parse_error"
+	EventParseError = "parse_error"
+
 	EventGeneralError = "general_error" // by domains...
 )
 

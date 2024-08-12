@@ -5,6 +5,7 @@ import (
 	utl "common/pkg/utility"
 	"context"
 	"encoding/json"
+	"fmt"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
 	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide/payload"
@@ -17,122 +18,133 @@ import (
 )
 
 func (w *WsEventHandler) initFbChans(ctxFb context.Context) {
-	w.initMateMessagesFb(ctxFb)
+	{
+		w.initMateRequestsFb(ctxFb)
+		w.initMateChatFb(ctxFb)
+		w.initMateMessagesFb(ctxFb)
+	}
 	w.initGeoMessagesFb(ctxFb)
-	w.initMateRequestsFb(ctxFb)
+	w.initPublicUserFb(ctxFb)
 }
 
 // specific...
 // -----------------------------------------------------------------------
 
-func (w *WsEventHandler) initMateMessagesFb(ctxFb context.Context) {
+func createFbName(baseObjectName string) string {
+	return fmt.Sprintf("%v feedback", baseObjectName)
+}
+
+var (
+	mateRequestFbName = createFbName("mate request")
+	mateChatFbName    = createFbName("mate chat")
+	mateMessageFbName = createFbName("mate message")
+	publicUserFbName  = createFbName("public user")
+	geoMessageFbName  = createFbName("geo message")
+) // ?
+
+func initFeedbackHandler[T input.UserIdHolder](w *WsEventHandler, ctx context.Context,
+	fbChans []<-chan T, fbName, eventName string,
+	prepareResponse func(userIdWith T) (any, error)) {
+	sourceFunc := initFeedbackHandler[T]
+
+	for i := range fbChans {
+		go func(ch <-chan T) {
+			for {
+				select {
+				case <-ctx.Done():
+					logger.Info("%v stopped", fbName)
+					return
+
+				case pair := <-ch:
+					socket, loaded := w.loadSocket(pair.GetUserId())
+					if !loaded {
+						break
+					}
+
+					// different logic!
+
+					res, err := prepareResponse(pair)
+					if err != nil {
+						w.resWithServerError(socket, svrSide.EventGeneralError, // ?
+							ec.ServerError, utl.NewFuncError(sourceFunc, err))
+						return
+					}
+
+					// ***
+
+					w.sendAnyToSocket(socket,
+						eventName, res)
+				}
+			}
+		}(fbChans[i])
+	}
+}
+
+// -----------------------------------------------------------------------
+
+func (w *WsEventHandler) initMateRequestsFb(ctx context.Context) {
+	initFeedbackHandler(w, ctx,
+		w.mateRequestUc.GetFbChansForMateRequest(),
+		mateRequestFbName, serverSide.EventAddedMateRequest,
+		func(userIdWith input.UserIdWithMateRequest) (any, error) {
+
+			mateRequest := payload.MakeMateRequest(
+				float64(userIdWith.MateRequestId),
+				float64(userIdWith.SourceUserId)) // from!
+
+			return mateRequest, nil
+		})
+}
+
+func (w *WsEventHandler) initMateChatFb(ctx context.Context) {
+	//sourceFunc := w.initMateChatFb
+
+}
+
+func (w *WsEventHandler) initMateMessagesFb(ctx context.Context) {
 	sourceFunc := w.initMateMessagesFb
-	const fbName = "mate messages feedback"
+	initFeedbackHandler(w, ctx,
+		w.mateMessageUc.GetFbChansForMateMessages(),
+		mateMessageFbName, serverSide.EventAddedMateMessage,
 
-	fbChans := w.mateMessageUc.GetFbChansForMateMessages()
-	for i := range fbChans {
-		go func(ch <-chan input.UserIdWithMateMessage) {
-			for {
-				select {
-				case <-ctxFb.Done():
-					logger.Info("%v stopped", fbName)
-					return
+		func(userIdWith input.UserIdWithMateMessage) (any, error) {
 
-				case pair := <-ch:
-					value, loaded := w.userSockets.Load(pair.UserId)
-					if !loaded {
-						logger.Error("%v", ErrSocketNotFoundByUserIdInMapWith(pair.UserId))
-						break
-					}
-					socket := value.(*gws.Conn)
+			// mm eq nil OR err eq nil!
 
-					// ***
-
-					mm, err := payload.MateMessageFromDomain(pair.MateMessage)
-					if err != nil {
-						w.resWithServerError(socket, svrSide.EventGeneralError,
-							ec.ServerError, utl.NewFuncError(sourceFunc, err))
-						return
-					}
-
-					w.sendAnyToSocket(socket,
-						serverSide.EventAddedMateMessage, mm)
-				}
-			}
-		}(fbChans[i])
-	}
+			mm, err := payload.MateMessageFromDomain(userIdWith.MateMessage)
+			return mm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
+				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+		})
 }
 
-func (w *WsEventHandler) initGeoMessagesFb(ctxFb context.Context) {
+// -----------------------------------------------------------------------
+
+func (w *WsEventHandler) initGeoMessagesFb(ctx context.Context) {
 	sourceFunc := w.initGeoMessagesFb
-	const fbName = "geo messages feedback"
+	initFeedbackHandler(w, ctx,
+		w.geoMessageUc.GetFbChansForGeoMessages(),
+		geoMessageFbName, serverSide.EventAddedGeoMessage,
 
-	fbChans := w.geoMessageUc.GetFbChansForGeoMessages()
-	for i := range fbChans {
-		go func(ch <-chan input.UserIdWithGeoMessage) {
-			for {
-				select {
-				case <-ctxFb.Done():
-					logger.Info("%v stopped", fbName)
-					return
-
-				case pair := <-ch:
-					value, loaded := w.userSockets.Load(pair.UserId)
-					if !loaded {
-						logger.Error("%v", ErrSocketNotFoundByUserIdInMapWith(pair.UserId))
-						break
-					}
-					socket := value.(*gws.Conn)
-
-					// ***
-
-					gm, err := payload.GeoMessageFromDomain(pair.GeoMessage)
-					if err != nil {
-						w.resWithServerError(socket, svrSide.EventGeneralError,
-							ec.ServerError, utl.NewFuncError(sourceFunc, err))
-						return
-					}
-
-					w.sendAnyToSocket(socket,
-						serverSide.EventAddedGeoMessage, gm)
-				}
-			}
-		}(fbChans[i])
-	}
+		func(userIdWith input.UserIdWithGeoMessage) (any, error) {
+			gm, err := payload.GeoMessageFromDomain(userIdWith.GeoMessage)
+			return gm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
+				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+		})
 }
 
-func (w *WsEventHandler) initMateRequestsFb(ctxFb context.Context) {
-	const fbName = "mate requests feedback"
+// -----------------------------------------------------------------------
 
-	fbChans := w.mateRequestUc.GetFbChansForGeoMessages()
-	for i := range fbChans {
-		go func(ch <-chan input.UserIdWithMateRequest) {
-			for {
-				select {
-				case <-ctxFb.Done():
-					logger.Info("%v stopped", fbName)
-					return
+func (w *WsEventHandler) initPublicUserFb(ctx context.Context) {
+	sourceFunc := w.initPublicUserFb
+	initFeedbackHandler(w, ctx,
+		w.publicUserUsecase.GetFbChansForPublicUser(),
+		publicUserFbName, serverSide.EventUpdatedPublicUser,
 
-				case pair := <-ch:
-					value, loaded := w.userSockets.Load(pair.TargetUserId)
-					if !loaded {
-						logger.Error("%v", ErrSocketNotFoundByUserIdInMapWith(pair.TargetUserId))
-						break
-					}
-					socket := value.(*gws.Conn)
-
-					// ***
-
-					mateRequest := payload.MakeMateRequest(
-						float64(pair.MateRequestId),
-						float64(pair.SourceUserId)) // from!
-
-					w.sendAnyToSocket(socket,
-						serverSide.EventAddedMateRequest, mateRequest)
-				}
-			}
-		}(fbChans[i])
-	}
+		func(userIdWith input.UserIdWithPublicUser) (any, error) {
+			pu, err := payload.PublicUserFromDomain(userIdWith.PublicUser)
+			return pu, utl.NewFuncErrorOnlyForNotNilWithPostProc(
+				sourceFunc, err, func(err error) { logger.Error("%v", err) })
+		})
 }
 
 // wrapper
@@ -160,4 +172,19 @@ func (w *WsEventHandler) sendBytesToSocket(socket *gws.Conn, bytes []byte) {
 	if err != nil {
 		logger.Warning("%v", utl.NewFuncError(w.sendBytesToSocket, err))
 	}
+}
+
+func (w *WsEventHandler) loadSocket(userId uint64) (*gws.Conn, bool) {
+	value, loaded := w.userSockets.Load(userId)
+	if !loaded {
+		logger.Error("%v", ErrSocketNotFoundByUserIdInMapWith(userId))
+		return nil, false
+	}
+
+	socket, converted := value.(*gws.Conn)
+	if !converted {
+		logger.Error("%v", ErrAnyNotConvertedToSocket)
+	}
+
+	return socket, true // ok
 }

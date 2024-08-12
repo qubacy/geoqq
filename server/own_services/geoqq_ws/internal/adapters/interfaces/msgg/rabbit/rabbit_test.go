@@ -172,6 +172,6 @@ func (m *MockMateRequestUsecase) ForwardMateRequest(ctx context.Context, sourceU
 	return nil
 }
 
-func (m *MockMateRequestUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithMateRequest {
+func (m *MockMateRequestUsecase) GetFbChansForMateRequest() []<-chan input.UserIdWithMateRequest {
 	return nil
 }

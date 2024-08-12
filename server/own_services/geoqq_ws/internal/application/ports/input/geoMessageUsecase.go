@@ -10,6 +10,12 @@ type UserIdWithGeoMessage struct {
 	GeoMessage *domain.GeoMessage
 }
 
+func (u UserIdWithGeoMessage) GetUserId() uint64 {
+	return u.UserId
+}
+
+// -----------------------------------------------------------------------
+
 type GeoMessageUsecase interface {
 	ForwardGeoMessage(ctx context.Context, gm *domain.GeoMessage, lon, lat float64) error
 	AddGeoMessage(ctx context.Context, userId uint64, text string, lon, lat float64) error

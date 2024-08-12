@@ -7,7 +7,8 @@ import (
 
 var (
 	ErrSessionStorageHasNoUserId   = errors.New("session storage has no user id")
-	ErrUserIdNotConvertedToUint64  = errors.New("user id not converted to uint64")
+	ErrAnyNotConvertedToUserId     = errors.New("any not converted to user id")
+	ErrAnyNotConvertedToSocket     = errors.New("any not converted to socket")
 	ErrClientNotFoundBySocketInMap = errors.New("client not found by socket in map")
 	ErrSocketNotFoundByUserIdInMap = errors.New("socket not found by user id in map")
 

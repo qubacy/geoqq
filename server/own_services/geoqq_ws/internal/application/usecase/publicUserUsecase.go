@@ -75,6 +75,15 @@ func (p *PublicUserUsecase) InformAboutPublicUserUpdated(ctx context.Context, us
 	return nil
 }
 
+func (p *PublicUserUsecase) GetFbChansForPublicUser() []<-chan input.UserIdWithPublicUser {
+	chans := []<-chan input.UserIdWithPublicUser{}
+	for i := range p.feedbackChsForPubUsrs {
+		chans = append(chans, p.feedbackChsForPubUsrs[i])
+	}
+
+	return chans
+}
+
 // -----------------------------------------------------------------------
 
 func (p *PublicUserUsecase) sendPublicUserToFbWithoutOnlineCheck(

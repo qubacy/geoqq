@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -92,12 +93,16 @@ func Do() error {
 	{
 		commonParams := struct {
 			MaxLength   uint64
+			MaxRadius   uint64
 			FbChanSize  int
 			FbChanCount int
+			ReqTimeout  time.Duration
 		}{
 			MaxLength:   viper.GetUint64("usecase.common.chat_message.max_length"),
+			MaxRadius:   viper.GetUint64("usecase.geo_message.max_radius"),
 			FbChanSize:  viper.GetInt("usecase.mate_message.fb_chan_size"),
 			FbChanCount: viper.GetInt("usecase.mate_message.fb_chan_count"),
+			ReqTimeout:  viper.GetDuration("adapters.infra.cache.req_timeout"),
 		}
 
 		// ***
@@ -106,12 +111,14 @@ func Do() error {
 			Database:     db,
 			TempDatabase: tempDb,
 		})
-		pubUserUsecase = usecase.NewPublicUserUsecase(onlineUsersUc, db,
-			commonParams.FbChanCount, commonParams.FbChanSize,
+		pubUserUsecase = usecase.NewPublicUserUsecase(
+			onlineUsersUc, db,
+			commonParams.FbChanCount,
+			commonParams.FbChanSize,
 		)
 		onlineUsersUc = usecase.NewOnlineUsersUsecase(&usecase.OnlineUsersParams{
 			TempDatabase:        tempDb,
-			CacheRequestTimeout: viper.GetDuration("adapters.infra.cache.req_timeout"),
+			CacheRequestTimeout: commonParams.ReqTimeout,
 		})
 		mateRequestUc = usecase.NewMateRequestUsecase(&usecase.MateRequestUcParams{
 			OnlineUsersUc: onlineUsersUc,
@@ -137,7 +144,7 @@ func Do() error {
 			FbChanCount: commonParams.FbChanCount,
 
 			MaxMessageLength: commonParams.MaxLength,
-			MaxRadius:        viper.GetUint64("usecase.geo_message.max_radius"),
+			MaxRadius:        commonParams.MaxRadius,
 			GeoCalculator:    geoCalculatorImpl.NewCalculator(),
 		})
 	}

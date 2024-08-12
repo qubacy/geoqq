@@ -45,6 +45,25 @@ func NewFuncError(i interface{}, err error) error {
 	return fmt.Errorf(GetFunctionName(i)+"\n with an error/in: %w", err)
 }
 
+func NewFuncErrorOnlyForNotNil(i interface{}, err error) error {
+	if err == nil {
+		return nil
+	}
+	return NewFuncError(i, err)
+}
+
+func NewFuncErrorOnlyForNotNilWithPostProc(i interface{},
+	err error, postProcedure func(error)) error {
+
+	if err == nil {
+		return nil
+	}
+
+	fe := NewFuncError(i, err)
+	postProcedure(fe)
+	return fe
+}
+
 func UnwrapErrorsToLast(err error) error {
 	for errors.Unwrap(err) != nil {
 		err = errors.Unwrap(err)

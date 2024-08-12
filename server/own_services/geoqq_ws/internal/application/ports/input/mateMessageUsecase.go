@@ -10,6 +10,12 @@ type UserIdWithMateMessage struct {
 	MateMessage *domain.MateMessageWithChat
 }
 
+func (u UserIdWithMateMessage) GetUserId() uint64 {
+	return u.UserId
+}
+
+// ----------------------------------------------------------------------
+
 type MateMessageUsecase interface {
 	ForwardMateMessage(ctx context.Context,
 		targetUserId uint64, mm *domain.MateMessageWithChat) error

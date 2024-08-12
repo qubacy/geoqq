@@ -46,7 +46,7 @@ func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 
 	index := rand.Intn(len(m.feedbackChsForMateReqs))
 	m.feedbackChsForMateReqs[index] <- input.UserIdWithMateRequest{
-		TargetUserId:  targetUserId,
+		UserId:        targetUserId,
 		SourceUserId:  sourceUserId,
 		MateRequestId: requestId,
 	}
@@ -56,7 +56,7 @@ func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 
 // -----------------------------------------------------------------------
 
-func (m *MateRequestUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithMateRequest {
+func (m *MateRequestUsecase) GetFbChansForMateRequest() []<-chan input.UserIdWithMateRequest {
 	chans := []<-chan input.UserIdWithMateRequest{}
 	for i := range m.feedbackChsForMateReqs {
 		chans = append(chans, m.feedbackChsForMateReqs[i]) // convert...
