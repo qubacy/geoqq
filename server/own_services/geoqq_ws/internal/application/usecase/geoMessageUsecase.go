@@ -130,12 +130,7 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 }
 
 func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWithGeoMessage {
-	chans := []<-chan input.UserIdWithGeoMessage{}
-	for i := range g.feedbackChsForGeoMsgs {
-		chans = append(chans, g.feedbackChsForGeoMsgs[i]) // copy?
-	}
-
-	return chans
+	return utl.ChanToLeftDirected(g.feedbackChsForGeoMsgs)
 }
 
 // private

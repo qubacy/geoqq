@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/application/ports/input"
 	"math/rand"
@@ -57,10 +58,5 @@ func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 // -----------------------------------------------------------------------
 
 func (m *MateRequestUsecase) GetFbChansForMateRequest() []<-chan input.UserIdWithMateRequest {
-	chans := []<-chan input.UserIdWithMateRequest{}
-	for i := range m.feedbackChsForMateReqs {
-		chans = append(chans, m.feedbackChsForMateReqs[i]) // convert...
-	}
-
-	return chans
+	return utl.ChanToLeftDirected(m.feedbackChsForMateReqs)
 }

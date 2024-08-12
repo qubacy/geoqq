@@ -26,8 +26,8 @@ type MateMessageUcParams struct {
 // -----------------------------------------------------------------------
 
 type MateMessageUsecase struct {
-	onlineUsersUc          input.OnlineUsersUsecase
-	feedbackChsForMateMsgs []chan input.UserIdWithMateMessage
+	onlineUsersUc         input.OnlineUsersUsecase
+	feedbackChsForMateMsg []chan input.UserIdWithMateMessage
 
 	db database.Database
 
@@ -44,10 +44,10 @@ func NewMateMessageUsecase(params *MateMessageUcParams) *MateMessageUsecase {
 	// ***
 
 	return &MateMessageUsecase{
-		onlineUsersUc:          params.OnlineUsersUc,
-		feedbackChsForMateMsgs: feedbackChsForMateMsgs,
-		db:                     params.Database, // !
-		maxMessageLength:       params.MaxMessageLength,
+		onlineUsersUc:         params.OnlineUsersUc,
+		feedbackChsForMateMsg: feedbackChsForMateMsgs,
+		db:                    params.Database, // !
+		maxMessageLength:      params.MaxMessageLength,
 	}
 }
 
@@ -109,10 +109,10 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 		return ec.New(err, ec.Server, ec.DomainStorageError)
 	}
 
+	// TODO: обернуть в нормальное сообщение, сейчас отправлется только пайлоад!
+
 	m.sendMateMessageToFb(userId, mateMessage)
 	m.sendMateMessageToFb(interlocutorId, mateMessage) // no error!
-
-	// TODO: обернуть в нормальное сообщение, сейчас отправлется только пайлоад!
 
 	return nil
 }
@@ -120,12 +120,7 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 // -----------------------------------------------------------------------
 
 func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWithMateMessage {
-	chs := []<-chan input.UserIdWithMateMessage{}
-	for i := range m.feedbackChsForMateMsgs {
-		chs = append(chs, m.feedbackChsForMateMsgs[i]) // convert chans!
-	}
-
-	return chs
+	return utl.ChanToLeftDirected(m.feedbackChsForMateMsg)
 }
 
 // private
@@ -138,10 +133,10 @@ func (m *MateMessageUsecase) sendMateMessageToFb(
 		return
 	}
 
-	count := len(m.feedbackChsForMateMsgs)
+	count := len(m.feedbackChsForMateMsg)
 	index := rand.Intn(count)
 
-	m.feedbackChsForMateMsgs[index] <- input.UserIdWithMateMessage{
+	m.feedbackChsForMateMsg[index] <- input.UserIdWithMateMessage{
 		UserId:      targetUserId, // forward message to...
 		MateMessage: mateMessage,
 	}

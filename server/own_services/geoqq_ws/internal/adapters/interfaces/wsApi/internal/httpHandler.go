@@ -24,12 +24,16 @@ type Params struct {
 
 	TpExtractor token.TokenPayloadExtractor
 
-	UserUc            input.UserUsecase
-	OnlineUsersUc     input.OnlineUsersUsecase
-	MateMessageUc     input.MateMessageUsecase
-	GeoMessageUc      input.GeoMessageUsecase
-	MateRequestUc     input.MateRequestUsecase
-	PublicUserUsecase input.PublicUserUsecase
+	// ***
+
+	UserUc        input.UserUsecase
+	OnlineUsersUc input.OnlineUsersUsecase
+
+	MateRequestUc  input.MateRequestUsecase
+	MateChatUc     input.MateChatUsecase
+	MateMessageUc  input.MateMessageUsecase
+	PubUserUsecase input.PublicUserUsecase
+	GeoMessageUc   input.GeoMessageUsecase
 }
 
 // -----------------------------------------------------------------------

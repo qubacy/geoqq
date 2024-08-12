@@ -97,7 +97,8 @@ func (w *WsEventHandler) initMateRequestsFb(ctx context.Context) {
 }
 
 func (w *WsEventHandler) initMateChatFb(ctx context.Context) {
-	//sourceFunc := w.initMateChatFb
+	// //sourceFunc := w.initMateChatFb
+	// initFeedbackHandler(w, ctx, )
 
 }
 
@@ -147,7 +148,7 @@ func (w *WsEventHandler) initPublicUserFb(ctx context.Context) {
 		})
 }
 
-// wrapper
+// wrappers
 // -----------------------------------------------------------------------
 
 func (w *WsEventHandler) sendAnyToSocket(socket *gws.Conn, eventName string, a any) {

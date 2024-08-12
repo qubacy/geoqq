@@ -194,3 +194,14 @@ func EqualUnsortedSlices[T comparable](s1 []T, s2 []T) bool {
 	}
 	return true
 }
+
+// -----------------------------------------------------------------------
+
+func ChanToLeftDirected[T any](chs []chan T) []<-chan T {
+	directedChs := []<-chan T{}
+	for i := range chs {
+		directedChs = append(directedChs, chs[i]) // copy?
+	}
+
+	return directedChs
+}

@@ -19,4 +19,5 @@ func (u UserIdWithMateChat) GetUserId() uint64 {
 type MateChatUsecase interface {
 	InformAboutMateChatUpdated(ctx context.Context, targetUserId, mateChatId uint64) error
 	InformAboutMateChatAdded(ctx context.Context, targetUserId, mateChatId uint64) error
+	GetFbChansForMateChat() []<-chan UserIdWithMateChat
 }

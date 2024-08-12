@@ -12,7 +12,7 @@ import (
 
 type PublicUserUsecase struct {
 	onlineUsersUc         input.OnlineUsersUsecase
-	feedbackChsForPubUsrs []chan input.UserIdWithPublicUser
+	feedbackChsForPubUser []chan input.UserIdWithPublicUser
 
 	database database.Database
 }
@@ -23,9 +23,9 @@ func NewPublicUserUsecase(
 	fbChanCount, fbChanSize int,
 ) *PublicUserUsecase {
 
-	feedbackChsForPubUsrs := []chan input.UserIdWithPublicUser{}
+	feedbackChs := []chan input.UserIdWithPublicUser{}
 	for i := 0; i < fbChanCount; i++ {
-		feedbackChsForPubUsrs = append(feedbackChsForPubUsrs,
+		feedbackChs = append(feedbackChs,
 			make(chan input.UserIdWithPublicUser, fbChanSize))
 	}
 
@@ -33,7 +33,7 @@ func NewPublicUserUsecase(
 
 	return &PublicUserUsecase{
 		onlineUsersUc:         onlineUsersUc,
-		feedbackChsForPubUsrs: feedbackChsForPubUsrs,
+		feedbackChsForPubUser: feedbackChs,
 		database:              db,
 	}
 }
@@ -76,12 +76,7 @@ func (p *PublicUserUsecase) InformAboutPublicUserUpdated(ctx context.Context, us
 }
 
 func (p *PublicUserUsecase) GetFbChansForPublicUser() []<-chan input.UserIdWithPublicUser {
-	chans := []<-chan input.UserIdWithPublicUser{}
-	for i := range p.feedbackChsForPubUsrs {
-		chans = append(chans, p.feedbackChsForPubUsrs[i])
-	}
-
-	return chans
+	return utl.ChanToLeftDirected(p.feedbackChsForPubUser)
 }
 
 // -----------------------------------------------------------------------
@@ -89,9 +84,9 @@ func (p *PublicUserUsecase) GetFbChansForPublicUser() []<-chan input.UserIdWithP
 func (p *PublicUserUsecase) sendPublicUserToFbWithoutOnlineCheck(
 	targetUserId uint64, publicUser *domain.PublicUser) {
 
-	count := len(p.feedbackChsForPubUsrs)
+	count := len(p.feedbackChsForPubUser)
 	index := rand.Intn(count)
 
-	p.feedbackChsForPubUsrs[index] <- input.UserIdWithPublicUser{
+	p.feedbackChsForPubUser[index] <- input.UserIdWithPublicUser{
 		UserId: targetUserId, PublicUser: publicUser}
 }

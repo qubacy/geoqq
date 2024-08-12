@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	utl "common/pkg/utility"
 	"context"
 	"geoqq_ws/internal/application/ports/input"
 	"geoqq_ws/internal/application/ports/output/database"
@@ -8,8 +9,10 @@ import (
 )
 
 type MateChatUsecase struct {
-	onlineUsersUc input.OnlineUsersUsecase
-	db            database.Database
+	onlineUsersUc          input.OnlineUsersUsecase
+	feedbackChsForMateChat []chan input.UserIdWithMateChat
+
+	db database.Database
 }
 
 func NewMateChatUsecase(
@@ -35,4 +38,10 @@ func (m *MateChatUsecase) InformAboutMateChatAdded(ctx context.Context,
 	targetUserId, mateChatId uint64) error {
 
 	return constErrors.ErrNotImplemented
+}
+
+// -----------------------------------------------------------------------
+
+func (m *MateChatUsecase) GetFbChansForMateChat() []<-chan input.UserIdWithMateChat {
+	return utl.ChanToLeftDirected(m.feedbackChsForMateChat)
 }
