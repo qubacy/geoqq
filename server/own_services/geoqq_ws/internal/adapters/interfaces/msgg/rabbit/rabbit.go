@@ -1,7 +1,6 @@
 package rabbit
 
 import (
-	domain "common/pkg/domain/geoqq"
 	"common/pkg/logger"
 	"common/pkg/messaging/geoqq"
 	"common/pkg/messaging/geoqq/dto"
@@ -24,8 +23,13 @@ type InputParams struct {
 
 	HandleTimeout time.Duration
 
+	// ***
+
 	MateRequestUc input.MateRequestUsecase
+	MateChatUc    input.MateChatUsecase
 	MateMessageUc input.MateMessageUsecase
+	GeoMessageUc  input.GeoMessageUsecase
+	PublicUserUc  input.PublicUserUsecase
 }
 
 // -----------------------------------------------------------------------
@@ -39,7 +43,9 @@ type Rabbit struct {
 	handleTimeout time.Duration
 
 	mateRequestUc input.MateRequestUsecase
+	mateChatUc    input.MateChatUsecase
 	mateMessageUc input.MateMessageUsecase
+	geoMessageUc  input.GeoMessageUsecase
 	publicUserUc  input.PublicUserUsecase
 }
 
@@ -66,8 +72,12 @@ func New(startCtx context.Context, params *InputParams) (*Rabbit, error) {
 		conn:          conn,
 		consumer:      consumer,
 		handleTimeout: params.HandleTimeout,
+
 		mateRequestUc: params.MateRequestUc,
+		mateChatUc:    params.MateChatUc,
 		mateMessageUc: params.MateMessageUc,
+		geoMessageUc:  params.GeoMessageUc,
+		publicUserUc:  params.PublicUserUc,
 	}
 
 	go func() {
@@ -137,13 +147,12 @@ func (r *Rabbit) messageHandler(d rabbitmq.Delivery) (action rabbitmq.Action) {
 
 func (r *Rabbit) handleUpdatedPublicUser(pd any) error {
 	sourceFunc := r.handleUpdatedPublicUser
-	onlyId, err := dto.PayloadFromAny[payload.OnlyId](pd)
+	onlyId, err := dto.PayloadFromAny[payload.OnlyId](pd) // TODO: change in the future!
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, r.handleTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
 	defer cancel()
 
 	err = r.publicUserUc.InformAboutPublicUserUpdated(ctx, uint64(onlyId.Id))
@@ -157,15 +166,64 @@ func (r *Rabbit) handleUpdatedPublicUser(pd any) error {
 // -----------------------------------------------------------------------
 
 func (r *Rabbit) handleAddedMateChat(pd any) error {
-	// sourceFunc := r.handleAddedMateChat
-	// onlyId, err := dto.PayloadFromAny[payload.OnlyId](pd)
+	sourceFunc := r.handleAddedMateChat
+	err := r.handleMateChatEvent(pd,
+		func(ctx context.Context, targetWithId payload.TargetWithId) error {
 
+			return r.mateChatUc.InformAboutMateChatAdded(ctx,
+				uint64(targetWithId.TargetUserId),
+				uint64(targetWithId.Id))
+		})
+
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
 	return nil
 }
 
 func (r *Rabbit) handleUpdatedMateChat(pd any) error {
+	sourceFunc := r.handleUpdatedMateChat
+	err := r.handleMateChatEvent(pd,
+		func(ctx context.Context, targetWithId payload.TargetWithId) error {
 
+			// similar code?
+
+			return r.mateChatUc.InformAboutMateChatUpdated(ctx,
+				uint64(targetWithId.TargetUserId),
+				uint64(targetWithId.Id))
+		})
+
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
 	return nil
+}
+
+// ***
+
+type handleMateChatSpecEvent = func(
+	ctx context.Context, targetWithId payload.TargetWithId) error
+
+func (r *Rabbit) handleMateChatEvent(pd any, handleSpecEvent handleMateChatSpecEvent) error {
+	sourceFunc := r.handleMateChatEvent
+	targetWithId, err := dto.PayloadFromAny[payload.TargetWithId](pd) // TODO: change in the future!
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
+	defer cancel()
+
+	// ***
+
+	{
+		err = handleSpecEvent(ctx, targetWithId)
+		if err != nil {
+			return utl.NewFuncError(sourceFunc, err)
+		}
+	}
+
+	return nil // ok!
 }
 
 // -----------------------------------------------------------------------
@@ -206,14 +264,7 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 	// payload object to domain?
 
 	err = r.mateMessageUc.ForwardMateMessage(ctx,
-		uint64(mm.TargetUserId), &domain.MateMessageWithChat{
-			Id:     uint64(mm.Id),
-			ChatId: uint64(mm.ChatId),
-			Text:   mm.Text,
-			Time:   time.Unix(int64(mm.Time), 0),
-			UserId: uint64(mm.UserId),
-			Read:   mm.Read,
-		})
+		uint64(mm.TargetUserId), mm.ToDomain())
 	if err != nil {
 		return utl.NewFuncError(sourceFunc, err)
 	}
@@ -224,8 +275,20 @@ func (r *Rabbit) handleAddedMateMessage(pd any) error {
 // -----------------------------------------------------------------------
 
 func (r *Rabbit) handleAddedGeoMessage(pd any) error {
-	// sourceFunc := r.handleAddedGeoMessage
-	// gm, err := dto.PayloadFromAny[payload.GeoMessage](pd)
+	sourceFunc := r.handleAddedGeoMessage
+	gm, err := dto.PayloadFromAny[payload.GeoMessage](pd)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), r.handleTimeout)
+	defer cancel()
+
+	err = r.geoMessageUc.ForwardGeoMessage(ctx, gm.ToDomain(),
+		gm.Longitude, gm.Latitude)
+	if err != nil {
+		return utl.NewFuncError(sourceFunc, err)
+	}
+
+	return nil // ok
 }

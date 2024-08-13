@@ -205,3 +205,9 @@ func ChanToLeftDirected[T any](chs []chan T) []<-chan T {
 
 	return directedChs
 }
+
+// -----------------------------------------------------------------------
+
+func TypeName(a any) string {
+	return reflect.TypeOf(a).Name()
+}

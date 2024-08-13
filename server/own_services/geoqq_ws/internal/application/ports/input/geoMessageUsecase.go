@@ -6,12 +6,8 @@ import (
 )
 
 type UserIdWithGeoMessage struct {
-	UserId     uint64
+	UserIdWithEvent
 	GeoMessage *domain.GeoMessage
-}
-
-func (u UserIdWithGeoMessage) GetUserId() uint64 {
-	return u.UserId
 }
 
 // -----------------------------------------------------------------------

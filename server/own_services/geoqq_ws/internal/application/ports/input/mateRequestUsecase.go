@@ -5,13 +5,9 @@ import (
 )
 
 type UserIdWithMateRequest struct {
-	UserId        uint64 // target!
+	UserIdWithEvent
 	SourceUserId  uint64
 	MateRequestId uint64
-}
-
-func (u UserIdWithMateRequest) GetUserId() uint64 {
-	return u.UserId
 }
 
 // -----------------------------------------------------------------------

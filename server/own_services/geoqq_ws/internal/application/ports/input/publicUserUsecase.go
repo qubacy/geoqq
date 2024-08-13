@@ -6,12 +6,8 @@ import (
 )
 
 type UserIdWithPublicUser struct {
-	UserId     uint64
+	UserIdWithEvent
 	PublicUser *domain.PublicUser // with info for target user!
-}
-
-func (u UserIdWithPublicUser) GetUserId() uint64 {
-	return u.UserId
 }
 
 // ----------------------------------------------------------------------

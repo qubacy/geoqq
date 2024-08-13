@@ -67,7 +67,12 @@ func (m *MateMessageUsecase) ForwardMateMessage(ctx context.Context,
 			typeName.Name())
 	}
 
-	m.sendMateMessageToFb(targetUserId, mm)
+	ue := input.MakeUserIdWithEvent(targetUserId, input.EventAdded)
+	m.sendMateMessageToFb(ue, mm) // to target!
+
+	// should i send a message to myself?!
+	m.sendMateMessageToFb(ue.WithUserId(mm.UserId), mm)
+
 	return nil
 }
 
@@ -109,10 +114,11 @@ func (m *MateMessageUsecase) AddMateMessage(ctx context.Context,
 		return ec.New(err, ec.Server, ec.DomainStorageError)
 	}
 
-	// TODO: обернуть в нормальное сообщение, сейчас отправлется только пайлоад!
+	// ***
 
-	m.sendMateMessageToFb(userId, mateMessage)
-	m.sendMateMessageToFb(interlocutorId, mateMessage) // no error!
+	ue := input.MakeUserIdWithEvent(userId, input.EventAdded)
+	m.sendMateMessageToFb(ue, mateMessage)
+	m.sendMateMessageToFb(ue.WithUserId(interlocutorId), mateMessage) // no error!
 
 	return nil
 }
@@ -126,9 +132,12 @@ func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWi
 // private
 // -----------------------------------------------------------------------
 
-func (m *MateMessageUsecase) sendMateMessageToFb(
-	targetUserId uint64, mateMessage *domain.MateMessageWithChat) {
+// TODO: repeating code?
 
+func (m *MateMessageUsecase) sendMateMessageToFb(
+	ue input.UserIdWithEvent, mateMessage *domain.MateMessageWithChat) {
+
+	targetUserId := ue.GetUserId()
 	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
 		return
 	}
@@ -137,7 +146,7 @@ func (m *MateMessageUsecase) sendMateMessageToFb(
 	index := rand.Intn(count)
 
 	m.feedbackChsForMateMsg[index] <- input.UserIdWithMateMessage{
-		UserId:      targetUserId, // forward message to...
-		MateMessage: mateMessage,
+		UserIdWithEvent: ue, // forward message to...
+		MateMessage:     mateMessage,
 	}
 }

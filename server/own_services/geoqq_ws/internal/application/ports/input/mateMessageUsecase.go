@@ -6,12 +6,8 @@ import (
 )
 
 type UserIdWithMateMessage struct {
-	UserId      uint64
+	UserIdWithEvent
 	MateMessage *domain.MateMessageWithChat
-}
-
-func (u UserIdWithMateMessage) GetUserId() uint64 {
-	return u.UserId
 }
 
 // ----------------------------------------------------------------------

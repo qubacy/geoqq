@@ -255,9 +255,7 @@ func (w *WsEventHandler) OnMessage(socket *gws.Conn, message *gws.Message) {
 
 	// ***
 
-	// TODO: !!!!
-
-	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, w.handleTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), w.handleTimeout)
 	ph(ctx, client, clientMessage.Payload)
+	cancel() // ?
 }

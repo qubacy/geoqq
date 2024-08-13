@@ -59,6 +59,11 @@ func MakeMessage(eventName string, payload any) Message {
 	}
 }
 
+func NewMessage(eventName string, payload any) *Message {
+	m := MakeMessage(eventName, payload)
+	return &m
+}
+
 func MakeEmptyPayload() any {
 	return struct{}{}
 }

@@ -65,6 +65,8 @@ func NewGeoMessageUsecase(params *GeoMessageUcParams) *GeoMessageUsecase {
 // public
 // -----------------------------------------------------------------------
 
+// From `geoqq http`!
+
 func (g *GeoMessageUsecase) ForwardGeoMessage(ctx context.Context,
 	gm *domain.GeoMessage, lon, lat float64) error {
 	/*
@@ -78,7 +80,8 @@ func (g *GeoMessageUsecase) ForwardGeoMessage(ctx context.Context,
 			typeName.Name())
 	}
 
-	if err := g.sendGeoMessageToWhoeverNeeds(ctx, gm, lon, lat); err != nil {
+	if err := g.sendGeoMessageToWhoeverNeeds(ctx, input.EventAdded, // !
+		gm, lon, lat); err != nil {
 		logger.Error("%v", utl.NewFuncError(g.ForwardGeoMessage, err))
 
 		return nil // ?
@@ -115,7 +118,8 @@ func (g *GeoMessageUsecase) AddGeoMessage(ctx context.Context,
 
 	// ***
 
-	if err = g.sendGeoMessageToWhoeverNeeds(ctx, geoMessage, lon, lat); err != nil {
+	if err = g.sendGeoMessageToWhoeverNeeds(ctx, input.EventAdded, // !
+		geoMessage, lon, lat); err != nil {
 		logger.Error("%v", utl.NewFuncError(sourceFunc, err))
 
 		return nil // ?
@@ -136,7 +140,7 @@ func (g *GeoMessageUsecase) GetFbChansForGeoMessages() []<-chan input.UserIdWith
 // private
 // -----------------------------------------------------------------------
 
-func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context,
+func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context, event input.Event,
 	geoMessage *domain.GeoMessage, lon, lat float64) error {
 	sourceFunc := g.sendGeoMessageToWhoeverNeeds
 
@@ -161,19 +165,26 @@ func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context,
 			userDesiredRadius := float64(userIdWithRadiusMap[userId])
 			currentRadius := g.geoCalculator.CalculateDistance(messageLoc, userLoc)
 
-			if userDesiredRadius >= currentRadius {
-				g.sendGeoMessageToFb(userId, geoMessage) // !
+			if userDesiredRadius >= currentRadius { // important!
+				ue := input.MakeUserIdWithEvent(userId, event)
+				g.sendGeoMessageToFb(ue, geoMessage)
 			}
 		}
 	} else {
+		// TODO: then use persistence!
+
 		logger.Warning(cache.TextCacheDisabled)
 	}
 
 	return nil // ok?
 }
 
-func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *domain.GeoMessage) {
+func (g *GeoMessageUsecase) sendGeoMessageToFb(
+	ue input.UserIdWithEvent, geoMessage *domain.GeoMessage) {
+
+	targetUserId := ue.GetUserId()
 	if !g.onlineUsersUc.UserIsOnline(targetUserId) {
+		logger.Debug("user with id `%v` is offline", targetUserId)
 		return
 	}
 
@@ -181,5 +192,5 @@ func (g *GeoMessageUsecase) sendGeoMessageToFb(targetUserId uint64, geoMessage *
 	index := rand.Intn(count)
 
 	g.feedbackChsForGeoMsgs[index] <- input.UserIdWithGeoMessage{
-		UserId: targetUserId, GeoMessage: geoMessage}
+		UserIdWithEvent: ue, GeoMessage: geoMessage}
 }

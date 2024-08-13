@@ -434,3 +434,14 @@ func Test_NumbersToString(t *testing.T) {
 		}
 	}
 }
+
+func Test_TypeName(t *testing.T) {
+	b := new(int)
+	*b = 100
+
+	fmt.Println(reflect.TypeOf(b).Name())
+
+	fmt.Println(TypeName(int(0)))
+	fmt.Println(TypeName(b))
+	//...
+}

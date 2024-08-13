@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
+
 	svrSide "geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide"
 	"geoqq_ws/internal/adapters/interfaces/wsApi/internal/dto/serverSide/payload"
 	"geoqq_ws/internal/application/ports/input"
@@ -42,9 +42,9 @@ var (
 	geoMessageFbName  = createFbName("geo message")
 ) // ?
 
-func initFeedbackHandler[T input.UserIdHolder](w *WsEventHandler, ctx context.Context,
-	fbChans []<-chan T, fbName, eventName string,
-	prepareResponse func(userIdWith T) (any, error)) {
+func initFeedbackHandler[T input.UserIdWithEvent](w *WsEventHandler, ctx context.Context,
+	fbChans []<-chan T, fbName string,
+	prepareRes func(userIdWith T) (*svrSide.Message, error)) {
 	sourceFunc := initFeedbackHandler[T]
 
 	for i := range fbChans {
@@ -63,7 +63,7 @@ func initFeedbackHandler[T input.UserIdHolder](w *WsEventHandler, ctx context.Co
 
 					// different logic!
 
-					res, err := prepareResponse(pair)
+					msg, err := prepareRes(pair)
 					if err != nil {
 						w.resWithServerError(socket, svrSide.EventGeneralError, // ?
 							ec.ServerError, utl.NewFuncError(sourceFunc, err))
@@ -72,8 +72,7 @@ func initFeedbackHandler[T input.UserIdHolder](w *WsEventHandler, ctx context.Co
 
 					// ***
 
-					w.sendAnyToSocket(socket,
-						eventName, res)
+					w.sendMessageToSocket(socket, msg)
 				}
 			}
 		}(fbChans[i])
@@ -84,42 +83,57 @@ func initFeedbackHandler[T input.UserIdHolder](w *WsEventHandler, ctx context.Co
 
 func (w *WsEventHandler) initMateRequestsFb(ctx context.Context) {
 	initFeedbackHandler(w, ctx,
-		w.mateRequestUc.GetFbChansForMateRequest(),
-		mateRequestFbName, serverSide.EventAddedMateRequest,
-		func(userIdWith input.UserIdWithMateRequest) (any, error) {
+		w.mateRequestUc.GetFbChansForMateRequest(), mateRequestFbName,
+		func(ue input.UserIdWithMateRequest) (*svrSide.Message, error) {
 
 			mateRequest := payload.MakeMateRequest(
-				float64(userIdWith.MateRequestId),
-				float64(userIdWith.SourceUserId)) // from!
+				float64(ue.MateRequestId),
+				float64(ue.SourceUserId)) // from!
 
-			return mateRequest, nil
+			_ = ue.GetEvent() // ignore!
+
+			return svrSide.NewMessage(
+				svrSide.EventAddedMateRequest,
+				mateRequest), nil
 		})
 }
 
 func (w *WsEventHandler) initMateChatFb(ctx context.Context) {
 	sourceFunc := w.initMateChatFb
 	initFeedbackHandler(w, ctx,
-		w.mateChatUc.GetFbChansForMateChat(),
-		mateChatFbName, serverSide.EventAddedMateChat,
+		w.mateChatUc.GetFbChansForMateChat(), mateChatFbName,
+		func(ue input.UserIdWithMateChat) (*svrSide.Message, error) {
+			mateChat, err := payload.MateChatFromDomain(ue.MateChat)
 
-		func(userIdWith input.UserIdWithMateChat) (any, error) {
+			eventName := ""
+			switch ue.GetEvent() {
+			case input.EventAdded:
+				eventName = svrSide.EventAddedMateChat
+			case input.EventUpdated:
+				eventName = svrSide.EventUpdatedMateChat
+			}
 
+			return svrSide.NewMessage(eventName, mateChat),
+				utl.NewFuncErrorOnlyForNotNilWithPostProc(
+					sourceFunc, err, logger.AboutError)
 		})
 }
 
 func (w *WsEventHandler) initMateMessagesFb(ctx context.Context) {
 	sourceFunc := w.initMateMessagesFb
 	initFeedbackHandler(w, ctx,
-		w.mateMessageUc.GetFbChansForMateMessages(),
-		mateMessageFbName, serverSide.EventAddedMateMessage,
-
-		func(userIdWith input.UserIdWithMateMessage) (any, error) {
+		w.mateMessageUc.GetFbChansForMateMessages(), mateMessageFbName,
+		func(ue input.UserIdWithMateMessage) (*svrSide.Message, error) {
 
 			// mm eq nil OR err eq nil!
 
-			mm, err := payload.MateMessageFromDomain(userIdWith.MateMessage)
-			return mm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, logger.AboutError)
+			_ = ue.GetEvent() // ignore!
+			eventName := svrSide.EventAddedMateMessage
+
+			mm, err := payload.MateMessageWithChatFromDomain(ue.MateMessage)
+			return svrSide.NewMessage(eventName, mm),
+				utl.NewFuncErrorOnlyForNotNilWithPostProc(
+					sourceFunc, err, logger.AboutError)
 		})
 }
 
@@ -128,13 +142,17 @@ func (w *WsEventHandler) initMateMessagesFb(ctx context.Context) {
 func (w *WsEventHandler) initGeoMessagesFb(ctx context.Context) {
 	sourceFunc := w.initGeoMessagesFb
 	initFeedbackHandler(w, ctx,
-		w.geoMessageUc.GetFbChansForGeoMessages(),
-		geoMessageFbName, serverSide.EventAddedGeoMessage,
+		w.geoMessageUc.GetFbChansForGeoMessages(), geoMessageFbName,
 
-		func(userIdWith input.UserIdWithGeoMessage) (any, error) {
-			gm, err := payload.GeoMessageFromDomain(userIdWith.GeoMessage)
-			return gm, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, logger.AboutError)
+		func(ue input.UserIdWithGeoMessage) (*svrSide.Message, error) {
+			gm, err := payload.GeoMessageFromDomain(ue.GeoMessage)
+
+			_ = ue.GetEvent() // ignore!
+			eventName := svrSide.EventAddedGeoMessage
+
+			return svrSide.NewMessage(eventName, gm),
+				utl.NewFuncErrorOnlyForNotNilWithPostProc(
+					sourceFunc, err, logger.AboutError)
 		})
 }
 
@@ -143,24 +161,32 @@ func (w *WsEventHandler) initGeoMessagesFb(ctx context.Context) {
 func (w *WsEventHandler) initPublicUserFb(ctx context.Context) {
 	sourceFunc := w.initPublicUserFb
 	initFeedbackHandler(w, ctx,
-		w.publicUserUsecase.GetFbChansForPublicUser(),
-		publicUserFbName, serverSide.EventUpdatedPublicUser,
+		w.publicUserUsecase.GetFbChansForPublicUser(), publicUserFbName,
 
-		func(userIdWith input.UserIdWithPublicUser) (any, error) {
-			pu, err := payload.PublicUserFromDomain(userIdWith.PublicUser)
-			return pu, utl.NewFuncErrorOnlyForNotNilWithPostProc(
-				sourceFunc, err, logger.AboutError)
+		func(ue input.UserIdWithPublicUser) (*svrSide.Message, error) {
+			pu, err := payload.PublicUserFromDomain(ue.PublicUser)
+
+			_ = ue.GetEvent() // ignore!
+			eventName := svrSide.EventUpdatedPublicUser
+
+			return svrSide.NewMessage(eventName, pu),
+				utl.NewFuncErrorOnlyForNotNilWithPostProc(
+					sourceFunc, err, logger.AboutError)
 		})
 }
 
 // wrappers
 // -----------------------------------------------------------------------
 
-func (w *WsEventHandler) sendAnyToSocket(socket *gws.Conn, eventName string, a any) {
-	msg := serverSide.Message{
+func (w *WsEventHandler) sendAnyToSocket(socket *gws.Conn, eventName string, payload any) {
+	msg := svrSide.Message{
 		Event:   eventName,
-		Payload: a,
+		Payload: payload, // wrapping!
 	}
+	w.sendMessageToSocket(socket, &msg)
+}
+
+func (w *WsEventHandler) sendMessageToSocket(socket *gws.Conn, msg *svrSide.Message) { // copy!
 	jsonBytes, err := json.Marshal(msg)
 	if err != nil {
 		w.resWithServerError(socket, svrSide.EventGeneralError,
