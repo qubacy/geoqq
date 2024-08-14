@@ -68,8 +68,8 @@ func (p *PublicUserUsecase) InformAboutPublicUserUpdated(ctx context.Context, us
 	}
 
 	for i := range onlineMateIds {
-		p.sendPublicUserToFbWithoutOnlineCheck(
-			onlineMateIds[i], publicUsers[i])
+		ue := input.MakeUserIdWithEvent(onlineMateIds[i], input.EventUpdated)
+		p.sendPublicUserToFbWithoutOnlineCheck(ue, publicUsers[i])
 	}
 
 	return nil
@@ -79,14 +79,12 @@ func (p *PublicUserUsecase) GetFbChansForPublicUser() []<-chan input.UserIdWithP
 	return utl.ChanToLeftDirected(p.feedbackChsForPubUser)
 }
 
+// private
 // -----------------------------------------------------------------------
 
 func (p *PublicUserUsecase) sendPublicUserToFbWithoutOnlineCheck(
-	targetUserId uint64, publicUser *domain.PublicUser) {
-
-	count := len(p.feedbackChsForPubUser)
-	index := rand.Intn(count)
-
+	ue input.UserIdWithEvent, publicUser *domain.PublicUser) {
+	index := rand.Intn(len(p.feedbackChsForPubUser))
 	p.feedbackChsForPubUser[index] <- input.UserIdWithPublicUser{
-		UserId: targetUserId, PublicUser: publicUser}
+		UserIdWithEvent: ue, PublicUser: publicUser}
 }

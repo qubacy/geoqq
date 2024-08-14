@@ -208,6 +208,6 @@ func ChanToLeftDirected[T any](chs []chan T) []<-chan T {
 
 // -----------------------------------------------------------------------
 
-func TypeName(a any) string {
+func GetTypeName(a any) string {
 	return reflect.TypeOf(a).Name()
 }

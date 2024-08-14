@@ -105,7 +105,7 @@ func (w *WsEventHandler) initMateChatFb(ctx context.Context) {
 		func(ue input.UserIdWithMateChat) (*svrSide.Message, error) {
 			mateChat, err := payload.MateChatFromDomain(ue.MateChat)
 
-			eventName := ""
+			eventName := "" // !
 			switch ue.GetEvent() {
 			case input.EventAdded:
 				eventName = svrSide.EventAddedMateChat

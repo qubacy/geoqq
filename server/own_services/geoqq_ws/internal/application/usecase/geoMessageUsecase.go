@@ -80,7 +80,7 @@ func (g *GeoMessageUsecase) ForwardGeoMessage(ctx context.Context,
 			typeName.Name())
 	}
 
-	if err := g.sendGeoMessageToWhoeverNeeds(ctx, input.EventAdded, // !
+	if err := g.sendGeoMessageToWhoeverNeeds(ctx, input.EventAdded, // external.
 		gm, lon, lat); err != nil {
 		logger.Error("%v", utl.NewFuncError(g.ForwardGeoMessage, err))
 
@@ -182,15 +182,12 @@ func (g *GeoMessageUsecase) sendGeoMessageToWhoeverNeeds(ctx context.Context, ev
 func (g *GeoMessageUsecase) sendGeoMessageToFb(
 	ue input.UserIdWithEvent, geoMessage *domain.GeoMessage) {
 
-	targetUserId := ue.GetUserId()
-	if !g.onlineUsersUc.UserIsOnline(targetUserId) {
-		logger.Debug("user with id `%v` is offline", targetUserId)
-		return
-	}
-
-	count := len(g.feedbackChsForGeoMsgs)
-	index := rand.Intn(count)
-
-	g.feedbackChsForGeoMsgs[index] <- input.UserIdWithGeoMessage{
-		UserIdWithEvent: ue, GeoMessage: geoMessage}
+	index := rand.Intn(len(g.feedbackChsForGeoMsgs)) // [0, n)
+	checkOnlineUserAndDoAction(g.onlineUsersUc, ue.GetUserId(),
+		func() {
+			g.feedbackChsForGeoMsgs[index] <- input.UserIdWithGeoMessage{
+				UserIdWithEvent: ue,
+				GeoMessage:      geoMessage,
+			}
+		})
 }

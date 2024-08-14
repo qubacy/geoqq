@@ -34,7 +34,7 @@ type MateChat struct {
 func MateChatFromDomain(dm *domain.MateChat) (*MateChat, error) {
 	if dm == nil {
 		return nil, constErrors.ErrInputParamWithTypeNotSpecified(
-			utl.TypeName(dm))
+			utl.GetTypeName(dm))
 	}
 
 	return &MateChat{

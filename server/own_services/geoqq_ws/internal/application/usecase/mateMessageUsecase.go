@@ -10,7 +10,6 @@ import (
 	"geoqq_ws/internal/application/ports/output/database"
 	"geoqq_ws/internal/constErrors"
 	"math/rand"
-	"reflect"
 )
 
 type MateMessageUcParams struct {
@@ -62,9 +61,8 @@ func (m *MateMessageUsecase) ForwardMateMessage(ctx context.Context,
 	*/
 
 	if mm == nil {
-		typeName := reflect.TypeOf(mm)
 		return constErrors.ErrInputParamWithTypeNotSpecified(
-			typeName.Name())
+			utl.GetTypeName(mm))
 	}
 
 	ue := input.MakeUserIdWithEvent(targetUserId, input.EventAdded)
@@ -132,21 +130,15 @@ func (m *MateMessageUsecase) GetFbChansForMateMessages() []<-chan input.UserIdWi
 // private
 // -----------------------------------------------------------------------
 
-// TODO: repeating code?
-
 func (m *MateMessageUsecase) sendMateMessageToFb(
 	ue input.UserIdWithEvent, mateMessage *domain.MateMessageWithChat) {
 
-	targetUserId := ue.GetUserId()
-	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
-		return
-	}
-
-	count := len(m.feedbackChsForMateMsg)
-	index := rand.Intn(count)
-
-	m.feedbackChsForMateMsg[index] <- input.UserIdWithMateMessage{
-		UserIdWithEvent: ue, // forward message to...
-		MateMessage:     mateMessage,
-	}
+	index := rand.Intn(len(m.feedbackChsForMateMsg))
+	checkOnlineUserAndDoAction(m.onlineUsersUc, ue.GetUserId(),
+		func() {
+			m.feedbackChsForMateMsg[index] <- input.UserIdWithMateMessage{
+				UserIdWithEvent: ue, // forward message to...
+				MateMessage:     mateMessage,
+			}
+		})
 }

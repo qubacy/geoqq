@@ -41,22 +41,29 @@ func NewMateRequestUsecase(params *MateRequestUcParams) *MateRequestUsecase {
 func (m *MateRequestUsecase) ForwardMateRequest(ctx context.Context,
 	sourceUserId, targetUserId, requestId uint64) error {
 
-	if !m.onlineUsersUc.UserIsOnline(targetUserId) {
-		return nil // user is not in app!
-	}
-
-	index := rand.Intn(len(m.feedbackChsForMateReqs))
-	m.feedbackChsForMateReqs[index] <- input.UserIdWithMateRequest{
-		UserId:        targetUserId,
-		SourceUserId:  sourceUserId,
-		MateRequestId: requestId,
-	}
+	ue := input.MakeUserIdWithEvent(targetUserId, input.EventAdded)
+	m.sendMateRequestToFb(ue, sourceUserId, requestId) // from whom!
 
 	return nil
 }
 
-// -----------------------------------------------------------------------
-
 func (m *MateRequestUsecase) GetFbChansForMateRequest() []<-chan input.UserIdWithMateRequest {
 	return utl.ChanToLeftDirected(m.feedbackChsForMateReqs)
+}
+
+// private
+// -----------------------------------------------------------------------
+
+func (m *MateRequestUsecase) sendMateRequestToFb(
+	ue input.UserIdWithEvent, sourceUserId, requestId uint64) {
+
+	index := rand.Intn(len(m.feedbackChsForMateReqs))
+	checkOnlineUserAndDoAction(m.onlineUsersUc, ue.GetUserId(),
+		func() {
+			m.feedbackChsForMateReqs[index] <- input.UserIdWithMateRequest{
+				UserIdWithEvent: ue,
+				SourceUserId:    sourceUserId,
+				MateRequestId:   requestId,
+			}
+		})
 }

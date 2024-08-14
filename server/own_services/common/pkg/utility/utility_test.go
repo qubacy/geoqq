@@ -441,7 +441,7 @@ func Test_TypeName(t *testing.T) {
 
 	fmt.Println(reflect.TypeOf(b).Name())
 
-	fmt.Println(TypeName(int(0)))
-	fmt.Println(TypeName(b))
+	fmt.Println(GetTypeName(int(0)))
+	fmt.Println(GetTypeName(b))
 	//...
 }
