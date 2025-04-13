@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "GeoQQ"
 include(":app")
- 
+include(":core:ui")
